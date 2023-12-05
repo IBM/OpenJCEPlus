@@ -17,11 +17,15 @@ import java.security.KeyRep;
 import java.security.interfaces.XECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
+import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
+
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
+
+import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
 import com.ibm.crypto.plus.provider.ock.XECKey;
-import ibm.security.internal.spec.NamedParameterSpec;
+
 import sun.security.util.BitArray;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
@@ -36,6 +40,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
     private OpenJCEPlusProvider provider = null;
     private NamedParameterSpec params;
+    private CURVE curve;
     private BigInteger u;
     private BigInteger bi1; // parameter used in FFDHE
     private BigInteger bi2; // parameter used in FFDHE
@@ -45,10 +50,10 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
     private transient XECKey xecKey = null;
     private static final byte TAG_PARAMETERS_ATTRS = 0x00;
 
-    private void setFieldsFromXeckey(NamedParameterSpec.CURVE curve) throws Exception {
+    private void setFieldsFromXeckey() throws Exception {
         byte[] keyArray = xecKey.getPublicKeyBytes();
 
-        this.params = new NamedParameterSpec(curve);
+        this.params = new NamedParameterSpec(curve.name());
 
         setKey(new BitArray(keyArray.length * 8, keyArray));
 
@@ -74,7 +79,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
      * @throws InvalidParameterSpecException
      */
     public XDHPublicKeyImpl(OpenJCEPlusProvider provider, XECKey xecKey,
-            NamedParameterSpec.CURVE curve) throws InvalidKeyException {
+            CURVE curve) throws InvalidKeyException {
         if (provider == null)
             throw new InvalidKeyException("provider cannot be null");
         if (xecKey == null)
@@ -82,9 +87,10 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
         this.provider = provider;
         this.xecKey = xecKey;
+        this.curve = curve;
         try {
-            this.algid = XECKey.getAlgId(curve);
-            setFieldsFromXeckey(curve);
+            this.algid = CurveUtil.getAlgId(curve);
+            setFieldsFromXeckey();
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC public key");
             provider.setOCKExceptionCause(ike, exception);
@@ -112,7 +118,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
         try {
             byte[] reverseKey = this.key.clone();
-            if (!(XECKey.isEd(this.params.getCurve())))
+            if (!(CurveUtil.isEd(this.curve)))
                 reverseByteArray(reverseKey);
 
 
@@ -148,11 +154,17 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
         if (provider == null) {
             throw new InvalidParameterException("provider must not be null");
         }
-        // get the internal wrapper instance from input params
-        this.params = NamedParameterSpec.getInternalNamedParameterSpec(params);
+        
+        if (params instanceof NamedParameterSpec) {
+            this.params = (NamedParameterSpec) params;
+        } else {
+            throw new InvalidParameterException("Invalid Parameters: " + params);
+        }
+
+        this.curve = CurveUtil.getCurve(this.params.getName());
 
         try {
-            if (XECKey.isFFDHE(this.params.getCurve()))
+            if (CurveUtil.isFFDHE(this.curve))
                 throw new InvalidParameterException("FFDHE algorithms are not suppoerted");
         } catch (Exception e) {
             throw new InvalidParameterException(e.getMessage());
@@ -163,14 +175,14 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
         try {
             if (u == null) {
-                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(),
-                        this.params.getCurve());
-                setFieldsFromXeckey(this.params.getCurve());
+                int pub_size = CurveUtil.getPublicCurveSize(curve);
+                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), curve.ordinal(), pub_size);
+                setFieldsFromXeckey();
             } else {
 
                 byte[] uByteA = null;
 
-                if (!(XECKey.isEd(this.params.getCurve()))) {
+                if (!(CurveUtil.isEd(this.curve))) {
                     BigInteger p;
                     BigInteger TWO = BigInteger.valueOf(2);
 
@@ -190,11 +202,11 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
                 //Array might be to big our too small
                 uByteA = Arrays.copyOf(uByteA,
-                        this.params.getPublicCurveSize(this.params.getCurve()));
+                        CurveUtil.getPublicCurveSize(this.curve));
 
                 setKey(new BitArray(uByteA.length * 8, uByteA));
 
-                this.algid = XECKey.getAlgId(this.params.getCurve());
+                this.algid = CurveUtil.getAlgId(this.curve);
                 byte[] der = buildICCPublicKeyBytes();
                 checkKeySize();
 
@@ -214,9 +226,9 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
      * Validate that the key is of the correct size
      */
     private void checkKeySize() throws InvalidKeyException {
-        if ((this.params.getPublicCurveSize(this.params.getCurve()) * 8) != getKey().length()) {
+        if ((CurveUtil.getPublicCurveSize(this.curve) * 8) != getKey().length()) {
             throw new InvalidKeyException(
-                    "key length must be " + this.params.getPublicCurveSize(this.params.getCurve()));
+                    "key length must be " + CurveUtil.getPublicCurveSize(this.curve));
         }
     }
 
@@ -235,7 +247,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
         // Sequence containing only one element: the OID
         subSeq.putOID(this.algid.getOID());
-        if (XECKey.isFFDHE(this.params.getCurve()))
+        if (CurveUtil.isFFDHE(this.curve))
             XDHPrivateKeyImpl.putFFDHEIntegers(outStream, bi1, bi2, bi3);
 
         // Forming main sequence
@@ -251,7 +263,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
      * Retrieves the curve type from that DER and sets the parameter
      * Retrieves and returns the OID
      * If output stream is present, copy all the retrieved data into it
-     * 
+     *
      * @param oidInputStream
      * @return objectIdentifer
      * @throws IOException
@@ -259,8 +271,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
     private ObjectIdentifier processOIDSequence(DerInputStream oidInputStream,
             DerOutputStream outStream) throws IOException {
         ObjectIdentifier oid = oidInputStream.getOID();
-        XECKey.checkOid(oid);
-        NamedParameterSpec.CURVE curve;
+        CurveUtil.checkOid(oid);
         try { // FFDH curve
             DerValue[] params = oidInputStream.getSequence(3);
             if (params.length >= 3) {
@@ -268,16 +279,16 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
                 bi2 = params[1].getBigInteger();
                 bi3 = params[2].getBigInteger();
                 int size = bi1.bitLength();
-                curve = XECKey.getCurve(oid, size);
+                this.curve = CurveUtil.getCurve(oid, size);
             } else
                 throw new IOException("This curve does not seem to be a valid XEC/FFDHE curve");
         } catch (IOException e) { // XEC curve
-            curve = XECKey.getCurve(oid, null);
+            this.curve = CurveUtil.getCurve(oid, null);
         }
 
         if (outStream != null) {
             outStream.putOID(oid);
-            if (XECKey.isFFDHE(curve)) {
+            if (CurveUtil.isFFDHE(this.curve)) {
                 DerOutputStream seq = new DerOutputStream();
                 seq.putInteger(bi1);
                 seq.putInteger(bi2);
@@ -286,7 +297,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
             }
         }
 
-        this.params = new NamedParameterSpec(curve);
+        this.params = new NamedParameterSpec(this.curve.name());
         return oid;
     }
 
@@ -370,7 +381,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
      * @return external wrapped java documented instance of NamedParameterSpec
      */
     public AlgorithmParameterSpec getParams() {
-        return params.getExternalParameter();
+        return params;
     }
 
     @Override
@@ -383,14 +394,13 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
      */
     public byte[] getEncoded() {
         try {
-            NamedParameterSpec.CURVE curve = this.params.getCurve();
-            if (XECKey.isXEC(curve))
+            if (CurveUtil.isXEC(this.curve))
                 return this.key;
             if (encodedKey == null) {
                 DerOutputStream asn1 = new DerOutputStream();
 
                 DerOutputStream oidSubSeq = null;
-                if (XECKey.isFFDHE(curve)) {
+                if (CurveUtil.isFFDHE(this.curve)) {
                     oidSubSeq = new DerOutputStream();
                     oidSubSeq.putInteger(bi1);
                     oidSubSeq.putInteger(bi2);
@@ -409,7 +419,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
                 }
 
                 DerOutputStream bitString = null;
-                if (XECKey.isFFDHE(curve)) {
+                if (CurveUtil.isFFDHE(this.curve)) {
                     bitString = new DerOutputStream();
                     bitString.putInteger(new BigInteger(key));
                 }
@@ -443,9 +453,9 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
             DerInputStream seq = values[0].toDerInputStream();
             processOIDSequence(seq, null);
-            this.algid = XECKey.getAlgId(this.params.getCurve());
+            this.algid = CurveUtil.getAlgId(this.params.getName());
 
-            if (XECKey.isFFDHE(this.params.getCurve())) {
+            if (CurveUtil.isFFDHE(this.curve)) {
                 DerInputStream bitString = new DerInputStream(values[1].getBitString());
                 this.key = bitString.getBigInteger().toByteArray();
             } else

@@ -12,8 +12,8 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.XECPrivateKey;
 import java.security.interfaces.XECPublicKey;
+import java.security.spec.NamedParameterSpec;
 import org.junit.Before;
-import ibm.security.internal.spec.NamedParameterSpec;
 
 public class BaseTestXDHKeyPairGenerator extends ibm.jceplus.junit.base.BaseTest {
 

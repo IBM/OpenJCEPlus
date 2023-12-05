@@ -21,6 +21,7 @@ import java.security.interfaces.XECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.security.spec.XECPrivateKeySpec;
@@ -37,13 +38,13 @@ public class XDHKeyFactory extends KeyFactorySpi {
         return (XECKey) new XDHKeyFactory(provider, Alg).engineTranslateKey(key);
     }
 
-    public XDHKeyFactory(OpenJCEPlusProvider provider, String Alg) {
+    private XDHKeyFactory(OpenJCEPlusProvider provider, String Alg) {
         super();
         this.provider = provider;
         this.alg = Alg;
     }
 
-    public XDHKeyFactory(OpenJCEPlusProvider provider) {
+    private XDHKeyFactory(OpenJCEPlusProvider provider) {
         super();
         this.provider = provider;
     }
@@ -53,9 +54,13 @@ public class XDHKeyFactory extends KeyFactorySpi {
         try {
             if (keySpec instanceof XECPublicKeySpec) {
                 XECPublicKeySpec publicKeySpec = (XECPublicKeySpec) keySpec;
-                // get the internal wrapper instance from input params
-                ibm.security.internal.spec.NamedParameterSpec params = ibm.security.internal.spec.NamedParameterSpec
-                        .getInternalNamedParameterSpec(publicKeySpec.getParams());
+                AlgorithmParameterSpec publicKeyParams = publicKeySpec.getParams();
+                NamedParameterSpec params = null;
+                if (publicKeyParams instanceof NamedParameterSpec) {
+                    params = (NamedParameterSpec) publicKeyParams;
+                } else {
+                    throw new InvalidParameterException("Invalid Parameters: " + publicKeyParams);
+                }
 
                 //Validate algs match for key and keyfactory
                 if (this.alg != null && !(params.getName().equals(this.alg))) {
@@ -81,9 +86,13 @@ public class XDHKeyFactory extends KeyFactorySpi {
         try {
             if (keySpec instanceof XECPrivateKeySpec) {
                 XECPrivateKeySpec privateKeySpec = (XECPrivateKeySpec) keySpec;
-                // get the internal wrapper instance from input params
-                ibm.security.internal.spec.NamedParameterSpec params = ibm.security.internal.spec.NamedParameterSpec
-                        .getInternalNamedParameterSpec(privateKeySpec.getParams());
+                AlgorithmParameterSpec privateKeyParams = privateKeySpec.getParams();
+                NamedParameterSpec params = null;
+                if (privateKeyParams instanceof NamedParameterSpec) {
+                    params = (NamedParameterSpec) privateKeyParams;
+                } else {
+                    throw new InvalidParameterException("Invalid Parameters: " + privateKeyParams);
+                }
 
                 //Validate algs match for key and keyfactory
                 if (this.alg != null && !(params.getName().equals(this.alg))) {
@@ -122,7 +131,7 @@ public class XDHKeyFactory extends KeyFactorySpi {
                     params = xecPubKey.getParams();
 
                     //Validate algs match for key and keyfactory
-                    if (this.alg != null && !(((java.security.spec.NamedParameterSpec) params)
+                    if (this.alg != null && !(((NamedParameterSpec) params)
                             .getName().equals(this.alg))) {
                         throw new InvalidKeySpecException("Parameters must be " + this.alg);
                     }
@@ -145,7 +154,7 @@ public class XDHKeyFactory extends KeyFactorySpi {
                     params = xecPrivKey.getParams();
 
                     //Validate algs match for key and keyfactory
-                    if (this.alg != null && !(((java.security.spec.NamedParameterSpec) params)
+                    if (this.alg != null && !(((NamedParameterSpec) params)
                             .getName().equals(this.alg))) {
                         throw new InvalidKeySpecException("Parameters must be " + this.alg);
                     }
@@ -170,7 +179,7 @@ public class XDHKeyFactory extends KeyFactorySpi {
             if (key instanceof XECPublicKey) {
                 //Validate algs match for key and keyfactory
                 if (this.alg != null
-                        && !(((java.security.spec.NamedParameterSpec) ((XECPublicKey) key)
+                        && !(((NamedParameterSpec) ((XECPublicKey) key)
                                 .getParams()).getName().equals(this.alg))) {
                     throw new InvalidKeyException("Parameters must be " + this.alg);
                 }
@@ -189,7 +198,7 @@ public class XDHKeyFactory extends KeyFactorySpi {
             } else if (key instanceof XECPrivateKey) {
                 //Validate algs match for key and keyfactory
                 if (this.alg != null
-                        && !(((java.security.spec.NamedParameterSpec) ((XECPrivateKey) key)
+                        && !(((NamedParameterSpec) ((XECPrivateKey) key)
                                 .getParams()).getName().equals(this.alg))) {
                     throw new InvalidKeyException("Parameters must be " + this.alg);
                 }

@@ -11,12 +11,16 @@ package com.ibm.crypto.plus.provider;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
 import java.security.KeyRep;
 import java.security.interfaces.EdECPublicKey;
 import java.security.spec.EdECPoint;
+import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
+
+import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
 import com.ibm.crypto.plus.provider.ock.XECKey;
-import ibm.security.internal.spec.NamedParameterSpec;
+
 import sun.security.util.BitArray;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
@@ -31,14 +35,15 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
     private EdECPoint point;
     private OpenJCEPlusProvider provider = null;
     private NamedParameterSpec paramSpec;
+    private CURVE curve;
 
     private transient XECKey xecKey = null;
 
-    private void setFieldsFromXeckey(NamedParameterSpec.CURVE curve) throws Exception {
+    private void setFieldsFromXeckey() throws Exception {
         byte[] keyArray = xecKey.getPublicKeyBytes();
         setKey(new BitArray(keyArray.length * 8, keyArray));
 
-        this.paramSpec = new NamedParameterSpec(curve);
+        this.paramSpec = new NamedParameterSpec(curve.name());
 
         byte msb = keyArray[keyArray.length - 1];
         keyArray[keyArray.length - 1] &= (byte) 0x7F;
@@ -58,7 +63,7 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
      * @throws InvalidKeyException
      */
     public EdDSAPublicKeyImpl(OpenJCEPlusProvider provider, XECKey xecKey,
-            NamedParameterSpec.CURVE curve) throws InvalidKeyException {
+            CURVE curve) throws InvalidKeyException {
         if (provider == null)
             throw new InvalidKeyException("provider cannot be null");
         if (xecKey == null)
@@ -66,9 +71,10 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
 
         this.provider = provider;
         this.xecKey = xecKey;
+        this.curve = curve;
         try {
-            this.algid = XECKey.getAlgId(curve);
-            setFieldsFromXeckey(curve);
+            this.algid = CurveUtil.getAlgId(curve);
+            setFieldsFromXeckey();
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC public key");
             provider.setOCKExceptionCause(ike, exception);
@@ -80,16 +86,18 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
 
 
     public EdDSAPublicKeyImpl(OpenJCEPlusProvider provider,
-            java.security.spec.NamedParameterSpec params, EdECPoint point)
-            throws InvalidKeyException {
+            NamedParameterSpec params, EdECPoint point)
+            throws InvalidParameterException, InvalidKeyException {
 
         if (provider == null)
             throw new InvalidKeyException("provider cannot be null");
-        this.paramSpec = NamedParameterSpec.getInternalNamedParameterSpec(params);
+        this.paramSpec = params;
         this.point = point;
 
+        this.curve = CurveUtil.getCurve(params.getName());
+
         try {
-            this.algid = XECKey.getAlgId(this.paramSpec.getCurve());
+            this.algid = CurveUtil.getAlgId(this.curve);
 
             byte[] encodedPoint = point.getY().toByteArray();
 
@@ -97,7 +105,7 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
 
             // array may be too large or too small, depending on the value
             encodedPoint = Arrays.copyOf(encodedPoint,
-                    NamedParameterSpec.getPublicCurveSize(this.paramSpec.getCurve()));
+                    CurveUtil.getPublicCurveSize(this.curve));
             // set the high-order bit of the encoded point
             byte msb = (byte) (point.isXOdd() ? 0x80 : 0);
 
@@ -116,7 +124,7 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             throw ike;
         }
 
-        checkLength(this.paramSpec);
+        checkLength(this.curve);
     }
 
     public EdDSAPublicKeyImpl(OpenJCEPlusProvider provider, byte[] encoded)
@@ -148,7 +156,7 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             provider.setOCKExceptionCause(ike, exception);
             throw ike;
         }
-        checkLength(this.paramSpec);
+        checkLength(this.curve);
     }
 
 
@@ -191,10 +199,10 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
         return asn1Key.toByteArray();
     }
 
-    void checkLength(NamedParameterSpec params) throws InvalidKeyException {
-        if (NamedParameterSpec.getPublicCurveSize(params.getCurve()) * 8 != getKey().length()) {
+    void checkLength(CURVE curve) throws InvalidKeyException {
+        if (CurveUtil.getPublicCurveSize(curve) * 8 != getKey().length()) {
             throw new InvalidKeyException("key length must be "
-                    + NamedParameterSpec.getPublicCurveSize(params.getCurve()));
+                    + CurveUtil.getPublicCurveSize(curve));
         }
     }
 
@@ -208,8 +216,8 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
     }
 
     @Override
-    public java.security.spec.NamedParameterSpec getParams() {
-        return paramSpec.getExternalParameter();
+    public NamedParameterSpec getParams() {
+        return paramSpec;
     }
 
     @Override
@@ -234,15 +242,14 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
     private ObjectIdentifier processOIDSequence(DerInputStream oidInputStream,
             DerOutputStream outStream) throws IOException {
         ObjectIdentifier oid = oidInputStream.getOID();
-        XECKey.checkOid(oid);
-        NamedParameterSpec.CURVE curve;
-        curve = XECKey.getCurve(oid, null);
+        CurveUtil.checkOid(oid);
+        this.curve = CurveUtil.getCurve(oid, null);
 
         if (outStream != null) {
             outStream.putOID(oid);
         }
 
-        this.paramSpec = new NamedParameterSpec(curve);
+        this.paramSpec = new NamedParameterSpec(this.curve.name());
         return oid;
     }
 
@@ -295,7 +302,7 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
 
             DerInputStream seq = values[0].toDerInputStream();
             processOIDSequence(seq, null);
-            this.algid = XECKey.getAlgId(this.paramSpec.getCurve());
+            this.algid = CurveUtil.getAlgId(this.curve);
 
             this.key = values[1].getBitString();
         } catch (Exception e) {

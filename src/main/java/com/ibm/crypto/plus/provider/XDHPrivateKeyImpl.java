@@ -17,12 +17,16 @@ import java.security.InvalidParameterException;
 import java.security.KeyRep;
 import java.security.interfaces.XECPrivateKey;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
 import java.util.Optional;
+
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
+
+import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
 import com.ibm.crypto.plus.provider.ock.XECKey;
-import ibm.security.internal.spec.NamedParameterSpec;
+
 import sun.security.pkcs.PKCS8Key;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
@@ -38,6 +42,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
     private OpenJCEPlusProvider provider = null;
     private Optional<byte[]> scalar;
     private NamedParameterSpec params;
+    private CURVE curve;
     BigInteger bi1; // parameter used in FFDHE
     BigInteger bi2; // parameter used in FFDHE
     BigInteger bi3; // parameter used in FFDHE
@@ -53,7 +58,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         if (this.key == null) {
             this.key = extractPrivateKeyFromOCK(xecKey.getPrivateKeyBytes()); // Extract key from GSKit and sets params
             this.scalar = Optional.of(key);
-            this.algid = XECKey.getAlgId(this.params.getCurve());
+            this.algid = CurveUtil.getAlgId(this.params.getName());
         }
     }
 
@@ -90,8 +95,8 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         try {
             byte[] alteredEncoded = processEncodedPrivateKey(encoded); // Sets params, key, and algid, and alters encoded
             // to fit with GSKit and sets params
-            this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded,
-                    this.params.getCurve());
+            int priv_size = CurveUtil.getPrivateCurveSize(curve);
+            this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded, priv_size);
             this.scalar = Optional.of(this.key);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");
@@ -113,11 +118,17 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         if (provider == null) {
             throw new InvalidParameterException("provider must not be null");
         }
-        // get the internal wrapper instance from input params
-        this.params = NamedParameterSpec.getInternalNamedParameterSpec(params);
+
+        if (params instanceof NamedParameterSpec) {
+            this.params = (NamedParameterSpec) params;
+        } else {
+            throw new InvalidParameterException("Invalid Parameters: " + params);
+        }
+
+        this.curve = CurveUtil.getCurve(this.params.getName());
 
         try {
-            if (XECKey.isFFDHE(this.params.getCurve()))
+            if (CurveUtil.isFFDHE(this.curve))
                 throw new InvalidParameterException("FFDHE algorithms are not suppoerted");
         } catch (Exception e) {
             throw new InvalidParameterException(e.getMessage());
@@ -129,14 +140,14 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         if (scalar != null)
             this.key = scalar.get();
         try {
-            if (this.key == null)
-                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(),
-                        this.params.getCurve());
-            else {
-                this.algid = XECKey.getAlgId(this.params.getCurve());
+            if (this.key == null) {
+                int pub_size = CurveUtil.getPublicCurveSize(curve);
+                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.curve.ordinal(), pub_size);
+            } else {
+                this.algid = CurveUtil.getAlgId(this.params.getName());
                 byte[] der = buildOCKPrivateKeyBytes();
-                this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der,
-                        this.params.getCurve());
+                int priv_size = CurveUtil.getPrivateCurveSize(curve);
+                this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der, priv_size);
             }
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
@@ -209,7 +220,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         byte[] privData = null;
         if (inputValue.length > 2) {
             privData = inputValue[2].getOctetString();
-            if (this.params.getName().contains("FFDH"))
+            if (this.curve.name().contains("FFDH"))
                 privData = new DerInputStream(privData).getBigInteger().toByteArray();
             else
                 privData = new DerInputStream(privData).getOctetString();
@@ -232,8 +243,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             DerOutputStream outStream) throws IOException {
 
         ObjectIdentifier oid = oidInputStream.getOID();
-        XECKey.checkOid(oid);
-        NamedParameterSpec.CURVE curve;
+        CurveUtil.checkOid(oid);
         try { // FFDH curve
             DerValue[] params = oidInputStream.getSequence(3);
             if (params.length >= 3) {
@@ -241,16 +251,16 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
                 bi2 = params[1].getBigInteger();
                 bi3 = params[2].getBigInteger();
                 int size = bi1.bitLength();
-                curve = XECKey.getCurve(oid, size);
+                this.curve = CurveUtil.getCurve(oid, size);
             } else
                 throw new IOException("This curve does not seem to be a valid XEC/FFDHE curve");
         } catch (IOException e) { // XEC curve
-            curve = XECKey.getCurve(oid, null);
+            this.curve = CurveUtil.getCurve(oid, null);
         }
 
         if (outStream != null) {
             outStream.putOID(oid);
-            if (XECKey.isFFDHE(curve)) {
+            if (CurveUtil.isFFDHE(this.curve)) {
                 DerOutputStream seq = new DerOutputStream();
                 seq.putInteger(bi1);
                 seq.putInteger(bi2);
@@ -259,7 +269,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             }
         }
 
-        this.params = new NamedParameterSpec(curve);
+        this.params = new NamedParameterSpec(this.curve.name());
         return oid;
     }
 
@@ -310,7 +320,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             this.key = keyBytes; // Try J11 format [octer-string[key-bytes]]
         }
         DerOutputStream encodedKey = new DerOutputStream();
-        if (XECKey.isFFDHE(this.params.getCurve())) {
+        if (CurveUtil.isFFDHE(this.curve)) {
             BigInteger octetStringAsBigInt = new BigInteger(this.key);
             encodedKey.putInteger(octetStringAsBigInt); // Put in another octet string
         } else {
@@ -332,7 +342,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
      * @return external wrapped java documented instance of NamedParameterSpec
      */
     public AlgorithmParameterSpec getParams() {
-        return params.getExternalParameter();
+        return params;
     }
 
     public Optional<byte[]> getScalar() {
@@ -415,7 +425,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         DerOutputStream oidBytes = new DerOutputStream();
         DerOutputStream oidTmp = new DerOutputStream();
         oidBytes.putOID(algid.getOID());
-        switch (this.params.getCurve()) {
+        switch (this.curve) {
             case X25519:
             case X448:
             case Ed25519:

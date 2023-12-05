@@ -10,7 +10,6 @@ package com.ibm.crypto.plus.provider;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -18,10 +17,12 @@ import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.NamedParameterSpec;
 import java.security.spec.XECPrivateKeySpec;
+
 import javax.crypto.KeyAgreementSpi;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
+
 import com.ibm.crypto.plus.provider.ock.OCKException;
 import com.ibm.crypto.plus.provider.ock.XECKey;
 
@@ -80,9 +81,9 @@ public class XDHKeyAgreement extends KeyAgreementSpi {
 
         XDHPublicKeyImpl xdhPublicKeyImpl = (XDHPublicKeyImpl) key;
 
-        //Validate algs match for key and keyfactory
+        //Validate algs match for key and keyagreement
         if (this.alg != null
-                && !(((java.security.spec.NamedParameterSpec) ((XDHPublicKeyImpl) key).getParams())
+                && !(((NamedParameterSpec) ((XDHPublicKeyImpl) key).getParams())
                         .getName().equals(this.alg))) {
             throw new InvalidKeyException("Parameters must be " + this.alg);
         }
@@ -222,12 +223,8 @@ public class XDHKeyAgreement extends KeyAgreementSpi {
             throws InvalidKeyException, InvalidAlgorithmParameterException {
 
         // Check if parameter is a valid NamedParameterSpec instance
-        if (params != null) {
-            try {
-                ibm.security.internal.spec.NamedParameterSpec.getInternalNamedParameterSpec(params);
-            } catch (InvalidParameterException e) {
-                throw new InvalidAlgorithmParameterException(e.getMessage());
-            }
+        if ((params != null) && !(params instanceof NamedParameterSpec)) {
+            throw new InvalidAlgorithmParameterException("Invalid Parameters: " + params);
         }
 
         if (!(key instanceof XDHPrivateKeyImpl)) {
@@ -245,7 +242,7 @@ public class XDHKeyAgreement extends KeyAgreementSpi {
 
         //Validate algs match for key and keyfactory
         if (this.alg != null
-                && !(((java.security.spec.NamedParameterSpec) ((XDHPrivateKeyImpl) key).getParams())
+                && !(((NamedParameterSpec) ((XDHPrivateKeyImpl) key).getParams())
                         .getName().equals(this.alg))) {
             throw new InvalidKeyException("Parameters must be " + this.alg);
         }
