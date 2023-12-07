@@ -1,0 +1,106 @@
+###############################################################################
+#
+# Copyright IBM Corp. 2023
+#
+# Licensed under the Apache License 2.0 (the "License").  You may not use
+# this file except in compliance with the License.  You can obtain a copy
+# in the file LICENSE in the source distribution.
+#
+###############################################################################
+
+name: GitHub Actions OpenJCEPlus
+run-name: ${{ github.actor }} is building and testing OpenJCEPlus 🚀
+on: [pull_request]
+jobs:
+  Build-Test-OpenJCEPlus:
+    name: Build and Test ${{ matrix.os }}.
+    runs-on: ${{ matrix.os }}
+    permissions:
+      checks: write # Needed to publish a check from the Publish Test Report step below.
+      contents: read # Needed to read the contents of the github repo and clone.
+    strategy:
+        matrix:
+          # "windows-2022" os builds have been disabled since Open Crypto Kit does not have builds available for windows.
+          os: [ubuntu-22.04]
+          include:
+            - os: ubuntu-22.04
+              gskit_dir: amd64
+              gskit_lib_name: libjgsk8iccs_64.so
+              target_lib_bin_dir: jgskit-xa-64
+              github_actions_runner_root: /
+            #- os: windows-2022
+            #  gskit_dir: windows_x86_64
+            #  gskit_lib_name: jgsk8iccs_64.dll
+            #  github_actions_runner_root: \
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server."
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: |
+          tree ${{ github.workspace }}
+      - name: Set up Visual Studio shell
+        uses: egor-tensin/vs-shell@v2
+        with:
+          arch: x64         
+      - name: Extract OCK SDK and Binary Tar File
+        run: |
+          mkdir ${{ github.workspace }}/OCK
+          cd ${{ github.workspace }}/OCK
+          curl -H "Authorization: Bearer ${{ secrets.OCKTARTOKEN }}" -H "Accept: application/octet-stream" -L https://api.github.com/repos/jasonkatonica/OpenICCBinaries/releases/assets/132177365 --output jgsk_crypto.tar
+          curl -H "Authorization: Bearer ${{ secrets.OCKTARTOKEN }}" -H "Accept: application/octet-stream" -L https://api.github.com/repos/jasonkatonica/OpenICCBinaries/releases/assets/132177348 --output jgsk_crypto_sdk.tar
+          ls -al
+          tree
+          tar -xvf jgsk_crypto.tar
+          tar -xvf jgsk_crypto_sdk.tar
+          mkdir jgsk_sdk/lib64
+          cp ${{ matrix.gskit_lib_name }} jgsk_sdk/lib64
+      - name: Setup Semeru JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17.0.9+9'
+          distribution: 'semeru'
+          architecture: 'x64'
+      # Uncomment to capture all files in the runner for debugging purposes.          
+      # - name: List Files In Entire Runner
+      #   run: |
+      #     tree ${{ matrix.github_actions_runner_root }}
+      - name: Execute Maven Install Target
+        run: mvn --batch-mode '-Dock.library.path=${{ github.workspace }}/OCK/' install
+        env:
+          GSKIT_HOME: ${{ github.workspace }}/OCK/jgsk_sdk
+          #GSKIT_64_HOME: ${{ github.workspace }}\OCK\jgsk_sdk # Used by windows build.
+      - name: List Files In The Entire Workspace
+        run: |
+          tree ${{ github.workspace }}
+      - name: Archive openjceplus.jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: openjceplus.jar
+          path: target/openjceplus.jar
+      - name: Archive openjceplus-tests.jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: openjceplus-tests.jar
+          path: target/openjceplus-tests.jar
+      - name: Archive libjgskit.so
+        uses: actions/upload-artifact@v3
+        with:
+          name: libjgskit.so
+          path: target/${{ matrix.target_lib_bin_dir }}/libjgskit.so 
+      - name: Test Report ${{ matrix.os }}.
+        with:
+          check_name: Test Report ${{ matrix.os }}
+          fail_on_test_failures: false
+        if: success() || failure()
+        uses: scacap/action-surefire-report@v1
+      - name: Archive Assembly
+        uses: actions/upload-artifact@v3
+        with:
+          name: openjceplus-jacoco.zip
+          path: target/openjceplus-jacoco.zip
+      - run: echo "🍏 This job's status is ${{ job.status }}."

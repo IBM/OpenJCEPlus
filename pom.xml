@@ -1,0 +1,443 @@
+<!--
+###############################################################################
+#
+# Copyright IBM Corp. 2023
+#
+# Licensed under the Apache License 2.0 (the "License").  You may not use
+# this file except in compliance with the License.  You can obtain a copy
+# in the file LICENSE in the source distribution.
+#
+###############################################################################
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>OpenJCEPlus</artifactId>
+    <version>17</version>
+    <packaging>jar</packaging>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+    </properties>
+        <profiles>
+          <profile>
+            <id>Profile for linux amd64</id>
+            <activation>
+              <os>
+                <name>linux</name>
+                <arch>amd64</arch>
+              </os>
+            </activation>
+            <properties>
+                <build.native.file>${basedir}/buildNative.sh</build.native.file>
+                <build.platform.value>x86-linux64</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-xa-64/</build.target.jgskitlib.dir>
+            </properties>
+          </profile>
+          <profile>
+            <id>Profile for linux s390x</id>
+            <activation>
+              <os>
+                <name>linux</name>
+                <arch>s390x</arch>
+              </os>
+            </activation>
+            <properties>
+                <build.native.file>${basedir}/buildNative.sh</build.native.file>
+                <build.platform.value>s390-linux64</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-xz-64/</build.target.jgskitlib.dir>
+            </properties>
+          </profile>
+          <profile>
+            <id>Profile for linux ppcle</id>
+            <activation>
+              <os>
+                <name>linux</name>
+                <arch>ppc64le</arch>
+              </os>
+            </activation>
+            <properties>
+                <build.native.file>${basedir}/buildNative.sh</build.native.file>
+                <build.platform.value>ppcle-linux64</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-xl-64/</build.target.jgskitlib.dir>
+            </properties>
+          </profile>
+          <profile>
+            <id>Profile for Windows Server 2022 amd64</id>
+            <activation>
+              <os>
+                <name>Windows Server 2022</name>
+                <arch>amd64</arch>
+              </os>
+            </activation>
+            <properties>
+                <build.native.file>${basedir}/buildNativeWin64.bat</build.native.file>
+                <build.platform.value>win</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}\target\buildwin\host64\</build.target.jgskitlib.dir>
+            </properties>
+          </profile>       
+          <profile>
+            <id>Profile for AIX ppc64</id>
+            <activation>
+              <os>
+                <name>AIX</name>
+                <arch>ppc64</arch>
+              </os>
+            </activation>
+            <properties>
+                <build.native.file>${basedir}/buildNative.sh</build.native.file>
+                <build.platform.value>ppc-aix64</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-ap-64/</build.target.jgskitlib.dir>
+            </properties>
+          </profile>
+          <profile>
+            <id>Profile for Mac OS X aarch64</id>
+            <activation>
+              <os>
+                <name>Mac OS X</name>
+                <arch>aarch64</arch>
+              </os>
+            </activation>
+            <properties>
+                <build.native.file>${basedir}/buildNativeMac.sh</build.native.file>
+                <build.platform.value>Mac</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}/target/buildmac/aarch64/</build.target.jgskitlib.dir>
+            </properties>
+          </profile>
+          <profile>
+            <id>Profile for JDK 17 Build</id>
+            <activation>
+              <jdk>17</jdk>
+            </activation>
+            <properties>
+                <jdk.build.target>17</jdk.build.target>
+            </properties>
+          </profile>
+        </profiles>
+    <build>
+        <finalName>openjceplus</finalName> <!-- This is the name we want the JAR to have. -->
+        <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-enforcer-plugin</artifactId>
+              <version>3.3.0</version>
+              <executions>
+                <execution>
+                  <id>enforce-versions</id>
+                  <goals>
+                    <goal>enforce</goal>
+                  </goals>
+                  <configuration>
+                    <rules>
+                      <requireProperty>
+                        <property>build.platform.value</property>
+                        <message>"Property build.platform.value is not set, perhaps you are building on an unsupported operating system? Operating system detected is ${os.name}"</message>
+                      </requireProperty>
+                      <requireProperty>
+                        <property>jdk.build.target</property>
+                        <message>"Property jdk.build.target is not set, perhaps you are building on an unsupported version of Java?"</message>
+                      </requireProperty>
+                      <requireProperty>
+                        <property>build.target.jgskitlib.dir</property>
+                        <message>"Property build.target.jgskitlib.dir is not set, perhaps you are building on an unsupported arch? Architecture detected is ${os.arch}?"</message>
+                      </requireProperty>
+                      <requireProperty>
+                        <property>ock.library.path</property>
+                        <message>"Property ock.library.path is not set, perhaps this required property is missing from the command line?"</message>
+                      </requireProperty>
+                      <requireJavaVersion>
+                        <version>x >= 17</version>
+                        <message>"Java 17 or higher required to build OpenJCEPlus."</message>
+                      </requireJavaVersion>
+                      <requireEnvironmentVariable>
+                        <variableName>JAVA_HOME</variableName>
+                        <message>"Environment variable JAVA_HOME required to be set to build OpenJCEPlus."</message>
+                      </requireEnvironmentVariable>
+                      <requireEnvironmentVariable>
+                        <variableName>GSKIT_HOME</variableName>
+                        <message>"Environment variable GSKIT_HOME required to be set to build OpenJCEPlus."</message>
+                      </requireEnvironmentVariable>
+                    </rules>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.3.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <version>3.3.1</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <excludes>**/module-info.java</excludes>
+                    <sourceDirectories>
+                        <sourceDirectory>src</sourceDirectory>
+                        <sourceDirectory>src/native</sourceDirectory> 
+                    </sourceDirectories>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>checkstyle</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>                
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>exec-maven-plugin</artifactId>
+              <version>3.1.1</version>
+              <executions>
+                <execution>
+                  <id>Execute Native Library Build Script</id>
+                  <phase>compile</phase>
+                  <goals>
+                    <goal>exec</goal>
+                  </goals>
+                  <configuration>
+                    <environmentVariables>
+                      <PLATFORM>${build.platform.value}</PLATFORM>
+                    </environmentVariables>
+                    <executable>${build.native.file}</executable>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${jdk.build.target}</source>   
+                    <target>${jdk.build.target}</target>
+                    <compilerArgs>
+                        <arg>-Xlint:all</arg> 
+                        <arg>--add-exports </arg> 
+                        <arg>java.base/sun.security.internal.spec=openjceplus</arg>
+                        <arg>--add-exports </arg> 
+                        <arg>java.base/sun.security.util=openjceplus</arg>
+                        <arg>--add-exports </arg> 
+                        <arg>java.base/sun.security.x509=openjceplus</arg>
+                        <arg>--add-exports </arg> 
+                        <arg>java.base/sun.security.pkcs=openjceplus</arg>
+                        <arg>--add-exports </arg> 
+                        <arg>java.base/sun.security.internal.interfaces=openjceplus</arg>
+                        <arg>--add-exports </arg>
+                        <arg>java.base/sun.util.logging=openjceplus</arg>
+                        <arg>--add-exports </arg>
+                        <arg>java.base/jdk.internal.logger=openjceplus</arg>
+                    </compilerArgs>
+                    <debug>true</debug>  
+                </configuration>
+            </plugin>
+            <plugin> <!-- Make sure we have the correct entries in the manifest file. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                        <manifestEntries>
+                            <Built-By>OpenJCEPlus</Built-By>
+                            <Build-Date>${maven.build.timestamp}</Build-Date>
+                            <Implementaion-Title>OpenJCEPlus Cryptography Extension Package</Implementaion-Title>
+                            <Implementation-Version>${jdk.build.target}.0.0 build_${maven.build.timestamp}</Implementation-Version>
+                            <Implementation-Vendor>OpenJCEPlus</Implementation-Vendor>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin> <!-- Ensure that a maven "clean" does not delete our already-built DLL. Leave 
+                    that to the makefiles. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                    <filesets>
+                        <fileset>
+                            <directory>target</directory>
+                            <excludes>
+                                <exclude>buildwin</exclude>
+                                <exclude>buildwin/**</exclude>
+                                <exclude>buildlin</exclude>
+                                <exclude>buildlin/**</exclude>
+                                <exclude>jgskit*</exclude>
+                                <exclude>jgskit*/**</exclude>
+                                <exclude>buildmac</exclude>
+                                <exclude>buildmac/**</exclude>
+                            </excludes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.11</version>
+                <executions>
+                    <execution>
+                        <id>start-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>generate-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <title>OpenJCEPlus Test Coverage Report</title>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+              <artifactId>maven-assembly-plugin</artifactId>
+              <version>3.6.0</version>
+              <configuration>
+                <descriptors>
+                  <descriptor>assembly.xml</descriptor>
+                </descriptors>
+              </configuration>
+              <executions>
+                <execution>
+                  <id>create-archive</id>
+                  <phase>package</phase>
+                  <goals>
+                    <goal>single</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/test/resources</directory>
+                <includes>
+                    <include>*.jks</include>
+                    <include>*.jceks</include>
+                    <include>*.p12</include>
+                    <include>*.config</include>
+                </includes>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <version>3.2.2</version>
+                  <configuration>
+                    <!-- Could add -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:8787 for debug -->
+                    <argLine>
+                      @{argLine}
+                      --add-exports=java.base/sun.security.internal.spec=openjceplus
+                      --add-exports=java.base/sun.security.util=openjceplus
+                      --add-exports=java.base/sun.security.internal.interfaces=openjceplus
+                      --add-exports=java.base/sun.security.x509=openjceplus
+                      --add-exports=java.base/sun.security.pkcs=openjceplus
+                      --add-exports=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.base.memstress=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.memstress=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.multithread=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.multithread=ALL-UNNAMED
+                    </argLine>
+                    <trimStackTrace>false</trimStackTrace>
+                    <systemPropertyVariables>
+                      <jgskit.library.path>${build.target.jgskitlib.dir}</jgskit.library.path>
+                      <!--java.security.auth.debug>all</java.security.auth.debug-->
+                    </systemPropertyVariables>
+                    <includes>
+                        <include>**/ibm/jceplus/junit/TestAll.java,**/ibm/jceplus/junit/TestMemStressAll.java,**/ibm/jceplus/junit/TestMultithread.java,**/ibm/jceplus/junit/TestMultithreadFIPS.java</include>
+                    </includes>
+                  </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.10.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.11.0</version>
+            <type>maven-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>3.3.0</version>
+            <type>maven-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.77</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.11</version>
+        </dependency>
+    </dependencies>
+    <groupId>crypto</groupId>
+</project>

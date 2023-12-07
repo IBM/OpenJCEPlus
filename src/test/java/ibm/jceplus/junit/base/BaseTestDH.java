@@ -1,0 +1,493 @@
+/*
+ * Copyright IBM Corp. 2023
+ *
+ * Licensed under the Apache License 2.0 (the "License").  You may not use
+ * this file except in compliance with the License.  You can obtain a copy
+ * in the file LICENSE in the source distribution.
+ */
+package ibm.jceplus.junit.base;
+
+import java.security.AlgorithmParameterGenerator;
+import java.security.AlgorithmParameters;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.spec.AlgorithmParameterSpec;
+import java.util.Arrays;
+import javax.crypto.KeyAgreement;
+import javax.crypto.spec.DHParameterSpec;
+
+public class BaseTestDH extends BaseTest {
+
+    // --------------------------------------------------------------------------
+    //
+    //
+    static final byte[] origMsg = "this is the original message to be signed".getBytes();
+
+    static DHParameterSpec algParameterSpec_1024, algParameterSpec_2048, algParameterSpec_3072,
+            algParameterSpec_4096, algParameterSpec_6144, algParameterSpec_8192;
+
+    static KeyPairGenerator kpgA = null;
+    static KeyPairGenerator kpgB = null;
+
+    static KeyPair keyPairA_1024, keyPairA_2048, keyPairA_3072, keyPairA_4096, keyPairA_6144,
+            keyPairA_8192;
+    static KeyPair keyPairB_1024, keyPairB_2048, keyPairB_3072, keyPairB_4096, keyPairB_6144,
+            keyPairB_8192;
+
+    public boolean isMulti = false;
+    static String myProviderName = null;
+    static boolean generated = false;
+
+    synchronized static void generateParameters(String provider_name) {
+        if (generated)
+            return;
+        try {
+            System.out.println("Provider name = " + provider_name);
+            if (!provider_name.equals("OpenJCEPlusFIPS")) {
+                algParameterSpec_1024 = generateDHParameters_static(1024);
+            }
+            algParameterSpec_2048 = generateDHParameters_static(2048);
+            algParameterSpec_3072 = generateDHParameters_static(3072);
+            algParameterSpec_4096 = generateDHParameters_static(4096);
+            algParameterSpec_6144 = generateDHParameters_static(6144);
+            algParameterSpec_8192 = generateDHParameters_static(8192);
+
+            kpgA = KeyPairGenerator.getInstance("DH", provider_name);
+            if (!provider_name.equals("OpenJCEPlusFIPS")) {
+                kpgA.initialize(algParameterSpec_1024);
+                keyPairA_1024 = kpgA.generateKeyPair();
+            }
+            kpgA.initialize(algParameterSpec_2048);
+            keyPairA_2048 = kpgA.generateKeyPair();
+            kpgA.initialize(algParameterSpec_3072);
+            keyPairA_3072 = kpgA.generateKeyPair();
+            kpgA.initialize(algParameterSpec_4096);
+            keyPairA_4096 = kpgA.generateKeyPair();
+            kpgA.initialize(algParameterSpec_6144);
+            keyPairA_6144 = kpgA.generateKeyPair();
+            kpgA.initialize(algParameterSpec_8192);
+            keyPairA_8192 = kpgA.generateKeyPair();
+
+            kpgB = KeyPairGenerator.getInstance("DH", provider_name);
+            if (!provider_name.equals("OpenJCEPlusFIPS")) {
+                kpgB.initialize(algParameterSpec_1024);
+                keyPairB_1024 = kpgB.generateKeyPair();
+            }
+            kpgB.initialize(algParameterSpec_2048);
+            keyPairB_2048 = kpgB.generateKeyPair();
+            kpgB.initialize(algParameterSpec_3072);
+            keyPairB_3072 = kpgB.generateKeyPair();
+            kpgB.initialize(algParameterSpec_4096);
+            keyPairB_4096 = kpgB.generateKeyPair();
+            kpgB.initialize(algParameterSpec_6144);
+            keyPairB_6144 = kpgB.generateKeyPair();
+            kpgB.initialize(algParameterSpec_8192);
+            keyPairB_8192 = kpgB.generateKeyPair();
+            generated = true;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    // --------------------------------------------------------------------------
+    //
+    //
+    public BaseTestDH(String providerName) {
+        super(providerName);
+        myProviderName = providerName;
+        generateParameters(providerName);
+    }
+
+    // --------------------------------------------------------------------------
+    //
+    //
+    public void setUp() throws Exception {}
+
+    // --------------------------------------------------------------------------
+    //
+    //
+    public void tearDown() throws Exception {}
+
+    // --------------------------------------------------------------------------
+    //
+    //
+    /**
+     * Basic DH example
+     *
+     * @throws Exception
+     */
+
+    public void testDHKeyPairGeneratorGetAlgorithm() throws Exception {
+        String algorithms[] = {"DiffieHellman", "DH", "1.2.840.113549.1.3.1",
+                "OID.1.2.840.113549.1.3.1"};
+        for (int i = 0; i < algorithms.length; i++) {
+            assertTrue(KeyPairGenerator.getInstance(algorithms[i], providerName).getAlgorithm()
+                    .equals(algorithms[i]));
+        }
+    }
+
+    public void testDH_1024() throws Exception {
+
+        if (!providerName.equals("OpenJCEPlusFIPS")) {
+
+            DHParameterSpec dhps = generateDHParameters(1024);
+            compute_dh_key("1024", dhps);
+            if (isMulti)
+                compute_dh_key_with_global_key("1024", algParameterSpec_1024);
+        } else {
+            assertTrue(true);
+        }
+    }
+
+    public void testDH_2048() throws Exception {
+        //System.out.println ("Testing DH 2048");
+
+        DHParameterSpec dhps = generateDHParameters(2048);
+        compute_dh_key("2048", dhps);
+        if (isMulti)
+            compute_dh_key_with_global_key("2048", algParameterSpec_2048);
+
+    }
+
+    public void testDH_3072() throws Exception {
+        //System.out.println ("Testing DH 3072");
+
+        DHParameterSpec dhps = generateDHParameters(3072);
+        compute_dh_key("3072", dhps);
+        if (isMulti)
+            compute_dh_key_with_global_key("3072", algParameterSpec_3072);
+
+    }
+
+    public void testDH_4096() throws Exception {
+        //System.out.println ("Testing DH 4096");
+
+        DHParameterSpec dhps = generateDHParameters(4096);
+        compute_dh_key("4096", dhps);
+        if (isMulti)
+            compute_dh_key_with_global_key("4096", algParameterSpec_4096);
+
+    }
+
+    public void testDH_6144() throws Exception {
+        //System.out.println ("Testing DH 6144");
+
+        DHParameterSpec dhps = generateDHParameters(6144);
+        compute_dh_key("6144", dhps);
+        if (isMulti)
+            compute_dh_key_with_global_key("6144", algParameterSpec_6144);
+
+    }
+
+    public void testDH_8192() throws Exception {
+        //System.out.println ("Testing DH 8192");
+
+        DHParameterSpec dhps = generateDHParameters(8192);
+        compute_dh_key("8192", dhps);
+        if (isMulti)
+            compute_dh_key_with_global_key("8192", algParameterSpec_8192);
+
+    }
+
+    public void testDH_DHSpec() throws Exception {
+
+        String methodId = "DHParamSpec";
+
+        if (!providerName.equals("OpenJCEPlusFIPS")) {
+            DHParameterSpec dhParamSpec = generateDHParameters(1024);
+
+            compute_dh_key(methodId, dhParamSpec);
+        } else {
+            assertTrue(true);
+        }
+
+    }
+
+    void compute_dh_key(String idString, AlgorithmParameterSpec algParameterSpec)
+            throws NoSuchAlgorithmException, InvalidAlgorithmParameterException,
+            NoSuchProviderException, InvalidKeyException {
+        final String methodName = "compute_dh_key" + "_" + idString;
+
+        KeyPairGenerator kpgA = null;
+        try {
+            kpgA = KeyPairGenerator.getInstance("DH", providerName);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw e;
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        try {
+            kpgA.initialize(algParameterSpec);
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        KeyPair keyPairA = kpgA.generateKeyPair();
+
+
+        // set up
+        KeyAgreement keyAgreeA = null;
+        try {
+            keyAgreeA = KeyAgreement.getInstance("DH", providerName);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw e;
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        // Two party agreement
+        try {
+            keyAgreeA.init(keyPairA.getPrivate());
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        KeyPairGenerator kpgB = null;
+
+        try {
+            kpgB = KeyPairGenerator.getInstance("DH", providerName);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw e;
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        try
+
+        {
+            kpgB.initialize(algParameterSpec);
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        KeyPair keyPairB = kpgB.generateKeyPair();
+
+
+        KeyAgreement keyAgreeB = null;
+        try {
+            keyAgreeB = KeyAgreement.getInstance("DH", providerName);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw e;
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        try {
+            keyAgreeB.init(keyPairB.getPrivate());
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        try {
+            keyAgreeA.doPhase(keyPairB.getPublic(), true);
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        try {
+            keyAgreeB.doPhase(keyPairA.getPublic(), true);
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            throw e;
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        // Generate the key bytes
+        byte[] sharedSecretA = keyAgreeA.generateSecret();
+        byte[] sharedSecretB = keyAgreeB.generateSecret();
+
+
+        boolean assertFlag = Arrays.equals(sharedSecretA, sharedSecretB);
+        if (!assertFlag) {
+
+            System.out.println(
+                    methodName + " sharedSecretA = " + BaseUtils.bytesToHex(sharedSecretA));
+            System.out.println(
+                    methodName + " sharedSecretB = " + BaseUtils.bytesToHex(sharedSecretB));
+
+            System.out.println(
+                    "KeyPairB.privKey=" + BaseUtils.bytesToHex(keyPairB.getPrivate().getEncoded()));
+            System.out.println("KeyPairB.publicKey="
+                    + BaseUtils.bytesToHex(keyPairB.getPublic().getEncoded()));
+            System.out.println(
+                    "KeyPairA.privKey=" + BaseUtils.bytesToHex(keyPairA.getPrivate().getEncoded()));
+            System.out.println("KeyPairA.publicKey="
+                    + BaseUtils.bytesToHex(keyPairA.getPublic().getEncoded()));
+
+        }
+        assertTrue(assertFlag);
+
+    }
+
+    private DHParameterSpec generateDHParameters(int size) throws Exception {
+
+        AlgorithmParameterGenerator algParamGen = AlgorithmParameterGenerator.getInstance("DH",
+                providerName);
+        algParamGen.init(size);
+        AlgorithmParameters algParams = algParamGen.generateParameters();
+        DHParameterSpec dhps = (DHParameterSpec) algParams.getParameterSpec(DHParameterSpec.class);
+        return dhps;
+
+    }
+
+    void compute_dh_key_with_global_key(String idString, AlgorithmParameterSpec algParameterSpec)
+            throws NoSuchAlgorithmException, InvalidAlgorithmParameterException,
+            NoSuchProviderException, InvalidKeyException {
+        final String methodName = "compute_dh_key_with_global_key" + "_" + idString;
+
+        KeyPair keyPairA = null, keyPairB = null;
+        switch (idString) {
+            case "1024":
+                keyPairA = keyPairA_1024;
+                keyPairB = keyPairB_1024;
+                break;
+
+            case "2048":
+                keyPairA = keyPairA_2048;
+                keyPairB = keyPairB_2048;
+                break;
+
+            case "3072":
+                keyPairA = keyPairA_3072;
+                keyPairB = keyPairB_3072;
+                break;
+
+            case "4096":
+                keyPairA = keyPairA_1024;
+                keyPairB = keyPairB_1024;
+                break;
+
+            case "6144":
+                keyPairA = keyPairA_1024;
+                keyPairB = keyPairB_1024;
+                break;
+
+            case "8192":
+                keyPairA = keyPairA_1024;
+                keyPairB = keyPairB_1024;
+                break;
+        }
+
+        // set up A
+        KeyAgreement keyAgreeA = null;
+        try {
+            keyAgreeA = KeyAgreement.getInstance("DH", providerName);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw e;
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        // Two party agreement A
+        try {
+            keyAgreeA.init(keyPairA.getPrivate());
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        // set up B
+        KeyAgreement keyAgreeB = null;
+        try {
+            keyAgreeB = KeyAgreement.getInstance("DH", providerName);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw e;
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        // Two party agreement B
+        try {
+            keyAgreeB.init(keyPairB.getPrivate());
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        try {
+            keyAgreeA.doPhase(keyPairB.getPublic(), true);
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        try {
+            keyAgreeB.doPhase(keyPairA.getPublic(), true);
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            throw e;
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        // Generate the key bytes
+        byte[] sharedSecretA = keyAgreeA.generateSecret();
+        byte[] sharedSecretB = keyAgreeB.generateSecret();
+
+        boolean assertFlag = Arrays.equals(sharedSecretA, sharedSecretB);
+        if (!assertFlag) {
+
+            System.out.println(
+                    methodName + " sharedSecretA = " + BaseUtils.bytesToHex(sharedSecretA));
+            System.out.println(
+                    methodName + " sharedSecretB = " + BaseUtils.bytesToHex(sharedSecretB));
+
+            System.out.println(
+                    "KeyPairB.privKey=" + BaseUtils.bytesToHex(keyPairB.getPrivate().getEncoded()));
+            System.out.println("KeyPairB.publicKey="
+                    + BaseUtils.bytesToHex(keyPairB.getPublic().getEncoded()));
+            System.out.println(
+                    "KeyPairA.privKey=" + BaseUtils.bytesToHex(keyPairA.getPrivate().getEncoded()));
+            System.out.println("KeyPairA.publicKey="
+                    + BaseUtils.bytesToHex(keyPairA.getPublic().getEncoded()));
+
+        }
+        assertTrue(assertFlag);
+
+    }
+
+    static private DHParameterSpec generateDHParameters_static(int size) throws Exception {
+        // java.security.Provider java_provider;
+        // java_provider = java.security.Security.getProvider("OpenJCEPlus");
+        // if( java_provider == null ) {
+        //     java_provider = (java.security.Provider)Class.forName("com.ibm.crypto.plus.provider.OpenJCEPlus").newInstance();
+        //     java.security.Security.insertProviderAt(java_provider, 1);
+        // }
+        AlgorithmParameterGenerator algParamGen = AlgorithmParameterGenerator.getInstance("DH",
+                myProviderName);
+        algParamGen.init(size);
+        AlgorithmParameters algParams = algParamGen.generateParameters();
+        DHParameterSpec dhps = (DHParameterSpec) algParams.getParameterSpec(DHParameterSpec.class);
+        return dhps;
+
+    }
+
+}
