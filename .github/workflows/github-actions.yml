@@ -28,10 +28,6 @@ jobs:
               gskit_lib_name: libjgsk8iccs_64.so
               target_lib_bin_dir: jgskit-xa-64
               github_actions_runner_root: /
-            #- os: windows-2022
-            #  gskit_dir: windows_x86_64
-            #  gskit_lib_name: jgsk8iccs_64.dll
-            #  github_actions_runner_root: \
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server."
@@ -43,10 +39,6 @@ jobs:
       - name: List files in the repository
         run: |
           tree ${{ github.workspace }}
-      - name: Set up Visual Studio shell
-        uses: egor-tensin/vs-shell@v2
-        with:
-          arch: x64         
       - name: Extract OCK SDK and Binary Tar File
         run: |
           mkdir ${{ github.workspace }}/OCK
@@ -73,7 +65,6 @@ jobs:
         run: mvn --batch-mode '-Dock.library.path=${{ github.workspace }}/OCK/' install
         env:
           GSKIT_HOME: ${{ github.workspace }}/OCK/jgsk_sdk
-          #GSKIT_64_HOME: ${{ github.workspace }}\OCK\jgsk_sdk # Used by windows build.
       - name: List Files In The Entire Workspace
         run: |
           tree ${{ github.workspace }}
@@ -92,13 +83,12 @@ jobs:
         with:
           name: libjgskit.so
           path: target/${{ matrix.target_lib_bin_dir }}/libjgskit.so 
-      - name: Test Report ${{ matrix.os }}.
+      - name: Archive Surefire Assembly
+        uses: actions/upload-artifact@v3
         with:
-          check_name: Test Report ${{ matrix.os }}
-          fail_on_test_failures: false
-        if: success() || failure()
-        uses: scacap/action-surefire-report@v1
-      - name: Archive Assembly
+          name: surefire-report.zip
+          path: target/surefire-report.zip
+      - name: Archive Jacoco Assembly
         uses: actions/upload-artifact@v3
         with:
           name: openjceplus-jacoco.zip
