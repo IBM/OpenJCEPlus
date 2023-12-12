@@ -85,7 +85,14 @@ final class NativeInterface {
         }
 
         String javaHome = System.getProperty("java.home");
-        String ockPath = javaHome + File.separator + "lib";
+        osName = System.getProperty("os.name");
+        String ockPath;
+
+        if (osName.startsWith("Windows")) {
+            ockPath = javaHome + File.separator + "bin";
+        } else {
+            ockPath = javaHome + File.separator + "lib";
+        }
 
         if (debugLoad) {
             System.out.println("Loading ock library using value: " + ockPath);
@@ -111,7 +118,11 @@ final class NativeInterface {
         osName = System.getProperty("os.name");
         String jgskitPath;
 
-        jgskitPath = javaHome + File.separator + "lib";
+        if (osName.startsWith("Windows")) {
+            jgskitPath = javaHome + File.separator + "bin";
+        } else {
+            jgskitPath = javaHome + File.separator + "lib";
+        }
 
         if (debugLoad) {
             System.out.println("Loading jgskit library using value: " + jgskitPath);
