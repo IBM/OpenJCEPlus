@@ -8,11 +8,7 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
-import java.io.IOException;
 import java.util.Arrays;
-import ibm.security.internal.spec.NamedParameterSpec;
-import sun.security.util.ObjectIdentifier;
-import sun.security.x509.AlgorithmId;
 
 public final class XECKey implements AsymmetricKey {
     // The following is a special byte[] instance to indicate that the
@@ -44,7 +40,7 @@ public final class XECKey implements AsymmetricKey {
     }
 
 
-    public static XECKey generateKeyPair(OCKContext ockContext, NamedParameterSpec.CURVE curve)
+    public static XECKey generateKeyPair(OCKContext ockContext, int curveNum, int pub_size)
             throws OCKException {
         //final String methodName = "generateKeyPair(NamedParameterSpec.CURVE) ";
         if (ockContext == null)
@@ -52,12 +48,11 @@ public final class XECKey implements AsymmetricKey {
 
         FastJNIBuffer buffer = XECKey.buffer.get();
 
-        long xecKeyId = NativeInterface.XECKEY_generate(ockContext.getId(), curve.ordinal(),
+        long xecKeyId = NativeInterface.XECKEY_generate(ockContext.getId(), curveNum,
                 buffer.pointer());
         if (!validId(xecKeyId))
             throw new OCKException(badIdMsg);
 
-        int pub_size = NamedParameterSpec.getPublicCurveSize(curve);
         byte[] publicKeyBytes = new byte[pub_size];
         buffer.get(0, publicKeyBytes, 0, pub_size);
 
@@ -135,7 +130,7 @@ public final class XECKey implements AsymmetricKey {
     }
 
     public synchronized static XECKey createPrivateKey(OCKContext ockContext,
-            byte[] privateKeyBytes, NamedParameterSpec.CURVE curve) throws OCKException {
+            byte[] privateKeyBytes, int priv_size) throws OCKException {
         //final String methodName = "createPrivateKey";
         if (ockContext == null)
             throw new IllegalArgumentException("context is null");
@@ -150,7 +145,6 @@ public final class XECKey implements AsymmetricKey {
             throw new OCKException(badIdMsg);
 
         // buffer now contains public key
-        int priv_size = NamedParameterSpec.getPrivateCurveSize(curve);
         byte[] publicKeyBytes = new byte[priv_size];
         buffer.get(0, publicKeyBytes, 0, priv_size);
 
@@ -176,125 +170,5 @@ public final class XECKey implements AsymmetricKey {
     @Override
     public long getPKeyId() throws OCKException {
         return xecKeyId;
-    }
-
-    /**
-     * Returns the curve type based on the inputted ObjectID
-     * size must not be null if trying to identify an FFDHE curve
-     * 
-     * @param oid
-     * @param size
-     * @return curveType
-     * @throws IOException
-     */
-    public static NamedParameterSpec.CURVE getCurve(ObjectIdentifier oid, Integer size)
-            throws IOException {
-        if (oid == null)
-            throw new IOException();
-        switch (oid.toString()) {
-            case "1.3.101.110":
-                return NamedParameterSpec.CURVE.X25519;
-            case "1.3.101.111":
-                return NamedParameterSpec.CURVE.X448;
-            case "1.3.101.112":
-                return NamedParameterSpec.CURVE.Ed25519;
-            case "1.3.101.113":
-                return NamedParameterSpec.CURVE.Ed448;
-            case "1.2.840.113549.1.3.1":
-                if (size == null)
-                    throw new IOException("Received oid: " + oid + " (size is " + size + ")");
-                switch (size) {
-                    case 2048:
-                        return NamedParameterSpec.CURVE.FFDHE2048;
-                    case 3072:
-                        return NamedParameterSpec.CURVE.FFDHE3072;
-                    case 4096:
-                        return NamedParameterSpec.CURVE.FFDHE4096;
-                    case 6144:
-                        return NamedParameterSpec.CURVE.FFDHE6144;
-                    case 8192:
-                        return NamedParameterSpec.CURVE.FFDHE8192;
-                }
-        }
-        throw new IOException("Received oid: " + oid + " (size is " + size + ")");
-    }
-
-    /**
-     * Gets the AlgorithmID correlating to the input curve type
-     * 
-     * @param curve
-     * @return algId
-     * @throws IOException
-     */
-    public static AlgorithmId getAlgId(NamedParameterSpec.CURVE curve) throws IOException {
-        switch (curve) {
-            case Ed25519:
-                return new AlgorithmId(AlgorithmId.ed25519_oid);
-            case Ed448:
-                return new AlgorithmId(AlgorithmId.ed448_oid);
-            case X25519:
-                return new AlgorithmId(AlgorithmId.x25519_oid);
-            case X448:
-                return new AlgorithmId(AlgorithmId.x448_oid);
-            case FFDHE2048:
-                return new AlgorithmId(ObjectIdentifier.of("1.2.840.113549.1.3.1"));
-            case FFDHE3072:
-                return new AlgorithmId(ObjectIdentifier.of("1.2.840.113549.1.3.1"));
-            case FFDHE4096:
-                return new AlgorithmId(ObjectIdentifier.of("1.2.840.113549.1.3.1"));
-            case FFDHE6144:
-                return new AlgorithmId(ObjectIdentifier.of("1.2.840.113549.1.3.1"));
-            case FFDHE8192:
-                return new AlgorithmId(ObjectIdentifier.of("1.2.840.113549.1.3.1"));
-        }
-        throw new IOException("The current curve is not supported");
-    }
-
-    /**
-     * Checks whether a curve is of XEC algorithm or not
-     * 
-     * @param curve
-     * @return boolean
-     * @throws IOException
-     */
-    public static boolean isXEC(NamedParameterSpec.CURVE curve) throws IOException {
-        return curve.toString().contains("XEC");
-    }
-
-    /** Checks whether a curve is of Ed algorithm or not
-     *
-     * @param curve
-     * @return boolean
-     * @throws IOException
-     */
-    public static boolean isEd(NamedParameterSpec.CURVE curve) throws IOException {
-        return curve.toString().contains("Ed");
-    }
-
-    /**
-     * Checks whether a curve is of FFDHE algorithm or not
-     * 
-     * @param curve
-     * @return boolean
-     * @throws IOException
-     */
-    public static boolean isFFDHE(NamedParameterSpec.CURVE curve) throws IOException {
-        return curve.toString().contains("FFDHE");
-    }
-
-    /**
-     * Checks if the oid is valid, throws an exception otherwise
-     *
-     * @param oid
-     * @throws IOException
-     */
-    public static void checkOid(ObjectIdentifier oid) throws IOException {
-        if (oid == null || (!oid.toString().equals("1.3.101.110")
-                /* X25519 */ && !oid.toString().equals("1.3.101.111") /* X448 */)
-                && !oid.toString().equals("1.3.101.112") /* Ed25519 */
-                && !oid.toString().equals("1.3.101.113") /* Ed448 */
-                && !oid.toString().equals("1.2.840.113549.1.3.1") /* FFDHE */)
-            throw new IOException(
-                    "This curve does not seem to be an X25519, X448, Ed25519, Ed448 or FFDHE curve");
     }
 }

@@ -14,10 +14,13 @@ import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyRep;
 import java.security.interfaces.EdECPrivateKey;
+import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
 import java.util.Optional;
+
+import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
 import com.ibm.crypto.plus.provider.ock.XECKey;
-import ibm.security.internal.spec.NamedParameterSpec;
+
 import sun.security.pkcs.PKCS8Key;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
@@ -33,6 +36,7 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
     private OpenJCEPlusProvider provider = null;
     private Optional<byte[]> h;
     private NamedParameterSpec paramSpec;
+    private CURVE curve;
     private Exception exception = null; // In case an exception happened and the API did
     // not allow us to throw it, we throw it at the end
 
@@ -42,7 +46,7 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
         if (this.key == null) {
             this.key = extractPrivateKeyFromOCK(xecKey.getPrivateKeyBytes()); // Extract key from GSKit and sets params
             this.h = Optional.of(key);
-            this.algid = XECKey.getAlgId(this.paramSpec.getCurve());
+            this.algid = CurveUtil.getAlgId(this.curve);
         }
     }
 
@@ -69,14 +73,16 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
     }
 
     public EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider,
-            java.security.spec.NamedParameterSpec params, Optional<byte[]> h)
-            throws InvalidKeyException {
+            NamedParameterSpec params, Optional<byte[]> h)
+            throws InvalidParameterException, InvalidKeyException {
 
         this.provider = provider;
-        this.paramSpec = new NamedParameterSpec(params.getName());
+        this.paramSpec = params;
+
+        this.curve = CurveUtil.getCurve(params.getName());
 
         try {
-            this.algid = XECKey.getAlgId(this.paramSpec.getCurve());
+            this.algid = CurveUtil.getAlgId(this.curve);
 
             if (h != null) {
                 this.key = h.get().clone();
@@ -84,13 +90,15 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
             }
 
             if (this.key == null) {
+                int pub_size = CurveUtil.getPublicCurveSize(curve);
                 this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(),
-                        this.paramSpec.getCurve());
+                        this.curve.ordinal(), pub_size);
             } else {
-                this.algid = XECKey.getAlgId(this.paramSpec.getCurve());
+                this.algid = CurveUtil.getAlgId(this.curve);
                 byte[] der = buildOCKPrivateKeyBytes();
+                int priv_size = CurveUtil.getPrivateCurveSize(curve);
                 this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der,
-                        this.paramSpec.getCurve());
+                        priv_size);
             }
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
@@ -98,7 +106,7 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
             provider.setOCKExceptionCause(ike, exception);
             throw ike;
         }
-        checkLength(this.paramSpec);
+        checkLength(this.curve);
     }
 
     public EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider, byte[] encoded)
@@ -109,9 +117,10 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
             byte[] alteredEncoded = processEncodedPrivateKey(encoded); // Sets params, key, and algid, and alters encoded
             // to fit with GSKit and sets params
 
-            checkLength(this.paramSpec);
+            checkLength(this.curve);
+            int priv_size = CurveUtil.getPrivateCurveSize(curve);
             this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded,
-                    this.paramSpec.getCurve());
+                    priv_size);
 
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");
@@ -120,12 +129,12 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
         }
     }
 
-    void checkLength(NamedParameterSpec params) throws InvalidKeyException {
+    void checkLength(CURVE curve) throws InvalidKeyException {
 
-        if (NamedParameterSpec.getPrivateCurveSize(params.getCurve()) != this.h.get().length) {
+        if (CurveUtil.getPrivateCurveSize(curve) != this.h.get().length) {
             throw new InvalidKeyException(
                     "key length is " + this.h.get().length + ", key length must be "
-                            + NamedParameterSpec.getPrivateCurveSize(params.getCurve()));
+                            + CurveUtil.getPrivateCurveSize(curve));
         }
     }
 
@@ -195,15 +204,14 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
     private ObjectIdentifier processOIDSequence(DerInputStream oidInputStream,
             DerOutputStream outStream) throws IOException {
         ObjectIdentifier oid = oidInputStream.getOID();
-        XECKey.checkOid(oid);
-        NamedParameterSpec.CURVE curve;
-        curve = XECKey.getCurve(oid, null);
+        CurveUtil.checkOid(oid);
+        this.curve = CurveUtil.getCurve(oid, null);
 
         if (outStream != null) {
             outStream.putOID(oid);
         }
 
-        this.paramSpec = new NamedParameterSpec(curve);
+        this.paramSpec = new NamedParameterSpec(curve.name());
         return oid;
     }
 
@@ -277,8 +285,8 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
     }
 
     @Override
-    public java.security.spec.NamedParameterSpec getParams() {
-        return this.paramSpec.getExternalParameter();
+    public NamedParameterSpec getParams() {
+        return this.paramSpec;
     }
 
     @Override

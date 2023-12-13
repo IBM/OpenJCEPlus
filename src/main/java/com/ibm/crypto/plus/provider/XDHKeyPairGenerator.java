@@ -14,18 +14,20 @@ import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.NamedParameterSpec;
+
 import com.ibm.crypto.plus.provider.ock.XECKey;
-import ibm.security.internal.spec.NamedParameterSpec;
 
 public class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
 
-    public static final String DEFAULT_ALGO = "X25519";
+    private static final NamedParameterSpec DEFAULT_PARAM_SPEC
+        = NamedParameterSpec.X25519;
     private OpenJCEPlusProvider provider = null;
-    NamedParameterSpec namedSpec;
+    private NamedParameterSpec namedSpec;
     private String alg = null;
 
     // serviceCurve parameter is used to keep explicit service curve algorithm, either X25519 or X448
-    private NamedParameterSpec.CURVE serviceCurve = null;
+    private CurveUtil.CURVE serviceCurve = null;
 
     /**
      * Creates an XDHKeyPairGenerator object and sets its provider
@@ -37,23 +39,13 @@ public class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
     }
 
     /**
-     * Creates an XDHKeyPairGenerator object and sets its provider and algorithm
-     *
-     * @param provider must be NamedParameterSpec
-     * @param Alg curve algorithm
-     */
-    protected XDHKeyPairGenerator(OpenJCEPlusProvider provider, String Alg) {
-        initXDHKeyPairGenerator(provider, new NamedParameterSpec(Alg));
-    }
-
-    /**
      * Creates an XDHKeyPairGenerator object and sets its provider and parameters.
      * It is called from sub-class to set up X25519 or X448 service
      *
      * @param provider
      * @param params
      */
-    protected XDHKeyPairGenerator(OpenJCEPlusProvider provider, NamedParameterSpec params) {
+    private XDHKeyPairGenerator(OpenJCEPlusProvider provider, NamedParameterSpec params) {
         initXDHKeyPairGenerator(provider, params);
     }
 
@@ -63,11 +55,10 @@ public class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
             if (params == null) {
                 // Default Initialization is X25519.
                 // Default init of namedSpec is replaced when initialize is called directly.
-                initialize(new NamedParameterSpec(DEFAULT_ALGO), null);
+                initialize(DEFAULT_PARAM_SPEC, null);
             } else {
                 initialize(params, null);
                 this.alg = params.getName();
-                serviceCurve = params.getCurve();
             }
         } catch (InvalidAlgorithmParameterException e) {
             throw provider.providerException("Failure in XDHKeyPairGenerator: ", e);
@@ -83,7 +74,8 @@ public class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
      */
     @Override
     public void initialize(int keySize, SecureRandom random) {
-        initializeImpl(new NamedParameterSpec(keySize));
+        CurveUtil.CURVE curve = CurveUtil.getCurveOfSize(keySize);
+        initializeImpl(new NamedParameterSpec(curve.name()));
     }
 
     /**
@@ -97,12 +89,13 @@ public class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
     public void initialize(AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidAlgorithmParameterException {
         NamedParameterSpec nps = null;
-        try {
-            // get the internal wrapper instance from input params
-            nps = NamedParameterSpec.getInternalNamedParameterSpec(params);
-        } catch (InvalidParameterException e) {
-            throw new InvalidAlgorithmParameterException(e.getMessage());
+        
+        if (params instanceof NamedParameterSpec) {
+            nps = (NamedParameterSpec) params;
+        } else {
+            throw new InvalidAlgorithmParameterException("Invalid AlgorithmParameterSpec: " + params);
         }
+        
         initializeImpl(nps);
     }
 
@@ -110,7 +103,7 @@ public class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
      * Initializes generator from params
      *
      * @param params
-     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidParameterException
      */
     private void initializeImpl(NamedParameterSpec params) {
         //Validate that the parameters match the alg specified on creation of this object
@@ -119,24 +112,17 @@ public class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
             throw new InvalidParameterException("Parameters must be " + this.alg);
         }
 
-        // Check if service is instantiated explicitly for a specific curve algorithm, X25519 or X448
-        if (serviceCurve != null && serviceCurve != params.getCurve()) {
-            throw new InvalidParameterException("Params must be: " + serviceCurve.toString());
-        }
+        serviceCurve = CurveUtil.getCurve(params.getName());
         namedSpec = params;
     }
 
     @Override
     public KeyPair generateKeyPair() {
-        if (this.alg != null && namedSpec == null) {
-            namedSpec = new NamedParameterSpec(this.alg);
-        } else if (namedSpec == null) {
-            namedSpec = new NamedParameterSpec(DEFAULT_ALGO);
-        }
         try {
-            XECKey xecKey = XECKey.generateKeyPair(provider.getOCKContext(), namedSpec.getCurve());
+            int pub_size = CurveUtil.getPublicCurveSize(serviceCurve);
+            XECKey xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.serviceCurve.ordinal(), pub_size);
             XDHPrivateKeyImpl privKey = new XDHPrivateKeyImpl(provider, xecKey);
-            XDHPublicKeyImpl pubKey = new XDHPublicKeyImpl(provider, xecKey, namedSpec.getCurve());
+            XDHPublicKeyImpl pubKey = new XDHPublicKeyImpl(provider, xecKey, this.serviceCurve);
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
             throw provider.providerException("Failure in generateKeyPair", e);
@@ -147,14 +133,14 @@ public class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
     public static final class X25519 extends XDHKeyPairGenerator {
 
         public X25519(OpenJCEPlusProvider provider) {
-            super(provider, new NamedParameterSpec(NamedParameterSpec.CURVE.X25519));
+            super(provider, new NamedParameterSpec(CurveUtil.CURVE.X25519.name()));
         }
     }
 
     public static final class X448 extends XDHKeyPairGenerator {
 
         public X448(OpenJCEPlusProvider provider) {
-            super(provider, new NamedParameterSpec(NamedParameterSpec.CURVE.X448));
+            super(provider, new NamedParameterSpec(CurveUtil.CURVE.X448.name()));
         }
     }
 

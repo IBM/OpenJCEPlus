@@ -14,25 +14,36 @@ import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.NamedParameterSpec;
+
+import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
 import com.ibm.crypto.plus.provider.ock.XECKey;
-import ibm.security.internal.spec.NamedParameterSpec;
 
 /**
  * Key pair generator for the EdDSA signature algorithm.
  */
 public class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
 
+    private static final NamedParameterSpec DEFAULT_PARAM_SPEC
+        = NamedParameterSpec.ED25519;
     private SecureRandom random = null;
     private NamedParameterSpec namedSpec;
+    private CURVE curve;
     private OpenJCEPlusProvider provider = null;
 
     private String alg = null;
 
     public EdDSAKeyPairGenerator(OpenJCEPlusProvider provider) {
         this.provider = provider;
+        try {
+            initialize(DEFAULT_PARAM_SPEC);
+        } catch (Exception e) {
+            throw new InvalidParameterException(e.getMessage());
+        }
+        
     }
 
-    public EdDSAKeyPairGenerator(OpenJCEPlusProvider provider, String Alg) {
+    private EdDSAKeyPairGenerator(OpenJCEPlusProvider provider, String Alg) {
         this.provider = provider;
         this.alg = Alg;
         try {
@@ -45,15 +56,9 @@ public class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
     @Override
     public void initialize(int keySize, SecureRandom random) {
         if (keySize == 255) {
-            this.namedSpec = new NamedParameterSpec("Ed25519");
-            if (this.alg == null) {
-                this.alg = "Ed25519";
-            }
+            this.namedSpec = NamedParameterSpec.ED25519;
         } else if (keySize == 448) {
-            this.namedSpec = new NamedParameterSpec("Ed448");
-            if (this.alg == null) {
-                this.alg = "Ed448";
-            }
+            this.namedSpec = NamedParameterSpec.ED448;
         } else {
             throw new InvalidParameterException("Invalid Key size");
         }
@@ -79,10 +84,10 @@ public class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
     public void initialize(AlgorithmParameterSpec params)
             throws InvalidAlgorithmParameterException {
         // Check if parameter is a valid NamedParameterSpec instance
-        try {
-            this.namedSpec = NamedParameterSpec.getInternalNamedParameterSpec(params);
-        } catch (InvalidParameterException e) {
-            throw new InvalidAlgorithmParameterException(e.getMessage());
+        if (params instanceof NamedParameterSpec) {
+            this.namedSpec = (NamedParameterSpec) params;
+        } else {
+            throw new InvalidAlgorithmParameterException("Invalid AlgorithmParameterSpec: " + params);
         }
 
         //Validate that the parameters match the alg specified on creation of this object
@@ -90,20 +95,18 @@ public class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
             this.namedSpec = null;
             throw new InvalidAlgorithmParameterException("Parameters must be " + this.alg);
         }
+
+        this.curve = CurveUtil.getCurve(this.namedSpec.getName());
     }
 
     @Override
     public KeyPair generateKeyPair() {
-        if (this.alg != null && this.namedSpec == null) {
-            this.namedSpec = new NamedParameterSpec(this.alg);
-        } else if (namedSpec == null) {
-            this.namedSpec = new NamedParameterSpec("Ed25519");
-        }
         try {
+            int pub_size = CurveUtil.getPublicCurveSize(curve);
             XECKey xecKey = XECKey.generateKeyPair(provider.getOCKContext(),
-                    this.namedSpec.getCurve());
+                    this.curve.ordinal(), pub_size);
             EdDSAPublicKeyImpl pubKey = new EdDSAPublicKeyImpl(provider, xecKey,
-                    this.namedSpec.getCurve());
+                    this.curve);
             EdDSAPrivateKeyImpl privKey = new EdDSAPrivateKeyImpl(provider, xecKey);
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {

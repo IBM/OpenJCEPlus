@@ -16,9 +16,9 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
-import ibm.security.internal.spec.NamedParameterSpec;
 
 public class BaseTestXDHMultiParty extends BaseTest {
 
