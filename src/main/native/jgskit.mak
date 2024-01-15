@@ -32,7 +32,7 @@ AIX_LIBPATH = /usr/lib:/lib
 
 ifeq ($(PLATFORM),x86-linux64)
       PLAT=xa
-      CFLAGS+= -DLINUX -pedantic -Werror -Wall -fstack-protector
+      CFLAGS+= -DLINUX -std=gnu99 -pedantic -Werror -Wall -fstack-protector
       LDFLAGS+= -m64
       IS64SYSTEM=64
       OSINCLUDEDIR=linux
