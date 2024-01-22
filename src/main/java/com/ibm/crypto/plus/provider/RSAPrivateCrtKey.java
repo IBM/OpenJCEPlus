@@ -123,7 +123,7 @@ final class RSAPrivateCrtKey extends PKCS8Key
 
     public RSAPrivateCrtKey(OpenJCEPlusProvider provider, byte[] encoded)
             throws InvalidKeyException {
-        super(encoded);
+        decode(encoded);
         this.provider = provider;
 
         try {

@@ -24,6 +24,7 @@ import sun.security.pkcs.PKCS8Key;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
+import sun.security.util.KnownOIDs;
 import sun.security.util.ObjectIdentifier;
 import sun.security.x509.AlgorithmId;
 
@@ -101,14 +102,20 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
         }
     }
 
-    public DHPrivateKey(OpenJCEPlusProvider provider, DHKey dhKey) {
+    public DHPrivateKey(OpenJCEPlusProvider provider, DHKey dhKey) throws InvalidKeyException, OCKException {
+        
         try {
 
             this.provider = provider;
-            this.algid = new AlgorithmId(ObjectIdentifier.of("1.2.840.113549.1.3.1"),
-                    new DerValue(dhKey.getParameters()));
-            convertOCKPrivateKeyBytes(dhKey.getPrivateKeyBytes());
 
+            try (DerOutputStream id = new DerOutputStream()) {
+                id.putOID(ObjectIdentifier.of(KnownOIDs.DiffieHellman));
+                id.putDerValue(new DerValue(dhKey.getParameters()));
+                DerValue value = new DerValue(DerValue.tag_Sequence,id.toByteArray());
+                this.algid = AlgorithmId.parse(value);
+            };
+
+            convertOCKPrivateKeyBytes(dhKey.getPrivateKeyBytes());
             this.dhKey = dhKey;
         } catch (Exception exception) {
             throw provider.providerException("Failure in DHPrivateKey", exception);

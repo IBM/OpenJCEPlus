@@ -80,7 +80,7 @@ final class RSAPrivateKey extends PKCS8Key
     }
 
     public RSAPrivateKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
-        super(encoded);
+        decode(encoded);
         this.provider = provider;
         try {
             parseKeyBits();

@@ -54,7 +54,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "                                       SHA256withECDSA, SHA384withECDSA, SHA512withECDSA,\n"
             + "                                       SHA3-224withECDSA, SHA3-256withECDSA, SHA3-384withECDSA, SHA3-512withECDSA,\n"
             + "                                       NONEwithRSA, SHA1withRSA, SHA224withRSA,\n"
-            + "                                       SHA256withRSA, SHA384withRSA, SHA512withRSA, RSAPSS, Ed25519, Ed448,\n"
+            + "                                       SHA256withRSA, SHA384withRSA, SHA512withRSA, RSAPSS\n"
             + "                                       SHA3-224withRSA, SHA3-256withRSA, SHA3-384withRSA, SHA3-512withRSA\n";
 
     private static final String OID_PKCS3 = "1.2.840.113549.1.3.1";
@@ -282,18 +282,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "KeyFactory", "X448",
                 "com.ibm.crypto.plus.provider.XDHKeyFactory$X448", aliases));
 
-        aliases = null;
-        putService(new OpenJCEPlusService(jce, "KeyFactory", "EdDSA",
-                "com.ibm.crypto.plus.provider.EdDSAKeyFactory$EdDSA", aliases));
-
-        aliases = new String[] {"OID.1.3.101.112", "1.3.101.112"};
-        putService(new OpenJCEPlusService(jce, "KeyFactory", "Ed25519",
-                "com.ibm.crypto.plus.provider.EdDSAKeyFactory$Ed25519", aliases));
-
-        aliases = new String[] {"OID.1.3.101.113", "1.3.101.113"};
-        putService(new OpenJCEPlusService(jce, "KeyFactory", "Ed448",
-                "com.ibm.crypto.plus.provider.EdDSAKeyFactory$Ed448", aliases));
-
         aliases = new String[] {"OID.1.2.5.8.1.1", "1.2.5.8.1.1", "OID.1.2.840.113549.1.1.1",
                 "1.2.840.113549.1.1.1", "OID.1.2.840.113549.1.1", "1.2.840.113549.1.1"};
         putService(new OpenJCEPlusService(jce, "KeyFactory", "RSA",
@@ -433,18 +421,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         aliases = new String[] {"OID.1.3.101.111", "1.3.101.111"};
         putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "X448",
                 "com.ibm.crypto.plus.provider.XDHKeyPairGenerator$X448", aliases));
-
-        aliases = null;
-        putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "EdDSA",
-                "com.ibm.crypto.plus.provider.EdDSAKeyPairGenerator$EdDSA", aliases));
-
-        aliases = new String[] {"1.3.101.112", "OID.1.3.101.112"};
-        putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "Ed25519",
-                "com.ibm.crypto.plus.provider.EdDSAKeyPairGenerator$Ed25519", aliases));
-
-        aliases = new String[] {"1.3.101.113", "OID.1.3.101.113"};
-        putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "Ed448",
-                "com.ibm.crypto.plus.provider.EdDSAKeyPairGenerator$Ed448", aliases));
 
         aliases = new String[] {"OID.1.2.5.8.1.1", "1.2.5.8.1.1", "OID.1.2.840.113549.1.1",
                 "1.2.840.113549.1.1"};
@@ -783,17 +759,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
                 "1.2.840.113549.1.1.10"};
         putService(new OpenJCEPlusService(jce, "Signature", "RSAPSS",
                 "com.ibm.crypto.plus.provider.RSAPSSSignature", aliases));
-        aliases = null;
-        putService(new OpenJCEPlusService(jce, "Signature", "EdDSA",
-                "com.ibm.crypto.plus.provider.EdDSASignature$EdDSA", aliases));
-
-        aliases = new String[] {"OID.1.3.101.112", "1.3.101.112"};
-        putService(new OpenJCEPlusService(jce, "Signature", "Ed25519",
-                "com.ibm.crypto.plus.provider.EdDSASignature$Ed25519", aliases));
-
-        aliases = new String[] {"OID.1.3.101.113", "1.3.101.113"};
-        putService(new OpenJCEPlusService(jce, "Signature", "Ed448",
-                "com.ibm.crypto.plus.provider.EdDSASignature$Ed448", aliases));
 
     }
 

@@ -37,7 +37,8 @@ class FastJNIBuffer {
             throw new RuntimeException("Native array index out of bound.");
         }
         if (src != null) {
-            byteBuffer.put(index, src, offset, length);
+            byteBuffer.position(index);
+            byteBuffer.put(src, offset, length);
         }
     }
 
@@ -46,7 +47,8 @@ class FastJNIBuffer {
             throw new RuntimeException("Native array index out of bound.");
         }
         if (dst != null) {
-            byteBuffer.get(index, dst, offset, length);
+            byteBuffer.position(index);
+            byteBuffer.get(dst, offset, length);
         }
     }
 }

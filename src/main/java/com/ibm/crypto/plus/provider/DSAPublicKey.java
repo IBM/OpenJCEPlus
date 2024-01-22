@@ -105,7 +105,13 @@ final class DSAPublicKey extends X509Key
         this.provider = provider;
 
         try {
-            this.algid = new AlgorithmId(AlgorithmId.DSA_oid, new DerValue(dsaKey.getParameters()));
+
+            try (DerOutputStream id = new DerOutputStream()) {
+                id.putOID(AlgorithmId.DSA_oid);
+                id.putDerValue(new DerValue(dsaKey.getParameters()));
+                DerValue value = new DerValue(DerValue.tag_Sequence,id.toByteArray());
+                this.algid = AlgorithmId.parse(value);
+            }
 
             byte[] keyArray = convertOCKPublicKeyBytes(dsaKey.getPublicKeyBytes());
             setKey(new BitArray(keyArray.length * 8, keyArray));

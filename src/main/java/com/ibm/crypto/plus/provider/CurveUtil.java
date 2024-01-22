@@ -18,7 +18,7 @@ import sun.security.x509.AlgorithmId;
 
 class CurveUtil {
     public enum CURVE {
-        X25519, X448, FFDHE2048, FFDHE3072, FFDHE4096, FFDHE6144, FFDHE8192, Ed25519, Ed448
+        X25519, X448, FFDHE2048, FFDHE3072, FFDHE4096, FFDHE6144, FFDHE8192
     }
 
     private static HashMap<CURVE, Integer> publicCurveSizes = new HashMap<CURVE, Integer>(); // key sizes of curves in bytes
@@ -35,8 +35,6 @@ class CurveUtil {
         publicCurveSizes.put(CURVE.FFDHE4096, 1069);
         publicCurveSizes.put(CURVE.FFDHE6144, 1581);
         publicCurveSizes.put(CURVE.FFDHE8192, 2093);
-        publicCurveSizes.put(CURVE.Ed25519, 32);
-        publicCurveSizes.put(CURVE.Ed448, 57);
 
         for (Map.Entry<CURVE, Integer> entry : publicCurveSizes.entrySet())
             sizesToPublicCurves.put(entry.getValue(), entry.getKey());
@@ -48,8 +46,6 @@ class CurveUtil {
         privateCurveSizes.put(CURVE.FFDHE4096, 595);
         privateCurveSizes.put(CURVE.FFDHE6144, 857);
         privateCurveSizes.put(CURVE.FFDHE8192, 1117);
-        privateCurveSizes.put(CURVE.Ed25519, 32);
-        privateCurveSizes.put(CURVE.Ed448, 57);
 
         for (Map.Entry<CURVE, Integer> entry : privateCurveSizes.entrySet())
             sizesToPrivateCurves.put(entry.getValue(), entry.getKey());
@@ -107,10 +103,6 @@ class CurveUtil {
                 return CurveUtil.CURVE.X25519;
             case "1.3.101.111":
                 return CurveUtil.CURVE.X448;
-            case "1.3.101.112":
-                return CurveUtil.CURVE.Ed25519;
-            case "1.3.101.113":
-                return CurveUtil.CURVE.Ed448;
             case "1.2.840.113549.1.3.1":
                 if (size == null)
                     throw new InvalidParameterException("Received oid: " + oid + " (size is " + size + ")");
@@ -146,10 +138,6 @@ class CurveUtil {
                 return CURVE.X25519;
             case "X448":
                 return CURVE.X448;
-            case "ED25519":
-                return CURVE.Ed25519;
-            case "ED448":
-                return CURVE.Ed448;
             case "FFDHE2048":
                 return CurveUtil.CURVE.FFDHE2048;
             case "FFDHE3072":
@@ -185,10 +173,6 @@ class CurveUtil {
      */
     public static AlgorithmId getAlgId(CurveUtil.CURVE curve) throws IOException {
         switch (curve) {
-            case Ed25519:
-                return new AlgorithmId(ObjectIdentifier.of(KnownOIDs.Ed25519));
-            case Ed448:
-                return new AlgorithmId(ObjectIdentifier.of(KnownOIDs.Ed448));
             case X25519:
                 return new AlgorithmId(ObjectIdentifier.of(KnownOIDs.X25519));
             case X448:
@@ -248,11 +232,9 @@ class CurveUtil {
     public static void checkOid(ObjectIdentifier oid) throws IOException {
         if (oid == null || (!oid.toString().equals("1.3.101.110")
                 /* X25519 */ && !oid.toString().equals("1.3.101.111") /* X448 */)
-                && !oid.toString().equals("1.3.101.112") /* Ed25519 */
-                && !oid.toString().equals("1.3.101.113") /* Ed448 */
                 && !oid.toString().equals("1.2.840.113549.1.3.1") /* FFDHE */)
             throw new IOException(
-                    "This curve does not seem to be an X25519, X448, Ed25519, Ed448 or FFDHE curve");
+                    "This curve does not seem to be an X25519, X448, or FFDHE curve");
     }
 
     

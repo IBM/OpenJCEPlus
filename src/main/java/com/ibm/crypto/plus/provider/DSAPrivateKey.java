@@ -86,7 +86,7 @@ final class DSAPrivateKey extends PKCS8Key
      *            the encoded parameters.
      */
     public DSAPrivateKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
-        super(encoded);
+        decode(encoded);
         this.provider = provider;
 
         try {
@@ -104,7 +104,14 @@ final class DSAPrivateKey extends PKCS8Key
     public DSAPrivateKey(OpenJCEPlusProvider provider, DSAKey dsaKey) throws InvalidKeyException {
         try {
             this.provider = provider;
-            this.algid = new AlgorithmId(AlgorithmId.DSA_oid, new DerValue(dsaKey.getParameters()));
+
+            try (DerOutputStream id = new DerOutputStream()) {
+                id.putOID(AlgorithmId.DSA_oid);
+                id.putDerValue(new DerValue(dsaKey.getParameters()));
+                DerValue value = new DerValue(DerValue.tag_Sequence,id.toByteArray());
+                this.algid = AlgorithmId.parse(value);
+            }
+
             this.key = convertOCKPrivateKeyBytes(dsaKey.getPrivateKeyBytes());
 
             this.dsaKey = dsaKey;

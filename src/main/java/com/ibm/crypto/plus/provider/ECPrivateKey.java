@@ -156,7 +156,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
      *            the encoded parameters.
      */
     public ECPrivateKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
-        super(encoded);
+        decode(encoded);
         this.provider = provider;
 
         try {
