@@ -90,8 +90,6 @@ public class BaseTestXDHKeyPairGenerator extends ibm.jceplus.junit.base.BaseTest
         generictestXECKeyGenCurve("FFDHE4096");
         generictestXECKeyGenCurve("FFDHE6144");
         generictestXECKeyGenCurve("FFDHE8192");
-        generictestXECKeyGenCurve("Ed25519");
-        generictestXECKeyGenCurve("Ed448");
     }
 
     protected void generictestXECKeyGenCurve(String curveName) throws Exception {

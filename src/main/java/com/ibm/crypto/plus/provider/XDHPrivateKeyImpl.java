@@ -428,8 +428,6 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         switch (this.curve) {
             case X25519:
             case X448:
-            case Ed25519:
-            case Ed448:
                 break;
             case FFDHE2048:
                 putFFDHEIntegers(oidBytes, bi1, bi2, bi3);

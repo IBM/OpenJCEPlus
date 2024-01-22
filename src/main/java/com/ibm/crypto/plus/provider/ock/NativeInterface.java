@@ -815,12 +815,6 @@ final class NativeInterface {
     static public native boolean SIGNATURE_verify(long ockContextId, long digestId, long pkeyId,
             byte[] sigBytes) throws OCKException;
 
-    static public native byte[] SIGNATUREEdDSA_signOneShot(long ockContextId, long pkeyId,
-            byte[] bytes) throws OCKException;
-
-    static public native boolean SIGNATUREEdDSA_verifyOneShot(long ockContextId, long pkeyId,
-            byte[] sigBytes, byte[] oneShot) throws OCKException;
-
     // =========================================================================
     // RSAPSSSignature functions
     // =========================================================================

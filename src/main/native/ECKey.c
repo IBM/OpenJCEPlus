@@ -24,8 +24,6 @@
 #define NID_ffdhe4096           1128
 #define NID_ffdhe6144           1129
 #define NID_ffdhe8192           1130
-#define NID_ED25519             1087
-#define NID_ED448               1088
 
 /* Note: when making ICC_D2i calls do not pass the address of a pointer allocated
  by GetPrimitiveArrayCritical.  Instead make a copy and pass the address of the copied pointer
@@ -403,8 +401,6 @@ int getOption(int option) {
     case 4: return NID_ffdh;
     case 5: return NID_ffdh;
     case 6: return NID_ffdh;
-    case 7: return NID_ED25519;
-    case 8: return NID_ED448;
   }
   return -1;
 }

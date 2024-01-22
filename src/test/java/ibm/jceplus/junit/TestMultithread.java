@@ -68,7 +68,6 @@ public class TestMultithread extends TestCase {
             "ibm.jceplus.junit.openjceplus.multithread.TestRSAKey",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSASignatureInteropSunRsaSign",
             "ibm.jceplus.junit.openjceplus.multithread.TestHKDF",
-            "ibm.jceplus.junit.openjceplus.multithread.TestEdDSASignature",
             "ibm.jceplus.junit.openjceplus.multithread.TestXDH",
             "ibm.jceplus.junit.openjceplus.multithread.TestXDHKeyImport",
             "ibm.jceplus.junit.openjceplus.multithread.TestXDHKeyPairGenerator",
