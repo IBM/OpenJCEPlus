@@ -30,13 +30,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
     private static final long serialVersionUID = -1610967128950682479L;
 
-    private static final boolean is80sr5 = false; // FIXME - remove usage for CR17_04
-
-    private static final String info_80sr5 = "OpenJCEPlus Provider implements the following:\n"
-            + "Algorithm parameter            : GCM\n" + "Algorithm parameter generator  : GCM\n"
-            + "Cipher algorithms              : AES/GCM/NoPadding\n"
-            + "Key generator                  : AES\n" + "Secret key factory             : AES\n";
-
     private static final String info = "OpenJCEPlus Provider implements the following:\n"
             + "Algorithm parameter                : AES, ChaCha20, ChaCha20-Poly1305, DESede, DiffieHellman, DSA, EC, XEC, GCM, CCM, OAEP, RSAPSS\n"
             + "Algorithm parameter generator      :  DiffieHellman, DSA, EC, XEC, GCM, CCM\n"
@@ -79,7 +72,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public OpenJCEPlus() {
-        super("OpenJCEPlus", 17, is80sr5 ? info_80sr5 : info);
+        super("OpenJCEPlus", 17, info);
 
         if (debug2) {
             System.out.println("New OpenJCEPlus instance");
@@ -98,11 +91,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
                     initializeContext();
                 }
 
-                if (is80sr5) {
-                    registerAlgorithms_80sr5(jce);
-                } else {
-                    registerAlgorithms(jce);
-                }
+                registerAlgorithms(jce);
 
                 return null;
             }
@@ -130,44 +119,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
                 }
             }
         }
-    }
-
-    private void registerAlgorithms_80sr5(Provider jce) {
-        String[] aliases = null;
-
-        /* =======================================================================
-         * Algorithm Parameter engines
-         * =======================================================================
-         */
-        aliases = new String[] {"AESGCM"};
-        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "GCM",
-                "com.ibm.crypto.plus.provider.GCMParameters", aliases));
-
-        /* =======================================================================
-         * Algorithm parameter generation engines
-         * =======================================================================
-         */
-        aliases = new String[] {"AESGCM"};
-        putService(new OpenJCEPlusService(jce, "AlgorithmParameterGenerator", "GCM",
-                "com.ibm.crypto.plus.provider.GCMParameterGenerator", aliases));
-
-        /* =======================================================================
-         * Cipher engines
-         * =======================================================================
-         */
-        aliases = null;
-        putService(new OpenJCEPlusService(jce, "Cipher", "AES/GCM/NoPadding",
-                "com.ibm.crypto.plus.provider.AESGCMCipher", aliases));
-
-
-
-        /* =======================================================================
-         * Secret key factories
-         * =======================================================================
-         */
-        aliases = null;
-        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "AES",
-                "com.ibm.crypto.plus.provider.AESKeyFactory", aliases));
     }
 
     private void registerAlgorithms(Provider jce) {
@@ -986,12 +937,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         //
         if (userSecureRandom != null) {
             return userSecureRandom;
-        }
-
-        // For Java 8 SR5, only AES/GCM algorithms are registered.
-        //
-        if (is80sr5) {
-            return new java.security.SecureRandom();
         }
 
         try {
