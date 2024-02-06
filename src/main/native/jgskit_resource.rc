@@ -27,13 +27,13 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "IBM\0"
             VALUE "FileDescription", "Native JGSKIT runtime library\0"
-            VALUE "FileVersion", "17\0"
+            VALUE "FileVersion", "21\0"
 	        VALUE "Build Increment", "0\0"
             VALUE "InternalName", "jgskit.dll\0"
-            VALUE "LegalCopyright", "(C) Copyright IBM Corp. 2023.\0"
+            VALUE "LegalCopyright", "(C) Copyright IBM Corp. 2023. Licensed under the Apache License 2.0.\0"
             VALUE "OriginalFilename", "jgskit.dll\0"
-            VALUE "ProductName", "IBM JCEPlus Crypto Provider for Windows, Java 2(tm), 17.0\0"
-            VALUE "ProductVersion", "17.0\0"
+            VALUE "ProductName", "OpenJCEPlus Crypto Provider for Windows, 21.0\0"
+            VALUE "ProductVersion", "21.0\0"
         END
     END
     BLOCK "VarFileInfo"

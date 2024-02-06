@@ -100,31 +100,24 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
         // e.getMessage());
         // }
 
-        try {
-            byte[] sArr = s.toByteArray();
-            // convert to fixed-length array
-            int numOctets = (params.getOrder().bitLength() + 7) / 8;
-            byte[] sOctets = new byte[numOctets];
-            int inPos = Math.max(sArr.length - sOctets.length, 0);
-            int outPos = Math.max(sOctets.length - sArr.length, 0);
-            int length = Math.min(sArr.length, sOctets.length);
-            System.arraycopy(sArr, inPos, sOctets, outPos, length);
 
-            DerOutputStream out = new DerOutputStream();
-
-            // PKCS8Key contains the decoding logic for all instances of
-            // PrivateKeys.
-            // It is checking that this version is set to zero.
-
-            // This section matches with what we do in FIPS70.
-            out.putInteger(1); // version 1
-            out.putOctetString(sOctets);
-            DerValue val = new DerValue(DerValue.tag_Sequence, out.toByteArray());
-            key = val.toByteArray();
-        } catch (IOException exc) {
-            // should not occur
-            throw new InvalidKeyException(exc);
-        }
+        byte[] sArr = s.toByteArray();
+        // convert to fixed-length array
+        int numOctets = (params.getOrder().bitLength() + 7) / 8;
+        byte[] sOctets = new byte[numOctets];
+        int inPos = Math.max(sArr.length - sOctets.length, 0);
+        int outPos = Math.max(sOctets.length - sArr.length, 0);
+        int length = Math.min(sArr.length, sOctets.length);
+        System.arraycopy(sArr, inPos, sOctets, outPos, length);
+        DerOutputStream out = new DerOutputStream();
+        // PKCS8Key contains the decoding logic for all instances of
+        // PrivateKeys.
+        // It is checking that this version is set to zero.
+        // This section matches with what we do in FIPS70.
+        out.putInteger(1); // version 1
+        out.putOctetString(sOctets);
+        DerValue val = new DerValue(DerValue.tag_Sequence, out.toByteArray());
+        key = val.toByteArray();
 
         try {
             this.publicKeyBytes = null;

@@ -19,7 +19,7 @@ considered FIPS compliant. Achieving certified FIPS cryptography requires the un
 and architectures. Any cryptographic libraries developed must adhere to rigorous FIPS standards and should not be assumed to be available in any environment.
 All environments and binaries must undergo the FIPS certification process with NIST to ensure compliance.**
 
-This github branch can only be used with Java version 17.
+This github branch can only be used with Java version 21.
 
 ## How to Build `OpenJCEPlus` and Java Native Interface Library
 
@@ -80,7 +80,7 @@ You can test your installation by issuing `mvn --version`. For example:
     $ mvn --version
     Apache Maven 3.9.2 (c9616018c7a021c1c39be70fb2843d6f5f9b8a1c)
     Maven home: /tools/apache-maven-3.9.2
-    Java version: 1.8.0_361, vendor: IBM Corporation, runtime: /opt/ibm/sdks/jdk-17.0.5+8
+    Java version: 1.8.0_361, vendor: IBM Corporation, runtime: /opt/ibm/sdks/jdk-21.0.2+13
     Default locale: en_US, platform encoding: ISO8859-1
     OS name: "aix", version: "7.2", arch: "ppc64", family: "unix"
     ```
@@ -93,10 +93,10 @@ You can test your installation by issuing `mvn --version`. For example:
     cd OpenJCEPlus
     ```
 
-1. Set your `JAVA_HOME` environment variable. This will be the SDK used to compile the project. You must set your JAVA_HOME value to Java version 17 when using code located in the `main` branch.
+1. Set your `JAVA_HOME` environment variable. This will be the SDK used to compile the project. You must set your JAVA_HOME value to Java version 21 when using code located in the `main` branch.
 
     ```console
-    export JAVA_HOME="/opt/ibm/sdks/jdk-17.0.5+8"
+    export JAVA_HOME="/opt/ibm/sdks/jdk-21.0.2+13"
     ```
 
 1. Set the location of the variable `GSKIT_SDK` to the directory extracted in the above steps.
@@ -149,10 +149,10 @@ On AIX you must set an additional setting for the `LIBPATH` environment variable
 export LIBPATH="$PROJECT_HOME/OCK/:$PROJECT_HOME/OCK/jgsk_sdk"
 ```
 
-On all platforms set the following environment variables and execute all the tests using `mvn`. You must set your JAVA_HOME value to Java version 17 when using code located in the `main` branch.
+On all platforms set the following environment variables and execute all the tests using `mvn`. You must set your JAVA_HOME value to Java version 21 when using code located in the `main` branch.
 
 ```console
-export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-17.0.5+8"
+export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-21.0.2+13"
 export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
 mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test
 ```
@@ -165,11 +165,11 @@ On AIX you must set an additional setting for the `LIBPATH` environment variable
 export LIBPATH="$PROJECT_HOME/OCK/:$PROJECT_HOME/OCK/jgsk_sdk"
 ```
 
-On all platforms change to the OpenJCEPlus directory and set the following environment variables and execute a specific test name using `mvn`. You must set your JAVA_HOME value to Java version 17 when using code located in the `main` branch.
+On all platforms change to the OpenJCEPlus directory and set the following environment variables and execute a specific test name using `mvn`. You must set your JAVA_HOME value to Java version 21 when using code located in the `main` branch.
 
 ```console
 cd OpenJCEPlus
-export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-17.0.5+8"
+export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-21.0.2+13"
 export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
 mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test -Dtest=TestClassname
 ```

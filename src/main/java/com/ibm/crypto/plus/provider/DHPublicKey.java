@@ -63,8 +63,6 @@ final class DHPublicKey extends X509Key
             dhParams.engineInit(new DHParameterSpec(p, g, l));
             this.key = new DerValue(DerValue.tag_Integer, this.y.toByteArray()).toByteArray();
             this.encodedKey = getEncoded();
-        } catch (IOException e) {
-            throw new InvalidKeyException("Cannot produce ASN.1 encoding");
         } catch (InvalidParameterSpecException e) {
             throw new InvalidKeyException("Cannot initialize parameters");
         }
@@ -92,12 +90,8 @@ final class DHPublicKey extends X509Key
         this.provider = provider;
         this.y = y;
         this.dhParams = params;
-        try {
-            this.key = new DerValue(DerValue.tag_Integer, this.y.toByteArray()).toByteArray();
-            this.encodedKey = getEncoded();
-        } catch (IOException e) {
-            throw new InvalidKeyException("Cannot produce ASN.1 encoding");
-        }
+        this.key = new DerValue(DerValue.tag_Integer, this.y.toByteArray()).toByteArray();
+        this.encodedKey = getEncoded();
     }
 
     public DHPublicKey(OpenJCEPlusProvider provider, DHKey dhKey) {
@@ -235,8 +229,6 @@ final class DHPublicKey extends X509Key
         DerOutputStream asn1Key = new DerOutputStream();
         try {
             asn1Key.putSequence(value);
-        } catch (IOException e) {
-            throw e;
         } finally {
             closeStream(asn1Key);
         }
