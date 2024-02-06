@@ -399,29 +399,22 @@ public final class CertAndKeyGen {
             X509CertInfo info = new X509CertInfo();
             // Add all mandatory attributes
             // Note here that V1 = 0, V2 = 1, V3 = 2
-            info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
+            info.setVersion(new CertificateVersion(CertificateVersion.V3));
 
 
-            info.set(X509CertInfo.SERIAL_NUMBER,
-                    new CertificateSerialNumber((int) (firstDate.getTime() / 1000)));
+            info.setSerialNumber(new CertificateSerialNumber((int) (firstDate.getTime() / 1000)));
             AlgorithmId algID = issuer.getAlgorithmId();
-            info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algID));
-            //info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(myname));
-            info.set(X509CertInfo.SUBJECT, myname);
-            info.set(X509CertInfo.KEY, new CertificateX509Key(publicKey));
-            info.set(X509CertInfo.VALIDITY, interval);
-            //            info.set(X509CertInfo.ISSUER,
-            //                     new CertificateIssuerName(issuer.getSigner()));
-            info.set(X509CertInfo.ISSUER, issuer.getSigner());
+            info.setAlgorithmId(new CertificateAlgorithmId(algID));
+            //info.setSubject(new CertificateSubjectName(myname));
+            info.setSubject(myname);
+            info.setKey(new CertificateX509Key(publicKey));
+            info.setValidity(interval);
+            info.setIssuer(issuer.getSigner());
 
-            cert = new X509CertImpl(info);
-            // 991119 - Updated to match JDK 1.2.2 source.
-            //cert.sign(privateKey, algID.getName());
-            //cert.sign(privateKey, this.sigAlg);
             if (provider == null) {
-                cert.sign(privateKey, this.sigAlg);
+                cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg);
             } else {
-                cert.sign(privateKey, this.sigAlg, provider);
+                cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg, provider);
             }
 
             if (debug != null) {
@@ -469,29 +462,22 @@ public final class CertAndKeyGen {
             X509CertInfo info = new X509CertInfo();
             // Add all mandatory attributes
             // Note here that V1 = 0, V2 = 1, V3 = 2
-            info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
+            info.setVersion(new CertificateVersion(CertificateVersion.V3));
 
-            info.set(X509CertInfo.SERIAL_NUMBER,
-                    new CertificateSerialNumber((int) (firstDate.getTime() / 1000)));
+            info.setSerialNumber(new CertificateSerialNumber((int) (firstDate.getTime() / 1000)));
             AlgorithmId algID = issuer.getAlgorithmId();
-            info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algID));
-            // info.set(X509CertInfo.SUBJECT, new
+            info.setAlgorithmId(new CertificateAlgorithmId(algID));
+            // info.setSubject(new
             // CertificateSubjectName(myname));
-            info.set(X509CertInfo.SUBJECT, myname);
-            info.set(X509CertInfo.KEY, new CertificateX509Key(publicKey));
-            info.set(X509CertInfo.VALIDITY, interval);
-            // info.set(X509CertInfo.ISSUER,
-            // new CertificateIssuerName(issuer.getSigner()));
-            info.set(X509CertInfo.ISSUER, issuer.getSigner());
+            info.setSubject(myname);
+            info.setKey(new CertificateX509Key(publicKey));
+            info.setValidity(interval);
+            info.setIssuer(issuer.getSigner());
 
-            cert = new X509CertImpl(info);
-            // 991119 - Updated to match JDK 1.2.2 source.
-            // cert.sign(privateKey, algID.getName());
-            // cert.sign(privateKey, this.sigAlg);
             if (provider == null) {
-                cert.sign(privateKey, this.sigAlg);
+                cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg);
             } else {
-                cert.sign(privateKey, this.sigAlg, provider);
+                cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg, provider);
             }
 
             if (debug != null) {
@@ -600,28 +586,23 @@ public final class CertAndKeyGen {
             // Note here that V1 = 0, V2 = 1, V3 = 2
             if ((version != CertificateVersion.V1) && (version != CertificateVersion.V2)
                     && (version != CertificateVersion.V3)) {
-                info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
+                info.setVersion(new CertificateVersion(CertificateVersion.V3));
             } else {
-                info.set(X509CertInfo.VERSION, new CertificateVersion(version));
+                info.setVersion(new CertificateVersion(version));
             }
 
-            info.set(X509CertInfo.SERIAL_NUMBER,
-                    new CertificateSerialNumber((int) (firstDate.getTime() / 1000)));
+            info.setSerialNumber(new CertificateSerialNumber((int) (firstDate.getTime() / 1000)));
             AlgorithmId algID = issuer.getAlgorithmId();
-            info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algID));
-            info.set(X509CertInfo.SUBJECT, myname);
-            info.set(X509CertInfo.KEY, new CertificateX509Key(publicKey));
-            info.set(X509CertInfo.VALIDITY, interval);
-            info.set(X509CertInfo.ISSUER, issuer.getSigner());
+            info.setAlgorithmId(new CertificateAlgorithmId(algID));
+            info.setSubject(myname);
+            info.setKey(new CertificateX509Key(publicKey));
+            info.setValidity(interval);
+            info.setIssuer(issuer.getSigner());
 
-            cert = new X509CertImpl(info);
-            // 991119 - Updated to match JDK 1.2.2 source.
-            // cert.sign(privateKey, algID.getName());
-            // cert.sign(privateKey, this.sigAlg);
             if (provider == null) {
-                cert.sign(privateKey, this.sigAlg);
+                cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg);
             } else {
-                cert.sign(privateKey, this.sigAlg, provider);
+                cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg, provider);
             }
 
             if (debug != null) {
@@ -695,28 +676,23 @@ public final class CertAndKeyGen {
             // Note here that V1 = 0, V2 = 1, V3 = 2
             if ((version != CertificateVersion.V1) && (version != CertificateVersion.V2)
                     && (version != CertificateVersion.V3)) {
-                info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
+                info.setVersion(new CertificateVersion(CertificateVersion.V3));
             } else {
-                info.set(X509CertInfo.VERSION, new CertificateVersion(version));
+                info.setVersion(new CertificateVersion(version));
             }
 
-            info.set(X509CertInfo.SERIAL_NUMBER,
-                    new CertificateSerialNumber((int) (firstDate.getTime() / 1000)));
+            info.setSerialNumber(new CertificateSerialNumber((int) (firstDate.getTime() / 1000)));
             AlgorithmId algID = issuer.getAlgorithmId();
-            info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algID));
-            info.set(X509CertInfo.SUBJECT, myname);
-            info.set(X509CertInfo.KEY, new CertificateX509Key(publicKey));
-            info.set(X509CertInfo.VALIDITY, interval);
-            info.set(X509CertInfo.ISSUER, issuer.getSigner());
+            info.setAlgorithmId(new CertificateAlgorithmId(algID));
+            info.setSubject(myname);
+            info.setKey(new CertificateX509Key(publicKey));
+            info.setValidity(interval);
+            info.setIssuer(issuer.getSigner());
 
-            cert = new X509CertImpl(info);
-            // 991119 - Updated to match JDK 1.2.2 source.
-            // cert.sign(privateKey, algID.getName());
-            // cert.sign(privateKey, this.sigAlg);
             if (provider == null) {
-                cert.sign(privateKey, this.sigAlg);
+                cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg);
             } else {
-                cert.sign(privateKey, this.sigAlg, provider);
+                cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg, provider);
             }
 
             if (debug != null) {
@@ -786,20 +762,19 @@ public final class CertAndKeyGen {
 
             X509CertInfo info = new X509CertInfo();
             // Add all mandatory attributes
-            info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
-            info.set(X509CertInfo.SERIAL_NUMBER,
-                    new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
+            info.setVersion(new CertificateVersion(CertificateVersion.V3));
+            info.setSerialNumber(new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
             AlgorithmId algID = AlgorithmId.get(sigAlg);
-            info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algID));
-            info.set(X509CertInfo.SUBJECT, myname);
-            info.set(X509CertInfo.KEY, new CertificateX509Key(publicKey));
-            info.set(X509CertInfo.VALIDITY, interval);
-            info.set(X509CertInfo.ISSUER, myname);
+            info.setAlgorithmId(new CertificateAlgorithmId(algID));
+            info.setSubject(myname);
+            info.setKey(new CertificateX509Key(publicKey));
+            info.setValidity(interval);
+            info.setIssuer(myname);
             if (ext != null)
-                info.set(X509CertInfo.EXTENSIONS, ext);
+                info.setExtensions(ext);
 
-            cert = new X509CertImpl(info);
-            cert.sign(privateKey, this.sigAlg);
+            cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg);
+
             if (debug != null) {
                 debug.exit(Debug.TYPE_PUBLIC, className, "getSelfCertificate",
                         (X509Certificate) cert);
@@ -836,20 +811,19 @@ public final class CertAndKeyGen {
 
             X509CertInfo info = new X509CertInfo();
             // Add all mandatory attributes
-            info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
-            info.set(X509CertInfo.SERIAL_NUMBER,
-                    new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
+            info.setVersion(new CertificateVersion(CertificateVersion.V3));
+            info.setSerialNumber(new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
             AlgorithmId algID = AlgorithmId.get(sigAlg);
-            info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algID));
-            info.set(X509CertInfo.SUBJECT, myname);
-            info.set(X509CertInfo.KEY, new CertificateX509Key(publicKey));
-            info.set(X509CertInfo.VALIDITY, interval);
-            info.set(X509CertInfo.ISSUER, myname);
+            info.setAlgorithmId(new CertificateAlgorithmId(algID));
+            info.setSubject(myname);
+            info.setKey(new CertificateX509Key(publicKey));
+            info.setValidity(interval);
+            info.setIssuer(myname);
             if (ext != null)
-                info.set(X509CertInfo.EXTENSIONS, ext);
+                info.setExtensions(ext);
 
-            cert = new X509CertImpl(info);
-            cert.sign(privateKey, this.sigAlg);
+            cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg);
+
             if (debug != null) {
                 debug.exit(Debug.TYPE_PUBLIC, className, "getSelfCertificate",
                         (X509Certificate) cert);

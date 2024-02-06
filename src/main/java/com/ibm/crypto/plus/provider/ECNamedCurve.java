@@ -71,8 +71,6 @@ final class ECNamedCurve extends ECGenParameterSpec implements AlgorithmParamete
             out.putOID(oid);
             encoded = out.toByteArray();
 
-        } catch (IOException e) {
-            throw new InvalidParameterException("The OID could not be DER-encoded");
         } finally {
             try {
                 out.close();

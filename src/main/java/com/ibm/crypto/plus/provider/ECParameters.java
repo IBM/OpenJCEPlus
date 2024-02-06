@@ -288,28 +288,20 @@ public final class ECParameters extends AlgorithmParametersSpi {
 
     private static DerValue encodeEllipticCurve(EllipticCurve curve) throws IOException {
 
-        try {
-            byte[] aByteArray = trimZeroes(curve.getA().toByteArray());
-            byte[] bByteArray = trimZeroes(curve.getB().toByteArray());
-
-            byte[] seed = curve.getSeed(); // May be null
-
-            DerOutputStream out = new DerOutputStream();
-            out.putOctetString(aByteArray);
-            out.putOctetString(bByteArray);
-            if (seed != null) {
-                out.putBitString(seed);
-            }
-
-            // Observe that the DerValues above are the
-            // "data" of the DerValue with the SEQUENCE TAG
-            DerValue val = new DerValue(DerValue.tag_Sequence, out.toByteArray());
-
-            return val;
-
-        } catch (IOException e) {
-            throw new IOException("Exception in encodeEllipticCurve(): " + e);
+        byte[] aByteArray = trimZeroes(curve.getA().toByteArray());
+        byte[] bByteArray = trimZeroes(curve.getB().toByteArray());
+        byte[] seed = curve.getSeed(); // May be null
+        DerOutputStream out = new DerOutputStream();
+        out.putOctetString(aByteArray);
+        out.putOctetString(bByteArray);
+        if (seed != null) {
+            out.putBitString(seed);
         }
+        // Observe that the DerValues above are the
+        // "data" of the DerValue with the SEQUENCE TAG
+        DerValue val = new DerValue(DerValue.tag_Sequence, out.toByteArray());
+        return val;
+
     }
 
     // Curve ::= SEQUENCE {

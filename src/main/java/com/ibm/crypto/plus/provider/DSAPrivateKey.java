@@ -62,11 +62,7 @@ final class DSAPrivateKey extends PKCS8Key
         this.provider = provider;
         this.x = x;
 
-        try {
-            key = new DerValue(DerValue.tag_Integer, x.toByteArray()).toByteArray();
-        } catch (IOException e) {
-            throw new InvalidKeyException("could not DER encode x: " + e.getMessage());
-        }
+        key = new DerValue(DerValue.tag_Integer, x.toByteArray()).toByteArray();
 
         try {
             byte[] privateKeyBytes = buildOCKPrivateKeyBytes();

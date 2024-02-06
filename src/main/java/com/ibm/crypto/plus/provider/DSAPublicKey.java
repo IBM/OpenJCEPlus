@@ -62,13 +62,9 @@ final class DSAPublicKey extends X509Key
         this.provider = provider;
         this.y = y;
 
-        try {
-            byte[] keyArray = new DerValue(DerValue.tag_Integer, y.toByteArray()).toByteArray();
-            setKey(new BitArray(keyArray.length * 8, keyArray));
-            encode();
-        } catch (IOException e) {
-            throw new InvalidKeyException("coud not DER encode y: " + e.getMessage());
-        }
+        byte[] keyArray = new DerValue(DerValue.tag_Integer, y.toByteArray()).toByteArray();
+        setKey(new BitArray(keyArray.length * 8, keyArray));
+        encode();
 
         try {
             byte[] publicKeyBytes = buildOCKPublicKeyBytes();
