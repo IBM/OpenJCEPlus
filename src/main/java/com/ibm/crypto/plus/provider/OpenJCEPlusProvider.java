@@ -19,6 +19,12 @@ import com.ibm.crypto.plus.provider.ock.OCKContext;
 //
 @SuppressWarnings({"serial", "removal", "deprecation"})
 abstract class OpenJCEPlusProvider extends java.security.Provider {
+    private static final String PROVIDER_VER = java.security.AccessController
+                .doPrivileged(new java.security.PrivilegedAction<String>() {
+                    public String run() {
+                        return (System.getProperty("java.specification.version"));
+                    }
+                });
 
     // Are we debugging? -- for developers
     static final boolean debug2 = false;
@@ -26,8 +32,8 @@ abstract class OpenJCEPlusProvider extends java.security.Provider {
     //    private static boolean verifiedSelfIntegrity = false;
     private static boolean verifiedSelfIntegrity = true;
 
-    OpenJCEPlusProvider(String name, double version, String info) {
-        super(name, version, info);
+    OpenJCEPlusProvider(String name, String info) {
+        super(name, PROVIDER_VER, info);
     }
 
     static final boolean verifySelfIntegrity(Class c) {

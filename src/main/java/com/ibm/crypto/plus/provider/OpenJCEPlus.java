@@ -72,7 +72,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public OpenJCEPlus() {
-        super("OpenJCEPlus", 17, info);
+        super("OpenJCEPlus", info);
 
         if (debug2) {
             System.out.println("New OpenJCEPlus instance");

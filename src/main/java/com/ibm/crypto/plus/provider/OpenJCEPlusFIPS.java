@@ -69,7 +69,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public OpenJCEPlusFIPS() {
-        super("OpenJCEPlusFIPS", 17, info);
+        super("OpenJCEPlusFIPS", info);
         if (debug2) {
             System.out.println("New OpenJCEPlusFIPS instance");
         }
