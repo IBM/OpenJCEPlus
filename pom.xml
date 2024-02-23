@@ -347,14 +347,22 @@
                   <artifactId>maven-surefire-plugin</artifactId>
                   <version>3.2.2</version>
                   <configuration>
+                    <useModulePath>false</useModulePath>
                     <!-- Could add -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:8787 for debug -->
                     <argLine>
                       @{argLine}
+                      --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
                       --add-exports=java.base/sun.security.internal.spec=openjceplus
                       --add-exports=java.base/sun.security.util=openjceplus
                       --add-exports=java.base/sun.security.internal.interfaces=openjceplus
                       --add-exports=java.base/sun.security.x509=openjceplus
                       --add-exports=java.base/sun.security.pkcs=openjceplus
+                      --add-exports=java.base/sun.security.internal.spec=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.util=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.internal.interfaces=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.x509=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.pkcs=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.base.memstress=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus=ALL-UNNAMED

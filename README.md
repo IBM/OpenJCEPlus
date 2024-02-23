@@ -157,6 +157,8 @@ export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
 mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test
 ```
 
+**NOTE**: When using a JDK that doesn't have `OpenJCEPlus` bundled with it, you might notice a few warnings like `WARNING: Unknown module: openjceplus specified to --add-exports`. There is no need to worry as they do not affect execution of tests or the build itself.
+
 ### Run single test
 
 On AIX you must set an additional setting for the `LIBPATH` environment variable:
