@@ -195,10 +195,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "Cipher", "AES",
                 "com.ibm.crypto.plus.provider.AESCipher", aliases));
 
-        aliases = null;
-        putService(new OpenJCEPlusService(jce, "Cipher", "RSA", "com.ibm.crypto.plus.provider.RSA",
-                aliases));
-
         /* =======================================================================
          * Key agreement
          * =======================================================================

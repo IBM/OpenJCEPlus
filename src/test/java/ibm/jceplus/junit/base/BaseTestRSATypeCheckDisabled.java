@@ -9,6 +9,7 @@ package ibm.jceplus.junit.base;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPublicKey;
 import javax.crypto.Cipher;
@@ -49,7 +50,17 @@ public class BaseTestRSATypeCheckDisabled extends BaseTest {
     //
     //
     public void testPrivateKeyEncrypt() throws Exception {
-        Cipher cp = Cipher.getInstance("RSA", providerName);
+        Cipher cp = null;
+        try {
+            cp = Cipher.getInstance("RSA", providerName);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: RSA", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
         cp.init(Cipher.ENCRYPT_MODE, rsaPriv);
     }
 
@@ -57,8 +68,18 @@ public class BaseTestRSATypeCheckDisabled extends BaseTest {
     //
     //
     public void testPublicKeyDecrypt() throws Exception {
-        Cipher cp = Cipher.getInstance("RSA", providerName);
-        cp.init(Cipher.DECRYPT_MODE, rsaPub);
+        Cipher cp = null;
+        try {
+            cp = Cipher.getInstance("RSA", providerName);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: RSA", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
+        cp.init(Cipher.DECRYPT_MODE, rsaPub);        
     }
 }
 
