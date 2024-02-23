@@ -11,6 +11,7 @@ package ibm.jceplus.junit.base;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
@@ -536,7 +537,17 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
 
             RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyPairPlus.getPublic();
             rsaKeyPairPlus.getPrivate();
-            Cipher cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            Cipher cipherPlus = null;
+            try {
+                cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            } catch (NoSuchAlgorithmException nsae) {
+                if (providerName.equals("OpenJCEPlusFIPS")) {
+                    assertEquals("No such algorithm: RSA/ECB/PKCS1Padding", nsae.getMessage());
+                    return;
+                } else {
+                    throw nsae;
+                }
+            }
             cipherPlus.init(Cipher.ENCRYPT_MODE, rsaPubPlus);
             cipherText = cipherPlus.doFinal(msgBytes);
 
@@ -549,7 +560,17 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
             RSAPrivateCrtKey rsaPrivJCE = (RSAPrivateCrtKey) rsaKeyFactoryJCE
                     .generatePrivate(pkcs8SpecPlus);
 
-            Cipher cipherJCE = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            Cipher cipherJCE = null;
+            try {
+                cipherJCE = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            } catch (NoSuchAlgorithmException nsae) {
+                if (providerName.equals("OpenJCEPlusFIPS")) {
+                    assertEquals("No such algorithm: RSA/ECB/PKCS1Padding", nsae.getMessage());
+                    return;
+                } else {
+                    throw nsae;
+                }
+            }
             cipherJCE.init(Cipher.DECRYPT_MODE, rsaPrivJCE);
             byte[] decryptedBytes = cipherJCE.doFinal(cipherText);
             System.out.println("msgBytes = " + toHex(msgBytes));
@@ -567,13 +588,24 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
         //        "encrypt with JCE and decrypt with JCEPlus and vice versa").getBytes();
 
         try {
-            byte[] cipherText;
+            byte[] cipherText = null;
             rsaKeyPairGenJCE.initialize(this.keySize);
             KeyPair rsaKeyPairJCE = rsaKeyPairGenJCE.generateKeyPair();
 
             RSAPublicKey rsaPubJCE = (RSAPublicKey) rsaKeyPairJCE.getPublic();
             rsaKeyPairJCE.getPrivate();
-            Cipher cipherJCE = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            Cipher cipherJCE = null;
+            try {
+                cipherJCE = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            } catch (NoSuchAlgorithmException nsae) {
+                if (providerName.equals("OpenJCEPlusFIPS")) {
+                    assertEquals("No such algorithm: RSA/ECB/PKCS1Padding", nsae.getMessage());
+                    return;
+                } else {
+                    throw nsae;
+                }
+            }
+            
             cipherJCE.init(Cipher.ENCRYPT_MODE, rsaPubJCE);
             cipherText = cipherJCE.doFinal(msgBytes);
 
@@ -586,7 +618,18 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
             RSAPrivateCrtKey rsaPrivPlus = (RSAPrivateCrtKey) rsaKeyFactoryPlus
                     .generatePrivate(pkcs8SpecJCE);
 
-            Cipher cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            Cipher cipherPlus = null;
+            try {
+                cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            } catch (NoSuchAlgorithmException nsae) {
+                if (providerName.equals("OpenJCEPlusFIPS")) {
+                    assertEquals("No such algorithm: RSA/ECB/PKCS1Padding", nsae.getMessage());
+                    return;
+                } else {
+                    throw nsae;
+                }
+            }
+
             cipherPlus.init(Cipher.DECRYPT_MODE, rsaPrivPlus);
             byte[] decryptedBytes = cipherPlus.doFinal(cipherText);
             System.out.println("msgBytes = " + toHex(msgBytes));

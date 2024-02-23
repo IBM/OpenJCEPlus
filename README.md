@@ -211,7 +211,7 @@ Cipher                      | AES/GCM/NoPadding          |X                |X   
 Cipher                      | ChaCha20                   |                 |X             |
 Cipher                      | ChaCha20-Poly1305          |                 |X             |
 Cipher                      | DESede                     |                 |X             |
-Cipher                      | RSA                        |X                |X             |
+Cipher                      | RSA                        |                 |X             |
 KeyAgreement                | DiffieHellman              |X                |X             |
 KeyAgreement                | ECDH                       |X                |X             |
 KeyAgreement                | X25519                     |                 |X             |

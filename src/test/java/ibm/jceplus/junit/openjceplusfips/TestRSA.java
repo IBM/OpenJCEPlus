@@ -8,11 +8,17 @@
 
 package ibm.jceplus.junit.openjceplusfips;
 
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Cipher;
+
+import ibm.jceplus.junit.base.BaseTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class TestRSA extends ibm.jceplus.junit.base.BaseTestRSA {
+public class TestRSA extends BaseTest {
 
+    protected int specifiedKeySize = 0;
     //--------------------------------------------------------------------------
     //
     //
@@ -31,7 +37,8 @@ public class TestRSA extends ibm.jceplus.junit.base.BaseTestRSA {
     //
     //
     public TestRSA(int keySize) throws Exception {
-        super(Utils.TEST_SUITE_PROVIDER_NAME, keySize);
+        super(Utils.TEST_SUITE_PROVIDER_NAME);
+        this.specifiedKeySize = keySize;
     }
 
     //--------------------------------------------------------------------------
@@ -49,34 +56,16 @@ public class TestRSA extends ibm.jceplus.junit.base.BaseTestRSA {
         return suite;
     }
 
-    // --------------------------------------------------------------------------
-    // This method is to check whether an algorithm is valid for the cipher
-    // but not supported by a given provider.
+        // --------------------------------------------------------------------------
+    // This method is to check whether OpenJCEPlusFIPS can throw exception with RSA cipher 
     //
-    @Override
-    public boolean isAlgorithmValidButUnsupported(String algorithm) {
-        if (algorithm.equalsIgnoreCase("RSAwithNoPad") || algorithm.equalsIgnoreCase("RSAforSSL")) {
-            return true;
+    public static void testLoadRSACipher() throws Exception{
+        try {
+            Cipher.getInstance("RSA", Utils.TEST_SUITE_PROVIDER_NAME);
+        } catch (NoSuchAlgorithmException nsae) {
+            assertEquals("No such algorithm: RSA", nsae.getMessage());
+            return;
         }
-
-        return super.isAlgorithmValidButUnsupported(algorithm);
-    }
-
-    // --------------------------------------------------------------------------
-    // This method is to check whether a padidng is valid for the cipher
-    // but not supported by a given provider.
-    //
-    @Override
-    public boolean isPaddingValidButUnsupported(String padding) {
-        if (padding.equalsIgnoreCase("ZeroPadding")
-                || padding.equalsIgnoreCase("OAEPWithSHA-224AndMGF1Padding")
-                || padding.equalsIgnoreCase("OAEPWithSHA-256AndMGF1Padding")
-                || padding.equalsIgnoreCase("OAEPWithSHA-384AndMGF1Padding")
-                || padding.equalsIgnoreCase("OAEPWithSHA-512AndMGF1Padding")) {
-            return true;
-        }
-
-        return super.isPaddingValidButUnsupported(padding);
     }
 }
 
