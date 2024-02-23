@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
-
+import sun.security.util.KnownOIDs;
 import sun.security.util.ObjectIdentifier;
 import sun.security.x509.AlgorithmId;
 
@@ -186,13 +186,13 @@ class CurveUtil {
     public static AlgorithmId getAlgId(CurveUtil.CURVE curve) throws IOException {
         switch (curve) {
             case Ed25519:
-                return new AlgorithmId(AlgorithmId.ed25519_oid);
+                return new AlgorithmId(ObjectIdentifier.of(KnownOIDs.Ed25519));
             case Ed448:
-                return new AlgorithmId(AlgorithmId.ed448_oid);
+                return new AlgorithmId(ObjectIdentifier.of(KnownOIDs.Ed448));
             case X25519:
-                return new AlgorithmId(AlgorithmId.x25519_oid);
+                return new AlgorithmId(ObjectIdentifier.of(KnownOIDs.X25519));
             case X448:
-                return new AlgorithmId(AlgorithmId.x448_oid);
+                return new AlgorithmId(ObjectIdentifier.of(KnownOIDs.X448));
             case FFDHE2048:
                 return new AlgorithmId(ObjectIdentifier.of("1.2.840.113549.1.3.1"));
             case FFDHE3072:
