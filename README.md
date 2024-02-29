@@ -243,7 +243,7 @@ KeyFactory                  | X25519                     |                 |X   
 KeyFactory                  | X448                       |                 |X             |
 KeyFactory                  | XDH                        |                 |X             |
 KeyGenerator                | AES                        |X                |X             |
-KeyGenerator                | ChaCha20                   |                |X             |
+KeyGenerator                | ChaCha20                   |                 |X             |
 KeyGenerator                | DESede                     |                 |X             |
 KeyGenerator                | HmacMD5                    |                 |X             |
 KeyGenerator                | HmacSHA1                   |                 |X             |
@@ -289,8 +289,8 @@ Mac                         | HmacSHA3-384               |X                |X   
 Mac                         | HmacSHA3-512               |X                |X             |
 Mac                         | HmacSHA384                 |X                |X             |
 Mac                         | HmacSHA512                 |X                |X             |
-MessageDigest               | MD5                        |X                |X             |
-MessageDigest               | SHA-1                      |X                |X             |
+MessageDigest               | MD5                        |                 |X             |
+MessageDigest               | SHA-1                      |                 |X             |
 MessageDigest               | SHA-224                    |X                |X             |
 MessageDigest               | SHA-256                    |X                |X             |
 MessageDigest               | SHA-384                    |X                |X             |
@@ -316,7 +316,7 @@ Signature                   | RSAPSS                     |X                |X   
 Signature                   | RSAforSSL                  |X                |X             |
 Signature                   | SHA1withDSA                |                 |X             |
 Signature                   | SHA1withECDSA              |                 |X             |
-Signature                   | SHA1withRSA                |X                |X             |
+Signature                   | SHA1withRSA                |                 |X             |
 Signature                   | SHA224withDSA              |X                |X             |
 Signature                   | SHA224withECDSA            |X                |X             |
 Signature                   | SHA224withRSA              |X                |X             |
