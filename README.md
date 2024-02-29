@@ -111,6 +111,20 @@ You can test your installation by issuing `mvn --version`. For example:
    export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_crypto_sdk/jgsk_sdk"
    ```
 
+1. **(Only for Windows)** Some additional environment variables need to be set in Windows. There are certain header files and libraries that are required to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers in a Windows environment and those files are found in the exported directories. It is assumed that you are running through a `CYGWIN` prompt.
+
+    ```console
+    export PATH=/cygdrive/c/Program\ Files\ \(x86\)/Windows\ Kits/10/bin/10.0.19041.0/x64/:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/bin/Hostx64/x64/:$PATH
+
+    export INCLUDE="C:/Program Files (x86)/Windows Kits/10/include/10.0.19041.0/um/;C:/Program Files (x86)/Windows Kits/10/include/10.0.19041.0/shared/;C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/include/;C:/Program Files (x86)/Windows Kits/10/include/10.0.19041.0/ucrt/"
+
+    export LIB="C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/lib/x64;C:/Program Files (x86)/Windows Kits/10/lib/10.0.19041.0/ucrt/x64;C:/Program Files (x86)/Windows Kits/10/lib/10.0.19041.0/um/x64"
+    ```
+
+    **NOTE 1**: You need to have installed `Microsoft Visual Studio` and `CYGWIN` on your machine.
+
+    **NOTE 2**: You might have to adapt the exported environment variables, if the installation directory of `Visual Studio` is different on your machine, or the versions you have available for `Windows Kits` and `Visual Studio` are diffent (e.g., the `Windows Kits` version in the variables above is `10.0.19041.0`, but it might be different on your machine).
+
 1. Compile the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with the Java Native Interface library. This command intentionally skips test execution. See instructions below for [running tests](#Test-Execution).
 
     ```console
