@@ -16,8 +16,8 @@ IF NOT DEFINED JAVA_HOME (
 	echo "JAVA_HOME must be set"
 	goto :eof
 )
-IF NOT DEFINED GSKIT_64_HOME (
-	echo "GSKIT_64_HOME must be set"
+IF NOT DEFINED GSKIT_HOME (
+	echo "GSKIT_HOME must be set"
 	goto :eof
 )
 
@@ -34,7 +34,7 @@ IF NOT DEFINED GSKIT_64_HOME (
 
 cd src/main/native
 
-@call nmake -nologo -f jgskit.win64.mak clean
-@call nmake -nologo -f jgskit.win64.mak 
+@call nmake -nologo -f jgskit.win64.cygwin.mak clean
+@call nmake -nologo -f jgskit.win64.cygwin.mak
 
 @endlocal
