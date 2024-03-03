@@ -24,7 +24,7 @@ public class TestRSASignature extends BaseTestRSASignature {
     //
     //
     public TestRSASignature() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
+        super(Utils.TEST_SUITE_PROVIDER_NAME, 2048);
     }
 
     public void testRSASignature() throws Exception {

@@ -39,7 +39,7 @@ import junit.framework.Test;
         TestSHA384.class, TestSHA512.class, TestRSAPSSInterop2.class, TestRSAPSSInterop3.class,
         TestSHA3_224.class, TestSHA3_256.class, TestSHA3_384.class, TestSHA3_512.class,
         TestRSAKeyInterop.class, TestRSAKeyInteropBC.class, TestRSAPSS2.class,
-        TestFIPSVerifyOnlyTest.class})
+        TestFIPSVerifyOnlyTest.class, TestRSASignatureInteropNonFIPS.class})
 
 public class TestAll {
 
