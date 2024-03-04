@@ -25,6 +25,9 @@ import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
+import java.util.List;
+
 import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
 
 @SuppressWarnings({"removal", "deprecation"})
@@ -34,6 +37,8 @@ class RSAKeyFactory extends KeyFactorySpi {
     public final static int MIN_MODLEN_FIPS = 2048;
     public final static int MIN_MODLEN_FIPS_PUB = 1024; //FIPS currently allows signature verification on this size key
     public final static int MAX_MODLEN = 16384;
+    public final static List<Integer> ALLOWABLE_MODLEN_FIPS_SIGN = Arrays.asList(2048, 3072, 4096);
+    public final static List<Integer> ALLOWABLE_MODLEN_FIPS_VERIFY = Arrays.asList(1024, 2048, 3072, 4096);
 
     /*
      * If the modulus length is above this value, restrict the size of the
@@ -121,6 +126,40 @@ class RSAKeyFactory extends KeyFactorySpi {
             throw new InvalidKeyException(
                     "RSA exponents can be no longer than " + MAX_RESTRICTED_EXPLEN + " bits "
                             + " if modulus is greater than " + MAX_MODLEN_RESTRICT_EXP + " bits");
+        }
+    }
+
+    /**
+     * Check the length of an RSA key modulus/exponent to make sure it is not
+     * too short or long. Some impls have their own min and max key sizes that
+     * may or may not match with a system defined value.
+     *
+     * @param modulusLen
+     *            the bit length of the RSA modulus.
+     * @param exponent
+     *            the RSA exponent
+     * @param minModulusLen
+     *            if > 0, check to see if modulusLen is at least this long,
+     *            otherwise unused.
+     * @param maxModulusLen
+     *            caller will allow this max number of bits. Allow the smaller
+     *            of the system-defined maximum and this param.
+     * @param specificModulesLen
+     *            specific module length for sign/verify.
+     *
+     * @throws InvalidKeyException
+     *             if any of the values are unacceptable.
+     */
+    static void checkKeyLengths(int modulusLen, BigInteger exponent, int minModulusLen,
+            int maxModulusLen, List<Integer> specificModulesLen, String flag) throws InvalidKeyException {
+
+        checkKeyLengths(modulusLen, exponent, minModulusLen, maxModulusLen);
+        if ((specificModulesLen != null) && (!specificModulesLen.contains(modulusLen))) {
+            if (flag.equals("verify")) {
+                throw new InvalidKeyException("In FIPS mode, only 1024, 2048, 3072, or 4096 size of RSA key is accepted.");
+            } else if (flag.equals("sign")){
+                throw new InvalidKeyException("In FIPS mode, only 2048, 3072, or 4096 size of RSA key is accepted.");
+            }
         }
     }
 
