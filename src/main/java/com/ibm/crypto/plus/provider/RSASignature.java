@@ -17,6 +17,8 @@ import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.SignatureSpi;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.RSAKeyGenParameterSpec;
+
 import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
 import com.ibm.crypto.plus.provider.ock.Signature;
 
@@ -82,6 +84,22 @@ abstract class RSASignature extends SignatureSpi {
 
         if (!(privateKey instanceof java.security.interfaces.RSAPrivateKey)) {
             throw new InvalidKeyException("Key is not an RSAPrivateKey");
+        }
+
+        try {
+            if (provider.isFIPS()) {
+                RSAKeyFactory.checkKeyLengths(((java.security.interfaces.RSAPrivateKey) privateKey).getModulus().bitLength(),
+                        RSAKeyGenParameterSpec.F4,
+                        RSAKeyFactory.MIN_MODLEN_FIPS,
+                        64 * 1024);
+            } else {
+                RSAKeyFactory.checkKeyLengths(((java.security.interfaces.RSAPrivateKey) privateKey).getModulus().bitLength(),
+                        RSAKeyGenParameterSpec.F4,
+                        RSAKeyFactory.MIN_MODLEN_NONFIPS,
+                        64 * 1024);
+            }
+        } catch (InvalidKeyException e) {
+            throw new InvalidParameterException(e.getMessage());
         }
 
         //RSAPrivateCrtKey rsaPrivate = (RSAPrivateCrtKey) RSAKeyFactory.toRSAKey(provider, privateKey);
