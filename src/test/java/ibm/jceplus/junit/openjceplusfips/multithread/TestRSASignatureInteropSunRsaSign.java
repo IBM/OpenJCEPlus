@@ -24,7 +24,7 @@ public class TestRSASignatureInteropSunRsaSign extends BaseTestRSASignatureInter
     //
     //
     public TestRSASignatureInteropSunRsaSign() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME, Utils.PROVIDER_SunRsaSign);
+        super(Utils.TEST_SUITE_PROVIDER_NAME, Utils.PROVIDER_SunRsaSign, 2048);
     }
 
     //--------------------------------------------------------------------------
