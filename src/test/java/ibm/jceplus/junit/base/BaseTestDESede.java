@@ -78,7 +78,16 @@ public class BaseTestDESede extends BaseTestCipher {
     //
     //
     public void setUp() throws Exception {
-        keyGen = KeyGenerator.getInstance("DESede", providerName);
+        try {
+            keyGen = KeyGenerator.getInstance("DESede", providerName);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("no such algorithm: DESede for provider OpenJCEPlusFIPS", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
         key = keyGen.generateKey();
     }
 
@@ -91,7 +100,16 @@ public class BaseTestDESede extends BaseTestCipher {
     //
     //
     public void testDESede() throws Exception {
-        encryptDecrypt("DESede");
+        try {
+            encryptDecrypt("DESede");
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: DESede", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -101,6 +119,13 @@ public class BaseTestDESede extends BaseTestCipher {
         try {
             cp = Cipher.getInstance("DESede/CBC/ISO10126Padding", providerName);
             fail(" NoSuchPaddingException is NOT thrown");
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: DESede/CBC/ISO10126Padding", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
         } catch (NoSuchPaddingException e) {
             assertTrue(true);
         }
@@ -110,14 +135,32 @@ public class BaseTestDESede extends BaseTestCipher {
     //
     //
     public void testDESede_CBC_NoPadding() throws Exception {
-        encryptDecrypt("DESede/CBC/NoPadding", true);
+        try {
+            encryptDecrypt("DESede/CBC/NoPadding", true);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: DESede/CBC/NoPadding", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
     }
 
     // --------------------------------------------------------------------------
     //
     //
     public void testDESede_CBC_PKCS5Padding() throws Exception {
-        encryptDecrypt("DESede/CBC/PKCS5Padding");
+        try {
+            encryptDecrypt("DESede/CBC/PKCS5Padding");
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: DESede/CBC/PKCS5Padding", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -258,6 +301,13 @@ public class BaseTestDESede extends BaseTestCipher {
         try {
             cp = Cipher.getInstance("DESede/ECB/ISO10126Padding", providerName);
             fail(" NoSuchPaddingException is NOT thrown");
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: DESede/ECB/ISO10126Padding", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
         } catch (NoSuchPaddingException e) {
             assertTrue(true);
         }
@@ -267,14 +317,32 @@ public class BaseTestDESede extends BaseTestCipher {
     //
     //
     public void testDESede_ECB_NoPadding() throws Exception {
-        encryptDecrypt("DESede/ECB/NoPadding", true);
+        try {
+            encryptDecrypt("DESede/ECB/NoPadding", true);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: DESede/ECB/NoPadding", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
     }
 
     // --------------------------------------------------------------------------
     //
     //
     public void testDESede_ECB_PKCS5Padding() throws Exception {
-        encryptDecrypt("DESede/ECB/PKCS5Padding");
+        try {
+            encryptDecrypt("DESede/ECB/PKCS5Padding");
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: DESede/ECB/PKCS5Padding", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -350,7 +418,16 @@ public class BaseTestDESede extends BaseTestCipher {
     public void testDESedeShortBuffer() throws Exception {
         try {
             // Test DESede Cipher
-            cp = Cipher.getInstance("DESede", encryptProviderName);
+            try {
+                cp = Cipher.getInstance("DESede", encryptProviderName);
+            } catch (NoSuchAlgorithmException nsae) {
+                if (encryptProviderName.equals("OpenJCEPlusFIPS")) {
+                    assertEquals("No such algorithm: DESede", nsae.getMessage());
+                    return;
+                } else {
+                    throw nsae;
+                }
+            }
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, key);
@@ -377,7 +454,16 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede/CBC/NoPadding", providerName);
+            try {
+                cp = Cipher.getInstance("DESede/CBC/NoPadding", providerName);
+            } catch (NoSuchAlgorithmException nsae) {
+                if (providerName.equals("OpenJCEPlusFIPS")) {
+                    assertEquals("No such algorithm: DESede/CBC/NoPadding", nsae.getMessage());
+                    return;
+                } else {
+                    throw nsae;
+                }
+            }
 
             int blockSize = cp.getBlockSize();
             byte[] message = new byte[blockSize - 1];
@@ -398,7 +484,16 @@ public class BaseTestDESede extends BaseTestCipher {
     //
     public void testDESedeIllegalBlockSizeDecrypt() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", encryptProviderName);
+            try {
+                cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", encryptProviderName);
+            } catch (NoSuchAlgorithmException nsae) {
+                if (encryptProviderName.equals("OpenJCEPlusFIPS")) {
+                    assertEquals("No such algorithm: DESede/CBC/PKCS5Padding", nsae.getMessage());
+                    return;
+                } else {
+                    throw nsae;
+                }
+            }
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, key);
@@ -432,7 +527,17 @@ public class BaseTestDESede extends BaseTestCipher {
     //
     //
     public void testDESedeNull() throws Exception {
-        cp = Cipher.getInstance("DESede", providerName);
+        try {
+            cp = Cipher.getInstance("DESede", providerName);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (encryptProviderName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: DESede", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
+
         SecretKey nullKey = null;
 
         try {
@@ -453,7 +558,16 @@ public class BaseTestDESede extends BaseTestCipher {
     //
     //
     public void testIllegalParamSpec() throws Exception {
-        cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", providerName);
+        try {
+            cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", providerName);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: DESede/CBC/PKCS5Padding", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
 
         try {
             byte[] iv = null;
@@ -510,7 +624,16 @@ public class BaseTestDESede extends BaseTestCipher {
     //
     public void testArgumentsDecrypt() throws Exception {
 
-        cp = Cipher.getInstance("DESede", encryptProviderName);
+        try {
+            cp = Cipher.getInstance("DESede", encryptProviderName);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (encryptProviderName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("No such algorithm: DESede", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
 
         // Encrypt the plain text
         cp.init(Cipher.ENCRYPT_MODE, key);
@@ -766,7 +889,16 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            try {
+                cp = Cipher.getInstance("DESede", providerName);
+            } catch (NoSuchAlgorithmException nsae) {
+                if (providerName.equals("OpenJCEPlusFIPS")) {
+                    assertEquals("No such algorithm: DESede", nsae.getMessage());
+                    return;
+                } else {
+                    throw nsae;
+                }
+            }
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null);
         } catch (Exception e) {
