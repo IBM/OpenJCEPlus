@@ -21,6 +21,10 @@ All environments and binaries must undergo the FIPS certification process with N
 
 This github branch can only be used with Java version 11.
 
+Build Status:
+
+[![GitHub Actions OpenJCEPlus](https://github.com/IBM/OpenJCEPlus/actions/workflows/github-actions.yml/badge.svg?branch=java11)](https://github.com/IBM/OpenJCEPlus/actions/workflows/github-actions.yml)
+
 ## How to Build `OpenJCEPlus` and Java Native Interface Library
 
 `OpenJCEPlus` and `OpenJCEPlusFIPS` providers are currently supported on the following architectures and operating system combinations as reported by `mvn --version` in the values `OS name` and `arch`:
