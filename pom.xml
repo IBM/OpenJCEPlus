@@ -18,6 +18,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+        <jupiter.version>5.10.2</jupiter.version>
     </properties>
         <profiles>
           <profile>
@@ -368,8 +369,10 @@
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.memstress=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.multithread=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.integration=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.multithread=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.integration=ALL-UNNAMED
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
                     <systemPropertyVariables>
@@ -377,7 +380,13 @@
                       <!--java.security.auth.debug>all</java.security.auth.debug-->
                     </systemPropertyVariables>
                     <includes>
-                        <include>**/ibm/jceplus/junit/TestAll.java,**/ibm/jceplus/junit/TestMemStressAll.java,**/ibm/jceplus/junit/TestMultithread.java,**/ibm/jceplus/junit/TestMultithreadFIPS.java</include>
+                      <include>
+                        **/ibm/jceplus/junit/TestIntegration.java,
+                        **/ibm/jceplus/junit/TestAll.java,
+                        **/ibm/jceplus/junit/TestMemStressAll.java,
+                        **/ibm/jceplus/junit/TestMultithread.java,
+                        **/ibm/jceplus/junit/TestMultithreadFIPS.java
+                      </include>
                     </includes>
                   </configuration>
                 </plugin>
@@ -399,24 +408,39 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <version>1.10.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
