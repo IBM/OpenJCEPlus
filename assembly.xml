@@ -1,21 +1,36 @@
-    <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
-      <id>jacoco</id>
-      <formats>
-        <format>zip</format>
-      </formats>
-      <fileSets>
-        <fileSet>
-          <directory>${project.basedir}</directory>
-          <outputDirectory>/</outputDirectory>
-          <includes>
-            <include>README*</include>
-            <include>LICENSE*</include>
-          </includes>
-        </fileSet>
-        <fileSet>
-          <directory>${project.build.directory}/site/jacoco</directory>
-          <outputDirectory>jacoco</outputDirectory>
-        </fileSet>
-      </fileSets>
-    </assembly>
+<!--
+###############################################################################
+#
+# Copyright IBM Corp. 2024
+#
+# Licensed under the Apache License 2.0 (the "License").  You may not use
+# this file except in compliance with the License.  You can obtain a copy
+# in the file LICENSE in the source distribution.
+#
+###############################################################################
+-->
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+  <id>assemblies</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <fileSets>
+    <fileSet>
+      <directory>${project.basedir}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>README*</include>
+        <include>LICENSE*</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/site/jacoco</directory>
+      <outputDirectory>jacoco</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/surefire-reports</directory>
+      <outputDirectory>surefire-reports</outputDirectory>
+    </fileSet>
+  </fileSets>
+</assembly>
