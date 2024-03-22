@@ -52,7 +52,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
             + "Signature algorithms               : NONEwithDSA, SHA224withDSA, SHA256withDSA,\n"
             + "                                     NONEwithECDSA, SHA224withECDSA,\n"
             + "                                       SHA256withECDSA, SHA384withECDSA, SHA512withECDSA,\n"
-            + "                                       NONEwithRSA, SHA1withRSA, SHA224withRSA,\n"
+            + "                                       NONEwithRSA, SHA224withRSA,\n"
             + "                                       SHA256withRSA, SHA384withRSA, SHA512withRSA, RSAPSS\n";
 
     private static final String OID_PKCS3 = "1.2.840.113549.1.3.1";
@@ -411,14 +411,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
          * MessageDigest engines
          * =======================================================================
          */
-        aliases = null;
-        putService(new OpenJCEPlusService(jce, "MessageDigest", "MD5",
-                "com.ibm.crypto.plus.provider.MessageDigest$MD5", aliases));
-
-        aliases = new String[] {"SHA", "SHA1", "OID.1.3.14.3.2.26", "1.3.14.3.2.26"};
-        putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA-1",
-                "com.ibm.crypto.plus.provider.MessageDigest$SHA1", aliases));
-
         aliases = new String[] {"OID.2.16.840.1.101.3.4.2.4", "2.16.840.1.101.3.4.2.4", "SHA224"};
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA-224",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA224", aliases));
@@ -557,13 +549,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
                 "SHA5/ECDSA", "SHA-512/ECDSA"};
         putService(new OpenJCEPlusService(jce, "Signature", "SHA512withECDSA",
                 "com.ibm.crypto.plus.provider.ECDSASignature$SHA512withECDSA", aliases));
-
-
-        aliases = new String[] {"OID.1.2.840.113549.1.1.5", "1.2.840.113549.1.1.5",
-                "OID.1.3.14.3.2.29", "1.3.14.3.2.29", "OID.1.3.14.3.2.26", "1.3.14.3.2.26",
-                "SHA-1withRSA", "SHAwithRSA", "SHA-1/RSA", "SHA1/RSA", "SHA/RSA", "RSA"};
-        putService(new OpenJCEPlusService(jce, "Signature", "SHA1withRSA",
-                "com.ibm.crypto.plus.provider.RSASignature$SHA1withRSA", aliases));
 
         aliases = new String[] {"OID.1.2.840.113549.1.1.14", "1.2.840.113549.1.1.14", "SHA-224/RSA",
                 "SHA224/RSA"};

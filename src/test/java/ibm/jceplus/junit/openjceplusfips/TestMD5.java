@@ -8,10 +8,14 @@
 
 package ibm.jceplus.junit.openjceplusfips;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.Cipher;
+import ibm.jceplus.junit.base.BaseTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class TestMD5 extends ibm.jceplus.junit.base.BaseTestMD5 {
+public class TestMD5 extends BaseTest {
 
     //--------------------------------------------------------------------------
     //
@@ -25,6 +29,14 @@ public class TestMD5 extends ibm.jceplus.junit.base.BaseTestMD5 {
     //
     public TestMD5() {
         super(Utils.TEST_SUITE_PROVIDER_NAME);
+    }
+
+    public static void testMD5Cipher() throws Exception {
+        try {
+            Cipher.getInstance("MD5", Utils.TEST_SUITE_PROVIDER_NAME);
+        } catch (NoSuchAlgorithmException nsae) {
+            assertEquals("No such algorithm: MD5", nsae.getMessage());
+        }
     }
 
     //--------------------------------------------------------------------------

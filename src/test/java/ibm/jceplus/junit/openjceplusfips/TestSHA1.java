@@ -8,10 +8,14 @@
 
 package ibm.jceplus.junit.openjceplusfips;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.Cipher;
+import ibm.jceplus.junit.base.BaseTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class TestSHA1 extends ibm.jceplus.junit.base.BaseTestSHA1 {
+public class TestSHA1 extends BaseTest {
 
     //--------------------------------------------------------------------------
     //
@@ -25,6 +29,14 @@ public class TestSHA1 extends ibm.jceplus.junit.base.BaseTestSHA1 {
     //
     public TestSHA1() {
         super(Utils.TEST_SUITE_PROVIDER_NAME);
+    }
+
+    public static void testSHA1Cipher() throws Exception {
+        try {
+            Cipher.getInstance("SHA1", Utils.TEST_SUITE_PROVIDER_NAME);
+        } catch (NoSuchAlgorithmException nsae) {
+            assertEquals("No such algorithm: SHA1", nsae.getMessage());
+        }
     }
 
     //--------------------------------------------------------------------------

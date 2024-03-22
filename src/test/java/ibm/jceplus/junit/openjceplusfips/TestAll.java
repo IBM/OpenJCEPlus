@@ -33,7 +33,7 @@ import junit.framework.Test;
         TestHmacSHA3_512.class, TestImplementationClassesExist.class,
         TestImplementationClassesFinal.class, TestInvalidArrayIndex.class,
         TestPublicMethodsToMakeNonPublic.class, TestRSA.class, TestRSAKey.class,
-        TestRSAPSS.class, TestMiniRSAPSS2.class, TestRSASignature.class,
+        TestRSAPSS.class, TestMD5.class, TestMiniRSAPSS2.class, TestRSASignature.class,
         TestRSASignatureInteropSunRsaSign.class, TestRSASignatureChunkUpdate.class,
         TestRSATypeCheckDefault.class, TestSHA1.class, TestSHA224.class, TestSHA256.class,
         TestSHA384.class, TestSHA512.class, TestRSAPSSInterop2.class, TestRSAPSSInterop3.class,
