@@ -12,6 +12,7 @@ import java.security.InvalidParameterException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.DSAPrivateKey;
@@ -48,8 +49,18 @@ public class BaseTestDSASignatureInterop extends BaseTestSignatureInterop {
     //
     //
     public void testSHA1withDSA_1024() throws Exception {
+        KeyPair keyPair = null;
         try {
-            KeyPair keyPair = generateKeyPair(1024);
+            keyPair = generateKeyPair(1024);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("no such algorithm: DSA for provider OpenJCEPlusFIPS", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
+        try {
             doSignVerify("SHA1withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
             if (providerName.equals("OpenJCEPlusFIPS")) {
@@ -64,8 +75,18 @@ public class BaseTestDSASignatureInterop extends BaseTestSignatureInterop {
     //
     //
     public void testSHA224withDSA_1024() throws Exception {
+        KeyPair keyPair = null;
         try {
-            KeyPair keyPair = generateKeyPair(1024);
+            keyPair = generateKeyPair(1024);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("no such algorithm: DSA for provider OpenJCEPlusFIPS", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
+        try {
             doSignVerify("SHA224withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
             if (providerName.equals("OpenJCEPlusFIPS")) {
@@ -80,8 +101,18 @@ public class BaseTestDSASignatureInterop extends BaseTestSignatureInterop {
     //
     //
     public void testSHA256withDSA_1024() throws Exception {
+        KeyPair keyPair = null;
         try {
-            KeyPair keyPair = generateKeyPair(1024);
+            keyPair = generateKeyPair(1024);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("no such algorithm: DSA for provider OpenJCEPlusFIPS", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
+        try {
             doSignVerify("SHA256withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
             if (providerName.equals("OpenJCEPlusFIPS")) {
@@ -96,7 +127,17 @@ public class BaseTestDSASignatureInterop extends BaseTestSignatureInterop {
     //
     //
     public void testNONEwithDSA_2048_hash20() throws Exception {
-        KeyPair keyPair = generateKeyPair(2048);
+        KeyPair keyPair = null;
+        try {
+            keyPair = generateKeyPair(2048);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("no such algorithm: DSA for provider OpenJCEPlusFIPS", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
         byte[] sslHash = Arrays.copyOf(origMsg, 20);
         doSignVerify("NONEwithDSA", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
@@ -117,7 +158,17 @@ public class BaseTestDSASignatureInterop extends BaseTestSignatureInterop {
 
         KeyFactory dsaKeyFactoryX = KeyFactory.getInstance("DSA", providerNameX);
 
-        KeyPair dsaKeyPairX = generateKeyPair(2048);
+        KeyPair dsaKeyPairX = null;
+        try {
+            dsaKeyPairX = generateKeyPair(2048);
+        } catch (NoSuchAlgorithmException nsae) {
+            if (providerName.equals("OpenJCEPlusFIPS")) {
+                assertEquals("no such algorithm: DSA for provider OpenJCEPlusFIPS", nsae.getMessage());
+                return;
+            } else {
+                throw nsae;
+            }
+        }
 
         X509EncodedKeySpec x509SpecX = new X509EncodedKeySpec(dsaKeyPairX.getPublic().getEncoded());
         PKCS8EncodedKeySpec pkcs8SpecX = new PKCS8EncodedKeySpec(
