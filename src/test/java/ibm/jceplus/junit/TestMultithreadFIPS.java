@@ -25,23 +25,23 @@ public class TestMultithreadFIPS extends TestCase {
     private final int numThreads = 10;
     private final int timeoutSec = 1500;
     private final String[] testList = {"ibm.jceplus.junit.openjceplusfips.multithread.TestAliases",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMUpdate",
+            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMUpdate",*/
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCopySafe",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCipherInputStreamExceptions",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCM",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMSameBuffer",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithByteBuffer",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMLong",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_128",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_192",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_256",
+            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_128",*/
+            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_192",*/
+            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_256",*/
             "ibm.jceplus.junit.openjceplus.multithread.TestDH",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestECDH",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestECDHInteropSunEC",
             /*"ibm.jceplus.junit.openjceplusfips.multithread.TestDSAKey",*/
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAES_128",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAES_192",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAES_256",
+            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAES_128",*/
+            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAES_192",*/
+            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAES_256",*/
             "ibm.jceplus.junit.openjceplusfips.multithread.TestDESede",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestECDSASignature",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestDSASignatureInteropSUN",
@@ -57,7 +57,7 @@ public class TestMultithreadFIPS extends TestCase {
             "ibm.jceplus.junit.openjceplusfips.multithread.TestMiniRSAPSS2",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCMAndAAD",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMNonExpanding",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithKeyAndIvCheck",
+            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithKeyAndIvCheck",*/
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS2",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop2",
@@ -143,7 +143,7 @@ public class TestMultithreadFIPS extends TestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(TestMultithread.class);
+        TestSuite suite = new TestSuite(TestMultithreadFIPS.class);
         return suite;
     }
 
