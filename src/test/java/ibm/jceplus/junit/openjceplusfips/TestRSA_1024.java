@@ -6,12 +6,12 @@
  * in the file LICENSE in the source distribution.
  */
 
-package ibm.jceplus.junit.openjceplus;
+package ibm.jceplus.junit.openjceplusfips;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class TestRSA extends ibm.jceplus.junit.base.BaseTestRSA {
+public class TestRSA_1024 extends TestRSA {
 
     //--------------------------------------------------------------------------
     //
@@ -23,15 +23,13 @@ public class TestRSA extends ibm.jceplus.junit.base.BaseTestRSA {
     //--------------------------------------------------------------------------
     //
     //
-    public TestRSA() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-    }
+    private static final int KEY_SIZE = 1024;
 
     //--------------------------------------------------------------------------
     //
     //
-    public TestRSA(int keySize) throws Exception {
-        super(Utils.TEST_SUITE_PROVIDER_NAME, keySize);
+    public TestRSA_1024() throws Exception {
+        super(KEY_SIZE);
     }
 
     //--------------------------------------------------------------------------
@@ -45,7 +43,7 @@ public class TestRSA extends ibm.jceplus.junit.base.BaseTestRSA {
     //
     //
     public static Test suite() {
-        TestSuite suite = new TestSuite(TestRSA.class);
+        TestSuite suite = new TestSuite(TestRSA_1024.class);
         return suite;
     }
 }
