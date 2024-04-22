@@ -52,6 +52,7 @@ public class TestMultithreadFIPS extends TestCase {
             "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA256Clone_SharedMD",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignature",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSA_2048",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAKey",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignatureInteropSunRsaSign",
             /*"ibm.jceplus.junit.openjceplusfips.multithread.TestHKDF",*/
