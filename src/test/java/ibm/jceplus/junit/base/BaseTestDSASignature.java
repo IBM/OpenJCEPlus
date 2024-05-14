@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -20,40 +20,21 @@ import java.security.SignatureException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class BaseTestDSASignature extends BaseTestSignature {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestDSASignature(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1withDSA_1024() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             doSignVerify("SHA1withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -62,15 +43,13 @@ public class BaseTestDSASignature extends BaseTestSignature {
 
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA224withDSA_1024() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             doSignVerify("SHA224withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -78,15 +57,13 @@ public class BaseTestDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA256withDSA_1024() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             doSignVerify("SHA256withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -94,15 +71,13 @@ public class BaseTestDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_224withDSA_1024() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             doSignVerify("SHA3-224withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -110,15 +85,13 @@ public class BaseTestDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_2564withDSA_1024() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             doSignVerify("SHA3-256withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -126,15 +99,13 @@ public class BaseTestDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_384withDSA_1024() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             doSignVerify("SHA3-384withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -142,15 +113,13 @@ public class BaseTestDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_512withDSA_1024() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             doSignVerify("SHA3-512withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -158,15 +127,13 @@ public class BaseTestDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDSAforSSL_1024_hash1() throws Exception {
         KeyPair keyPair = null;
         try {
             keyPair = generateKeyPair(1024);
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
                 return;
             } else {
@@ -184,15 +151,13 @@ public class BaseTestDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDSAforSSL_1024_hash19() throws Exception {
         KeyPair keyPair = null;
         try {
             keyPair = generateKeyPair(1024);
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
                 return;
             } else {
@@ -210,16 +175,14 @@ public class BaseTestDSASignature extends BaseTestSignature {
 
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDSAforSSL_1024_hash20() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             byte[] sslHash = Arrays.copyOf(origMsg, 20);
             doSignVerify("DSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -228,16 +191,14 @@ public class BaseTestDSASignature extends BaseTestSignature {
 
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDSAforSSL_1024_hash21() throws Exception {
         KeyPair keyPair = null;
         try {
 
             keyPair = generateKeyPair(1024);
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
                 return;
             } else {
@@ -255,16 +216,14 @@ public class BaseTestDSASignature extends BaseTestSignature {
 
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testNONEwithDSA_1024_hash20() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             byte[] sslHash = Arrays.copyOf(origMsg, 20);
             doSignVerify("NONEwithDSA", sslHash, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -273,13 +232,14 @@ public class BaseTestDSASignature extends BaseTestSignature {
 
     }
 
+    @Test
     public void testDSASignatureUpdates() throws Exception {
         for (int updBufferSize = 64; updBufferSize <= 512;) {
-            KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("DSA", providerName);
+            KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("DSA", getProviderName());
             keyPairGen.initialize(2048);
             KeyPair pair = keyPairGen.generateKeyPair();
             PrivateKey privKey = pair.getPrivate();
-            Signature signature = Signature.getInstance("SHA256withDSA", providerName);
+            Signature signature = Signature.getInstance("SHA256withDSA", getProviderName());
             signature.initSign(privKey);
             doDSASignatureUpdates(signature, updBufferSize);
             signature.sign();
@@ -287,7 +247,7 @@ public class BaseTestDSASignature extends BaseTestSignature {
         }
     }
 
-    public void doDSASignatureUpdates(Signature sign, int updBufferSize) throws SignatureException {
+    protected void doDSASignatureUpdates(Signature sign, int updBufferSize) throws SignatureException {
         if (updBufferSize < 128) {
             sign.update((byte) updBufferSize);
         } else {
@@ -306,36 +266,27 @@ public class BaseTestDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected KeyPair generateKeyPair(int keysize) throws Exception {
-        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", providerName);
+        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", getProviderName());
         dsaKeyPairGen.initialize(keysize);
         return dsaKeyPairGen.generateKeyPair();
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected KeyPair generateKeyPairFromEncoded(int keysize) throws Exception {
-        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", providerName);
+        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", getProviderName());
         dsaKeyPairGen.initialize(keysize);
         KeyPair keyPair = dsaKeyPairGen.generateKeyPair();
 
         X509EncodedKeySpec x509Spec = new X509EncodedKeySpec(keyPair.getPublic().getEncoded());
         PKCS8EncodedKeySpec pkcs8Spec = new PKCS8EncodedKeySpec(keyPair.getPrivate().getEncoded());
 
-        KeyFactory dsaKeyFactory = KeyFactory.getInstance("DSA", providerName);
+        KeyFactory dsaKeyFactory = KeyFactory.getInstance("DSA", getProviderName());
 
         PublicKey publicKey = dsaKeyFactory.generatePublic(x509Spec);
         PrivateKey privateKey = dsaKeyFactory.generatePrivate(pkcs8Spec);
         return new KeyPair(publicKey, privateKey);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected KeyPair generateKeyPairFromSpec() throws Exception {
         return null;
     }
