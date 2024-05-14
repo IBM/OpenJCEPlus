@@ -7,10 +7,11 @@
  */
 package ibm.jceplus.junit.openjceplusfips.integration;
 
-import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
+@SelectPackages({"ibm.jceplus.junit.openjceplusfips.integration"})
+
 @Suite
-@SelectClasses({TestTLS.class})
 public class TestAll {
 }
