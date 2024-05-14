@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,37 +10,20 @@ package ibm.jceplus.junit.base.memstress;
 import ibm.jceplus.junit.base.BaseTestSignature;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import org.junit.Before;
+import org.junit.jupiter.api.Test;
 
 public class BaseTestMemStressECDSASignature extends BaseTestSignature {
     int numTimes = 100;
     boolean printheapstats = false;
-    // --------------------------------------------------------------------------
-    //
-    //
+
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
+
     String algo = "SHA256withECDSA";
+
     int curveSize = 256;
 
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressECDSASignature(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressECDSASignature(String providerName, String algo, int curveSize) {
-        super(providerName);
-        this.algo = algo;
-        this.curveSize = curveSize;
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Before
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
@@ -51,14 +34,7 @@ public class BaseTestMemStressECDSASignature extends BaseTestSignature {
         System.out.println("Testing ECDSASignature");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testECDSA() throws Exception {
         KeyPair keyPair = generateKeyPair(this.curveSize);
         Runtime rt = Runtime.getRuntime();
@@ -89,12 +65,8 @@ public class BaseTestMemStressECDSASignature extends BaseTestSignature {
         }
     }
 
-
-    // --------------------------------------------------------------------------
-    //
-    //
     private KeyPair generateKeyPair(int keysize) throws Exception {
-        KeyPairGenerator ecKeyPairGen = KeyPairGenerator.getInstance("EC", providerName);
+        KeyPairGenerator ecKeyPairGen = KeyPairGenerator.getInstance("EC", getProviderName());
         ecKeyPairGen.initialize(keysize);
         return ecKeyPairGen.generateKeyPair();
     }

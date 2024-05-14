@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,14 +8,10 @@
 
 package ibm.jceplus.junit.openjceplus;
 
-import junit.framework.JUnit4TestAdapter;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({TestAES.class, TestAES_128.class, TestAES256Interop.class, TestAESCCM.class,
+@SelectClasses({TestAES.class, TestAES_128.class, TestAES256Interop.class, TestAESCCM.class,
         TestAESCCM2.class, TestAESCCMParameters.class, TestAESCCMInteropBC.class, TestAESGCM.class,
         TestAESGCMUpdate.class, TestAESGCMUpdateInteropBC.class, TestAESGCM_128.class,
         TestAESGCM_ExtIV.class, TestAESGCM_IntIV.class, TestAESGCMCipherInputStreamExceptions.class,
@@ -48,101 +44,8 @@ import org.junit.runners.Suite;
         TestSHA3_384.class, TestSHA3_512.class, TestRSAKeyInterop.class, TestRSAKeyInteropBC.class,
         TestEdDSASignature.class, TestEdDSASignatureInterop.class, TestXDH.class,
         TestXDHInterop.class, TestXDHInteropBC.class, TestXDHMultiParty.class, TestXDHKeyPairGenerator.class,
-        TestXDHKeyImport.class, TestIsAssignableFromOrder.class
+        TestXDHKeyImport.class, TestIsAssignableFromOrder.class})
 
-})
-
+@Suite
 public class TestAll {
-
-    public static Test dynamic_suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(new JUnit4TestAdapter(TestAES.class));
-        suite.addTest(new JUnit4TestAdapter(TestAES_128.class));
-        if (isCipherKeySizeSupported("AES", 192)) {
-            suite.addTest(new JUnit4TestAdapter(TestAES_192.class));
-        }
-        if (isCipherKeySizeSupported("AES", 256)) {
-            suite.addTest(new JUnit4TestAdapter(TestAES_256.class));
-        }
-
-        suite.addTest(new JUnit4TestAdapter(TestAESCCM.class));
-        suite.addTest(new JUnit4TestAdapter(TestAESCCM2.class));
-        suite.addTest(new JUnit4TestAdapter(TestAESCCMParameters.class));
-        suite.addTest(new JUnit4TestAdapter(TestAESCCMInteropBC.class));
-        suite.addTest(new JUnit4TestAdapter(TestAESGCM.class));
-        suite.addTest(new JUnit4TestAdapter(TestAESGCM_ExtIV.class));
-        suite.addTest(new JUnit4TestAdapter(TestAESGCM_IntIV.class));
-
-        suite.addTest(new JUnit4TestAdapter(TestAliases.class));
-
-        suite.addTest(new JUnit4TestAdapter(TestChaCha20.class));
-        suite.addTest(new JUnit4TestAdapter(TestChaCha20KAT.class));
-        suite.addTest(new JUnit4TestAdapter(TestChaCha20NoReuse.class));
-        suite.addTest(new JUnit4TestAdapter(TestChaCha20Poly1305.class));
-
-        suite.addTest(new JUnit4TestAdapter(TestDESede.class));
-
-        // suite.addTest(new JUnit4TestAdapter(TestDHKeyPairGenerator.class));
-        // suite.addTest(new JUnit4TestAdapter(TestDHMultiParty.class));
-
-        suite.addTest(new JUnit4TestAdapter(TestDSAKey.class));
-        suite.addTest(new JUnit4TestAdapter(TestDSASignature.class));
-
-
-        suite.addTest(new JUnit4TestAdapter(TestHmacMD5.class));
-        suite.addTest(new JUnit4TestAdapter(TestHmacMD5InteropSunJCE.class));
-        suite.addTest(new JUnit4TestAdapter(TestHmacSHA1.class));
-        suite.addTest(new JUnit4TestAdapter(TestHmacSHA1InteropSunJCE.class));
-        suite.addTest(new JUnit4TestAdapter(TestHmacSHA224.class));
-        suite.addTest(new JUnit4TestAdapter(TestHmacSHA224InteropSunJCE.class));
-        suite.addTest(new JUnit4TestAdapter(TestHmacSHA256.class));
-        suite.addTest(new JUnit4TestAdapter(TestHmacSHA256InteropSunJCE.class));
-        suite.addTest(new JUnit4TestAdapter(TestHmacSHA384.class));
-        suite.addTest(new JUnit4TestAdapter(TestHmacSHA384InteropSunJCE.class));
-        suite.addTest(new JUnit4TestAdapter(TestHmacSHA512.class));
-        suite.addTest(new JUnit4TestAdapter(TestHmacSHA512InteropSunJCE.class));
-
-        suite.addTest(new JUnit4TestAdapter(TestImplementationClassesExist.class));
-
-        suite.addTest(new JUnit4TestAdapter(TestMD5.class));
-
-        suite.addTest(new JUnit4TestAdapter(TestRSA.class));
-        suite.addTest(new JUnit4TestAdapter(TestRSAKey.class));
-        suite.addTest(new JUnit4TestAdapter(TestRSASignature.class));
-        suite.addTest(new JUnit4TestAdapter(TestRSASignatureInteropSunRsaSign.class));
-        suite.addTest(new JUnit4TestAdapter(TestRSATypeCheckDefault.class));
-        // suite.addTest(new JUnit4TestAdapter(TestRSAPSSSignature.class));
-
-        // // DO NOT ADD TO TEST SUITE, run separately
-        // suite.addTest(new JUnit4TestAdapter(TestRSATypeCheckDisabled.class));
-
-        // // DO NOT ADD TO TEST SUITE, run separately
-        // suite.addTest(new JUnit4TestAdapter(TestRSATypeCheckEnabled.class));
-
-        suite.addTest(new JUnit4TestAdapter(TestSHA1.class));
-        suite.addTest(new JUnit4TestAdapter(TestSHA224.class));
-        suite.addTest(new JUnit4TestAdapter(TestSHA256.class));
-        suite.addTest(new JUnit4TestAdapter(TestSHA384.class));
-        suite.addTest(new JUnit4TestAdapter(TestSHA512.class));
-        suite.addTest(new JUnit4TestAdapter(TestSHA512_224.class));
-        suite.addTest(new JUnit4TestAdapter(TestSHA512_256.class));
-        return suite;
-    }
-
-    public static Test suite() {
-        return new JUnit4TestAdapter(TestAll.class);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    private static boolean isCipherKeySizeSupported(String algorithm, int keySize) {
-        try {
-            return javax.crypto.Cipher.getMaxAllowedKeyLength(algorithm) >= keySize;
-        } catch (Exception e) {
-        }
-        return false;
-    }
-
 }
