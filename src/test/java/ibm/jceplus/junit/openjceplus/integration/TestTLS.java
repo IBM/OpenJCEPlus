@@ -8,20 +8,31 @@
 package ibm.jceplus.junit.openjceplus.integration;
 
 import ibm.jceplus.junit.base.integration.BaseTestTLS;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 public class TestTLS extends BaseTestTLS {
 
+    private static boolean insertProviderUponCleanup = false;
+
     @BeforeAll
     public static void init() throws Exception{
         if (java.security.Security.getProvider("OpenJCEPlusFIPS") != null) {
+            insertProviderUponCleanup = true;
             java.security.Security.removeProvider("OpenJCEPlusFIPS");
         }
         insertProvider("OpenJCEPlus", "com.ibm.crypto.plus.provider.OpenJCEPlus", 1);
     }
-    
+
+    @AfterAll
+    public static void cleanup() throws Exception {
+        if (insertProviderUponCleanup) {
+            insertProvider("OpenJCEPlusFIPS", "com.ibm.crypto.plus.provider.OpenJCEPlusFIPS", 2);
+        }
+    }
+
     @ParameterizedTest
     @CsvSource({"TLSv1.3,rsa_pkcs1_sha1,TLS_AES_128_GCM_SHA256",
         "TLSv1.3,rsa_pkcs1_sha256,TLS_AES_128_GCM_SHA256",
