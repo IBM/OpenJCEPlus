@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -12,6 +12,10 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
 import java.security.SignatureException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class BaseTestRSASignatureChunkUpdate extends BaseTestSignature {
     static final String KEY_ALGO = "RSA";
@@ -21,12 +25,9 @@ public class BaseTestRSASignatureChunkUpdate extends BaseTestSignature {
     protected KeyPair keyPair = null;
     protected int specifiedKeySize = 0;
 
-    public BaseTestRSASignatureChunkUpdate(String providerName) {
-        super(providerName);
-    }
-
+    @BeforeEach
     public void setUp() throws Exception {
-        keyPairGenerator = KeyPairGenerator.getInstance(KEY_ALGO, providerName);
+        keyPairGenerator = KeyPairGenerator.getInstance(KEY_ALGO, getProviderName());
         if (specifiedKeySize > 0) {
             keyPairGenerator.initialize(specifiedKeySize);
         } else {
@@ -35,8 +36,7 @@ public class BaseTestRSASignatureChunkUpdate extends BaseTestSignature {
         keyPair = keyPairGenerator.generateKeyPair();
     }
 
-    public void tearDown() throws Exception {}
-
+    @Test
     public void testSignatureChunks() throws Exception {
         testSignatureChunkUpdate(1024, "SHA1WithRSA", 100);
         testSignatureChunkUpdate(1024, "SHA256WithRSA", 100);
@@ -50,12 +50,12 @@ public class BaseTestRSASignatureChunkUpdate extends BaseTestSignature {
         byte[] inputBytes = getString(inputSize).getBytes();
         Signature signSignature;
 
-        if (providerName.contains("FIPS") && sigAlgo.contains("SHA1")) {
+        if (getProviderName().contains("FIPS") && sigAlgo.contains("SHA1")) {
             System.out.println("Sign with " + sigAlgo + ", provider: OpenJCEPlus");
             signSignature = Signature.getInstance(sigAlgo, "OpenJCEPlus");
         } else {
-            System.out.println("Sign with " + sigAlgo + ", provider: " + providerName);
-            signSignature = Signature.getInstance(sigAlgo, providerName);
+            System.out.println("Sign with " + sigAlgo + ", provider: " + getProviderName());
+            signSignature = Signature.getInstance(sigAlgo, getProviderName());
         }
 
         // Sign the message
@@ -75,8 +75,8 @@ public class BaseTestRSASignatureChunkUpdate extends BaseTestSignature {
         System.out.println("Signature Bytes Length: " + sigBytes.length);
 
         // Verify the signature
-        System.out.println("Verify with " + sigAlgo + ", provider: " + providerName);
-        Signature verifySignature = Signature.getInstance(sigAlgo, providerName);
+        System.out.println("Verify with " + sigAlgo + ", provider: " + getProviderName());
+        Signature verifySignature = Signature.getInstance(sigAlgo, getProviderName());
         verifySignature.initVerify(keyPair.getPublic());
         for (i = 0; i < (inputBytes.length / chunkSize); i++) {
             verifySignature.update(inputBytes, i * chunkSize, chunkSize);
@@ -105,10 +105,10 @@ public class BaseTestRSASignatureChunkUpdate extends BaseTestSignature {
         boolean result = false;
 
         try {
-            Signature signSignature = Signature.getInstance(sigAlgo, providerName);
+            Signature signSignature = Signature.getInstance(sigAlgo, getProviderName());
 
             // Sign the message
-            System.out.println("Sign with " + sigAlgo + ", provider: " + providerName);
+            System.out.println("Sign with " + sigAlgo + ", provider: " + getProviderName());
             signSignature.initSign(keyPair.getPrivate());
             int i = 0;
             for (i = 0; i < (inputBytes.length / chunkSize); i++) {
@@ -125,8 +125,8 @@ public class BaseTestRSASignatureChunkUpdate extends BaseTestSignature {
             System.out.println("Signature Bytes Length: " + sigBytes.length);
 
             // Verify the signature
-            System.out.println("Verify with " + sigAlgo + ", provider: " + providerName);
-            Signature verifySignature = Signature.getInstance(sigAlgo, providerName);
+            System.out.println("Verify with " + sigAlgo + ", provider: " + getProviderName());
+            Signature verifySignature = Signature.getInstance(sigAlgo, getProviderName());
             verifySignature.initVerify(keyPair.getPublic());
             for (i = 0; i < (inputBytes.length / chunkSize); i++) {
                 verifySignature.update(inputBytes, i * chunkSize, chunkSize);
@@ -142,8 +142,8 @@ public class BaseTestRSASignatureChunkUpdate extends BaseTestSignature {
             result = verifySignature.verify(sigBytes);
 
         } catch (SignatureException ex) {
-            if (providerName.contains("FIPS") && sigAlgo.contains("SHA1")) {
-                System.out.print("Could not sign data, " + "Provider: " + providerName
+            if (getProviderName().contains("FIPS") && sigAlgo.contains("SHA1")) {
+                System.out.print("Could not sign data, " + "Provider: " + getProviderName()
                         + ", Algorithm: " + sigAlgo + " <== Expected SignatureException caught\n");
                 System.out.println("Result(should be false): " + result);
                 assertFalse(result);
