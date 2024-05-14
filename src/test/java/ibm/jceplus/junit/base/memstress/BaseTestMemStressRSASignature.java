@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,13 +10,12 @@ package ibm.jceplus.junit.base.memstress;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import org.junit.Before;
+import org.junit.jupiter.api.Test;
 import ibm.jceplus.junit.base.BaseTestSignature;
 
 public class BaseTestMemStressRSASignature extends BaseTestSignature {
 
-    //--------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
     int numTimes = 100;
     boolean printheapstats = false;
@@ -24,24 +23,7 @@ public class BaseTestMemStressRSASignature extends BaseTestSignature {
     int keysize = 1024;
 
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressRSASignature(String providerName) {
-        super(providerName);
-    }
-
-    //
-    //
-    public BaseTestMemStressRSASignature(String providerName, String algo, int keysize) {
-        super(providerName);
-        this.algo = algo;
-        this.keysize = keysize;
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Before
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
@@ -52,15 +34,7 @@ public class BaseTestMemStressRSASignature extends BaseTestSignature {
         System.out.println("Testing RSASignature algo=" + this.algo + " keysize=" + this.keysize);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSASignature() throws Exception {
         KeyPair keyPair = generateKeyPair(this.keysize);
         Runtime rt = Runtime.getRuntime();
@@ -89,16 +63,10 @@ public class BaseTestMemStressRSASignature extends BaseTestSignature {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     protected KeyPair generateKeyPair(int keysize) throws Exception {
-        KeyPairGenerator rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", providerName);
+        KeyPairGenerator rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", getProviderName());
         rsaKeyPairGen.initialize(keysize);
         return rsaKeyPairGen.generateKeyPair();
     }
-
-
-
 }
 
