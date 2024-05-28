@@ -13,7 +13,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>OpenJCEPlus</artifactId>
-    <version>21</version>
+    <version>22</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -106,12 +106,12 @@
             </properties>
           </profile>
           <profile>
-            <id>Profile for JDK 21 Build</id>
+            <id>Profile for JDK 22 Build</id>
             <activation>
-              <jdk>21</jdk>
+              <jdk>22</jdk>
             </activation>
             <properties>
-                <jdk.build.target>21</jdk.build.target>
+                <jdk.build.target>22</jdk.build.target>
             </properties>
           </profile>
         </profiles>
@@ -147,8 +147,8 @@
                         <message>"Property ock.library.path is not set, perhaps this required property is missing from the command line?"</message>
                       </requireProperty>
                       <requireJavaVersion>
-                        <version>x = 21</version>
-                        <message>"Java 21 required to build OpenJCEPlus."</message>
+                        <version>x = 22</version>
+                        <message>"Java 22 required to build OpenJCEPlus."</message>
                       </requireJavaVersion>
                       <requireEnvironmentVariable>
                         <variableName>JAVA_HOME</variableName>
