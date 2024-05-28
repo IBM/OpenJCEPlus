@@ -25,7 +25,7 @@ int debug = 0;   // FIXME
 //
 //
 void
-initialize()
+ockInitialize()
 {
   if( !initialized ) {
 #if DEBUG

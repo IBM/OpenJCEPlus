@@ -33,7 +33,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_in
     int retcode = ICC_OK;
     ICC_STATUS status;
 
-    initialize();
+    ockInitialize();
 
     if( debug ) {
       gslogFunctionEntry(functionName);

@@ -38,7 +38,7 @@ free((_ptr)); \
 
 extern int debug;
 
-void initialize();
+void ockInitialize();
 
 int gslogFunctionEntry( const char * functionName );
 int gslogError( const char * formatString, ...);
