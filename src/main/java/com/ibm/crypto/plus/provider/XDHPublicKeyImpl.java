@@ -175,8 +175,8 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
         try {
             if (u == null) {
-                int pub_size = CurveUtil.getPublicCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), curve.ordinal(), pub_size);
+                int keySize = CurveUtil.getCurveSize(curve);
+                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), curve.ordinal(), keySize);
                 setFieldsFromXeckey();
             } else {
 
@@ -202,7 +202,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
                 //Array might be to big our too small
                 uByteA = Arrays.copyOf(uByteA,
-                        CurveUtil.getPublicCurveSize(this.curve));
+                        CurveUtil.getCurveSize(this.curve));
 
                 setKey(new BitArray(uByteA.length * 8, uByteA));
 
@@ -226,9 +226,9 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
      * Validate that the key is of the correct size
      */
     private void checkKeySize() throws InvalidKeyException {
-        if ((CurveUtil.getPublicCurveSize(this.curve) * 8) != getKey().length()) {
+        if ((CurveUtil.getCurveSize(this.curve) * 8) != getKey().length()) {
             throw new InvalidKeyException(
-                    "key length must be " + CurveUtil.getPublicCurveSize(this.curve));
+                    "key length must be " + CurveUtil.getCurveSize(this.curve));
         }
     }
 
