@@ -95,8 +95,8 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         try {
             byte[] alteredEncoded = processEncodedPrivateKey(encoded); // Sets params, key, and algid, and alters encoded
             // to fit with GSKit and sets params
-            int priv_size = CurveUtil.getPrivateCurveSize(curve);
-            this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded, priv_size);
+            int encodingSize = CurveUtil.getDEREncodingSize(curve);
+            this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded, encodingSize);
             this.scalar = Optional.of(this.key);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");
@@ -141,13 +141,13 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             this.key = scalar.get();
         try {
             if (this.key == null) {
-                int pub_size = CurveUtil.getPublicCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.curve.ordinal(), pub_size);
+                int keySize = CurveUtil.getCurveSize(curve);
+                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.curve.ordinal(), keySize);
             } else {
                 this.algid = CurveUtil.getAlgId(this.params.getName());
                 byte[] der = buildOCKPrivateKeyBytes();
-                int priv_size = CurveUtil.getPrivateCurveSize(curve);
-                this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der, priv_size);
+                int encodingSize = CurveUtil.getDEREncodingSize(curve);
+                this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der, encodingSize);
             }
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
@@ -313,25 +313,64 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         byte[] keyBytes = inputValue[2].getOctetString();
         DerInputStream derStream = new DerInputStream(keyBytes);
         try {
-            // XDH private key in SunEC new Java 17 design requires [octet-string[octer-string[key-bytes]]] format,
-            // otherwise, it causes interop issue. JCK issue 569
-            this.key = derStream.getOctetString(); // Try J17 format [octet-string[octer-string[key-bytes]]]
-        } catch (IOException e) {
-            this.key = keyBytes; // Try J11 format [octer-string[key-bytes]]
+            // XDH private key in SunEC new Java 17 design requires [octet-string[octet-string[key-bytes]]] format,
+            // otherwise, it causes interop issue.
+            if (isCorrectlyFormedOctetString(keyBytes)) {
+                this.key = derStream.getOctetString(); // We know we are working with the format [octet-string[octet-string[key-bytes]]]
+            } else {
+                this.key = keyBytes; // Try J11 format [octet-string[key-bytes]]
+            }
+        } catch (Exception e) {
+            //e.printStackTrace();
+            this.key = keyBytes; // Try J11 format [octet-string[key-bytes]]
         }
-        DerOutputStream encodedKey = new DerOutputStream();
-        if (CurveUtil.isFFDHE(this.curve)) {
-            BigInteger octetStringAsBigInt = new BigInteger(this.key);
-            encodedKey.putInteger(octetStringAsBigInt); // Put in another octet string
-        } else {
-            encodedKey.putOctetString(this.key); // Put in another octet string
+        try (DerOutputStream encodedKey = new DerOutputStream()) {
+            if (CurveUtil.isFFDHE(this.curve)) {
+                BigInteger octetStringAsBigInt = new BigInteger(this.key);
+                encodedKey.putInteger(octetStringAsBigInt); // Put in another octet string
+            } else {
+                encodedKey.putOctetString(this.key); // Put in another octet string
+            }
+            outStream.putOctetString(encodedKey.toByteArray());
         }
-        outStream.putOctetString(encodedKey.toByteArray());
 
-        DerOutputStream asn1Key = new DerOutputStream();
-        asn1Key.write(DerValue.tag_Sequence, outStream);
+        try (DerOutputStream asn1Key = new DerOutputStream()) {
+            asn1Key.write(DerValue.tag_Sequence, outStream);
+            return asn1Key.toByteArray();
+        }
+    }
 
-        return asn1Key.toByteArray();
+
+    /**
+     * Determines if a given array is a properly formed DER octet string.
+     * 
+     * @param keyBytes The byte array to check for a complete octet.
+     * @return Returns true if the first byte of the array indicates an octet ( 0x04 ) and the
+     * value continues to the end of the array indicating a complete octet filling the 
+     * given byte array. Returns false otherwise.
+     * @throws IOException Throws an IOException when a failure occurs decoding the DER encoded bytes.
+     */
+    private boolean isCorrectlyFormedOctetString(byte[] keyBytes) throws IOException {
+        if (keyBytes == null) {
+            return false;
+        }
+
+        // Tag value for an octet is 0x04.
+        if (keyBytes[0] != 0x04) {
+            return false;
+        }
+
+        // Attempt to DER decode the given keyBytes.
+        DerInputStream derStream = new DerInputStream(keyBytes);
+        byte[] keyValue = derStream.getOctetString();
+
+        // We know we are able to DER decode the bytes, lets now check that the private 
+        // key bytes are the correct length for the curve in use.
+        if (CurveUtil.getCurveSize(this.curve) != keyValue.length) {
+            return false;
+        }
+
+        return true;
     }
 
     public XECKey getOCKKey() {
