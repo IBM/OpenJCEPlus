@@ -143,7 +143,7 @@ public class XDHKeyFactory extends KeyFactorySpi {
                 else
                     throw new InvalidKeySpecException("Inappropriate key specification");
 
-            } else if (key instanceof XDHPrivateKeyImpl) {
+            } else if (key instanceof XECPrivateKey) {
 
                 // Determine valid key specs
                 Class<?> xecPrivKeySpec = Class.forName("java.security.spec.XECPrivateKeySpec");

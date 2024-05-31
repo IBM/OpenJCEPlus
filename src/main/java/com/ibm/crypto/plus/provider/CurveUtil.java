@@ -21,38 +21,31 @@ class CurveUtil {
         X25519, X448, FFDHE2048, FFDHE3072, FFDHE4096, FFDHE6144, FFDHE8192, Ed25519, Ed448
     }
 
-    private static HashMap<CURVE, Integer> publicCurveSizes = new HashMap<CURVE, Integer>(); // key sizes of curves in bytes
-    private static HashMap<Integer, CURVE> sizesToPublicCurves = new HashMap<Integer, CURVE>(); // reverse of above
-    private static HashMap<CURVE, Integer> privateCurveSizes = new HashMap<CURVE, Integer>(); // key sizes of curves in bytes
-    private static HashMap<Integer, CURVE> sizesToPrivateCurves = new HashMap<Integer, CURVE>(); // reverse of above
-    private static HashMap<Integer, CURVE> sizesToCurves = new HashMap<Integer, CURVE>(); // maps the total key size (I think?)
+    private static Map<CURVE, Integer> curveSizes = new HashMap<CURVE, Integer>(); // key sizes of curves in bytes
+    private static Map<CURVE, Integer> DEREncodingSizes = new HashMap<CURVE, Integer>(); // key sizes of der encoded private key values.
+    private static Map<Integer, CURVE> sizesToCurves = new HashMap<Integer, CURVE>(); // maps the total key size (I think?)
                                                                                           // to algorithm (used in constructor)
     static {
-        publicCurveSizes.put(CURVE.X25519, 32);
-        publicCurveSizes.put(CURVE.X448, 56);
-        publicCurveSizes.put(CURVE.FFDHE2048, 557);
-        publicCurveSizes.put(CURVE.FFDHE3072, 813);
-        publicCurveSizes.put(CURVE.FFDHE4096, 1069);
-        publicCurveSizes.put(CURVE.FFDHE6144, 1581);
-        publicCurveSizes.put(CURVE.FFDHE8192, 2093);
-        publicCurveSizes.put(CURVE.Ed25519, 32);
-        publicCurveSizes.put(CURVE.Ed448, 57);
 
-        for (Map.Entry<CURVE, Integer> entry : publicCurveSizes.entrySet())
-            sizesToPublicCurves.put(entry.getValue(), entry.getKey());
+        curveSizes.put(CURVE.X25519, 32);
+        curveSizes.put(CURVE.X448, 56);
+        curveSizes.put(CURVE.FFDHE2048, 256);
+        curveSizes.put(CURVE.FFDHE3072, 384);
+        curveSizes.put(CURVE.FFDHE4096, 512);
+        curveSizes.put(CURVE.FFDHE6144, 768);
+        curveSizes.put(CURVE.FFDHE8192, 1024);
+        curveSizes.put(CURVE.Ed25519, 32);
+        curveSizes.put(CURVE.Ed448, 57);
 
-        privateCurveSizes.put(CURVE.X25519, 48);
-        privateCurveSizes.put(CURVE.X448, 72);
-        privateCurveSizes.put(CURVE.FFDHE2048, 327);
-        privateCurveSizes.put(CURVE.FFDHE3072, 461);
-        privateCurveSizes.put(CURVE.FFDHE4096, 595);
-        privateCurveSizes.put(CURVE.FFDHE6144, 857);
-        privateCurveSizes.put(CURVE.FFDHE8192, 1117);
-        privateCurveSizes.put(CURVE.Ed25519, 32);
-        privateCurveSizes.put(CURVE.Ed448, 57);
-
-        for (Map.Entry<CURVE, Integer> entry : privateCurveSizes.entrySet())
-            sizesToPrivateCurves.put(entry.getValue(), entry.getKey());
+        DEREncodingSizes.put(CURVE.X25519, 48);
+        DEREncodingSizes.put(CURVE.X448, 72);
+        //DEREncodingSizes.put(CURVE.FFDHE2048, 327);
+        //DEREncodingSizes.put(CURVE.FFDHE3072, 461);
+        //DEREncodingSizes.put(CURVE.FFDHE4096, 595);
+        //DEREncodingSizes.put(CURVE.FFDHE6144, 857);
+        //DEREncodingSizes.put(CURVE.FFDHE8192, 1117);
+        DEREncodingSizes.put(CURVE.Ed25519, 32);
+        DEREncodingSizes.put(CURVE.Ed448, 57);
 
         sizesToCurves.put(255, CURVE.X25519);
         sizesToCurves.put(448, CURVE.X448);
@@ -63,23 +56,16 @@ class CurveUtil {
         sizesToCurves.put(8192, CURVE.FFDHE8192); // this is my assumption
     }
 
-    public static int getPublicCurveSize(CURVE curve) throws InvalidParameterException {
-        if (!publicCurveSizes.containsKey(curve))
+    public static int getCurveSize(CURVE curve) throws InvalidParameterException {
+        if (!curveSizes.containsKey(curve))
             throw new InvalidParameterException("Curve (" + curve + ") is not supported");
-        return publicCurveSizes.get(curve);
+        return curveSizes.get(curve);
     }
 
-    public static int getPrivateCurveSize(CURVE curve) throws InvalidParameterException {
-        if (!privateCurveSizes.containsKey(curve))
+    public static int getDEREncodingSize(CURVE curve) throws InvalidParameterException {
+        if (!DEREncodingSizes.containsKey(curve))
             throw new InvalidParameterException("Curve (" + curve + ") is not supported");
-        return privateCurveSizes.get(curve);
-    }
-
-    public static CURVE getPublicCurveOfSize(int size) throws InvalidParameterException {
-        if (!sizesToPublicCurves.containsKey(size))
-            throw new InvalidParameterException(
-                    "Public key size (" + size + ") does not correspond to a supported curve");
-        return sizesToPublicCurves.get(size);
+        return DEREncodingSizes.get(curve);
     }
 
     public static CURVE getCurveOfSize(int size) throws InvalidParameterException {
