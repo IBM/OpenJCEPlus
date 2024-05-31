@@ -24,7 +24,7 @@ public class TestXDHInterop extends ibm.jceplus.junit.base.BaseTestXDHInterop {
     //
     //
     public TestXDHInterop() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
+        super(Utils.TEST_SUITE_PROVIDER_NAME, Utils.PROVIDER_SunEC);
     }
 
     //--------------------------------------------------------------------------
