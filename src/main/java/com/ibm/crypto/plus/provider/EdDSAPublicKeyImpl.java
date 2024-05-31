@@ -105,7 +105,7 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
 
             // array may be too large or too small, depending on the value
             encodedPoint = Arrays.copyOf(encodedPoint,
-                    CurveUtil.getPublicCurveSize(this.curve));
+                    CurveUtil.getCurveSize(this.curve));
             // set the high-order bit of the encoded point
             byte msb = (byte) (point.isXOdd() ? 0x80 : 0);
 
@@ -200,9 +200,9 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
     }
 
     void checkLength(CURVE curve) throws InvalidKeyException {
-        if (CurveUtil.getPublicCurveSize(curve) * 8 != getKey().length()) {
+        if (CurveUtil.getCurveSize(curve) * 8 != getKey().length()) {
             throw new InvalidKeyException("key length must be "
-                    + CurveUtil.getPublicCurveSize(curve));
+                    + CurveUtil.getCurveSize(curve));
         }
     }
 
