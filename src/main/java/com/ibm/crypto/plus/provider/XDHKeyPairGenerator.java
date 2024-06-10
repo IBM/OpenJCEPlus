@@ -119,8 +119,8 @@ public class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
     @Override
     public KeyPair generateKeyPair() {
         try {
-            int pub_size = CurveUtil.getPublicCurveSize(serviceCurve);
-            XECKey xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.serviceCurve.ordinal(), pub_size);
+            int keySize = CurveUtil.getCurveSize(serviceCurve);
+            XECKey xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.serviceCurve.ordinal(), keySize);
             XDHPrivateKeyImpl privKey = new XDHPrivateKeyImpl(provider, xecKey);
             XDHPublicKeyImpl pubKey = new XDHPublicKeyImpl(provider, xecKey, this.serviceCurve);
             return new KeyPair(pubKey, privKey);
