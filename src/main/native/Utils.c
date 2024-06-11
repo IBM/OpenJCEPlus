@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -25,7 +25,7 @@ int debug = 0;   // FIXME
 //
 //
 void
-initialize()
+com_ibm_crypto_plus_provider_initialize()
 {
   if( !initialized ) {
 #if DEBUG

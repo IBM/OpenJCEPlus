@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -38,7 +38,7 @@ free((_ptr)); \
 
 extern int debug;
 
-void initialize();
+void com_ibm_crypto_plus_provider_initialize();
 
 int gslogFunctionEntry( const char * functionName );
 int gslogError( const char * formatString, ...);
