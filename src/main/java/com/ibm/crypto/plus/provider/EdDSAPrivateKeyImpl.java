@@ -90,15 +90,15 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
             }
 
             if (this.key == null) {
-                int pub_size = CurveUtil.getPublicCurveSize(curve);
+                int keySize = CurveUtil.getCurveSize(curve);
                 this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(),
-                        this.curve.ordinal(), pub_size);
+                        this.curve.ordinal(), keySize);
             } else {
                 this.algid = CurveUtil.getAlgId(this.curve);
                 byte[] der = buildOCKPrivateKeyBytes();
-                int priv_size = CurveUtil.getPrivateCurveSize(curve);
+                int encodingSize = CurveUtil.getDEREncodingSize(curve);
                 this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der,
-                        priv_size);
+                        encodingSize);
             }
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
@@ -118,9 +118,9 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
             // to fit with GSKit and sets params
 
             checkLength(this.curve);
-            int priv_size = CurveUtil.getPrivateCurveSize(curve);
+            int encodingSize = CurveUtil.getDEREncodingSize(curve);
             this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded,
-                    priv_size);
+                    encodingSize);
 
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");
@@ -131,10 +131,10 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
 
     void checkLength(CURVE curve) throws InvalidKeyException {
 
-        if (CurveUtil.getPrivateCurveSize(curve) != this.h.get().length) {
+        if (CurveUtil.getCurveSize(curve) != this.h.get().length) {
             throw new InvalidKeyException(
                     "key length is " + this.h.get().length + ", key length must be "
-                            + CurveUtil.getPrivateCurveSize(curve));
+                            + CurveUtil.getCurveSize(curve));
         }
     }
 
