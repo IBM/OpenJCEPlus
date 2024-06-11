@@ -10,7 +10,7 @@ package ibm.jceplus.junit.base;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-public class BaseTestSHA3_224KAT extends BaseTest {
+public class BaseTestSHA3_224KAT extends BaseTestMessageDigestClone {
 
     //--------------------------------------------------------------------------
     //
@@ -500,14 +500,14 @@ public class BaseTestSHA3_224KAT extends BaseTest {
     //
     //
     public BaseTestSHA3_224KAT(String providerName) {
-        super(providerName);
+        super(providerName, "SHA3-224");
     }
 
     //--------------------------------------------------------------------------
     //
     //
     public void testSHA3_224KAT() throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SHA3-224", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         for (int x = 0; x < tests.length; x++) {
             md.update(BaseUtils.hexStringToByteArray(tests[x][0]));
             byte[] digest = md.digest();
@@ -521,7 +521,7 @@ public class BaseTestSHA3_224KAT extends BaseTest {
     //
     //
     public void testSHA3_224_SingleBlock() throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SHA3-224", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         byte[] digest = md.digest(BaseUtils.hexStringToByteArray(tests[0][0]));
 
         assertTrue("Digest did not match expected",
@@ -532,7 +532,7 @@ public class BaseTestSHA3_224KAT extends BaseTest {
     //
     //
     public void testSHA3_224_reset() throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SHA3-224", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(BaseUtils.hexStringToByteArray(tests[0][0]));
         md.reset();
         md.update(BaseUtils.hexStringToByteArray(tests[1][0]));
@@ -546,7 +546,7 @@ public class BaseTestSHA3_224KAT extends BaseTest {
     //
     //
     public void testSHA3_224_MultiBlock() throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SHA3-224", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         byte[] digest = md.digest(BaseUtils.hexStringToByteArray(tests[1][0]));
 
         assertTrue("Digest did not match expected",
@@ -557,7 +557,7 @@ public class BaseTestSHA3_224KAT extends BaseTest {
     //
     //
     public void testSHA3_224_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SHA3-224", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         int digestLength = md.getDigestLength();
         boolean isExpectedValue = (digestLength == 28);
         assertTrue("Unexpected digest length", isExpectedValue);

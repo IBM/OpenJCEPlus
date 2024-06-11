@@ -11,7 +11,7 @@ package ibm.jceplus.junit.base;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-public class BaseTestSHA512 extends BaseTest {
+public class BaseTestSHA512 extends BaseTestMessageDigestClone {
     static boolean warmup = false;
 
     //--------------------------------------------------------------------------
@@ -83,7 +83,7 @@ public class BaseTestSHA512 extends BaseTest {
     //
     //
     public BaseTestSHA512(String providerName) {
-        super(providerName);
+        super(providerName, "SHA-512");
         try {
             if (warmup == false) {
                 warmup = true;
@@ -99,7 +99,7 @@ public class BaseTestSHA512 extends BaseTest {
     //
     public void testSHA512() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-512", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
 
         for (int i = 0; i < 100000; i++)
             md.update(input_1);
@@ -114,7 +114,7 @@ public class BaseTestSHA512 extends BaseTest {
     //
     public void testSHA_reset() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-512", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(input_1);
         md.reset();
         md.update(input_2);
@@ -129,7 +129,7 @@ public class BaseTestSHA512 extends BaseTest {
     //
     public void testSHA512_SingleBlock() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-512", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         byte[] digest = md.digest(input_2);
 
         assertTrue("Digest did not match expected", Arrays.equals(digest, result_2));
@@ -141,7 +141,7 @@ public class BaseTestSHA512 extends BaseTest {
     //
     public void testSHA512_MultiBlock() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-512", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
 
         byte[] digest = md.digest(input_3);
 
@@ -153,7 +153,7 @@ public class BaseTestSHA512 extends BaseTest {
     //
     //
     public void testSHA512_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SHA-512", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         int digestLength = md.getDigestLength();
         boolean isExpectedValue = (digestLength == 64);
         assertTrue("Unexpected digest length", isExpectedValue);
@@ -165,7 +165,7 @@ public class BaseTestSHA512 extends BaseTest {
     public void warmup() throws Exception {
 
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-512", providerName);
+            MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
             for (long i = 0; i < 10000; i++) {
                 md.update(input_1);
                 md.digest();

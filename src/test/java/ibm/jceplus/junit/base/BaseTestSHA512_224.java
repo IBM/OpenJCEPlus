@@ -11,18 +11,18 @@ package ibm.jceplus.junit.base;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-public class BaseTestSHA512_224 extends BaseTest {
+public class BaseTestSHA512_224 extends BaseTestMessageDigestClone {
 
     // Test vectors obtained from
     // http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA512_224.pdf
 
     public BaseTestSHA512_224(String providerName) {
-        super(providerName);
+        super(providerName, "SHA-512/224");
     }
 
     public void testSHA512_224_SingleBlock() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-512/224", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
 
         assertTrue(Arrays.equals(md.digest("abc".getBytes("UTF-8")),
                 hexStrToBytes("4634270F707B6A54DAAE7530460842E20E37ED265CEEE9A43E8924AA")));
@@ -31,7 +31,7 @@ public class BaseTestSHA512_224 extends BaseTest {
 
     public void testSHA512_224_TwoBlock() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-512/224", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         assertTrue(Arrays.equals(
                 md.digest(("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn"
                         + "hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
@@ -56,7 +56,7 @@ public class BaseTestSHA512_224 extends BaseTest {
 
         String msg = "";
         int j = 0;
-        MessageDigest mdIBM = MessageDigest.getInstance("SHA-512/224", providerName);
+        MessageDigest mdIBM = MessageDigest.getInstance(this.algorithm, providerName);
 
         for (int i = 0; i < 10000; i++) {
 
@@ -79,7 +79,7 @@ public class BaseTestSHA512_224 extends BaseTest {
 
         String calcDigest = "367f4e38fba70b22c8d975e1079b5f9f8b3ac971e2ef049c704b1132";
 
-        MessageDigest mdIBM = MessageDigest.getInstance("SHA-512/224", providerName);
+        MessageDigest mdIBM = MessageDigest.getInstance(this.algorithm, providerName);
         String msgarrays[] = {"Hello0", "Hello1", "Hello2", "Hello3", "Hello4", "longmessage5",
                 "longermessage6,", "verylongmessage7"};
         for (int i = 0; i < msgarrays.length; i++) {
