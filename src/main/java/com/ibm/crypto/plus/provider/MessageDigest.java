@@ -11,7 +11,7 @@ package com.ibm.crypto.plus.provider;
 import java.security.MessageDigestSpi;
 import com.ibm.crypto.plus.provider.ock.Digest;
 
-abstract class MessageDigest extends MessageDigestSpi {
+abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
 
     private OpenJCEPlusProvider provider = null;
     private Digest digest = null;
@@ -186,4 +186,11 @@ abstract class MessageDigest extends MessageDigestSpi {
             super(provider, "SHAKE256"); // OCK digest name
         } 
     };*/
+
+    @Override
+    synchronized public Object clone() throws CloneNotSupportedException {
+        MessageDigest copy = (MessageDigest) super.clone();
+        copy.digest = (Digest) copy.digest.clone();
+        return copy;
+    }
 }
