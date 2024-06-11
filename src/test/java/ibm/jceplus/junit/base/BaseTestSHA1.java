@@ -10,7 +10,7 @@ package ibm.jceplus.junit.base;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-public class BaseTestSHA1 extends BaseTest {
+public class BaseTestSHA1 extends BaseTestMessageDigestClone {
     static boolean warmup = false;
 
     //--------------------------------------------------------------------------
@@ -75,7 +75,7 @@ public class BaseTestSHA1 extends BaseTest {
     //
     //
     public BaseTestSHA1(String providerName) {
-        super(providerName);
+        super(providerName, "SHA-1");
         try {
             if (warmup == false) {
                 warmup = true;
@@ -91,7 +91,7 @@ public class BaseTestSHA1 extends BaseTest {
     //
     public void testSHA1() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-1", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
 
         for (int i = 0; i < each.length; i++)
             md.update(each[i]);
@@ -110,7 +110,7 @@ public class BaseTestSHA1 extends BaseTest {
     //
     public void testSHA1_A() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-1", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(sha_A_input);
         byte[] result = md.digest();
 
@@ -123,7 +123,7 @@ public class BaseTestSHA1 extends BaseTest {
     //
     public void testSHA1_B() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-1", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(sha_B_input);
         byte[] result = md.digest();
 
@@ -136,7 +136,7 @@ public class BaseTestSHA1 extends BaseTest {
     //
     public void testSHA1_C() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-1", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         for (int counter = 0; counter < 1000000; counter++) {
             md.update((byte) 0x61);
         }
@@ -152,7 +152,7 @@ public class BaseTestSHA1 extends BaseTest {
     //
     public void testSHA1_reset() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-1", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(sha_A_input);
         md.reset();
         md.update(sha_B_input);
@@ -166,14 +166,14 @@ public class BaseTestSHA1 extends BaseTest {
     //
     //
     public void testSHA1_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SHA-1", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         int digestLength = md.getDigestLength();
         boolean isExpectedValue = (digestLength == 20);
         assertTrue("Unexpected digest length", isExpectedValue);
     }
 
     public void testSHA1_ArrayOutofBoundsException() throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SHA-1", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         byte[] bytes = new byte[] {1, 1, 1, 1, 1};
         try {
             md.update(bytes, -1, 1);
@@ -190,7 +190,7 @@ public class BaseTestSHA1 extends BaseTest {
     public void warmup() throws Exception {
 
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1", providerName);
+            MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
             for (long i = 0; i < 10000; i++) {
                 md.update(sha_A_input);
                 md.digest();
