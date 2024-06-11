@@ -63,6 +63,7 @@ public class TestMultithread extends TestCase {
             "ibm.jceplus.junit.openjceplus.multithread.TestSHA512",
             "ibm.jceplus.junit.openjceplus.multithread.TestSHA512_224",
             "ibm.jceplus.junit.openjceplus.multithread.TestSHA512_256",
+            "ibm.jceplus.junit.openjceplus.multithread.TestSHA256Clone_SharedMD",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSASignature",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSA_2048",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSAKey",
