@@ -145,6 +145,88 @@ JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_DI
 //============================================================================
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
+ * Method:    DIGEST_copy
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_DIGEST_1copy
+  (JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId)
+{
+  static const char * functionName = "NativeInterface.DIGEST_copy";
+
+  ICC_CTX *   ockCtx = (ICC_CTX *)((intptr_t) ockContextId);
+  OCKDigest * ockDigest = (OCKDigest *)((intptr_t) digestId);
+  OCKDigest * ockDigestCopy = (OCKDigest *)malloc(sizeof(OCKDigest));
+  jlong       digestCopyId = 0;
+
+  if( debug ) {
+    gslogFunctionEntry(functionName);
+  }
+  if (ockDigest == NULL) {
+    if( debug ) {
+      gslogFunctionExit(functionName);
+    }
+    return 0;
+  }
+#ifdef DEBUG_DIGEST_DETAIL
+  if ( debug ) {
+    gslogMessage("DETAIL_DIGEST ockDigest->mdCtx=%lx digestId %lx : ", ockDigest->mdCtx, (long) digestId);
+  }
+#endif
+  if( ockDigestCopy == NULL ) {
+#ifdef DEBUG_DIGEST_DETAIL
+    if ( debug ) {
+      gslogMessage ("DETAIL_DIGEST FAILURE malloc of copy of OCKDigest failed");
+    }
+#endif
+    throwOCKException(env, 0, "Error allocating copy of OCKDigest");
+    if( debug ) {
+      gslogFunctionExit(functionName);
+    }
+    return 0;
+  } else {
+    ockDigestCopy->md = ockDigest->md;
+    ockDigestCopy->mdCtx = ICC_EVP_MD_CTX_new(ockCtx);
+    if ( NULL == ockDigestCopy->mdCtx ) {
+#ifdef DEBUG_DIGEST_DETAIL 
+    if ( debug ) {
+      gslogMessage ("DETAIL_DIGEST FAILURE ICC_EVP_MD_CTX_new failed");
+    }
+#endif
+      ockCheckStatus(ockCtx);
+      throwOCKException(env, 0, "ICC_EVP_MD_CTX_new failed");
+    } else {
+      if (ICC_OSSL_SUCCESS != ICC_EVP_MD_CTX_copy(ockCtx, ockDigestCopy->mdCtx, ockDigest->mdCtx)) {
+#ifdef DEBUG_DIGEST_DETAIL
+        if ( debug ) {
+          gslogMessage ("DETAIL_DIGEST FAILURE ICC_EVP_MD_CTX_copy failed");
+        }
+#endif
+        throwOCKException(env, 0, "ICC_EVP_MD_CTX_copy failed");
+      } else {
+        digestCopyId = (jlong)((intptr_t)ockDigestCopy);
+#ifdef DEBUG_DIGEST_DETAIL
+        if( debug ) {
+          gslogMessage("DETAIL_DIGEST digestCopyId=%lx ockDigestCopy->mdCtx=%lx ockDigest->md=%lx", (long) digestCopyId, ockDigestCopy->mdCtx, ockDigestCopy->md);
+        }
+#endif
+      }
+    }
+  }
+
+  if( digestCopyId == 0 ) {
+    FREE_N_NULL(ockDigestCopy);
+  }
+
+  if( debug ) {
+    gslogFunctionExit(functionName);
+  }
+
+  return digestCopyId;
+}
+
+//============================================================================
+/*
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
  * Method:    DIGEST_update
  * Signature: (JJ[BII)V
  */

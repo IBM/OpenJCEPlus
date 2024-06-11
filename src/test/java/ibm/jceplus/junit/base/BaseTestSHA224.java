@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-public class BaseTestSHA224 extends BaseTest {
+public class BaseTestSHA224 extends BaseTestMessageDigestClone {
     static boolean warmup = false;
 
     //--------------------------------------------------------------------------
@@ -37,7 +37,7 @@ public class BaseTestSHA224 extends BaseTest {
     //
     //
     public BaseTestSHA224(String providerName) {
-        super(providerName);
+        super(providerName, "SHA-224");
         try {
             if (warmup == false) {
                 warmup = true;
@@ -69,7 +69,7 @@ public class BaseTestSHA224 extends BaseTest {
     //
     //
     public void testSHA224_reset() throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SHA-224", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(input_1);
         md.reset();
         md.update(input_2);
@@ -82,7 +82,7 @@ public class BaseTestSHA224 extends BaseTest {
     //
     //
     public void testSHA224_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SHA-224", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         int digestLength = md.getDigestLength();
         boolean isExpectedValue = (digestLength == 28);
         assertTrue("Unexpected digest length", isExpectedValue);
@@ -94,7 +94,7 @@ public class BaseTestSHA224 extends BaseTest {
     private boolean checkDigest(byte[] input, byte[] out) {
         boolean result = false;
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-224", providerName);
+            MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
             byte[] digest = md.digest(input);
 
             result = Arrays.equals(digest, out);
@@ -111,7 +111,7 @@ public class BaseTestSHA224 extends BaseTest {
     public void warmup() throws Exception {
 
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-224", providerName);
+            MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
             for (long i = 0; i < 10000; i++) {
                 md.update(input_1);
                 md.digest();

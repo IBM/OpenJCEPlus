@@ -11,18 +11,18 @@ package ibm.jceplus.junit.base;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-public class BaseTestSHA512_256 extends BaseTest {
+public class BaseTestSHA512_256 extends BaseTestMessageDigestClone {
 
     // Test vectors obtained from
     // http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA512_256.pdf
 
     public BaseTestSHA512_256(String providerName) {
-        super(providerName);
+        super(providerName, "SHA-512/256");
     }
 
     public void testSHA512_256_SingleBlock() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-512/256", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         assertTrue(Arrays.equals(md.digest("abc".getBytes("UTF-8")),
                 hexStrToBytes("53048E2681941EF99B2E29B76B4C7DABE4C2D0C634FC6D46E0E2F13107E7AF23")));
 
@@ -30,7 +30,7 @@ public class BaseTestSHA512_256 extends BaseTest {
 
     public void testSHA512_256_TwoBlock() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-512/256", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
 
         assertTrue(Arrays.equals(
                 md.digest(("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn"
@@ -50,7 +50,7 @@ public class BaseTestSHA512_256 extends BaseTest {
 
         String msg = "";
         int j = 0;
-        MessageDigest mdIBM = MessageDigest.getInstance("SHA-512/256", providerName);
+        MessageDigest mdIBM = MessageDigest.getInstance(this.algorithm, providerName);
 
         for (int i = 0; i < 10000; i++) {
 
@@ -71,7 +71,7 @@ public class BaseTestSHA512_256 extends BaseTest {
 
         String calcDigest = "c171b3719fc985090fd9db086061e2b63539f326bc4d989bbe9ac37b7d038022";
 
-        MessageDigest mdIBM = MessageDigest.getInstance("SHA-512/256", providerName);
+        MessageDigest mdIBM = MessageDigest.getInstance(this.algorithm, providerName);
         String msgarrays[] = {"Hello0", "Hello1", "Hello2", "Hello3", "Hello4", "longmessage5",
                 "longermessage6,", "verylongmessage7"};
         for (int i = 0; i < msgarrays.length; i++) {
