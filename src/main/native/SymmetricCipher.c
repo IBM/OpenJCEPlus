@@ -1,17 +1,10 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution.
  */
-
-typedef int (*PFI)();
-
-typedef struct {
-  char *name;
-  PFI func;
-} FUNC;
 
 #include <jni.h>
 #include <stdio.h>
@@ -31,6 +24,7 @@ typedef struct {
 #include "Utils.h"
 #include "ExceptionCodes.h"
 #include <stdint.h>
+#include "zHardwareFunctions.h"
 
 typedef struct OCKCipher
 {
@@ -40,7 +34,8 @@ typedef struct OCKCipher
   int copy_context;
 } OCKCipher;
 
-PFI KMC; // z_kmc_native function pointer; only available on some hardware; might be null
+// Pointers of functions that are only available on some hardware (might be null)
+KMC_FuncPtr KMC; // z_kmc_native function pointer
 
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
@@ -443,10 +438,6 @@ JNIEXPORT jint JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_CIP
  * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
  * Method:    z_kmc_native
  */
-
-typedef size_t				UDATA;
-typedef signed char* arr;
-
 JNIEXPORT int CIPHER_zKMC_internal(unsigned char* input, unsigned char* output, int inputLength, long param, int mode) {
     UDATA  len = inputLength;
     UDATA* len_udata = &len;
@@ -1006,7 +997,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_ch
     return -1;
   }
   
-  KMC = funcPtr[2].func; // z_kmc_native
+  KMC = (KMC_FuncPtr)funcPtr[2].func; // z_kmc_native
   if( debug ) {
     gslogMessage ("KMC %s", funcPtr[2].name); 
     gslogFunctionExit(functionName);

@@ -1,17 +1,10 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution.
  */
-
-typedef int (*PFI)();
-
-typedef struct {
-  char *name;
-  PFI func;
-} FUNC;
 
 #include <jni.h>
 #include <stdio.h>
@@ -26,6 +19,7 @@ typedef struct {
 #include "com_ibm_crypto_plus_provider_ock_NativeInterface.h"
 #include "Padding.h"
 #include "Utils.h"
+#include "zHardwareFunctions.h"
 
 #define ICC_AES_CCM_CRYPTFINAL_FAILED 4
 #define GetPRIMITICEARRAYCRITICAL 5
@@ -38,16 +32,12 @@ typedef struct {
 #define THREAD_LOCAL __thread
 #endif
 
-
 // Pointers of functions that are only available on some hardware (might be null)
-PFI CCMECB; // equivalent to s390_km_native
-PFI CCMGHASH; // equivalent to s390_kimd_native
-PFI CCMzS390; // equivalent to s390_kmccm_native
-typedef size_t                          UDATA;
-typedef signed char* arr;
+ECB_FuncPtr CCMECB;     // equivalent to s390_km_native
+GHASH_FuncPtr CCMGHASH; // equivalent to s390_kimd_native
+zS390_FuncPtr CCMzS390; // equivalent to s390_kmccm_native
 
-
-char* getVersion_CCM() {
+char *getVersion_CCM(void) {
         ICC_STATUS status;
         ICC_CTX *ctx = NULL;
         void* buffer = NULL;
@@ -458,9 +448,9 @@ JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_do
                 return -1;
         }
         else {
-                CCMECB = funcPtr[3].func;   // z_km_native_CCM
-                CCMGHASH = funcPtr[4].func; // z_kimd_native_CCM
-                CCMzS390 = funcPtr[1].func; // s390_kmccm_native
+                CCMECB = (ECB_FuncPtr)funcPtr[3].func;     // z_km_native_CCM
+                CCMGHASH = (GHASH_FuncPtr)funcPtr[4].func; // z_kimd_native_CCM
+                CCMzS390 = (zS390_FuncPtr)funcPtr[1].func; // s390_kmccm_native
                 return 1;
         }
 }
