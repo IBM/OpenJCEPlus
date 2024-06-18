@@ -11,9 +11,11 @@ package com.ibm.crypto.plus.provider.ock;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings({"removal", "deprecation"})
-public final class Digest {
+public final class Digest implements Cloneable {
 
     /* ===========================================================================
        Digest caching mechanism
@@ -47,10 +49,6 @@ public final class Digest {
     static private ConcurrentLinkedQueueLong contexts[];
 
     static private int runtimeContextNum[];
-
-    class NativeResources {
-        private long digestId = 0;
-    }
 
     class ConcurrentLinkedQueueLong extends ConcurrentLinkedQueue<Long> {
         /* empty */
@@ -92,10 +90,8 @@ public final class Digest {
             }
         }
 
-        if (this.nativeResources != null) {
+        if (this.digestId != 0) {
             return;
-        } else {
-            this.nativeResources = new NativeResources();
         }
 
         if (this.algIndx == -1) {
@@ -123,21 +119,21 @@ public final class Digest {
 
         // Algorithm is not SHA*
         if (this.algIndx == -2) {
-            this.nativeResources.digestId = NativeInterface.DIGEST_create(this.ockContext.getId(),
+            this.digestId = NativeInterface.DIGEST_create(this.ockContext.getId(),
                     this.digestAlgo);
         } else {
             Long context = contexts[this.algIndx].poll();
 
             if (context == null) {
                 // Create new context
-                this.nativeResources.digestId = NativeInterface
+                this.digestId = NativeInterface
                         .DIGEST_create(this.ockContext.getId(), this.digestAlgo);
                 this.contextFromQueue = (runtimeContextNum[this.algIndx] < numContexts);
                 if (runtimeContextNum[this.algIndx] < numContexts) {
                     runtimeContextNum[this.algIndx]++;
                 }
             } else {
-                this.nativeResources.digestId = context;
+                this.digestId = context;
                 this.contextFromQueue = true;
             }
         }
@@ -146,34 +142,34 @@ public final class Digest {
 
     void releaseContext() throws OCKException {
 
-        if (this.nativeResources == null) {
+        if (this.digestId == 0) {
             return;
         }
 
         // not SHA* algorithm
         if (this.algIndx == -2) {
-            if (validId(this.nativeResources.digestId)) {
+            if (validId(this.digestId)) {
                 NativeInterface.DIGEST_delete(this.ockContext.getId(),
-                        this.nativeResources.digestId);
-                this.nativeResources.digestId = 0;
+                        this.digestId);
+                this.digestId = 0;
             }
         } else {
             if (this.contextFromQueue) {
                 // reset now to make sure all contexts in the queue are ready to use
                 this.reset();
-                contexts[this.algIndx].add(this.nativeResources.digestId);
-                this.nativeResources.digestId = 0;
+                contexts[this.algIndx].add(this.digestId);
+                this.digestId = 0;
                 this.contextFromQueue = false;
             } else {
                 // delete context
-                if (validId(this.nativeResources.digestId)) {
+                if (validId(this.digestId)) {
                     NativeInterface.DIGEST_delete(this.ockContext.getId(),
-                            this.nativeResources.digestId);
-                    this.nativeResources.digestId = 0;
+                            this.digestId);
+                    this.digestId = 0;
                 }
             }
         }
-        this.nativeResources = null;
+        this.digestId = 0;
     }
 
     /* end digest caching mechanism
@@ -187,6 +183,8 @@ public final class Digest {
 
     private String digestAlgo;
 
+    private long digestId = 0;
+
     public static Digest getInstance(OCKContext ockContext, String digestAlgo) throws OCKException {
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
@@ -198,8 +196,6 @@ public final class Digest {
 
         return new Digest(ockContext, digestAlgo);
     }
-
-    NativeResources nativeResources = null;
 
     private Digest(OCKContext ockContext, String digestAlgo) throws OCKException {
         //final String methodName = "Digest(String)";
@@ -237,12 +233,12 @@ public final class Digest {
         }
 
         //OCKDebug.Msg(debPrefix, methodName, "offset :"  + offset + " digestId :" + this.digestId + " length :" + length);
-        if (!validId(this.nativeResources.digestId)) {
+        if (!validId(this.digestId)) {
             throw new OCKException(badIdMsg);
         }
 
         errorCode = NativeInterface.DIGEST_update(this.ockContext.getId(),
-                this.nativeResources.digestId, input, offset, length);
+                this.digestId, input, offset, length);
         if (errorCode < 0) {
             throwOCKException(errorCode);
         }
@@ -253,10 +249,10 @@ public final class Digest {
         //final String methodName = "digest()";
         int errorCode = 0;
 
-        if (!validId(this.nativeResources.digestId)) {
+        if (!validId(this.digestId)) {
             throw new OCKException(badIdMsg);
         }
-        //OCKDebug.Msg (debPrefix, methodName, "digestId :" + this.nativeResources.digestId);
+        //OCKDebug.Msg (debPrefix, methodName, "digestId :" + this.digestId);
 
 
         // push data from the buffer that haven't got updated yet
@@ -264,7 +260,7 @@ public final class Digest {
         byte[] digestBytes = new byte[digestLength];
 
         errorCode = NativeInterface.DIGEST_digest_and_reset(this.ockContext.getId(),
-                this.nativeResources.digestId, digestBytes);
+                this.digestId, digestBytes);
         if (errorCode < 0) {
             throwOCKException(errorCode);
         }
@@ -275,8 +271,8 @@ public final class Digest {
 
     protected long getId() throws OCKException {
         //final String methodName = "getId()";
-        //OCKDebug.Msg(debPrefix, methodName, "digestId :" + this.nativeResources.digestId);
-        return this.nativeResources.digestId;
+        //OCKDebug.Msg(debPrefix, methodName, "digestId :" + this.digestId);
+        return this.digestId;
     }
 
     public int getDigestLength() throws OCKException {
@@ -291,17 +287,17 @@ public final class Digest {
 
     public synchronized void reset() throws OCKException {
         //final String methodName = "reset ";
-        //OCKDebug.Msg(debPrefix, methodName,  "digestId =" + this.nativeResources.digestId);
+        //OCKDebug.Msg(debPrefix, methodName,  "digestId =" + this.digestId);
 
-        if (this.nativeResources == null) {
+        if (this.digestId == 0) {
             return;
         }
 
-        if (!validId(this.nativeResources.digestId)) {
+        if (!validId(this.digestId)) {
             throw new OCKException(badIdMsg);
         }
         if (this.needsReinit) {
-            NativeInterface.DIGEST_reset(this.ockContext.getId(), this.nativeResources.digestId);
+            NativeInterface.DIGEST_reset(this.ockContext.getId(), this.digestId);
         }
         this.needsReinit = false;
     }
@@ -316,11 +312,11 @@ public final class Digest {
             this.digestLength = digestLengths[this.algIndx];
         } else {
             if (this.digestLength == 0) {
-                if (!validId(this.nativeResources.digestId)) {
+                if (!validId(this.digestId)) {
                     throw new OCKException(badIdMsg);
                 }
                 this.digestLength = NativeInterface.DIGEST_size(this.ockContext.getId(),
-                        this.nativeResources.digestId);
+                        this.digestId);
             }
         }
     }
@@ -330,7 +326,7 @@ public final class Digest {
         //final String methodName = "finalize";
 
         try {
-            //OCKDebug.Msg(debPrefix, methodName,  "digestId =" + this.nativeResources.digestId);
+            //OCKDebug.Msg(debPrefix, methodName,  "digestId =" + this.digestId);
             releaseContext();
         } finally {
             super.finalize();
@@ -342,5 +338,26 @@ public final class Digest {
         //final String methodName = "validId";
         //OCKDebug.Msg(debPrefix, methodName,  "Id : " + id);
         return (id != 0L);
+    }
+
+    @Override
+    synchronized public Object clone() throws CloneNotSupportedException {
+        Digest copy = (Digest) super.clone();
+        
+        copy.contextFromQueue = false;
+        try {
+            copy.digestId = NativeInterface.DIGEST_copy(
+                this.ockContext.getId(), getId());
+            if (copy.digestId == 0) {
+                throw new CloneNotSupportedException("Copy of native digest context failed.");
+            }
+        } catch (OCKException e) {
+            StackTraceElement[] stackTraceArray = e.getStackTrace();
+            String stackTrace = Stream.of(stackTraceArray)
+                                      .map(t -> t.toString())
+                                      .collect(Collectors.joining("\n"));
+            throw new CloneNotSupportedException(stackTrace);
+        }
+        return copy;
     }
 }

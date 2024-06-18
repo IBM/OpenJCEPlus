@@ -10,6 +10,7 @@ package ibm.jceplus.junit.openjceplusfips;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 
