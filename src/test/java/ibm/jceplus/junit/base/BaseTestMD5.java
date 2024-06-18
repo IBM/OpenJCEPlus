@@ -11,7 +11,7 @@ package ibm.jceplus.junit.base;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-public class BaseTestMD5 extends BaseTest {
+public class BaseTestMD5 extends BaseTestMessageDigestClone {
 
     //--------------------------------------------------------------------------
     //
@@ -121,7 +121,7 @@ public class BaseTestMD5 extends BaseTest {
     //
     //
     public BaseTestMD5(String providerName) {
-        super(providerName);
+        super(providerName, "MD5");
     }
 
     //--------------------------------------------------------------------------
@@ -129,7 +129,7 @@ public class BaseTestMD5 extends BaseTest {
     //
     public void testMD5() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("MD5", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
 
         for (int i = 0; i < each.length; i++)
             md.update(each[i]);
@@ -147,7 +147,7 @@ public class BaseTestMD5 extends BaseTest {
     //
     public void testMD5_A() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("MD5", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         byte[] result = md.digest();
 
         assertTrue("Digest did not match expected", Arrays.equals(result, md5_A));
@@ -159,7 +159,7 @@ public class BaseTestMD5 extends BaseTest {
     //
     public void testMD5_B() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("MD5", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(md5_B_input);
         byte[] result = md.digest();
 
@@ -172,7 +172,7 @@ public class BaseTestMD5 extends BaseTest {
     //
     public void testMD5_C() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("MD5", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(md5_C_input);
         byte[] result = md.digest();
 
@@ -185,7 +185,7 @@ public class BaseTestMD5 extends BaseTest {
     //
     public void testMD5_D() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("MD5", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(md5_D_input);
         byte[] result = md.digest();
 
@@ -198,7 +198,7 @@ public class BaseTestMD5 extends BaseTest {
     //
     public void testMD5_E() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("MD5", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(md5_E_input);
         byte[] result = md.digest();
 
@@ -211,7 +211,7 @@ public class BaseTestMD5 extends BaseTest {
     //
     public void testMD5_F() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("MD5", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(md5_F_input);
         byte[] result = md.digest();
 
@@ -224,7 +224,7 @@ public class BaseTestMD5 extends BaseTest {
     //
     public void testMD5_G() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("MD5", providerName);
+        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
         md.update(md5_G_input);
         byte[] result = md.digest();
 
