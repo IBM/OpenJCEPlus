@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -50,12 +50,12 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
     private transient DHKey dhKey = null; // Transient per tag [SERIALIZATION] in DesignNotes.txt
 
 
-    public DHPrivateKey(OpenJCEPlusProvider provider, BigInteger x, BigInteger p, BigInteger g)
+    DHPrivateKey(OpenJCEPlusProvider provider, BigInteger x, BigInteger p, BigInteger g)
             throws InvalidKeyException, IOException {
         initDHPrivateKey(provider, x, null, p, g, 0);
     }
 
-    public DHPrivateKey(OpenJCEPlusProvider provider, BigInteger x, BigInteger p, BigInteger g,
+    DHPrivateKey(OpenJCEPlusProvider provider, BigInteger x, BigInteger p, BigInteger g,
             int l) throws InvalidKeyException, IOException {
         initDHPrivateKey(provider, x, null, p, g, l);
     }
@@ -69,7 +69,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
      * @throws InvalidKeyException if the key cannot be encoded
      * @throws IOException
      */
-    public DHPrivateKey(OpenJCEPlusProvider provider, BigInteger x, DHParameters params)
+    DHPrivateKey(OpenJCEPlusProvider provider, BigInteger x, DHParameters params)
             throws InvalidKeyException, IOException {
         initDHPrivateKey(provider, x, params, null, null, 0);
     }
@@ -99,7 +99,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
         }
     }
 
-    public DHPrivateKey(OpenJCEPlusProvider provider, DHKey dhKey) {
+    DHPrivateKey(OpenJCEPlusProvider provider, DHKey dhKey) {
         try {
 
             this.provider = provider;
@@ -113,7 +113,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
         }
     }
 
-    public DHPrivateKey(OpenJCEPlusProvider provider, byte[] encoded)
+    DHPrivateKey(OpenJCEPlusProvider provider, byte[] encoded)
             throws InvalidKeyException, IOException {
         this.provider = provider;
 
@@ -201,7 +201,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
 
             // ignore OPTIONAL attributes
 
-            this.encodedKey = (byte[]) encodedKey.clone();
+            this.encodedKey = encodedKey.clone();
 
             DerValue outputValue = new DerValue(DerValue.tag_Integer, key);
             return outputValue.toByteArray();
@@ -327,7 +327,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
                 }
             }
         }
-        return (byte[]) this.encodedKey.clone();
+        return this.encodedKey.clone();
 
         //return super.getEncoded();
     }

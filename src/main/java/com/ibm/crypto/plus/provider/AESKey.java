@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -13,12 +13,11 @@ import java.security.KeyRep;
 import java.util.Arrays;
 import javax.crypto.SecretKey;
 import javax.security.auth.DestroyFailedException;
-import javax.security.auth.Destroyable;
 
 /**
  * This class represents an AES key.
  */
-final class AESKey implements SecretKey, Destroyable {
+final class AESKey implements SecretKey {
 
     static final long serialVersionUID = -8899864838936117258L;
 
@@ -35,7 +34,7 @@ final class AESKey implements SecretKey, Destroyable {
      * @exception InvalidKeyException
      *                if the given key has wrong size
      */
-    public AESKey(byte[] key) throws InvalidKeyException {
+    AESKey(byte[] key) throws InvalidKeyException {
         if ((key == null) || !AESUtils.isKeySizeValid(key.length)) {
             throw new InvalidKeyException("Wrong key size");
         }
@@ -62,7 +61,7 @@ final class AESKey implements SecretKey, Destroyable {
 
         // Return a copy of the key, rather than a reference,
         // so that the key data cannot be modified from outside
-        return (byte[]) this.key.clone();
+        return this.key.clone();
     }
 
     /**

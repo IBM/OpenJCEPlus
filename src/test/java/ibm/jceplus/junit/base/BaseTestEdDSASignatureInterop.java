@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,13 +8,18 @@
 
 package ibm.jceplus.junit.base;
 
+import java.io.IOException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
+import java.security.spec.EdECPoint;
+import java.security.spec.EdECPublicKeySpec;
 import java.security.spec.NamedParameterSpec;
+
 import org.bouncycastle.crypto.Signer;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.params.Ed448PublicKeyParameters;
@@ -81,8 +86,15 @@ public class BaseTestEdDSASignatureInterop extends BaseTestSignature {
     //Verify the message with BouncyCastle provided Ed25519
     protected void doVerifyEd25519(byte[] message, byte[] signedBytes, PublicKey publicKey)
             throws Exception {
-        Ed25519PublicKeyParameters publicKeyBC = new Ed25519PublicKeyParameters(
-                ((com.ibm.crypto.plus.provider.EdDSAPublicKeyImpl) publicKey).getEncodedPoint(), 0);
+        KeyFactory keyFactory = KeyFactory.getInstance("EdDSA", providerName);
+        EdECPublicKeySpec keySpec = keyFactory.getKeySpec(publicKey, EdECPublicKeySpec.class);
+        EdECPoint point = keySpec.getPoint();
+        byte[] encodedPoint = point.getY().toByteArray();
+        reverseByteArray(encodedPoint);
+        byte setMSB = point.isXOdd() ? (byte)0x80 : (byte)0x00;
+        encodedPoint[encodedPoint.length - 1] |= setMSB;
+
+        Ed25519PublicKeyParameters publicKeyBC = new Ed25519PublicKeyParameters(encodedPoint);
         Signer signer = new Ed25519Signer();
         signer.init(false, publicKeyBC);
         signer.update(message, 0, message.length);
@@ -95,12 +107,28 @@ public class BaseTestEdDSASignatureInterop extends BaseTestSignature {
     //Verify the message with BouncyCastle provided Ed448
     protected void doVerifyEd448(byte[] message, byte[] signedBytes, PublicKey publicKey)
             throws Exception {
-        Ed448PublicKeyParameters publicKeyBC = new Ed448PublicKeyParameters(
-                ((com.ibm.crypto.plus.provider.EdDSAPublicKeyImpl) publicKey).getEncodedPoint(), 0);
+        KeyFactory keyFactory = KeyFactory.getInstance("EdDSA", providerName);
+        EdECPublicKeySpec keySpec = keyFactory.getKeySpec(publicKey, EdECPublicKeySpec.class);
+        EdECPoint point = keySpec.getPoint();
+        byte[] originalEncodedPoint = point.getY().toByteArray();
+        reverseByteArray(originalEncodedPoint);
+        byte[] encodedPoint = java.util.Arrays.copyOf(originalEncodedPoint, 57);
+        byte setMSB = point.isXOdd() ? (byte)0x80 : (byte)0x00;
+        encodedPoint[encodedPoint.length - 1] = setMSB;
+
+        Ed448PublicKeyParameters publicKeyBC = new Ed448PublicKeyParameters(encodedPoint);
         Signer signer = new Ed448Signer(new byte[0]);
         signer.init(false, publicKeyBC);
         signer.update(message, 0, message.length);
         assertTrue("Signature verification failed ", signer.verifySignature(signedBytes));
+    }
+
+    private static void reverseByteArray(byte[] arr) throws IOException {
+        for (int i = 0; i < arr.length / 2; i++) {
+            byte temp = arr[i];
+            arr[i] = arr[arr.length - 1 - i];
+            arr[arr.length - 1 - i] = temp;
+        }
     }
 
 }

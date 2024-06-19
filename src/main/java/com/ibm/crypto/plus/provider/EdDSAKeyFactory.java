@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -30,13 +30,13 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
     private NamedParameterSpec params = null;
     private OpenJCEPlusProvider provider = null;
 
-    protected EdDSAKeyFactory(OpenJCEPlusProvider provider, NamedParameterSpec paramSpec) {
+    private EdDSAKeyFactory(OpenJCEPlusProvider provider, NamedParameterSpec paramSpec) {
         super();
         this.params = paramSpec;
         this.provider = provider;
     }
 
-    protected EdDSAKeyFactory(OpenJCEPlusProvider provider) {
+    EdDSAKeyFactory(OpenJCEPlusProvider provider) {
         super();
         this.provider = provider;
     }

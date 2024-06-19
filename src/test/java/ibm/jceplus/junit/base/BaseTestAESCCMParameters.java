@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -303,7 +303,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
         // Obtain a CCMParameterSpec object from the CCMParameters object
         CCMParameterSpec newCCMParameterSpec = null;
         try {
-            newCCMParameterSpec = (CCMParameterSpec) ccmParameters1
+            newCCMParameterSpec = ccmParameters1
                     .getParameterSpec(CCMParameterSpec.class);
         } catch (Exception ex) {
             System.out.println(
@@ -589,7 +589,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
         // Get a CCMParametersSpec object from the generated algorithmParameters (CCMParameters) object
         CCMParameterSpec ccmParameterSpec = null;
         try {
-            ccmParameterSpec = (CCMParameterSpec) algorithmParameters
+            ccmParameterSpec = algorithmParameters
                     .getParameterSpec(CCMParameterSpec.class);
         } catch (Exception ex) {
             System.out.println(
@@ -692,7 +692,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
         // Get a CCMParametersSpec object from the generated algorithmParameters (CCMParameters) object
         ccmParameterSpec = null;
         try {
-            ccmParameterSpec = (CCMParameterSpec) algorithmParameters
+            ccmParameterSpec = algorithmParameters
                     .getParameterSpec(CCMParameterSpec.class);
         } catch (Exception ex) {
             System.out.println(

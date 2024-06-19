@@ -39,7 +39,7 @@ public class BaseTestTLS {
     public static void insertProvider(String providerName, String providerClassName, int position) throws Exception{
         Provider provider = java.security.Security.getProvider(providerName);
         if (provider == null) {
-            provider = (Provider) Class.forName(providerClassName).newInstance();
+            provider = (Provider) Class.forName(providerClassName).getDeclaredConstructor().newInstance();
         }
         java.security.Security.insertProviderAt(provider, position);
     }

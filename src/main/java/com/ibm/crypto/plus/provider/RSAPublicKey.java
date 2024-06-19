@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -14,11 +14,13 @@ import java.security.InvalidKeyException;
 import java.security.KeyRep;
 import java.security.ProviderException;
 import java.security.spec.AlgorithmParameterSpec;
-import java.util.Arrays;
+
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
+
 import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
 import com.ibm.crypto.plus.provider.ock.RSAKey;
+
 import sun.security.util.BitArray;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
@@ -41,7 +43,7 @@ final class RSAPublicKey extends X509Key
 
     private transient RSAKey rsaKey = null; // Transient per tag [SERIALIZATION] in DesignNotes.txt
     private transient boolean destroyed = false;
-    private AlgorithmParameterSpec keyParams;
+    private transient AlgorithmParameterSpec keyParams;
 
     public RSAPublicKey(OpenJCEPlusProvider provider, BigInteger m, BigInteger e)
             throws InvalidKeyException, IOException {
@@ -75,7 +77,7 @@ final class RSAPublicKey extends X509Key
         }
 
         try {
-            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), this.key);
+            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), getKey().toByteArray());
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA public key");
             provider.setOCKExceptionCause(ike, exception);
@@ -93,7 +95,7 @@ final class RSAPublicKey extends X509Key
         checkExponentRange();
 
         try {
-            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), this.key);
+            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), getKey().toByteArray());
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA public key");
             provider.setOCKExceptionCause(ike, exception);
@@ -259,9 +261,7 @@ final class RSAPublicKey extends X509Key
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            if (this.key != null) {
-                Arrays.fill(this.key, (byte) 0x00);
-            }
+            setKey(new BitArray(0));
             this.rsaKey = null;
             this.modulus = null;
             this.publicExponent = null;

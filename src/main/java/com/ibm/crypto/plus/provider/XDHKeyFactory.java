@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -28,7 +28,7 @@ import java.security.spec.XECPrivateKeySpec;
 import java.security.spec.XECPublicKeySpec;
 import java.util.Optional;
 
-public class XDHKeyFactory extends KeyFactorySpi {
+class XDHKeyFactory extends KeyFactorySpi {
 
     private OpenJCEPlusProvider provider = null;
     private String alg = null;
@@ -189,7 +189,7 @@ public class XDHKeyFactory extends KeyFactorySpi {
                     return key;
 
                 // Convert key to spec
-                XECPublicKeySpec xecPubKeySpec = (XECPublicKeySpec) engineGetKeySpec(key,
+                XECPublicKeySpec xecPubKeySpec = engineGetKeySpec(key,
                         XECPublicKeySpec.class);
 
                 // Create key from spec, and return it
@@ -208,7 +208,7 @@ public class XDHKeyFactory extends KeyFactorySpi {
                     return key;
 
                 // Convert key to spec
-                XECPrivateKeySpec xecPrivKeySpec = (XECPrivateKeySpec) engineGetKeySpec(key,
+                XECPrivateKeySpec xecPrivKeySpec = engineGetKeySpec(key,
                         XECPrivateKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePrivate(xecPrivKeySpec);
