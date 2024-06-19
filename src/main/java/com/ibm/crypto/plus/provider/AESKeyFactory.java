@@ -26,7 +26,7 @@ public final class AESKeyFactory extends SecretKeyFactorySpi {
      * Empty constructor
      */
     public AESKeyFactory(OpenJCEPlusProvider provider) {
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
         this.provider = provider;

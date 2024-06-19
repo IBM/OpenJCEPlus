@@ -37,10 +37,21 @@ import java.security.spec.PSSParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Date;
+
+import javax.security.auth.x500.X500Principal;
+
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.util.ASN1Dump;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v1CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.crypto.params.RSAKeyParameters;
+import org.bouncycastle.crypto.util.SubjectPublicKeyInfoFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.x509.X509V1CertificateGenerator;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+
 import ibm.jceplus.junit.base.certificateutils.CertAndKeyGen;
 import sun.security.x509.X500Name;
 
@@ -179,19 +190,26 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
         // GENERATE THE X509 CERTIFICATE
-        X509V1CertificateGenerator certGen = new X509V1CertificateGenerator();
-        javax.security.auth.x500.X500Principal dnName = new javax.security.auth.x500.X500Principal(
-                "CN=John Doe");
+        org.bouncycastle.asn1.x500.X500Name issuer = new org.bouncycastle.asn1.x500.X500Name(new X500Principal("CN=John Doe").getName());
 
-        certGen.setSerialNumber(BigInteger.valueOf(System.currentTimeMillis()));
-        certGen.setSubjectDN(dnName);
-        certGen.setIssuerDN(dnName); // use the same
-        certGen.setNotBefore(validityBeginDate);
-        certGen.setNotAfter(validityEndDate);
-        certGen.setPublicKey(keyPair.getPublic());
-        certGen.setSignatureAlgorithm(BC_ALG);
+        SubjectPublicKeyInfo publicKeyInfo;
 
-        X509Certificate cert = certGen.generate(keyPair.getPrivate(), "BC");
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+        publicKeyInfo = SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo(
+                new RSAKeyParameters(false, rsaPublicKey.getModulus(), rsaPublicKey.getPublicExponent()));
+        
+
+        X509v1CertificateBuilder builder = new X509v1CertificateBuilder(issuer, BigInteger.ONE, validityBeginDate, validityEndDate,
+                issuer, publicKeyInfo);
+
+        ContentSigner signer = new JcaContentSignerBuilder(null).setProvider(new BouncyCastleProvider())
+                .build(keyPair.getPrivate());
+        X509CertificateHolder holder = builder.build(signer);
+
+        JcaX509CertificateConverter converter = new JcaX509CertificateConverter()
+                .setProvider(new BouncyCastleProvider());
+
+        X509Certificate cert = converter.getCertificate(holder);
 
         byte[] derBytes0 = cert.getEncoded();
         if (printJunitTrace)
@@ -1593,7 +1611,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
 
             KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS", providerNameKF);
-            X509EncodedKeySpec x509KeySpec = (X509EncodedKeySpec) kf.getKeySpec(publicKey,
+            X509EncodedKeySpec x509KeySpec = kf.getKeySpec(publicKey,
                     X509EncodedKeySpec.class);
             byte[] encodedKey = x509KeySpec.getEncoded();
 

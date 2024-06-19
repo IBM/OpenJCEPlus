@@ -83,7 +83,7 @@ public final class ECKey implements AsymmetricKey {
         this.ecKeyId = ecKeyId;
         this.pkeyId = 0;
 
-        this.ecSpec = (ECParameterSpec) ecSpec;
+        this.ecSpec = ecSpec;
         // this.isNamedCurve = false;
         // this.curveName = null;
         // this.parameterBytes = convertSpecToBytes(ecSpec);

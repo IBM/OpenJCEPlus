@@ -138,7 +138,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
     private byte[] lastEncIv = null;
 
     public AESGCMCipher(OpenJCEPlusProvider provider) {
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
 
@@ -441,7 +441,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
 
 
 
-    protected int doFinalForUpdates(byte[] input, int inputOffset, int inputLen, byte[] output,
+    private int doFinalForUpdates(byte[] input, int inputOffset, int inputLen, byte[] output,
             int outputOffset) throws ShortBufferException, IllegalBlockSizeException,
             BadPaddingException, AEADBadTagException, IllegalStateException, OCKException {
         //final String methodName = "doFinalForUpdates";
@@ -700,7 +700,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
         if (params != null) {
             GCMParameterSpec ivSpec = null;
             try {
-                ivSpec = (GCMParameterSpec) params.getParameterSpec(GCMParameterSpec.class);
+                ivSpec = params.getParameterSpec(GCMParameterSpec.class);
             } catch (InvalidParameterSpecException ipse) {
                 throw new InvalidAlgorithmParameterException(
                         "Wrong parameter " + "type: GCM " + "expected");

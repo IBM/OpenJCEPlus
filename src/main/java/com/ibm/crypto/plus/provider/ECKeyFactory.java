@@ -148,7 +148,7 @@ public final class ECKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                ECPublicKeySpec ecPubKeySpec = (ECPublicKeySpec) engineGetKeySpec(key,
+                ECPublicKeySpec ecPubKeySpec = engineGetKeySpec(key,
                         ECPublicKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePublic(ecPubKeySpec);
@@ -159,7 +159,7 @@ public final class ECKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                ECPrivateKeySpec ecPrivKeySpec = (ECPrivateKeySpec) engineGetKeySpec(key,
+                ECPrivateKeySpec ecPrivKeySpec = engineGetKeySpec(key,
                         ECPrivateKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePrivate(ecPrivKeySpec);

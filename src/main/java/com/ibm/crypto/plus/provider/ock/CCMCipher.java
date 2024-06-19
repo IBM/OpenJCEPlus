@@ -9,11 +9,10 @@
 package com.ibm.crypto.plus.provider.ock;
 
 import java.nio.ByteBuffer;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.crypto.AEADBadTagException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -37,12 +36,8 @@ public final class CCMCipher {
     static final int CCM_AUGMENTED_MODE = 768;
 
     static {
-        disableCCMAcceleration = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-            public Boolean run() {
-                return ("true"
-                        .equalsIgnoreCase(System.getProperty(DISABLE_CCM_ACCELERATION, "false")));
-            }
-        });
+        disableCCMAcceleration = Boolean.parseBoolean(
+            System.getProperty("jdk.nativeCryptoTrace", "false"));
     }
 
 

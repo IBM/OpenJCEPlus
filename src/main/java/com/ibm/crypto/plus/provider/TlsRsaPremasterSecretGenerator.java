@@ -21,7 +21,6 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * KeyGenerator implementation for the SSL/TLS RSA premaster secret.
  */
-@SuppressWarnings("deprecation")
 public final class TlsRsaPremasterSecretGenerator extends KeyGeneratorSpi {
 
     private final static String MSG = "TlsRsaPremasterSecretGenerator must be "
@@ -33,7 +32,7 @@ public final class TlsRsaPremasterSecretGenerator extends KeyGeneratorSpi {
 
     public TlsRsaPremasterSecretGenerator(OpenJCEPlusProvider provider) {
 
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
 

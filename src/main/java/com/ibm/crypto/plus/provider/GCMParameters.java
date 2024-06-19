@@ -50,7 +50,7 @@ public final class GCMParameters extends AlgorithmParametersSpi
 
         byte[] iv = ((GCMParameterSpec) paramSpec).getIV();
 
-        this.iv = (byte[]) iv.clone();
+        this.iv = iv.clone();
     }
 
     /*

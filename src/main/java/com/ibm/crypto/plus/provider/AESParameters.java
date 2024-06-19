@@ -27,12 +27,10 @@ import sun.security.util.HexDumpEncoder;
  */
 public final class AESParameters extends AlgorithmParametersSpi {
 
-    private OpenJCEPlusProvider provider = null;
-
     private byte[] iv;
 
-    public AESParameters(OpenJCEPlusProvider provider) {
-        this.provider = provider;
+    public AESParameters() {
+        super();
     }
 
     @Override
@@ -47,7 +45,7 @@ public final class AESParameters extends AlgorithmParametersSpi {
                 iv.length != 4) { // KWP mode
             throw new InvalidParameterSpecException("IV not 16, 8 or 4 bytes long");
         }
-        this.iv = (byte[]) iv.clone();
+        this.iv = iv.clone();
     }
 
     @Override

@@ -103,7 +103,7 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
 
     public AESCCMCipher(OpenJCEPlusProvider provider) {
 
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
 
@@ -569,7 +569,7 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
         if (params != null) {
             CCMParameterSpec ivSpec = null;
             try {
-                ivSpec = (CCMParameterSpec) params.getParameterSpec(CCMParameterSpec.class);
+                ivSpec = params.getParameterSpec(CCMParameterSpec.class);
             } catch (InvalidParameterSpecException ipse) {
                 throw new InvalidAlgorithmParameterException(
                         "Wrong parameter " + "type: CCM " + "expected");

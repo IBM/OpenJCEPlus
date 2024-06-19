@@ -137,7 +137,7 @@ public class BaseTestMemStressDSAKeyPair extends BaseTest {
 
         KeyPair dsaKeyPair = generateKeyPair(size);
 
-        DSAPublicKeySpec dsaPubSpec = (DSAPublicKeySpec) dsaKeyFactory
+        DSAPublicKeySpec dsaPubSpec = dsaKeyFactory
                 .getKeySpec(dsaKeyPair.getPublic(), DSAPublicKeySpec.class);
         DSAPublicKey dsaPub = (DSAPublicKey) dsaKeyFactory.generatePublic(dsaPubSpec);
 
@@ -145,7 +145,7 @@ public class BaseTestMemStressDSAKeyPair extends BaseTest {
             fail("DSA public key does not match generated public key");
         }
 
-        DSAPrivateKeySpec dsaPrivateSpec = (DSAPrivateKeySpec) dsaKeyFactory
+        DSAPrivateKeySpec dsaPrivateSpec = dsaKeyFactory
                 .getKeySpec(dsaKeyPair.getPrivate(), DSAPrivateKeySpec.class);
         DSAPrivateKey dsaPriv = (DSAPrivateKey) dsaKeyFactory.generatePrivate(dsaPrivateSpec);
 

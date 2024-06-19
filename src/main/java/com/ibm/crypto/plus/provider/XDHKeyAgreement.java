@@ -26,7 +26,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.ibm.crypto.plus.provider.ock.OCKException;
 import com.ibm.crypto.plus.provider.ock.XECKey;
 
-public class XDHKeyAgreement extends KeyAgreementSpi {
+abstract class XDHKeyAgreement extends KeyAgreementSpi {
 
     private static final int SECRET_BUFFER_SIZE_X25519 = 32;
     private static final int SECRET_BUFFER_SIZE_X448 = 56;
@@ -38,17 +38,17 @@ public class XDHKeyAgreement extends KeyAgreementSpi {
     private byte[] secret = null;
     private String alg = null;
 
-    public XDHKeyAgreement(OpenJCEPlusProvider provider) {
+    XDHKeyAgreement(OpenJCEPlusProvider provider) {
 
-        if (!provider.verifySelfIntegrity(this.getClass()))
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this))
             throw new SecurityException("Integrity check failed for: " + provider.getName());
 
         this.provider = provider;
     }
 
-    public XDHKeyAgreement(OpenJCEPlusProvider provider, String Alg) {
+    XDHKeyAgreement(OpenJCEPlusProvider provider, String Alg) {
 
-        if (!provider.verifySelfIntegrity(this.getClass()))
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this))
             throw new SecurityException("Integrity check failed for: " + provider.getName());
 
         this.provider = provider;

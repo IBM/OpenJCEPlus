@@ -31,7 +31,7 @@ public final class ChaCha20KeyGenerator extends KeyGeneratorSpi implements ChaCh
      * Empty constructor
      */
     public ChaCha20KeyGenerator(OpenJCEPlusProvider provider) {
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
 

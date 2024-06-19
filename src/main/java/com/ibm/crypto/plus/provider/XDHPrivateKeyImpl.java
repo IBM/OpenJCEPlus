@@ -40,8 +40,8 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
     private static final long serialVersionUID = 6034044314589513430L;
 
     private OpenJCEPlusProvider provider = null;
-    private Optional<byte[]> scalar;
-    private NamedParameterSpec params;
+    private transient Optional<byte[]> scalar;
+    private transient NamedParameterSpec params;
     private CURVE curve;
     BigInteger bi1; // parameter used in FFDHE
     BigInteger bi2; // parameter used in FFDHE
