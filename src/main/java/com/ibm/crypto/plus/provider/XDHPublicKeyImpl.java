@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -39,7 +39,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
     private static final long serialVersionUID = 7187392471159151072L;
 
     private OpenJCEPlusProvider provider = null;
-    private NamedParameterSpec params;
+    private transient NamedParameterSpec params;
     private CURVE curve;
     private BigInteger u;
     private BigInteger bi1; // parameter used in FFDHE
@@ -117,7 +117,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
         decode(encoded); // Set key, algid, and encodedKey from input
 
         try {
-            byte[] reverseKey = this.key.clone();
+            byte[] reverseKey = getKey().toByteArray();
             if (!(CurveUtil.isEd(this.curve)))
                 reverseByteArray(reverseKey);
 
@@ -252,7 +252,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
         // Forming main sequence
         outStream.write(DerValue.tag_Sequence, subSeq.toByteArray());
-        outStream.putBitString(this.key);
+        outStream.putBitString(getKey().toByteArray());
 
         mainSeq.write(DerValue.tag_Sequence, outStream);
         return mainSeq.toByteArray();
@@ -395,7 +395,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
     public byte[] getEncoded() {
         try {
             if (CurveUtil.isXEC(this.curve))
-                return this.key;
+                return getKey().toByteArray();
             if (encodedKey == null) {
                 DerOutputStream asn1 = new DerOutputStream();
 
@@ -421,7 +421,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
                 DerOutputStream bitString = null;
                 if (CurveUtil.isFFDHE(this.curve)) {
                     bitString = new DerOutputStream();
-                    bitString.putInteger(new BigInteger(key));
+                    bitString.putInteger(new BigInteger(getKey().toByteArray()));
                 }
 
                 DerOutputStream main = new DerOutputStream();
@@ -429,7 +429,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
                 if (bitString != null)
                     main.putBitString(bitString.toByteArray());
                 else
-                    main.putBitString(key);
+                    main.putBitString(getKey().toByteArray());
 
                 asn1.write(DerValue.tag_Sequence, main.toByteArray());
                 encodedKey = asn1.toByteArray();
@@ -455,11 +455,14 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
             processOIDSequence(seq, null);
             this.algid = CurveUtil.getAlgId(this.params.getName());
 
+            byte[] keyArray;
             if (CurveUtil.isFFDHE(this.curve)) {
                 DerInputStream bitString = new DerInputStream(values[1].getBitString());
-                this.key = bitString.getBigInteger().toByteArray();
-            } else
-                this.key = values[1].getBitString();
+                keyArray = bitString.getBigInteger().toByteArray();
+            } else {
+                keyArray = values[1].getBitString();
+            }
+            setKey(new BitArray(keyArray.length * 8, keyArray));
         } catch (Exception e) {
             throw new InvalidKeyException("Key does not appear to be a XEC/FFDHE key");
         }
@@ -476,8 +479,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            if (this.key != null)
-                Arrays.fill(this.key, (byte) 0x00);
+            setKey(new BitArray(0));
             this.xecKey = null;
             this.u = null;
             this.params = null;

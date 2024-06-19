@@ -753,7 +753,10 @@ public class BaseTestRSA extends BaseTestCipher {
     //
     public void testRSACipher_init_key_algparmspec() throws Exception {
         String transformation = "RSA/ECB/OAEPPadding";
-        AlgorithmParameterSpec algParams = OAEPParameterSpec.DEFAULT;
+        AlgorithmParameterSpec algParams = new OAEPParameterSpec("SHA-1",
+                                                                 "MGF1",
+                                                                 MGF1ParameterSpec.SHA1,
+                                                                 PSource.PSpecified.DEFAULT);
 
         byte[] message = getMessage_OAEP_SHA1();
         if (message != null) {

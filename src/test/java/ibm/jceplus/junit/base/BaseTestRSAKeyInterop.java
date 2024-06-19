@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -311,7 +311,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
 
         KeyPair rsaKeyPairJCE = generateKeyPair(rsaKeyPairGenJCE, size);
 
-        RSAPublicKeySpec rsaPubSpecJCE = (RSAPublicKeySpec) rsaKeyFactoryJCE
+        RSAPublicKeySpec rsaPubSpecJCE = rsaKeyFactoryJCE
                 .getKeySpec(rsaKeyPairJCE.getPublic(), RSAPublicKeySpec.class);
         RSAPublicKey rsaPubJCE = (RSAPublicKey) rsaKeyFactoryJCE.generatePublic(rsaPubSpecJCE);
 
@@ -320,7 +320,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
         }
 
         if (rsaKeyPairJCE.getPrivate() instanceof RSAPrivateCrtKey) {
-            RSAPrivateCrtKeySpec rsaPrivateCrtSpecJCE = (RSAPrivateCrtKeySpec) rsaKeyFactoryJCE
+            RSAPrivateCrtKeySpec rsaPrivateCrtSpecJCE = rsaKeyFactoryJCE
                     .getKeySpec(rsaKeyPairJCE.getPrivate(), RSAPrivateCrtKeySpec.class);
             RSAPrivateCrtKey rsaPrivCrtJCE = (RSAPrivateCrtKey) rsaKeyFactoryJCE
                     .generatePrivate(rsaPrivateCrtSpecJCE);
@@ -329,7 +329,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
                 fail("RSA private CRT key does not match generated private key");
             }
 
-            RSAPrivateKeySpec rsaPrivateSpecJCE = (RSAPrivateKeySpec) rsaKeyFactoryJCE
+            RSAPrivateKeySpec rsaPrivateSpecJCE = rsaKeyFactoryJCE
                     .getKeySpec(rsaPrivCrtJCE, RSAPrivateKeySpec.class);
             try {
                 rsaKeyFactoryJCE.generatePrivate(rsaPrivateSpecJCE);
@@ -337,7 +337,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
                 assertTrue("JCEPlus InvalidKeySpeccException = " + ikse.getMessage(), false);
             }
         } else {
-            RSAPrivateKeySpec rsaPrivateSpecJCE = (RSAPrivateKeySpec) rsaKeyFactoryJCE
+            RSAPrivateKeySpec rsaPrivateSpecJCE = rsaKeyFactoryJCE
                     .getKeySpec(rsaKeyPairJCE.getPrivate(), RSAPrivateKeySpec.class);
             RSAPrivateKey rsaPrivJCE = (RSAPrivateKey) rsaKeyFactoryJCE
                     .generatePrivate(rsaPrivateSpecJCE);
@@ -352,7 +352,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
 
         KeyPair rsaKeyPairPlus = generateKeyPair(rsaKeyPairGenPlus, size);
 
-        RSAPublicKeySpec rsaPubSpecPlus = (RSAPublicKeySpec) rsaKeyFactoryPlus
+        RSAPublicKeySpec rsaPubSpecPlus = rsaKeyFactoryPlus
                 .getKeySpec(rsaKeyPairPlus.getPublic(), RSAPublicKeySpec.class);
         RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyFactoryPlus.generatePublic(rsaPubSpecPlus);
 
@@ -361,7 +361,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
         }
 
         if (rsaKeyPairPlus.getPrivate() instanceof RSAPrivateCrtKey) {
-            RSAPrivateCrtKeySpec rsaPrivateCrtSpecPlus = (RSAPrivateCrtKeySpec) rsaKeyFactoryPlus
+            RSAPrivateCrtKeySpec rsaPrivateCrtSpecPlus = rsaKeyFactoryPlus
                     .getKeySpec(rsaKeyPairPlus.getPrivate(), RSAPrivateCrtKeySpec.class);
             RSAPrivateCrtKey rsaPrivCrtPlus = (RSAPrivateCrtKey) rsaKeyFactoryPlus
                     .generatePrivate(rsaPrivateCrtSpecPlus);
@@ -371,7 +371,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
                 fail("RSA private CRT key does not match generated private key");
             }
 
-            RSAPrivateKeySpec rsaPrivateSpecPlus = (RSAPrivateKeySpec) rsaKeyFactoryPlus
+            RSAPrivateKeySpec rsaPrivateSpecPlus = rsaKeyFactoryPlus
                     .getKeySpec(rsaKeyPairPlus.getPrivate(), RSAPrivateKeySpec.class);
             try {
 
@@ -381,7 +381,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
                 assertTrue("JCEPlus InvalidKeySpeccException = " + ikse.getMessage(), false);
             }
         } else {
-            RSAPrivateKeySpec rsaPrivateSpecPlus = (RSAPrivateKeySpec) rsaKeyFactoryPlus
+            RSAPrivateKeySpec rsaPrivateSpecPlus = rsaKeyFactoryPlus
                     .getKeySpec(rsaKeyPairPlus.getPrivate(), RSAPrivateKeySpec.class);
             RSAPrivateKey rsaPrivPlus = (RSAPrivateKey) rsaKeyFactoryPlus
                     .generatePrivate(rsaPrivateSpecPlus);
