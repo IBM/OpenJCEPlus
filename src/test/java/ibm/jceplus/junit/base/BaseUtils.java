@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,8 +8,6 @@
 
 package ibm.jceplus.junit.base;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.security.Provider;
 
 abstract public class BaseUtils {
@@ -56,55 +54,6 @@ abstract public class BaseUtils {
     //--------------------------------------------------------------------------
     //
     //
-    public static Provider createIBMPKCS11Provider(String configFile) throws Exception {
-        return createIBMPKCS11Provider(configFile, true);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static Provider createIBMPKCS11Provider(String configFile, boolean addToProviderList)
-            throws Exception {
-        Class cls = Class.forName("com.ibm.crypto.pkcs11impl.provider.IBMPKCS11Impl");
-        Constructor ctor = cls.getConstructor(new Class[] {String.class});
-        Provider provider = (Provider) ctor.newInstance(configFile);
-
-        if (addToProviderList) {
-            java.security.Security.addProvider(provider);
-        }
-
-        return provider;
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static Provider createIBMPKCS11Provider(String configFile, char[] password)
-            throws Exception {
-        return createIBMPKCS11Provider(configFile, password, true);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static Provider createIBMPKCS11Provider(String configFile, char[] password,
-            boolean addToProviderList) throws Exception {
-        Class cls = Class.forName("com.ibm.crypto.pkcs11impl.provider.IBMPKCS11Impl");
-        Provider provider = (Provider) cls.newInstance();
-        Method method = cls.getMethod("Init", new Class[] {String.class, char[].class});
-
-        method.invoke(provider, configFile, password);
-
-        if (addToProviderList) {
-            java.security.Security.addProvider(provider);
-        }
-
-        return provider;
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
     public static byte[] hexStringToByteArray(String string) {
         String s = string.trim().replaceAll(" +", ""); // remove all spaces
 
@@ -132,7 +81,7 @@ abstract public class BaseUtils {
             boolean addToProviderList) throws Exception {
         Provider provider = java.security.Security.getProvider(providerName);
         if (provider == null) {
-            provider = (Provider) Class.forName(providerClassName).newInstance();
+            provider = (Provider) Class.forName(providerClassName).getDeclaredConstructor().newInstance();
             if (addToProviderList) {
                 java.security.Security.addProvider(provider);
             }

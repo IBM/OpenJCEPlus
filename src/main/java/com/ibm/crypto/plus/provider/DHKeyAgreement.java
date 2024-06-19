@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,12 +10,10 @@ package com.ibm.crypto.plus.provider;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.AccessController;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivilegedAction;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import javax.crypto.KeyAgreementSpi;
@@ -27,7 +25,6 @@ import com.ibm.crypto.plus.provider.ock.DHKey;
 import com.ibm.crypto.plus.provider.ock.OCKException;
 import sun.security.util.KeyUtil;
 
-@SuppressWarnings({"removal", "deprecation"})
 public final class DHKeyAgreement extends KeyAgreementSpi {
 
     private OpenJCEPlusProvider provider = null;
@@ -47,14 +44,14 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
         private static final boolean VALUE = getValue();
 
         private static boolean getValue() {
-            return AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> Boolean
-                    .getBoolean("jdk.crypto.KeyAgreement.legacyKDF"));
+            return Boolean.parseBoolean(
+                System.getProperty("jdk.crypto.KeyAgreement.legacyKDF", "false"));
         }
     }
 
     public DHKeyAgreement(OpenJCEPlusProvider provider) {
 
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
 

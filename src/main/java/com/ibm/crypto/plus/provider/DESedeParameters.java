@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -26,6 +26,9 @@ import sun.security.util.HexDumpEncoder;
  * </pre>
  */
 public final class DESedeParameters extends AlgorithmParametersSpi {
+    public DESedeParameters() {
+        super();
+    }
 
     private byte[] iv;
 
@@ -38,7 +41,7 @@ public final class DESedeParameters extends AlgorithmParametersSpi {
         if (iv.length != 8) {
             throw new InvalidParameterSpecException("IV not 8 bytes long");
         }
-        this.iv = (byte[]) iv.clone();
+        this.iv = iv.clone();
     }
 
     protected void engineInit(byte[] encoded) throws IOException {

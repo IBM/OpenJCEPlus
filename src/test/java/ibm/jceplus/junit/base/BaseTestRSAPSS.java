@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -457,7 +457,8 @@ public class BaseTestRSAPSS extends BaseTest {
 
         Signature sig = Signature.getInstance(algorithm, providerName);
         // Set salt length
-        PSSParameterSpec pss = new PSSParameterSpec(20);
+        PSSParameterSpec pss = new PSSParameterSpec("SHA-1", "MGF1",
+                MGF1ParameterSpec.SHA1, 20, 1);
         sig.setParameter(pss);
         sig.initSign(keyPair.getPrivate());
         sig.update(content);
@@ -541,7 +542,7 @@ public class BaseTestRSAPSS extends BaseTest {
             RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
 
             KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS", providerName);
-            X509EncodedKeySpec x509KeySpec = (X509EncodedKeySpec) kf.getKeySpec(publicKey,
+            X509EncodedKeySpec x509KeySpec = kf.getKeySpec(publicKey,
                     X509EncodedKeySpec.class);
             byte[] encodedKey = x509KeySpec.getEncoded();
 

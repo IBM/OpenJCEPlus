@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -46,7 +46,7 @@ public final class HKDF {
         //OCKDebug.Msg (debPrefix, methodName,  "saltLen:" + saltLen );
         //OCKDebug.Msg (debPrefix, methodName,  "inpKeyLen:" + inpKeyLen  + " inKey.lenth=" + inKey.length);
         byte[] extractedBytes = NativeInterface.HKDF_extract(ockContext.getId(), hkdfId, salt,
-                (long) (salt.length), inKey, (long) inpKeyLen);
+                (long) (salt.length), inKey, inpKeyLen);
         return extractedBytes;
 
     }
@@ -57,7 +57,7 @@ public final class HKDF {
         //        + "            byte[] info, long infoLen, long okmLen)";
         //OCKDebug.Msg (debPrefix, methodName,  "this.hkdfId :" + this.hkdfId );
         byte[] expandedBytes = NativeInterface.HKDF_expand(ockContext.getId(), hkdfId, prkBytes,
-                (long) (prkBytes.length), info, (long) (info.length), (long) okmLen);
+                (long) (prkBytes.length), info, (long) (info.length), okmLen);
         return expandedBytes;
 
     }
@@ -69,8 +69,7 @@ public final class HKDF {
         //OCKDebug.Msg (debPrefix, methodName,  "saltLen:" + saltLen );
         //OCKDebug.Msg (debPrefix, methodName,  "inpKeyLen:" + inpKeyLen  + " inKey.lenth=" + inKey.length);
         byte[] generateBytes = NativeInterface.HKDF_derive(ockContext.getId(), hkdfId, salt,
-                (long) (salt.length), inKey, (long) inpKeyLen, info, (long) (info.length),
-                (long) okmLen);
+                (long) (salt.length), inKey, inpKeyLen, info, (long) (info.length), okmLen);
         return generateBytes;
 
     }
