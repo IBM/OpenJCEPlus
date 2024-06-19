@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -83,7 +83,7 @@ public class BaseTestDSAKey extends BaseTest {
     public void testDSAKeyGenFromParams_1024() throws Exception {
         try {
             AlgorithmParameters algParams = generateParameters(1024);
-            DSAParameterSpec dsaParameterSpec = (DSAParameterSpec) algParams
+            DSAParameterSpec dsaParameterSpec = algParams
                     .getParameterSpec(DSAParameterSpec.class);
             KeyPair dsaKeyPair = generateKeyPair(dsaParameterSpec);
             dsaKeyPair.getPublic();
@@ -237,7 +237,7 @@ public class BaseTestDSAKey extends BaseTest {
 
         KeyPair dsaKeyPair = generateKeyPair(size);
 
-        DSAPublicKeySpec dsaPubSpec = (DSAPublicKeySpec) dsaKeyFactory
+        DSAPublicKeySpec dsaPubSpec = dsaKeyFactory
                 .getKeySpec(dsaKeyPair.getPublic(), DSAPublicKeySpec.class);
         DSAPublicKey dsaPub = (DSAPublicKey) dsaKeyFactory.generatePublic(dsaPubSpec);
 
@@ -245,7 +245,7 @@ public class BaseTestDSAKey extends BaseTest {
             fail("DSA public key does not match generated public key");
         }
 
-        DSAPrivateKeySpec dsaPrivateSpec = (DSAPrivateKeySpec) dsaKeyFactory
+        DSAPrivateKeySpec dsaPrivateSpec = dsaKeyFactory
                 .getKeySpec(dsaKeyPair.getPrivate(), DSAPrivateKeySpec.class);
         DSAPrivateKey dsaPriv = (DSAPrivateKey) dsaKeyFactory.generatePrivate(dsaPrivateSpec);
 

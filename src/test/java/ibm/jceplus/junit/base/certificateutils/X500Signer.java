@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -37,8 +37,8 @@ public class X500Signer extends Signer {
 
     static final long serialVersionUID = -7949587785526204490L;
 
-    private Signature sig;
-    private X500Name agent; // XXX should be X509CertChain
+    private transient Signature sig;
+    private transient X500Name agent; // XXX should be X509CertChain
     private AlgorithmId algid;
 
     private static Debug debug = Debug.getInstance("jceplus");
@@ -125,7 +125,7 @@ public class X500Signer extends Signer {
         this.agent = agent;
 
         try {
-            this.algid = AlgorithmId.getAlgorithmId(sig.getAlgorithm());
+            this.algid = AlgorithmId.get(sig.getAlgorithm());
 
         } catch (NoSuchAlgorithmException e) {
             if (debug != null) {

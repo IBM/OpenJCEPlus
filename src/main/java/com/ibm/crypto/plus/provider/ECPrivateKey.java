@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -9,7 +9,6 @@
 package com.ibm.crypto.plus.provider;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
@@ -18,7 +17,6 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
 import javax.security.auth.DestroyFailedException;
-import javax.security.auth.Destroyable;
 import com.ibm.crypto.plus.provider.ock.ECKey;
 
 import sun.security.pkcs.PKCS8Key;
@@ -28,8 +26,7 @@ import sun.security.util.DerValue;
 import sun.security.util.ObjectIdentifier;
 import sun.security.x509.AlgorithmId;
 
-final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.ECPrivateKey,
-        java.security.interfaces.ECKey, Serializable, Destroyable {
+final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.ECPrivateKey {
 
     /**
      * 
@@ -39,7 +36,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
 
     private OpenJCEPlusProvider provider = null;
     private BigInteger s;
-    private ECParameterSpec params;
+    private transient ECParameterSpec params;
 
     private ECPublicKey publicKey = null;
     private byte[] privateKeyBytesEncoded = null;
@@ -61,7 +58,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
      * @param params
      * @param publicKey
      */
-    public ECPrivateKey(OpenJCEPlusProvider provider, BigInteger s, ECParameterSpec params)
+    ECPrivateKey(OpenJCEPlusProvider provider, BigInteger s, ECParameterSpec params)
             throws InvalidKeyException, InvalidParameterSpecException {
 
         // The ECParameterSpec object contains:
@@ -155,7 +152,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
      * @param encoded
      *            the encoded parameters.
      */
-    public ECPrivateKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
+    ECPrivateKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
         decode(encoded);
         this.provider = provider;
 
@@ -194,7 +191,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
         }
     }
 
-    public ECPrivateKey(OpenJCEPlusProvider provider, ECKey ecKey) throws InvalidKeyException {
+    ECPrivateKey(OpenJCEPlusProvider provider, ECKey ecKey) throws InvalidKeyException {
 
         // System.out.println("ECPrivateKey=" + ecKey.toString());
         this.provider = provider;
