@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -37,12 +37,12 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
 
     private AlgorithmParameterSpec gcm_param_spec = null;
 
-    private static Class classGCMParameterSpec = null;
-    private static Constructor ctorGCMParameterSpec = null;
+    private static Class<?> classGCMParameterSpec = null;
+    private static Constructor<?> ctorGCMParameterSpec = null;
     private static Method methGCMParameterSpecSetADD = null;
 
-    private static Class classAESGCMCipher = null;
-    private static Constructor ctorAESGCMCipher = null;
+    private static Class<?> classAESGCMCipher = null;
+    private static Constructor<?> ctorAESGCMCipher = null;
     private static Method methAESGCMCipherUpdateAAD = null;
 
     private static Method methCipherGetInstance = null;
@@ -67,10 +67,10 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
         try {
             classGCMParameterSpec = Class.forName("javax.crypto.spec.GCMParameterSpec");
             ctorGCMParameterSpec = classGCMParameterSpec
-                    .getConstructor(new Class[] {int.class, byte[].class});
+                    .getConstructor(new Class<?>[] {int.class, byte[].class});
             classAESGCMCipher = Class.forName("javax.crypto.Cipher");
             methAESGCMCipherUpdateAAD = classAESGCMCipher.getMethod("updateAAD",
-                    new Class[] {byte[].class});
+                    new Class<?>[] {byte[].class});
         } catch (Exception ex) {
             /* Differ to calling code in test cases that follow... */
         }
@@ -85,9 +85,9 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 classGCMParameterSpec = Class
                         .forName("ibm.security.internal.spec.GCMParameterSpec");
                 ctorGCMParameterSpec = classGCMParameterSpec
-                        .getConstructor(new Class[] {int.class, byte[].class});
+                        .getConstructor(new Class<?>[] {int.class, byte[].class});
                 methGCMParameterSpecSetADD = classGCMParameterSpec.getMethod("setAAD",
-                        new Class[] {byte[].class, int.class, int.class});
+                        new Class<?>[] {byte[].class, int.class, int.class});
             } catch (Exception ex) {
                 /* Differ to calling code in test cases that follow... */
             }

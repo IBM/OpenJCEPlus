@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.JarURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.security.Security;
 import java.util.Enumeration;
@@ -76,7 +77,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
                 publicMethodNamesString = publicMethodNamesToCheck.toString();
             } else {
                 StringBuffer sb = new StringBuffer();
-                String[] methodNames = (String[]) publicMethodNamesToCheck.toArray(new String[0]);
+                String[] methodNames = publicMethodNamesToCheck.toArray(new String[0]);
                 for (int methodIndex = 0; methodIndex < methodNames.length; ++methodIndex) {
                     sb.append("\n");
                     sb.append(methodNames[methodIndex]);
@@ -116,7 +117,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
             e.printStackTrace(System.out);
         }
 
-        return (String[]) v.toArray(new String[0]);
+        return v.toArray(new String[0]);
     }
 
     // --------------------------------------------------------------------------
@@ -130,7 +131,8 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
 
             int indexOfBang = url.toString().lastIndexOf(".jar!/");
             if (indexOfBang > 0) {
-                URL jarURL = new URL(url.toString().substring(0, indexOfBang + 6));
+                URI jarURI = new URI(url.toString().substring(0, indexOfBang + 6));
+                URL jarURL = jarURI.toURL();
                 JarFile jarFile = ((JarURLConnection) jarURL.openConnection()).getJarFile();
                 return jarFile;
             }
@@ -150,7 +152,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
         try {
             Enumeration<JarEntry> jarEntries = jarFile.entries();
             while (jarEntries.hasMoreElements()) {
-                JarEntry jarEntry = (JarEntry) jarEntries.nextElement();
+                JarEntry jarEntry = jarEntries.nextElement();
                 String jarEntryName = jarEntry.getName();
                 if (jarEntryName.endsWith(".class")) {
                     String className = jarEntryName.substring(0, jarEntryName.length() - 6)
@@ -162,7 +164,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
             e.printStackTrace(System.out);
         }
 
-        return (String[]) v.toArray(new String[0]);
+        return v.toArray(new String[0]);
     }
 
     // --------------------------------------------------------------------------
@@ -270,7 +272,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
             e.printStackTrace(System.out);
         }
 
-        return (Method[]) v.toArray(new Method[0]);
+        return v.toArray(new Method[0]);
     }
 
     // --------------------------------------------------------------------------

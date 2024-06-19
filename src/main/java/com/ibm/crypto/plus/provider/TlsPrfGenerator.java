@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -30,7 +30,6 @@ import sun.security.internal.spec.TlsPrfParameterSpec;
  * optimizations (e.g. XOR'ing keys with padding doesn't need to be redone for
  * each HMAC operation).
  */
-@SuppressWarnings("deprecation")
 abstract class TlsPrfGenerator extends KeyGeneratorSpi {
 
     // magic constants and utility functions, also used by other files
@@ -109,9 +108,9 @@ abstract class TlsPrfGenerator extends KeyGeneratorSpi {
     private OpenJCEPlusProvider provider = null;
     private TlsPrfParameterSpec spec;
 
-    protected TlsPrfGenerator(OpenJCEPlusProvider provider) {
+    TlsPrfGenerator(OpenJCEPlusProvider provider) {
 
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
 
