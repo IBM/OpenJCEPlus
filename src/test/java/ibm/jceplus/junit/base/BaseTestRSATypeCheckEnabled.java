@@ -10,7 +10,6 @@ package ibm.jceplus.junit.base;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPublicKey;
 import javax.crypto.Cipher;
@@ -52,17 +51,7 @@ public class BaseTestRSATypeCheckEnabled extends BaseTest {
     //
     public void testPrivateKeyEncrypt() throws Exception {
         try {
-            Cipher cp = null;
-            try {
-                cp = Cipher.getInstance("RSA", providerName);
-            } catch (NoSuchAlgorithmException nsae) {
-                if (providerName.equals("OpenJCEPlusFIPS")) {
-                    assertEquals("No such algorithm: RSA", nsae.getMessage());
-                    return;
-                } else {
-                    throw nsae;
-                }
-            }
+            Cipher cp = Cipher.getInstance("RSA", providerName);
             cp.init(Cipher.ENCRYPT_MODE, rsaPriv);
             fail("Expected InvalidKeyException did not occur");
         } catch (InvalidKeyException ike) {
@@ -75,17 +64,7 @@ public class BaseTestRSATypeCheckEnabled extends BaseTest {
     //
     public void testPublicKeyDecrypt() throws Exception {
         try {
-            Cipher cp = null;
-            try {
-                cp = Cipher.getInstance("RSA", providerName);
-            } catch (NoSuchAlgorithmException nsae) {
-                if (providerName.equals("OpenJCEPlusFIPS")) {
-                    assertEquals("No such algorithm: RSA", nsae.getMessage());
-                    return;
-                } else {
-                    throw nsae;
-                }
-            }
+            Cipher cp = Cipher.getInstance("RSA", providerName);
             cp.init(Cipher.DECRYPT_MODE, rsaPub);
             fail("Expected InvalidKeyException did not occur");
         } catch (InvalidKeyException ike) {
