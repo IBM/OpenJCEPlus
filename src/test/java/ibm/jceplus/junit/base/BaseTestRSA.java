@@ -1181,6 +1181,36 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
+    // --------------------------------------------------------------------------
+    // This method is to check whether an algorithm is valid for the cipher
+    // but not supported by a given provider.
+    //
+    @Override
+    public boolean isAlgorithmValidButUnsupported(String algorithm) {
+        if (algorithm.equalsIgnoreCase("RSAwithNoPad") || algorithm.equalsIgnoreCase("RSAforSSL")) {
+            return true;
+        }
+
+        return super.isAlgorithmValidButUnsupported(algorithm);
+    }
+
+    // --------------------------------------------------------------------------
+    // This method is to check whether a padidng is valid for the cipher
+    // but not supported by a given provider.
+    //
+    @Override
+    public boolean isPaddingValidButUnsupported(String padding) {
+        if (padding.equalsIgnoreCase("ZeroPadding")
+                || padding.equalsIgnoreCase("OAEPWithSHA-224AndMGF1Padding")
+                || padding.equalsIgnoreCase("OAEPWithSHA-256AndMGF1Padding")
+                || padding.equalsIgnoreCase("OAEPWithSHA-384AndMGF1Padding")
+                || padding.equalsIgnoreCase("OAEPWithSHA-512AndMGF1Padding")) {
+            return true;
+        }
+
+        return super.isPaddingValidButUnsupported(padding);
+    }
+
     //--------------------------------------------------------------------------
     //
     //
