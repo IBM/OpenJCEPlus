@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -259,23 +259,26 @@ public final class SymmetricCipher {
         return retLen;
     }
 
-    /*
-     * OCK resizes the buffer by 16 bytes.  * #define ENCRYPTION_RESIDUE 16;
-     * data.data_len + ENCRYPTION_RESIDUE;   So it always oversizes the buffer by 16 bytes (i.e. 128 bits).
-     * This buffer is larger than what end user application will provide as bufffer. Usually those applications provide
-    */
+    /**
+     * OCKC always oversizes the buffer by 16 bytes (i.e. 128 bits).
+     *
+     * This buffer is larger than what end user application will provide typically as a 
+     * buffer. This method calculates the amount of space that is needed by OCKC in order
+     * to perform its operations.
+     *
+     * @param inputLen the length of the input buffer used to calulate the necessary
+     * buffer size needed for the OCKC library.
+     * @return the necessary buffer size needed by OCK.
+     */
     private synchronized int getOutputSizeForOCK(int inputLen) throws OCKException {
         //final String methodName = "getOutputSize";
         if (inputLen < 0) {
-            return 0;
+            throw new OCKException("Input length not expected to be < 0");
         }
         //OCKDebug.Msg (debPrefix, methodName, "inputLen=" + inputLen + " isFinal=" + isFinal + "encrypting=" + encrypting );
         int totalLen = this.bufferedCount + inputLen;
         int blockSize = getBlockSize();
         //OCKDebug.Msg (debPrefix, methodName, "totalLen=" + totalLen + " blockSize=" + blockSize);
-        if (padding.isPadding(Padding.PADDING_NONE)) {
-            return totalLen;
-        }
 
         int remainderBytes = totalLen % blockSize;
 
