@@ -1,17 +1,10 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution.
  */
-
-typedef int (*PFI)();
-
-typedef struct {
-  char *name;
-  PFI func;
-} FUNC;
 
 #include <jni.h>
 #include <stdio.h>
@@ -26,6 +19,7 @@ typedef struct {
 #include "com_ibm_crypto_plus_provider_ock_NativeInterface.h"
 #include "Padding.h"
 #include "Utils.h"
+#include "zHardwareFunctions.h"
 
 #define ICC_AES_GCM_CTX_NEW_FAILED 1
 #define ICC_AES_GCM_INIT_FAILED 2
@@ -41,12 +35,10 @@ typedef struct {
 #define THREAD_LOCAL __thread
 #endif
 
-int  GCM_InitForUpdateDecrypt_core ();
-int  GCM_UpdForUpdateDecrypt_core ();
-int  GCM_FinalForUpdateDecrypt_core ();
-int  GCM_InitForUpdateEncrypt_core ();
-int  GCM_UpdForUpdateEncrypt_core ();
-int  GCM_FinalForUpdateEncrypt_core ();
+// Pointers of functions that are only available on some hardware (might be null)
+ECB_FuncPtr ECB;     // equivalent to s390_km_native
+GHASH_FuncPtr GHASH; // equivalent to s390_kimd_native
+zS390_FuncPtr zS390; // equivalent to s390_kmgcm_native
 
 ICC_AES_GCM_CTX* getOrfreeGCMContext(ICC_CTX* ockCtx, int keyLen) {
 #if !defined(AIX) && !defined(__MVS__)
@@ -102,30 +94,23 @@ ICC_AES_GCM_CTX* getOrfreeGCMContext(ICC_CTX* ockCtx, int keyLen) {
         }
 		gcmCtx = *gcmCtxPointer;
 		return gcmCtx;
-	}
-	else
-	{
+	} else {
 		if (gcmCtx16 != NULL) {
 			ICC_AES_GCM_CTX_free (ockCtx, gcmCtx16);
 			gcmCtx16=NULL;
-		}
-		else if (gcmCtx24 != NULL) {
+		} else if (gcmCtx24 != NULL) {
 			ICC_AES_GCM_CTX_free (ockCtx, gcmCtx24);
 			gcmCtx24=NULL;
-		}
- 		else if (gcmCtx32 != NULL) {
+		} else if (gcmCtx32 != NULL) {
 			ICC_AES_GCM_CTX_free (ockCtx, gcmCtx32);
  			gcmCtx32=NULL;
-		}
-		else if (FIPSgcmCtx16 != NULL) {
+		} else if (FIPSgcmCtx16 != NULL) {
 			ICC_AES_GCM_CTX_free (ockCtx, FIPSgcmCtx16);
 			FIPSgcmCtx16=NULL;
-		}
-		else if (FIPSgcmCtx24 != NULL) {
+		} else if (FIPSgcmCtx24 != NULL) {
 			ICC_AES_GCM_CTX_free (ockCtx, FIPSgcmCtx24);
 			FIPSgcmCtx24=NULL;
-		}
-		else if (FIPSgcmCtx32 != NULL) {
+		} else if (FIPSgcmCtx32 != NULL) {
 			ICC_AES_GCM_CTX_free (ockCtx, FIPSgcmCtx32);
             FIPSgcmCtx32=NULL;
         }
@@ -136,14 +121,666 @@ ICC_AES_GCM_CTX* getOrfreeGCMContext(ICC_CTX* ockCtx, int keyLen) {
 #endif
 }
 
-// Pointers of functions that are only available on some hardware (might be null)
-PFI ECB; // equivalent to s390_km_native
-PFI GHASH; // equivalent to s390_kimd_native
-PFI zS390; // equivalent to s390_kmgcm_native
-typedef size_t				UDATA;
-typedef signed char* arr;
+/*============================================================================
+*
+* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
+* Method:    GCM_InitForUpdateDecrypt_core
+* Signature: (JJ)V
+*/
+int GCM_InitForUpdateDecrypt_core(JNIEnv *env, ICC_CTX *ockCtx, ICC_AES_GCM_CTX *gcmCtx,
+	unsigned char *key, int keyLen,
+	unsigned char *iv,  int ivLen,
+	unsigned char *aad, int aadLen, unsigned long *updateOutlen) {
+#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
 
-char* getVersion() {
+	 long unsigned updateAADlen   = 0;
+	 /* long unsigned finalOutlen    = 0; */
+	int           rc             = ICC_OSSL_SUCCESS;
+	
+	static const char *functionName = "NativeInterface.GCM_InitForUpdateDecrypt_core";
+
+	if ( debug ) {
+		gslogFunctionEntry(functionName);
+	}
+	
+  
+	if(gcmCtx == 0) gcmCtx = getOrfreeGCMContext(ockCtx, keyLen);
+	rc = gcmCtx != NULL ? ICC_OSSL_SUCCESS : ICC_OSSL_FAILURE;
+	
+#ifdef DEBUG_GCM_DETAIL
+	    if ( debug ) {
+    	    gslogMessage ("DETAIL_GCM NI GCM_InitForUpdateDecrypt_core gcmCtx %ld keyLen %d ivLen %d aadLen %d updateOutlen %ld\n", gcmCtx, keyLen, ivLen, aadLen,  *updateOutlen);
+    	}
+#endif
+	
+	if (rc == ICC_OSSL_SUCCESS) {
+	    // Need to Initialize
+       
+ #ifdef DEBUG_GCM_DETAIL
+	    if ( debug ) {
+    	    gslogMessage ("DETAIL_GCM NI calling ICC_AES_GCM_iNIt\n");
+    	}
+#endif
+       
+		rc = ICC_AES_GCM_Init(ockCtx, gcmCtx, iv, ivLen, key, keyLen);
+       
+		if (rc == ICC_OSSL_SUCCESS) {
+
+			if (aadLen > 0) {
+				
+			    /* AAD */
+#ifdef DEBUG_GCM_DETAIL
+	   			if ( debug ) {
+    	    		gslogMessage ("DETAIL_GCM NI calling ICC_AES_GCM_DecryptUpdate for AAD\n");
+    			}
+#endif			    
+			    
+				rc = ICC_AES_GCM_DecryptUpdate(ockCtx, gcmCtx,aad, aadLen,NULL, 0,NULL, &updateAADlen);
+			   
+			
+				if ( rc != ICC_OSSL_SUCCESS ) {
+					ockCheckStatus(ockCtx);
+#ifdef DEBUG_GCM_DETAIL
+        			if ( debug ) {			
+						gslogMessage ("NI data ICC_AES_GCM_DecryptUpdate ICC_AES_GCM_CRYPTUPDATE_FAILED\n" );
+					}
+#endif					
+					
+					return ICC_AES_GCM_CRYPTUPDATE_FAILED;
+				} else {
+					
+#ifdef DEBUG_GCM_DETAIL
+	   				if ( debug ) {
+    	    			gslogMessage ("DETAIL_GCM NI AAD ICC_AES_GCM_DecryptUpdate Succeeded\n");
+    				}
+#endif
+				}
+             } else {
+             	
+#ifdef DEBUG_GCM_DETAIL
+	   			if ( debug ) {
+    	    		gslogMessage ("DETAIL_GCM NI No AAD ICC_AES_GCM_DecryptUpdate not called \n");
+    			}
+#endif
+             	
+             }
+        
+		} else {
+			ockCheckStatus(ockCtx);
+#ifdef DEBUG_GCM_DETAIL
+	   		if ( debug ) {
+    	    	gslogMessage ("DETAIL_GCM NI ICC_AES_GCM_DecryptUpdate ICC_AES_GCM_INIT_FAILED \n");
+    		}
+#endif
+			
+			return ICC_AES_GCM_INIT_FAILED;
+		}
+	} else {
+		/* GCM CTX Failed - no need to free it. */
+		ockCheckStatus(ockCtx);
+		
+#ifdef DEBUG_GCM_DETAIL
+	   		if ( debug ) {
+    	    	            gslogMessage ("DETAIL_GCM NI gslogMessage ICC_AES_GCM_NEW_FAILED\n" );
+    		}
+#endif
+		
+		return ICC_AES_GCM_CTX_NEW_FAILED;
+	}
+	return 0;
+	
+#else
+      	return -1;
+#endif
+}
+/*============================================================================
+*
+* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
+* Method:    GCM_UpdForUpdateDecrypt_core
+* Signature: 
+*/
+int GCM_UpdForUpdateDecrypt_core(JNIEnv *env, ICC_CTX *ockCtx, ICC_AES_GCM_CTX *gcmCtx,
+	unsigned char *data, int dataOffset, int dataLen,
+	unsigned char *out, int outOffset,
+	unsigned long *updateOutlen) {
+#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
+
+	/* long unsigned updateAADlen   = 0; */
+	/* long unsigned finalOutlen    = 0;*/
+	int           rc             = ICC_OSSL_SUCCESS;
+	
+	static const char *functionName = "NativeInterface.GCM_UpdForUpdateDecrypt_core";
+
+	if ( debug ) {
+		gslogFunctionEntry(functionName);
+	}
+	*updateOutlen = 0;
+	
+   
+	if (gcmCtx == 0) {
+	    rc = ICC_OSSL_FAILURE;
+	} else {
+	    rc = ICC_OSSL_SUCCESS;
+	} 
+	
+#ifdef DEBUG_GCM_DETAIL
+	   		if ( debug ) {
+    	    	gslogMessage ("DETAIL_GCM NI GCM_UpdForUpdateDecrypt_core gcmCtx %ld  dataOffset %d dataLen %d outOffset %d updateOutlen %ld\n", gcmCtx,
+					dataOffset, dataLen, outOffset, *updateOutlen);
+    		}
+#endif
+	
+	if (rc == ICC_OSSL_SUCCESS) {
+	        
+#ifdef DEBUG_GCM_DETAIL
+	   		if ( debug ) {
+    	    	gslogMessage ("DETAIL_GCM NI checking for data > 0\n");
+    		}
+#endif	
+		
+		if (dataLen > 0) {
+			
+    		
+#ifdef DEBUG_GCM_DETAIL
+	   		if ( debug ) {
+    	    	gslogMessage ("DETAIL_GCM NI ICC_AES_GCM_DecryptUpdate dataLen > 0 dataLen = %d outOffset %d updateOutlen %ld\n", 
+				dataLen, dataOffset, *updateOutlen);
+    		}
+#endif			
+			
+			rc = ICC_AES_GCM_DecryptUpdate(ockCtx, gcmCtx,NULL, 0,data + dataOffset, dataLen, out + outOffset, updateOutlen);
+			
+#ifdef DEBUG_GCM_DETAIL
+	   		if ( debug ) {
+    	    	gslogMessage ("DETAIL_GCM NI data update returned ICC_AES_GCM_DecryptUpdate returns rc = %d updateOutLen = %ld\n", rc, *updateOutlen);
+				
+    		}
+#endif		
+			
+				
+
+			// that needs to catch a hash mismatch condition
+			if ( rc != ICC_OSSL_SUCCESS ) {
+				ockCheckStatus(ockCtx);
+				return ICC_AES_GCM_CRYPTUPDATE_FAILED;
+			} else {
+				
+#ifdef DEBUG_GCM_DETAIL
+	   			if ( debug ) {
+    	    		gslogMessage ("DETAIL_GCM NI data ICC_AES_GCM_DecryptUpdate Succeeded\n");
+    			}
+#endif	
+			
+			}
+        } else {
+#ifdef DEBUG_GCM_DETAIL
+	   		if ( debug ) {
+    	    	gslogMessage ("DETAIL_GCM NI  No data to process\n");
+    		}
+#endif				
+		}
+	} else {
+		/* GCM CTX Failed - no need to free it. */
+		ockCheckStatus(ockCtx);
+#ifdef DEBUG_GCM_DETAIL
+	   	if ( debug ) {
+    	    gslogMessage ("DETAIL_GCM NI  ICC_AES_GCM_DecryptUpdate ICC_AES_GCM_NEW_FAILED\n" );
+    	}
+#endif	
+		
+		return ICC_AES_GCM_CTX_NEW_FAILED;
+	}
+	return 0;
+	
+#else
+      	return -1;
+#endif
+}
+/*============================================================================
+* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
+* Method:    GCM_InitForUpdateEncrypt_core
+* Signature: 
+*/
+int GCM_InitForUpdateEncrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
+	unsigned char* key   , int keyLen,
+	unsigned char* iv    , int ivLen,
+	unsigned char* aad   , int aadLen,
+	unsigned long *updateOutlen) {
+#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
+
+	unsigned char * keyNative        = key;
+	unsigned char * ivNative         = iv;
+	unsigned char *          aadNative        = aad;
+	unsigned long   updateAADlen     = 0;
+	/* long unsigned   finalOutlen      = 0;*/
+	int             rc               = ICC_OSSL_SUCCESS;
+	/* jboolean        isCopy           = 0; */
+	static const char * functionName = "NativeInterface.GCM_InitForUpdateEncrypt_core";
+
+	if( debug ) {
+		gslogFunctionEntry(functionName);
+	}
+
+#ifdef DEBUG_GCM_DATA
+    if ( debug ) {
+    	gslogMessagePrefix ("DATA_GCM ivNative : ");
+        gslogMessageHex (ivNative, 0, (int) ivLen, 0, 0, NULL);
+
+        gslogMessagePrefix ("DATA_GCM keyNative : ");
+        gslogMessageHex (keyNative, 0, (int) keyLen, 0, 0, NULL);
+
+
+        gslogMessagePrefix ("DATA_GCM aadNative : ");
+        gslogMessageHex (aadNative, 0, (int) aadLen, 0, 0, NULL);
+    }
+#endif
+#ifdef DEBUG_GCM_DETAIL
+	   	if ( debug ) {
+    	    gslogMessage ("DETAIL_GCM NI GCM_InitForUpdateEncrypt_core updateOutlen %ld\n", *updateOutlen);
+    	   	gslogMessage ("DETAIL_GCM N NI first update calling getOrfreeGCMCtx\n");
+    	}
+#endif	
+   
+    
+	
+	if(gcmCtx == 0) gcmCtx = getOrfreeGCMContext(ockCtx, keyLen);
+	rc = gcmCtx != NULL ? ICC_OSSL_SUCCESS : ICC_OSSL_FAILURE;
+#ifdef DEBUG_GCM_DETAIL
+   	if ( debug ) {
+		gslogMessage ("NI first update rc from getOrfreeGCMCtx %d\n", rc);
+	 	gslogMessage ("DETAIL_GCM rc ICC_AES_GCM_CTX_new %d gcmCtx=%x", (int) rc, gcmCtx);
+    }
+#endif
+    if (rc == ICC_OSSL_SUCCESS) {  
+    	//Do initialization 
+        rc = ICC_AES_GCM_Init(ockCtx, gcmCtx, ivNative, ivLen, keyNative, keyLen);
+      
+                   
+#ifdef DEBUG_GCM_DETAIL
+        if ( debug ) {
+        	gslogMessage ("DETAIL_GCM rc ICC_AES_GCM_iNIt %d", (int) rc);
+        }
+#endif
+
+        if (rc == ICC_OSSL_SUCCESS) {
+            if (aadLen > 0) {
+                // update AAD
+              
+#ifdef DEBUG_GCM_DETAIL
+               if ( debug ) {
+                   gslogMessage ("DETAIL_GCM rc  ICC_AES_GCM_EncryptUpdateCalled with AADLen %d\n", aadLen);
+               }
+#endif
+               
+                rc = ICC_AES_GCM_EncryptUpdate(ockCtx, gcmCtx,
+                	aadNative, aadLen,
+                    NULL, 0,
+                    NULL, &updateAADlen);
+#ifdef DEBUG_GCM_DETAIL
+               if ( debug ) {
+                   gslogMessage ("DETAIL_GCM rc ICC_AES_GCM_EncryptUpdate(aadLen > 0) %d updateAADlen %d", (int) rc, updateAADlen);
+               }
+#endif                         
+				if (rc != ICC_OSSL_SUCCESS) {
+					ockCheckStatus(ockCtx);
+					return ICC_AES_GCM_CRYPTUPDATE_FAILED;
+				} else {
+#ifdef DEBUG_GCM_DETAIL
+        			if ( debug ) {
+						gslogMessage ("DETAIL_GCM ICC_AES_GCM_EncryptUpdate call for AAD succeded\n");
+					}
+#endif					
+				}
+			} else {
+#ifdef DEBUG_GCM_DETAIL
+        		if ( debug ) {
+					gslogMessage ("DETAIL_GCM rc  ICC_AES_GCM_EncryptUpdate not called for AAD\n");
+				}
+#endif				
+			}
+		
+		} else {
+			ockCheckStatus(ockCtx);
+			return ICC_AES_GCM_INIT_FAILED;
+		}
+	} else {
+		ockCheckStatus(ockCtx);
+		return ICC_AES_GCM_CTX_NEW_FAILED;
+	}
+
+	if ( debug ) {
+		gslogFunctionExit(functionName);
+	}
+	return 0;
+#else
+      	return -1;
+#endif
+}
+/*============================================================================
+* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
+* Method:    GCM_UpdForUpdateEncrypt_core
+* Signature: 
+*/
+int GCM_UpdForUpdateEncrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
+	unsigned char* data , int dataLen, int dataOffset,
+	unsigned char* out, int outOffset, unsigned long* updateOutlen) {
+#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
+
+	/* unsigned long   updateAADlen     = 0; */
+	/*long unsigned   finalOutlen      = 0;*/
+	int             rc               = ICC_OSSL_SUCCESS;
+	/* jboolean        isCopy           = 0; */
+	static const char * functionName = "NativeInterface.GCM_UpdForUpdateEncrypt_core";
+
+	if( debug ) {
+		gslogFunctionEntry(functionName);
+	}
+
+#ifdef DEBUG_GCM_DATA
+    if ( debug ) {
+
+
+        gslogMessagePrefix ("DATA_GCM dataNative : ");
+        gslogMessageHex (datatNative, 0, (int) dataLen, 0, 0, NULL);
+
+//        gslogMessagePrefix ("DATA_GCM aadNative : ");
+//        gslogMessageHex (aadNative, 0, (int) aadLen, 0, 0, NULL);
+    }
+#endif
+#ifdef DEBUG_GCM_DETAIL
+    if ( debug ) {
+		gslogMessage ("NI GCM_UpdForUpdateEncrypt_core updateOutlen %ld\n", *updateOutlen);
+	}
+#endif	
+    
+	//GCM Ctx cannot be null for subsequent updates
+	if (gcmCtx == 0) {
+#ifdef DEBUG_GCM_DETAIL
+        if ( debug ) {
+	    	gslogMessage ("NI gcmCtx cannot be null\n");
+	    }
+#endif	    
+	}
+	rc = ((gcmCtx == 0) ? ICC_OSSL_FAILURE : ICC_OSSL_SUCCESS);
+	
+#ifdef DEBUG_GCM_DETAIL
+    if ( debug ) {
+        gslogMessage ("DETAIL_GCM rc ICC_AES_GCM_CTX_new %d gcmCtx=%x", (int) rc, gcmCtx);
+    }
+#endif
+       
+	if (rc == ICC_OSSL_SUCCESS) {
+    	if (dataLen > 0) {
+#ifdef DEBUG_GCM_DETAIL
+        	if ( debug ) {    	
+        	    gslogMessage ("NI ICC_AES_GCM_EncryptUpdateCalled with data %d\n", dataLen);
+        	}
+#endif        	
+            // update data
+                                        
+            rc = ICC_AES_GCM_EncryptUpdate(ockCtx, gcmCtx,
+                 		NULL, 0,
+                       	data + dataOffset, dataLen,
+                        out + outOffset, updateOutlen);  
+            
+           		
+#ifdef DEBUG_GCM_DETAIL
+            if ( debug ) {                  
+           		gslogMessage ("NI GCM_UpdForUpdateEncrypt_core dataLen > 0 path after ICC_AES_GCM_EncryptUpdate rc %d updateOutlen %ld\n", rc, *updateOutlen);
+            	gslogMessage ("DETAIL_GCM rc ICC_AES_GCM_EncryptUpdate(plaintextLen > 0) %d updateOutlen %d", (int) rc, *updateOutlen);
+            }
+#endif	
+			
+			if (rc != ICC_OSSL_SUCCESS) {
+				ockCheckStatus(ockCtx);
+#ifdef DEBUG_GCM_DETAIL
+        		if ( debug ) {  				
+					gslogMessage ("NI ICC_AES_GCM_CRYPTUPDATE_FAILED\n");
+				}
+#endif				
+				return ICC_AES_GCM_CRYPTUPDATE_FAILED;
+			}
+		}
+	} else {
+		ockCheckStatus(ockCtx);
+#ifdef DEBUG_GCM_DETAIL
+        if ( debug ) {  		
+			gslogMessage ("NI ICC_AES_GCM_CTX_NEW_FAILED\n");
+		}
+#endif		
+		return ICC_AES_GCM_CTX_NEW_FAILED;
+	}
+
+	if ( debug ) {
+		gslogFunctionExit(functionName);
+	}
+	return 0;
+#else
+      	return -1;
+#endif
+}
+/*============================================================================
+* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
+* Method:    GCM_FinalForUpdateDecrypt_core
+* Signature: 
+*/
+int GCM_FinalForUpdateDecrypt_core(JNIEnv *env, ICC_CTX *ockCtx, ICC_AES_GCM_CTX *gcmCtx,
+    unsigned char *data, int dataOffset, int dataLen,
+    unsigned char *out, int outOffset, 
+	int tagLen, unsigned long updateOutlen) {
+#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
+
+	/* long unsigned updateAADlen   = 0;*/
+	long unsigned finalOutlen    = 0;
+	int           rc             = ICC_OSSL_SUCCESS;
+	static const char *functionName = "NativeInterface.GCM_FinalForUpdateDecrypt_core";
+
+	if ( debug ) {
+		gslogFunctionEntry(functionName);
+	}
+#ifdef DEBUG_GCM_DETAIL
+    if ( debug ) {  	
+		gslogMessage ("NI NativeInterface GCM_FinalForUpdateDecrypt_core gcmCtx = %ld dataOffset %d dataLen %d outOffset %d tagLen %d updateOutlen %ld\n", 
+			gcmCtx, dataOffset, dataLen, outOffset, tagLen, updateOutlen);
+	}
+#endif   
+	if (gcmCtx == 0) {
+	    rc = ICC_OSSL_FAILURE;
+	} else {
+	    rc = ICC_OSSL_SUCCESS;
+	}
+	if ( rc == ICC_OSSL_SUCCESS ) {
+		if (dataLen > 0) {
+#ifdef DEBUG_GCM_DETAIL
+        	if ( debug ) {  		
+				gslogMessage ("NI calling ICC_AES_GCM_DecryptUpdate  dataOffset %d dataLen %d outputOffset %d updateOutlen %ld\n",
+    	 	 		dataOffset, dataLen, outOffset, updateOutlen);
+    	 	 }
+#endif    	 	 
+    	 	 	if ((dataLen - tagLen) > 0) {
+					rc = ICC_AES_GCM_DecryptUpdate(ockCtx, gcmCtx,NULL, 0, data + dataOffset, dataLen - tagLen, out + outOffset, &updateOutlen);
+		    	}
+
+			// that needs to catch a hash mismatch condition
+			if ( rc == ICC_OSSL_SUCCESS ) {
+				/* obtain up to last block of plaintext and provide tag to compare */
+				//rc = ICC_AES_GCM_DecryptFinal(ockCtx, gcmCtx, out + outOffset + updateOutlen, &finalOutlen,data + dataOffset + dataLen, tagLen);
+#ifdef DEBUG_GCM_DETAIL
+        		if ( debug ) {  	    		
+	    			gslogMessage ("NI calling ICC_AES_GCM_DecryptFinal updateOutlen %ld\n", updateOutlen);
+	    		}
+#endif	    		
+				rc = ICC_AES_GCM_DecryptFinal(ockCtx, gcmCtx, out + outOffset  + updateOutlen, &finalOutlen,  data + dataOffset  + dataLen - tagLen, tagLen);
+#ifdef DEBUG_GCM_DETAIL
+        		if ( debug ) {  				
+					gslogMessage ("NI ICC_AES_GCM_DecryptFinal returns rc %d finalOutlen %d\n", rc, finalOutlen);
+				}
+#endif				
+				if (rc != ICC_OSSL_SUCCESS ) {
+					// entered an error condition here
+#ifdef DEBUG_GCM_DETAIL
+        			if ( debug ) {  					
+						gslogMessage ("NI ICC_AES_GCM_DecryptFinal has encountered error condition\n");
+					}
+#endif					
+					if (rc == -1 ) {
+						// hash mismatch error
+						ockCheckStatus(ockCtx);
+#ifdef DEBUG_GCM_DETAIL
+        				if ( debug ) {  						
+							gslogMessage ("NI ICC_AES_GCM_DecryptFinal returning ICC_AES_GCM_TAG_MISMATCH\n");
+						}
+#endif						
+						return ICC_AES_GCM_TAG_MISMATCH;
+					} else {
+						// generic error condition
+						ockCheckStatus(ockCtx);
+#ifdef DEBUG_GCM_DETAIL
+        				if ( debug ) {  						
+							gslogMessage ("NI ICC_AES_GCM_DecryptFinal returning ICC_AES_GCM_CRYPTFINAL_FAILED\n");
+						}
+#endif						
+						return ICC_AES_GCM_CRYPTFINAL_FAILED;
+					}
+				} else {
+#ifdef DEBUG_GCM_DETAIL
+        			if ( debug ) {  				
+						gslogMessage ("NI ICC_AES_GCM_DecryptFInal was successful\n");
+					}
+#endif	
+				}
+			} else {
+		
+				ockCheckStatus(ockCtx);
+#ifdef DEBUG_GCM_DETAIL
+        		if ( debug ) {  				
+					gslogMessage ("NI ICC_AES_GCM_DecryptFinal returning ICC_AES_GCM_CRYPTUPDATE_FAILED\n");
+				}
+#endif				
+				return ICC_AES_GCM_CRYPTUPDATE_FAILED;
+			}
+		} else {
+			ockCheckStatus(ockCtx);
+#ifdef DEBUG_GCM_DETAIL
+        	if ( debug ) {  			
+				gslogMessage ("NI ICC_AES_GCM_DecryptUpdate returning ICC_AES_GCM_CTX_NEW_FAILED\n");
+			}
+#endif			
+			return ICC_AES_GCM_CTX_NEW_FAILED;
+		}
+	}
+	return 0;
+#else
+      	return -1;
+#endif
+}
+/*============================================================================
+* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
+* Method:    GCM_FinalForUpdateEncrypt_core
+* Signature: 
+*/
+int GCM_FinalForUpdateEncrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
+	unsigned char* tag   , int tagLen,
+	unsigned char *dataText, int dataOffset, int dataLen, 
+	unsigned char* out, int outOffset, unsigned long updateOutlen) {
+#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
+	
+	unsigned char * outNative = 	out;
+	unsigned char * dataNative = 	dataText;
+	unsigned char *          tagNative        = tag;
+	long unsigned   finalOutlen      = 0;
+	int             rc               = ICC_OSSL_SUCCESS;
+	static const char * functionName = "NativeInterface.GCM_FinalForUpdateEncrypt_core";
+
+	if( debug ) {
+		gslogFunctionEntry(functionName);
+	}
+
+#ifdef DEBUG_GCM_DATA
+    if ( debug ) {
+
+        gslogMessagePrefix ("DATA_GCM aadNative : ");
+        gslogMessageHex (tagNative, 0, (int) tagLen, 0, 0, NULL);
+    }
+#endif
+   
+    //if(gcmCtx == 0) gcmCtx = getOrfreeGCMContext(ockCtx, keyLen);
+    //GCM Ctx cannot be null for subsequent updates
+	rc = ((gcmCtx == 0) ? ICC_OSSL_FAILURE : ICC_OSSL_SUCCESS);
+#ifdef DEBUG_GCM_DETAIL
+    if ( debug ) {
+        gslogMessage ("DETAIL_GCM %s rc %d gcmCtx %x\n", functionName, rc, gcmCtx);
+    }
+#endif 
+	
+	
+#ifdef DEBUG_GCM_DETAIL
+    if ( debug ) {
+        gslogMessage ("DETAIL_GCM rc %d gcmCtx=%x", (int) rc, gcmCtx);
+    }
+#endif 
+    if (rc == ICC_OSSL_SUCCESS) {
+    	if (dataLen > 0) {
+    		// update dataLen
+#ifdef DEBUG_GCM_DETAIL
+        	if ( debug ) {
+        		gslogMessage ("DETAIL_GCM NI calling data Len > 0 calling ICC_AES_GCM_EncryptUpdate before ICC_AES_GCM_EncryptFinal  dataOffset %d dataLen %d outputOffset %d updateOutlen %ld\n",
+    	 	 		dataOffset, dataLen, outOffset, updateOutlen);
+        	}
+#endif
+    	 	
+    		rc = ICC_AES_GCM_EncryptUpdate(ockCtx, gcmCtx,
+             	NULL, 0,
+             	dataNative + dataOffset, dataLen,
+             	outNative + outOffset, &updateOutlen);
+        		 
+#ifdef DEBUG_GCM_DETAIL
+        	if ( debug ) {
+        		gslogMessage ("DETAIL_GCM NI rc ICC_AES_GCM_EncryptUpdate returned %d updateOutlen %ld\n", rc, updateOutlen);
+        	}
+#endif
+		}
+	 
+        
+		if (rc == ICC_OSSL_SUCCESS) {
+#ifdef DEBUG_GCM_DETAIL
+        	if ( debug ) {
+        		gslogMessage ("DETAIL_GCM NI GCM_FinalForUpdateEncrypt_core updateOutlen %ld\n", updateOutlen);
+        	}
+#endif
+	 	 	  
+			rc = ICC_AES_GCM_EncryptFinal(ockCtx, gcmCtx,
+				outNative + outOffset  + updateOutlen, &finalOutlen, tagNative);
+#ifdef DEBUG_GCM_DETAIL
+        	if ( debug ) {
+        		gslogMessage ("DETAIL_GCM NI return rc %d from ICC_AES_GCM_EncryptFinal finalOutlen %ld updateOutlen %ld outOffset %d\n", rc, finalOutlen, updateOutlen, outOffset);
+        	}
+#endif				
+			
+			if (rc != ICC_OSSL_SUCCESS) {
+				ockCheckStatus(ockCtx);
+				return ICC_AES_GCM_CRYPTFINAL_FAILED;
+			}
+		} else {
+			ockCheckStatus(ockCtx);
+			return ICC_AES_GCM_CRYPTUPDATE_FAILED;
+		}
+			
+	} else {
+		ockCheckStatus(ockCtx);
+		return ICC_AES_GCM_CTX_NEW_FAILED;
+	}
+
+	if ( debug ) {
+		gslogFunctionExit(functionName);
+	}
+	return 0;
+#else
+      	return -1;
+#endif
+}
+
+char *getVersion(void) {
 	ICC_STATUS status;
 	ICC_CTX *ctx = NULL;
 	void* buffer = NULL;
@@ -210,8 +847,7 @@ void handleIV(int ivLength, int keyLen, int blockSize, int J0Offset, char* iv, c
 	if (ivLength == 12) {
 		addedParams[J0Offset + blockSize - 1] = 1;
 		memcpy(addedParams + J0Offset, iv, ivLength);
-	}
-	else {
+	} else {
 		char hashSubkey[blockSize];
 		char zeros[blockSize];
 		char hashSubkeyParamBlock[keyLen];
@@ -278,10 +914,10 @@ int checkTagMismatch(char* input, int inputLen, char* parm_block, int tagOffset,
 }
 /*============================================================================
 * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
-* Method:    internal functions
+* Method:    GCM_decrypt_core
 * Signature: 
 */
-int GCM_decrypt_core (JNIEnv *env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
+int GCM_decrypt_core(JNIEnv *env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
 	unsigned char * key, int keyLen,
 	unsigned char * iv,  int ivLen,
 	unsigned char * ciphertext, int ciphertextOffset, int ciphertextLen,
@@ -520,7 +1156,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_do_
 
 /*============================================================================
 * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
-* Method:    internal functions
+* Method:    GCM_encrypt_core
 * Signature: 
 */
 
@@ -662,11 +1298,10 @@ JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_do
 	
     if((NULL == funcPtr) || (NULL == funcPtr[1].func) || (NULL == funcPtr[1].name)) {
 		return -1;
-	}
-	else {
-		ECB = funcPtr[3].func; // z_km_native
-		GHASH = funcPtr[4].func; // z_kimd_native
-		zS390 = funcPtr[1].func; // s390_kmgcm_native
+	} else {
+		ECB = (ECB_FuncPtr)funcPtr[3].func;     // z_km_native
+		GHASH = (GHASH_FuncPtr)funcPtr[4].func; // z_kimd_native
+		zS390 = (zS390_FuncPtr)funcPtr[1].func; // s390_kmgcm_native
 		return 1;
 	}
 }
@@ -951,7 +1586,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_do_
 	/*jmethodID longGetValueId;
 	jmethodID longSetValueId;*/
 	
-	long updateOutlen = 0;
+	unsigned long updateOutlen = 0;
 	ICC_AES_GCM_CTX* gcmCtx          = (ICC_AES_GCM_CTX*)((intptr_t) gcmCtxId);
      
         
@@ -1444,7 +2079,7 @@ jbyteArray aad, jint aadLen)
 	int         rc               = ICC_OSSL_SUCCESS;
 	int         ret              = -1;
 	jboolean    isCopy           = 0;
-    unsigned long  updateOutlen = 0;
+	unsigned long updateOutlen = 0;
     
     
 	
@@ -1528,681 +2163,3 @@ jbyteArray aad, jint aadLen)
       	return -1;
 #endif
 }
-
-/*============================================================================
-*
-* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
-* Method:    internal functions
-* Signature: (JJ)V
-*/
-int GCM_InitForUpdateDecrypt_core (JNIEnv *env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
-	unsigned char * key, int keyLen,
-	unsigned char * iv,  int ivLen,
-	unsigned char * aad, int aadLen,  long *updateOutlen) {
-#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
-
-	 long unsigned updateAADlen   = 0;
-	 /* long unsigned finalOutlen    = 0; */
-	int           rc             = ICC_OSSL_SUCCESS;
-	
-	static const char * functionName = "NativeInterface.GCM_InitForUpdateDecrypt_core";
-
-	if ( debug ) {
-		gslogFunctionEntry(functionName);
-	}
-	
-  
-	if(gcmCtx == 0) gcmCtx = getOrfreeGCMContext(ockCtx, keyLen);
-	rc = gcmCtx != NULL ? ICC_OSSL_SUCCESS : ICC_OSSL_FAILURE;
-	
-#ifdef DEBUG_GCM_DETAIL
-	    if ( debug ) {
-    	    gslogMessage ("DETAIL_GCM NI GCM_InitForUpdateDecrypt_core gcmCtx %ld keyLen %d ivLen %d aadLen %d updateOutlen %ld\n", gcmCtx, keyLen, ivLen, aadLen,  *updateOutlen);
-    	}
-#endif
-	
-	if (rc == ICC_OSSL_SUCCESS) {
-	    // Need to Initialize
-       
- #ifdef DEBUG_GCM_DETAIL
-	    if ( debug ) {
-    	    gslogMessage ("DETAIL_GCM NI calling ICC_AES_GCM_iNIt\n");
-    	}
-#endif
-       
-		rc = ICC_AES_GCM_Init(ockCtx, gcmCtx, iv, ivLen, key, keyLen);
-       
-		if (rc == ICC_OSSL_SUCCESS) {
-
-			if (aadLen > 0) {
-				
-			    /* AAD */
-#ifdef DEBUG_GCM_DETAIL
-	   			if ( debug ) {
-    	    		gslogMessage ("DETAIL_GCM NI calling ICC_AES_GCM_DecryptUpdate for AAD\n");
-    			}
-#endif			    
-			    
-				rc = ICC_AES_GCM_DecryptUpdate(ockCtx, gcmCtx,aad, aadLen,NULL, 0,NULL, &updateAADlen);
-			   
-			
-				if ( rc != ICC_OSSL_SUCCESS ) {
-					ockCheckStatus(ockCtx);
-#ifdef DEBUG_GCM_DETAIL
-        			if ( debug ) {			
-						gslogMessage ("NI data ICC_AES_GCM_DecryptUpdate ICC_AES_GCM_CRYPTUPDATE_FAILED\n" );
-					}
-#endif					
-					
-					return ICC_AES_GCM_CRYPTUPDATE_FAILED;
-				}
-				else {
-					
-#ifdef DEBUG_GCM_DETAIL
-	   				if ( debug ) {
-    	    			gslogMessage ("DETAIL_GCM NI AAD ICC_AES_GCM_DecryptUpdate Succeeded\n");
-    				}
-#endif
-				}
-             }
-             else {
-             	
-#ifdef DEBUG_GCM_DETAIL
-	   			if ( debug ) {
-    	    		gslogMessage ("DETAIL_GCM NI No AAD ICC_AES_GCM_DecryptUpdate not called \n");
-    			}
-#endif
-             	
-             }
-        
-		} else {
-			ockCheckStatus(ockCtx);
-#ifdef DEBUG_GCM_DETAIL
-	   		if ( debug ) {
-    	    	gslogMessage ("DETAIL_GCM NI ICC_AES_GCM_DecryptUpdate ICC_AES_GCM_INIT_FAILED \n");
-    		}
-#endif
-			
-			return ICC_AES_GCM_INIT_FAILED;
-		}
-	} else {
-		/* GCM CTX Failed - no need to free it. */
-		ockCheckStatus(ockCtx);
-		
-#ifdef DEBUG_GCM_DETAIL
-	   		if ( debug ) {
-    	    	            gslogMessage ("DETAIL_GCM NI gslogMessage ICC_AES_GCM_NEW_FAILED\n" );
-    		}
-#endif
-		
-		return ICC_AES_GCM_CTX_NEW_FAILED;
-	}
-	return 0;
-	
-#else
-      	return -1;
-#endif
-}
-/*============================================================================
-*
-* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
-* Method:    internal functions
-* Signature: 
-*/
-int GCM_UpdForUpdateDecrypt_core (JNIEnv *env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
-	unsigned char * data, int dataOffset, int dataLen,
-	unsigned char * out, int outOffset,
-	unsigned long *updateOutlen) {
-#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
-
-	/* long unsigned updateAADlen   = 0; */
-	/* long unsigned finalOutlen    = 0;*/
-	int           rc             = ICC_OSSL_SUCCESS;
-	
-	static const char * functionName = "NativeInterface.GCM_UpdForUpdateDecrypt_core";
-
-	if ( debug ) {
-		gslogFunctionEntry(functionName);
-	}
-	*updateOutlen=0;
-	
-   
-	if (gcmCtx == 0) {
-	    rc = ICC_OSSL_FAILURE;
-	}
-	else {
-	    rc = ICC_OSSL_SUCCESS;
-	} 
-	
-#ifdef DEBUG_GCM_DETAIL
-	   		if ( debug ) {
-    	    	gslogMessage ("DETAIL_GCM NI GCM_UpdForUpdateDecrypt_core gcmCtx %ld  dataOffset %d dataLen %d outOffset %d updateOutlen %ld\n", gcmCtx,
-					dataOffset, dataLen, outOffset, *updateOutlen);
-    		}
-#endif
-	
-	if (rc == ICC_OSSL_SUCCESS) {
-	        
-#ifdef DEBUG_GCM_DETAIL
-	   		if ( debug ) {
-    	    	gslogMessage ("DETAIL_GCM NI checking for data > 0\n");
-    		}
-#endif	
-		
-		if (dataLen > 0) {
-			
-    		
-#ifdef DEBUG_GCM_DETAIL
-	   		if ( debug ) {
-    	    	gslogMessage ("DETAIL_GCM NI ICC_AES_GCM_DecryptUpdate dataLen > 0 dataLen = %d outOffset %d updateOutlen %ld\n", 
-				dataLen, dataOffset, *updateOutlen);
-    		}
-#endif			
-			
-			rc = ICC_AES_GCM_DecryptUpdate(ockCtx, gcmCtx,NULL, 0,data + dataOffset, dataLen, out + outOffset, updateOutlen);
-			
-#ifdef DEBUG_GCM_DETAIL
-	   		if ( debug ) {
-    	    	gslogMessage ("DETAIL_GCM NI data update returned ICC_AES_GCM_DecryptUpdate returns rc = %d updateOutLen = %ld\n", rc, *updateOutlen);
-				
-    		}
-#endif		
-			
-				
-
-			// that needs to catch a hash mismatch condition
-			if ( rc != ICC_OSSL_SUCCESS ) {
-				ockCheckStatus(ockCtx);
-				return ICC_AES_GCM_CRYPTUPDATE_FAILED;
-			}
-			else {
-				
-#ifdef DEBUG_GCM_DETAIL
-	   			if ( debug ) {
-    	    		gslogMessage ("DETAIL_GCM NI data ICC_AES_GCM_DecryptUpdate Succeeded\n");
-    			}
-#endif	
-			
-			}
-        }
-		else
-		{
-#ifdef DEBUG_GCM_DETAIL
-	   		if ( debug ) {
-    	    	gslogMessage ("DETAIL_GCM NI  No data to process\n");
-    		}
-#endif				
-		}
-	}
-	else {
-		/* GCM CTX Failed - no need to free it. */
-		ockCheckStatus(ockCtx);
-#ifdef DEBUG_GCM_DETAIL
-	   	if ( debug ) {
-    	    gslogMessage ("DETAIL_GCM NI  ICC_AES_GCM_DecryptUpdate ICC_AES_GCM_NEW_FAILED\n" );
-    	}
-#endif	
-		
-		return ICC_AES_GCM_CTX_NEW_FAILED;
-	}
-	return 0;
-	
-#else
-      	return -1;
-#endif
-}
-/*============================================================================
-* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
-* Method:    internal functions
-* Signature: 
-*/
-int GCM_InitForUpdateEncrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
-	unsigned char* key   , int keyLen,
-	unsigned char* iv    , int ivLen,
-	unsigned char* aad   , int aadLen,
-	long *updateOutlen) {
-#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
-
-	unsigned char * keyNative        = key;
-	unsigned char * ivNative         = iv;
-	unsigned char *          aadNative        = aad;
-	unsigned long   updateAADlen     = 0;
-	/* long unsigned   finalOutlen      = 0;*/
-	int             rc               = ICC_OSSL_SUCCESS;
-	/* jboolean        isCopy           = 0; */
-	static const char * functionName = "NativeInterface.GCM_InitForUpdateEncrypt_core";
-
-	if( debug ) {
-		gslogFunctionEntry(functionName);
-	}
-
-#ifdef DEBUG_GCM_DATA
-    if ( debug ) {
-    	gslogMessagePrefix ("DATA_GCM ivNative : ");
-        gslogMessageHex (ivNative, 0, (int) ivLen, 0, 0, NULL);
-
-        gslogMessagePrefix ("DATA_GCM keyNative : ");
-        gslogMessageHex (keyNative, 0, (int) keyLen, 0, 0, NULL);
-
-
-        gslogMessagePrefix ("DATA_GCM aadNative : ");
-        gslogMessageHex (aadNative, 0, (int) aadLen, 0, 0, NULL);
-    }
-#endif
-#ifdef DEBUG_GCM_DETAIL
-	   	if ( debug ) {
-    	    gslogMessage ("DETAIL_GCM NI GCM_InitForUpdateEncrypt_core updateOutlen %ld\n", *updateOutlen);
-    	   	gslogMessage ("DETAIL_GCM N NI first update calling getOrfreeGCMCtx\n");
-    	}
-#endif	
-   
-    
-	
-	if(gcmCtx == 0) gcmCtx = getOrfreeGCMContext(ockCtx, keyLen);
-	rc = gcmCtx != NULL ? ICC_OSSL_SUCCESS : ICC_OSSL_FAILURE;
-#ifdef DEBUG_GCM_DETAIL
-   	if ( debug ) {
-		gslogMessage ("NI first update rc from getOrfreeGCMCtx %d\n", rc);
-	 	gslogMessage ("DETAIL_GCM rc ICC_AES_GCM_CTX_new %d gcmCtx=%x", (int) rc, gcmCtx);
-    }
-#endif
-    if (rc == ICC_OSSL_SUCCESS) {  
-    	//Do initialization 
-        rc = ICC_AES_GCM_Init(ockCtx, gcmCtx, ivNative, ivLen, keyNative, keyLen);
-      
-                   
-#ifdef DEBUG_GCM_DETAIL
-        if ( debug ) {
-        	gslogMessage ("DETAIL_GCM rc ICC_AES_GCM_iNIt %d", (int) rc);
-        }
-#endif
-
-        if (rc == ICC_OSSL_SUCCESS) {
-            if (aadLen > 0) {
-                // update AAD
-              
-#ifdef DEBUG_GCM_DETAIL
-               if ( debug ) {
-                   gslogMessage ("DETAIL_GCM rc  ICC_AES_GCM_EncryptUpdateCalled with AADLen %d\n", aadLen);
-               }
-#endif
-               
-                rc = ICC_AES_GCM_EncryptUpdate(ockCtx, gcmCtx,
-                	aadNative, aadLen,
-                    NULL, 0,
-                    NULL, &updateAADlen);
-#ifdef DEBUG_GCM_DETAIL
-               if ( debug ) {
-                   gslogMessage ("DETAIL_GCM rc ICC_AES_GCM_EncryptUpdate(aadLen > 0) %d updateAADlen %d", (int) rc, updateAADlen);
-               }
-#endif                         
-				if (rc != ICC_OSSL_SUCCESS) {
-					ockCheckStatus(ockCtx);
-					return ICC_AES_GCM_CRYPTUPDATE_FAILED;
-				}
-				else
-				{
-#ifdef DEBUG_GCM_DETAIL
-        			if ( debug ) {
-						gslogMessage ("DETAIL_GCM ICC_AES_GCM_EncryptUpdate call for AAD succeded\n");
-					}
-#endif					
-				}
-			} //addLen > 0
-			else
-			{
-#ifdef DEBUG_GCM_DETAIL
-        		if ( debug ) {
-					gslogMessage ("DETAIL_GCM rc  ICC_AES_GCM_EncryptUpdate not called for AAD\n");
-				}
-#endif				
-			}
-		
-		} else {
-			ockCheckStatus(ockCtx);
-			return ICC_AES_GCM_INIT_FAILED;
-		}
-	} else {
-		ockCheckStatus(ockCtx);
-		return ICC_AES_GCM_CTX_NEW_FAILED;
-	}
-
-	if ( debug ) {
-		gslogFunctionExit(functionName);
-	}
-	return 0;
-#else
-      	return -1;
-#endif
-}
-/*============================================================================
-* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
-* Method:    internal functions
-* Signature: 
-*/
-int GCM_UpdForUpdateEncrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
-	unsigned char* data , int dataLen, int dataOffset,
-	unsigned char* out, int outOffset, unsigned long* updateOutlen) {
-#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
-
-	/* unsigned long   updateAADlen     = 0; */
-	/*long unsigned   finalOutlen      = 0;*/
-	int             rc               = ICC_OSSL_SUCCESS;
-	/* jboolean        isCopy           = 0; */
-	static const char * functionName = "NativeInterface.GCM_UpdForUpdateEncrypt_core";
-
-	if( debug ) {
-		gslogFunctionEntry(functionName);
-	}
-
-#ifdef DEBUG_GCM_DATA
-    if ( debug ) {
-
-
-        gslogMessagePrefix ("DATA_GCM dataNative : ");
-        gslogMessageHex (datatNative, 0, (int) dataLen, 0, 0, NULL);
-
-//        gslogMessagePrefix ("DATA_GCM aadNative : ");
-//        gslogMessageHex (aadNative, 0, (int) aadLen, 0, 0, NULL);
-    }
-#endif
-#ifdef DEBUG_GCM_DETAIL
-    if ( debug ) {
-		gslogMessage ("NI GCM_UpdForUpdateEncrypt_core updateOutlen %ld\n", *updateOutlen);
-	}
-#endif	
-    
-	//GCM Ctx cannot be null for subsequent updates
-	if (gcmCtx == 0) {
-#ifdef DEBUG_GCM_DETAIL
-        if ( debug ) {
-	    	gslogMessage ("NI gcmCtx cannot be null\n");
-	    }
-#endif	    
-	}
-	rc = ((gcmCtx == 0) ? ICC_OSSL_FAILURE : ICC_OSSL_SUCCESS);
-	
-#ifdef DEBUG_GCM_DETAIL
-    if ( debug ) {
-        gslogMessage ("DETAIL_GCM rc ICC_AES_GCM_CTX_new %d gcmCtx=%x", (int) rc, gcmCtx);
-    }
-#endif
-       
-	if (rc == ICC_OSSL_SUCCESS) {
-    	if (dataLen > 0) {
-#ifdef DEBUG_GCM_DETAIL
-        	if ( debug ) {    	
-        	    gslogMessage ("NI ICC_AES_GCM_EncryptUpdateCalled with data %d\n", dataLen);
-        	}
-#endif        	
-            // update data
-                                        
-            rc = ICC_AES_GCM_EncryptUpdate(ockCtx, gcmCtx,
-                 		NULL, 0,
-                       	data + dataOffset, dataLen,
-                        out + outOffset, updateOutlen);  
-            
-           		
-#ifdef DEBUG_GCM_DETAIL
-            if ( debug ) {                  
-           		gslogMessage ("NI GCM_UpdForUpdateEncrypt_core dataLen > 0 path after ICC_AES_GCM_EncryptUpdate rc %d updateOutlen %ld\n", rc, *updateOutlen);
-            	gslogMessage ("DETAIL_GCM rc ICC_AES_GCM_EncryptUpdate(plaintextLen > 0) %d updateOutlen %d", (int) rc, *updateOutlen);
-            }
-#endif	
-			
-			if (rc != ICC_OSSL_SUCCESS) {
-				ockCheckStatus(ockCtx);
-#ifdef DEBUG_GCM_DETAIL
-        		if ( debug ) {  				
-					gslogMessage ("NI ICC_AES_GCM_CRYPTUPDATE_FAILED\n");
-				}
-#endif				
-				return ICC_AES_GCM_CRYPTUPDATE_FAILED;
-			}
-		}
-	} else {
-		ockCheckStatus(ockCtx);
-#ifdef DEBUG_GCM_DETAIL
-        if ( debug ) {  		
-			gslogMessage ("NI ICC_AES_GCM_CTX_NEW_FAILED\n");
-		}
-#endif		
-		return ICC_AES_GCM_CTX_NEW_FAILED;
-	}
-
-	if ( debug ) {
-		gslogFunctionExit(functionName);
-	}
-	return 0;
-#else
-      	return -1;
-#endif
-}
-/*============================================================================
-* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
-* Method:    internal functions
-* Signature: 
-*/
-int GCM_FinalForUpdateDecrypt_core (JNIEnv *env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
-    unsigned char *data, int dataOffset, int dataLen,
-    unsigned char * out, int outOffset, 
-	int tagLen, unsigned long updateOutlen) {
-#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
-
-	/* long unsigned updateAADlen   = 0;*/
-	long unsigned finalOutlen    = 0;
-	int           rc             = ICC_OSSL_SUCCESS;
-	static const char * functionName = "NativeInterface.GCM_FinalForUpdateDecrypt_core";
-
-	if ( debug ) {
-		gslogFunctionEntry(functionName);
-	}
-#ifdef DEBUG_GCM_DETAIL
-    if ( debug ) {  	
-		gslogMessage ("NI NativeInterface GCM_FinalForUpdateDecrypt_core gcmCtx = %ld dataOffset %d dataLen %d outOffset %d tagLen %d updateOutlen %ld\n", 
-			gcmCtx, dataOffset, dataLen, outOffset, tagLen, updateOutlen);
-	}
-#endif   
-	if (gcmCtx == 0) {
-	    
-	    rc = ICC_OSSL_FAILURE;
-	}
-	else {
-	    rc = ICC_OSSL_SUCCESS;
-	}
-	if ( rc == ICC_OSSL_SUCCESS ) {
-		if (dataLen > 0) {
-#ifdef DEBUG_GCM_DETAIL
-        	if ( debug ) {  		
-				gslogMessage ("NI calling ICC_AES_GCM_DecryptUpdate  dataOffset %d dataLen %d outputOffset %d updateOutlen %ld\n",
-    	 	 		dataOffset, dataLen, outOffset, updateOutlen);
-    	 	 }
-#endif    	 	 
-    	 	 	if ((dataLen - tagLen) > 0) {
-					rc = ICC_AES_GCM_DecryptUpdate(ockCtx, gcmCtx,NULL, 0, data + dataOffset, dataLen - tagLen, out + outOffset, &updateOutlen);
-		    	}
-
-			// that needs to catch a hash mismatch condition
-			if ( rc == ICC_OSSL_SUCCESS ) {
-				/* obtain up to last block of plaintext and provide tag to compare */
-				//rc = ICC_AES_GCM_DecryptFinal(ockCtx, gcmCtx, out + outOffset + updateOutlen, &finalOutlen,data + dataOffset + dataLen, tagLen);
-#ifdef DEBUG_GCM_DETAIL
-        		if ( debug ) {  	    		
-	    			gslogMessage ("NI calling ICC_AES_GCM_DecryptFinal updateOutlen %ld\n", updateOutlen);
-	    		}
-#endif	    		
-				rc = ICC_AES_GCM_DecryptFinal(ockCtx, gcmCtx, out + outOffset  + updateOutlen, &finalOutlen,  data + dataOffset  + dataLen - tagLen, tagLen);
-#ifdef DEBUG_GCM_DETAIL
-        		if ( debug ) {  				
-					gslogMessage ("NI ICC_AES_GCM_DecryptFinal returns rc %d finalOutlen %d\n", rc, finalOutlen);
-				}
-#endif				
-				if (rc != ICC_OSSL_SUCCESS ) {
-					// entered an error condition here
-#ifdef DEBUG_GCM_DETAIL
-        			if ( debug ) {  					
-						gslogMessage ("NI ICC_AES_GCM_DecryptFinal has encountered error condition\n");
-					}
-#endif					
-					if (rc == -1 ) {
-						// hash mismatch error
-						ockCheckStatus(ockCtx);
-#ifdef DEBUG_GCM_DETAIL
-        				if ( debug ) {  						
-							gslogMessage ("NI ICC_AES_GCM_DecryptFinal returning ICC_AES_GCM_TAG_MISMATCH\n");
-						}
-#endif						
-						return ICC_AES_GCM_TAG_MISMATCH;
-					} else {
-						// generic error condition
-						ockCheckStatus(ockCtx);
-#ifdef DEBUG_GCM_DETAIL
-        				if ( debug ) {  						
-							gslogMessage ("NI ICC_AES_GCM_DecryptFinal returning ICC_AES_GCM_CRYPTFINAL_FAILED\n");
-						}
-#endif						
-						return ICC_AES_GCM_CRYPTFINAL_FAILED;
-					}
-				}
-				else
-				{
-#ifdef DEBUG_GCM_DETAIL
-        			if ( debug ) {  				
-						gslogMessage ("NI ICC_AES_GCM_DecryptFInal was successful\n");
-					}
-#endif	
-				}
-			} else {
-		
-				ockCheckStatus(ockCtx);
-#ifdef DEBUG_GCM_DETAIL
-        		if ( debug ) {  				
-					gslogMessage ("NI ICC_AES_GCM_DecryptFinal returning ICC_AES_GCM_CRYPTUPDATE_FAILED\n");
-				}
-#endif				
-				return ICC_AES_GCM_CRYPTUPDATE_FAILED;
-			}
-		}
-		else {
-			ockCheckStatus(ockCtx);
-#ifdef DEBUG_GCM_DETAIL
-        	if ( debug ) {  			
-				gslogMessage ("NI ICC_AES_GCM_DecryptUpdate returning ICC_AES_GCM_CTX_NEW_FAILED\n");
-			}
-#endif			
-			return ICC_AES_GCM_CTX_NEW_FAILED;
-		}
-	}
-	return 0;
-#else
-      	return -1;
-#endif
-}
-/*============================================================================
-* Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
-* Method:    internal functions
-* Signature: 
-*/
-int GCM_FinalForUpdateEncrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
-	unsigned char* tag   , int tagLen,
-	unsigned char *dataText, int dataOffset, int dataLen, 
-	unsigned char* out, int outOffset, unsigned long updateOutlen) {
-#if defined(AIX) || defined(WINDOWS) || defined(MAC) || defined (LINUX) || defined(__MVS__)
-	
-	unsigned char * outNative = 	out;
-	unsigned char * dataNative = 	dataText;
-	unsigned char *          tagNative        = tag;
-	long unsigned   finalOutlen      = 0;
-	int             rc               = ICC_OSSL_SUCCESS;
-	static const char * functionName = "NativeInterface.GCM_FinalForUpdateEncrypt_core";
-
-	if( debug ) {
-		gslogFunctionEntry(functionName);
-	}
-
-#ifdef DEBUG_GCM_DATA
-    if ( debug ) {
-
-        gslogMessagePrefix ("DATA_GCM aadNative : ");
-        gslogMessageHex (tagNative, 0, (int) tagLen, 0, 0, NULL);
-    }
-#endif
-   
-    //if(gcmCtx == 0) gcmCtx = getOrfreeGCMContext(ockCtx, keyLen);
-    //GCM Ctx cannot be null for subsequent updates
-	rc = ((gcmCtx == 0) ? ICC_OSSL_FAILURE : ICC_OSSL_SUCCESS);
-#ifdef DEBUG_GCM_DETAIL
-    if ( debug ) {
-        gslogMessage ("DETAIL_GCM %s rc %d gcmCtx %x\n", functionName, rc, gcmCtx);
-    }
-#endif 
-	
-	
-#ifdef DEBUG_GCM_DETAIL
-    if ( debug ) {
-        gslogMessage ("DETAIL_GCM rc %d gcmCtx=%x", (int) rc, gcmCtx);
-    }
-#endif 
-    if (rc == ICC_OSSL_SUCCESS) {
-    	if (dataLen > 0) {
-    		// update dataLen
-#ifdef DEBUG_GCM_DETAIL
-        	if ( debug ) {
-        		gslogMessage ("DETAIL_GCM NI calling data Len > 0 calling ICC_AES_GCM_EncryptUpdate before ICC_AES_GCM_EncryptFinal  dataOffset %d dataLen %d outputOffset %d updateOutlen %ld\n",
-    	 	 		dataOffset, dataLen, outOffset, updateOutlen);
-        	}
-#endif
-    	 	
-    		rc = ICC_AES_GCM_EncryptUpdate(ockCtx, gcmCtx,
-             	NULL, 0,
-             	dataNative + dataOffset, dataLen,
-             	outNative + outOffset, &updateOutlen);
-        		 
-#ifdef DEBUG_GCM_DETAIL
-        	if ( debug ) {
-        		gslogMessage ("DETAIL_GCM NI rc ICC_AES_GCM_EncryptUpdate returned %d updateOutlen %ld\n", rc, updateOutlen);
-        	}
-#endif
-		}
-	 
-        
-		if (rc == ICC_OSSL_SUCCESS) {
-#ifdef DEBUG_GCM_DETAIL
-        	if ( debug ) {
-        		gslogMessage ("DETAIL_GCM NI GCM_FinalForUpdateEncrypt_core updateOutlen %ld\n", updateOutlen);
-        	}
-#endif
-	 	 	  
-			rc = ICC_AES_GCM_EncryptFinal(ockCtx, gcmCtx,
-				outNative + outOffset  + updateOutlen, &finalOutlen, tagNative);
-#ifdef DEBUG_GCM_DETAIL
-        	if ( debug ) {
-        		gslogMessage ("DETAIL_GCM NI return rc %d from ICC_AES_GCM_EncryptFinal finalOutlen %ld updateOutlen %ld outOffset %d\n", rc, finalOutlen, updateOutlen, outOffset);
-        	}
-#endif				
-			
-			if (rc != ICC_OSSL_SUCCESS) {
-				ockCheckStatus(ockCtx);
-				return ICC_AES_GCM_CRYPTFINAL_FAILED;
-			}
-		}
-		else
-		{
-			ockCheckStatus(ockCtx);
-			return ICC_AES_GCM_CRYPTUPDATE_FAILED;
-		}
-			
-	} else {
-		ockCheckStatus(ockCtx);
-		return ICC_AES_GCM_CTX_NEW_FAILED;
-	}
-
-	if ( debug ) {
-		gslogFunctionExit(functionName);
-	}
-	return 0;
-#else
-      	return -1;
-#endif
-}
-
