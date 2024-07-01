@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -23,11 +23,6 @@ typedef struct OCKHKDF
   ICC_EVP_PKEY_CTX *pctx;
   const ICC_EVP_MD * md;
 } OCKHKDF;
-
-unsigned char *JCC_HKDF_Extract();
-unsigned char *JCC_HKDF_Expand();
-unsigned char *JCC_HKDF();
-
 
 //============================================================================
 /*

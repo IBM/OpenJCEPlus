@@ -1,7 +1,7 @@
 
 ###############################################################################
 #
-# Copyright IBM Corp. 2023
+# Copyright IBM Corp. 2023, 2024
 #
 # Licensed under the Apache License 2.0 (the "License").  You may not use
 # this file except in compliance with the License.  You can obtain a copy
@@ -32,7 +32,7 @@ AIX_LIBPATH = /usr/lib:/lib
 
 ifeq ($(PLATFORM),x86-linux64)
       PLAT=xa
-      CFLAGS+= -DLINUX -std=gnu99 -pedantic -Werror -Wall -fstack-protector
+      CFLAGS+= -DLINUX -Werror -std=gnu99 -pedantic -Wall -fstack-protector
       LDFLAGS+= -m64
       IS64SYSTEM=64
       OSINCLUDEDIR=linux
@@ -47,7 +47,7 @@ endif
 ifeq ($(PLATFORM),s390-linux64)
       PLAT=xz
       LDFLAGS+= -m64
-      CFLAGS+= -DS390_PLATFORM -DLINUX
+      CFLAGS+= -DS390_PLATFORM -DLINUX -Werror
       IS64SYSTEM=64
       OSINCLUDEDIR=linux
 endif
@@ -103,7 +103,7 @@ endif
 
 ifeq ($(PLATFORM),ppcle-linux64)
       PLAT=xl
-      CFLAGS+= -DLINUX
+      CFLAGS+= -DLINUX -Werror 
       LDFLAGS+= -m64
       IS64SYSTEM=64
       OSINCLUDEDIR=linux
@@ -112,7 +112,7 @@ endif
 ifeq ($(PLATFORM),ppc-aix64)
       PLAT=ap
       CC=xlc
-      CFLAGS= -qcpluscmt -q64  -qpic -DAIX
+      CFLAGS= -qcpluscmt -q64  -qpic -DAIX -Werror
       LDFLAGS= -G -q64 -blibpath:$(AIX_LIBPATH)
       IS64SYSTEM=64
       OSINCLUDEDIR=aix
