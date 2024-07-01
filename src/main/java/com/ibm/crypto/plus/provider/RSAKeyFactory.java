@@ -9,12 +9,10 @@
 package com.ibm.crypto.plus.provider;
 
 import java.math.BigInteger;
-import java.security.AccessController;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactorySpi;
 import java.security.PrivateKey;
-import java.security.PrivilegedAction;
 import java.security.ProviderException;
 import java.security.PublicKey;
 import java.security.interfaces.RSAKey;
@@ -30,8 +28,7 @@ import java.util.List;
 
 import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
 
-@SuppressWarnings({"removal", "deprecation"})
-class RSAKeyFactory extends KeyFactorySpi {
+public class RSAKeyFactory extends KeyFactorySpi {
 
     public final static int MIN_MODLEN_NONFIPS = 512;
     public final static int MIN_MODLEN_FIPS = 2048;
@@ -50,17 +47,11 @@ class RSAKeyFactory extends KeyFactorySpi {
     public final static int MAX_MODLEN_RESTRICT_EXP = 3072;
     public final static int MAX_RESTRICTED_EXPLEN = 64;
 
-    private static final boolean restrictExpLen = "true".equalsIgnoreCase(
-            (String) AccessController.doPrivileged((PrivilegedAction<String>) () -> System
-                    .getProperty("com.ibm.crypto.provider.restrictRSAExponent", "true")));
+    private static final boolean restrictExpLen = Boolean.parseBoolean(
+            System.getProperty("com.ibm.crypto.provider.restrictRSAExponent", "false"));
 
     private OpenJCEPlusProvider provider;
     private KeyType type = KeyType.RSA;
-
-
-    public static RSAKeyFactory getInstance(OpenJCEPlusProvider provider, KeyType type) {
-        return new RSAKeyFactory(provider, type);
-    }
 
     static RSAKey toRSAKey(OpenJCEPlusProvider provider, Key key) throws InvalidKeyException {
         // FIXME
@@ -188,7 +179,7 @@ class RSAKeyFactory extends KeyFactorySpi {
         this.type = KeyType.RSA;
     }
 
-    public RSAKeyFactory(OpenJCEPlusProvider provider, KeyType type) {
+    private RSAKeyFactory(OpenJCEPlusProvider provider, KeyType type) {
         this.provider = provider;
         this.type = type;
     }
@@ -333,7 +324,7 @@ class RSAKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                RSAPublicKeySpec rsaPubKeySpec = (RSAPublicKeySpec) engineGetKeySpec(key,
+                RSAPublicKeySpec rsaPubKeySpec = engineGetKeySpec(key,
                         RSAPublicKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePublic(rsaPubKeySpec);
@@ -353,7 +344,7 @@ class RSAKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                RSAPrivateKeySpec rsaPrivKeySpec = (RSAPrivateKeySpec) engineGetKeySpec(key,
+                RSAPrivateKeySpec rsaPrivKeySpec = engineGetKeySpec(key,
                         RSAPrivateKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePrivate(rsaPrivKeySpec);

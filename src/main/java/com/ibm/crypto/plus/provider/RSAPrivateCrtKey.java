@@ -40,7 +40,7 @@ final class RSAPrivateCrtKey extends PKCS8Key
     private BigInteger primeExponentP;
     private BigInteger primeExponentQ;
     private BigInteger crtCoefficient;
-    private AlgorithmParameterSpec keyParams;
+    private transient AlgorithmParameterSpec keyParams;
 
     private transient boolean destroyed = false;
     private transient RSAKey rsaKey = null; // Transient per tag [SERIALIZATION] in DesignNotes.txt

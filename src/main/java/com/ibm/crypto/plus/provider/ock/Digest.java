@@ -51,7 +51,7 @@ public final class Digest implements Cloneable {
     static private int runtimeContextNum[];
 
     class ConcurrentLinkedQueueLong extends ConcurrentLinkedQueue<Long> {
-        /* empty */
+        private static final long serialVersionUID = 196745693267521676L;
     }
 
     static {

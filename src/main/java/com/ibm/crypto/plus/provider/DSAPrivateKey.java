@@ -55,7 +55,7 @@ final class DSAPrivateKey extends PKCS8Key
      * @param g
      *            the number g
      */
-    public DSAPrivateKey(OpenJCEPlusProvider provider, BigInteger x, BigInteger p, BigInteger q,
+    DSAPrivateKey(OpenJCEPlusProvider provider, BigInteger x, BigInteger p, BigInteger q,
             BigInteger g) throws InvalidKeyException {
 
         this.algid = new AlgIdDSA(p, q, g);
@@ -81,7 +81,7 @@ final class DSAPrivateKey extends PKCS8Key
      * @param encoded
      *            the encoded parameters.
      */
-    public DSAPrivateKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
+    DSAPrivateKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
         super(encoded);
         this.provider = provider;
 
@@ -97,7 +97,7 @@ final class DSAPrivateKey extends PKCS8Key
         }
     }
 
-    public DSAPrivateKey(OpenJCEPlusProvider provider, DSAKey dsaKey) throws InvalidKeyException {
+    DSAPrivateKey(OpenJCEPlusProvider provider, DSAKey dsaKey) throws InvalidKeyException {
         try {
             this.provider = provider;
             this.algid = new AlgorithmId(AlgorithmId.DSA_oid, new DerValue(dsaKey.getParameters()));
@@ -130,7 +130,7 @@ final class DSAPrivateKey extends PKCS8Key
                 if (algParams == null) {
                     return null;
                 }
-                paramSpec = (DSAParameterSpec) algParams.getParameterSpec(DSAParameterSpec.class);
+                paramSpec = algParams.getParameterSpec(DSAParameterSpec.class);
                 return (DSAParams) paramSpec;
             }
         } catch (InvalidParameterSpecException e) {
@@ -270,7 +270,7 @@ final class DSAPrivateKey extends PKCS8Key
                 return true;
             }
             if (object instanceof Key) {
-                if (this.x.equals(i) && equals((DSAParams) this.getParams(), (DSAParams) (object
+                if (this.x.equals(i) && equals(this.getParams(), (DSAParams) (object
                         .getClass().getDeclaredMethod("getParams").invoke(object)))) {
                     return true;
                 }

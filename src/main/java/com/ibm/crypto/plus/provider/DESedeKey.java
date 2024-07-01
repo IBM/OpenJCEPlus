@@ -34,7 +34,7 @@ final class DESedeKey implements SecretKey, Destroyable {
      *
      * @exception InvalidKeyException if the given key has a wrong size
      */
-    public DESedeKey(byte[] key) throws InvalidKeyException {
+    DESedeKey(byte[] key) throws InvalidKeyException {
         if ((key == null) || (key.length < DESedeKeySpec.DES_EDE_KEY_LEN)) {
             throw new InvalidKeyException("Wrong key size");
         }
@@ -64,7 +64,7 @@ final class DESedeKey implements SecretKey, Destroyable {
 
         // Return a copy of the key, rather than a reference,
         // so that the key data cannot be modified from outside
-        return (byte[]) this.key.clone();
+        return this.key.clone();
     }
 
     /**

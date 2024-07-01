@@ -18,7 +18,7 @@ import java.security.spec.NamedParameterSpec;
 
 import com.ibm.crypto.plus.provider.ock.XECKey;
 
-public class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
+abstract class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
 
     private static final NamedParameterSpec DEFAULT_PARAM_SPEC
         = NamedParameterSpec.X25519;

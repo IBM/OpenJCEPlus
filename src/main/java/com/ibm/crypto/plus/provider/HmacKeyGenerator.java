@@ -25,7 +25,7 @@ abstract class HmacKeyGenerator extends KeyGeneratorSpi {
 
     HmacKeyGenerator(OpenJCEPlusProvider provider, String algo, int keysize) {
 
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
 

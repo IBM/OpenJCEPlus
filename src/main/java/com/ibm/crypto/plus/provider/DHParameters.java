@@ -21,7 +21,8 @@ import sun.security.util.DerValue;
  * This class implements the parameter set used by the Diffie-Hellman key
  * agreement as defined in the PKCS #3 standard.
  */
-public final class DHParameters extends AlgorithmParametersSpi {
+public final class DHParameters extends AlgorithmParametersSpi implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
 
     private OpenJCEPlusProvider provider;
 

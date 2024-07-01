@@ -143,7 +143,7 @@ public final class DSAKeyPairGenerator extends KeyPairGenerator
                         .getInstance("DSA", provider);
                 algParmGen.init(this.keySize);
                 AlgorithmParameters algParams = algParmGen.generateParameters();
-                this.params = (DSAParameterSpec) algParams.getParameterSpec(DSAParameterSpec.class);
+                this.params = algParams.getParameterSpec(DSAParameterSpec.class);
 
                 dsaKey = DSAKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded());
             } else {

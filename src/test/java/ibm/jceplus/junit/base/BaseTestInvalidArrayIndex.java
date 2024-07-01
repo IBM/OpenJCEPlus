@@ -74,16 +74,16 @@ public class BaseTestInvalidArrayIndex extends BaseTest {
         }
     }
 
-    private static void dotest(int expectedEx, Class specCls, Object... args)
+    private static void dotest(int expectedEx, Class<?> specCls, Object... args)
             throws NoSuchMethodException, InstantiationException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
         System.out.println("Testing " + specCls);
         String exName = (expectedEx == 1) ? "IAE" : "AIOOBE";
-        Class[] argsClz = new Class[args.length];
+        Class<?>[] argsClz = new Class<?>[args.length];
         for (int i = 0; i < argsClz.length; i++) {
             argsClz[i] = (args[i] instanceof Integer ? Integer.TYPE : args[i].getClass());
         }
-        Constructor ctr = specCls.getConstructor(argsClz);
+        Constructor<?> ctr = specCls.getConstructor(argsClz);
         try {
             ctr.newInstance(args);
             throw new RuntimeException("Should throw " + exName);

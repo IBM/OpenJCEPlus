@@ -123,8 +123,7 @@ public class BaseTestAESInterop extends BaseTestInterop {
         try {
             java_provider = java.security.Security.getProvider("OpenJCEPlus");
             if (java_provider == null) {
-                java_provider = (java.security.Provider) Class
-                        .forName("com.ibm.crypto.plus.provider.OpenJCEPlus").newInstance();
+                java_provider = new com.ibm.crypto.plus.provider.OpenJCEPlus();
                 java.security.Security.insertProviderAt(java_provider, 1);
             }
 

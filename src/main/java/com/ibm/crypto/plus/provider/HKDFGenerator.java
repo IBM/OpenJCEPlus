@@ -27,8 +27,7 @@ import ibm.security.internal.spec.HKDFParameterSpec;
 /**
  * KeyGenerator implementation for the SSL/TLS master secret derivation.
  */
-@SuppressWarnings("deprecation")
-class HKDFGenerator extends KeyGeneratorSpi {
+public class HKDFGenerator extends KeyGeneratorSpi {
 
     private final static String MSG = "HKDFGenerator must be "
             + "initialized using a HKDFExtractParameterSpec or a HKDFExpandParameterSpec or a HKDFParameterSpec ";

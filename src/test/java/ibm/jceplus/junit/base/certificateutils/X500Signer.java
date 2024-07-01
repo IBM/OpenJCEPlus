@@ -125,7 +125,7 @@ public class X500Signer extends Signer {
         this.agent = agent;
 
         try {
-            this.algid = AlgorithmId.getAlgorithmId(sig.getAlgorithm());
+            this.algid = AlgorithmId.get(sig.getAlgorithm());
 
         } catch (NoSuchAlgorithmException e) {
             if (debug != null) {

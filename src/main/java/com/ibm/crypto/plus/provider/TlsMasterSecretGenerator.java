@@ -29,7 +29,6 @@ import javax.crypto.SecretKey;
 /**
  * KeyGenerator implementation for the SSL/TLS master secret derivation.
  */
-@SuppressWarnings("deprecation")
 public final class TlsMasterSecretGenerator extends KeyGeneratorSpi {
 
     private final static String MSG = "TlsMasterSecretGenerator must be "
@@ -42,7 +41,7 @@ public final class TlsMasterSecretGenerator extends KeyGeneratorSpi {
 
     public TlsMasterSecretGenerator(OpenJCEPlusProvider provider) {
 
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
 

@@ -652,7 +652,7 @@ public final class CertificationRequest extends PKCSDerObject implements Cloneab
         if (debug != null) {
             debug.exit(Debug.TYPE_PUBLIC, className, "getSignature", this.signature.clone());
         }
-        return (byte[]) this.signature.clone();
+        return this.signature.clone();
     }
 
     /**

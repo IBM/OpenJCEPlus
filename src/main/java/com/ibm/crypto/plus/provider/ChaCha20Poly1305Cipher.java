@@ -73,7 +73,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
     SecureRandom random;
 
     public ChaCha20Poly1305Cipher(OpenJCEPlusProvider provider) {
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
         this.provider = provider;

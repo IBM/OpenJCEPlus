@@ -28,7 +28,7 @@ public final class DESedeKeyFactory extends SecretKeyFactorySpi {
      */
     public DESedeKeyFactory(OpenJCEPlusProvider provider) {
 
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
 

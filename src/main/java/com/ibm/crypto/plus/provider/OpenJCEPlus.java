@@ -829,7 +829,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
                 // available
                 //
                 try {
-                    Class<?>[] parameters = new Class[1];
+                    Class<?>[] parameters = new Class<?>[1];
                     parameters[0] = Class
                             .forName("com.ibm.crypto.plus.provider.OpenJCEPlusProvider");
                     Constructor<?> constr = cls.getConstructor(parameters);

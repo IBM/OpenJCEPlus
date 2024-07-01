@@ -15,7 +15,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.SignatureSpi;
-import java.security.spec.ECParameterSpec;
 import com.ibm.crypto.plus.provider.ock.Signature;
 import sun.security.util.ObjectIdentifier;
 
@@ -51,7 +50,7 @@ abstract class ECDSASignature extends SignatureSpi {
 
         if (this.provider.isFIPS()) {
             ECNamedCurve ecNamedCurve = ECParameters
-                    .getNamedCurve(((ECParameterSpec) ecPrivate.getParams()));
+                    .getNamedCurve(ecPrivate.getParams());
             ObjectIdentifier oid = null;
 
             oid = ECNamedCurve.getOIDFromName(ecNamedCurve.getName());

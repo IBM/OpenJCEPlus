@@ -76,7 +76,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
                 publicMethodNamesString = publicMethodNamesToCheck.toString();
             } else {
                 StringBuffer sb = new StringBuffer();
-                String[] methodNames = (String[]) publicMethodNamesToCheck.toArray(new String[0]);
+                String[] methodNames = publicMethodNamesToCheck.toArray(new String[0]);
                 for (int methodIndex = 0; methodIndex < methodNames.length; ++methodIndex) {
                     sb.append("\n");
                     sb.append(methodNames[methodIndex]);
@@ -116,7 +116,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
             e.printStackTrace(System.out);
         }
 
-        return (String[]) v.toArray(new String[0]);
+        return v.toArray(new String[0]);
     }
 
     // --------------------------------------------------------------------------
@@ -150,7 +150,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
         try {
             Enumeration<JarEntry> jarEntries = jarFile.entries();
             while (jarEntries.hasMoreElements()) {
-                JarEntry jarEntry = (JarEntry) jarEntries.nextElement();
+                JarEntry jarEntry = jarEntries.nextElement();
                 String jarEntryName = jarEntry.getName();
                 if (jarEntryName.endsWith(".class")) {
                     String className = jarEntryName.substring(0, jarEntryName.length() - 6)
@@ -162,7 +162,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
             e.printStackTrace(System.out);
         }
 
-        return (String[]) v.toArray(new String[0]);
+        return v.toArray(new String[0]);
     }
 
     // --------------------------------------------------------------------------
@@ -270,7 +270,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
             e.printStackTrace(System.out);
         }
 
-        return (Method[]) v.toArray(new Method[0]);
+        return v.toArray(new Method[0]);
     }
 
     // --------------------------------------------------------------------------

@@ -22,7 +22,7 @@ import com.ibm.crypto.plus.provider.ock.XECKey;
 /**
  * Key pair generator for the EdDSA signature algorithm.
  */
-public class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
+abstract class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
 
     private static final NamedParameterSpec DEFAULT_PARAM_SPEC
         = NamedParameterSpec.ED25519;
@@ -33,7 +33,7 @@ public class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
 
     private String alg = null;
 
-    public EdDSAKeyPairGenerator(OpenJCEPlusProvider provider) {
+    private EdDSAKeyPairGenerator(OpenJCEPlusProvider provider) {
         this.provider = provider;
         try {
             initialize(DEFAULT_PARAM_SPEC);
@@ -127,8 +127,6 @@ public class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
             super(provider, "Ed448");
         }
     }
-
-    ;
 
     public static final class EdDSA extends EdDSAKeyPairGenerator {
         public EdDSA(OpenJCEPlusProvider provider) {

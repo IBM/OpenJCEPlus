@@ -42,7 +42,7 @@ final class RSAPrivateKey extends PKCS8Key
 
     private transient boolean destroyed = false;
     private transient RSAKey rsaKey = null; // Transient per tag [SERIALIZATION] in DesignNotes.txt
-    private AlgorithmParameterSpec keyParams;
+    private transient AlgorithmParameterSpec keyParams;
 
     public RSAPrivateKey(OpenJCEPlusProvider provider, BigInteger m, BigInteger privEx)
             throws InvalidKeyException, IOException {

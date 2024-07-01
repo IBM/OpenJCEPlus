@@ -43,7 +43,7 @@ public final class AESCipher extends CipherSpi implements AESConstants {
     private static int isHardwareSupport = 0;
 
     public AESCipher(OpenJCEPlusProvider provider) {
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
         buffer = new byte[engineGetBlockSize() * 3];
@@ -264,7 +264,7 @@ public final class AESCipher extends CipherSpi implements AESConstants {
 
         if (params != null) {
             try {
-                ivSpec = (IvParameterSpec) params.getParameterSpec(IvParameterSpec.class);
+                ivSpec = params.getParameterSpec(IvParameterSpec.class);
             } catch (InvalidParameterSpecException ipse) {
                 throw new InvalidAlgorithmParameterException("Wrong parameter type: IV expected");
             }

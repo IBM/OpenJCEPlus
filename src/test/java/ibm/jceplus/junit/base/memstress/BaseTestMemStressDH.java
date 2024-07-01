@@ -216,7 +216,7 @@ public class BaseTestMemStressDH extends BaseTest {
                 providerName);
         algParamGen.init(size);
         AlgorithmParameters algParams = algParamGen.generateParameters();
-        DHParameterSpec dhps = (DHParameterSpec) algParams.getParameterSpec(DHParameterSpec.class);
+        DHParameterSpec dhps = algParams.getParameterSpec(DHParameterSpec.class);
         return dhps;
 
     }

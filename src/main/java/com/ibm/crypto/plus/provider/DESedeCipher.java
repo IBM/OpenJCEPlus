@@ -40,7 +40,7 @@ public final class DESedeCipher extends CipherSpi implements DESConstants {
 
     public DESedeCipher(OpenJCEPlusProvider provider) {
 
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
 
@@ -202,7 +202,7 @@ public final class DESedeCipher extends CipherSpi implements DESConstants {
 
         if (params != null) {
             try {
-                ivSpec = (IvParameterSpec) params.getParameterSpec(IvParameterSpec.class);
+                ivSpec = params.getParameterSpec(IvParameterSpec.class);
             } catch (InvalidParameterSpecException ipse) {
                 throw new InvalidAlgorithmParameterException("Wrong parameter type: IV expected");
             }
