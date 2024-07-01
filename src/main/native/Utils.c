@@ -25,7 +25,7 @@ int debug = 0;   // FIXME
 //
 //
 void
-com_ibm_crypto_plus_provider_initialize()
+com_ibm_crypto_plus_provider_initialize(void)
 {
   if( !initialized ) {
 #if DEBUG
