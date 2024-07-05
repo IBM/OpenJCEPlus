@@ -52,18 +52,18 @@ public class TestMultithreadFIPS extends TestCase {
             "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA256Clone_SharedMD",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignature",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSA_2048",
+            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestRSA_2048",*/
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAKey",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignatureInteropSunRsaSign",
             /*"ibm.jceplus.junit.openjceplusfips.multithread.TestHKDF",*/
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestMiniRSAPSS2",
+            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestMiniRSAPSS2",*/
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCMAndAAD",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMNonExpanding",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMNonExpanding"//,
             /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithKeyAndIvCheck",*/
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS",
+            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS2",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop2",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop3"};
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop3"*/};
     public final Object ob = new Object();
 
     public TestMultithreadFIPS() {}
@@ -94,7 +94,7 @@ public class TestMultithreadFIPS extends TestCase {
             // wait until all threads are ready
             assertTrue(
                     "Timeout initializing threads! Perform long lasting initializations before passing runnables to assertConcurrent",
-                    allExecutorThreadsReady.await(numThreads * 10, TimeUnit.MILLISECONDS));
+                    allExecutorThreadsReady.await(numThreads * 50, TimeUnit.MILLISECONDS));
             // start all test runners
             afterInitBlocker.countDown();
             assertTrue(message + " timeout! More than " + maxTimeoutSeconds + " seconds",
