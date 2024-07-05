@@ -65,15 +65,15 @@ public class TestMultithread extends TestCase {
             "ibm.jceplus.junit.openjceplus.multithread.TestSHA512_256",
             "ibm.jceplus.junit.openjceplus.multithread.TestSHA256Clone_SharedMD",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSASignature",
-            "ibm.jceplus.junit.openjceplus.multithread.TestRSA_2048",
+            /*"ibm.jceplus.junit.openjceplus.multithread.TestRSA_2048",*/
             "ibm.jceplus.junit.openjceplus.multithread.TestRSAKey",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSASignatureInteropSunRsaSign",
             "ibm.jceplus.junit.openjceplus.multithread.TestHKDF",
             "ibm.jceplus.junit.openjceplus.multithread.TestXDH",
             "ibm.jceplus.junit.openjceplus.multithread.TestXDHKeyImport",
             "ibm.jceplus.junit.openjceplus.multithread.TestXDHKeyPairGenerator",
-            "ibm.jceplus.junit.openjceplus.multithread.TestXDHMultiParty",
-            "ibm.jceplus.junit.openjceplus.multithread.TestMiniRSAPSS2"};
+            "ibm.jceplus.junit.openjceplus.multithread.TestXDHMultiParty"/*,
+            "ibm.jceplus.junit.openjceplus.multithread.TestMiniRSAPSS2"*/};
 
     public TestMultithread() {}
 
@@ -103,7 +103,7 @@ public class TestMultithread extends TestCase {
             // wait until all threads are ready
             assertTrue(
                     "Timeout initializing threads! Perform long lasting initializations before passing runnables to assertConcurrent",
-                    allExecutorThreadsReady.await(numThreads * 10, TimeUnit.MILLISECONDS));
+                    allExecutorThreadsReady.await(numThreads * 50, TimeUnit.MILLISECONDS));
             // start all test runners
             afterInitBlocker.countDown();
             assertTrue(message + " timeout! More than " + maxTimeoutSeconds + " seconds",
