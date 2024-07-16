@@ -88,7 +88,17 @@ jobs:
       #   run: |
       #     tree ${{ matrix.github_actions_runner_root }}
       - name: Execute Maven Install Target And OpenJCEPlus Provider Tests
-        run: mvn --batch-mode '-Dock.library.path=${{ github.workspace }}/OCK/' -Dtest=ibm.jceplus.junit.openjceplus.TestAll,ibm.jceplus.junit.openjceplus.integration.TestAll install
+        run: > 
+          mvn
+          --batch-mode
+          '-Dock.library.path=${{ github.workspace }}/OCK/'
+          -Dtest='
+          ibm.jceplus.junit.openjceplus.TestAll,
+          ibm.jceplus.junit.TestMemStressAll,
+          ibm.jceplus.junit.TestMultithread,
+          ibm.jceplus.junit.openjceplus.integration.TestAll
+          '
+          install
         env:
           GSKIT_HOME: ${{ github.workspace }}/OCK/jgsk_sdk
       #- name: List Files In The Entire Workspace
