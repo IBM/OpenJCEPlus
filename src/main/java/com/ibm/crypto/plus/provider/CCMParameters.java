@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -76,7 +76,7 @@ public final class CCMParameters extends AlgorithmParametersSpi
                     "CCM parameter parsing error:  The number of IV bytes in the CCMParameterSpec must be between 7 and 13 inclusive.");
         }
 
-        this.iv = (byte[]) iv.clone();
+        this.iv = iv.clone();
 
         initialized = true;
     }

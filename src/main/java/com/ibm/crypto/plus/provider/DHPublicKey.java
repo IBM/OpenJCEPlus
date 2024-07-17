@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -11,17 +11,18 @@ package com.ibm.crypto.plus.provider;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyRep;
-import java.security.PublicKey;
 import java.security.spec.InvalidParameterSpecException;
-import java.util.Arrays;
+
 import javax.crypto.spec.DHParameterSpec;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
+
 import com.ibm.crypto.plus.provider.ock.DHKey;
+
+import sun.security.util.BitArray;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
@@ -30,7 +31,7 @@ import sun.security.x509.X509Key;
 
 @SuppressWarnings("restriction")
 final class DHPublicKey extends X509Key
-        implements javax.crypto.interfaces.DHPublicKey, PublicKey, Serializable, Destroyable {
+        implements javax.crypto.interfaces.DHPublicKey, Destroyable {
 
     /**
      * 
@@ -49,19 +50,20 @@ final class DHPublicKey extends X509Key
     private transient boolean destroyed = false;
     private transient DHKey dhKey = null; // Transient per tag [SERIALIZATION] in DesignNotes.txt
 
-    public DHPublicKey(OpenJCEPlusProvider provider, BigInteger y, BigInteger p, BigInteger g)
+    DHPublicKey(OpenJCEPlusProvider provider, BigInteger y, BigInteger p, BigInteger g)
             throws InvalidKeyException {
         this(provider, y, p, g, 0);
     }
 
-    public DHPublicKey(OpenJCEPlusProvider provider, BigInteger y, BigInteger p, BigInteger g,
+    DHPublicKey(OpenJCEPlusProvider provider, BigInteger y, BigInteger p, BigInteger g,
             int l) throws InvalidKeyException {
         this.provider = provider;
         this.y = y;
         dhParams = new DHParameters(provider);
         try {
             dhParams.engineInit(new DHParameterSpec(p, g, l));
-            this.key = new DerValue(DerValue.tag_Integer, this.y.toByteArray()).toByteArray();
+            byte[] keyArray = new DerValue(DerValue.tag_Integer, this.y.toByteArray()).toByteArray();
+            setKey(new BitArray(keyArray.length * 8, keyArray));
             this.encodedKey = getEncoded();
         } catch (IOException e) {
             throw new InvalidKeyException("Cannot produce ASN.1 encoding");
@@ -93,7 +95,8 @@ final class DHPublicKey extends X509Key
         this.y = y;
         this.dhParams = params;
         try {
-            this.key = new DerValue(DerValue.tag_Integer, this.y.toByteArray()).toByteArray();
+            byte[] keyArray = new DerValue(DerValue.tag_Integer, this.y.toByteArray()).toByteArray();
+            setKey(new BitArray(keyArray.length * 8, keyArray));
             this.encodedKey = getEncoded();
         } catch (IOException e) {
             throw new InvalidKeyException("Cannot produce ASN.1 encoding");
@@ -196,7 +199,8 @@ final class DHPublicKey extends X509Key
              * Parse the key
              */
 
-            this.key = derKeyVal.getData().getBitString();
+            byte[] keyArray = derKeyVal.getData().getBitString();
+            setKey(new BitArray(keyArray.length * 8, keyArray));
 
             //customParseKeyBits();
             parseKeyBits();
@@ -208,9 +212,9 @@ final class DHPublicKey extends X509Key
             dhParams.engineInit((l == -1) ? new DHParameterSpec(p, g, y.bitLength())
                     : new DHParameterSpec(p, g, l));
 
-            this.encodedKey = (byte[]) encodedKey.clone();
+            this.encodedKey = encodedKey.clone();
 
-            DerValue outputValue = new DerValue(DerValue.tag_Integer, this.key);
+            DerValue outputValue = new DerValue(DerValue.tag_Integer, getKey().toByteArray());
 
             return outputValue.toByteArray();
 
@@ -248,7 +252,7 @@ final class DHPublicKey extends X509Key
 
         try {
 
-            DerInputStream in = new DerInputStream(this.key);
+            DerInputStream in = new DerInputStream(getKey().toByteArray());
             this.y = in.getBigInteger();
 
         } catch (IOException e) {
@@ -327,7 +331,7 @@ final class DHPublicKey extends X509Key
                 tmpDerKey.write(DerValue.tag_Sequence, algid);
 
                 // store key data
-                tmpDerKey.putBitString(this.key);
+                tmpDerKey.putBitString(getKey().toByteArray());
 
                 // wrap algid and key into SEQUENCE
                 derKey = new DerOutputStream();
@@ -343,7 +347,7 @@ final class DHPublicKey extends X509Key
 
             }
         }
-        return (byte[]) this.encodedKey.clone();
+        return this.encodedKey.clone();
     }
 
     /**
@@ -372,9 +376,7 @@ final class DHPublicKey extends X509Key
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            if (this.key != null) {
-                Arrays.fill(this.key, (byte) 0x00);
-            }
+            setKey(new BitArray(0));
             this.dhKey = null;
             this.y = null;
             this.dhParams = null;

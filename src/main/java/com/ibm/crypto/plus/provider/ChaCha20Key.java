@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -13,12 +13,11 @@ import java.security.KeyRep;
 import java.util.Arrays;
 import javax.crypto.SecretKey;
 import javax.security.auth.DestroyFailedException;
-import javax.security.auth.Destroyable;
 
 /**
  * This class represents an ChaCha20 key.
  */
-final class ChaCha20Key implements SecretKey, Destroyable, ChaCha20Constants {
+final class ChaCha20Key implements SecretKey, ChaCha20Constants {
 
     static final long serialVersionUID = -8899864838936117258L;
 
@@ -35,7 +34,7 @@ final class ChaCha20Key implements SecretKey, Destroyable, ChaCha20Constants {
      * @exception InvalidKeyException
      *                if the given key has wrong size
      */
-    public ChaCha20Key(byte[] key) throws InvalidKeyException {
+    ChaCha20Key(byte[] key) throws InvalidKeyException {
 
         if ((key == null) || (key.length != ChaCha20_KEY_SIZE)) {
             throw new InvalidKeyException("Wrong key size");
@@ -63,7 +62,7 @@ final class ChaCha20Key implements SecretKey, Destroyable, ChaCha20Constants {
 
         // Return a copy of the key, rather than a reference,
         // so that the key data cannot be modified from outside
-        return (byte[]) this.key.clone();
+        return this.key.clone();
     }
 
     /**

@@ -11,6 +11,7 @@ package ibm.jceplus.junit.base.memstress;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
+import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import ibm.jceplus.junit.base.BaseTest;
 
@@ -91,7 +92,8 @@ public class BaseTestMemStressRSAPSS2 extends BaseTest {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", providerName);
         keyGen.initialize(this.keysize, new java.security.SecureRandom());
         KeyPair keyPair = keyGen.genKeyPair();
-        PSSParameterSpec pssparamSpec = PSSParameterSpec.DEFAULT;
+        PSSParameterSpec pssparamSpec = new PSSParameterSpec("SHA-1", "MGF1",
+                    MGF1ParameterSpec.SHA1, 20, 1);
         try {
             for (int i = 1; i < numTimes; i++) {
                 dotestSignature(content3, IBM_ALG, keyPair, pssparamSpec);

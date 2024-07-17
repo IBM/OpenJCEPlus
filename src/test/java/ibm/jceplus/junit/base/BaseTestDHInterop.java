@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -65,7 +65,7 @@ public class BaseTestDHInterop extends BaseTestInterop {
 
     public void testDH() throws Exception {
 
-        String idString = (new Integer(this.keySize)).toString();
+        String idString = (Integer.valueOf(this.keySize)).toString();
 
         DHParameterSpec dhps = generateDHParameters(this.keySize);
 
@@ -367,7 +367,7 @@ public class BaseTestDHInterop extends BaseTestInterop {
                 providerName);
         algParamGen.init(size);
         AlgorithmParameters algParams = algParamGen.generateParameters();
-        DHParameterSpec dhps = (DHParameterSpec) algParams.getParameterSpec(DHParameterSpec.class);
+        DHParameterSpec dhps = algParams.getParameterSpec(DHParameterSpec.class);
         return dhps;
 
     }
