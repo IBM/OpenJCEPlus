@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -28,14 +28,14 @@ import sun.security.util.DerValue;
 import sun.security.util.ObjectIdentifier;
 import sun.security.x509.AlgorithmId;
 
-public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
+final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
 
     private static final long serialVersionUID = 1L;
 
     private static final byte TAG_PARAMETERS_ATTRS = 0x00;
     private OpenJCEPlusProvider provider = null;
-    private Optional<byte[]> h;
-    private NamedParameterSpec paramSpec;
+    private transient Optional<byte[]> h;
+    private transient NamedParameterSpec paramSpec;
     private CURVE curve;
     private Exception exception = null; // In case an exception happened and the API did
     // not allow us to throw it, we throw it at the end
@@ -57,7 +57,7 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
      * @param provider
      * @param xecKey
      */
-    public EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider, XECKey xecKey)
+    EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider, XECKey xecKey)
             throws InvalidKeyException {
         if (provider == null)
             throw new InvalidKeyException("provider cannot be null");
@@ -72,7 +72,7 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
         }
     }
 
-    public EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider,
+    EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider,
             NamedParameterSpec params, Optional<byte[]> h)
             throws InvalidParameterException, InvalidKeyException {
 
@@ -109,7 +109,7 @@ public final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKe
         checkLength(this.curve);
     }
 
-    public EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider, byte[] encoded)
+    EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider, byte[] encoded)
             throws InvalidKeyException, IOException {
 
         this.provider = provider;

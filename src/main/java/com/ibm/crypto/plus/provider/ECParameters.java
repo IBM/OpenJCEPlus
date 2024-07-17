@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -25,7 +25,9 @@ import java.security.spec.EllipticCurve;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
@@ -86,7 +88,6 @@ public final class ECParameters extends AlgorithmParametersSpi {
     protected EllipticCurve curve;
     protected ECPoint generator;
     protected BigInteger order;
-    private OpenJCEPlusProvider provider = null;
 
     /*
      * The parameters these AlgorithmParameters object represents.
@@ -94,10 +95,12 @@ public final class ECParameters extends AlgorithmParametersSpi {
      */
     private NamedCurve namedCurve;
 
-
+    public ECParameters() {
+        super();
+    }
 
     // used by ECPublicKeyImpl and ECPrivateKeyImpl
-    protected static AlgorithmParameters getAlgorithmParameters(OpenJCEPlusProvider provider,
+    static AlgorithmParameters getAlgorithmParameters(OpenJCEPlusProvider provider,
             ECParameterSpec spec) throws InvalidKeyException {
         try {
             AlgorithmParameters params = AlgorithmParameters.getInstance("EC", provider);
@@ -213,16 +216,6 @@ public final class ECParameters extends AlgorithmParametersSpi {
 
         return namedCurve.toString();
     }
-
-    /**
-     *
-     */
-    public ECParameters(OpenJCEPlusProvider provider) {
-        super();
-        this.provider = provider;
-    }
-
-
 
     // COPIED FROM PKCS60 ECParameters.java
     // Used by SunPKCS11 and SunJSSE.
@@ -685,17 +678,17 @@ public final class ECParameters extends AlgorithmParametersSpi {
             // name string,
             // and
             // the value is an ECParameterSpec of the associated ECNamedCurve
-            Map nameMap = ECNamedCurve.getNameMap();
-            Set myEntrySet = nameMap.entrySet();
+            Map<String, ECParameterSpec> nameMap = ECNamedCurve.getNameMap();
+            Set<Entry<String, ECParameterSpec>> myEntrySet = nameMap.entrySet();
 
             // Scan the entries of the nameMap for an ECParameterSpec value that
             // matches the
             // one passed in.
-            for (Iterator myIter = myEntrySet.iterator(); myIter.hasNext();) {
-                Map.Entry myMapEntry = (Map.Entry) myIter.next();
-                String curveNameFromNameMap = (String) (myMapEntry.getKey());
-                ECParameterSpec ecParameterSpecFromNameMap = (ECParameterSpec) (myMapEntry
-                        .getValue());
+            for (Iterator<Entry<String, ECParameterSpec>> myIter = myEntrySet.iterator(); myIter.hasNext();) {
+                Entry<String, ECParameterSpec> myMapEntry = myIter.next();
+                String curveNameFromNameMap = myMapEntry.getKey();
+                ECParameterSpec ecParameterSpecFromNameMap = myMapEntry
+                        .getValue();
 
                 // Does ecParameterSpecFromNameMap match the one passed in?
                 // The ECParameterSpec class does not define equals, so I'll

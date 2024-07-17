@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -18,6 +18,7 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
+
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
@@ -68,12 +69,18 @@ import sun.security.x509.AlgorithmId;
  */
 public final class PSSParameters extends AlgorithmParametersSpi {
 
-    protected AlgorithmId hashAlgorithm;
-    protected AlgorithmId maskGenAlgorithm;
-    protected AlgorithmParameterSpec mgfParameterSpec;
-    protected int saltLength;
-    protected int trailerField;
+    private AlgorithmId hashAlgorithm;
+    private AlgorithmId maskGenAlgorithm;
+    private AlgorithmParameterSpec mgfParameterSpec;
+    private int saltLength;
+    private int trailerField;
     private PSSParameterSpec spec;
+
+    private static final PSSParameterSpec DEFAULT_SPEC = new PSSParameterSpec("SHA-1",
+                                                                              "MGF1",
+                                                                              MGF1ParameterSpec.SHA1,
+                                                                              20,
+                                                                              1);
 
     byte TAG0 = DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0x00);
     byte TAG1 = DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0x01);
@@ -188,13 +195,13 @@ public final class PSSParameters extends AlgorithmParametersSpi {
         String hashAlgName = this.hashAlgorithm.getName();
         String defaultHashAlgName = null;
         try {
-            defaultHashAlgName = (AlgorithmId.get(PSSParameterSpec.DEFAULT.getDigestAlgorithm()))
+            defaultHashAlgName = (AlgorithmId.get(DEFAULT_SPEC.getDigestAlgorithm()))
                     .getName();
         } catch (NoSuchAlgorithmException nsae) {
             defaultHashAlgName = null;
         }
         //        if (!this.hashAlgorithm.getName().equalsIgnoreCase(
-        //                PSSParameterSpec.DEFAULT.getDigestAlgorithm())) {
+        //                DEFAULT_SPEC.getDigestAlgorithm())) {
 
         //System.out.println ("hashAlgorithName=" + hashAlgName);
         //System.out.println ("defaulthashAlgorithName=" + defaultHashAlgName);
@@ -206,7 +213,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
         }
         // out.putTag(DerValue.TAG_UNIVERSAL, true, (byte) 0x00);
         if (!this.maskGenAlgorithm.getName()
-                .equalsIgnoreCase(PSSParameterSpec.DEFAULT.getMGFAlgorithm())) {
+                .equalsIgnoreCase(DEFAULT_SPEC.getMGFAlgorithm())) {
             //System.out.println("MaskGenAlg are different");
             DerValue derValueMaskGen = encodeMaskGenAlg(this.maskGenAlgorithm,
                     this.mgfParameterSpec);
@@ -215,7 +222,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
             String mgf1DigestAlgName = ((MGF1ParameterSpec) (this.mgfParameterSpec))
                     .getDigestAlgorithm();
             String normDigestAlgName = null;
-            AlgorithmParameterSpec defaultAlgParamSpec = PSSParameterSpec.DEFAULT
+            AlgorithmParameterSpec defaultAlgParamSpec = DEFAULT_SPEC
                     .getMGFParameters();
             String defaultMGFDigest = null;
             try {
@@ -241,13 +248,13 @@ public final class PSSParameters extends AlgorithmParametersSpi {
 
         }
 
-        if (this.saltLength != PSSParameterSpec.DEFAULT.getSaltLength()) {
+        if (this.saltLength != DEFAULT_SPEC.getSaltLength()) {
 
             DerValue derValueSalt = encodeSalt(this.saltLength);
             out.putDerValue(derValueSalt);
 
         }
-        if (this.trailerField != PSSParameterSpec.DEFAULT.getTrailerField()) {
+        if (this.trailerField != DEFAULT_SPEC.getTrailerField()) {
             DerValue derValueTrailerField = encodeTrailerField(this.trailerField);
             out.putDerValue(derValueTrailerField);
 
@@ -267,7 +274,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
      *  CONTEXT_CONSTRUCTED_2
      *         UNIVERSAL PRIMARY INTEGER
      */
-    protected DerValue encodeSalt(int salt) throws IOException {
+    private DerValue encodeSalt(int salt) throws IOException {
 
         try {
 
@@ -296,7 +303,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
      * CONTEXT_CONSTRUCTED_3
      *         UNIVERSAL PRIMARY INTEGER
      */
-    protected DerValue encodeTrailerField(int trailerField) throws IOException {
+    private DerValue encodeTrailerField(int trailerField) throws IOException {
 
         try {
 
@@ -329,7 +336,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
      * @throws IOException
      */
 
-    protected DerValue encodeHashAlg(AlgorithmId hashAlgorithm) throws IOException {
+    private DerValue encodeHashAlg(AlgorithmId hashAlgorithm) throws IOException {
 
         try {
 
@@ -473,7 +480,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
      * @throws IOException
      */
 
-    protected DerValue encodeMaskGenAlg(AlgorithmId maskGenAlgorithm,
+    private DerValue encodeMaskGenAlg(AlgorithmId maskGenAlgorithm,
             AlgorithmParameterSpec mgf1ParameterSpec) throws IOException {
         try {
 
@@ -513,7 +520,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
      * @return
      * @throws IOException
      */
-    protected DerValue encodeMgfParameterSpec(AlgorithmParameterSpec mgfParameterSpec)
+    private DerValue encodeMgfParameterSpec(AlgorithmParameterSpec mgfParameterSpec)
             throws IOException {
 
         try {
@@ -582,18 +589,18 @@ public final class PSSParameters extends AlgorithmParametersSpi {
             //System.out.println("values.length=" + values.length);
 
             try {
-                this.hashAlgorithm = AlgorithmId.get(PSSParameterSpec.DEFAULT.getDigestAlgorithm());
+                this.hashAlgorithm = AlgorithmId.get(DEFAULT_SPEC.getDigestAlgorithm());
             } catch (NoSuchAlgorithmException e1) {
                 throw new IOException("NoSuchAlgorithmException during decoding operations.");
             }
             try {
-                this.maskGenAlgorithm = AlgorithmId.get(PSSParameterSpec.DEFAULT.getMGFAlgorithm());
+                this.maskGenAlgorithm = AlgorithmId.get(DEFAULT_SPEC.getMGFAlgorithm());
             } catch (NoSuchAlgorithmException e) {
                 throw new IOException("NoSuchAlgorithmException during decoding operations.");
             }
-            this.mgfParameterSpec = PSSParameterSpec.DEFAULT.getMGFParameters();
-            this.saltLength = PSSParameterSpec.DEFAULT.getSaltLength();
-            this.trailerField = PSSParameterSpec.DEFAULT.getTrailerField();
+            this.mgfParameterSpec = DEFAULT_SPEC.getMGFParameters();
+            this.saltLength = DEFAULT_SPEC.getSaltLength();
+            this.trailerField = DEFAULT_SPEC.getTrailerField();
             for (int i = 0; i < values.length; i++) {
                 byte tag = values[i].getTag();
                 if (tag == TAG0) {
@@ -712,20 +719,16 @@ public final class PSSParameters extends AlgorithmParametersSpi {
      *
      * @return AlgorithmParameterSpec the newly generated parameterSpec
      */
-    protected AlgorithmParameterSpec engineGetParameterSpec(Class paramSpec)
+    protected <T extends AlgorithmParameterSpec> T engineGetParameterSpec(Class<T> paramSpecClass)
             throws InvalidParameterSpecException {
-        try {
-            Class pssParamSpec = Class.forName("java.security.spec.PSSParameterSpec");
-            if (pssParamSpec.isAssignableFrom(paramSpec)) {
-                return new PSSParameterSpec(this.hashAlgorithm.getName(),
-                        this.maskGenAlgorithm.getName(), this.mgfParameterSpec, this.saltLength,
-                        this.trailerField);
-            } else {
-                throw new InvalidParameterSpecException("Inappropriate parameter Specification");
-            }
-        } catch (ClassNotFoundException e) {
-            throw new InvalidParameterSpecException(
-                    "Unsupported parameter specification: " + e.getMessage());
+        if (java.security.spec.PSSParameterSpec.class.isAssignableFrom(paramSpecClass)) {
+            return paramSpecClass.cast(new PSSParameterSpec(this.hashAlgorithm.getName(),
+                                                            this.maskGenAlgorithm.getName(),
+                                                            this.mgfParameterSpec,
+                                                            this.saltLength,
+                                                            this.trailerField)) ;
+        } else {
+            throw new InvalidParameterSpecException("Inappropriate parameter Specification");
         }
     }
 

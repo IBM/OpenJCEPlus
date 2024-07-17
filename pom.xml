@@ -214,6 +214,7 @@
                     <source>${jdk.build.target}</source>   
                     <target>${jdk.build.target}</target>
                     <compilerArgs>
+                        <arg>-XDignore.symbol.file</arg>
                         <arg>-Xlint:all</arg> 
                         <arg>--add-exports </arg> 
                         <arg>java.base/sun.security.internal.spec=openjceplus</arg>
@@ -230,6 +231,7 @@
                         <arg>--add-exports </arg>
                         <arg>java.base/jdk.internal.logger=openjceplus</arg>
                     </compilerArgs>
+                    <fork>true</fork>
                     <debug>true</debug>  
                 </configuration>
             </plugin>
@@ -545,6 +547,16 @@
             <artifactId>bcprov-jdk18on</artifactId>
             <version>1.78.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+            <version>1.78.1</version>
+        </dependency>
+        <dependency>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcprov-ext-jdk18on</artifactId>
+          <version>1.78.1</version>
+      </dependency>
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>

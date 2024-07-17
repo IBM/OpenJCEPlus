@@ -482,7 +482,8 @@ public class BaseTestRSAPSSInterop extends BaseTestInterop {
             algParams.getParameterSpec(PSSParameterSpec.class);
             //System.out.println("parameters=" + algParams.toString());
         } else if (providerA.equals("SunRsaSign")) {
-            sig.setParameter(PSSParameterSpec.DEFAULT);
+            sig.setParameter(new PSSParameterSpec("SHA-1", "MGF1",
+                    MGF1ParameterSpec.SHA1, 20, 1));
             AlgorithmParameters algParams = sig.getParameters();
             algParams.getParameterSpec(PSSParameterSpec.class);
         }
@@ -503,7 +504,8 @@ public class BaseTestRSAPSSInterop extends BaseTestInterop {
             if (pssParameterSpec != null) {
                 sig1.setParameter(pssParameterSpec);
             } else if (providerB.equalsIgnoreCase("SunRsaSign")) {
-                sig1.setParameter(PSSParameterSpec.DEFAULT);
+                sig1.setParameter(new PSSParameterSpec("SHA-1", "MGF1",
+                        MGF1ParameterSpec.SHA1, 20, 1));
                 AlgorithmParameters algParams = sig.getParameters();
                 algParams.getParameterSpec(PSSParameterSpec.class);
             }
@@ -552,7 +554,8 @@ public class BaseTestRSAPSSInterop extends BaseTestInterop {
             if (pssParameterSpec != null) {
                 sigB.setParameter(pssParameterSpec);
             } else {
-                sigB.setParameter(PSSParameterSpec.DEFAULT);
+                sigB.setParameter(new PSSParameterSpec("SHA-1", "MGF1",
+                        MGF1ParameterSpec.SHA1, 20, 1));
             }
 
         }
@@ -618,7 +621,8 @@ public class BaseTestRSAPSSInterop extends BaseTestInterop {
         // Generate Signature
         PSSParameterSpec pssParameterSpec = null;
         if (saltSize != -1) {
-            pssParameterSpec = new PSSParameterSpec(saltSize);
+            pssParameterSpec = new PSSParameterSpec("SHA-1", "MGF1",
+                    MGF1ParameterSpec.SHA1, saltSize, 1);
         }
 
 
@@ -734,7 +738,8 @@ public class BaseTestRSAPSSInterop extends BaseTestInterop {
 
         // Generate Signature
         if (saltsize != -1) {
-            pssParameterSpec = new PSSParameterSpec(saltsize);
+            pssParameterSpec = new PSSParameterSpec("SHA-1", "MGF1",
+                    MGF1ParameterSpec.SHA1, saltsize, 1);
         }
 
         // Signature sig = Signature.getInstance(algorithm, JCE_PROVIDER);

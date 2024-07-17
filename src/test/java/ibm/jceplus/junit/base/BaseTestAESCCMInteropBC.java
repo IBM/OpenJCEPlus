@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -11,11 +11,13 @@ package ibm.jceplus.junit.base;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Random;
+
 import javax.crypto.AEADBadTagException;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
 import org.junit.Assert;
 
 
@@ -544,12 +546,12 @@ public class BaseTestAESCCMInteropBC extends BaseTestInterop {
             if (printJunitTrace)
                 System.out.println(toHexString(plaintext));
 
-            org.bouncycastle.crypto.BlockCipher engine = new org.bouncycastle.crypto.engines.AESEngine();
-            org.bouncycastle.crypto.params.CCMParameters params = new org.bouncycastle.crypto.params.CCMParameters(
+            org.bouncycastle.crypto.MultiBlockCipher engine = org.bouncycastle.crypto.engines.AESEngine.newInstance();
+            org.bouncycastle.crypto.params.AEADParameters params = new org.bouncycastle.crypto.params.AEADParameters(
                     new org.bouncycastle.crypto.params.KeyParameter(aesKeyBytes), ccmTagLength, IV,
                     null);
 
-            org.bouncycastle.crypto.modes.CCMBlockCipher cipher = new org.bouncycastle.crypto.modes.CCMBlockCipher(
+            org.bouncycastle.crypto.modes.CCMModeCipher cipher = org.bouncycastle.crypto.modes.CCMBlockCipher.newInstance(
                     engine);
             cipher.init(true, params); // true for encryption
             byte[] cipherText = new byte[cipher.getOutputSize(plaintext.length)];
@@ -802,12 +804,12 @@ public class BaseTestAESCCMInteropBC extends BaseTestInterop {
             if (printJunitTrace)
                 System.out.println(toHexString(cipherText));
 
-            org.bouncycastle.crypto.BlockCipher engine = new org.bouncycastle.crypto.engines.AESEngine();
-            org.bouncycastle.crypto.params.CCMParameters params = new org.bouncycastle.crypto.params.CCMParameters(
+            org.bouncycastle.crypto.BlockCipher engine = org.bouncycastle.crypto.engines.AESEngine.newInstance();
+            org.bouncycastle.crypto.params.AEADParameters params = new org.bouncycastle.crypto.params.AEADParameters(
                     new org.bouncycastle.crypto.params.KeyParameter(aesKeyBytes), ccmTagLength, IV,
                     null);
 
-            org.bouncycastle.crypto.modes.CCMBlockCipher cipher = new org.bouncycastle.crypto.modes.CCMBlockCipher(
+            org.bouncycastle.crypto.modes.CCMModeCipher cipher = org.bouncycastle.crypto.modes.CCMBlockCipher.newInstance(
                     engine);
             cipher.init(false, params); // false for decryption
             byte[] decryptedText = new byte[cipher.getOutputSize(cipherText.length)];

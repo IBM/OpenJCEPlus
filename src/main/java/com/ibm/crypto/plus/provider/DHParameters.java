@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -21,7 +21,8 @@ import sun.security.util.DerValue;
  * This class implements the parameter set used by the Diffie-Hellman key
  * agreement as defined in the PKCS #3 standard.
  */
-public final class DHParameters extends AlgorithmParametersSpi {
+public final class DHParameters extends AlgorithmParametersSpi implements java.io.Serializable {
+    private static final long serialVersionUID = 7137508373627164657L;
 
     private OpenJCEPlusProvider provider;
 

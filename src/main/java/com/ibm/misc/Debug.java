@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import jdk.internal.logger.SimpleConsoleLogger;
 import sun.util.logging.PlatformLogger;
 
@@ -46,16 +47,16 @@ public class Debug {
     */
 
     static {
-        args = (String) java.security.AccessController
-                .doPrivileged(new java.security.PrivilegedAction() {
-                    public Object run() {
-                        return (System.getProperty("java.security.debug"));
+        args = java.security.AccessController
+                .doPrivileged(new java.security.PrivilegedAction<String>() {
+                    public String run() {
+                        return System.getProperty("java.security.debug");
                     }
                 });
-        String args2 = (String) java.security.AccessController
-                .doPrivileged(new java.security.PrivilegedAction() {
-                    public Object run() {
-                        return (System.getProperty("java.security.auth.debug"));
+        String args2 = java.security.AccessController
+                .doPrivileged(new java.security.PrivilegedAction<String>() {
+                    public String run() {
+                        return System.getProperty("java.security.auth.debug");
                     }
                 });
         if (args == null) {
@@ -194,7 +195,7 @@ public class Debug {
      *   <code>TYPE_ENTRY_EXIT</code> has been split into
      *   <code>TYPE_ENTRY</code> and <code>TYPE_EXIT</code>.
      */
-
+    @Deprecated
     public static final long TYPE_ENTRY_EXIT = 0x000040;
 
     /**
@@ -862,7 +863,7 @@ public class Debug {
     private static String getDebugDate(String className) {
         String versionDate = "Unknown";
         try {
-            Class thisClass = Class.forName(className);
+            Class<?> thisClass = Class.forName(className);
             Package thisPackage = thisClass.getPackage();
             String versionInfo = thisPackage.getImplementationVersion();
             int index = versionInfo.indexOf("_");

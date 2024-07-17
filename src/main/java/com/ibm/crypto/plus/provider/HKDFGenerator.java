@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -27,8 +27,7 @@ import ibm.security.internal.spec.HKDFParameterSpec;
 /**
  * KeyGenerator implementation for the SSL/TLS master secret derivation.
  */
-@SuppressWarnings("deprecation")
-class HKDFGenerator extends KeyGeneratorSpi {
+public class HKDFGenerator extends KeyGeneratorSpi {
 
     private final static String MSG = "HKDFGenerator must be "
             + "initialized using a HKDFExtractParameterSpec or a HKDFExpandParameterSpec or a HKDFParameterSpec ";
