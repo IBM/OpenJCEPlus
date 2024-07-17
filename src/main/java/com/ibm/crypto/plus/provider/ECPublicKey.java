@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -9,7 +9,6 @@
 package com.ibm.crypto.plus.provider;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
@@ -17,10 +16,12 @@ import java.security.KeyRep;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.InvalidParameterSpecException;
-import java.util.Arrays;
+
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
+
 import com.ibm.crypto.plus.provider.ock.ECKey;
+
 import sun.security.util.BitArray;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
@@ -28,13 +29,13 @@ import sun.security.x509.AlgorithmId;
 import sun.security.x509.X509Key;
 
 final class ECPublicKey extends X509Key
-        implements Destroyable, java.security.interfaces.ECPublicKey, Serializable {
+        implements Destroyable, java.security.interfaces.ECPublicKey {
 
     private static final long serialVersionUID = -3386791752203116789L;
 
     private OpenJCEPlusProvider provider = null;
-    private ECPoint w;
-    private ECParameterSpec params;
+    private transient ECPoint w;
+    private transient ECParameterSpec params;
 
     /** The public key (OPTIONAL) */
     protected byte[] publicKeyBytes;
@@ -49,7 +50,7 @@ final class ECPublicKey extends X509Key
      *            the encoded bytes of the public key
      * @throws InvalidParameterSpecException
      */
-    public ECPublicKey(OpenJCEPlusProvider provider, ECPoint w, ECParameterSpec ecParams)
+    ECPublicKey(OpenJCEPlusProvider provider, ECPoint w, ECParameterSpec ecParams)
             throws InvalidKeyException, InvalidParameterSpecException {
 
         this.provider = provider;
@@ -58,7 +59,8 @@ final class ECPublicKey extends X509Key
 
         algid = new AlgorithmId(AlgorithmId.EC_oid,
                 ECParameters.getAlgorithmParameters(provider, ecParams));
-        key = ECParameters.encodePoint(w, this.params.getCurve());
+        byte[] keyArray = ECParameters.encodePoint(w, this.params.getCurve());
+        setKey(new BitArray(keyArray.length * 8, keyArray));
 
         try {
             byte[] parameterBytes = ECParameters.encodeECParameters(ecParams);
@@ -82,7 +84,7 @@ final class ECPublicKey extends X509Key
      * @param encoded
      *            the encoded bytes of the public key
      */
-    public ECPublicKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
+    ECPublicKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
         this.provider = provider;
 
         decode(encoded);
@@ -100,7 +102,7 @@ final class ECPublicKey extends X509Key
         }
     }
 
-    public ECPublicKey(OpenJCEPlusProvider provider, ECKey ecKey) throws InvalidKeyException {
+    ECPublicKey(OpenJCEPlusProvider provider, ECKey ecKey) throws InvalidKeyException {
         this.provider = provider;
 
         DerOutputStream algidOut = null;
@@ -142,7 +144,7 @@ final class ECPublicKey extends X509Key
         ECParameterSpec ecParams = this.params;
         ECPoint w = this.w;
 
-        ECParameters ecp = new ECParameters(provider);
+        ECParameters ecp = new ECParameters();
         try {
             ecp.engineInit(ecParams);
         } catch (InvalidParameterSpecException e) {
@@ -169,7 +171,7 @@ final class ECPublicKey extends X509Key
             // algParams=" + algParams.toString()
             // + " this.algid="+this.algid);
             params = algParams.getParameterSpec(ECParameterSpec.class);
-            w = ECParameters.decodePoint(key, params.getCurve());
+            w = ECParameters.decodePoint(getKey().toByteArray(), params.getCurve());
 
         } catch (IOException e) {
             throw new InvalidKeyException("Invalid EC key", e);
@@ -255,9 +257,7 @@ final class ECPublicKey extends X509Key
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            if (this.key != null) {
-                Arrays.fill(this.key, (byte) 0x00);
-            }
+            setKey(new BitArray(0));
             this.ecKey = null;
             this.w = null;
             this.params = null;

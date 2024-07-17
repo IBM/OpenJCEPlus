@@ -509,7 +509,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
             GCMParameterSpec ivSpec) throws GeneralSecurityException, IOException, Exception {
 
         Thread t = Thread.currentThread();
-        long threadId = t.getId();
+        long threadId = t.threadId();
         String fileNamePlain = "." + File.separator + fileCount + "TestAESGCM_P_" + threadId
                 + ".txt";
         String fileNameEncrypted = "." + File.separator + fileCount + "TestAESGCM_E_" + threadId
