@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -172,7 +172,7 @@ public final class DSAKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                DSAPublicKeySpec dsaPubKeySpec = (DSAPublicKeySpec) engineGetKeySpec(key,
+                DSAPublicKeySpec dsaPubKeySpec = engineGetKeySpec(key,
                         DSAPublicKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePublic(dsaPubKeySpec);
@@ -183,7 +183,7 @@ public final class DSAKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                DSAPrivateKeySpec dsaPrivKeySpec = (DSAPrivateKeySpec) engineGetKeySpec(key,
+                DSAPrivateKeySpec dsaPrivKeySpec = engineGetKeySpec(key,
                         DSAPrivateKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePrivate(dsaPrivKeySpec);

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -136,8 +136,8 @@ public final class DHKeyFactory extends KeyFactorySpi {
             if (key instanceof javax.crypto.interfaces.DHPublicKey) {
 
                 // Determine valid key specs
-                Class dhPubKeySpec = Class.forName("javax.crypto.spec.DHPublicKeySpec");
-                Class x509KeySpec = Class.forName("java.security.spec.X509EncodedKeySpec");
+                Class<?> dhPubKeySpec = Class.forName("javax.crypto.spec.DHPublicKeySpec");
+                Class<?> x509KeySpec = Class.forName("java.security.spec.X509EncodedKeySpec");
 
                 if (dhPubKeySpec.isAssignableFrom(keySpec)) {
                     javax.crypto.interfaces.DHPublicKey dhPubKey = (javax.crypto.interfaces.DHPublicKey) key;
@@ -155,8 +155,8 @@ public final class DHKeyFactory extends KeyFactorySpi {
             } else if (key instanceof javax.crypto.interfaces.DHPrivateKey) {
 
                 // Determine valid key specs
-                Class dhPrivKeySpec = Class.forName("javax.crypto.spec.DHPrivateKeySpec");
-                Class pkcs8KeySpec = Class.forName("java.security.spec.PKCS8EncodedKeySpec");
+                Class<?> dhPrivKeySpec = Class.forName("javax.crypto.spec.DHPrivateKeySpec");
+                Class<?> pkcs8KeySpec = Class.forName("java.security.spec.PKCS8EncodedKeySpec");
 
                 if (dhPrivKeySpec.isAssignableFrom(keySpec)) {
                     javax.crypto.interfaces.DHPrivateKey dhPrivKey = (javax.crypto.interfaces.DHPrivateKey) key;
@@ -201,7 +201,7 @@ public final class DHKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                DHPublicKeySpec dhPubKeySpec = (DHPublicKeySpec) engineGetKeySpec(key,
+                DHPublicKeySpec dhPubKeySpec = engineGetKeySpec(key,
                         DHPublicKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePublic(dhPubKeySpec);
@@ -212,7 +212,7 @@ public final class DHKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                DHPrivateKeySpec dhPrivKeySpec = (DHPrivateKeySpec) engineGetKeySpec(key,
+                DHPrivateKeySpec dhPrivKeySpec = engineGetKeySpec(key,
                         DHPrivateKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePrivate(dhPrivKeySpec);

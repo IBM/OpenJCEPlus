@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -9,13 +9,11 @@
 package com.ibm.crypto.plus.provider;
 
 import java.nio.ByteBuffer;
-import java.security.AccessController;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivilegedAction;
 import java.security.ProviderException;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAKey;
@@ -34,7 +32,6 @@ import javax.crypto.spec.PSource;
 import com.ibm.crypto.plus.provider.ock.RSACipher;
 import com.ibm.crypto.plus.provider.ock.RSAPadding;
 
-@SuppressWarnings({"removal", "deprecation"})
 public final class RSA extends CipherSpi {
 
     private OpenJCEPlusProvider provider = null;
@@ -54,16 +51,12 @@ public final class RSA extends CipherSpi {
     private final static byte[] B0 = new byte[0];
 
     static {
-        doTypeChecking = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-            public Boolean run() {
-                return ("true".equalsIgnoreCase(System.getProperty(DO_TYPE_CHECKING, "true")));
-            }
-        });
+        doTypeChecking = Boolean.parseBoolean(System.getProperty(DO_TYPE_CHECKING, "true"));
     }
 
     public RSA(OpenJCEPlusProvider provider) {
 
-        if (!provider.verifySelfIntegrity(this.getClass())) {
+        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
         }
 
@@ -350,8 +343,8 @@ public final class RSA extends CipherSpi {
     private void checkOAEPParameters(OAEPParameterSpec spec)
             throws InvalidAlgorithmParameterException {
         // ensure we are only supporting OAEPParameters.DEFAULT fields
-        if (!(OAEPParameterSpec.DEFAULT.getDigestAlgorithm().equals(spec.getDigestAlgorithm()))
-                || !(OAEPParameterSpec.DEFAULT.getMGFAlgorithm().equals(spec.getMGFAlgorithm()))) {
+        if (!("SHA-1".equals(spec.getDigestAlgorithm()))
+                || !("MGF1".equals(spec.getMGFAlgorithm()))) {
             throw new InvalidAlgorithmParameterException("Only SHA-1 & MGF1 is supported for OAEP");
         }
         MGF1ParameterSpec mgf1Spec = (MGF1ParameterSpec) spec.getMGFParameters();

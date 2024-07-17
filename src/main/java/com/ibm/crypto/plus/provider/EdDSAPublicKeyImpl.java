@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -28,13 +28,13 @@ import sun.security.util.DerValue;
 import sun.security.util.ObjectIdentifier;
 import sun.security.x509.X509Key;
 
-public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
+final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
 
     private static final long serialVersionUID = 1L;
 
-    private EdECPoint point;
+    private transient EdECPoint point;
     private OpenJCEPlusProvider provider = null;
-    private NamedParameterSpec paramSpec;
+    private transient NamedParameterSpec paramSpec;
     private CURVE curve;
 
     private transient XECKey xecKey = null;
@@ -62,7 +62,7 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
      *            the internal XECKey object that is key will contain
      * @throws InvalidKeyException
      */
-    public EdDSAPublicKeyImpl(OpenJCEPlusProvider provider, XECKey xecKey,
+    EdDSAPublicKeyImpl(OpenJCEPlusProvider provider, XECKey xecKey,
             CURVE curve) throws InvalidKeyException {
         if (provider == null)
             throw new InvalidKeyException("provider cannot be null");
@@ -85,7 +85,7 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
     }
 
 
-    public EdDSAPublicKeyImpl(OpenJCEPlusProvider provider,
+    EdDSAPublicKeyImpl(OpenJCEPlusProvider provider,
             NamedParameterSpec params, EdECPoint point)
             throws InvalidParameterException, InvalidKeyException {
 
@@ -127,7 +127,7 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
         checkLength(this.curve);
     }
 
-    public EdDSAPublicKeyImpl(OpenJCEPlusProvider provider, byte[] encoded)
+    EdDSAPublicKeyImpl(OpenJCEPlusProvider provider, byte[] encoded)
             throws InvalidKeyException {
 
         if (provider == null)
@@ -271,7 +271,7 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
 
         // Forming main sequence
         mainSeq.write(DerValue.tag_Sequence, oidSeq.toByteArray());
-        mainSeq.putBitString(this.key);
+        mainSeq.putBitString(getKey().toByteArray());
         outStream.write(DerValue.tag_Sequence, mainSeq);
         return outStream.toByteArray();
     }
@@ -304,7 +304,8 @@ public final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             processOIDSequence(seq, null);
             this.algid = CurveUtil.getAlgId(this.curve);
 
-            this.key = values[1].getBitString();
+            byte[] keyArray = values[1].getBitString();
+            setKey(new BitArray(keyArray.length * 8, keyArray));
         } catch (Exception e) {
             throw new InvalidKeyException("Key does not appear to be a EdDSA key");
         }

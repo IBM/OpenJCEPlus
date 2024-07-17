@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -17,7 +17,7 @@ import java.security.KeyRep;
 import java.security.interfaces.DSAParams;
 import java.security.spec.DSAParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
-import java.util.Arrays;
+
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 import com.ibm.crypto.plus.provider.ock.DSAKey;
@@ -56,7 +56,7 @@ final class DSAPublicKey extends X509Key
      * @param g
      *            the number g
      */
-    public DSAPublicKey(OpenJCEPlusProvider provider, BigInteger y, BigInteger p, BigInteger q,
+    DSAPublicKey(OpenJCEPlusProvider provider, BigInteger y, BigInteger p, BigInteger q,
             BigInteger g) throws InvalidKeyException {
         this.algid = new AlgIdDSA(p, q, g);
         this.provider = provider;
@@ -82,7 +82,7 @@ final class DSAPublicKey extends X509Key
      * @param encoded
      *            the encoded bytes of the public key
      */
-    public DSAPublicKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
+    DSAPublicKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
         this.provider = provider;
 
         decode(encoded);
@@ -97,7 +97,7 @@ final class DSAPublicKey extends X509Key
         }
     }
 
-    public DSAPublicKey(OpenJCEPlusProvider provider, DSAKey dsaKey) throws InvalidKeyException {
+    DSAPublicKey(OpenJCEPlusProvider provider, DSAKey dsaKey) throws InvalidKeyException {
         this.provider = provider;
 
         try {
@@ -134,7 +134,7 @@ final class DSAPublicKey extends X509Key
 
                     return null;
                 }
-                paramSpec = (DSAParameterSpec) algParams.getParameterSpec(DSAParameterSpec.class);
+                paramSpec = algParams.getParameterSpec(DSAParameterSpec.class);
                 return (DSAParams) paramSpec;
             }
         } catch (InvalidParameterSpecException e) {
@@ -244,9 +244,7 @@ final class DSAPublicKey extends X509Key
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            if (this.key != null) {
-                Arrays.fill(this.key, (byte) 0x00);
-            }
+            setKey(new BitArray(0));
             this.dsaKey = null;
             this.y = null;
         }

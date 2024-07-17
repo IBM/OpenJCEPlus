@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -22,12 +22,10 @@ import sun.security.util.DerValue;
 public final class ChaCha20Poly1305Parameters extends AlgorithmParametersSpi
         implements ChaCha20Constants {
 
-    private OpenJCEPlusProvider provider = null;
-
     private byte[] nonce;
 
-    public ChaCha20Poly1305Parameters(OpenJCEPlusProvider provider) {
-        this.provider = provider;
+    public ChaCha20Poly1305Parameters() {
+        super();
     }
 
     @Override
@@ -41,7 +39,7 @@ public final class ChaCha20Poly1305Parameters extends AlgorithmParametersSpi
             throw new InvalidParameterSpecException(
                     "Nonce not " + ChaCha20_NONCE_SIZE + " bytes long");
         }
-        this.nonce = (byte[]) nonce.clone();
+        this.nonce = nonce.clone();
     }
 
     /*
