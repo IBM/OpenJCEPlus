@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -143,7 +143,7 @@ public final class DSAKeyPairGenerator extends KeyPairGenerator
                         .getInstance("DSA", provider);
                 algParmGen.init(this.keySize);
                 AlgorithmParameters algParams = algParmGen.generateParameters();
-                this.params = (DSAParameterSpec) algParams.getParameterSpec(DSAParameterSpec.class);
+                this.params = algParams.getParameterSpec(DSAParameterSpec.class);
 
                 dsaKey = DSAKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded());
             } else {

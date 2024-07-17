@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -351,7 +351,7 @@ public class BaseTestDH extends BaseTest {
                 providerName);
         algParamGen.init(size);
         AlgorithmParameters algParams = algParamGen.generateParameters();
-        DHParameterSpec dhps = (DHParameterSpec) algParams.getParameterSpec(DHParameterSpec.class);
+        DHParameterSpec dhps = algParams.getParameterSpec(DHParameterSpec.class);
         return dhps;
 
     }
@@ -485,7 +485,7 @@ public class BaseTestDH extends BaseTest {
                 myProviderName);
         algParamGen.init(size);
         AlgorithmParameters algParams = algParamGen.generateParameters();
-        DHParameterSpec dhps = (DHParameterSpec) algParams.getParameterSpec(DHParameterSpec.class);
+        DHParameterSpec dhps = algParams.getParameterSpec(DHParameterSpec.class);
         return dhps;
 
     }

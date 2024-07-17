@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -97,7 +97,7 @@ public class BaseTestAESGCM extends BaseTest {
     protected Cipher cp = null;
     protected boolean success = true;
     protected Method methodCipherUpdateAAD = null;
-    protected Constructor ctorGCMParameterSpec = null;
+    protected Constructor<?> ctorGCMParameterSpec = null;
     protected Method methodGCMParameterSpecSetAAD = null;
     protected int specifiedKeySize = 0;
     byte[] ivBytes = "123456".getBytes();
@@ -132,8 +132,8 @@ public class BaseTestAESGCM extends BaseTest {
         key = aesKeyGen.generateKey();
 
         try {
-            Class classCipher = Class.forName("javax.crypto.Cipher");
-            methodCipherUpdateAAD = classCipher.getMethod("updateAAD", new Class[] {byte[].class});
+            Class<?> classCipher = Class.forName("javax.crypto.Cipher");
+            methodCipherUpdateAAD = classCipher.getMethod("updateAAD", new Class<?>[] {byte[].class});
         } catch (Exception e) {
         }
 
@@ -142,9 +142,9 @@ public class BaseTestAESGCM extends BaseTest {
          * 7+)
          */
         try {
-            Class classGCMParameterSpec = Class.forName("javax.crypto.spec.GCMParameterSpec");
+            Class<?> classGCMParameterSpec = Class.forName("javax.crypto.spec.GCMParameterSpec");
             ctorGCMParameterSpec = classGCMParameterSpec
-                    .getConstructor(new Class[] {int.class, byte[].class});
+                    .getConstructor(new Class<?>[] {int.class, byte[].class});
         } catch (Exception ex) {
             /* Differ to calling code in test cases that follow... */
         }
@@ -155,12 +155,12 @@ public class BaseTestAESGCM extends BaseTest {
          */
         if (ctorGCMParameterSpec == null) {
             try {
-                Class classGCMParameterSpec = Class
+                Class<?> classGCMParameterSpec = Class
                         .forName("ibm.security.internal.spec.GCMParameterSpec");
                 ctorGCMParameterSpec = classGCMParameterSpec
-                        .getConstructor(new Class[] {int.class, byte[].class});
+                        .getConstructor(new Class<?>[] {int.class, byte[].class});
                 methodGCMParameterSpecSetAAD = classGCMParameterSpec.getMethod("setAAD",
-                        new Class[] {byte[].class, int.class, int.class});
+                        new Class<?>[] {byte[].class, int.class, int.class});
             } catch (Exception ex) {
                 /* Differ to calling code in test cases that follow... */
             }

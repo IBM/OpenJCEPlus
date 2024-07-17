@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -71,7 +71,7 @@ public final class RSAPSSSignature extends SignatureSpi {
     // public key, if initialized for verifying
     private java.security.interfaces.RSAPublicKey publicKey;
 
-    RSAPSSSignature(OpenJCEPlusProvider provider, PSSParameterSpec pssParameterSpec) {
+    public RSAPSSSignature(OpenJCEPlusProvider provider, PSSParameterSpec pssParameterSpec) {
         this.provider = provider;
         try {
             if (pssParameterSpec == null) {
@@ -113,7 +113,7 @@ public final class RSAPSSSignature extends SignatureSpi {
         this(provider, (PSSParameterSpec) null);
     }
 
-    RSAPSSSignature(OpenJCEPlusProvider provider, String ockDigestAlgo) {
+    public RSAPSSSignature(OpenJCEPlusProvider provider, String ockDigestAlgo) {
         // PSSParameterSpec pssParameterSpec = null;
         try {
             this.provider = provider;
@@ -362,14 +362,14 @@ public final class RSAPSSSignature extends SignatureSpi {
         }
 
         //Thread.dumpStack();
-        pssParameterSpec = (PSSParameterSpec) validateSigParams(params);
+        pssParameterSpec = validateSigParams(params);
         MGF1ParameterSpec mgf1ParamSpec = (MGF1ParameterSpec) pssParameterSpec.getMGFParameters();
 
         // If the message digest specified within the params is not the same as the MGF message digest
         // then throw an InvalidAlgorithmParameterException.
         String messageDigest = pssParameterSpec.getDigestAlgorithm();
         if ((messageDigest != null) && (mgf1ParamSpec != null)) {
-            String mgfMessageDigest = ((MGF1ParameterSpec) mgf1ParamSpec).getDigestAlgorithm();
+            String mgfMessageDigest = mgf1ParamSpec.getDigestAlgorithm();
 
             if (mgfMessageDigest != null) {
                 boolean throwException = true;

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -17,14 +17,10 @@ import com.ibm.crypto.plus.provider.ock.OCKContext;
 // Code is not implemented in this class to ensure that any thread call
 // stacks show it originating in the specific provider class.
 //
-@SuppressWarnings({"serial", "removal", "deprecation"})
-abstract class OpenJCEPlusProvider extends java.security.Provider {
-    private static final String PROVIDER_VER = java.security.AccessController
-                .doPrivileged(new java.security.PrivilegedAction<String>() {
-                    public String run() {
-                        return (System.getProperty("java.specification.version"));
-                    }
-                });
+public abstract class OpenJCEPlusProvider extends java.security.Provider {
+    private static final long serialVersionUID = 1L;
+
+    private static final String PROVIDER_VER = System.getProperty("java.specification.version");
 
     // Are we debugging? -- for developers
     static final boolean debug2 = false;
@@ -36,7 +32,7 @@ abstract class OpenJCEPlusProvider extends java.security.Provider {
         super(name, PROVIDER_VER, info);
     }
 
-    static final boolean verifySelfIntegrity(Class c) {
+    static final boolean verifySelfIntegrity(Object c) {
         if (verifiedSelfIntegrity) {
             return true;
         }
@@ -44,7 +40,7 @@ abstract class OpenJCEPlusProvider extends java.security.Provider {
         return doSelfVerification(c);
     }
 
-    private static final synchronized boolean doSelfVerification(Class c) {
+    private static final synchronized boolean doSelfVerification(Object c) {
         return true;
     }
 

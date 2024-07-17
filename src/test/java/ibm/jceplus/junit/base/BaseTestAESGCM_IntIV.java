@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -12,7 +12,6 @@
 
 package ibm.jceplus.junit.base;
 
-import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -47,8 +46,6 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
     int tagLength = 16;
     AlgorithmParameterSpec aParamSpec = null;
     AlgorithmParameters aParams = null;
-    Class classGCMParameterSpec = null;
-    Constructor ctorGCMParameterSpec = null;
 
     // --------------------------------------------------------------------------
     //
@@ -66,46 +63,11 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
 
         key = aesKeyGen.generateKey();
 
-        /*
-         * Try constructing a javax.crypto.spec.GCMParameterSpec instance (Java
-         * 7+)
-         */
-
-        try {
-            classGCMParameterSpec = Class.forName("javax.crypto.spec.GCMParameterSpec");
-            ctorGCMParameterSpec = classGCMParameterSpec
-                    .getConstructor(new Class[] {int.class, byte[].class});
-        } catch (Exception e) {
-            /*
-             * Differ to "System.out.println("Unexpected exception: ");", below
-             */
-        }
-
-        /*
-         * Try constructing an ibm.security.internal.spec.GCMParameterSpec
-         * instance (IBM Java 6)
-         */
-
-        if (ctorGCMParameterSpec == null) {
-            try {
-                classGCMParameterSpec = Class
-                        .forName("ibm.security.internal.spec.GCMParameterSpec");
-                ctorGCMParameterSpec = classGCMParameterSpec
-                        .getConstructor(new Class[] {int.class, byte[].class});
-            } catch (Exception e) {
-                /*
-                 * Differ to "System.out.println("Unexpected exception: ");",
-                 * below
-                 */
-            }
-        }
-
         byte[] iv = new byte[16];// com.ibm.crypto.plus.provider.AESConstants.AES_BLOCK_SIZE];
         SecureRandom rnd = new java.security.SecureRandom();
         rnd.nextBytes(iv);
 
-        aParamSpec = (AlgorithmParameterSpec) ctorGCMParameterSpec.newInstance(DEFAULT_TAG_LENGTH,
-                iv);
+        aParamSpec = new javax.crypto.spec.GCMParameterSpec(DEFAULT_TAG_LENGTH, iv);
         aParams = AlgorithmParameters.getInstance("AESGCM", providerName);
         aParams.init(aParamSpec);
     }
@@ -232,7 +194,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
         /* Save the algorithm parameters used to do the encryption */
 
         AlgorithmParameters ap = cipherEncrypt.getParameters();
-        AlgorithmParameterSpec apSpec = ap.getParameterSpec(classGCMParameterSpec);
+        AlgorithmParameterSpec apSpec = ap.getParameterSpec(aParamSpec.getClass());
 
         /* Do the decryption using the internally generated IV */
 

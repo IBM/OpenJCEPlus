@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -19,13 +19,11 @@ import javax.crypto.spec.ChaCha20ParameterSpec;
  */
 public final class ChaCha20Parameters extends AlgorithmParametersSpi implements ChaCha20Constants {
 
-    private OpenJCEPlusProvider provider = null;
-
     private byte[] nonce;
     int counter;
 
-    public ChaCha20Parameters(OpenJCEPlusProvider provider) {
-        this.provider = provider;
+    public ChaCha20Parameters() {
+        super();
     }
 
     @Override
@@ -39,7 +37,7 @@ public final class ChaCha20Parameters extends AlgorithmParametersSpi implements 
             throw new InvalidParameterSpecException(
                     "Nonce not " + ChaCha20_NONCE_SIZE + " bytes long");
         }
-        this.nonce = (byte[]) nonce.clone();
+        this.nonce = nonce.clone();
 
         this.counter = ((ChaCha20ParameterSpec) paramSpec).getCounter();
     }

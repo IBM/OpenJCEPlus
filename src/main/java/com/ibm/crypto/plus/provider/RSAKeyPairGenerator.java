@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -31,24 +31,7 @@ abstract class RSAKeyPairGenerator extends KeyPairGeneratorSpi {
     private KeyType type = RSAUtil.KeyType.RSA;
     private AlgorithmId rsaId;
 
-
-    public RSAKeyPairGenerator(OpenJCEPlusProvider provider) {
-        this.provider = provider;
-        this.type = KeyType.RSA;
-        this.keysize = DEF_RSA_KEY_SIZE;
-    }
-
-    public RSAKeyPairGenerator(OpenJCEPlusProvider provider, KeyType type) {
-        this.provider = provider;
-        this.type = type;
-        if (type == KeyType.RSA) {
-            this.keysize = DEF_RSA_KEY_SIZE;
-        } else {
-            this.keysize = DEF_RSASSA_PSS_KEY_SIZE;
-        }
-    }
-
-    public RSAKeyPairGenerator(OpenJCEPlusProvider provider, KeyType type, int keySize) {
+    RSAKeyPairGenerator(OpenJCEPlusProvider provider, KeyType type, int keySize) {
         this.provider = provider;
         this.type = type;
         this.keysize = keySize;
