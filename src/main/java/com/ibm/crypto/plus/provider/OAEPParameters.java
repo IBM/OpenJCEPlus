@@ -150,7 +150,7 @@ public final class OAEPParameters extends AlgorithmParametersSpi {
 
     protected <T extends AlgorithmParameterSpec> T engineGetParameterSpec(Class<T> paramSpec)
             throws InvalidParameterSpecException {
-        if (OAEPParameterSpec.class.isAssignableFrom(paramSpec)) {
+        if (paramSpec.isAssignableFrom(OAEPParameterSpec.class)) {
             return paramSpec.cast(
                     new OAEPParameterSpec(mdName, "MGF1", mgfSpec, new PSource.PSpecified(p)));
         } else {

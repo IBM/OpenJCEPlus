@@ -257,11 +257,11 @@ public class RSAKeyFactory extends KeyFactorySpi {
                 // Determine valid key specs
                 Class<?> rsaPubKeySpec = Class.forName("java.security.spec.RSAPublicKeySpec");
                 Class<?> x509KeySpec = Class.forName("java.security.spec.X509EncodedKeySpec");
-                if (rsaPubKeySpec.isAssignableFrom(keySpec)) {
+                if (keySpec.isAssignableFrom(rsaPubKeySpec)) {
                     java.security.interfaces.RSAPublicKey rsaPubKey = (java.security.interfaces.RSAPublicKey) key;
                     return keySpec.cast(new RSAPublicKeySpec(rsaPubKey.getModulus(),
                             rsaPubKey.getPublicExponent(), rsaPubKey.getParams()));
-                } else if (x509KeySpec.isAssignableFrom(keySpec)) {
+                } else if (keySpec.isAssignableFrom(x509KeySpec)) {
                     return keySpec.cast(new X509EncodedKeySpec(key.getEncoded()));
                 } else {
                     throw new InvalidKeySpecException("Inappropriate key specification");
@@ -278,9 +278,9 @@ public class RSAKeyFactory extends KeyFactorySpi {
                             rsaPrivCrtKey.getPrimeExponentP(), rsaPrivCrtKey.getPrimeExponentQ(),
                             rsaPrivCrtKey.getCrtCoefficient(), rsaPrivCrtKey.getParams()));
 
-                } else if (pkcs8KeySpec.isAssignableFrom(keySpec)) {
+                } else if (keySpec.isAssignableFrom(pkcs8KeySpec)) {
                     return keySpec.cast(new PKCS8EncodedKeySpec(key.getEncoded()));
-                } else if (rsaPrivKeySpec.isAssignableFrom(keySpec)) {
+                } else if (keySpec.isAssignableFrom(rsaPrivKeySpec)) {
                     java.security.interfaces.RSAPrivateKey rsaPrivKey = (java.security.interfaces.RSAPrivateKey) key;
                     return keySpec.cast(new RSAPrivateKeySpec(rsaPrivKey.getModulus(),
                             rsaPrivKey.getPrivateExponent(), rsaPrivKey.getParams()));
@@ -291,11 +291,11 @@ public class RSAKeyFactory extends KeyFactorySpi {
                 // Determine valid key specs
                 Class<?> rsaPrivKeySpec = Class.forName("java.security.spec.RSAPrivateKeySpec");
                 Class<?> pkcs8KeySpec = Class.forName("java.security.spec.PKCS8EncodedKeySpec");
-                if (rsaPrivKeySpec.isAssignableFrom(keySpec)) {
+                if (keySpec.isAssignableFrom(rsaPrivKeySpec)) {
                     java.security.interfaces.RSAPrivateKey rsaPrivKey = (java.security.interfaces.RSAPrivateKey) key;
                     return keySpec.cast(new RSAPrivateKeySpec(rsaPrivKey.getModulus(),
                             rsaPrivKey.getPrivateExponent(), rsaPrivKey.getParams()));
-                } else if (pkcs8KeySpec.isAssignableFrom(keySpec)) {
+                } else if (keySpec.isAssignableFrom(pkcs8KeySpec)) {
                     return keySpec.cast(new PKCS8EncodedKeySpec(key.getEncoded()));
                 } else {
                     throw new InvalidKeySpecException("Inappropriate key specification");

@@ -90,7 +90,7 @@ public final class DHParameters extends AlgorithmParametersSpi implements java.i
             throws InvalidParameterSpecException {
         try {
             Class<?> dhParamSpec = Class.forName("javax.crypto.spec.DHParameterSpec");
-            if (dhParamSpec.isAssignableFrom(paramSpec)) {
+            if (paramSpec.isAssignableFrom(dhParamSpec)) {
                 return paramSpec.cast(new DHParameterSpec(this.p, this.g, this.l));
             } else {
                 throw new InvalidParameterSpecException("Inappropriate parameter Specification");
