@@ -139,13 +139,13 @@ public final class DHKeyFactory extends KeyFactorySpi {
                 Class<?> dhPubKeySpec = Class.forName("javax.crypto.spec.DHPublicKeySpec");
                 Class<?> x509KeySpec = Class.forName("java.security.spec.X509EncodedKeySpec");
 
-                if (dhPubKeySpec.isAssignableFrom(keySpec)) {
+                if (keySpec.isAssignableFrom(dhPubKeySpec)) {
                     javax.crypto.interfaces.DHPublicKey dhPubKey = (javax.crypto.interfaces.DHPublicKey) key;
                     params = dhPubKey.getParams();
                     return keySpec.cast(
                             new DHPublicKeySpec(dhPubKey.getY(), params.getP(), params.getG()));
 
-                } else if (x509KeySpec.isAssignableFrom(keySpec)) {
+                } else if (keySpec.isAssignableFrom(x509KeySpec)) {
                     return keySpec.cast(new X509EncodedKeySpec(key.getEncoded()));
 
                 } else {
@@ -158,13 +158,13 @@ public final class DHKeyFactory extends KeyFactorySpi {
                 Class<?> dhPrivKeySpec = Class.forName("javax.crypto.spec.DHPrivateKeySpec");
                 Class<?> pkcs8KeySpec = Class.forName("java.security.spec.PKCS8EncodedKeySpec");
 
-                if (dhPrivKeySpec.isAssignableFrom(keySpec)) {
+                if (keySpec.isAssignableFrom(dhPrivKeySpec)) {
                     javax.crypto.interfaces.DHPrivateKey dhPrivKey = (javax.crypto.interfaces.DHPrivateKey) key;
                     params = dhPrivKey.getParams();
                     return keySpec.cast(
                             new DHPrivateKeySpec(dhPrivKey.getX(), params.getP(), params.getG()));
 
-                } else if (pkcs8KeySpec.isAssignableFrom(keySpec)) {
+                } else if (keySpec.isAssignableFrom(pkcs8KeySpec)) {
                     return keySpec.cast(new PKCS8EncodedKeySpec(key.getEncoded()));
 
                 } else {

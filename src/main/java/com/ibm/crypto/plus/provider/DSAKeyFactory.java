@@ -121,13 +121,13 @@ public final class DSAKeyFactory extends KeyFactorySpi {
                 Class<?> dsaPubKeySpec = Class.forName("java.security.spec.DSAPublicKeySpec");
                 Class<?> x509KeySpec = Class.forName("java.security.spec.X509EncodedKeySpec");
 
-                if (dsaPubKeySpec.isAssignableFrom(keySpec)) {
+                if (keySpec.isAssignableFrom(dsaPubKeySpec)) {
                     java.security.interfaces.DSAPublicKey dsaPubKey = (java.security.interfaces.DSAPublicKey) key;
                     params = dsaPubKey.getParams();
                     return keySpec.cast(new DSAPublicKeySpec(dsaPubKey.getY(), params.getP(),
                             params.getQ(), params.getG()));
 
-                } else if (x509KeySpec.isAssignableFrom(keySpec)) {
+                } else if (keySpec.isAssignableFrom(x509KeySpec)) {
                     return keySpec.cast(new X509EncodedKeySpec(key.getEncoded()));
 
                 } else {
@@ -140,13 +140,13 @@ public final class DSAKeyFactory extends KeyFactorySpi {
                 Class<?> dsaPrivKeySpec = Class.forName("java.security.spec.DSAPrivateKeySpec");
                 Class<?> pkcs8KeySpec = Class.forName("java.security.spec.PKCS8EncodedKeySpec");
 
-                if (dsaPrivKeySpec.isAssignableFrom(keySpec)) {
+                if (keySpec.isAssignableFrom(dsaPrivKeySpec)) {
                     java.security.interfaces.DSAPrivateKey dsaPrivKey = (java.security.interfaces.DSAPrivateKey) key;
                     params = dsaPrivKey.getParams();
                     return keySpec.cast(new DSAPrivateKeySpec(dsaPrivKey.getX(), params.getP(),
                             params.getQ(), params.getG()));
 
-                } else if (pkcs8KeySpec.isAssignableFrom(keySpec)) {
+                } else if (keySpec.isAssignableFrom(pkcs8KeySpec)) {
                     return keySpec.cast(new PKCS8EncodedKeySpec(key.getEncoded()));
 
                 } else {
