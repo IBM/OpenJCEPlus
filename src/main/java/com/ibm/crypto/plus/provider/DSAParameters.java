@@ -95,7 +95,7 @@ public final class DSAParameters extends AlgorithmParametersSpi {
             throws InvalidParameterSpecException {
         try {
             Class<?> dsaParamSpec = Class.forName("java.security.spec.DSAParameterSpec");
-            if (dsaParamSpec.isAssignableFrom(paramSpec)) {
+            if (paramSpec.isAssignableFrom(dsaParamSpec)) {
                 return paramSpec.cast(new DSAParameterSpec(this.p, this.q, this.g));
             } else {
                 throw new InvalidParameterSpecException("Inappropriate parameter Specification");
