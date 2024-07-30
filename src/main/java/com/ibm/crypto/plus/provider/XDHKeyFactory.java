@@ -126,7 +126,7 @@ class XDHKeyFactory extends KeyFactorySpi {
                 Class<?> xecPubKeySpec = Class.forName("java.security.spec.XECPublicKeySpec");
                 Class<?> x509KeySpec = Class.forName("java.security.spec.X509EncodedKeySpec");
 
-                if (xecPubKeySpec.isAssignableFrom(keySpec)) {
+                if (keySpec.isAssignableFrom(xecPubKeySpec)) {
                     XECPublicKey xecPubKey = (XECPublicKey) key;
                     params = xecPubKey.getParams();
 
@@ -138,7 +138,7 @@ class XDHKeyFactory extends KeyFactorySpi {
 
                     BigInteger u = xecPubKey.getU();
                     return keySpec.cast(new XECPublicKeySpec(params, u));
-                } else if (x509KeySpec.isAssignableFrom(keySpec))
+                } else if (keySpec.isAssignableFrom(x509KeySpec))
                     return keySpec.cast(new X509EncodedKeySpec(key.getEncoded()));
                 else
                     throw new InvalidKeySpecException("Inappropriate key specification");
@@ -149,7 +149,7 @@ class XDHKeyFactory extends KeyFactorySpi {
                 Class<?> xecPrivKeySpec = Class.forName("java.security.spec.XECPrivateKeySpec");
                 Class<?> pkcs8KeySpec = Class.forName("java.security.spec.PKCS8EncodedKeySpec");
 
-                if (xecPrivKeySpec.isAssignableFrom(keySpec)) {
+                if (keySpec.isAssignableFrom(xecPrivKeySpec)) {
                     XECPrivateKey xecPrivKey = (XECPrivateKey) key;
                     params = xecPrivKey.getParams();
 
@@ -161,7 +161,7 @@ class XDHKeyFactory extends KeyFactorySpi {
 
                     Optional<byte[]> scalar = xecPrivKey.getScalar();
                     return keySpec.cast(new XECPrivateKeySpec(params, scalar.get()));
-                } else if (pkcs8KeySpec.isAssignableFrom(keySpec))
+                } else if (keySpec.isAssignableFrom(pkcs8KeySpec))
                     return keySpec.cast(new PKCS8EncodedKeySpec(key.getEncoded()));
                 else
                     throw new InvalidKeySpecException("Inappropriate key specification");
