@@ -146,7 +146,7 @@ public final class CCMParameters extends AlgorithmParametersSpi
     @Override
     protected <T extends AlgorithmParameterSpec> T engineGetParameterSpec(Class<T> paramSpec)
             throws InvalidParameterSpecException {
-        if (CCMParameterSpec.class.isAssignableFrom(paramSpec)) {
+        if (paramSpec.isAssignableFrom(CCMParameterSpec.class)) {
             if (initialized == true) {
                 CCMParameterSpec tmpSpec = new CCMParameterSpec(this.tagLen, this.iv);
                 return paramSpec.cast(tmpSpec);

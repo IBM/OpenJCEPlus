@@ -73,7 +73,7 @@ public final class ChaCha20Poly1305Parameters extends AlgorithmParametersSpi
             throws InvalidParameterSpecException {
         try {
             Class<?> ivParamSpec = Class.forName("javax.crypto.spec.IvParameterSpec");
-            if (ivParamSpec.isAssignableFrom(paramSpec)) {
+            if (paramSpec.isAssignableFrom(ivParamSpec)) {
                 return paramSpec.cast(new IvParameterSpec(this.nonce));
             } else {
                 throw new InvalidParameterSpecException("Inappropriate parameter specification");
