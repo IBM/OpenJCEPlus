@@ -411,7 +411,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
                 oidSeq.putOID(this.algid.getOID());
                 if ((oidSubSeq != null)) {
                     oidSeq.write(DerValue.tag_Sequence, oidSubSeq);
-                } else {
+                } else if (Integer.parseInt(provider.getJavaVersionStr()) <= 11) {
                     // Encode as old J8 format
                     // Sun old versions, 11 and before, are not supporting new XDH format,
                     // otherwise, it causes interop issue -> Ex. J11#1834
