@@ -1,7 +1,7 @@
 <!--
 ###############################################################################
 #
-# Copyright IBM Corp. 2023
+# Copyright IBM Corp. 2023, 2024
 #
 # Licensed under the Apache License 2.0 (the "License").  You may not use
 # this file except in compliance with the License.  You can obtain a copy
@@ -114,6 +114,116 @@
                 <jdk.build.target>22</jdk.build.target>
             </properties>
           </profile>
+          <!--
+          Profile expected to be active most of the time whenever testing what was produced by
+          this project. This includes the providers built and local test artifacts.
+          -->
+          <profile>
+            <id>Profile for testing code built by this mvn project</id>
+            <activation>
+              <property>
+                <name>testenvironment</name>
+                <value>!standalonebundled</value>
+              </property>
+            </activation>
+            <properties>
+              <test.compilation.export.target>openjceplus</test.compilation.export.target>
+            </properties>
+            <build>
+              <plugins>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <version>3.3.0</version>
+                  <configuration>
+                    <useModulePath>false</useModulePath>
+                    <!-- Could add -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:8787 for debug -->
+                    <argLine>
+                      @{argLine}
+                      --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
+                      --add-exports=java.base/sun.security.internal.spec=openjceplus
+                      --add-exports=java.base/sun.security.util=openjceplus
+                      --add-exports=java.base/sun.security.internal.interfaces=openjceplus
+                      --add-exports=java.base/sun.security.x509=openjceplus
+                      --add-exports=java.base/sun.security.pkcs=openjceplus
+                      --add-exports=java.base/sun.security.internal.spec=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.util=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.internal.interfaces=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.x509=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.pkcs=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.base.memstress=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.memstress=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.multithread=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.integration=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.multithread=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.integration=ALL-UNNAMED
+                    </argLine>
+                    <trimStackTrace>false</trimStackTrace>
+                    <systemPropertyVariables>
+                      <jgskit.library.path>${build.target.jgskitlib.dir}</jgskit.library.path>
+                      <!--java.security.auth.debug>all</java.security.auth.debug-->
+                    </systemPropertyVariables>
+                    <includes>
+                      <include>
+                        **/ibm/jceplus/junit/TestIntegration.java,
+                        **/ibm/jceplus/junit/TestAll.java,
+                        **/ibm/jceplus/junit/TestMemStressAll.java,
+                        **/ibm/jceplus/junit/TestMultithread.java,
+                        **/ibm/jceplus/junit/TestMultithreadFIPS.java
+                      </include>
+                    </includes>
+                  </configuration>
+                </plugin>
+              </plugins>
+            </build>
+          </profile>
+          <!--
+          Profile expected to be active when testing OpenJCEPlus that is contained within 
+          a bundled SDK. A provider built by the project locally is not tested in this case,
+          instead the one within the SDK is tested.
+          -->
+          <profile>
+            <id>Profile for testing SDKs that contain bundled OpenJCEPlus binaries</id>
+            <activation>
+              <property>
+                <name>testenvironment</name>
+                <value>standalonebundled</value>
+              </property>
+            </activation>
+            <properties>
+              <test.compilation.export.target>ALL-UNNAMED</test.compilation.export.target>
+            </properties>
+            <build>
+              <plugins>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <version>3.3.0</version>
+                  <configuration>
+                    <useModulePath>false</useModulePath>
+                    <trimStackTrace>false</trimStackTrace>
+                    <argLine>
+                      --add-exports openjceplus/com.ibm.crypto.plus.provider.ock=ALL-UNNAMED
+                      --add-exports java.base/sun.security.util=ALL-UNNAMED
+                    </argLine>
+                    <includes>
+                      <include>
+                        **/ibm/jceplus/junit/TestIntegration.java,
+                        **/ibm/jceplus/junit/TestAll.java,
+                        **/ibm/jceplus/junit/TestMemStressAll.java,
+                        **/ibm/jceplus/junit/TestMultithread.java,
+                        **/ibm/jceplus/junit/TestMultithreadFIPS.java
+                      </include>
+                    </includes>
+                  </configuration>
+                </plugin>
+              </plugins>
+            </build>
+          </profile>
         </profiles>
     <build>
         <finalName>openjceplus</finalName> <!-- This is the name we want the JAR to have. -->
@@ -219,17 +329,29 @@
                         <arg>--add-exports </arg> 
                         <arg>java.base/sun.security.internal.spec=openjceplus</arg>
                         <arg>--add-exports </arg> 
-                        <arg>java.base/sun.security.util=openjceplus</arg>
+                        <arg>java.base/sun.security.util=${test.compilation.export.target}</arg>
                         <arg>--add-exports </arg> 
-                        <arg>java.base/sun.security.x509=openjceplus</arg>
+                        <arg>java.base/sun.security.x509=${test.compilation.export.target}</arg>
                         <arg>--add-exports </arg> 
-                        <arg>java.base/sun.security.pkcs=openjceplus</arg>
+                        <arg>java.base/sun.security.pkcs=${test.compilation.export.target}</arg>
                         <arg>--add-exports </arg> 
                         <arg>java.base/sun.security.internal.interfaces=openjceplus</arg>
                         <arg>--add-exports </arg>
                         <arg>java.base/sun.util.logging=openjceplus</arg>
                         <arg>--add-exports </arg>
                         <arg>java.base/jdk.internal.logger=openjceplus</arg>
+                        <!--
+                        Exports statements below this line are necessary for
+                        compiling only the test source with target `test-compile`.
+                        When compiling only the tests, using an SDK that contains
+                        a bundled version of OpenJCEPlus, the packages com.ibm.misc and
+                        com.ibm.crypto.plus.provider.ock must be explictly exported
+                        for unit testing purposes for the tests to compile.
+                        -->
+                        <arg>--add-exports </arg>
+                        <arg>openjceplus/com.ibm.misc=ALL-UNNAMED</arg>
+                        <arg>--add-exports </arg>
+                        <arg>openjceplus/com.ibm.crypto.plus.provider.ock=ALL-UNNAMED</arg>
                     </compilerArgs>
                     <fork>true</fork>
                     <debug>true</debug>  
@@ -336,57 +458,6 @@
                 </includes>
             </resource>
         </resources>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <version>3.3.0</version>
-                  <configuration>
-                    <useModulePath>false</useModulePath>
-                    <!-- Could add -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:8787 for debug -->
-                    <argLine>
-                      @{argLine}
-                      --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
-                      --add-exports=java.base/sun.security.internal.spec=openjceplus
-                      --add-exports=java.base/sun.security.util=openjceplus
-                      --add-exports=java.base/sun.security.internal.interfaces=openjceplus
-                      --add-exports=java.base/sun.security.x509=openjceplus
-                      --add-exports=java.base/sun.security.pkcs=openjceplus
-                      --add-exports=java.base/sun.security.internal.spec=ALL-UNNAMED
-                      --add-exports=java.base/sun.security.util=ALL-UNNAMED
-                      --add-exports=java.base/sun.security.internal.interfaces=ALL-UNNAMED
-                      --add-exports=java.base/sun.security.x509=ALL-UNNAMED
-                      --add-exports=java.base/sun.security.pkcs=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.base.memstress=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.memstress=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.multithread=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.integration=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.multithread=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.integration=ALL-UNNAMED
-                    </argLine>
-                    <trimStackTrace>false</trimStackTrace>
-                    <systemPropertyVariables>
-                      <jgskit.library.path>${build.target.jgskitlib.dir}</jgskit.library.path>
-                      <!--java.security.auth.debug>all</java.security.auth.debug-->
-                    </systemPropertyVariables>
-                    <includes>
-                      <include>
-                        **/ibm/jceplus/junit/TestIntegration.java,
-                        **/ibm/jceplus/junit/TestAll.java,
-                        **/ibm/jceplus/junit/TestMemStressAll.java,
-                        **/ibm/jceplus/junit/TestMultithread.java,
-                        **/ibm/jceplus/junit/TestMultithreadFIPS.java
-                      </include>
-                    </includes>
-                  </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
     </build>
 
     <dependencyManagement>
