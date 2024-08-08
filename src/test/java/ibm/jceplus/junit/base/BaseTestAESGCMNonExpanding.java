@@ -31,7 +31,6 @@ import org.junit.Assume;
 public class BaseTestAESGCMNonExpanding extends BaseTest {
 
     private static final String ALGORITHM = "AES";
-    private static final String PROVIDER = "OpenJCEPlus"; //"SunJCE";
     private static final String[] MODES = {"GCM"};
     private static final String PADDING = "NoPadding";
     protected int specifiedKeySize = 128;
@@ -64,9 +63,9 @@ public class BaseTestAESGCMNonExpanding extends BaseTest {
             byte[] plainText = new byte[128];
             rdm.nextBytes(plainText);
 
-            ci = Cipher.getInstance(algo + "/" + mo + "/" + pad, PROVIDER);
+            ci = Cipher.getInstance(algo + "/" + mo + "/" + pad, providerName);
 
-            KeyGenerator kg = KeyGenerator.getInstance(algo, PROVIDER);
+            KeyGenerator kg = KeyGenerator.getInstance(algo, providerName);
             kg.init(specifiedKeySize);
             key = kg.generateKey();
 

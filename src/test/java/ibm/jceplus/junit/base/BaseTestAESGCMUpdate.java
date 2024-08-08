@@ -1204,7 +1204,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
 
     public void testMultipleUpdateWithoutAllocatingExternalBuffer19() throws Exception {
 
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", providerName);
         keyGenerator.init(16 * 8);
 
         // Generate Key
@@ -1239,7 +1239,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         // Get Cipher Instance
         Cipher cipher = null;
         try {
-            cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
             // Create SecretKeySpec
             SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
@@ -1287,7 +1287,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
     public byte[] doMultipleUpdateWithoutAllocatingExternalBufferDecrypt(byte[] cipherText,
             SecretKey key, byte[] IV) throws Exception {
         // Get Cipher Instance
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
         // Create SecretKeySpec
         SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
