@@ -721,7 +721,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
      */
     protected <T extends AlgorithmParameterSpec> T engineGetParameterSpec(Class<T> paramSpecClass)
             throws InvalidParameterSpecException {
-        if (java.security.spec.PSSParameterSpec.class.isAssignableFrom(paramSpecClass)) {
+        if (paramSpecClass.isAssignableFrom(java.security.spec.PSSParameterSpec.class)) {
             return paramSpecClass.cast(new PSSParameterSpec(this.hashAlgorithm.getName(),
                                                             this.maskGenAlgorithm.getName(),
                                                             this.mgfParameterSpec,

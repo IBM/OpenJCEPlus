@@ -84,7 +84,7 @@ public final class AESKeyFactory extends SecretKeyFactorySpi {
                 && (key.getFormat().equalsIgnoreCase("RAW"))) {
 
             // Check if requested key spec is amongst the valid ones
-            if (SecretKeySpec.class.isAssignableFrom(keySpec)) {
+            if (keySpec.isAssignableFrom(SecretKeySpec.class)) {
                 return new SecretKeySpec(key.getEncoded(), key.getAlgorithm());
             } else {
                 throw new InvalidKeySpecException("Inappropriate key specification");
