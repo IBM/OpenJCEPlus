@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,13 +10,17 @@ package ibm.jceplus.junit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -68,9 +72,11 @@ public class TestMultithreadFIPS extends TestCase {
 
     public TestMultithreadFIPS() {}
 
-    private void assertConcurrent(final String message, final Runnable runnable,
+    private boolean assertConcurrent(final String message, final Callable<List<Failure>> callable,
             final int maxTimeoutSeconds) throws InterruptedException {
+        boolean failed = false;
         final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<Throwable>());
+        final List<Failure> failures = Collections.synchronizedList(new ArrayList<Failure>());
         final ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
         try {
             final CountDownLatch allExecutorThreadsReady = new CountDownLatch(numThreads);
@@ -82,7 +88,7 @@ public class TestMultithreadFIPS extends TestCase {
                         allExecutorThreadsReady.countDown();
                         try {
                             afterInitBlocker.await();
-                            runnable.run();
+                            failures.addAll(callable.call());
                         } catch (final Throwable e) {
                             exceptions.add(e);
                         } finally {
@@ -102,10 +108,22 @@ public class TestMultithreadFIPS extends TestCase {
         } finally {
             threadPool.shutdownNow();
         }
-        assertTrue(message + "failed with exception(s)" + exceptions, exceptions.isEmpty());
+        if (!exceptions.isEmpty()) {
+            for (Throwable t : exceptions) {
+                t.printStackTrace();
+            }
+        }
+        failed = !exceptions.isEmpty();
+
+        for (Failure failure : failures) {
+            failure.getException().printStackTrace();
+        }
+        failed = !failures.isEmpty();
+
+        return failed;
     }
 
-    private Runnable testToRunnable(String classAndMethod) {
+    private Callable<List<Failure>> testToCallable(String classAndMethod) {
         String[] classAndMethodList = classAndMethod.split("#");
         try {
             Request request = null;
@@ -116,10 +134,10 @@ public class TestMultithreadFIPS extends TestCase {
                 request = Request.aClass(Class.forName(classAndMethodList[0]));
             }
             final Request myrequest = request;
-            return new Runnable() {
-                public void run() {
+            return new Callable<List<Failure>>() {
+                public List<Failure> call() {
                     Result result = new JUnitCore().run(myrequest);
-                    assertTrue(result.getFailureCount()== 0);
+                    return result.getFailures();
                 }
             };
         } catch (ClassNotFoundException ex) {
@@ -131,16 +149,25 @@ public class TestMultithreadFIPS extends TestCase {
     public void testMultithreadFIPS() {
         System.out.println("#threads=" + numThreads + " timeout=" + timeoutSec);
 
+        List<String> failedTests = new ArrayList<>();
+
         for (String test : testList) {
             try {
                 System.out.println("Test calling: " + test);
 
-                assertConcurrent("Test failed: " + test, testToRunnable(test), timeoutSec);
+                boolean failed = assertConcurrent("Test failed: " + test, testToCallable(test), timeoutSec);
+                if (failed) {
+                    failedTests.add(test);
+                }
 
             } catch (InterruptedException e) {
                 //System.out.println("Test interrupted: " + e);
             }
             System.out.println("Test finished: " + test);
+            if (!failedTests.isEmpty()) {
+                String allFailedTests = String.join("\n\t", failedTests);
+                fail("Failed tests:\n\t" + allFailedTests);
+            }
         }
     }
 
