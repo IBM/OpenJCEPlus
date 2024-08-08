@@ -100,7 +100,7 @@ public final class GCMParameters extends AlgorithmParametersSpi
     @Override
     protected <T extends AlgorithmParameterSpec> T engineGetParameterSpec(Class<T> paramSpec)
             throws InvalidParameterSpecException {
-        if (GCMParameterSpec.class.isAssignableFrom(paramSpec)) {
+        if (paramSpec.isAssignableFrom(GCMParameterSpec.class)) {
             if (authenticationData != null) {
                 // create one with authenticationData
                 if (tagLen != -1) {
