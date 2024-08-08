@@ -79,7 +79,7 @@ public final class AESParameters extends AlgorithmParametersSpi {
             throws InvalidParameterSpecException {
         try {
             Class<?> ivParamSpec = Class.forName("javax.crypto.spec.IvParameterSpec");
-            if (ivParamSpec.isAssignableFrom(paramSpec)) {
+            if (paramSpec.isAssignableFrom(ivParamSpec)) {
                 return paramSpec.cast(new IvParameterSpec(this.iv));
             } else {
                 throw new InvalidParameterSpecException("Inappropriate parameter specification");
