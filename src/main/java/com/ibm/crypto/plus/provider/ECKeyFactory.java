@@ -99,12 +99,12 @@ public final class ECKeyFactory extends KeyFactorySpi {
                 Class<?> ecPubKeySpec = Class.forName("java.security.spec.ECPublicKeySpec");
                 Class<?> x509KeySpec = Class.forName("java.security.spec.X509EncodedKeySpec");
 
-                if (ecPubKeySpec.isAssignableFrom(keySpec)) {
+                if (keySpec.isAssignableFrom(ecPubKeySpec)) {
                     java.security.interfaces.ECPublicKey ecPubKey = (java.security.interfaces.ECPublicKey) key;
 
                     return keySpec.cast(new ECPublicKeySpec(ecPubKey.getW(), ecPubKey.getParams()));
 
-                } else if (x509KeySpec.isAssignableFrom(keySpec)) {
+                } else if (keySpec.isAssignableFrom(x509KeySpec)) {
                     return keySpec.cast(new X509EncodedKeySpec(key.getEncoded()));
 
                 } else {
@@ -117,12 +117,12 @@ public final class ECKeyFactory extends KeyFactorySpi {
                 Class<?> ecPrivKeySpec = Class.forName("java.security.spec.ECPrivateKeySpec");
                 Class<?> pkcs8KeySpec = Class.forName("java.security.spec.PKCS8EncodedKeySpec");
 
-                if (ecPrivKeySpec.isAssignableFrom(keySpec)) {
+                if (keySpec.isAssignableFrom(ecPrivKeySpec)) {
                     java.security.interfaces.ECPrivateKey ecPrivKey = (java.security.interfaces.ECPrivateKey) key;
                     return keySpec
                             .cast(new ECPrivateKeySpec(ecPrivKey.getS(), ecPrivKey.getParams()));
 
-                } else if (pkcs8KeySpec.isAssignableFrom(keySpec)) {
+                } else if (keySpec.isAssignableFrom(pkcs8KeySpec)) {
                     return keySpec.cast(new PKCS8EncodedKeySpec(key.getEncoded()));
 
                 } else {
