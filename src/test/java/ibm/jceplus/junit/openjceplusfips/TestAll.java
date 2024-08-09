@@ -7,15 +7,10 @@
  */
 
 package ibm.jceplus.junit.openjceplusfips;
+import org.junit.platform.suite.api.Suite;
+import org.junit.platform.suite.api.SelectClasses;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-
-import junit.framework.JUnit4TestAdapter;
-import junit.framework.Test;
-
-@RunWith(Suite.class)
-@Suite.SuiteClasses({TestAES.class, TestAES_128.class, TestAES256Interop.class, TestAESCCM.class,
+@SelectClasses({TestAES.class, TestAES_128.class, TestAES256Interop.class, TestAESCCM.class,
         TestAESCCM2.class, TestAESCCMParameters.class, TestAESCCMInteropBC.class, TestAESGCM.class,
         TestAESGCMUpdate.class, TestAESGCM_128.class, TestAESGCM_ExtIV.class,
         TestAESGCM_IntIV.class, TestAESGCMCipherInputStreamExceptions.class,
@@ -41,16 +36,6 @@ import junit.framework.Test;
         TestSHA3_224.class, TestSHA3_256.class, TestSHA3_384.class, TestSHA3_512.class,
         TestRSAKeyInterop.class, TestRSAKeyInteropBC.class, TestRSAPSS2.class,
         TestFIPSVerifyOnlyTest.class, TestRSASignatureWithSpecificSize.class})
-
+@Suite
 public class TestAll {
-
-    public static Test suite() {
-        return new JUnit4TestAdapter(TestAll.class);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
 }
-
