@@ -43,6 +43,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
     private transient Optional<byte[]> scalar;
     private transient NamedParameterSpec params;
     private CURVE curve;
+    private byte[] k; // The raw key bytes, without OctetString or DER encoded
     BigInteger bi1; // parameter used in FFDHE
     BigInteger bi2; // parameter used in FFDHE
     BigInteger bi3; // parameter used in FFDHE
@@ -55,9 +56,10 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
     private transient XECKey xecKey = null;
 
     private void setFieldsFromXeckey() throws Exception {
-        if (this.key == null) {
-            this.key = extractPrivateKeyFromOCK(xecKey.getPrivateKeyBytes()); // Extract key from GSKit and sets params
-            this.scalar = Optional.of(key);
+        if (k == null) {
+            k = extractPrivateKeyFromOCK(xecKey.getPrivateKeyBytes()); // Extract key from GSKit and sets params
+            setPKCS8KeyByte(k);
+            this.scalar = Optional.of(k);
             this.algid = CurveUtil.getAlgId(this.params.getName());
         }
     }
@@ -97,7 +99,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             // to fit with GSKit and sets params
             int encodingSize = CurveUtil.getDEREncodingSize(curve);
             this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded, encodingSize);
-            this.scalar = Optional.of(this.key);
+            this.scalar = Optional.of(k);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");
             provider.setOCKExceptionCause(ike, exception);
@@ -138,9 +140,9 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         this.provider = provider;
         this.scalar = scalar;
         if (scalar != null)
-            this.key = scalar.get();
+            k = scalar.get();
         try {
-            if (this.key == null) {
+            if (k == null) {
                 int keySize = CurveUtil.getCurveSize(curve);
                 this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.curve.ordinal(), keySize);
             } else {
@@ -149,6 +151,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
                 int encodingSize = CurveUtil.getDEREncodingSize(curve);
                 this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der, encodingSize);
             }
+            setPKCS8KeyByte(k);
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
                     "Failed to create XEC private key");
@@ -178,7 +181,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
 
         // Adding Key
         DerOutputStream keyOctetString = new DerOutputStream();
-        keyOctetString.putOctetString(key);
+        keyOctetString.putOctetString(k);
         mainSeq.putOctetString(keyOctetString.toByteArray());
 
         // Wrapping up in a sequence
@@ -316,20 +319,21 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             // XDH private key in SunEC new Java 17 design requires [octet-string[octet-string[key-bytes]]] format,
             // otherwise, it causes interop issue.
             if (isCorrectlyFormedOctetString(keyBytes)) {
-                this.key = derStream.getOctetString(); // We know we are working with the format [octet-string[octet-string[key-bytes]]]
+                k = derStream.getOctetString(); // We know we are working with the format [octet-string[octet-string[key-bytes]]]
             } else {
-                this.key = keyBytes; // Try J11 format [octet-string[key-bytes]]
+                k = keyBytes; // Try J11 format [octet-string[key-bytes]]
             }
         } catch (Exception e) {
             //e.printStackTrace();
-            this.key = keyBytes; // Try J11 format [octet-string[key-bytes]]
+            k = keyBytes; // Try J11 format [octet-string[key-bytes]]
         }
+        setPKCS8KeyByte(k);
         try (DerOutputStream encodedKey = new DerOutputStream()) {
             if (CurveUtil.isFFDHE(this.curve)) {
-                BigInteger octetStringAsBigInt = new BigInteger(this.key);
+                BigInteger octetStringAsBigInt = new BigInteger(k);
                 encodedKey.putInteger(octetStringAsBigInt); // Put in another octet string
             } else {
-                encodedKey.putOctetString(this.key); // Put in another octet string
+                encodedKey.putOctetString(k); // Put in another octet string
             }
             outStream.putOctetString(encodedKey.toByteArray());
         }
@@ -399,7 +403,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         } catch (Exception exception) {
             this.exception = exception;
         }
-        return this.key.clone();
+        return k.clone();
     }
 
     @Override
@@ -491,10 +495,10 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         bytes.write(oidTmp.toByteArray());
 
         // encode encrypted key
-        if (this.key != null) {
+        if (k != null) {
             // XDH private key in SunEC and new Java 17 design requires [octet-string[octer-string[key-bytes]]] format,
             // otherwise, it causes interop issue. JCK issue 569
-            bytes.putOctetString(new DerValue(DerValue.tag_OctetString, this.key).toByteArray());
+            bytes.putOctetString(new DerValue(DerValue.tag_OctetString, k).toByteArray());
         }
 
         // wrap everything into a SEQUENCE
@@ -521,6 +525,8 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         }
         if (!destroyed) {
             destroyed = true;
+            if (k != null)
+                Arrays.fill(k, (byte) 0x00);
             if (this.key != null)
                 Arrays.fill(this.key, (byte) 0x00);
             this.xecKey = null;
@@ -544,5 +550,19 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
 
     protected Object writeReplace() throws java.io.ObjectStreamException {
         return new KeyRep(KeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded());
+    }
+
+    /**
+     * Set the PKCS8Key key object.
+     * 
+     * @param k The raw key bytes, without OctetString or DER encoded.
+     * @throws IOException 
+     */
+    private void setPKCS8KeyByte(byte[] k) throws IOException {
+        if (Integer.parseInt(provider.getJavaVersionStr()) <= 11) {
+            this.key = k;
+        } else {
+            this.key = new DerValue(DerValue.tag_OctetString, k).toByteArray();
+        }
     }
 }
