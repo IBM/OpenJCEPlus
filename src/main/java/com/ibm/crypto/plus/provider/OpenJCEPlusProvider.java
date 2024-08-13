@@ -22,6 +22,8 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
 
     private static final String PROVIDER_VER = System.getProperty("java.specification.version");
 
+    private static final String JAVA_VER = System.getProperty("java.specification.version");
+
     // Are we debugging? -- for developers
     static final boolean debug2 = false;
 
@@ -65,6 +67,12 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
     //
     boolean isFIPS() {
         return getOCKContext().isFIPS();
+    }
+
+    // Return the Java version.
+    //
+    String getJavaVersionStr() {
+        return JAVA_VER;
     }
 
     abstract ProviderException providerException(String message, Throwable ockException);
