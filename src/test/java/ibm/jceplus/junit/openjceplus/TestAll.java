@@ -47,7 +47,7 @@ import junit.framework.TestSuite;
         TestSHA512_224.class, TestSHA512_256.class, TestSHA3_224.class, TestSHA3_256.class,
         TestSHA3_384.class, TestSHA3_512.class, TestRSAKeyInterop.class, TestRSAKeyInteropBC.class,
         TestEdDSASignature.class, TestEdDSASignatureInterop.class, TestXDH.class,
-        TestXDHInterop.class, TestXDHMultiParty.class, TestXDHKeyPairGenerator.class,
+        TestXDHInterop.class, TestXDHInteropBC.class, TestXDHMultiParty.class, TestXDHKeyPairGenerator.class,
         TestXDHKeyImport.class, TestIsAssignableFromOrder.class
 
 })
