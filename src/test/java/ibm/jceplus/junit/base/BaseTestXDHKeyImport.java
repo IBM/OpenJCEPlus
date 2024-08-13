@@ -185,7 +185,7 @@ public class BaseTestXDHKeyImport extends ibm.jceplus.junit.base.BaseTest {
         }
 
         NamedParameterSpec paramSpec = new NamedParameterSpec(alg);
-        KeyFactory kf = KeyFactory.getInstance("XDH");
+        KeyFactory kf = KeyFactory.getInstance("XDH", providerName);
 
         XECPublicKeySpec xdhPublic = new XECPublicKeySpec(paramSpec, u);
         XECPrivateKeySpec xdhPrivate = new XECPrivateKeySpec(paramSpec, scalar);
@@ -206,7 +206,7 @@ public class BaseTestXDHKeyImport extends ibm.jceplus.junit.base.BaseTest {
      * @throws Exception
      */
     void createKeyPairLocalParamImport(String alg) throws Exception {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(alg);
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(alg, providerName);
         //        KeyPairGenerator kpg = KeyPairGenerator.getInstance("XDH");
         NamedParameterSpec paramSpec = new NamedParameterSpec(alg);
         System.out.println("Alg = " + alg);
@@ -216,7 +216,7 @@ public class BaseTestXDHKeyImport extends ibm.jceplus.junit.base.BaseTest {
         PrivateKey pvk = kp.getPrivate();
         PublicKey pbk = kp.getPublic();
 
-        KeyFactory kf = KeyFactory.getInstance(alg);
+        KeyFactory kf = KeyFactory.getInstance(alg, providerName);
         //        KeyFactory kf = KeyFactory.getInstance("XDH");
         XECPublicKeySpec xdhPublic = kf.getKeySpec(kp.getPublic(), XECPublicKeySpec.class);
         XECPrivateKeySpec xdhPrivate = kf.getKeySpec(kp.getPrivate(), XECPrivateKeySpec.class);
@@ -232,7 +232,7 @@ public class BaseTestXDHKeyImport extends ibm.jceplus.junit.base.BaseTest {
         PublicKey pbk2 = kf.generatePublic(xdhPublic);
         PrivateKey pvk2 = kf.generatePrivate(xdhPrivate);
 
-        System.out.println(" pbk =" + BaseUtils.bytesToHex(pbk2.getEncoded()));
+        System.out.println(" pbk = " + BaseUtils.bytesToHex(pbk2.getEncoded()));
         System.out.println(" pbk2 = " + BaseUtils.bytesToHex(pbk.getEncoded()));
 
         // Verify that keys match
