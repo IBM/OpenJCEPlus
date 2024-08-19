@@ -358,18 +358,18 @@ public class BaseTestAESGCMCipherInputStreamExceptions extends BaseTest {
     }
 
     /* Generic method to create encrypted text */
-    static byte[] encryptedText(String mode, int length) throws Exception {
+    byte[] encryptedText(String mode, int length) throws Exception {
         return encryptedText(mode, new byte[length]);
     }
 
     /* Generic method to create encrypted text */
-    static byte[] encryptedText(String mode, byte[] pt) throws Exception {
+    byte[] encryptedText(String mode, byte[] pt) throws Exception {
         Cipher c;
         if (mode.compareTo("GCM") == 0) {
-            c = Cipher.getInstance("AES/GCM/NoPadding", "OpenJCEPlus");
+            c = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             c.init(Cipher.ENCRYPT_MODE, key, gcmspec);
         } else if (mode.compareTo("CBC") == 0) {
-            c = Cipher.getInstance("AES/CBC/NoPadding", "OpenJCEPlus");
+            c = Cipher.getInstance("AES/CBC/NoPadding", providerName);
             c.init(Cipher.ENCRYPT_MODE, key, iv);
         } else {
             return null;
@@ -379,19 +379,19 @@ public class BaseTestAESGCMCipherInputStreamExceptions extends BaseTest {
     }
 
     /* Generic method to get a properly setup CipherInputStream */
-    static CipherInputStream getStream(String mode, byte[] ct) throws Exception {
+    CipherInputStream getStream(String mode, byte[] ct) throws Exception {
         return getStream(mode, ct, ct.length);
     }
 
     /* Generic method to get a properly setup CipherInputStream */
-    static CipherInputStream getStream(String mode, byte[] ct, int length) throws Exception {
+    CipherInputStream getStream(String mode, byte[] ct, int length) throws Exception {
         Cipher c;
 
         if (mode.compareTo("GCM") == 0) {
-            c = Cipher.getInstance("AES/GCM/NoPadding", "OpenJCEPlus");
+            c = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             c.init(Cipher.DECRYPT_MODE, key, gcmspec);
         } else if (mode.compareTo("CBC") == 0) {
-            c = Cipher.getInstance("AES/CBC/NoPadding", "OpenJCEPlus");
+            c = Cipher.getInstance("AES/CBC/NoPadding", providerName);
             c.init(Cipher.DECRYPT_MODE, key, iv);
         } else {
             return null;
