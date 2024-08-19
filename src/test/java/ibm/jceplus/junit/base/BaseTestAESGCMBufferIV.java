@@ -26,7 +26,7 @@ public class BaseTestAESGCMBufferIV extends BaseTest {
 
     protected void setUp() throws Exception {
         keySpec = new SecretKeySpec(new byte[16], "AES");
-        cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
         plaintext = new byte[51];
     }
 
