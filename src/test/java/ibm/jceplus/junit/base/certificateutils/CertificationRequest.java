@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base.certificateutils;
 
+import com.ibm.misc.Debug;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,9 +32,6 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.util.Base64;
 import java.util.Locale;
-
-import com.ibm.misc.Debug;
-
 import sun.security.pkcs.PKCS9Attributes;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;

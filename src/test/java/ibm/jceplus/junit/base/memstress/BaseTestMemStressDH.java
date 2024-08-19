@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTest;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -20,7 +21,6 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
-import ibm.jceplus.junit.base.BaseTest;
 
 public class BaseTestMemStressDH extends BaseTest {
 

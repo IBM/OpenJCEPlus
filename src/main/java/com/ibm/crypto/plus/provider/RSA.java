@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.RSACipher;
+import com.ibm.crypto.plus.provider.ock.RSAPadding;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -29,8 +31,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
-import com.ibm.crypto.plus.provider.ock.RSACipher;
-import com.ibm.crypto.plus.provider.ock.RSAPadding;
 
 public final class RSA extends CipherSpi {
 

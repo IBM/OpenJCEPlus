@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS;
+import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS.InitOp;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
@@ -25,8 +27,6 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.util.Arrays;
 import java.util.Hashtable;
-import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS;
-import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS.InitOp;
 
 /**
  * PKCS#1 RSA-PSS signatures with the various message digest algorithms. This

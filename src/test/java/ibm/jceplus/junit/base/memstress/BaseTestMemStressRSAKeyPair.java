@@ -8,8 +8,8 @@
 
 package ibm.jceplus.junit.base.memstress;
 
-import java.security.KeyPairGenerator;
 import ibm.jceplus.junit.base.BaseTest;
+import java.security.KeyPairGenerator;
 
 public class BaseTestMemStressRSAKeyPair extends BaseTest {
 

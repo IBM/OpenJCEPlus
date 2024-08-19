@@ -7,6 +7,9 @@
  */
 package ibm.jceplus.junit.base;
 
+import ibm.security.internal.spec.HKDFExpandParameterSpec;
+import ibm.security.internal.spec.HKDFExtractParameterSpec;
+import ibm.security.internal.spec.HKDFParameterSpec;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -29,9 +32,6 @@ import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.generators.HKDFBytesGenerator;
 import org.bouncycastle.crypto.params.HKDFParameters;
-import ibm.security.internal.spec.HKDFExpandParameterSpec;
-import ibm.security.internal.spec.HKDFExtractParameterSpec;
-import ibm.security.internal.spec.HKDFParameterSpec;
 
 public class BaseTestHKDFInterop extends BaseTestInterop {
     String HKDF_KA[][] = {

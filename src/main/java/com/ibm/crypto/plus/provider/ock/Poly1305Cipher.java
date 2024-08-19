@@ -8,13 +8,12 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.Poly1305Constants;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.ShortBufferException;
-import com.ibm.crypto.plus.provider.Poly1305Constants;
-
 
 public final class Poly1305Cipher implements Poly1305Constants {
 
