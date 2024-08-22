@@ -8,24 +8,22 @@
 
 package ibm.jceplus.junit.openjceplusfips.multithread;
 
-import ibm.jceplus.junit.base.BaseTestDH;
-import ibm.jceplus.junit.openjceplusfips.Utils;
+import ibm.jceplus.junit.base.BaseTestHmacSHA3_256;
+import ibm.jceplus.junit.openjceplus.Utils;
 
-public class TestDH extends BaseTestDH {
+public class TestHmacSHA3_256 extends ibm.jceplus.junit.base.BaseTestHmacSHA3_256 {
 
     static {
         Utils.loadProviderTestSuite();
     }
 
-    public TestDH() {
+    public TestHmacSHA3_256() {
         super(Utils.TEST_SUITE_PROVIDER_NAME);
-        isMulti = true;
     }
 
-    public void testDH() throws Exception {
-        System.out.println("executing testDH");
-        BaseTestDH bt = new BaseTestDH(providerName);
+    public void testHmacSHA3_256() throws Exception {
+        System.out.println("executing testHmacSHA3_256");
+        BaseTestHmacSHA3_256 bt = new BaseTestHmacSHA3_256(providerName);
         bt.run();
     }
 }
-

@@ -27,6 +27,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertTrue;
 
@@ -299,7 +300,7 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
 
         Signature sig = Signature.getInstance(name, getProviderName());
         sig.initSign(kp.getPrivate());
-        byte[] testMessage = origMsg;
+        byte[] testMessage = Arrays.copyOf(origMsg, origMsg.length);
         sig.update(testMessage);
         byte[] msgSig = sig.sign();
 
