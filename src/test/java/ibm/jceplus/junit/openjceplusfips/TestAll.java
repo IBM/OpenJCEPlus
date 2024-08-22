@@ -19,7 +19,7 @@ import org.junit.platform.suite.api.Suite;
         TestAESGCMSameBuffer.class, TestAESGCMWithByteBuffer.class,
         TestAESGCMCICOWithGCMAndAAD.class, TestAESGCMLong.class, TestAESGCMBufferIV.class,
         TestAliases.class, TestDHKeyPairGenerator.class, TestDH.class, TestDHMultiParty.class,
-        TestDHInteropSunJCE.class, TestDHKeyFactory.class, TestECDH.class,
+        TestDHInteropSunJCE.class, TestDHKeyFactory.class, TestDSAKey.class, TestECDH.class,
         TestECDHInteropSunEC.class, TestECDHMultiParty.class, TestECDSASignature.class,
         TestECDSASignatureInteropSunEC.class, TestECKeyImport.class,
         TestECKeyImportInteropSunEC.class, TestECKeyPairGenerator.class, TestHKDF.class,
