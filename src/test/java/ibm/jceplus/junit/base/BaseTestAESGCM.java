@@ -31,9 +31,6 @@ import javax.crypto.spec.RC5ParameterSpec;
 import org.junit.Assume;
 
 public class BaseTestAESGCM extends BaseTest {
-    // --------------------------------------------------------------------------
-    //
-    //
 
     // 14 bytes: PASSED
     static final byte[] plainText14 = "12345678123456".getBytes();
@@ -88,13 +85,9 @@ public class BaseTestAESGCM extends BaseTest {
     static final byte[] plainText4096 = plainText4096String.getBytes();
     static final byte[] plainText = plainText4096; // default value
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected KeyGenerator aesKeyGen;
     protected SecretKey key;
     protected AlgorithmParameters params = null;
-    protected Cipher cp = null;
     protected boolean success = true;
     protected Method methodCipherUpdateAAD = null;
     protected Constructor<?> ctorGCMParameterSpec = null;
@@ -103,17 +96,10 @@ public class BaseTestAESGCM extends BaseTest {
     byte[] ivBytes = "123456".getBytes();
     byte[] aadBytes = new byte[16];
 
-
-    // --------------------------------------------------------------------------
-    //
-    //
     public BaseTestAESGCM(String providerName) {
         super(providerName);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public BaseTestAESGCM(String providerName, int keySize) throws Exception {
         super(providerName);
         this.specifiedKeySize = keySize;
@@ -121,9 +107,6 @@ public class BaseTestAESGCM extends BaseTest {
         Assume.assumeTrue(javax.crypto.Cipher.getMaxAllowedKeyLength("AES") >= keySize);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void setUp() throws Exception {
         aesKeyGen = KeyGenerator.getInstance("AES", providerName);
         if (specifiedKeySize > 0) {
@@ -171,17 +154,9 @@ public class BaseTestAESGCM extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAES_GCM_encrypt_offset() throws Exception {
         // Test AES GCM - Encrypt Offset by 1
-        cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
         byte[] iv = new byte[16];
         byte[] aad = new byte[16];
@@ -215,12 +190,9 @@ public class BaseTestAESGCM extends BaseTest {
                 byteEqual(plainText, 0, decrypted, 0, plainText.length));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAES_GCM_decrypt_offset() throws Exception {
         // Test AES GCM - Decrypt Offset by 1
-        cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
         byte[] iv = new byte[16];
         byte[] aad = new byte[16];
@@ -253,12 +225,9 @@ public class BaseTestAESGCM extends BaseTest {
                 byteEqual(plainText, 0, decrypted, offset, plainText.length));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAES_GCM_encrypt_large_buffer() throws Exception {
         // Test AES GCM - Encrypting buffer large
-        cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
         byte[] iv = new byte[16];
         byte[] aad = new byte[16];
@@ -286,12 +255,9 @@ public class BaseTestAESGCM extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAES_GCM_decrypt_large_buffer() throws Exception {
         // Test AES GCM - Decrypting buffer large
-        cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
         byte[] iv = new byte[16];
         byte[] aad = new byte[16];
@@ -328,12 +294,9 @@ public class BaseTestAESGCM extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAES_GCM() throws Exception {
         // Test AES GCM Cipher
-        cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
         // Encrypt the plain text
         cp.init(Cipher.ENCRYPT_MODE, key);
@@ -348,12 +311,9 @@ public class BaseTestAESGCM extends BaseTest {
                 byteEqual(plainText, 0, newPlainText1, 0, plainText.length));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAES_GCM_2() throws Exception {
         // Test AES GCM Cipher using duplicate calls
-        cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
         // Encrypt the plain text
         cp.init(Cipher.ENCRYPT_MODE, key);
@@ -377,13 +337,10 @@ public class BaseTestAESGCM extends BaseTest {
                 byteEqual(plainText, 0, newPlainText1, 0, plainText.length));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAES_GCM_encrypt_empty_text() throws Exception {
         try {
             // Test AES GCM - Encrypt Cipher.doFinal() without text
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, key);
@@ -397,13 +354,10 @@ public class BaseTestAESGCM extends BaseTest {
         assertTrue("Passed - Cipher.doFinal() encrypt empty text", true);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAES_GCM_decrypt_without_parameters() throws Exception {
         try {
             // Test AES GCM - Decrypt Cipher.doFinal() without parameters
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.doFinal();
@@ -418,13 +372,10 @@ public class BaseTestAESGCM extends BaseTest {
                 false);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAES_GCM_decrypt_empty_text() throws Exception {
         try {
             // Test AES GCM - Decrypt Cipher.doFinal() without text
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
             byte[] iv = new byte[16];
             // GCMParameterSpec gps = new GCMParameterSpec(16 * 8, iv);
@@ -442,14 +393,11 @@ public class BaseTestAESGCM extends BaseTest {
         assertTrue("Failed - Cipher.doFinal() decrypt should have thrown exception", false);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAES_GCM_5() {
         try {
             // Test AES GCM Cipher Cipher.doFinal(plainTxt) on decrypt -
             // incorrect text
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, key);
@@ -471,14 +419,11 @@ public class BaseTestAESGCM extends BaseTest {
         assertTrue("Failed - Expected AEADBadTagException", false);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAES_GCM_Exception() throws Exception {
         // ProviderException
         try {
             // Test AES GCM Cipher
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
             // Encrypt the plain text
             //cp.init(Cipher.ENCRYPT_MODE, key);
@@ -501,13 +446,10 @@ public class BaseTestAESGCM extends BaseTest {
         assertTrue("Failed - Expected IllegalStateException", true);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAESShortBuffer() throws Exception {
         try {
             // Test AES Cipher
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, key);
@@ -519,12 +461,9 @@ public class BaseTestAESGCM extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAESIllegalBlockSize() throws Exception {
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, key);
@@ -548,11 +487,8 @@ public class BaseTestAESGCM extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testAESNull() throws Exception {
-        cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
         SecretKey nullKey = null;
 
         try {
@@ -569,11 +505,8 @@ public class BaseTestAESGCM extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testIllegalParamSpec() throws Exception {
-        cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
 
         try {
             byte[] iv = null;
@@ -625,19 +558,16 @@ public class BaseTestAESGCM extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testArguments() throws Exception {
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0]);
         } catch (Exception e) {
@@ -645,21 +575,21 @@ public class BaseTestAESGCM extends BaseTest {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0);
             fail("Did not get expected ShortBufferException on doFinal(new byte[0], 0)");
@@ -667,7 +597,7 @@ public class BaseTestAESGCM extends BaseTest {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 1);
             fail("Should have gotten exception on doFinal(new byte[0], 1)");
@@ -675,7 +605,7 @@ public class BaseTestAESGCM extends BaseTest {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[cp.getOutputSize(0)], 1);
             fail("Expected ShortBufferException");
@@ -683,28 +613,28 @@ public class BaseTestAESGCM extends BaseTest {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0);
         } catch (Exception e) {
@@ -712,7 +642,7 @@ public class BaseTestAESGCM extends BaseTest {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 1, 0);
             fail("Did not get expected exception on doFinal(new byte[0], 1, 0)");
@@ -720,7 +650,7 @@ public class BaseTestAESGCM extends BaseTest {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 1);
             fail("Did not get expected exception on doFinal(new byte[0], 0, 1)");
@@ -728,14 +658,14 @@ public class BaseTestAESGCM extends BaseTest {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, new byte[0]);
             fail("Did not get expected ShortBufferException on doFinal(new byte[0], 0, 9, new byte[0])");
@@ -743,14 +673,14 @@ public class BaseTestAESGCM extends BaseTest {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, new byte[0], 0);
             fail("Did not get expected ShortBufferException on doFinal(new byte[0], 0, 0, new byte[0], 0)");
@@ -758,14 +688,14 @@ public class BaseTestAESGCM extends BaseTest {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0]);
         } catch (Exception e) {
@@ -773,28 +703,28 @@ public class BaseTestAESGCM extends BaseTest {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0);
         } catch (Exception e) {
@@ -802,63 +732,63 @@ public class BaseTestAESGCM extends BaseTest {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0, new byte[0]);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, new byte[0]);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, new byte[0], 0);
         } catch (Exception e) {
@@ -882,9 +812,6 @@ public class BaseTestAESGCM extends BaseTest {
         return false;
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected boolean encryptDecrypt(Cipher cp) throws Exception {
         cp.init(Cipher.ENCRYPT_MODE, key);
         byte[] cipherText = cp.doFinal(plainText);
@@ -897,24 +824,15 @@ public class BaseTestAESGCM extends BaseTest {
         return byteEqual(plainText, 0, newPlainText, 0, plainText.length);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm) throws Exception {
         encryptDecrypt(algorithm, false);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize)
             throws Exception {
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, null);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams) throws Exception {
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText14);
@@ -924,9 +842,6 @@ public class BaseTestAESGCM extends BaseTest {
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText128);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message) throws Exception {
         encryptDecryptDoFinal(algorithm, requireLengthMultipleBlockSize, algParams, message);
@@ -941,7 +856,7 @@ public class BaseTestAESGCM extends BaseTest {
             AlgorithmParameters algParams, byte[] message) throws Exception
 
     {
-        cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, providerName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -985,7 +900,7 @@ public class BaseTestAESGCM extends BaseTest {
     //
     protected void encryptDecryptUpdate(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message) throws Exception {
-        cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, providerName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1033,7 +948,7 @@ public class BaseTestAESGCM extends BaseTest {
     protected void encryptDecryptPartialUpdate(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message)
             throws Exception {
-        cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, providerName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1077,13 +992,9 @@ public class BaseTestAESGCM extends BaseTest {
         }
     }
 
-
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testShortBuffer() throws Exception {
+        Cipher cp = null;
         try {
-
             cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
             GCMParameterSpec parameterSpec = new GCMParameterSpec(128, ivBytes); //128 bit auth tag length
             cp.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
@@ -1098,9 +1009,6 @@ public class BaseTestAESGCM extends BaseTest {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testEncryptAfterShortBufferRetry() throws Exception {
         Cipher cpl = Cipher.getInstance("AES/GCM/NoPadding", providerName);
         GCMParameterSpec parameterSpec = new GCMParameterSpec(128, ivBytes); //128 bit auth tag length
