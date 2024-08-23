@@ -7,13 +7,13 @@
  */
 package ibm.jceplus.junit.base;
 
+import com.ibm.crypto.plus.provider.ChaCha20Constants;
 import java.nio.ByteBuffer;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
-import com.ibm.crypto.plus.provider.ChaCha20Constants;
 
 public class BaseTestChaCha20Poly1305ChunkUpdate extends BaseTestCipher
         implements ChaCha20Constants {

@@ -7,6 +7,7 @@
  */
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTestCipher;
 import java.security.AlgorithmParameters;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
@@ -18,7 +19,6 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Assume;
-import ibm.jceplus.junit.base.BaseTestCipher;
 
 public class BaseTestMemStressAES extends BaseTestCipher {
 

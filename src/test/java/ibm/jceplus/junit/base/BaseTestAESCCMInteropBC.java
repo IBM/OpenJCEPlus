@@ -11,15 +11,12 @@ package ibm.jceplus.junit.base;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Random;
-
 import javax.crypto.AEADBadTagException;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.junit.Assert;
-
 
 // This test case exercises the AES/CCM cipher using a CCMParameterSpec object.
 

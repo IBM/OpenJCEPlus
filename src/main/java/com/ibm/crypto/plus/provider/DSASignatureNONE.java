@@ -8,13 +8,13 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.SignatureDSANONE;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.SignatureSpi;
-import com.ibm.crypto.plus.provider.ock.SignatureDSANONE;
 
 public final class DSASignatureNONE extends SignatureSpi {
 

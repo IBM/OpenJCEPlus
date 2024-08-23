@@ -8,10 +8,9 @@
 
 package ibm.jceplus.junit.openjceplus.multithread;
 
+import ibm.jceplus.junit.openjceplus.Utils;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-
-import ibm.jceplus.junit.openjceplus.Utils;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

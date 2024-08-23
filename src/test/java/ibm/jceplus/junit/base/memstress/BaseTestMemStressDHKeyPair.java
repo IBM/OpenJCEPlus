@@ -7,6 +7,7 @@
  */
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTest;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -14,7 +15,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
-import ibm.jceplus.junit.base.BaseTest;
 
 public class BaseTestMemStressDHKeyPair extends BaseTest {
 
