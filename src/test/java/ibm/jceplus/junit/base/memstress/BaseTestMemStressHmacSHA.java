@@ -7,10 +7,10 @@
  */
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTest;
 import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import ibm.jceplus.junit.base.BaseTest;
 
 public class BaseTestMemStressHmacSHA extends BaseTest {
     /* This test by default tests HmacSHAWith256 */

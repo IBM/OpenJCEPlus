@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.HMAC;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -15,7 +16,6 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import javax.crypto.MacSpi;
 import javax.crypto.SecretKey;
-import com.ibm.crypto.plus.provider.ock.HMAC;
 
 abstract class HmacCore extends MacSpi {
 

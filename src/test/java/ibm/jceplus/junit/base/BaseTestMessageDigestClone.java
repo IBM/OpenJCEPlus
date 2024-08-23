@@ -8,10 +8,9 @@
 
 package ibm.jceplus.junit.base;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-
 import java.security.MessageDigest;
 import java.util.Arrays;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 abstract public class BaseTestMessageDigestClone extends BaseTest {
     // message digest algorithm to be used in all tests
