@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -25,8 +26,6 @@ import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.List;
-
-import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
 
 public class RSAKeyFactory extends KeyFactorySpi {
 

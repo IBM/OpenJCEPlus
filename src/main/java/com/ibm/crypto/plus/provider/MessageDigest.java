@@ -8,8 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import java.security.MessageDigestSpi;
 import com.ibm.crypto.plus.provider.ock.Digest;
+import java.security.MessageDigestSpi;
 
 abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
 

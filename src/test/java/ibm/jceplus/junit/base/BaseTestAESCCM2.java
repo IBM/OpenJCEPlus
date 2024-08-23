@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base;
 
+import ibm.security.internal.spec.CCMParameterSpec;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
 import java.security.ProviderException;
@@ -19,7 +20,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Assert;
-import ibm.security.internal.spec.CCMParameterSpec;
 
 // This test case exercises the AES/CCM cipher using a CCMParameters object
 

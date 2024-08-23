@@ -7,6 +7,7 @@
  */
 package ibm.jceplus.junit.base;
 
+import ibm.jceplus.junit.base.certificateutils.CertAndKeyGen;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -37,9 +38,7 @@ import java.security.spec.PSSParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Date;
-
 import javax.security.auth.x500.X500Principal;
-
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.util.ASN1Dump;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
@@ -51,8 +50,6 @@ import org.bouncycastle.crypto.util.SubjectPublicKeyInfoFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-
-import ibm.jceplus.junit.base.certificateutils.CertAndKeyGen;
 import sun.security.x509.X500Name;
 
 public class BaseTestRSAPSSSignature extends BaseTestSignature {

@@ -25,6 +25,7 @@
         </module>
         <module name="UnusedLocalVariable"/>
         <module name="EmptyBlock"/>
+        <module name="ImportOrder"/>
     </module>
     <module name="RegexpHeader">
         <property name="fileExtensions" value="java"/>

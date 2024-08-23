@@ -9,9 +9,9 @@
 package ibm.jceplus.junit.openjceplus;
 
 import java.security.KeyPairGenerator;
-import org.junit.Before;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.junit.Before;
 
 public class TestXDHKeyPairGenerator extends ibm.jceplus.junit.base.BaseTestXDHKeyPairGenerator {
 
