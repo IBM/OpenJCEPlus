@@ -7,6 +7,9 @@
  */
 package ibm.jceplus.junit.base;
 
+import ibm.security.internal.spec.HKDFExpandParameterSpec;
+import ibm.security.internal.spec.HKDFExtractParameterSpec;
+import ibm.security.internal.spec.HKDFParameterSpec;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -29,9 +32,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import ibm.security.internal.spec.HKDFExpandParameterSpec;
-import ibm.security.internal.spec.HKDFExtractParameterSpec;
-import ibm.security.internal.spec.HKDFParameterSpec;
 
 public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
 

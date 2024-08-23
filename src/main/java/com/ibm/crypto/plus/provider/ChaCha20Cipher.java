@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.Padding;
+import com.ibm.crypto.plus.provider.ock.SymmetricCipher;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.AlgorithmParameters;
@@ -25,8 +27,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.ChaCha20ParameterSpec;
-import com.ibm.crypto.plus.provider.ock.Padding;
-import com.ibm.crypto.plus.provider.ock.SymmetricCipher;
 
 public final class ChaCha20Cipher extends CipherSpi implements ChaCha20Constants {
 

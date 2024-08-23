@@ -8,6 +8,9 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.OCKContext;
+import com.ibm.crypto.plus.provider.ock.OCKException;
+import com.ibm.misc.Debug;
 import java.lang.reflect.Constructor;
 import java.security.AccessController;
 import java.security.InvalidParameterException;
@@ -21,9 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.crypto.SecretKey;
-import com.ibm.crypto.plus.provider.ock.OCKContext;
-import com.ibm.crypto.plus.provider.ock.OCKException;
-import com.ibm.misc.Debug;
 
 @SuppressWarnings({"removal", "deprecation"})
 public final class OpenJCEPlus extends OpenJCEPlusProvider {

@@ -7,14 +7,13 @@
  */
 package ibm.jceplus.junit.base;
 
+import com.ibm.crypto.plus.provider.ock.ByteArrayOutputDelay;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
-import com.ibm.crypto.plus.provider.ock.ByteArrayOutputDelay;
-
 
 /**
  * Test class for ByteArrayOutputDelay

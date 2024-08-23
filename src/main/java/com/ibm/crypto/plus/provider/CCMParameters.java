@@ -8,16 +8,15 @@
 
 package com.ibm.crypto.plus.provider;
 
+import ibm.security.internal.spec.CCMParameterSpec;
 import java.io.IOException;
 import java.security.AlgorithmParametersSpi;
 import java.security.InvalidParameterException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
-import ibm.security.internal.spec.CCMParameterSpec;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
 import sun.security.util.HexDumpEncoder;
-
 
 /**
  *
