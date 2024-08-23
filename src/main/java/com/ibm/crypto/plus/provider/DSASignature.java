@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.Signature;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -17,7 +18,6 @@ import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.SignatureSpi;
 import java.security.spec.AlgorithmParameterSpec;
-import com.ibm.crypto.plus.provider.ock.Signature;
 
 abstract class DSASignature extends SignatureSpi {
 

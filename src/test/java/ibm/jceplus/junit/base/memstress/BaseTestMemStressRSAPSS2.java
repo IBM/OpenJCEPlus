@@ -8,12 +8,12 @@
 
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTest;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
-import ibm.jceplus.junit.base.BaseTest;
 
 public class BaseTestMemStressRSAPSS2 extends BaseTest {
 

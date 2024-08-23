@@ -7,22 +7,7 @@
  */
 package ibm.jceplus.junit.base;
 
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESedeKeySpec;
-import javax.crypto.spec.DHParameterSpec;
-import javax.crypto.spec.DHPrivateKeySpec;
-import javax.crypto.spec.DHPublicKeySpec;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.OAEPParameterSpec;
-import javax.crypto.spec.PSource;
-import javax.crypto.spec.SecretKeySpec;
-
 import ibm.security.internal.spec.CCMParameterSpec;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
@@ -48,6 +33,19 @@ import java.security.spec.XECPrivateKeySpec;
 import java.security.spec.XECPublicKeySpec;
 import java.util.ArrayList;
 import java.util.List;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESedeKeySpec;
+import javax.crypto.spec.DHParameterSpec;
+import javax.crypto.spec.DHPrivateKeySpec;
+import javax.crypto.spec.DHPublicKeySpec;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
+import javax.crypto.spec.SecretKeySpec;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class BaseTestIsAssignableFromOrder extends BaseTest {
 

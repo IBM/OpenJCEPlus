@@ -8,11 +8,10 @@
 
 package ibm.jceplus.junit.base;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class BaseTestSHA256Clone_SharedMD extends BaseTest {
     static MessageDigest md = null;

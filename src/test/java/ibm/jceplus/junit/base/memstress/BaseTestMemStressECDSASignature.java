@@ -7,9 +7,9 @@
  */
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTestSignature;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import ibm.jceplus.junit.base.BaseTestSignature;
 
 public class BaseTestMemStressECDSASignature extends BaseTestSignature {
     int numTimes = 100;

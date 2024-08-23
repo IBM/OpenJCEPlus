@@ -8,12 +8,6 @@
 
 package com.ibm.crypto.plus.provider;
 
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_EXTENDED_MASTER_SECRET;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_MASTER_SECRET;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.SSL3_CONST;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.concat;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.doTLS10PRF;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.doTLS12PRF;
 import java.security.DigestException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
@@ -25,6 +19,12 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import javax.crypto.KeyGeneratorSpi;
 import javax.crypto.SecretKey;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_EXTENDED_MASTER_SECRET;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_MASTER_SECRET;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.SSL3_CONST;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.concat;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.doTLS10PRF;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.doTLS12PRF;
 
 /**
  * KeyGenerator implementation for the SSL/TLS master secret derivation.

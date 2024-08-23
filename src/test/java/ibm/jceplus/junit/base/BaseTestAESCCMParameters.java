@@ -8,14 +8,13 @@
 
 package ibm.jceplus.junit.base;
 
+import ibm.security.internal.spec.CCMParameterSpec;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
 import org.junit.Assert;
-import ibm.security.internal.spec.CCMParameterSpec;
-
 
 public class BaseTestAESCCMParameters extends BaseTest {
     // Valid tagLen values in bits are 32, 48, 64, 80, 96, 112, 128

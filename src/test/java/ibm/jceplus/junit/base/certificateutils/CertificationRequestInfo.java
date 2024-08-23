@@ -8,15 +8,13 @@
 
 package ibm.jceplus.junit.base.certificateutils;
 
+import com.ibm.misc.Debug;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PublicKey;
 import java.util.Arrays;
-
-import com.ibm.misc.Debug;
-
 import sun.security.pkcs.PKCS9Attribute;
 import sun.security.pkcs.PKCS9Attributes;
 import sun.security.util.DerOutputStream;

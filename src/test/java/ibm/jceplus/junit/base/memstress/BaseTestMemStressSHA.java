@@ -8,9 +8,9 @@
 
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTest;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import ibm.jceplus.junit.base.BaseTest;
 
 public class BaseTestMemStressSHA extends BaseTest {
 

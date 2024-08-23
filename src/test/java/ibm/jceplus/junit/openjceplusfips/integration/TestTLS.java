@@ -7,11 +7,10 @@
  */
 package ibm.jceplus.junit.openjceplusfips.integration;
 
+import ibm.jceplus.junit.base.integration.BaseTestTLS;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import ibm.jceplus.junit.base.integration.BaseTestTLS;
 
 public class TestTLS extends BaseTestTLS{
 

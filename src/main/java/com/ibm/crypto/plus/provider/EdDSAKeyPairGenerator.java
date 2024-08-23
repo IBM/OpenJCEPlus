@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
+import com.ibm.crypto.plus.provider.ock.XECKey;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.KeyPair;
@@ -15,9 +17,6 @@ import java.security.KeyPairGeneratorSpi;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.NamedParameterSpec;
-
-import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
-import com.ibm.crypto.plus.provider.ock.XECKey;
 
 /**
  * Key pair generator for the EdDSA signature algorithm.
