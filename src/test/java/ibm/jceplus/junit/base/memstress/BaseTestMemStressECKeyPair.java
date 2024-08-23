@@ -8,13 +8,13 @@
 
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTest;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
-import ibm.jceplus.junit.base.BaseTest;
 
 public class BaseTestMemStressECKeyPair extends BaseTest {
 

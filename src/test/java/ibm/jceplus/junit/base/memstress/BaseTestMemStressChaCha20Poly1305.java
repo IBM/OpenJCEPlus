@@ -8,15 +8,13 @@
 
 package ibm.jceplus.junit.base.memstress;
 
+import com.ibm.crypto.plus.provider.ChaCha20Constants;
+import ibm.jceplus.junit.base.BaseTestCipher;
 import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import com.ibm.crypto.plus.provider.ChaCha20Constants;
-import ibm.jceplus.junit.base.BaseTestCipher;
-
-
 
 public class BaseTestMemStressChaCha20Poly1305 extends BaseTestCipher implements ChaCha20Constants {
     //--------------------------------------------------------------------------

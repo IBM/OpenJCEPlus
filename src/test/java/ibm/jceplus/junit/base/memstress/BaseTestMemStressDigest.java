@@ -8,10 +8,10 @@
 
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTest;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import ibm.jceplus.junit.base.BaseTest;
 
 public class BaseTestMemStressDigest extends BaseTest {
 

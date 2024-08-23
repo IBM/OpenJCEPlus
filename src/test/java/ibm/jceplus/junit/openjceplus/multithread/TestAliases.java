@@ -8,6 +8,8 @@
 
 package ibm.jceplus.junit.openjceplus.multithread;
 
+import ibm.jceplus.junit.base.BaseTest;
+import ibm.jceplus.junit.openjceplus.Utils;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
@@ -19,8 +21,6 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.SecretKeyFactory;
-import ibm.jceplus.junit.base.BaseTest;
-import ibm.jceplus.junit.openjceplus.Utils;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

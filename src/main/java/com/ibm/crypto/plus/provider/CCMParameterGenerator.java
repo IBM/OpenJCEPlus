@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
+import ibm.security.internal.spec.CCMParameterSpec;
 import java.security.AlgorithmParameterGeneratorSpi;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -16,7 +17,6 @@ import java.security.ProviderException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
-import ibm.security.internal.spec.CCMParameterSpec;
 
 public final class CCMParameterGenerator extends AlgorithmParameterGeneratorSpi
         implements AESConstants, CCMConstants {

@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.misc.Debug;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -15,8 +16,6 @@ import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.ProviderException;
-
-import com.ibm.misc.Debug;
 
 @SuppressWarnings({"removal", "deprecation"})
 final class NativeInterface {
