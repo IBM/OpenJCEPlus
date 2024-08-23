@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# Copyright IBM Corp. 2023
+# Copyright IBM Corp. 2023, 2024
 #
 # Licensed under the Apache License 2.0 (the "License").  You may not use
 # this file except in compliance with the License.  You can obtain a copy
@@ -11,9 +11,6 @@
 TOPDIR=./../../..
 
 PLAT=mac
-BUILDTOP = ${TOPDIR}/target/build${PLAT}
-HOSTOUT = ${BUILDTOP}/aarch64
-JAVACLASSDIR=${TOPDIR}/target/classes
 #Setting this flag will result non key material such as handle to OCK Objects etc being logged to the trace file.
 #This flag must be disabled before building production version
 #DEBUG_FLAGS += -DDEBUG
@@ -24,53 +21,65 @@ JAVACLASSDIR=${TOPDIR}/target/classes
 #This flag must be disabled before building production version
 #DEBUG_DATA =  -DDEBUG_DH_DATA -DDEBUG_DSA_DATA -DDEBUG_EC_DATA -DDEBUG_GCM_DATA -DDEBUG_CCM_DATA -DDEBUG_HMAC_DATA -DDEBUG_CIPHER_DATA -DDEBUG_RSA_DATA -DDEBUG_SIGNATURE_DATA -DDEBUG_SIGNATURE_DSANONE_DATA -DDEBUG_SIGNATURE_RSASSL_DATA -DDEBUG_HKDF_DATA -DDEBUG_RSAPSS_DATA -DDEBUG_SIGNATURE_EDDSA_DATA
 #DEBUG_FLAGS+= -g ${DEBUG_DETAIL}  ${DEBUG_DATA}
-JCE_CLASSPATH ?= ${JAVACLASSDIR}/../ibmjceplus.jar:./../../../target/misc.jar
+
+BUILDTOP = ${TOPDIR}/target/build${PLAT}
+HOSTOUT = ${BUILDTOP}/aarch64
+OPENJCEPLUS_HEADER_FILES ?= ${TOPDIR}/src/main/native
+JAVACLASSDIR=${TOPDIR}/target/classes
+
 OBJS= ${HOSTOUT}/BasicRandom.o \
-      ${HOSTOUT}/BuildDate.o \
-      ${HOSTOUT}/CCM.o \
-      ${HOSTOUT}/Digest.o \
-      ${HOSTOUT}/DHKey.o \
-      ${HOSTOUT}/DSAKey.o \
-      $(HOSTOUT)/ECKey.o \
-      ${HOSTOUT}/ExtendedRandom.o \
-      ${HOSTOUT}/GCM.o \
-      ${HOSTOUT}/HKDF.o \
-      ${HOSTOUT}/HMAC.o \
-      ${HOSTOUT}/PKey.o \
-      $(HOSTOUT)/Poly1305Cipher.o \
-      ${HOSTOUT}/RSA.o \
-      ${HOSTOUT}/RSAKey.o \
-      ${HOSTOUT}/RsaPss.o \
-      ${HOSTOUT}/Signature.o \
-      ${HOSTOUT}/SignatureDSANONE.o \
-      ${HOSTOUT}/SignatureRSASSL.o \
-      ${HOSTOUT}/StaticStub.o \
-      ${HOSTOUT}/SymmetricCipher.o \
-      ${HOSTOUT}/Utils.o \
-      ${HOSTOUT}/SignatureEdDSA.o
+	${HOSTOUT}/BuildDate.o \
+	${HOSTOUT}/CCM.o \
+	${HOSTOUT}/Digest.o \
+	${HOSTOUT}/DHKey.o \
+	${HOSTOUT}/DSAKey.o \
+	${HOSTOUT}/ECKey.o \
+	${HOSTOUT}/ExtendedRandom.o \
+	${HOSTOUT}/GCM.o \
+	${HOSTOUT}/HKDF.o \
+	${HOSTOUT}/HMAC.o \
+	${HOSTOUT}/PKey.o \
+	${HOSTOUT}/Poly1305Cipher.o \
+	${HOSTOUT}/RSA.o \
+	${HOSTOUT}/RSAKey.o \
+	${HOSTOUT}/RsaPss.o \
+	${HOSTOUT}/Signature.o \
+	${HOSTOUT}/SignatureDSANONE.o \
+	${HOSTOUT}/SignatureEdDSA.o \
+	${HOSTOUT}/SignatureRSASSL.o \
+	${HOSTOUT}/StaticStub.o \
+	${HOSTOUT}/SymmetricCipher.o \
+	${HOSTOUT}/Utils.o
 
 TARGET = ${HOSTOUT}/libjgskit.dylib
 
-all: dircreate javah ${SOURCES} ${TARGET}
+all: headers ${TARGET}
+
+noheaders: ${TARGET}
 
 dircreate:
 	mkdir -p ${HOSTOUT} 2>/dev/null
-
-${TARGET}: $(OBJS)
-	gcc -shared -m64 -arch arm64 -o ${TARGET} -DMAC $(OBJS) -L ${GSKIT_HOME}/lib64 -l jgsk8iccs
-
-${HOSTOUT}/%.o: %.c
-	gcc -fPIC ${DEBUG_FLAGS} -c -arch arm64 -pedantic -Wall -fstack-protector -I${TOPDIR}/src/main/native/ -I${GSKIT_HOME}/inc -I${JAVA_HOME}/include -I${JAVA_HOME}/include/darwin $< -o $@
 
 javah: dircreate
 	${JAVA_HOME}/bin/javac \
 	--add-exports java.base/sun.security.util=openjceplus \
 	-cp ${JCE_CLASSPATH} \
+headers: | dircreate
+	${JAVA_HOME}/bin/javac \
+	--add-exports java.base/sun.security.util=openjceplus \
 	${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java \
 	${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/FastJNIBuffer.java \
 	${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/OCKContext.java \
 	${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/OCKException.java \
 	-d ${JAVACLASSDIR} -h ${TOPDIR}/src/main/native/ 
+
+${TARGET}: ${OBJS}
+	gcc -shared -m64 -arch arm64 -o ${TARGET} -DMAC ${OBJS} -L ${GSKIT_HOME}/lib64 -l jgsk8iccs
+
+${HOSTOUT}/%.o: %.c | dircreate
+	gcc -fPIC ${DEBUG_FLAGS} -c -arch arm64 -pedantic -Wall -fstack-protector -I${TOPDIR}/src/main/native/ -I${GSKIT_HOME}/inc -I${JAVA_HOME}/include -I${JAVA_HOME}/include/darwin -I${OPENJCEPLUS_HEADER_FILES} $< -o $@
+
+
 
 clean:
 	rm -f ${HOSTOUT}/*.o
@@ -79,3 +88,5 @@ clean:
 	rm -f ${TOPDIR}/src/main/native/com_ibm_crypto_plus_provider_ock_FastJNIBuffer.h
 	rm -f ${TOPDIR}/src/main/native/com_ibm_crypto_plus_provider_ock_OCKContext.h
 	rm -f ${TOPDIR}/src/main/native/com_ibm_crypto_plus_provider_ock_OCKException.h
+
+.PHONY: all dircreate headers clean
