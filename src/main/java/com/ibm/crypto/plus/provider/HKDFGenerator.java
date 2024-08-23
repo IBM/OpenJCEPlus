@@ -8,6 +8,11 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.HKDF;
+import com.ibm.crypto.plus.provider.ock.OCKException;
+import ibm.security.internal.spec.HKDFExpandParameterSpec;
+import ibm.security.internal.spec.HKDFExtractParameterSpec;
+import ibm.security.internal.spec.HKDFParameterSpec;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -17,12 +22,6 @@ import java.util.Objects;
 import javax.crypto.KeyGeneratorSpi;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import com.ibm.crypto.plus.provider.ock.HKDF;
-import com.ibm.crypto.plus.provider.ock.OCKException;
-import ibm.security.internal.spec.HKDFExpandParameterSpec;
-import ibm.security.internal.spec.HKDFExtractParameterSpec;
-import ibm.security.internal.spec.HKDFParameterSpec;
-
 
 /**
  * KeyGenerator implementation for the SSL/TLS master secret derivation.

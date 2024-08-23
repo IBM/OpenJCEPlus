@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.misc.Debug;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.AlgorithmParametersSpi;
@@ -17,7 +18,6 @@ import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.MGF1ParameterSpec;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
-import com.ibm.misc.Debug;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
