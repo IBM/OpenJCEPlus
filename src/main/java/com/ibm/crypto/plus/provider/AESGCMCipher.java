@@ -8,6 +8,9 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.GCMCipher;
+import com.ibm.crypto.plus.provider.ock.OCKContext;
+import com.ibm.crypto.plus.provider.ock.OCKException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
@@ -28,10 +31,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.GCMParameterSpec;
-import com.ibm.crypto.plus.provider.ock.GCMCipher;
-import com.ibm.crypto.plus.provider.ock.OCKContext;
-import com.ibm.crypto.plus.provider.ock.OCKException;
-
 
 public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMConstants {
 

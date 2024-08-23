@@ -8,14 +8,6 @@
 
 package com.ibm.crypto.plus.provider;
 
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_CLIENT_WRITE_KEY;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_IV_BLOCK;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_KEY_EXPANSION;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_SERVER_WRITE_KEY;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.SSL3_CONST;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.concat;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.doTLS10PRF;
-import static com.ibm.crypto.plus.provider.TlsPrfGenerator.doTLS12PRF;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
@@ -29,6 +21,14 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import sun.security.internal.spec.TlsKeyMaterialSpec;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_CLIENT_WRITE_KEY;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_IV_BLOCK;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_KEY_EXPANSION;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.LABEL_SERVER_WRITE_KEY;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.SSL3_CONST;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.concat;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.doTLS10PRF;
+import static com.ibm.crypto.plus.provider.TlsPrfGenerator.doTLS12PRF;
 
 /**
  * KeyGenerator implementation for the SSL/TLS master secret derivation.

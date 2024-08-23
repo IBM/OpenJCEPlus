@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
+import com.ibm.crypto.plus.provider.ock.Signature;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
@@ -19,9 +21,6 @@ import java.security.SignatureSpi;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.List;
-
-import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
-import com.ibm.crypto.plus.provider.ock.Signature;
 
 abstract class RSASignature extends SignatureSpi {
 

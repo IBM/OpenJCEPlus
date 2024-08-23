@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base.certificateutils;
 
+import com.ibm.misc.Debug;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,9 +16,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Base64;
-
-import com.ibm.misc.Debug;
-
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
