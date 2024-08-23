@@ -8,11 +8,9 @@
 
 package ibm.jceplus.junit.base.memstress;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-
-import java.security.MessageDigest;
-
 import ibm.jceplus.junit.base.BaseTest;
+import java.security.MessageDigest;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class BaseTestMemStressSHAClone extends BaseTest {
 

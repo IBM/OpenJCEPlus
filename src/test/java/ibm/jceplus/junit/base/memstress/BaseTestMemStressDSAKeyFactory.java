@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTest;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -17,7 +18,6 @@ import java.security.spec.DSAParameterSpec;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import ibm.jceplus.junit.base.BaseTest;
 
 public class BaseTestMemStressDSAKeyFactory extends BaseTest {
 

@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTest;
 import java.lang.reflect.Method;
 import java.security.AlgorithmParameters;
 import javax.crypto.Cipher;
@@ -15,7 +16,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import org.junit.Assume;
-import ibm.jceplus.junit.base.BaseTest;
 
 public class BaseTestMemStressAESGCM extends BaseTest {
 

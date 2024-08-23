@@ -8,6 +8,10 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.CCMCipher;
+import com.ibm.crypto.plus.provider.ock.OCKContext;
+import com.ibm.misc.Debug;
+import ibm.security.internal.spec.CCMParameterSpec;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
@@ -27,12 +31,6 @@ import javax.crypto.CipherSpi;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
-import com.ibm.crypto.plus.provider.ock.CCMCipher;
-import com.ibm.crypto.plus.provider.ock.OCKContext;
-import com.ibm.misc.Debug;
-import ibm.security.internal.spec.CCMParameterSpec;
-
-
 
 public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMConstants {
 

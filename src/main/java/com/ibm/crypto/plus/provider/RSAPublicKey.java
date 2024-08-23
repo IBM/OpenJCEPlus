@@ -8,19 +8,16 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
+import com.ibm.crypto.plus.provider.ock.RSAKey;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyRep;
 import java.security.ProviderException;
 import java.security.spec.AlgorithmParameterSpec;
-
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
-
-import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
-import com.ibm.crypto.plus.provider.ock.RSAKey;
-
 import sun.security.util.BitArray;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;

@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base;
 
+import com.ibm.crypto.plus.provider.ChaCha20Constants;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.spec.AlgorithmParameterSpec;
@@ -21,7 +22,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.ChaCha20ParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import com.ibm.crypto.plus.provider.ChaCha20Constants;
 
 public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20Constants {
     // --------------------------------------------------------------------------
