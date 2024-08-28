@@ -8,12 +8,15 @@
 
 package com.ibm.crypto.plus.provider;
 
+import java.math.BigInteger;
+import java.security.InvalidKeyException;
 import java.security.spec.ECField;
 import java.security.spec.ECFieldF2m;
 import java.security.spec.ECFieldFp;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
+import java.util.Objects;
 
 final class ECUtils {
 
@@ -254,4 +257,43 @@ final class ECUtils {
         return new String(hexChars);
     }
 
+    /**
+     * Same implementation from sun.security.util.ECUtil in semeru jdk21
+     */
+    /**
+     * 
+     * Check an ECPrivateKey to make sure the scalar value is within the
+     * range of the order [1, n-1].
+     *
+     * @param prv the private key to be checked.
+     *
+     * @return the private key that was evaluated.
+     *
+     * @throws InvalidKeyException if the key's scalar value is not within
+     *      the range 1 <= x < n where n is the order of the generator.
+     */
+    protected static java.security.interfaces.ECPrivateKey checkPrivateKey(java.security.interfaces.ECPrivateKey prv)
+            throws InvalidKeyException {
+        // The private key itself cannot be null, but if the private
+        // key doesn't divulge the parameters or more importantly the S value
+        // (possibly because it lives on a provider that prevents release
+        // of those values, e.g. HSM), then we cannot perform the check and
+        // will allow the operation to proceed.
+        Objects.requireNonNull(prv, "Private key must be non-null");
+        ECParameterSpec spec = prv.getParams();
+        if (spec != null) {
+            BigInteger order = spec.getOrder();
+            BigInteger sVal = prv.getS();
+
+            if (order != null && sVal != null) {
+                if (sVal.compareTo(BigInteger.ZERO) <= 0 ||
+                        sVal.compareTo(order) >= 0) {
+                    throw new InvalidKeyException("The private key must be " +
+                            "within the range [1, n - 1]");
+                }
+            }
+        }
+
+        return prv;
+    }
 }
