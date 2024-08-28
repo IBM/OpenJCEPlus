@@ -312,7 +312,7 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
             throw new InvalidKeyException("Key is not an ECPrivateKey");
         }
         java.security.interfaces.ECPrivateKey ecPrivKey = (java.security.interfaces.ECPrivateKey) key;
-
+        ECUtils.checkPrivateKey(ecPrivKey);
         // check if private key parameters are compatible with
         // initialized ones
         if (params != null) {
