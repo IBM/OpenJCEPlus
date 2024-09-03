@@ -196,6 +196,8 @@
             </activation>
             <properties>
               <test.compilation.export.target>ALL-UNNAMED</test.compilation.export.target>
+              <skip.native.compile>true</skip.native.compile>
+              <build.native.file>None_not_really_used_here</build.native.file>
             </properties>
             <build>
               <plugins>
@@ -309,6 +311,7 @@
                     <goal>exec</goal>
                   </goals>
                   <configuration>
+                    <skip>${skip.native.compile}</skip>
                     <environmentVariables>
                       <PLATFORM>${build.platform.value}</PLATFORM>
                     </environmentVariables>
