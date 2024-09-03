@@ -114,6 +114,15 @@
                 <jdk.build.target>22</jdk.build.target>
             </properties>
           </profile>
+          <profile>
+            <id>Profile for JDK 23 Build</id>
+            <activation>
+              <jdk>23</jdk>
+            </activation>
+            <properties>
+                <jdk.build.target>23</jdk.build.target>
+            </properties>
+          </profile>
           <!--
           Profile expected to be active most of the time whenever testing what was produced by
           this project. This includes the providers built and local test artifacts.
