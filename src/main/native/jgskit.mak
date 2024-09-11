@@ -112,7 +112,7 @@ endif
 ifeq ($(PLATFORM),ppc-aix64)
       PLAT=ap
       CC=xlc
-      CFLAGS= -qcpluscmt -q64  -qpic -DAIX -Werror
+      CFLAGS= -qcpluscmt -q64  -qpic -DAIX -qhalt=w
       LDFLAGS= -G -q64 -blibpath:$(AIX_LIBPATH)
       IS64SYSTEM=64
       OSINCLUDEDIR=aix
