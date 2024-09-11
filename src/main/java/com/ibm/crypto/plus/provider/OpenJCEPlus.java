@@ -44,7 +44,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "                                       kda-hkdf-with-sha512\n"
             + "Key pair generator                 : DiffieHellman, DSA, EC, XEC, RSA\n"
             + "Message authentication code (MAC)  : HmacMD5, HmacSHA1, HmacSHA224, HmacSHA256, HmacSHA384, HmacSHA512\n"
-            + "                                       , HmacSHA384, HmacSHA512, HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512\n"
+            + "                                       , HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512\n"
             + "Message digest                     : MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256, SHA3-224, SHA3-256, SHA3-384, SHA3-512\n"
             + "Secret key factory                 : AES, ChaCha20, DESede\n"
             + "Secure random                      : HASHDRBG, SHA256DRBG, SHA512DRBG\n"
