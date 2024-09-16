@@ -27,6 +27,7 @@
         <module name="EmptyBlock"/>
         <module name="ImportOrder"/>
     </module>
+    <module name="NewlineAtEndOfFile"/>
     <module name="RegexpHeader">
         <property name="fileExtensions" value="java"/>
         <property name="header" value="^\W.*\n^.*Copyright IBM Corp\. \d\d\d\d\n^\W.*\n^\W.*. Licensed under the Apache License 2.0 \(the &quot;License&quot;\).  You may not use\n^\W.* this file except in compliance with the License.  You can obtain a copy\n^\W.* in the file LICENSE in the source distribution.\n^\W"/>
