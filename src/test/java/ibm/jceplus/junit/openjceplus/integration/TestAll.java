@@ -7,11 +7,11 @@
  */
 package ibm.jceplus.junit.openjceplus.integration;
 
-import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
+@SelectPackages({"ibm.jceplus.junit.openjceplus.integration"})
+
 @Suite
-@SelectClasses({TestTLS.class})
 public class TestAll {
-    
 }

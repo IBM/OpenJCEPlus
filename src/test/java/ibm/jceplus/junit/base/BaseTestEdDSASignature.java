@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -27,34 +27,14 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
 public class BaseTestEdDSASignature extends BaseTestSignature {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestEdDSASignature(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRunEdDSAKAT() throws Exception {
 
         // "pure" Ed25519 Null message tests should work but issue in GSKIT issues stops this.
@@ -265,9 +245,9 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
         NamedParameterSpec namedSpec = new NamedParameterSpec(algorithm);
         EdECPrivateKeySpec privKeySpec = new EdECPrivateKeySpec(namedSpec, privKeyBytes);
 
-        KeyFactory kf = KeyFactory.getInstance(algorithm, providerName);
+        KeyFactory kf = KeyFactory.getInstance(algorithm, getProviderName());
         PrivateKey privKey = kf.generatePrivate(privKeySpec);
-        Signature sig = Signature.getInstance(algorithm, providerName);
+        Signature sig = Signature.getInstance(algorithm, getProviderName());
         if (params != null) {
             sig.setParameter(params);
         }
@@ -277,7 +257,7 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
         computedSig = sig.sign();
 
         // test verification
-        sig = Signature.getInstance(algorithm, providerName);
+        sig = Signature.getInstance(algorithm, getProviderName());
         if (params != null) {
             sig.setParameter(params);
         }
@@ -290,6 +270,7 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
     }
 
 
+    @Test
     public void testRunBasicEdDSATests() throws Exception {
         runBasicTest("EdDSA", null);
 
@@ -308,7 +289,7 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
 
     private void runBasicTest(String name, Object param) throws Exception {
 
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(name, providerName);
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(name, getProviderName());
         if (param instanceof Integer) {
             kpg.initialize((Integer) param);
         } else if (param instanceof String) {
@@ -316,7 +297,7 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
         }
         KeyPair kp = kpg.generateKeyPair();
 
-        Signature sig = Signature.getInstance(name, providerName);
+        Signature sig = Signature.getInstance(name, getProviderName());
         sig.initSign(kp.getPrivate());
         byte[] testMessage = origMsg;
         sig.update(testMessage);
@@ -347,7 +328,7 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
             return;
         }
 
-        KeyFactory kf = KeyFactory.getInstance(name, providerName);
+        KeyFactory kf = KeyFactory.getInstance(name, getProviderName());
         // Test with X509 and PKCS8 key specs
         X509EncodedKeySpec pubSpec = kf.getKeySpec(kp.getPublic(), X509EncodedKeySpec.class);
         PKCS8EncodedKeySpec priSpec = kf.getKeySpec(kp.getPrivate(), PKCS8EncodedKeySpec.class);
@@ -383,6 +364,7 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
      * Ensure that SunEC rejects parameters/points for the wrong curve
      * when the algorithm ID for a specific curve is specified.
      */
+    @Test
     public void testRunCurveMixTest() throws Exception {
         runCurveMixTest("Ed25519", 448);
         runCurveMixTest("Ed25519", "Ed448");
@@ -392,7 +374,7 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
 
     private void runCurveMixTest(String name, Object param) throws Exception {
 
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(name, providerName);
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(name, getProviderName());
 
         try {
             if (param instanceof Integer) {
@@ -428,11 +410,11 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
         }
 
         String otherName = (String) param;
-        KeyPairGenerator otherKpg = KeyPairGenerator.getInstance(otherName, providerName);
+        KeyPairGenerator otherKpg = KeyPairGenerator.getInstance(otherName, getProviderName());
         KeyPair otherKp = otherKpg.generateKeyPair();
 
         // ensure the KeyFactory rejects incorrect keys
-        KeyFactory kf = KeyFactory.getInstance(name, providerName);
+        KeyFactory kf = KeyFactory.getInstance(name, getProviderName());
         try {
             kf.getKeySpec(otherKp.getPublic(), EdECPublicKeySpec.class);
             //Should not get here.
@@ -467,7 +449,7 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
             // expected
         }
 
-        KeyFactory otherKf = KeyFactory.getInstance(otherName, providerName);
+        KeyFactory otherKf = KeyFactory.getInstance(otherName, getProviderName());
         EdECPublicKeySpec otherPubSpec = otherKf.getKeySpec(otherKp.getPublic(),
                 EdECPublicKeySpec.class);
         try {
@@ -490,7 +472,7 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
         }
 
         // ensure the Signature rejects incorrect keys
-        Signature sig = Signature.getInstance(name, providerName);
+        Signature sig = Signature.getInstance(name, getProviderName());
         try {
             sig.initSign(otherKp.getPrivate());
             //Should not get here.
@@ -511,24 +493,26 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
         assertTrue(true);
     }
 
+    @Test
     public void testEd25519withEdDSA() throws Exception {
         KeyPair keyPair = generateKeyPair("Ed25519");
         doSignVerify("Ed25519", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
+    @Test
     public void testEd448withEdDSA() throws Exception {
         KeyPair keyPair = generateKeyPair("Ed448");
         doSignVerify("Ed448", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
     private KeyPair generateKeyPair(String alg, int keysize) throws Exception {
-        KeyPairGenerator xecKeyPairGen = KeyPairGenerator.getInstance(alg, providerName);
+        KeyPairGenerator xecKeyPairGen = KeyPairGenerator.getInstance(alg, getProviderName());
         xecKeyPairGen.initialize(keysize);
         return xecKeyPairGen.generateKeyPair();
     }
 
     private KeyPair generateKeyPair(String alg) throws Exception {
-        KeyPairGenerator xecKeyPairGen = KeyPairGenerator.getInstance(alg, providerName);
+        KeyPairGenerator xecKeyPairGen = KeyPairGenerator.getInstance(alg, getProviderName());
         xecKeyPairGen.initialize(new NamedParameterSpec(alg));
         return xecKeyPairGen.generateKeyPair();
     }
@@ -536,11 +520,11 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
     @Override
     protected void doSignVerify(String sigAlgo, byte[] message, PrivateKey privateKey,
             PublicKey publicKey) throws Exception {
-        Signature signing = Signature.getInstance(sigAlgo, providerName);
+        Signature signing = Signature.getInstance(sigAlgo, getProviderName());
         signing.initSign(privateKey);
         signing.update(message);
         byte[] signedBytes = signing.sign();
-        Signature verifying = Signature.getInstance(sigAlgo, providerName);
+        Signature verifying = Signature.getInstance(sigAlgo, getProviderName());
         verifying.initVerify(publicKey);
         verifying.update(message);
         assertTrue("Signature verification failed", verifying.verify(signedBytes));
@@ -562,5 +546,4 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
         BigInteger y = new BigInteger(1, arr);
         return new EdECPoint(xOdd, y);
     }
-
 }

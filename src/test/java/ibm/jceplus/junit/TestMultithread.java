@@ -19,17 +19,18 @@ import java.util.concurrent.TimeUnit;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Request;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import org.junit.platform.launcher.listeners.TestExecutionSummary;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
 public class TestMultithread extends TestCase {
     private final int numThreads = 10;
     private final int timeoutSec = 1500;
     private final String[] testList = {
-            //"ibm.jceplus.junit.openjceplus.TestAESGCM#testAES_GCM",
-            //"ibm.jceplus.junit.openjceplus.TestAES#testAES", "ibm.jceplus.junit.openjceplus.multithread.TestAliases",
             "ibm.jceplus.junit.openjceplus.multithread.TestAliases",
             "ibm.jceplus.junit.openjceplus.multithread.TestAESGCMUpdate",
             "ibm.jceplus.junit.openjceplus.multithread.TestAESGCMCopySafe",
@@ -81,11 +82,11 @@ public class TestMultithread extends TestCase {
 
     public TestMultithread() {}
 
-    private boolean assertConcurrent(final String message, final Callable<List<Failure>> callable,
+    private boolean assertConcurrent(final String message, final Callable<List<TestExecutionSummary.Failure>> callable,
             final int maxTimeoutSeconds) throws InterruptedException {
         boolean failed = false;
         final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<Throwable>());
-        final List<Failure> failures = Collections.synchronizedList(new ArrayList<Failure>());
+        final List<TestExecutionSummary.Failure> failures = Collections.synchronizedList(new ArrayList<TestExecutionSummary.Failure>());
         final ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
         try {
             final CountDownLatch allExecutorThreadsReady = new CountDownLatch(numThreads);
@@ -124,7 +125,7 @@ public class TestMultithread extends TestCase {
         }
         failed = !exceptions.isEmpty();
 
-        for (Failure failure : failures) {
+        for (TestExecutionSummary.Failure failure : failures) {
             failure.getException().printStackTrace();
         }
         //failed = !failures.isEmpty();
@@ -132,27 +133,21 @@ public class TestMultithread extends TestCase {
         return failed;
     }
 
-    private Callable<List<Failure>> testToCallable(String classAndMethod) {
-        String[] classAndMethodList = classAndMethod.split("#");
-        try {
-            Request request = null;
-            if (classAndMethodList.length == 2) {
-                request = Request.method(Class.forName(classAndMethodList[0]),
-                        classAndMethodList[1]);
-            } else {
-                request = Request.aClass(Class.forName(classAndMethodList[0]));
+    private Callable<List<TestExecutionSummary.Failure>> testToCallable(String className) {
+        SummaryGeneratingListener listener = new SummaryGeneratingListener();
+        LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request().
+            selectors(selectClass(className)).build();
+        
+        Launcher launcher = LauncherFactory.create();
+        launcher.discover(request);
+        launcher.registerTestExecutionListeners(listener);
+
+        return new Callable<List<TestExecutionSummary.Failure>>() {
+            public List<TestExecutionSummary.Failure> call() {
+                launcher.execute(request);
+                return listener.getSummary().getFailures();
             }
-            final Request myrequest = request;
-            return new Callable<List<Failure>>() {
-                public List<Failure> call() {
-                    Result result = new JUnitCore().run(myrequest);
-                    return result.getFailures();
-                }
-            };
-        } catch (ClassNotFoundException ex) {
-            assertTrue("Class not Found: " + classAndMethod, false);
-        }
-        return null;
+        };
     }
 
     public void testMultithread() {
