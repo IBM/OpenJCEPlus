@@ -7,36 +7,36 @@
  */
 package ibm.jceplus.junit.openjceplusfips;
 
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-public class TestRSASignatureWithSpecificSize extends ibm.jceplus.junit.base.BaseTest {
+@TestInstance(Lifecycle.PER_CLASS)
+public class TestRSASignatureWithSpecificSize extends BaseTestJunit5 { 
 
-    //--------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed I changed to a very long message to make sure enough bytes are there for copying."
             .getBytes();
 
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public TestRSASignatureWithSpecificSize() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-    }
-
-    // RSA signature sign allows at least 2048 bits of RSA key to be used for sign a signature.
-    public byte[] doSign(String sigAlgo, byte[] message, PrivateKey privateKey) throws Exception {
+    /**
+     * RSA signature sign allows at least 2048 bits of RSA key to be used for sign a signature.
+     */
+    private byte[] doSign(String sigAlgo, byte[] message, PrivateKey privateKey) throws Exception {
         Signature sign = Signature.getInstance(sigAlgo, Utils.TEST_SUITE_PROVIDER_NAME);
         try {
             sign.initSign(privateKey);
@@ -60,7 +60,7 @@ public class TestRSASignatureWithSpecificSize extends ibm.jceplus.junit.base.Bas
     }
 
     // RSA signature verify allows at least 2048 bits of RSA key to be used for sign a signature.
-    public void doVerify(String sigAlgo, byte[] message, PublicKey publicKey, 
+    private void doVerify(String sigAlgo, byte[] message, PublicKey publicKey, 
             byte[] signedBytes) throws Exception {
         Signature verify = Signature.getInstance(sigAlgo, Utils.TEST_SUITE_PROVIDER_NAME);
         try {
@@ -87,13 +87,20 @@ public class TestRSASignatureWithSpecificSize extends ibm.jceplus.junit.base.Bas
         }
     }
 
-    // Use a non FIPS provider to get a 1024 bits of RSA key.
-    public KeyPair generateKeyPair(int keysize) throws Exception {
+    /**
+     * Use a non FIPS provider to get a 1024 bits of RSA key.
+     * 
+     * @param keysize
+     * @return
+     * @throws Exception
+     */
+    private KeyPair generateKeyPair(int keysize) throws Exception {
         KeyPairGenerator rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", Utils.PROVIDER_SunRsaSign);
         rsaKeyPairGen.initialize(keysize);
         return rsaKeyPairGen.generateKeyPair();
     }
 
+    @Test
     public void testSHA256withRSA_1024() throws Exception {
         KeyPair keyPair = generateKeyPair(1024);
         System.out.println("Keysize is 1024");
@@ -101,6 +108,7 @@ public class TestRSASignatureWithSpecificSize extends ibm.jceplus.junit.base.Bas
         doVerify("SHA256withRSA", origMsg, keyPair.getPublic(), signedBytes);
     }
 
+    @Test
     public void testSHA256withRSA_2048() throws Exception {
         KeyPair keyPair = generateKeyPair(2048);
         System.out.println("Keysize is 2048");
@@ -108,6 +116,7 @@ public class TestRSASignatureWithSpecificSize extends ibm.jceplus.junit.base.Bas
         doVerify("SHA256withRSA", origMsg, keyPair.getPublic(), signedBytes);
     }
 
+    @Test
     public void testSHA256withRSA_3072() throws Exception {
         KeyPair keyPair = generateKeyPair(3072);
         System.out.println("Keysize is 3072");
@@ -115,6 +124,7 @@ public class TestRSASignatureWithSpecificSize extends ibm.jceplus.junit.base.Bas
         doVerify("SHA256withRSA", origMsg, keyPair.getPublic(), signedBytes);
     }
 
+    @Test
     public void testSHA256withRSA_4096() throws Exception {
         KeyPair keyPair = generateKeyPair(4096);
         System.out.println("Keysize is 4096");
@@ -122,7 +132,12 @@ public class TestRSASignatureWithSpecificSize extends ibm.jceplus.junit.base.Bas
         doVerify("SHA256withRSA", origMsg, keyPair.getPublic(), signedBytes);
     }
 
-    // check large size
+    /**
+     * Check large size
+     * 
+     * @throws Exception
+     */
+    @Test
     public void testSHA256withRSA_5120() throws Exception {
         KeyPair keyPair = generateKeyPair(5120);
         System.out.println("Keysize is 5120");
@@ -130,7 +145,12 @@ public class TestRSASignatureWithSpecificSize extends ibm.jceplus.junit.base.Bas
         doVerify("SHA256withRSA", origMsg, keyPair.getPublic(), signedBytes);
     }
 
-    // check small size
+    /**
+     * Check small size
+     * 
+     * @throws Exception
+     */
+    @Test
     public void testSHA256withRSA_512() throws Exception {
         KeyPair keyPair = generateKeyPair(512);
         System.out.println("Keysize is 512");
@@ -138,7 +158,12 @@ public class TestRSASignatureWithSpecificSize extends ibm.jceplus.junit.base.Bas
         doVerify("SHA256withRSA", origMsg, keyPair.getPublic(), signedBytes);
     }
 
-    // check size not in the list
+    /**
+     * Check size not in the list
+     * 
+     * @throws Exception
+     */
+    @Test
     public void testSHA256withRSA_1032() throws Exception {
         KeyPair keyPair = generateKeyPair(1032);
         System.out.println("Keysize is 1032");
@@ -146,26 +171,16 @@ public class TestRSASignatureWithSpecificSize extends ibm.jceplus.junit.base.Bas
         doVerify("SHA256withRSA", origMsg, keyPair.getPublic(), signedBytes);
     }
 
-    // check size not in the list
+    /**
+     * Check size not in the list
+     * 
+     * @throws Exception
+     */
+    @Test
     public void testSHA256withRSA_2056() throws Exception {
         KeyPair keyPair = generateKeyPair(2056);
         System.out.println("keysize is 2056");
         byte[] signedBytes = doSign("SHA256withRSA", origMsg, keyPair.getPrivate());
         doVerify("SHA256withRSA", origMsg, keyPair.getPublic(), signedBytes);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TestRSASignatureWithSpecificSize.class);
-        return suite;
     }
 }
