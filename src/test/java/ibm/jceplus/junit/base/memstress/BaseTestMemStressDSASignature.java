@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -13,35 +13,18 @@ import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import org.junit.Before;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestMemStressDSASignature extends BaseTestSignature {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
     int numTimes = 100;
     boolean printheapstats = false;
     String algo = "SHA256withDSA";
-    int keysize = 1024;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressDSASignature(String providerName) {
-        super(providerName);
-    }
-
-    public BaseTestMemStressDSASignature(String providerName, String algo, int keySize) {
-        super(providerName);
-        this.algo = algo;
-        this.keysize = keySize;
-
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Before
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
@@ -49,22 +32,13 @@ public class BaseTestMemStressDSASignature extends BaseTestSignature {
         }
         printheapstats = Boolean
                 .valueOf(System.getProperty("com.ibm.jceplus.memstress.printheapstats"));
-        System.out.println("Testing DSASignature algorithm = " + this.algo + " keySize=" + keysize);
+        System.out.println("Testing DSASignature algorithm = " + this.algo + " keySize=" + getKeySize());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHAwithDSA() throws Exception {
         try {
-            KeyPair keyPair = generateKeyPair(this.keysize);
+            KeyPair keyPair = generateKeyPair(getKeySize());
             Runtime rt = Runtime.getRuntime();
             long prevTotalMemory = 0;
             long prevFreeMemory = rt.freeMemory();
@@ -91,7 +65,7 @@ public class BaseTestMemStressDSASignature extends BaseTestSignature {
                 }
             }
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -99,12 +73,8 @@ public class BaseTestMemStressDSASignature extends BaseTestSignature {
         }
     }
 
-
-    // --------------------------------------------------------------------------
-    //
-    //
     protected KeyPair generateKeyPair(int keysize) throws Exception {
-        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", providerName);
+        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", getProviderName());
         dsaKeyPairGen.initialize(keysize);
         return dsaKeyPairGen.generateKeyPair();
     }

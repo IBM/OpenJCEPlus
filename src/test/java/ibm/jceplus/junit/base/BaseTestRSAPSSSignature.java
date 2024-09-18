@@ -50,7 +50,10 @@ import org.bouncycastle.crypto.util.SubjectPublicKeyInfoFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import sun.security.x509.X500Name;
+import static org.junit.Assert.assertTrue;
 
 public class BaseTestRSAPSSSignature extends BaseTestSignature {
 
@@ -117,18 +120,17 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
     static boolean printJunitTrace = false;
 
 
-    public BaseTestRSAPSSSignature(String providerName) {
-        super(providerName);
+    @BeforeAll
+    public static void setup() {
         Security.addProvider(new BouncyCastleProvider());
         printJunitTrace = Boolean
                 .valueOf(System.getProperty("com.ibm.jceplus.junit.printJunitTrace"));
     }
 
-    public void setUp() throws Exception {}
-
+    @Test
     public void testRSASignatureWithPSS_SHA1() throws Exception {
         try {
-            dotestSignature(content, IBM_ALG, 512, null, providerName);
+            dotestSignature(content, IBM_ALG, 512, null, getProviderName());
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -142,6 +144,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * Generate a key once and use it for multiple tests
      * @throws Exception
      */
+    @Test
     public void testRSASignatureWithPSSBigMsgMultiKeySize() throws Exception {
         try {
             for (int i = 512; i < 4096;) {
@@ -173,6 +176,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * Verify a certificate generated and signed by BC
      * @throws Exception
      */
+    @Test
     public void testCertBCtoIBM() throws Exception {
 
         // yesterday
@@ -214,7 +218,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
 
         InputStream is0 = new ByteArrayInputStream(derBytes0);
         X509Certificate certificate0 = (X509Certificate) CertificateFactory
-                .getInstance("X.509", providerName).generateCertificate(is0);
+                .getInstance("X.509", getProviderName()).generateCertificate(is0);
         if (printJunitTrace)
             System.out.println(toHex(certificate0.getSigAlgParams()));
 
@@ -230,6 +234,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * IBM vs BC
      * @throws Exception
      */
+    @Test
     public void testRSASignatureWithPSSMultiByteSize_timed() throws Exception {
         try {
             for (int i = 1; i <= 100; i++) {
@@ -239,7 +244,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
                 }
                 if (printJunitTrace)
                     System.out.println("msgSize=" + dynMsg.length);
-                dotestSignature(dynMsg, IBM_ALG, 512, null, providerName);
+                dotestSignature(dynMsg, IBM_ALG, 512, null, getProviderName());
 
             }
 
@@ -255,6 +260,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * IBM vs BC
      * @throws Exception
      */
+    @Test
     public void testRSASignatureWithPSSMultiByteSize_timed_BC() throws Exception {
         try {
             for (int i = 1; i <= 100; i++) {
@@ -279,6 +285,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * 
      * @throws Exception
      */
+    @Test
     public void testRSASignatureWithPSSMultiByteSize_BC2IBM() throws Exception {
         try {
             for (int i = 1; i <= 301; i++) {
@@ -305,7 +312,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * 
      * @throws Exception
      */
-
+    @Test
     public void testRSASignatureWithPSSMultiByteSize_IBM2BC2() throws Exception {
         try {
             for (int i = 1; i <= 301; i++) {
@@ -332,6 +339,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * Test after setting parameters
      * @throws Exception
      */
+    @Test
     public void testRSASignatureWithPSSParameterSpec() throws Exception {
         try {
             dotestSignaturePSSParameterSpec(content1, IBM_ALG, 512);
@@ -347,11 +355,12 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * SHA256
      * @throws Exception
      */
+    @Test
     public void testRSASignatureSHA256() throws Exception {
 
         try {
             PSSParameterSpec pssParameter = specSHA256Salt20;
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, providerName);
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -364,12 +373,13 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * SHA512
      * @throws Exception
      */
+    @Test
     public void testRSASignatureSHA512() throws Exception {
 
         PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512", "MGF1",
                 MGF1ParameterSpec.SHA512, 20, 1);
         try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, providerName);
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -382,12 +392,13 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * SHA512/224
      * @throws Exception
      */
+    @Test
     public void testRSASignatureSHA512_224() throws Exception {
 
         PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512/224", "MGF1",
                 MGF1ParameterSpec.SHA512_224, 20, 1);
         try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, providerName);
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -400,12 +411,13 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * SHA512/256
      * @throws Exception
      */
+    @Test
     public void testRSASignatureSHA512_256() throws Exception {
 
         PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512/256", "MGF1",
                 MGF1ParameterSpec.SHA512_256, 20, 1);
         try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, providerName);
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -418,11 +430,12 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * SHA384
      * @throws Exception
      */
+    @Test
     public void testRSASignatureSHA384() throws Exception {
         try {
             PSSParameterSpec pssParameter = new PSSParameterSpec("SHA384", "MGF1",
                     MGF1ParameterSpec.SHA384, 20, 1);
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, providerName);
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -434,6 +447,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
     /**
      * SHA255 - test one byte
      */
+    @Test
     public void testRSASignatureSHA256OneByte() throws Exception {
         try {
             PSSParameterSpec pssParameterSpec = specSHA256Salt40;
@@ -450,6 +464,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * Bouncy Castle to IBM
      * @throws Exception
      */
+    @Test
     public void testRSASignatureSHA1_BC2IBM() throws Exception {
         try {
             dotestSignatureBC2IBM(oneByte, IBM_ALG, BC_ALG, 512, -1);
@@ -468,7 +483,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * IBM to BC
      * @throws Exception
      */
-
+    @Test
     public void testRSASignatureSHA1_IBM2BC() throws Exception {
         try {
             doSignatureIBM2BC(oneByte, IBM_ALG, BC_ALG, 512, -1);
@@ -484,6 +499,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * 0 salt length
      * @throws Exception
      */
+    @Test
     public void testRSASignatureSHA1_IBM2BC_0salt() throws Exception {
         try {
             doSignatureIBM2BC(oneByte, IBM_ALG, BC_ALG, 512, 0);
@@ -504,7 +520,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * @param jceprovider
      * @throws Exception
      */
-
     protected void dotestSignature(byte[] content, String algorithm, int keySize,
             PSSParameterSpec pssParameterSpec, String jceprovider) throws Exception {
 
@@ -537,7 +552,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
 
         // Check Signature
         // Signature verifySig = Signature.getInstance("SHA1withRSA/PSS",
-        // providerName);
+        // getProviderName());
         // verifySig.initVerify(cert);
         // verifySig.update(content);
         boolean signatureVerified = sig.verify(sigBytes);
@@ -563,7 +578,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         // keyGen.initialize(keySize, new java.security.SecureRandom());
         // KeyPair keyPair = keyGen.genKeyPair();
 
-        Signature sig = Signature.getInstance(algorithm, providerName);
+        Signature sig = Signature.getInstance(algorithm, getProviderName());
         if (pssParameterSpec != null) {
             sig.setParameter(pssParameterSpec);
         }
@@ -577,7 +592,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
 
         // Check Signature
         // Signature verifySig = Signature.getInstance("SHA1withRSA/PSS",
-        // providerName);
+        // getProviderName());
         // verifySig.initVerify(cert);
         // verifySig.update(content);
         boolean signatureVerified = sig.verify(sigBytes);
@@ -627,7 +642,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             int saltSize) throws NoSuchAlgorithmException, NoSuchProviderException,
             InvalidKeyException, SignatureException {
 
-        // Signature sig = Signature.getInstance(algorithm, providerName);
+        // Signature sig = Signature.getInstance(algorithm, getProviderName());
         Signature sig = Signature.getInstance(bcalgorithm, "BC");
         AlgorithmParameters algParams = sig.getParameters();
         try {
@@ -643,7 +658,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         sig.update(plaintext);
         byte[] sigBytes = sig.sign();
 
-        Signature sig1 = Signature.getInstance(ibmalgorithm, providerName);
+        Signature sig1 = Signature.getInstance(ibmalgorithm, getProviderName());
         // Verify the signature
         sig1.initVerify(keyPair.getPublic());
         sig1.update(plaintext);
@@ -719,7 +734,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
                     MGF1ParameterSpec.SHA1, saltsize, 1);;
         }
 
-        // Signature sig = Signature.getInstance(algorithm, providerName);
+        // Signature sig = Signature.getInstance(algorithm, getProviderName());
         Signature sig = Signature.getInstance(bcalgorithm, "BC");
         if (pssParameterSpec != null) {
             sig.setParameter(pssParameterSpec);
@@ -738,7 +753,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         sig.update(content);
         byte[] sigBytes = sig.sign();
 
-        Signature sig1 = Signature.getInstance(ibmalgorithm, providerName);
+        Signature sig1 = Signature.getInstance(ibmalgorithm, getProviderName());
         if (pssParameterSpec != null) {
             sig1.setParameter(pssParameterSpec);
         }
@@ -772,7 +787,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         keyGen.initialize(keySize, new java.security.SecureRandom());
         KeyPair keyPair = keyGen.genKeyPair();
 
-        Signature sig = Signature.getInstance(algorithm, providerName);
+        Signature sig = Signature.getInstance(algorithm, getProviderName());
         // Set salt length
         PSSParameterSpec pss = new PSSParameterSpec("SHA-1", "MGF1",
                 MGF1ParameterSpec.SHA1, 20, 1);
@@ -810,7 +825,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         keyGen.initialize(keySize, new java.security.SecureRandom());
         KeyPair keyPair = keyGen.genKeyPair();
 
-        Signature sig = Signature.getInstance(algorithm, providerName);
+        Signature sig = Signature.getInstance(algorithm, getProviderName());
         // Set salt length
         if (pssParameterSpec != null) {
             sig.setParameter(pssParameterSpec);
@@ -832,6 +847,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * Empty parameters
      * @throws Exception
      */
+    @Test
     public void testCertSelfSignVerifyEmptyParams() throws Exception {
 
         String alias = "TestRSAPSS";
@@ -848,6 +864,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * IBM to BC empty params
      * @throws Exception
      */
+    @Test
     public void testCertIBM2BCEmptyParams() throws Exception {
 
         String alias = "TestRSAPSS";
@@ -864,6 +881,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * All the 4 parameters are non default
      * @throws Exception
      */
+    @Test
     public void testCertIBM2BCNonDefaultParams() throws Exception {
 
         String alias = "TestRSAPSS";
@@ -880,7 +898,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * All parameters except salt are default
      * @throws Exception
      */
-
+    @Test
     public void testCertIBM2BCParamsSalt40() throws Exception {
 
         String alias = "TestRSAPSS";
@@ -897,6 +915,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * BC to IBM all default parameters
      * @throws Exception
      */
+    @Test
     public void testCertIBM2BCDefaultParams() throws Exception {
 
         String alias = "TestRSAPSS";
@@ -913,6 +932,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * Default parameters
      * @throws Exception
      */
+    @Test
     public void testCertSelfSignVerifyDefaultParams() throws Exception {
 
         String alias = "TestRSAPSS";
@@ -930,7 +950,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * Non default parameters
      * @throws Exception
      */
-
+    @Test
     public void testCertSelfSignVerifyNonDefaultParams() throws Exception {
 
         String alias = "TestRSAPSS";
@@ -947,6 +967,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
     /**
      * Non RSAPSS cert to make sure other certs are not broken by RSA-PSS
      */
+    @Test
     public void testCertNonPSS() throws Exception {
 
         String alias = "TestNonRSAPSS";
@@ -963,6 +984,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * only the Salt is non default
      * @throws Exception
      */
+    @Test
     public void testCertSelfSignDefaultParamsExceptSalt() throws Exception {
 
         String alias = "TestRSAPSS";
@@ -980,6 +1002,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * IBM to BC
      * @throws Exception
      */
+    @Test
     public void testCertSelfSignDefaultParamsExceptSaltBC() throws Exception {
 
         String alias = "TestRSAPSS";
@@ -1031,7 +1054,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
                 }
             }
         }
-        CertAndKeyGen keypair = new CertAndKeyGen(keyAlgName, sigAlgName, providerName);
+        CertAndKeyGen keypair = new CertAndKeyGen(keyAlgName, sigAlgName, getProviderName());
 
         // If DN is provided, parse it. Otherwise, prompt the user for it.
         X500Name x500Name = new X500Name(dname);
@@ -1204,7 +1227,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
                 }
             }
         }
-        CertAndKeyGen keypair = new CertAndKeyGen(keyAlgName, sigAlgName, providerName);
+        CertAndKeyGen keypair = new CertAndKeyGen(keyAlgName, sigAlgName, getProviderName());
 
         KeyPairGenerator.getInstance("RSA", "BC");
 
@@ -1439,6 +1462,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         //                certDefaultParamsClient.getSigAlgParams());
     }
 
+    @Test
     public void testReadEmptyParam3rdPartyCertificates() throws IOException, CertificateException,
             InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException,
             SignatureException, InvalidParameterSpecException, InvalidAlgorithmParameterException {
@@ -1502,10 +1526,11 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
      * Test parameter spec
      * @throws IOException
      */
+    @Test
     public void testParameterSpec() throws IOException {
         Signature sig_ibm = null;
         try {
-            sig_ibm = Signature.getInstance(IBM_ALG, providerName);
+            sig_ibm = Signature.getInstance(IBM_ALG, getProviderName());
         } catch (NoSuchAlgorithmException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1601,11 +1626,11 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         return buf.toString();
     }
 
-    @org.junit.Test
+    @Test
     public void testRSAPSSKeyFactory() throws Exception {
         try {
             String providerNameKF = "";
-            providerNameKF = providerName;
+            providerNameKF = getProviderName();
             if (printJunitTrace)
                 System.out.println("Test RSAPSS KeyFactory provider: " + providerNameKF);
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", providerNameKF);
