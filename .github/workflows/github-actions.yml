@@ -80,7 +80,7 @@ jobs:
       - name: Setup Semeru JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '22.0.1+8'
+          java-version: '23.0.0+37'
           distribution: 'semeru'
           architecture: 'x64'
       # Uncomment to capture all files in the runner for debugging purposes.          
