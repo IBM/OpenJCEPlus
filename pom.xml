@@ -18,7 +18,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
-        <jupiter.version>5.10.3</jupiter.version>
+        <jupiter.version>5.11.0</jupiter.version>
     </properties>
         <profiles>
           <profile>
@@ -286,7 +286,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.5.0</version>
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
@@ -311,7 +311,7 @@
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
               <artifactId>exec-maven-plugin</artifactId>
-              <version>3.3.0</version>
+              <version>3.4.1</version>
               <executions>
                 <execution>
                   <id>Execute Native Library Build Script</id>
@@ -477,7 +477,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.10.3</version>
+                <version>5.11.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -493,7 +493,7 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>3.4.0</version>
+            <version>3.5.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.maven.reporting</groupId>
@@ -513,12 +513,12 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>3.9.8</version>
+            <version>4.0.0-beta-4</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
@@ -528,7 +528,7 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.5.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -539,13 +539,13 @@
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
-            <version>5.10.3</version>
+            <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
-            <version>1.10.3</version>
+            <version>1.11.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -569,7 +569,7 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.13.0</version>
+            <version>4.0.0-beta-1</version>
             <type>maven-plugin</type>
             <exclusions>
                 <exclusion>
@@ -581,12 +581,12 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.16.1</version>
+            <version>2.17.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
-            <version>3.4.2</version>
+            <version>4.0.0-beta-1</version>
             <type>maven-plugin</type>
             <exclusions>
                 <exclusion>
@@ -607,7 +607,7 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-archiver</artifactId>
-            <version>4.9.2</version>
+            <version>4.10.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.codehaus.plexus</groupId>
@@ -618,12 +618,12 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.26.2</version>
+            <version>1.27.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-clean-plugin</artifactId>
-            <version>3.4.0</version>
+            <version>4.0.0-beta-1</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
