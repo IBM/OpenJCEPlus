@@ -26,6 +26,7 @@
         <module name="UnusedLocalVariable"/>
         <module name="EmptyBlock"/>
         <module name="ImportOrder"/>
+        <module name="StringLiteralEquality"/>
     </module>
     <module name="NewlineAtEndOfFile"/>
     <module name="RegexpHeader">
