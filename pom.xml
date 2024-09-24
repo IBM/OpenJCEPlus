@@ -13,7 +13,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>OpenJCEPlus</artifactId>
-    <version>22</version>
+    <version>23</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -103,15 +103,6 @@
                 <build.native.file>${basedir}/buildNativeMac.sh</build.native.file>
                 <build.platform.value>Mac</build.platform.value>
                 <build.target.jgskitlib.dir>${project.basedir}/target/buildmac/aarch64/</build.target.jgskitlib.dir>
-            </properties>
-          </profile>
-          <profile>
-            <id>Profile for JDK 22 Build</id>
-            <activation>
-              <jdk>22</jdk>
-            </activation>
-            <properties>
-                <jdk.build.target>22</jdk.build.target>
             </properties>
           </profile>
           <profile>
@@ -268,8 +259,8 @@
                         <message>"Property ock.library.path is not set, perhaps this required property is missing from the command line?"</message>
                       </requireProperty>
                       <requireJavaVersion>
-                        <version>x = 22</version>
-                        <message>"Java 22 required to build OpenJCEPlus."</message>
+                        <version>x = 23</version>
+                        <message>"Java 23 required to build OpenJCEPlus."</message>
                       </requireJavaVersion>
                       <requireEnvironmentVariable>
                         <variableName>JAVA_HOME</variableName>
