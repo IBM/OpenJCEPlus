@@ -38,14 +38,15 @@ Build Status:
 | Mac OS X*               | aarch64*    |
 * Mac OS X currently is only able to compile and run tests using the `OpenJCEPlus` provider, not `OpenJCEPlusFIPS`. The provider `OpenJCEPlusFIPS` will not load.
 
-Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with a dependent Java Native Interface library. Keep in mind that `$PROJECT_HOME` can represent any directory on your
-system and will be referred to as such in the subsequent instructions:
+Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with a dependent Java Native Interface library. Keep in mind that `$PROJECT_HOME` can represent any directory on your system and will be referred to as such in the subsequent instructions. Also keep in mind that the value `$JAVA_VERSION` below must match the same version of the branch of OpenJCEPlus being built. For example if building the `java21` branch the `$JAVA_VERSION` must match the Java 21 SDK version such as `21.0.2+13`.
 
 1. Create an OCK directory, for example:
 
     ```console
     mkdir $PROJECT_HOME/OCK
     ```
+
+1. Follow instructions available in the project [OpenCryptographyKitC](https://github.com/IBM/OpenCryptographyKitC/) to build both the SDK tar file and the binary distribution tar file. You can also refer to this projects [github-actions.yml](.github/workflows/github-actions.yml) file for details on how this project incorporates and builds the [OpenCryptographyKitC](https://github.com/IBM/OpenCryptographyKitC/) project for testing purposes.
 
 1. Extract the Java gskit SDK tar and gskit tar file into the directory previously created:
 
@@ -84,12 +85,12 @@ You can test your installation by issuing `mvn --version`. For example:
     $ mvn --version
     Apache Maven 3.9.2 (c9616018c7a021c1c39be70fb2843d6f5f9b8a1c)
     Maven home: /tools/apache-maven-3.9.2
-    Java version: 1.8.0_361, vendor: IBM Corporation, runtime: /opt/ibm/sdks/jdk-11.0.22+7
+    Java version: $JAVA_VERSION, vendor: IBM Corporation, runtime: /opt/ibm/sdks/jdk-$JAVA_VERSION
     Default locale: en_US, platform encoding: ISO8859-1
     OS name: "aix", version: "7.2", arch: "ppc64", family: "unix"
     ```
 
-1. Clone the `OpenJCEPlus` respository.
+1. Clone the `OpenJCEPlus` repository.
 
 1. Change directory to the root directory where the `pom.xml` file exists.
 
@@ -100,7 +101,7 @@ You can test your installation by issuing `mvn --version`. For example:
 1. Set your `JAVA_HOME` environment variable. This will be the SDK used to compile the project. You must set your JAVA_HOME value to Java version 11 when using code located in the `java11` branch.
 
     ```console
-    export JAVA_HOME="/opt/ibm/sdks/jdk-11.0.22+7"
+    export JAVA_HOME="/opt/ibm/sdks/jdk-$JAVA_VERSION"
     ```
 
 1. Set the location of the variable `GSKIT_SDK` to the directory extracted in the above steps.
@@ -156,7 +157,7 @@ export LIBPATH="$PROJECT_HOME/OCK/:$PROJECT_HOME/OCK/jgsk_sdk"
 On all platforms set the following environment variables and execute all the tests using `mvn`. You must set your JAVA_HOME value to Java version 11 when using code located in the `java11` branch.
 
 ```console
-export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-11.0.22+7"
+export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION"
 export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
 mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test
 ```
@@ -175,7 +176,7 @@ On all platforms change to the OpenJCEPlus directory and set the following envir
 
 ```console
 cd OpenJCEPlus
-export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-11.0.22+7"
+export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION"
 export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
 mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test -Dtest=TestClassname
 ```
@@ -206,7 +207,7 @@ below represents your desired preference order.
 
 # Features And Algorithms
 
-The following algorothms are registered by the OpenJCEPlus and OpenJCEPlusFIPS providers.
+The following algorithms are registered by the OpenJCEPlus and OpenJCEPlusFIPS providers.
 
 | Algorithm Type            | Algorithm Name             | OpenJCEPlusFIPS | OpenJCEPlus  |
 | --------------------------|----------------------------|-----------------|--------------|
