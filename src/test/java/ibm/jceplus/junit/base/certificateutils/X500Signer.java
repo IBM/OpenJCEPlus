@@ -8,7 +8,6 @@
 
 package ibm.jceplus.junit.base.certificateutils;
 
-import com.ibm.misc.Debug;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
