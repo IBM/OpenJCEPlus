@@ -183,7 +183,9 @@ ${HOSTOUT}/%.o: %.c
 	${CC} ${CFLAGS} ${DEBUG_FLAGS} -c -I${GSKIT_HOME}/inc -I${JAVA_HOME}/include -I${JAVA_HOME}/include/${OSINCLUDEDIR} $< -o $@
 
 javah: dircreate
-	${JAVA_HOME}/bin/javac --add-exports java.base/jdk.internal.misc=ALL-UNNAMED -cp ${JCE_CLASSPATH} \
+	${JAVA_HOME}/bin/javac \
+	--add-exports java.base/sun.security.util=openjceplus \
+	-cp ${JCE_CLASSPATH} \
 	${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java \
 	${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/FastJNIBuffer.java \
 	${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/OCKContext.java \

@@ -58,7 +58,9 @@ dircreate:
 	-@mkdir -p $(HOSTOUT) 2>nul
 
 javah: dircreate
-	$(JAVA_HOME)/bin/javac --add-exports java.base/jdk.internal.misc=ALL-UNNAMED -cp $(JCE_CLASSPATH) \
+	$(JAVA_HOME)/bin/javac \
+	--add-exports java.base/sun.security.util=openjceplus \
+	-cp $(JCE_CLASSPATH) \
 	$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java \
 	$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/FastJNIBuffer.java \
 	$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/OCKContext.java \
