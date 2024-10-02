@@ -44,20 +44,11 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 import javax.crypto.spec.SecretKeySpec;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
-public class BaseTestIsAssignableFromOrder extends BaseTest {
+public class BaseTestIsAssignableFromOrder extends BaseTestJunit5 {
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(BaseTestIsAssignableFromOrder.class);
-        return suite;
-    }
-
-    public BaseTestIsAssignableFromOrder(String providerName) {
-        super(providerName);
-    }
-
+    @Test
     public void testIsAssignableFromOrder() throws Exception {
 
         // AlgorithmParameters
@@ -87,10 +78,10 @@ public class BaseTestIsAssignableFromOrder extends BaseTest {
     private void testAlgSpec(String algorithm, AlgorithmParameterSpec spec) throws Exception {
         System.out.println("test AlgorithmParametersSpec: " + algorithm);
 
-        AlgorithmParameters ap1 = AlgorithmParameters.getInstance(algorithm, providerName);
+        AlgorithmParameters ap1 = AlgorithmParameters.getInstance(algorithm, getProviderName());
         ap1.init(spec);
 
-        AlgorithmParameters ap2 = AlgorithmParameters.getInstance(algorithm, providerName);
+        AlgorithmParameters ap2 = AlgorithmParameters.getInstance(algorithm, getProviderName());
         ap2.init(ap1.getEncoded());
 
         List<Class<? extends AlgorithmParameterSpec>> classes = new ArrayList<>();
@@ -108,7 +99,7 @@ public class BaseTestIsAssignableFromOrder extends BaseTest {
             throws Exception {
         System.out.println("test SecretKeySpec: " + algorithm);
 
-        SecretKeyFactory kf = SecretKeyFactory.getInstance(algorithm, providerName);
+        SecretKeyFactory kf = SecretKeyFactory.getInstance(algorithm, getProviderName());
         SecretKey key = kf.generateSecret(spec);
 
         kf.getKeySpec(key, KeySpec.class);
@@ -120,7 +111,7 @@ public class BaseTestIsAssignableFromOrder extends BaseTest {
             throws Exception {
         System.out.println("test KeySpec: " + algorithm);
 
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(algorithm, providerName);
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(algorithm, getProviderName());
         kpg.initialize(size);
         KeyPair kp = kpg.generateKeyPair();
 
@@ -133,7 +124,7 @@ public class BaseTestIsAssignableFromOrder extends BaseTest {
         EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(encodedpubk);
         EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(encodedprvk);
 
-        KeyFactory kf = KeyFactory.getInstance(algorithm, providerName);
+        KeyFactory kf = KeyFactory.getInstance(algorithm, getProviderName());
         PublicKey publicKey = kf.generatePublic(publicKeySpec);
         PrivateKey privateKey = kf.generatePrivate(privateKeySpec);
 
