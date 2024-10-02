@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -16,8 +16,11 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestChaCha20Poly1305ByteBuffer extends BaseTest {
+public class BaseTestChaCha20Poly1305ByteBuffer extends BaseTestJunit5 {
 
     private static Random random = new SecureRandom();
     private static int dataSize = 4096; // see javax.crypto.CipherSpi
@@ -36,9 +39,7 @@ public class BaseTestChaCha20Poly1305ByteBuffer extends BaseTest {
     static final String CHACHA20_ALGORITHM = "ChaCha20";
 
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected KeyGenerator keyGen = null;
     protected SecretKey key = null;
     protected IvParameterSpec paramSpec = null;
@@ -46,25 +47,18 @@ public class BaseTestChaCha20Poly1305ByteBuffer extends BaseTest {
     protected boolean success = true;
     protected int specifiedKeySize = 0;
 
-
-    public BaseTestChaCha20Poly1305ByteBuffer(String providerName) {
-        super(providerName);
-    }
-
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
-        keyGen = KeyGenerator.getInstance(CHACHA20_ALGORITHM, providerName);
+        keyGen = KeyGenerator.getInstance(CHACHA20_ALGORITHM, getProviderName());
         if (specifiedKeySize > 0) {
             keyGen.init(specifiedKeySize);
         }
         //key = keyGen.generateKey();
     }
 
+    @Test
     public void testByteBuffer() throws Exception {
-        Cipher cipher = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+        Cipher cipher = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
         System.out.println("Testing " + cipher.getProvider());
 
         boolean failedOnce = false;
