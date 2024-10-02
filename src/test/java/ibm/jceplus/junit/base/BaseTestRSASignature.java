@@ -26,13 +26,11 @@ import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestRSASignature extends BaseTestSignature {
+public class BaseTestRSASignature extends BaseTestJunit5Signature {
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
     static final BigInteger N = new BigInteger(

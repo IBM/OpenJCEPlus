@@ -1,50 +1,24 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution.
  */
-
 package ibm.jceplus.junit.openjceplusfips;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import ibm.jceplus.junit.base.BaseTestAES;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-public class TestAES_128 extends TestAES {
+@TestInstance(Lifecycle.PER_CLASS)
+public class TestAES_128 extends BaseTestAES {
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    private static final int KEY_SIZE = 128;
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public TestAES_128() throws Exception {
-        super(KEY_SIZE);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TestAES_128.class);
-        return suite;
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
+        setKeySize(128);
     }
 }
-

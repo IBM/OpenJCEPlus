@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -23,23 +23,19 @@ import java.security.spec.XECPrivateKeySpec;
 import java.security.spec.XECPublicKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestXDHKeyImport extends ibm.jceplus.junit.base.BaseTest {
+public class BaseTestXDHKeyImport extends BaseTestJunit5 {
 
-    public BaseTestXDHKeyImport(String providerName) {
-        super(providerName);
-    }
-
-    public void setUp() throws Exception {}
-
-    public void tearDown() throws Exception {}
-
+    @Test
     public void testCreateKeyPairNamedParamImport_X25519() throws Exception {
         createKeyPairNamedParamImport("X25519");
         createKeyPairXDHParamImport("X25519");
         createKeyPairLocalParamImport("X25519");
     }
 
+    @Test
     public void testCreateKeyPairNamedParamImport_X448() throws Exception {
         createKeyPairNamedParamImport("X448");
         createKeyPairXDHParamImport("X448");
@@ -73,7 +69,7 @@ public class BaseTestXDHKeyImport extends ibm.jceplus.junit.base.BaseTest {
         //final String methodName = "testCreateKeyPairNamedParamImport";
 
         NamedParameterSpec nps = new NamedParameterSpec(alg);
-        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("XDH", providerName);
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("XDH", getProviderName());
 
         keyPairGen.initialize(nps);
         KeyPair keyPair = keyPairGen.generateKeyPair();
@@ -92,7 +88,7 @@ public class BaseTestXDHKeyImport extends ibm.jceplus.junit.base.BaseTest {
         // System.out.println (methodName + " privKeyBytes = " +
         // BaseUtils.bytesToHex(privKeyBytes));
 
-        KeyFactory keyFactory = KeyFactory.getInstance("XDH", providerName);
+        KeyFactory keyFactory = KeyFactory.getInstance("XDH", getProviderName());
         EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privKeyBytes);
         PrivateKey privateKey2 = keyFactory.generatePrivate(privateKeySpec);
 
@@ -185,7 +181,7 @@ public class BaseTestXDHKeyImport extends ibm.jceplus.junit.base.BaseTest {
         }
 
         NamedParameterSpec paramSpec = new NamedParameterSpec(alg);
-        KeyFactory kf = KeyFactory.getInstance("XDH", providerName);
+        KeyFactory kf = KeyFactory.getInstance("XDH", getProviderName());
 
         XECPublicKeySpec xdhPublic = new XECPublicKeySpec(paramSpec, u);
         XECPrivateKeySpec xdhPrivate = new XECPrivateKeySpec(paramSpec, scalar);
@@ -206,7 +202,7 @@ public class BaseTestXDHKeyImport extends ibm.jceplus.junit.base.BaseTest {
      * @throws Exception
      */
     void createKeyPairLocalParamImport(String alg) throws Exception {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(alg, providerName);
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(alg, getProviderName());
         //        KeyPairGenerator kpg = KeyPairGenerator.getInstance("XDH");
         NamedParameterSpec paramSpec = new NamedParameterSpec(alg);
         System.out.println("Alg = " + alg);
@@ -216,7 +212,7 @@ public class BaseTestXDHKeyImport extends ibm.jceplus.junit.base.BaseTest {
         PrivateKey pvk = kp.getPrivate();
         PublicKey pbk = kp.getPublic();
 
-        KeyFactory kf = KeyFactory.getInstance(alg, providerName);
+        KeyFactory kf = KeyFactory.getInstance(alg, getProviderName());
         //        KeyFactory kf = KeyFactory.getInstance("XDH");
         XECPublicKeySpec xdhPublic = kf.getKeySpec(kp.getPublic(), XECPublicKeySpec.class);
         XECPrivateKeySpec xdhPrivate = kf.getKeySpec(kp.getPrivate(), XECPrivateKeySpec.class);

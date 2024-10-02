@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -13,23 +13,24 @@ import javax.crypto.Cipher;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestAESGCMBufferIV extends BaseTest {
+public class BaseTestAESGCMBufferIV extends BaseTestJunit5 {
 
     private Cipher cipher;
     private SecretKeySpec keySpec;
     private byte plaintext[];
 
-    public BaseTestAESGCMBufferIV(String providerName) {
-        super(providerName);
-    }
-
-    protected void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         keySpec = new SecretKeySpec(new byte[16], "AES");
-        cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         plaintext = new byte[51];
     }
 
+    @Test
     public void testAESGCMBufferIV() throws Exception {
         testBufferIV(45, 16);
         testBufferIV(46, 12);

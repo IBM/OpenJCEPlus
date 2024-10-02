@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -17,24 +18,18 @@ import java.security.NoSuchProviderException;
 import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestMemStressXDH extends ibm.jceplus.junit.base.BaseTest {
+public class BaseTestMemStressXDH extends BaseTestJunit5 {
     /* This class by default tests "X25519" */
 
     int numTimes = 100;
     boolean printheapstats = false;
     String curveName = "X25519";
 
-    //"X448";
-    public BaseTestMemStressXDH(String providerName) {
-        super(providerName);
-    }
-
-    public BaseTestMemStressXDH(String providerName, String curveName) {
-        super(providerName);
-        this.curveName = curveName;
-    }
-
+    @BeforeEach
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
@@ -45,8 +40,7 @@ public class BaseTestMemStressXDH extends ibm.jceplus.junit.base.BaseTest {
         System.out.println("Testing XDH curveName=" + curveName);
     }
 
-    public void tearDown() throws Exception {}
-
+    @Test
     public void testXDH() throws Exception {
 
         Runtime rt = Runtime.getRuntime();
@@ -86,7 +80,7 @@ public class BaseTestMemStressXDH extends ibm.jceplus.junit.base.BaseTest {
 
         KeyPairGenerator kpgA = null;
         try {
-            kpgA = KeyPairGenerator.getInstance("XDH", providerName);
+            kpgA = KeyPairGenerator.getInstance("XDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -107,7 +101,7 @@ public class BaseTestMemStressXDH extends ibm.jceplus.junit.base.BaseTest {
         // set up
         KeyAgreement keyAgreeA = null;
         try {
-            keyAgreeA = KeyAgreement.getInstance("XDH", providerName);
+            keyAgreeA = KeyAgreement.getInstance("XDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -125,7 +119,7 @@ public class BaseTestMemStressXDH extends ibm.jceplus.junit.base.BaseTest {
         KeyPairGenerator kpgB = null;
 
         try {
-            kpgB = KeyPairGenerator.getInstance("XDH", providerName);
+            kpgB = KeyPairGenerator.getInstance("XDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -149,7 +143,7 @@ public class BaseTestMemStressXDH extends ibm.jceplus.junit.base.BaseTest {
 
         KeyAgreement keyAgreeB = null;
         try {
-            keyAgreeB = KeyAgreement.getInstance("XDH", providerName);
+            keyAgreeB = KeyAgreement.getInstance("XDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -188,7 +182,6 @@ public class BaseTestMemStressXDH extends ibm.jceplus.junit.base.BaseTest {
         byte[] sharedSecretB = keyAgreeB.generateSecret();
 
         assertTrue(Arrays.equals(sharedSecretA, sharedSecretB));
-
     }
 }
 

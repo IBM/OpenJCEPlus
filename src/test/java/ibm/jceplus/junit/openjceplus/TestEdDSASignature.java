@@ -14,6 +14,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class TestEdDSASignature extends BaseTestEdDSASignature {
+
     @BeforeAll
     public void beforeAll() {
         Utils.loadProviderTestSuite();
