@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,28 +10,34 @@ package ibm.jceplus.junit.base;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
 public class BaseTestSHA512_224 extends BaseTestMessageDigestClone {
 
     // Test vectors obtained from
     // http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA512_224.pdf
 
-    public BaseTestSHA512_224(String providerName) {
-        super(providerName, "SHA-512/224");
+    @BeforeAll
+    public void setUp() {
+        setAlgorithm("SHA512/224");
     }
 
+    @Test
     public void testSHA512_224_SingleBlock() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
 
         assertTrue(Arrays.equals(md.digest("abc".getBytes("UTF-8")),
                 hexStrToBytes("4634270F707B6A54DAAE7530460842E20E37ED265CEEE9A43E8924AA")));
 
     }
 
+    @Test
     public void testSHA512_224_TwoBlock() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         assertTrue(Arrays.equals(
                 md.digest(("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn"
                         + "hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
@@ -40,6 +46,7 @@ public class BaseTestSHA512_224 extends BaseTestMessageDigestClone {
 
     }
 
+    @Test
     public void testSHA512_224_varmsgs() throws Exception {
 
         String[] calculatedDigests = {"6ed0dd02806fa89e25de060c19d3ac86cabb87d6a0ddd05c333b84f4", //0
@@ -56,7 +63,7 @@ public class BaseTestSHA512_224 extends BaseTestMessageDigestClone {
 
         String msg = "";
         int j = 0;
-        MessageDigest mdIBM = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest mdIBM = MessageDigest.getInstance(getAlgorithm(), getProviderName());
 
         for (int i = 0; i < 10000; i++) {
 
@@ -73,13 +80,12 @@ public class BaseTestSHA512_224 extends BaseTestMessageDigestClone {
 
     }
 
-
-
+    @Test
     public void testSHA512_224_withUpdates() throws Exception {
 
         String calcDigest = "367f4e38fba70b22c8d975e1079b5f9f8b3ac971e2ef049c704b1132";
 
-        MessageDigest mdIBM = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest mdIBM = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         String msgarrays[] = {"Hello0", "Hello1", "Hello2", "Hello3", "Hello4", "longmessage5",
                 "longermessage6,", "verylongmessage7"};
         for (int i = 0; i < msgarrays.length; i++) {

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -18,48 +18,42 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestECKeyPairGenerator extends BaseTest {
+public class BaseTestECKeyPairGenerator extends BaseTestJunit5 {
 
     KeyPairGenerator kpg = null;
     KeyPairGenerator kpgc = null;
 
-    public BaseTestECKeyPairGenerator(String providerName) {
-        super(providerName);
-
+    @BeforeEach
+    public void setUp() throws Exception {
+        kpg = KeyPairGenerator.getInstance("EC", getProviderName());
+        kpgc = KeyPairGenerator.getInstance("EC", getProviderName());
     }
 
-    @Before
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        kpg = KeyPairGenerator.getInstance("EC", providerName);
-        kpgc = KeyPairGenerator.getInstance("EC", providerName);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testECKeyGen_192() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports P-192 key gen
             return;
         }
         doECKeyGen(192);
     }
 
+    @Test
     public void testECKeyGen_256() throws Exception {
         doECKeyGen(256);
     }
 
+    @Test
     public void testECKeyGen_384() throws Exception {
         doECKeyGen(384);
 
     }
 
+    @Test
     public void testECKeyGen_521() throws Exception {
         doECKeyGen(521);
     }
@@ -107,6 +101,7 @@ public class BaseTestECKeyPairGenerator extends BaseTest {
 
     }
 
+    @Test
     public void testECKeyGenCurves_secp192k1() throws Exception {
         generictestECKeyGenCurve("secp192k1");
         generictestECKeyGenCurve("1.3.132.0.31");
@@ -114,8 +109,9 @@ public class BaseTestECKeyPairGenerator extends BaseTest {
 
     }
 
+    @Test
     public void testPrintECCurves() throws Exception {
-        if (providerName.equalsIgnoreCase("OpenJCEPlus")) {
+        if (getProviderName().equalsIgnoreCase("OpenJCEPlus")) {
 
             generictestECKeyGenCurve("secp112r1");
             generictestECKeyGenCurve("1.3.132.0.6");
@@ -218,6 +214,7 @@ public class BaseTestECKeyPairGenerator extends BaseTest {
 
     }
 
+    @Test
     public void testUnsupportedCurveNames() throws Exception {
         try {
             generictestECKeyGenCurve("NIST P-1929");
@@ -233,7 +230,7 @@ public class BaseTestECKeyPairGenerator extends BaseTest {
             assertTrue(true);
         }
 
-        if (providerName.equalsIgnoreCase("OpenJCEPlusFIPS")) {
+        if (getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
             try {
                 generictestECKeyGenCurve("secp112r1");
                 assertTrue(false);

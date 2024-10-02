@@ -26,52 +26,31 @@ import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import javax.crypto.Cipher;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestRSAKeyInterop extends BaseTestInterop {
+public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
 
-    //--------------------------------------------------------------------------
-    //
-    //
     protected KeyPairGenerator rsaKeyPairGenPlus;
     protected KeyFactory rsaKeyFactoryPlus;
     protected KeyPairGenerator rsaKeyPairGenJCE;
     protected KeyFactory rsaKeyFactoryJCE;
-    protected int keySize = 1024;
 
     byte[] origMsg = "this is the original message to be signed".getBytes();
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestRSAKeyInterop(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-    }
-
-    public BaseTestRSAKeyInterop(String providerName, String interopProviderName, int size) {
-        super(providerName, interopProviderName);
-        this.keySize = size;
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
-        rsaKeyPairGenPlus = KeyPairGenerator.getInstance("RSA", providerName);
-        rsaKeyFactoryPlus = KeyFactory.getInstance("RSA", providerName);
-        rsaKeyPairGenJCE = KeyPairGenerator.getInstance("RSA", interopProviderName);
-        rsaKeyFactoryJCE = KeyFactory.getInstance("RSA", interopProviderName);
+        rsaKeyPairGenPlus = KeyPairGenerator.getInstance("RSA", getProviderName());
+        rsaKeyFactoryPlus = KeyFactory.getInstance("RSA", getProviderName());
+        rsaKeyPairGenJCE = KeyPairGenerator.getInstance("RSA", getInteropProviderName());
+        rsaKeyFactoryJCE = KeyFactory.getInstance("RSA", getInteropProviderName());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyGen_PlusToJCE() throws Exception {
-        KeyPair rsaKeyPairPlus = generateKeyPair(rsaKeyPairGenPlus, this.keySize);
+        KeyPair rsaKeyPairPlus = generateKeyPair(rsaKeyPairGenPlus, getKeySize());
         RSAPublicKey publicKeyPlus = (RSAPublicKey) rsaKeyPairPlus.getPublic();
         RSAPrivateKey privateKeyPlus = (RSAPrivateKey) rsaKeyPairPlus.getPrivate();
         byte[] publicKeyBytesPlus = publicKeyPlus.getEncoded();
@@ -92,11 +71,9 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyGen_JCEToPlus() throws Exception {
-        KeyPair rsaKeyPairJCE = generateKeyPair(rsaKeyPairGenJCE, this.keySize);
+        KeyPair rsaKeyPairJCE = generateKeyPair(rsaKeyPairGenJCE, getKeySize());
         RSAPublicKey publicKeyJCE = (RSAPublicKey) rsaKeyPairJCE.getPublic();
         RSAPrivateKey privateKeyJCE = (RSAPrivateKey) rsaKeyPairJCE.getPrivate();
         byte[] publicKeyBytesJCE = publicKeyJCE.getEncoded();
@@ -117,44 +94,37 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
 
     }
 
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyFactoryCreateFromEncodedJCEtoPlus_1024() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             // 1024 key size for FIPS not supported
             return;
         }
         keyFactoryCreateFromEncodedJCEToPlus(1024);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyFactoryCreateFromEncodedPlusToJCE_1024() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             // 1024 key size for FIPS not supported
             return;
         }
         keyFactoryCreateFromEncodedPlusToJCE(1024);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyFactoryCreateFromKeySpecJCEToPlus_2048() throws Exception {
         keyFactoryCreateFromKeySpecJCEToPlus(2048);
     }
 
+    @Test
     public void testRSAKeyFactoryCreateFromKeySpecPlusToJCE_2048() throws Exception {
         keyFactoryCreateFromKeySpecPlusToJCE(2048);
     }
 
     /*
-    //--------------------------------------------------------------------------
-    //
-    //
+
+    @Test
     public void testRSAKeyFactoryCreateFromKeySpec() throws Exception {
     
         RSAPrivateCrtKeySpec crtSpec = new RSAPrivateCrtKeySpec(
@@ -183,9 +153,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
         RSAPublicKey rsaPub = (RSAPublicKey) rsaKeyFactory.generatePublic(rsaPublicSpec);
     }
     */
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected KeyPair generateKeyPair(KeyPairGenerator keyPairGen, int size) throws Exception {
         keyPairGen.initialize(size);
         KeyPair keyPair = keyPairGen.generateKeyPair();
@@ -209,9 +177,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
         return keyPair;
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected void keyFactoryCreateFromEncodedPlusToJCE(int size) throws Exception {
 
         KeyPair rsaKeyPairPlus = generateKeyPair(rsaKeyPairGenPlus, size);
@@ -303,9 +269,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
     }
 
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected void keyFactoryCreateFromKeySpecJCEToPlus(int size) throws Exception {
 
         KeyPair rsaKeyPairJCE = generateKeyPair(rsaKeyPairGenJCE, size);
@@ -392,15 +356,16 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
         }
     }
 
+    @Test
     public void testSignJCEAndVerifyPlus() {
         try {
 
-            rsaKeyPairGenJCE.initialize(this.keySize);
+            rsaKeyPairGenJCE.initialize(getKeySize());
             KeyPair rsaKeyPairJCE = rsaKeyPairGenJCE.generateKeyPair();
 
             rsaKeyPairJCE.getPublic();
             RSAPrivateKey rsaPrivJCE = (RSAPrivateKey) rsaKeyPairJCE.getPrivate();
-            Signature signingJCE = Signature.getInstance("SHA256WithRSA", interopProviderName);
+            Signature signingJCE = Signature.getInstance("SHA256WithRSA", getInteropProviderName());
             signingJCE.initSign(rsaPrivJCE);
             signingJCE.update(origMsg);
             byte[] signedBytesJCE = signingJCE.sign();
@@ -413,7 +378,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
             RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyFactoryPlus.generatePublic(x509SpecJCE);
             rsaKeyFactoryPlus.generatePrivate(pkcs8SpecJCE);
 
-            Signature verifyingPlus = Signature.getInstance("SHA256withRSA", providerName);
+            Signature verifyingPlus = Signature.getInstance("SHA256withRSA", getProviderName());
             verifyingPlus.initVerify(rsaPubPlus);
             verifyingPlus.update(origMsg);
             assertTrue("Signature verification failed", verifyingPlus.verify(signedBytesJCE));
@@ -423,16 +388,17 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
         }
     }
 
+    @Test
     public void testSignJCEAndVerifyPlusPrivateCrt() {
 
         try {
 
-            rsaKeyPairGenJCE.initialize(this.keySize);
+            rsaKeyPairGenJCE.initialize(getKeySize());
             KeyPair rsaKeyPairJCE = rsaKeyPairGenJCE.generateKeyPair();
 
             rsaKeyPairJCE.getPublic();
             RSAPrivateCrtKey rsaPrivJCE = (RSAPrivateCrtKey) rsaKeyPairJCE.getPrivate();
-            Signature signingJCE = Signature.getInstance("SHA256WithRSA", interopProviderName);
+            Signature signingJCE = Signature.getInstance("SHA256WithRSA", getInteropProviderName());
             signingJCE.initSign(rsaPrivJCE);
             signingJCE.update(origMsg);
             byte[] signedBytesJCE = signingJCE.sign();
@@ -445,7 +411,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
             RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyFactoryPlus.generatePublic(x509SpecJCE);
             rsaKeyFactoryPlus.generatePrivate(pkcs8SpecJCE);
 
-            Signature verifyingPlus = Signature.getInstance("SHA256withRSA", providerName);
+            Signature verifyingPlus = Signature.getInstance("SHA256withRSA", getProviderName());
             verifyingPlus.initVerify(rsaPubPlus);
             verifyingPlus.update(origMsg);
             assertTrue("Signature verification failed", verifyingPlus.verify(signedBytesJCE));
@@ -455,15 +421,16 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
         }
     }
 
+    @Test
     public void testSignPlusAndVerifyJCE() {
 
         try {
-            rsaKeyPairGenPlus.initialize(this.keySize);
+            rsaKeyPairGenPlus.initialize(getKeySize());
             KeyPair rsaKeyPairPlus = rsaKeyPairGenPlus.generateKeyPair();
 
             rsaKeyPairPlus.getPublic();
             RSAPrivateKey rsaPrivPlus = (RSAPrivateKey) rsaKeyPairPlus.getPrivate();
-            Signature signingPlus = Signature.getInstance("SHA256WithRSA", providerName);
+            Signature signingPlus = Signature.getInstance("SHA256WithRSA", getProviderName());
             signingPlus.initSign(rsaPrivPlus);
             signingPlus.update(origMsg);
             byte[] signedBytesPlus = signingPlus.sign();
@@ -476,7 +443,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
             RSAPublicKey rsaPubJCE = (RSAPublicKey) rsaKeyFactoryJCE.generatePublic(x509SpecPlus);
             rsaKeyFactoryJCE.generatePrivate(pkcs8SpecPlus);
 
-            Signature verifyingJCE = Signature.getInstance("SHA256withRSA", interopProviderName);
+            Signature verifyingJCE = Signature.getInstance("SHA256withRSA", getInteropProviderName());
             verifyingJCE.initVerify(rsaPubJCE);
             verifyingJCE.update(origMsg);
             assertTrue("Signature verification", verifyingJCE.verify(signedBytesPlus));
@@ -490,16 +457,16 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
 
     }
 
-
+    @Test
     public void testSignPlusAndVerifyJCECrt() {
         try {
 
-            rsaKeyPairGenPlus.initialize(this.keySize);
+            rsaKeyPairGenPlus.initialize(getKeySize());
             KeyPair rsaKeyPairPlus = rsaKeyPairGenPlus.generateKeyPair();
 
             rsaKeyPairPlus.getPublic();
             RSAPrivateCrtKey rsaPrivPlus = (RSAPrivateCrtKey) rsaKeyPairPlus.getPrivate();
-            Signature signingPlus = Signature.getInstance("SHA256WithRSA", providerName);
+            Signature signingPlus = Signature.getInstance("SHA256WithRSA", getProviderName());
             signingPlus.initSign(rsaPrivPlus);
             signingPlus.update(origMsg);
             byte[] signedBytesPlus = signingPlus.sign();
@@ -512,7 +479,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
             RSAPublicKey rsaPubJCE = (RSAPublicKey) rsaKeyFactoryJCE.generatePublic(x509SpecPlus);
             rsaKeyFactoryJCE.generatePrivate(pkcs8SpecPlus);
 
-            Signature verifyingJCE = Signature.getInstance("SHA256withRSA", providerName);
+            Signature verifyingJCE = Signature.getInstance("SHA256withRSA", getProviderName());
             verifyingJCE.initVerify(rsaPubJCE);
             verifyingJCE.update(origMsg);
             assertTrue("Signature verification failed", verifyingJCE.verify(signedBytesPlus));
@@ -522,6 +489,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
         }
     }
 
+    @Test
     public void testEncryptPlusDecryptJCE() {
 
         try {
@@ -531,12 +499,12 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
             //            public and Private key;" + 
             //                "encrypt with JCE and d/ecrypt with JCEPlus and vice versa").getBytes();
             byte[] cipherText;
-            rsaKeyPairGenPlus.initialize(this.keySize);
+            rsaKeyPairGenPlus.initialize(getKeySize());
             KeyPair rsaKeyPairPlus = rsaKeyPairGenPlus.generateKeyPair();
 
             RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyPairPlus.getPublic();
             rsaKeyPairPlus.getPrivate();
-            Cipher cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            Cipher cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
             cipherPlus.init(Cipher.ENCRYPT_MODE, rsaPubPlus);
             cipherText = cipherPlus.doFinal(msgBytes);
 
@@ -549,7 +517,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
             RSAPrivateCrtKey rsaPrivJCE = (RSAPrivateCrtKey) rsaKeyFactoryJCE
                     .generatePrivate(pkcs8SpecPlus);
 
-            Cipher cipherJCE = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            Cipher cipherJCE = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
             cipherJCE.init(Cipher.DECRYPT_MODE, rsaPrivJCE);
             byte[] decryptedBytes = cipherJCE.doFinal(cipherText);
             System.out.println("msgBytes = " + toHex(msgBytes));
@@ -561,6 +529,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
         }
     }
 
+    @Test
     public void testEncryptJCEDecryptPlus() {
         byte[] msgBytes = ("This is a short message".getBytes());
         //long message to be encrypted and decrypted using RSA public and Private key;" + 
@@ -568,12 +537,12 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
 
         try {
             byte[] cipherText;
-            rsaKeyPairGenJCE.initialize(this.keySize);
+            rsaKeyPairGenJCE.initialize(getKeySize());
             KeyPair rsaKeyPairJCE = rsaKeyPairGenJCE.generateKeyPair();
 
             RSAPublicKey rsaPubJCE = (RSAPublicKey) rsaKeyPairJCE.getPublic();
             rsaKeyPairJCE.getPrivate();
-            Cipher cipherJCE = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            Cipher cipherJCE = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
             cipherJCE.init(Cipher.ENCRYPT_MODE, rsaPubJCE);
             cipherText = cipherJCE.doFinal(msgBytes);
 
@@ -586,7 +555,7 @@ public class BaseTestRSAKeyInterop extends BaseTestInterop {
             RSAPrivateCrtKey rsaPrivPlus = (RSAPrivateCrtKey) rsaKeyFactoryPlus
                     .generatePrivate(pkcs8SpecJCE);
 
-            Cipher cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+            Cipher cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
             cipherPlus.init(Cipher.DECRYPT_MODE, rsaPrivPlus);
             byte[] decryptedBytes = cipherPlus.doFinal(cipherText);
             System.out.println("msgBytes = " + toHex(msgBytes));
