@@ -63,7 +63,9 @@ ${HOSTOUT}/%.o: %.c
 	gcc -fPIC ${DEBUG_FLAGS} -c -arch arm64 -pedantic -Wall -fstack-protector -I${TOPDIR}/src/main/native/ -I${GSKIT_HOME}/inc -I${JAVA_HOME}/include -I${JAVA_HOME}/include/darwin $< -o $@
 
 javah: dircreate
-	${JAVA_HOME}/bin/javac --add-exports java.base/jdk.internal.misc=openjceplus -cp ${JCE_CLASSPATH} \
+	${JAVA_HOME}/bin/javac \
+	--add-exports java.base/sun.security.util=openjceplus \
+	-cp ${JCE_CLASSPATH} \
 	${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java \
 	${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/FastJNIBuffer.java \
 	${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/OCKContext.java \
