@@ -22,9 +22,6 @@ import javax.crypto.spec.DHParameterSpec;
 
 public class BaseTestDH extends BaseTest {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
     static DHParameterSpec algParameterSpec_1024, algParameterSpec_2048, algParameterSpec_3072,
@@ -100,28 +97,16 @@ public class BaseTestDH extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public BaseTestDH(String providerName) {
         super(providerName);
         myProviderName = providerName;
         generateParameters(providerName);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void setUp() throws Exception {}
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void tearDown() throws Exception {}
 
-    // --------------------------------------------------------------------------
-    //
-    //
     /**
      * Basic DH example
      *
@@ -379,18 +364,18 @@ public class BaseTestDH extends BaseTest {
                 break;
 
             case "4096":
-                keyPairA = keyPairA_1024;
-                keyPairB = keyPairB_1024;
+                keyPairA = keyPairA_4096;
+                keyPairB = keyPairB_4096;
                 break;
 
             case "6144":
-                keyPairA = keyPairA_1024;
-                keyPairB = keyPairB_1024;
+                keyPairA = keyPairA_6144;
+                keyPairB = keyPairB_6144;
                 break;
 
             case "8192":
-                keyPairA = keyPairA_1024;
-                keyPairB = keyPairB_1024;
+                keyPairA = keyPairA_8192;
+                keyPairB = keyPairB_8192;
                 break;
         }
 
@@ -475,19 +460,11 @@ public class BaseTestDH extends BaseTest {
     }
 
     static private DHParameterSpec generateDHParameters_static(int size) throws Exception {
-        // java.security.Provider java_provider;
-        // java_provider = java.security.Security.getProvider("OpenJCEPlus");
-        // if( java_provider == null ) {
-        //     java_provider = (java.security.Provider)Class.forName("com.ibm.crypto.plus.provider.OpenJCEPlus").newInstance();
-        //     java.security.Security.insertProviderAt(java_provider, 1);
-        // }
         AlgorithmParameterGenerator algParamGen = AlgorithmParameterGenerator.getInstance("DH",
                 myProviderName);
         algParamGen.init(size);
         AlgorithmParameters algParams = algParamGen.generateParameters();
         DHParameterSpec dhps = algParams.getParameterSpec(DHParameterSpec.class);
         return dhps;
-
     }
-
 }

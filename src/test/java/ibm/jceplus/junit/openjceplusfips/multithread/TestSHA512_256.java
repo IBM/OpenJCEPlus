@@ -5,27 +5,24 @@
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution.
  */
-
 package ibm.jceplus.junit.openjceplusfips.multithread;
 
-import ibm.jceplus.junit.base.BaseTestDH;
-import ibm.jceplus.junit.openjceplusfips.Utils;
+import ibm.jceplus.junit.base.BaseTestSHA512_256;
+import ibm.jceplus.junit.openjceplus.Utils;
 
-public class TestDH extends BaseTestDH {
+public class TestSHA512_256 extends BaseTestSHA512_256 {
 
     static {
         Utils.loadProviderTestSuite();
     }
 
-    public TestDH() {
+    public TestSHA512_256() {
         super(Utils.TEST_SUITE_PROVIDER_NAME);
-        isMulti = true;
     }
 
-    public void testDH() throws Exception {
-        System.out.println("executing testDH");
-        BaseTestDH bt = new BaseTestDH(providerName);
+    public void testSHA512_256() throws Exception {
+        System.out.println("executing testSHA512_256");
+        BaseTestSHA512_256 bt = new BaseTestSHA512_256(providerName);
         bt.run();
     }
 }
-

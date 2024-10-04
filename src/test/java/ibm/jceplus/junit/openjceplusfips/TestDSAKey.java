@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,38 +8,28 @@
 
 package ibm.jceplus.junit.openjceplusfips;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Disabled;
 
 public class TestDSAKey extends ibm.jceplus.junit.base.BaseTestDSAKey {
 
-    //--------------------------------------------------------------------------
-    //
-    //
     static {
         Utils.loadProviderTestSuite();
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public TestDSAKey() {
         super(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
-    }
+    @Disabled("DSA key generation is not available in FIPS mode.")
+    @Override
+    public void testDSAKeyGen_1024() throws Exception {}
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TestDSAKey.class);
-        return suite;
-    }
+    @Disabled("DSA key generation is not available in FIPS mode.")
+    @Override
+    public void testDSAKeyGen_2048() throws Exception {}
+
+    @Disabled("DSA algorithm parameters are not available in FIPS mode.")
+    @Override
+    public void testDSAKeyGenFromParams_1024() throws Exception {}
 }
 
