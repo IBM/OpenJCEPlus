@@ -28,11 +28,10 @@ import javax.crypto.spec.RC2ParameterSpec;
 import javax.crypto.spec.RC5ParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 public class BaseTestAES extends BaseTestCipher {
-    //--------------------------------------------------------------------------
-    //
-    //
 
     // 14 bytes: PASSED
     static final byte[] plainText14 = "12345678123456".getBytes();
@@ -52,7 +51,7 @@ public class BaseTestAES extends BaseTestCipher {
             .getBytes();
 
     // 512, 65536, 524288 bytes, payload increment of 32 bytes (up to 16384 bytes) : PASSED
-    Random r = new Random(5);
+    static Random r = new Random(5);
     static int iteration = 0;
     static final byte[] plainText512 = new byte[512];
     static final byte[] plainText65536 = new byte[65536];
@@ -67,13 +66,16 @@ public class BaseTestAES extends BaseTestCipher {
     static boolean warmup = false;
     protected SecretKey key;
     protected AlgorithmParameters params = null;
+
+    /*
+     * Only be used within tests that have no intentions of making use of cp.
+     * Do not make use of this field with tests that are making use of cp for
+     * multithreaded testing of this cipher.
+     */
     protected Cipher cp = null;
     protected boolean success = true;
     protected int specifiedKeySize = 0;
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public BaseTestAES(String providerName) {
         super(providerName);
         try {
@@ -85,9 +87,6 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public BaseTestAES(String providerName, int keySize) throws Exception {
         super(providerName);
         this.specifiedKeySize = keySize;
@@ -103,35 +102,26 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {
-        byte[] encodedKey = new byte[(specifiedKeySize > 0 ? specifiedKeySize : 128) / 8];
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
         r.nextBytes(plainText512);
         r.nextBytes(plainText65536);
         r.nextBytes(plainText524288);
         r.nextBytes(plainText1048576);
         r.nextBytes(plainText16KB);
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        byte[] encodedKey = new byte[(specifiedKeySize > 0 ? specifiedKeySize : 128) / 8];
         r.nextBytes(encodedKey);
         key = new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES() throws Exception {
         encryptDecrypt("AES");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CBC_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/CBC/ISO10126Padding", providerName);
@@ -141,23 +131,14 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CBC_NoPadding() throws Exception {
         encryptDecrypt("AES/CBC/NoPadding", true, false);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CBC_PKCS5Padding() throws Exception {
         encryptDecrypt("AES/CBC/PKCS5Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CFB_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/CFB/ISO10126Padding", providerName);
@@ -167,37 +148,22 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CFB8_NoPadding() throws Exception {
         encryptDecrypt("AES/CFB8/NoPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CFB_NoPadding() throws Exception {
         encryptDecrypt("AES/CFB/NoPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CFB8_PKCS5Padding() throws Exception {
         encryptDecrypt("AES/CFB8/PKCS5Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CFB_PKCS5Padding() throws Exception {
         encryptDecrypt("AES/CFB/PKCS5Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CFB128_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/CFB128/ISO10126Padding", providerName);
@@ -207,23 +173,14 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CFB128_NoPadding() throws Exception {
         encryptDecrypt("AES/CFB128/NoPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CFB128_PKCS5Padding() throws Exception {
         encryptDecrypt("AES/CFB128/PKCS5Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CTR_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/CTR/ISO10126Padding", providerName);
@@ -233,23 +190,14 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CTR_NoPadding() throws Exception {
         encryptDecrypt("AES/CTR/NoPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CTR_PKCS5Padding() throws Exception {
         encryptDecrypt("AES/CTR/PKCS5Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CTS_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/CTS/ISO10126Padding", providerName);
@@ -258,9 +206,6 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CTS_NoPadding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/CTS/NoPadding", providerName);
@@ -269,9 +214,6 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_CTS_PKCS5Padding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/CTS/PKCS5Padding", providerName);
@@ -281,9 +223,6 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_ECB_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/ECB/ISO10126Padding", providerName);
@@ -293,23 +232,14 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_ECB_NoPadding() throws Exception {
         encryptDecrypt("AES/ECB/NoPadding", true, false);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_ECB_PKCS5Padding() throws Exception {
         encryptDecrypt("AES/ECB/PKCS5Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_OFB_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/OFB/ISO10126Padding", providerName);
@@ -319,23 +249,14 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_OFB_NoPadding() throws Exception {
         encryptDecrypt("AES/OFB/NoPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_OFB_PKCS5Padding() throws Exception {
         encryptDecrypt("AES/OFB/PKCS5Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_PCBC_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/PCBC/ISO10126Padding", providerName);
@@ -345,9 +266,6 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_PCBC_NoPadding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/PCBC/NoPadding", providerName);
@@ -357,9 +275,6 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAES_PCBC_PKCS5Padding() throws Exception {
         try {
             cp = Cipher.getInstance("AES/PCBC/PKCS5Padding", providerName);
@@ -369,13 +284,10 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAESShortBuffer() throws Exception {
         try {
             // Test AES Cipher
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, key);
@@ -387,12 +299,9 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAESIllegalBlockSizeEncrypt() throws Exception {
         try {
-            cp = Cipher.getInstance("AES/CBC/NoPadding", providerName);
+            Cipher cp = Cipher.getInstance("AES/CBC/NoPadding", providerName);
 
             int blockSize = cp.getBlockSize();
             byte[] message = new byte[blockSize - 1];
@@ -408,17 +317,14 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAESIllegalBlockSizeDecrypt() throws Exception {
         try {
-            cp = Cipher.getInstance("AES/CBC/PKCS5Padding", providerName);
+            Cipher cp = Cipher.getInstance("AES/CBC/PKCS5Padding", providerName);
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, key);
             byte[] cipherText = cp.doFinal(plainText);
-            params = cp.getParameters();
+            AlgorithmParameters params = cp.getParameters();
 
             // Verify the text
             cp.init(Cipher.DECRYPT_MODE, key, params);
@@ -431,18 +337,15 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAESBadPaddingDecrypt() throws NoSuchAlgorithmException, NoSuchProviderException,
             NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
         try {
-            cp = Cipher.getInstance("AES/CBC/PKCS5Padding", providerName);
+            Cipher cp = Cipher.getInstance("AES/CBC/PKCS5Padding", providerName);
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, key);
             byte[] cipherText = cp.doFinal(plainText);
-            params = cp.getParameters();
+            AlgorithmParameters params = cp.getParameters();
             // Create Bad Padding
             cipherText[cipherText.length - 1]++;
             // Verify the text
@@ -462,9 +365,6 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAESNoSuchAlgorithm() throws Exception {
         try {
             cp = Cipher.getInstance("AES/BBC/PKCS5Padding", providerName);
@@ -474,11 +374,8 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testAESNull() throws Exception {
-        cp = Cipher.getInstance("AES", providerName);
+        Cipher cp = Cipher.getInstance("AES", providerName);
         SecretKey nullKey = null;
 
         try {
@@ -495,11 +392,8 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testIllegalParamSpec() throws Exception {
-        cp = Cipher.getInstance("AES/CBC/PKCS5Padding", providerName);
+        Cipher cp = Cipher.getInstance("AES/CBC/PKCS5Padding", providerName);
 
         try {
             byte[] iv = null;
@@ -551,19 +445,16 @@ public class BaseTestAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public void testArguments() throws Exception {
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0]);
         } catch (Exception e) {
@@ -571,21 +462,21 @@ public class BaseTestAES extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0);
             fail("Did not get expected ShortBufferException on doFinal(new byte[0], 0)");
@@ -593,7 +484,7 @@ public class BaseTestAES extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 1);
             fail("Should have gotten exception on doFinal(new byte[0], 1)");
@@ -601,7 +492,7 @@ public class BaseTestAES extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[cp.getOutputSize(0)], 1);
             fail("Expected ShortBufferException");
@@ -609,28 +500,28 @@ public class BaseTestAES extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0);
         } catch (Exception e) {
@@ -638,7 +529,7 @@ public class BaseTestAES extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 1, 0);
             fail("Did not get expected exception on doFinal(new byte[0], 1, 0)");
@@ -646,7 +537,7 @@ public class BaseTestAES extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 1);
             fail("Did not get expected exception on doFinal(new byte[0], 0, 1)");
@@ -654,14 +545,14 @@ public class BaseTestAES extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, new byte[0]);
             fail("Did not get expected ShortBufferException on doFinal(new byte[0], 0, 9, new byte[0])");
@@ -669,14 +560,14 @@ public class BaseTestAES extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, new byte[0], 0);
             fail("Did not get expected ShortBufferException on doFinal(new byte[0], 0, 0, new byte[0], 0)");
@@ -684,14 +575,14 @@ public class BaseTestAES extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0]);
         } catch (Exception e) {
@@ -699,28 +590,28 @@ public class BaseTestAES extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0);
         } catch (Exception e) {
@@ -728,76 +619,73 @@ public class BaseTestAES extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0, new byte[0]);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, new byte[0]);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("AES", providerName);
+            Cipher cp = Cipher.getInstance("AES", providerName);
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, new byte[0], 0);
         } catch (Exception e) {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     protected boolean encryptDecrypt(Cipher cp) throws Exception {
         cp.init(Cipher.ENCRYPT_MODE, key);
         byte[] cipherText = cp.doFinal(plainText);
-        params = cp.getParameters();
+        AlgorithmParameters params = cp.getParameters();
 
         // Verify the text
         cp.init(Cipher.DECRYPT_MODE, key, params);
@@ -806,24 +694,15 @@ public class BaseTestAES extends BaseTestCipher {
         return Arrays.equals(plainText, newPlainText);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm) throws Exception {
         encryptDecrypt(algorithm, false, false);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             boolean testFinalizeOnly) throws Exception {
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, null, testFinalizeOnly);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, boolean testFinalizeOnly) throws Exception {
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText14,
@@ -851,9 +730,6 @@ public class BaseTestAES extends BaseTestCipher {
                 testFinalizeOnly);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message, boolean testFinalizeOnly)
             throws Exception {
@@ -884,7 +760,7 @@ public class BaseTestAES extends BaseTestCipher {
             AlgorithmParameters algParams, byte[] message) throws Exception
 
     {
-        cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, providerName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -893,7 +769,7 @@ public class BaseTestAES extends BaseTestCipher {
         int blockSize = cp.getBlockSize();
         try {
             byte[] cipherText = cp.doFinal(message);
-            params = cp.getParameters();
+            AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
                 assertTrue(
@@ -927,7 +803,7 @@ public class BaseTestAES extends BaseTestCipher {
     //
     protected void encryptDecryptUpdate(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message) throws Exception {
-        cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, providerName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -937,7 +813,7 @@ public class BaseTestAES extends BaseTestCipher {
         try {
             byte[] cipherText1 = cp.update(message);
             byte[] cipherText2 = cp.doFinal();
-            params = cp.getParameters();
+            AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
                 assertTrue(
@@ -975,7 +851,7 @@ public class BaseTestAES extends BaseTestCipher {
     protected void encryptDecryptPartialUpdate(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message)
             throws Exception {
-        cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, providerName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -986,7 +862,7 @@ public class BaseTestAES extends BaseTestCipher {
         try {
             byte[] cipherText1 = cp.update(message, 0, partialLen);
             byte[] cipherText2 = cp.doFinal(message, partialLen, message.length - partialLen);
-            params = cp.getParameters();
+            AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
                 assertTrue(
@@ -1027,7 +903,7 @@ public class BaseTestAES extends BaseTestCipher {
             throws Exception
 
     {
-        cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, providerName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1036,7 +912,7 @@ public class BaseTestAES extends BaseTestCipher {
         int blockSize = cp.getBlockSize();
         try {
             byte[] cipherText = cp.doFinal(message);
-            params = cp.getParameters();
+            AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
                 assertTrue(
@@ -1076,7 +952,7 @@ public class BaseTestAES extends BaseTestCipher {
             throws Exception
 
     {
-        cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, providerName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1086,10 +962,11 @@ public class BaseTestAES extends BaseTestCipher {
         try {
             byte[] cipherText0 = cp.doFinal(message);
 
-            byte[] resultBuffer = Arrays.copyOf(message, cp.getOutputSize(message.length));
-            int resultLen = cp.doFinal(resultBuffer, 0, message.length, resultBuffer);
+            byte[] messageCopy = Arrays.copyOf(message, cp.getOutputSize(message.length));
+            byte[] resultBuffer = new byte[messageCopy.length];
+            int resultLen = cp.doFinal(messageCopy, 0, message.length, resultBuffer);
             byte[] cipherText = Arrays.copyOf(resultBuffer, resultLen);
-            params = cp.getParameters();
+            AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
                 assertTrue(
@@ -1125,7 +1002,7 @@ public class BaseTestAES extends BaseTestCipher {
             throws Exception
 
     {
-        cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, providerName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1142,7 +1019,7 @@ public class BaseTestAES extends BaseTestCipher {
             byte[] cipherText = new byte[cipherText1Len + cipherText2.length];
             System.arraycopy(resultBuffer, 0, cipherText, 0, cipherText1Len);
             System.arraycopy(cipherText2, 0, cipherText, cipherText1Len, cipherText2.length);
-            params = cp.getParameters();
+            AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
                 assertTrue(
@@ -1173,7 +1050,6 @@ public class BaseTestAES extends BaseTestCipher {
                     (!requireLengthMultipleBlockSize || (message.length % blockSize) != 0));
         }
     }
-
 
     //--------------------------------------------------------------------------
     // warmup functions for enable fastjni

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -24,9 +24,6 @@ import javax.crypto.spec.RC2ParameterSpec;
 import javax.crypto.spec.RC5ParameterSpec;
 
 public class BaseTestDESede extends BaseTestCipher {
-    // --------------------------------------------------------------------------
-    //
-    //
 
     // 14 bytes: PASSED
     static final byte[] plainText14 = "12345678123456".getBytes();
@@ -47,36 +44,29 @@ public class BaseTestDESede extends BaseTestCipher {
 
     static final byte[] plainText = plainText128; // default value
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected boolean supportsEncrypt;
     protected String encryptProviderName;
     protected KeyGenerator keyGen;
     protected SecretKey key;
     protected AlgorithmParameters params = null;
+
+    /*
+     * Only be used within tests that have no intentions of making use of cp.
+     * Do not make use of this field with tests that are making use of cp for
+     * multithreaded testing of this cipher.
+     */
     protected Cipher cp = null;
 
-
-    // --------------------------------------------------------------------------
-    //
-    //
     public BaseTestDESede(String providerName) {
         this(providerName, true);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public BaseTestDESede(String providerName, boolean supportsEncrypt) {
         super(providerName);
         this.supportsEncrypt = supportsEncrypt;
         this.encryptProviderName = supportsEncrypt ? providerName : "IBMJCE";
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void setUp() throws Exception {
         try {
             keyGen = KeyGenerator.getInstance("DESede", providerName);
@@ -91,14 +81,6 @@ public class BaseTestDESede extends BaseTestCipher {
         key = keyGen.generateKey();
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede() throws Exception {
         try {
             encryptDecrypt("DESede");
@@ -112,9 +94,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CBC_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/CBC/ISO10126Padding", providerName);
@@ -131,9 +110,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CBC_NoPadding() throws Exception {
         try {
             encryptDecrypt("DESede/CBC/NoPadding", true);
@@ -147,9 +123,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CBC_PKCS5Padding() throws Exception {
         try {
             encryptDecrypt("DESede/CBC/PKCS5Padding");
@@ -163,9 +136,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CFB_ISO10126Padding() throws Exception {
         String algorithm = "DESede/CFB/ISO10126Padding";
 
@@ -181,23 +151,14 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CFB_NoPadding() throws Exception {
         encryptDecrypt("DESede/CFB/NoPadding");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CFB_PKCS5Padding() throws Exception {
         encryptDecrypt("DESede/CFB/PKCS5Padding");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CFB64_ISO10126Padding() throws Exception {
         String algorithm = "DESede/CFB64/ISO10126Padding";
 
@@ -213,23 +174,14 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CFB64_NoPadding() throws Exception {
         encryptDecrypt("DESede/CFB64/NoPadding");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CFB64_PKCS5Padding() throws Exception {
         encryptDecrypt("DESede/CFB64/PKCS5Padding");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CTR_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/CTR/ISO10126Padding", providerName);
@@ -238,9 +190,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CTR_NoPadding() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/CTR/NoPadding", providerName);
@@ -249,9 +198,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CTR_PKCS5Padding() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/CTR/PKCS5Padding", providerName);
@@ -260,9 +206,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CTS_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/CTS/ISO10126Padding", providerName);
@@ -271,9 +214,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CTS_NoPadding() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/CTS/NoPadding", providerName);
@@ -282,9 +222,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_CTS_PKCS5Padding() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/CTS/PKCS5Padding", providerName);
@@ -294,9 +231,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_ECB_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/ECB/ISO10126Padding", providerName);
@@ -313,9 +247,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_ECB_NoPadding() throws Exception {
         try {
             encryptDecrypt("DESede/ECB/NoPadding", true);
@@ -329,9 +260,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_ECB_PKCS5Padding() throws Exception {
         try {
             encryptDecrypt("DESede/ECB/PKCS5Padding");
@@ -345,9 +273,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_OFB_ISO10126Padding() throws Exception {
         String algorithm = "DESede/OFB/ISO10126Padding";
 
@@ -362,23 +287,14 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_OFB_NoPadding() throws Exception {
         encryptDecrypt("DESede/OFB/NoPadding");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_OFB_PKCS5Padding() throws Exception {
         encryptDecrypt("DESede/OFB/PKCS5Padding");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_PCBC_ISO10126Padding() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/PCBC/ISO10126Padding", providerName);
@@ -388,9 +304,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_PCBC_NoPadding() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/PCBC/NoPadding", providerName);
@@ -400,9 +313,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESede_PCBC_PKCS5Padding() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/PCBC/PKCS5Padding", providerName);
@@ -412,12 +322,10 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESedeShortBuffer() throws Exception {
         try {
             // Test DESede Cipher
+            Cipher cp = null;
             try {
                 cp = Cipher.getInstance("DESede", encryptProviderName);
             } catch (NoSuchAlgorithmException nsae) {
@@ -445,15 +353,13 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESedeIllegalBlockSizeEncrypt() throws Exception {
         if (supportsEncrypt == false) {
             return;
         }
 
         try {
+            Cipher cp = null;
             try {
                 cp = Cipher.getInstance("DESede/CBC/NoPadding", providerName);
             } catch (NoSuchAlgorithmException nsae) {
@@ -479,11 +385,9 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESedeIllegalBlockSizeDecrypt() throws Exception {
         try {
+            Cipher cp = null;
             try {
                 cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", encryptProviderName);
             } catch (NoSuchAlgorithmException nsae) {
@@ -511,9 +415,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESedeNoSuchAlgorithm() throws Exception {
         try {
             cp = Cipher.getInstance("DESede/BBC/PKCS5Padding", providerName);
@@ -523,10 +424,8 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testDESedeNull() throws Exception {
+        Cipher cp = null;
         try {
             cp = Cipher.getInstance("DESede", providerName);
         } catch (NoSuchAlgorithmException nsae) {
@@ -554,10 +453,8 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testIllegalParamSpec() throws Exception {
+        Cipher cp = null;
         try {
             cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", providerName);
         } catch (NoSuchAlgorithmException nsae) {
@@ -619,11 +516,8 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testArgumentsDecrypt() throws Exception {
-
+        Cipher cp = null;
         try {
             cp = Cipher.getInstance("DESede", encryptProviderName);
         } catch (NoSuchAlgorithmException nsae) {
@@ -880,14 +774,11 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void testArgumentsEncrypt() throws Exception {
         if (supportsEncrypt == false) {
             return;
         }
-
+        Cipher cp = null;
         try {
             try {
                 cp = Cipher.getInstance("DESede", providerName);
@@ -1133,9 +1024,6 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected boolean encryptDecrypt(Cipher cp) throws Exception {
         cp.init(Cipher.ENCRYPT_MODE, key);
         byte[] cipherText = cp.doFinal(plainText);
@@ -1148,24 +1036,15 @@ public class BaseTestDESede extends BaseTestCipher {
         return Arrays.equals(plainText, newPlainText);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm) throws Exception {
         encryptDecrypt(algorithm, false);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize)
             throws Exception {
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, null);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams) throws Exception {
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText14);
@@ -1175,9 +1054,6 @@ public class BaseTestDESede extends BaseTestCipher {
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText128);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message) throws Exception {
         encryptDecryptDoFinal(algorithm, requireLengthMultipleBlockSize, algParams, message);
@@ -1189,9 +1065,6 @@ public class BaseTestDESede extends BaseTestCipher {
         encryptDecryptUpdateCopySafe(algorithm, requireLengthMultipleBlockSize, algParams, message);
     }
 
-    // --------------------------------------------------------------------------
-    // Run encrypt/decrypt test using just doFinal calls
-    //
     protected void encryptDecryptDoFinal(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message) throws Exception
 
@@ -1200,7 +1073,7 @@ public class BaseTestDESede extends BaseTestCipher {
             return;
         }
 
-        cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1250,7 +1123,7 @@ public class BaseTestDESede extends BaseTestCipher {
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
         }
-        cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1304,7 +1177,7 @@ public class BaseTestDESede extends BaseTestCipher {
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
         }
-        cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1363,7 +1236,7 @@ public class BaseTestDESede extends BaseTestCipher {
             return;
         }
 
-        cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1421,7 +1294,7 @@ public class BaseTestDESede extends BaseTestCipher {
             return;
         }
 
-        cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1478,7 +1351,7 @@ public class BaseTestDESede extends BaseTestCipher {
             return;
         }
 
-        cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {

@@ -15,9 +15,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
@@ -28,47 +26,57 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 
 public class TestMultithreadFIPS extends TestCase {
     private final int numThreads = 10;
-    private final int timeoutSec = 1500;
-    private final String[] testList = {"ibm.jceplus.junit.openjceplusfips.multithread.TestAliases",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMUpdate",*/
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCopySafe",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCipherInputStreamExceptions",
+    private final int timeoutSec = 3000;
+    private final String[] testList = {
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAES_128",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAES_192",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAES_256",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_128",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_192",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_256",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCM",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMSameBuffer",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithByteBuffer",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCMAndAAD",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCipherInputStreamExceptions",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCopySafe",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMLong",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_128",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_192",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_256",*/
-            "ibm.jceplus.junit.openjceplus.multithread.TestDH",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMNonExpanding",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMSameBuffer",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMUpdate",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithByteBuffer",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAliases",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestDESede",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestDH",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestDSAKey",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestDSASignatureInteropSUN",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestECDH",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestECDHInteropSunEC",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestDSAKey",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAES_128",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAES_192",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAES_256",*/
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestDESede",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestECDSASignature",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestDSASignatureInteropSUN",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestHmacMD5", */
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestHmacMD5InteropSunJCE",*/
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestHKDF",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA256",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA256InteropSunJCE",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA256Clone_SharedMD",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA3_224",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA3_256",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA3_384",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA3_512",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestMiniRSAPSS2",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignature",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestRSA_2048",*/
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSA_2048",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAKey",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignatureInteropSunRsaSign",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestHKDF",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestMiniRSAPSS2",*/
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCMAndAAD",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMNonExpanding"//,
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithKeyAndIvCheck",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS2",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop2",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop3"*/};
+            //"ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop2",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop3",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignatureInteropSunRsaSign",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA256Clone_SharedMD",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA3_224",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA3_256",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA3_384",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA3_512",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512_224",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512_256",
+            //"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithKeyAndIvCheck", // test not in other test suites?
+    };
     public final Object ob = new Object();
 
     public TestMultithreadFIPS() {}
@@ -164,14 +172,5 @@ public class TestMultithreadFIPS extends TestCase {
                 fail("Failed tests:\n\t" + allFailedTests);
             }
         }
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TestMultithreadFIPS.class);
-        return suite;
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
     }
 }
