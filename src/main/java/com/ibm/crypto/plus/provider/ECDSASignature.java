@@ -47,6 +47,7 @@ abstract class ECDSASignature extends SignatureSpi {
     @Override
     protected void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
         ECPrivateKey ecPrivate = (ECPrivateKey) ECKeyFactory.toECKey(provider, privateKey);
+        sun.security.util.ECUtil.checkPrivateKey(ecPrivate);
 
         if (this.provider.isFIPS()) {
             ECNamedCurve ecNamedCurve = ECParameters
