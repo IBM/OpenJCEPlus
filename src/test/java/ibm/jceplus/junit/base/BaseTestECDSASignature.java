@@ -8,19 +8,28 @@
 
 package ibm.jceplus.junit.base;
 
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPrivateKeySpec;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestECDSASignature extends BaseTestSignature {
 
@@ -759,6 +768,20 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"secp256r1", "secp384r1", "secp521r1"})
+    public void testECDSASignatureWithInvalidKeySpec(String curveName) throws Exception {
+        ECPrivateKey ecPrivKey = generateInvalidPrivateKey(curveName);
+        Signature sig = Signature.getInstance("SHA256withECDSA", this.getProviderName());
+        try {
+            sig.initSign(ecPrivKey);
+            fail("Expected <java.security.InvalidKeyException> to be thrown");
+        } catch (java.security.InvalidKeyException ike) {
+            System.out.println("Expected exception <java.security.InvalidKeyException> for " +
+                                "ECDSA/SHA256withECDSA/" + curveName + "is caught.");
+        }
+    }
+
     private void doTestPositiveSigBytes(String keyAlg, String sigAlg, String providerName)
             throws Exception {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance(keyAlg, providerName);
@@ -801,4 +824,22 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         return ecKeyPairGen.generateKeyPair();
     }
 
+    public final ECPrivateKey generateInvalidPrivateKey(String curveName) throws Exception {
+        System.out.println("Creating private key for curve " + curveName);
+
+        AlgorithmParameters params = AlgorithmParameters.getInstance("EC", getProviderName());
+        params.init(new ECGenParameterSpec(curveName));
+        ECParameterSpec ecParameters = params.getParameterSpec(ECParameterSpec.class);
+        BigInteger order = ecParameters.getOrder(); // the N value
+        System.out.println("Order is: " + order);
+
+        // Create a private key value (d) that is outside the range
+        // [1, N-1]
+        BigInteger dVal = order.add(BigInteger.TWO);
+        System.out.println("Modified d Value is: " + dVal);
+
+        // Create the private key
+        KeyFactory kf = KeyFactory.getInstance("EC", getProviderName());
+        return (ECPrivateKey) kf.generatePrivate(new ECPrivateKeySpec(dVal, ecParameters));
+    }
 }
