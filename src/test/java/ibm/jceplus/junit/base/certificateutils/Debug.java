@@ -6,7 +6,7 @@
  * in the file LICENSE in the source distribution.
  */
 
-package com.ibm.misc;
+package ibm.jceplus.junit.base.certificateutils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -27,23 +27,6 @@ public class Debug {
     private String prefix;
     private static String args;
     private static SimpleConsoleLogger tl = null;
-
-    // TODO: is this needed? it is not referenced in any place
-    //private static boolean isLogging           = false;
-
-    //private static Object ch                   = null;
-    //private static Object tl                   = null;
-    /*private static Object levelFiner           = null;
-    private static Object levelAll             = null;
-    private static Method logMethod            = null;
-    private static Method logThrowableMethod   = null;
-    private static Method logpMethod           = null;
-    private static Method logpParmsMethod      = null;
-    private static Method enteringMethod       = null;
-    private static Method enteringParmsMethod  = null;
-    private static Method exitingMethod        = null;
-    private static Method exitingObjectMethod  = null;
-    */
 
     static {
         args = java.security.AccessController
@@ -328,62 +311,6 @@ public class Debug {
 
             tl = SimpleConsoleLogger.makeSimpleLogger(name);
             tl.setPlatformLevel(PlatformLogger.Level.ALL);
-
-            //              this.isLogging = true;
-
-            /*
-              //A Charlie Foxtrot to do the following "real" java code because
-            //Austin insists on a single version of code for all levels of 
-            //java.
-              
-            Class  consoleHandlerClass  = null;
-            Class  handlerClass  = null;
-            Class  loggerClass  = null;
-            Class  levelClass   = null;
-            Method getLoggerMethod = null;
-            Method addHandlerMethod = null;
-            Method loggerSetLevelMethod = null;
-            Method consoleHandlerSetLevelMethod = null;
-            
-            try {
-                
-                //   Find the three classes we need to do the job
-                
-                loggerClass = Class.forName("java.util.logging.Logger");
-                handlerClass = Class.forName("java.util.logging.Handler");
-                consoleHandlerClass = Class.forName("java.util.logging.ConsoleHandler");
-                levelClass = Class.forName("java.util.logging.Level");
-                levelFiner = levelClass.getField("FINER").get(null);
-                levelAll = levelClass.getField("ALL").get(null);
-            
-                if ((loggerClass != null) && (consoleHandlerClass != null) && (levelClass != null)) {
-                    getLoggerMethod = loggerClass.getMethod("getLogger", new Class[] {String.class});
-                    ch = consoleHandlerClass.getConstructor(new Class[] {}).newInstance(new Object[] {});
-                    loggerSetLevelMethod = loggerClass.getMethod("setLevel", new Class[] {levelClass});
-                    consoleHandlerSetLevelMethod = consoleHandlerClass.getMethod("setLevel", new Class[] {levelClass});
-                    tl = getLoggerMethod.invoke(null, new Object[] {name});
-                    addHandlerMethod = loggerClass.getMethod("addHandler", new Class[] {handlerClass});
-                    addHandlerMethod.invoke(tl, new Object[] {ch});
-                    loggerSetLevelMethod.invoke(tl, new Object[] {levelAll});
-                    consoleHandlerSetLevelMethod.invoke(ch, new Object[] {levelAll});
-            
-                    logMethod = loggerClass.getMethod("log", new Class[] {levelClass, String.class, Object[].class});
-                    logThrowableMethod = loggerClass.getMethod("log", new Class[] {levelClass, String.class, Throwable.class});
-                    logpMethod = loggerClass.getMethod("logp", new Class[] {levelClass, String.class, String.class, String.class});
-                    logpParmsMethod = loggerClass.getMethod("logp", new Class[] {levelClass, String.class, String.class, String.class, Object[].class});
-                    enteringMethod = loggerClass.getMethod("entering", new Class[] {String.class, String.class,});
-                    enteringParmsMethod = loggerClass.getMethod("entering", new Class[] {String.class, String.class, Object[].class});
-                    exitingMethod = loggerClass.getMethod("exiting", new Class[] {String.class, String.class});
-                    exitingObjectMethod = loggerClass.getMethod("exiting", new Class[] {String.class, String.class, Object.class});
-                    this.isLogging = true;
-                }
-                //
-                // If we got an exception, no logging gets done.
-                //
-            } catch (Exception e) {
-                tl = null;
-            }
-            */
         }
     }
 
@@ -452,42 +379,15 @@ public class Debug {
     public void data(long type, Object loggingClass, String loggingMethod, byte[] data) {
         Object[] parms = {data};
         tl.log(PlatformLogger.Level.FINER, (String) loggingClass + " " + loggingMethod, parms);
-        /*
-        try {
-            if (tl != null)
-                logMethod.invoke(tl, new Object[] {levelFiner, (String)loggingClass+" "+loggingMethod, parms});
-            else
-                System.out.println((String)loggingClass+" "+loggingMethod+" data: "+data.toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void entry(long type, Object loggingClass, String loggingMethod) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "ENTRY");
-
-        /*
-        try {
-            if (tl != null)
-                enteringMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod});
-            else
-                System.out.println("Entry "+(String)loggingClass+" "+loggingMethod);
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void entry(long type, Object loggingClass, String loggingMethod, Object parm1) {
         //Object[] parms = {parm1};
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "ENTRY");
-        /*try {
-            if (tl != null)
-                enteringParmsMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, parms});
-            else
-                System.out.println("Entry "+(String)loggingClass+" "+loggingMethod+getParms(parms));
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void entry(long type, Object loggingClass, String loggingMethod, Object parm1,
@@ -495,182 +395,71 @@ public class Debug {
         Object[] parms = {parm1, parm2};
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "ENTRY {0} {1}",
                 parms);
-        /*try {
-            if (tl != null)
-                enteringParmsMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, parms});
-            else
-                System.out.println("Entry "+(String)loggingClass+" "+loggingMethod+getParms(parms));
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void entry(long type, Object loggingClass, String loggingMethod, Object[] parms) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "ENTRY {0}",
                 parms);
-        /*
-         try {
-            if (tl != null)
-                enteringParmsMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, parms});
-            else
-                System.out.println("Entry "+(String)loggingClass+" "+loggingMethod+getParms(parms));
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void exception(long type, Object loggingClass, String loggingMethod,
             Throwable throwable) {
         tl.log(PlatformLogger.Level.FINER, (String) loggingClass + " " + loggingMethod, throwable);
-        /*try {
-            if (tl != null)
-                logThrowableMethod.invoke(tl, new Object[] {levelFiner, (String)loggingClass+" "+loggingMethod, throwable});
-            else
-                System.out.println("Exception "+(String)loggingClass+" "+loggingMethod+" "+throwable.toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN");
-        /*try {
-            if (tl != null)
-                exitingMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod});
-            else
-                System.out.println("Exit "+(String)loggingClass+" "+loggingMethod);
-        } catch (Exception e) {
-        }*/
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, byte retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
                 new Byte(retValue));
-        /*try {
-            if (tl != null)
-                exitingObjectMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, new Byte(retValue)});
-            else
-                System.out.println("Exit "+(String)loggingClass+" "+loggingMethod+" "+new Byte(retValue).toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, short retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
                 new Short(retValue));
-        /*try {
-            if (tl != null)
-                exitingObjectMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, new Short(retValue)});
-            else
-                System.out.println("Exit "+(String)loggingClass+" "+loggingMethod+" "+new Short(retValue).toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, int retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
                 new Integer(retValue));
-        /*
-        try {
-            if (tl != null)
-                exitingObjectMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, new Integer(retValue)});
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, long retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
                 new Long(retValue));
-        /*try {
-            if (tl != null)
-                exitingObjectMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, new Long(retValue)});
-            else
-                System.out.println("Exit "+(String)loggingClass+" "+loggingMethod+" "+new Long(retValue).toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, float retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
                 new Float(retValue));
-        /*try {
-            if (tl != null)
-                exitingObjectMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, new Float(retValue)});
-            else
-                System.out.println("Exit "+(String)loggingClass+" "+loggingMethod+" "+new Float(retValue).toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, double retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
                 new Double(retValue));
-        /*try {
-            if (tl != null)
-                exitingObjectMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, new Double(retValue)});
-            else
-                System.out.println("Exit "+(String)loggingClass+" "+loggingMethod+" "+new Double(retValue).toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, char retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
                 new Character(retValue));
-        /*try {
-            if (tl != null)
-                exitingObjectMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, new Character(retValue)});
-            else
-                System.out.println("Exit "+(String)loggingClass+" "+loggingMethod+" "+new Character(retValue).toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, boolean retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
                 new Boolean(retValue));
-        /*try {
-            if (tl != null)
-                exitingObjectMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, new Boolean(retValue)});
-            else
-                System.out.println("Exit "+(String)loggingClass+" "+loggingMethod+" "+new Boolean(retValue).toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, Object retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
                 retValue);
-        /*try {
-            if (tl != null)
-                exitingObjectMethod.invoke(tl, new Object[] {(String)loggingClass, loggingMethod, retValue});
-            else
-                System.out.println("Exit "+(String)loggingClass+" "+loggingMethod+" "+retValue.toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void stackTrace(long type, Object loggingClass, String loggingMethod) {
         StringWriter sw = new StringWriter();
         new Throwable().printStackTrace(new PrintWriter(sw));
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, sw.toString());
-        /*try {
-            if (tl != null)
-                logpMethod.invoke(tl, new Object[] {levelFiner, (String)loggingClass, loggingMethod, sw.toString()});
-            else
-                System.out.println("Stack Trace "+(String)loggingClass+" "+loggingMethod+"\r\n"+sw.toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void stackTrace(long type, Object loggingClass, String loggingMethod, String text) {
@@ -678,68 +467,27 @@ public class Debug {
         new Throwable(text).printStackTrace(new PrintWriter(sw));
         Object[] parms = {sw.toString()};
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, text, parms);
-        /*try {
-            if (tl != null)
-                logpParmsMethod.invoke(tl, new Object[] {levelFiner, (String)loggingClass, loggingMethod, text, parms});
-            else
-                System.out.println("Stack Trace "+(String)loggingClass+" "+loggingMethod+" "+text+"\r\n"+sw.toString());
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void text(long type, Object loggingClass, String loggingMethod, String text) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, text);
-        /*try {
-            if (tl != null)
-                logpMethod.invoke(tl, new Object[] {levelFiner, (String)loggingClass, loggingMethod, text});
-            else
-                System.out.println((String)loggingClass+" "+loggingMethod+" "+text);
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void text(long type, Object loggingClass, String loggingMethod, String text,
             Object parm1) {
         Object[] parms = {parm1};
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, text, parms);
-        /*try {
-            if (tl != null)
-                logpParmsMethod.invoke(tl, new Object[] {levelFiner, (String)loggingClass, loggingMethod, text, parms});
-            else
-                System.out.println((String)loggingClass+" "+loggingMethod+" "+text+getParms(parms));
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void text(long type, Object loggingClass, String loggingMethod, String text,
             Object parm1, Object parm2) {
         Object[] parms = {parm1, parm2};
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, text, parms);
-        /*try {
-            if (tl != null)
-                logpParmsMethod.invoke(tl, new Object[] {levelFiner, (String)loggingClass, loggingMethod, text, parms});
-            else
-                System.out.println((String)loggingClass+" "+loggingMethod+" "+text+getParms(parms));
-        } catch (Exception e) {
-        }
-        */
     }
 
     public void text(long type, Object loggingClass, String loggingMethod, String text,
             Object[] parms) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, text, parms);
-        /*
-        try {
-            if (tl != null)
-                logpParmsMethod.invoke(tl, new Object[] {levelFiner, (String)loggingClass, loggingMethod, text, parms});
-            else
-                System.out.println((String)loggingClass+" "+loggingMethod+" "+text+getParms(parms));
-        } catch (Exception e) {
-        }
-        */
     }
 
     /**

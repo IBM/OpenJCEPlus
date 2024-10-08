@@ -138,6 +138,7 @@
                   <configuration>
                     <useModulePath>false</useModulePath>
                     <!-- Could add -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:8787 for debug -->
+                    <!-- Could add -Djava.security.auth.debug=all for debug -->
                     <argLine>
                       @{argLine}
                       --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
@@ -165,7 +166,6 @@
                     <trimStackTrace>false</trimStackTrace>
                     <systemPropertyVariables>
                       <jgskit.library.path>${build.target.jgskitlib.dir}</jgskit.library.path>
-                      <!--java.security.auth.debug>all</java.security.auth.debug-->
                     </systemPropertyVariables>
                     <includes>
                       <include>
@@ -208,6 +208,7 @@
                   <configuration>
                     <useModulePath>false</useModulePath>
                     <trimStackTrace>false</trimStackTrace>
+                    <!-- Could add -Djava.security.auth.debug=all for debug -->
                     <argLine>
                       --add-exports openjceplus/com.ibm.crypto.plus.provider.ock=ALL-UNNAMED
                       --add-exports java.base/sun.security.util=ALL-UNNAMED
@@ -347,12 +348,10 @@
                         Exports statements below this line are necessary for
                         compiling only the test source with target `test-compile`.
                         When compiling only the tests, using an SDK that contains
-                        a bundled version of OpenJCEPlus, the packages com.ibm.misc and
+                        a bundled version of OpenJCEPlus, the package
                         com.ibm.crypto.plus.provider.ock must be explictly exported
                         for unit testing purposes for the tests to compile.
                         -->
-                        <arg>--add-exports </arg>
-                        <arg>openjceplus/com.ibm.misc=ALL-UNNAMED</arg>
                         <arg>--add-exports </arg>
                         <arg>openjceplus/com.ibm.crypto.plus.provider.ock=ALL-UNNAMED</arg>
                     </compilerArgs>
