@@ -8,7 +8,6 @@
 
 package ibm.jceplus.junit.base.certificateutils;
 
-import com.ibm.misc.Debug;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
