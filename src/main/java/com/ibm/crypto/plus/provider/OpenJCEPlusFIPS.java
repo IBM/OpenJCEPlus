@@ -10,7 +10,6 @@ package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.ock.OCKContext;
 import com.ibm.crypto.plus.provider.ock.OCKException;
-import com.ibm.misc.Debug;
 import java.lang.reflect.Constructor;
 import java.security.AccessController;
 import java.security.InvalidParameterException;
@@ -24,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.crypto.SecretKey;
+import sun.security.util.Debug;
 
 @SuppressWarnings({"removal", "deprecation"})
 public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
@@ -62,7 +62,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     private static volatile OpenJCEPlusFIPS instance;
 
     // User enabled debugging
-    private static Debug debug = Debug.getInstance("jceplus");
+    private static Debug debug = Debug.getInstance(DEBUG_VALUE);
 
     private static boolean ockInitialized = false;
     private static OCKContext ockContext;
@@ -70,10 +70,9 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public OpenJCEPlusFIPS() {
         super("OpenJCEPlusFIPS", info);
-        if (debug2) {
-            System.out.println("New OpenJCEPlusFIPS instance");
+        if (debug != null) {
+            debug.println("New OpenJCEPlusFIPS instance");
         }
-
         final OpenJCEPlusProvider jce = this;
 
         AccessController.doPrivileged(new java.security.PrivilegedAction() {
@@ -97,22 +96,14 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
             instance = this;
         }
 
-        if (debug2 || (debug != null)) {
-            System.out.println(
-                    "OpenJCEPlusFIPS Build-Level: " + getDebugDate(this.getClass().getName()));
-            System.out.println(
-                    "OpenJCEPlusFIPS library build date: " + OCKContext.getLibraryBuildDate());
+        if (debug != null) {
+            debug.println("OpenJCEPlusFIPS Build-Level: " + getDebugDate(this.getClass().getName()));
+            debug.println("OpenJCEPlusFIPS library build date: " + OCKContext.getLibraryBuildDate());
             try {
-                System.out.println(
-                        "OpenJCEPlusFIPS dependent library version: " + ockContext.getOCKVersion());
-                if (debug2) {
-                    System.out.println("OpenJCEPlusFIPS dependent library path: "
-                            + ockContext.getOCKInstallPath());
-                }
+                debug.println("OpenJCEPlusFIPS dependent library version: " + ockContext.getOCKVersion());
+                debug.println("OpenJCEPlusFIPS dependent library path: " + ockContext.getOCKInstallPath());
             } catch (Throwable t) {
-                if (debug2) {
-                    t.printStackTrace(System.out);
-                }
+                t.printStackTrace(System.out);
             }
         }
     }
@@ -607,8 +598,8 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
                 String[] aliases, Map<String, String> attributes) {
             super(provider, type, algorithm, className, toList(aliases), attributes);
 
-            if (debug2) {
-                System.out.println("Constructing OpenJCEPlusService: " + provider + ", " + type
+            if (debug != null) {
+                debug.println("Constructing OpenJCEPlusService: " + provider + ", " + type
                         + ", " + algorithm + ", " + className);
             }
         }
@@ -794,7 +785,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
                 }
             }
 
-            if (debug2 || (debug != null)) {
+            if (debug != null) {
                 exceptionToThrow.printStackTrace(System.out);
             }
 
@@ -824,7 +815,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     }
 
     void setOCKExceptionCause(Exception exception, Throwable ockException) {
-        if (debug2) {
+        if (debug != null) {
             exception.initCause(ockException);
         }
     }

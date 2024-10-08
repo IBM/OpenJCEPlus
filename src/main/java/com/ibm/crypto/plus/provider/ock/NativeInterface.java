@@ -8,7 +8,6 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
-import com.ibm.misc.Debug;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -16,11 +15,10 @@ import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.ProviderException;
+import sun.security.util.Debug;
 
 @SuppressWarnings({"removal", "deprecation"})
 final class NativeInterface {
-
-    private static final boolean debugLoad = false;
 
     // User enabled debugging
     private static Debug debug = Debug.getInstance("jceplus");
@@ -74,14 +72,14 @@ final class NativeInterface {
     static String getOCKLoadPath() {
         String ockOverridePath = System.getProperty("ock.library.path");
         if (ockOverridePath != null) {
-            if (debugLoad) {
-                System.out.println("Loading ock library using value in property ock.library.path: "
-                        + ockOverridePath);
+            if (debug != null) {
+                debug.println("Loading ock library using value in property ock.library.path: "
+                    + ockOverridePath);
             }
             return ockOverridePath;
         }
-        if (debugLoad) {
-            System.out.println("Library path not found for ock, use java home directory.");
+        if (debug != null) {
+            debug.println("Library path not found for ock, use java home directory.");
         }
 
         String javaHome = System.getProperty("java.home");
@@ -94,8 +92,8 @@ final class NativeInterface {
             ockPath = javaHome + File.separator + "lib";
         }
 
-        if (debugLoad) {
-            System.out.println("Loading ock library using value: " + ockPath);
+        if (debug != null) {
+            debug.println("Loading ock library using value: " + ockPath);
         }
         return ockPath;
     }
@@ -103,15 +101,13 @@ final class NativeInterface {
     static String getJGskitLoadPath() {
         String jgskitOverridePath = System.getProperty("jgskit.library.path");
         if (jgskitOverridePath != null) {
-            if (debugLoad) {
-                System.out.println(
-                        "Loading jgskit library using value in property jgskit.library.path: "
-                                + jgskitOverridePath);
+            if (debug != null) {
+                debug.println("Loading jgskit library using value in property jgskit.library.path: " + jgskitOverridePath);
             }
             return jgskitOverridePath;
         }
-        if (debugLoad) {
-            System.out.println("Libpath not found for jgskit, use java home directory.");
+        if (debug != null) {
+            debug.println("Libpath not found for jgskit, use java home directory.");
         }
 
         String javaHome = System.getProperty("java.home");
@@ -124,8 +120,8 @@ final class NativeInterface {
             jgskitPath = javaHome + File.separator + "lib";
         }
 
-        if (debugLoad) {
-            System.out.println("Loading jgskit library using value: " + jgskitPath);
+        if (debug != null) {
+            debug.println("Loading jgskit library using value: " + jgskitPath);
         }
         return jgskitPath;
     }
@@ -325,18 +321,18 @@ final class NativeInterface {
             //
             try {
                 System.load(libraryName);
-                if (debugLoad) {
-                    System.out.println("Loaded : " + libraryName);
+                if (debug != null) {
+                    debug.println("Loaded : " + libraryName);
                 }
                 return true;
             } catch (Throwable t) {
-                if (debugLoad) {
-                    System.out.println("Failed to load : " + libraryName);
+                if (debug != null) {
+                    debug.println("Failed to load : " + libraryName);
                 }
             }
         } else {
-            if (debugLoad) {
-                System.out.println("Skipping load of " + libraryName);
+            if (debug != null) {
+                debug.println("Skipping load of " + libraryName);
             }
         }
         return false;
@@ -356,9 +352,9 @@ final class NativeInterface {
             String ockLoadPath = new File(getOCKLoadPath()).getCanonicalPath();
             String ockInstallPath = new File(context.getOCKInstallPath()).getCanonicalPath();
 
-            if (debugLoad) {
-                System.out.println("dependent library load path : " + ockLoadPath);
-                System.out.println("dependent library install path : " + ockInstallPath);
+            if (debug != null) {
+                debug.println("dependent library load path : " + ockLoadPath);
+                debug.println("dependent library install path : " + ockInstallPath);
             }
 
             if (ockInstallPath.startsWith(ockLoadPath) == false) {

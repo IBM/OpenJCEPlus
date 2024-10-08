@@ -8,7 +8,6 @@
 
 package ibm.jceplus.junit.base.certificateutils;
 
-import com.ibm.misc.Debug;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
