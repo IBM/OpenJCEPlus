@@ -8,7 +8,6 @@
 
 package ibm.jceplus.junit.base.certificateutils;
 
-import com.ibm.misc.Debug;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;

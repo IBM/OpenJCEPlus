@@ -10,7 +10,6 @@ package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.ock.CCMCipher;
 import com.ibm.crypto.plus.provider.ock.OCKContext;
-import com.ibm.misc.Debug;
 import ibm.security.internal.spec.CCMParameterSpec;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -31,6 +30,7 @@ import javax.crypto.CipherSpi;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
+import sun.security.util.Debug;
 
 public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMConstants {
 
@@ -53,8 +53,7 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
     private byte[] authData = null;
     private boolean updateCalled = false;
     // User enabled debugging
-    private static Debug debug = Debug.getInstance("jceplus");
-
+    private static Debug debug = Debug.getInstance(OpenJCEPlusProvider.DEBUG_VALUE);
 
     /*
      * index of the content size left in the buffer
