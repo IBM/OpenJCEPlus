@@ -36,7 +36,7 @@ public class TestMultithreadFIPS extends TestCase {
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_256",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCM",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCMAndAAD",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCipherInputStreamExceptions",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESCipherInputStreamExceptions",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCopySafe",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMLong",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMNonExpanding",

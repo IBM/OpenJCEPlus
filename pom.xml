@@ -18,7 +18,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
-        <jupiter.version>5.11.0</jupiter.version>
+        <jupiter.version>5.11.1</jupiter.version>
     </properties>
         <profiles>
           <profile>
@@ -162,6 +162,7 @@
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.multithread=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.integration=ALL-UNNAMED
+                      --add-opens=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
                     <systemPropertyVariables>
@@ -461,19 +462,6 @@
             </resource>
         </resources>
     </build>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>5.11.0</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
@@ -535,7 +523,7 @@
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
-            <version>1.11.0</version>
+            <version>1.11.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
