@@ -37,7 +37,7 @@ public class TestMultithread extends TestCase {
             "ibm.jceplus.junit.openjceplus.multithread.TestAESGCM_256",
             "ibm.jceplus.junit.openjceplus.multithread.TestAESGCMCICOWithGCM",
             "ibm.jceplus.junit.openjceplus.multithread.TestAESGCMCICOWithGCMAndAAD",
-            "ibm.jceplus.junit.openjceplus.multithread.TestAESGCMCipherInputStreamExceptions",
+            "ibm.jceplus.junit.openjceplus.multithread.TestAESCipherInputStreamExceptions",
             "ibm.jceplus.junit.openjceplus.multithread.TestAESGCMCopySafe",
             "ibm.jceplus.junit.openjceplus.multithread.TestAESGCMLong",
             "ibm.jceplus.junit.openjceplus.multithread.TestAESGCMNonExpanding",
