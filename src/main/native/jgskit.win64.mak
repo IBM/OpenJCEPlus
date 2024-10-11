@@ -63,6 +63,7 @@ dircreate:
 headers: dircreate
 	$(JAVA_HOME)/bin/javac \
 	--add-exports java.base/sun.security.util=openjceplus \
+	--add-exports java.base/sun.security.util=ALL-UNNAMED \
 	$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java \
 	$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/FastJNIBuffer.java \
 	$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/OCKContext.java \
