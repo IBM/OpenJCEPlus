@@ -60,10 +60,6 @@ noheaders: ${TARGET}
 dircreate:
 	mkdir -p ${HOSTOUT} 2>/dev/null
 
-javah: dircreate
-	${JAVA_HOME}/bin/javac \
-	--add-exports java.base/sun.security.util=openjceplus \
-	-cp ${JCE_CLASSPATH} \
 headers: | dircreate
 	${JAVA_HOME}/bin/javac \
 	--add-exports java.base/sun.security.util=openjceplus \
@@ -78,8 +74,6 @@ ${TARGET}: ${OBJS}
 
 ${HOSTOUT}/%.o: %.c | dircreate
 	gcc -fPIC ${DEBUG_FLAGS} -c -arch arm64 -pedantic -Wall -fstack-protector -I${TOPDIR}/src/main/native/ -I${GSKIT_HOME}/inc -I${JAVA_HOME}/include -I${JAVA_HOME}/include/darwin -I${OPENJCEPLUS_HEADER_FILES} $< -o $@
-
-
 
 clean:
 	rm -f ${HOSTOUT}/*.o
