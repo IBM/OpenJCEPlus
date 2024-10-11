@@ -14,7 +14,7 @@ import org.junit.platform.suite.api.Suite;
 @SelectClasses({TestAES.class, TestAES_128.class, TestAES256Interop.class, TestAESCCM.class,
         TestAESCCM2.class, TestAESCCMParameters.class, TestAESCCMInteropBC.class, TestAESGCM.class,
         TestAESGCMUpdate.class, TestAESGCMUpdateInteropBC.class, TestAESGCM_128.class,
-        TestAESGCM_ExtIV.class, TestAESGCM_IntIV.class, TestAESGCMCipherInputStreamExceptions.class,
+        TestAESGCM_ExtIV.class, TestAESGCM_IntIV.class, TestAESCipherInputStreamExceptions.class,
         TestAESGCMCopySafe.class, TestAESGCMNonExpanding.class, TestAESGCMSameBuffer.class,
         TestAESGCMWithByteBuffer.class, TestAESGCMCICOWithGCM.class,
         TestAESGCMCICOWithGCMAndAAD.class, TestAESGCMLong.class, TestAESGCMBufferIV.class,
