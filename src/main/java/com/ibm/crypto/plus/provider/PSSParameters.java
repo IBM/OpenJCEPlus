@@ -33,39 +33,30 @@ import sun.security.x509.AlgorithmId;
  *
  * <pre>
  * Its ASN.1 definition in PKCS#1 standard is described below:
-
- RSASSA-PSS-params ::= SEQUENCE {
- hashAlgorithm      [0] OAEP-PSSDigestAlgorithms  DEFAULT sha1,
- maskGenAlgorithm   [1] PKCS1MGFAlgorithms  DEFAULT mgf1SHA1,
- saltLength         [2] INTEGER  DEFAULT 20,
- trailerField       [3] INTEGER  DEFAULT 1
- }
-
-
- where
-
- OAEP-PSSDigestAlgorithms    ALGORITHM-IDENTIFIER ::= {
- { OID id-sha1 PARAMETERS NULL   }|
- { OID id-sha256 PARAMETERS NULL }|
- { OID id-sha384 PARAMETERS NULL }|
- { OID id-sha512 PARAMETERS NULL },
- ...  -- Allows for future expansion --
- }
-
- PKCS1MGFAlgorithms    ALGORITHM-IDENTIFIER ::= {
- { OID id-mgf1 PARAMETERS OAEP-PSSDigestAlgorithms },
- ...  -- Allows for future expansion --
- }
-
  *
+ * RSASSA-PSS-params ::= SEQUENCE {
+ * hashAlgorithm      [0] OAEP-PSSDigestAlgorithms  DEFAULT sha1,
+ * maskGenAlgorithm   [1] PKCS1MGFAlgorithms  DEFAULT mgf1SHA1,
+ * saltLength         [2] INTEGER  DEFAULT 20,
+ * trailerField       [3] INTEGER  DEFAULT 1
+ * }
+ *
+ * where
+ *
+ * OAEP-PSSDigestAlgorithms    ALGORITHM-IDENTIFIER ::= {
+ * { OID id-sha1 PARAMETERS NULL   }|
+ * { OID id-sha256 PARAMETERS NULL }|
+ * { OID id-sha384 PARAMETERS NULL }|
+ * { OID id-sha512 PARAMETERS NULL },
+ * ...  -- Allows for future expansion --
+ * }
+
+ * PKCS1MGFAlgorithms    ALGORITHM-IDENTIFIER ::= {
+ * { OID id-mgf1 PARAMETERS OAEP-PSSDigestAlgorithms },
+ * ...  -- Allows for future expansion --
+ * }
  * </pre>
- * The PSSParameterSpec class also has a member for storing mgf parameters.
- *
- */
-
-/**
- *ok
- */
+*/
 public final class PSSParameters extends AlgorithmParametersSpi {
 
     private AlgorithmId hashAlgorithm;
@@ -540,7 +531,6 @@ public final class PSSParameters extends AlgorithmParametersSpi {
         } catch (IOException e) {
             throw new IOException("Exception in encodeMGfParameterSpec(): " + e);
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
             throw new IOException("Exception in encodeMGfParameterSpec(): " + e);
         }
     }

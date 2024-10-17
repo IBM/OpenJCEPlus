@@ -489,23 +489,6 @@ public final class RSAPSSSignature extends SignatureSpi {
         }
         return buf.toString();
     }
-    /**
-     * Function used in NIST testing only - Uncomment this.
-     *
-     * @param s
-     * @return
-     */
-
-    // public static byte[] hexStringToByteArray(String s) {
-    // byte[] b = new byte[s.length() / 2];
-    // for (int i = 0; i < b.length; i++) {
-    // int index = i * 2;
-    // int v = Integer.parseInt(s.substring(index, index + 2), 16);
-    // b[i] = (byte) v;
-    // }
-    // return b;
-    // }
-
 
     /**
      * Utility method for checking key length against digest length and
