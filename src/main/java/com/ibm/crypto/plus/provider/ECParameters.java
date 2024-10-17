@@ -77,10 +77,6 @@ import sun.security.util.ObjectIdentifier;
  * </pre>
  *
  */
-
-/**
- *
- */
 public final class ECParameters extends AlgorithmParametersSpi {
 
     protected int cofactor;

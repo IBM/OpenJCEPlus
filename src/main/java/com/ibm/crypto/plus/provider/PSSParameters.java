@@ -56,16 +56,7 @@ import sun.security.x509.AlgorithmId;
  { OID id-mgf1 PARAMETERS OAEP-PSSDigestAlgorithms },
  ...  -- Allows for future expansion --
  }
-
- *
- * </pre>
- * The PSSParameterSpec class also has a member for storing mgf parameters.
- *
- */
-
-/**
- *ok
- */
+*/
 public final class PSSParameters extends AlgorithmParametersSpi {
 
     private AlgorithmId hashAlgorithm;

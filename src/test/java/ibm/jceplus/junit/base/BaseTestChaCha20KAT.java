@@ -8,7 +8,6 @@
 
 package ibm.jceplus.junit.base;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -33,9 +32,8 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
         public TestData(String name, String keyStr, String nonceStr, int ctr, int dir,
                 String inputStr, String aadStr, String outStr) {
             testName = Objects.requireNonNull(name);
-            Convert converter = new Convert();
-            key = converter.hexStringToByteArray(Objects.requireNonNull(keyStr));
-            nonce = converter.hexStringToByteArray(Objects.requireNonNull(nonceStr));
+            key = BaseUtils.hexStringToByteArray(Objects.requireNonNull(keyStr));
+            nonce = BaseUtils.hexStringToByteArray(Objects.requireNonNull(nonceStr));
             if ((counter = ctr) < 0) {
                 throw new IllegalArgumentException("counter must be 0 or greater");
             }
@@ -44,9 +42,9 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
                 throw new IllegalArgumentException(
                         "Direction must be ENCRYPT_MODE or DECRYPT_MODE");
             }
-            input = converter.hexStringToByteArray(Objects.requireNonNull(inputStr));
-            aad = (aadStr != null) ? converter.hexStringToByteArray(aadStr) : null;
-            expOutput = converter.hexStringToByteArray(Objects.requireNonNull(outStr));
+            input = BaseUtils.hexStringToByteArray(Objects.requireNonNull(inputStr));
+            aad = (aadStr != null) ? BaseUtils.hexStringToByteArray(aadStr) : null;
+            expOutput = BaseUtils.hexStringToByteArray(Objects.requireNonNull(outStr));
         }
 
         public final String testName;
@@ -485,59 +483,6 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
 
         return sb.toString();
     }
-
-
-    public class Convert {
-        // Convert from a byte array to a hexadecimal representation as a string.
-        public String byteArrayToHexString(byte[] arr) {
-            StringBuilder result = new StringBuilder();
-            for (int i = 0; i < arr.length; ++i) {
-                byte curVal = arr[i];
-                result.append(Character.forDigit(curVal >> 4 & 0xF, 16));
-                result.append(Character.forDigit(curVal & 0xF, 16));
-            }
-            return result.toString();
-        }
-
-        // Expand a single byte to a byte array
-        public byte[] byteToByteArray(byte v, int length) {
-            byte[] result = new byte[length];
-            result[0] = v;
-            return result;
-        }
-
-        // Convert a hexadecimal string to a byte array
-        public byte[] hexStringToByteArray(String str) {
-            byte[] result = new byte[str.length() / 2];
-            for (int i = 0; i < result.length; i++) {
-                result[i] = (byte) Character.digit(str.charAt(2 * i), 16);
-                result[i] <<= 4;
-                result[i] += Character.digit(str.charAt(2 * i + 1), 16);
-            }
-            return result;
-        }
-
-        /*
-         * Convert a hexadecimal string to the corresponding little-ending number as a
-         * BigInteger. The clearHighBit argument determines whether the most significant
-         * bit of the highest byte should be set to 0 in the result.
-         */
-        public BigInteger hexStringToBigInteger(boolean clearHighBit, String str) {
-            BigInteger result = BigInteger.ZERO;
-            for (int i = 0; i < str.length() / 2; i++) {
-                int curVal = Character.digit(str.charAt(2 * i), 16);
-                curVal <<= 4;
-                curVal += Character.digit(str.charAt(2 * i + 1), 16);
-                if (clearHighBit && i == str.length() / 2 - 1) {
-                    curVal &= 0x7F;
-                }
-                result = result.add(BigInteger.valueOf(curVal).shiftLeft(8 * i));
-            }
-            return result;
-        }
-
-    }
-
 
     private boolean runAEADChopTest(TestData testData, int chopLength)
             throws GeneralSecurityException {

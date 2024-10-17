@@ -61,7 +61,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
         int bMod8 = (keyArray.length * 8) % 8;
         if (bMod8 != 0) {
             int msk = (1 << bMod8) - 1;
-            keyArray[0] &= msk;
+            keyArray[0] &= (byte)msk;
         }
 
         this.u = new BigInteger(1, keyArray); // u is the public key reversed
@@ -123,7 +123,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
             int bMod8 = (reverseKey.length * 8) % 8;
             if (bMod8 != 0) {
                 int msk = (1 << bMod8) - 1;
-                reverseKey[0] &= msk;
+                reverseKey[0] &= (byte)msk;
             }
 
             this.u = new BigInteger(1, reverseKey); // u is the public key reversed
