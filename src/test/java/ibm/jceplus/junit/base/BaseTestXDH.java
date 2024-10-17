@@ -479,10 +479,10 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
     private void runDiffieHellmanTest(String a_pri, String b_pub, String result) throws Exception {
 
         KeyFactory kf = KeyFactory.getInstance("XDH", providerName);
-        byte[] a_pri_ba = hexStringToByteArray(a_pri);
+        byte[] a_pri_ba = BaseUtils.hexStringToByteArray(a_pri);
         KeySpec privateSpec = new PKCS8EncodedKeySpec(a_pri_ba);
         PrivateKey privateKey = kf.generatePrivate(privateSpec);
-        byte[] b_pub_ba = hexStringToByteArray(b_pub);
+        byte[] b_pub_ba = BaseUtils.hexStringToByteArray(b_pub);
         KeySpec publicSpec = new X509EncodedKeySpec(b_pub_ba);
         PublicKey publicKey = kf.generatePublic(publicSpec);
 
@@ -491,7 +491,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         ka.doPhase(publicKey, true);
 
         byte[] sharedSecret = ka.generateSecret();
-        byte[] expectedResult = hexStringToByteArray(result);
+        byte[] expectedResult = BaseUtils.hexStringToByteArray(result);
         if (!Arrays.equals(sharedSecret, expectedResult)) {
             throw new RuntimeException(
                     "fail: expected=" + result + ", actual=" + byteArrayToHexString(sharedSecret));
@@ -507,7 +507,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         System.out.println("Test curve = " + curveName);
         NamedParameterSpec paramSpec = new NamedParameterSpec(curveName);
         KeyFactory kf = KeyFactory.getInstance("XDH", providerName);
-        KeySpec privateSpec = new XECPrivateKeySpec(paramSpec, hexStringToByteArray(a_pri));
+        KeySpec privateSpec = new XECPrivateKeySpec(paramSpec, BaseUtils.hexStringToByteArray(a_pri));
         PrivateKey privateKey = kf.generatePrivate(privateSpec);
         boolean clearHighBit = curveName.equals("X25519");
 
@@ -534,7 +534,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
 
         byte[] sharedSecret = ka.generateSecret();
         //System.out.println("4");
-        byte[] expectedResult = hexStringToByteArray(result);
+        byte[] expectedResult = BaseUtils.hexStringToByteArray(result);
         //System.out.println("5");
         if (!Arrays.equals(sharedSecret, expectedResult)) {
             //System.out.println("6");
@@ -669,17 +669,6 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
     public static byte[] byteToByteArray(byte v, int length) {
         byte[] result = new byte[length];
         result[0] = v;
-        return result;
-    }
-
-    // Convert a hexadecimal string to a byte array
-    public static byte[] hexStringToByteArray(String str) {
-        byte[] result = new byte[str.length() / 2];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = (byte) Character.digit(str.charAt(2 * i), 16);
-            result[i] <<= 4;
-            result[i] += Character.digit(str.charAt(2 * i + 1), 16);
-        }
         return result;
     }
 

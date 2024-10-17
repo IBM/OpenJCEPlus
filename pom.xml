@@ -357,7 +357,7 @@
                         <arg>openjceplus/com.ibm.crypto.plus.provider.ock=ALL-UNNAMED</arg>
                     </compilerArgs>
                     <fork>true</fork>
-                    <debug>true</debug>  
+                    <debug>true</debug>
                 </configuration>
             </plugin>
             <plugin> <!-- Make sure we have the correct entries in the manifest file. -->
