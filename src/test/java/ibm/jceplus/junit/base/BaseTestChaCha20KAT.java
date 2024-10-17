@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -21,14 +21,9 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.ChaCha20ParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.Test;
 
 public class BaseTestChaCha20KAT extends BaseTestCipher {
-
-    public BaseTestChaCha20KAT(String providerName) {
-        super(providerName);
-    }
-
-
     public class TestData {
         public TestData(String name, String keyStr, String nonceStr, int ctr, int dir,
                 String inputStr, String aadStr, String outStr) {
@@ -165,7 +160,7 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
         }
     };
 
-
+    @Test
     public void testChaChaKnownAnswer() throws Exception {
         int testsPassed = 0;
         int testNumber = 0;
@@ -245,7 +240,7 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
         byte[] decryptedResult;
 
         // Get a Cipher instance and set up the parameters
-        Cipher mambo = Cipher.getInstance("ChaCha20", providerName);
+        Cipher mambo = Cipher.getInstance("ChaCha20", getProviderName());
         SecretKeySpec mamboKey = new SecretKeySpec(testData.key, "ChaCha20");
 
         /*
@@ -271,7 +266,7 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
         }
 
         // Decrypt the result of the encryption operation
-        mambo = Cipher.getInstance("ChaCha20", providerName);
+        mambo = Cipher.getInstance("ChaCha20", getProviderName());
         mambo.init(Cipher.DECRYPT_MODE, mamboKey, mamboSpec);
         decryptedResult = mambo.doFinal(encryptedResult);
 
@@ -292,7 +287,7 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
         boolean decRes = false;
 
         // Get a cipher instance and initialize it
-        Cipher mambo = Cipher.getInstance("ChaCha20", providerName);
+        Cipher mambo = Cipher.getInstance("ChaCha20", getProviderName());
         SecretKeySpec mamboKey = new SecretKeySpec(testData.key, "ChaCha20");
         ChaCha20ParameterSpec mamboSpec = new ChaCha20ParameterSpec(testData.nonce,
                 testData.counter);
@@ -312,7 +307,7 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
         }
 
         // Decrypt the result of the encryption operation
-        mambo = Cipher.getInstance("ChaCha20", providerName);
+        mambo = Cipher.getInstance("ChaCha20", getProviderName());
         byte[] decryptedResult = new byte[encryptedResult.length];
         mambo.init(Cipher.DECRYPT_MODE, mamboKey, mamboSpec);
         System.out.print("Decrypt - ");
@@ -362,7 +357,7 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
         boolean decRes = false;
 
         // Get a cipher instance and initialize it
-        Cipher mambo = Cipher.getInstance("ChaCha20", providerName);
+        Cipher mambo = Cipher.getInstance("ChaCha20", getProviderName());
         SecretKeySpec mamboKey = new SecretKeySpec(testData.key, "ChaCha20");
         ChaCha20ParameterSpec mamboSpec = new ChaCha20ParameterSpec(testData.nonce,
                 testData.counter);
@@ -386,7 +381,7 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
         }
 
         // Decrypt the result of the encryption operation
-        mambo = Cipher.getInstance("ChaCha20", providerName);
+        mambo = Cipher.getInstance("ChaCha20", getProviderName());
         mambo.init(Cipher.DECRYPT_MODE, mamboKey, mamboSpec);
         System.out.print("Decrypt - ");
         ByteBuffer bbDecOut = ByteBuffer.allocate(mambo.getOutputSize(bbEncOut.remaining()));
@@ -411,7 +406,7 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
         System.out.println("\nFeed all data at once into update Test: " + testData.testName);
         boolean result = false;
 
-        Cipher mambo = Cipher.getInstance("ChaCha20-Poly1305", providerName);
+        Cipher mambo = Cipher.getInstance("ChaCha20-Poly1305", getProviderName());
         SecretKeySpec mamboKey = new SecretKeySpec(testData.key, "ChaCha20");
         IvParameterSpec mamboSpec = new IvParameterSpec(testData.nonce);
 
@@ -545,7 +540,7 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
                 "\nFeed in " + chopLength + " bytes at time to update Test: " + testData.testName);
         boolean result = false;
 
-        Cipher mambo = Cipher.getInstance("ChaCha20-Poly1305", providerName);
+        Cipher mambo = Cipher.getInstance("ChaCha20-Poly1305", getProviderName());
         SecretKeySpec mamboKey = new SecretKeySpec(testData.key, "ChaCha20");
         IvParameterSpec mamboSpec = new IvParameterSpec(testData.nonce);
         int tagLen = 0;
@@ -628,7 +623,7 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
 
         boolean result = false;
 
-        Cipher mambo = Cipher.getInstance("ChaCha20-Poly1305", providerName);
+        Cipher mambo = Cipher.getInstance("ChaCha20-Poly1305", getProviderName());
         SecretKeySpec mamboKey = new SecretKeySpec(testData.key, "ChaCha20");
         IvParameterSpec mamboSpec = new IvParameterSpec(testData.nonce);
 

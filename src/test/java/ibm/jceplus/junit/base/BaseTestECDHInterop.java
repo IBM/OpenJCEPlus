@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -32,34 +32,13 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestECDHInterop extends BaseTestInterop {
+public class BaseTestECDHInterop extends BaseTestJunit5Interop {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestECDHInterop(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
     /**
      * Basic ECDH example
      *
@@ -72,36 +51,38 @@ public class BaseTestECDHInterop extends BaseTestInterop {
 
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
 
-        compute_ecdh_key_interop(curveName, ecgn, providerName, interopProviderName);
-        compute_ecdh_key_interop(curveName, ecgn, interopProviderName, providerName);
+        compute_ecdh_key_interop(curveName, ecgn, getProviderName(), getInteropProviderName());
+        compute_ecdh_key_interop(curveName, ecgn, getInteropProviderName(), getProviderName());
 
-        compute_ecdh_key_interop_sameKeyPairGenerator(curveName, ecgn, providerName,
-                interopProviderName);
-        compute_ecdh_key_interop_sameKeyPairGenerator(curveName, ecgn, interopProviderName,
-                providerName);
+        compute_ecdh_key_interop_sameKeyPairGenerator(curveName, ecgn, getProviderName(),
+                getInteropProviderName());
+        compute_ecdh_key_interop_sameKeyPairGenerator(curveName, ecgn, getInteropProviderName(),
+                getProviderName());
 
     }
 
+    @Test
     public void testECDH_encdoing() throws Exception {
-        test_ecdh_keyFactory(providerName, providerName);
-        test_ecdh_keyFactory(interopProviderName, interopProviderName);
-        test_ecdh_keyFactory(providerName, interopProviderName);
-        test_ecdh_keyFactory(interopProviderName, providerName);
+        test_ecdh_keyFactory(getProviderName(), getProviderName());
+        test_ecdh_keyFactory(getInteropProviderName(), getInteropProviderName());
+        test_ecdh_keyFactory(getProviderName(), getInteropProviderName());
+        test_ecdh_keyFactory(getInteropProviderName(), getProviderName());
     }
 
+    @Test
     public void testECDH_secp256r1() throws Exception {
 
         String curveName = "secp256r1";
 
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
 
-        compute_ecdh_key_interop(curveName, ecgn, providerName, interopProviderName);
-        compute_ecdh_key_interop(curveName, ecgn, interopProviderName, providerName);
+        compute_ecdh_key_interop(curveName, ecgn, getProviderName(), getInteropProviderName());
+        compute_ecdh_key_interop(curveName, ecgn, getInteropProviderName(), getProviderName());
 
-        compute_ecdh_key_interop_sameKeyPairGenerator(curveName, ecgn, providerName,
-                interopProviderName);
-        compute_ecdh_key_interop_sameKeyPairGenerator(curveName, ecgn, interopProviderName,
-                providerName);
+        compute_ecdh_key_interop_sameKeyPairGenerator(curveName, ecgn, getProviderName(),
+                getInteropProviderName());
+        compute_ecdh_key_interop_sameKeyPairGenerator(curveName, ecgn, getInteropProviderName(),
+                getProviderName());
 
     }
 
@@ -133,13 +114,13 @@ public class BaseTestECDHInterop extends BaseTestInterop {
         int cofactor = 1;
         ECParameterSpec ecParamSpec = new ECParameterSpec(curve, g, order, cofactor);
 
-        compute_ecdh_key_interop(methodId, ecParamSpec, providerName, interopProviderName);
-        compute_ecdh_key_interop(methodId, ecParamSpec, interopProviderName, providerName);
+        compute_ecdh_key_interop(methodId, ecParamSpec, getProviderName(), getInteropProviderName());
+        compute_ecdh_key_interop(methodId, ecParamSpec, getInteropProviderName(), getProviderName());
 
-        compute_ecdh_key_interop_sameKeyPairGenerator(methodId, ecParamSpec, providerName,
-                interopProviderName);
-        compute_ecdh_key_interop_sameKeyPairGenerator(methodId, ecParamSpec, interopProviderName,
-                providerName);
+        compute_ecdh_key_interop_sameKeyPairGenerator(methodId, ecParamSpec, getProviderName(),
+                getInteropProviderName());
+        compute_ecdh_key_interop_sameKeyPairGenerator(methodId, ecParamSpec, getInteropProviderName(),
+                getProviderName());
 
     }
 

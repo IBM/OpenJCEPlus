@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -7,7 +7,7 @@
  */
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTest;
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -16,33 +16,18 @@ import java.security.PublicKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class BaseTestMemStressRSAKeyFactory extends BaseTest {
+public class BaseTestMemStressRSAKeyFactory extends BaseTestJunit5 {
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
 
     int numTimes = 100;
     boolean printheapstats = false;
     int rsaSize = 2048;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressRSAKeyFactory(String providerName) {
-        super(providerName);
-
-    }
-
-    public BaseTestMemStressRSAKeyFactory(String providerName, int rsaSize) {
-        super(providerName);
-        this.rsaSize = rsaSize;
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
@@ -53,15 +38,7 @@ public class BaseTestMemStressRSAKeyFactory extends BaseTest {
         System.out.println("Testing RSAKeyFactory ");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-
+    @Test
     public void testRSAKeyFactory() throws Exception {
 
         Runtime rt = Runtime.getRuntime();

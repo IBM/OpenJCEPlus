@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -15,11 +15,13 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestMemStressChaCha20Poly1305 extends BaseTestCipher implements ChaCha20Constants {
-    //--------------------------------------------------------------------------
-    //
-    //
+
 
     // 14 bytes: PASSED
     static final byte[] PLAIN_TEXT_14 = "12345678123456".getBytes();
@@ -53,9 +55,7 @@ public class BaseTestMemStressChaCha20Poly1305 extends BaseTestCipher implements
 
     static final IvParameterSpec CHACHA20_POLY1305_PARAM_SPEC = new IvParameterSpec(NONCE_12_BYTE);
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected KeyGenerator keyGen = null;
     protected SecretKey key = null;
     protected IvParameterSpec paramSpec = null;
@@ -65,19 +65,9 @@ public class BaseTestMemStressChaCha20Poly1305 extends BaseTestCipher implements
     int numTimes = 100;
     boolean printheapstats = false;
 
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressChaCha20Poly1305(String providerName) {
-        super(providerName);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
-        keyGen = KeyGenerator.getInstance(CHACHA20_ALGORITHM, providerName);
+        keyGen = KeyGenerator.getInstance(CHACHA20_ALGORITHM, getProviderName());
         if (specifiedKeySize > 0) {
             keyGen.init(specifiedKeySize);
         }
@@ -91,14 +81,13 @@ public class BaseTestMemStressChaCha20Poly1305 extends BaseTestCipher implements
         System.out.println("Testing ChaChaPoly1305");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
+
+
 
     //--------------------------------------------------------------------------
     // Run encrypt/decrypt test using just doFinal calls
     //
+    @Test
     public void testChaCha20Poly1305EncryptDecryptDoFinalWithAAD() throws Exception {
         Runtime rt = Runtime.getRuntime();
         long prevTotalMemory = 0;
@@ -109,7 +98,7 @@ public class BaseTestMemStressChaCha20Poly1305 extends BaseTestCipher implements
         long prevUsedMemory = 0;
         for (int i = 0; i < numTimes; i++) {
             try {
-                cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+                cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
                 cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
                 cp.updateAAD(CHACHA20_POLY1305_AAD, 0, CHACHA20_POLY1305_AAD.length);
                 byte[] cipherText = cp.doFinal(PLAIN_TEXT);
@@ -117,7 +106,7 @@ public class BaseTestMemStressChaCha20Poly1305 extends BaseTestCipher implements
                 paramSpec = cp.getParameters().getParameterSpec(IvParameterSpec.class);
 
                 // Verify the text
-                cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+                cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
                 cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
                 cp.updateAAD(CHACHA20_POLY1305_AAD, 0, CHACHA20_POLY1305_AAD.length);
                 byte[] newPlainText = cp.doFinal(cipherText, 0, cipherText.length);

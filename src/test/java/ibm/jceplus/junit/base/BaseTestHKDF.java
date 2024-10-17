@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -32,8 +32,10 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
+public class BaseTestHKDF extends BaseTestJunit5 {
 
     public String testName;
     public String algName;
@@ -122,75 +124,62 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
                             + "b3bae548aa53d423b0d1f27ebba6f5e5" + "673a081d70cce7acfc48",
                     "42"},};
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestHKDF(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {
-
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
+    @Test
     public void testHKDF1() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support SHA1. So skip the test
             return;
         }
 
-        aesHKDF(128, "kda-hkdf-with-sha1", "AES", "AES", providerName);
-        aesHKDF(128, "kda-hkdf-with-sha-1", "AES", "AES", providerName);
+        aesHKDF(128, "kda-hkdf-with-sha1", "AES", "AES", getProviderName());
+        aesHKDF(128, "kda-hkdf-with-sha-1", "AES", "AES", getProviderName());
     }
 
+    @Test
     public void testHKDF224() throws Exception {
 
-        aesHKDF(192, "kda-hkdf-with-sha224", "AES", "AES", providerName);
-        aesHKDF(192, "kda-hkdf-with-sha-224", "AES", "AES", providerName);
+        aesHKDF(192, "kda-hkdf-with-sha224", "AES", "AES", getProviderName());
+        aesHKDF(192, "kda-hkdf-with-sha-224", "AES", "AES", getProviderName());
     }
 
+    @Test
     public void testHKDF256() throws Exception {
 
-        aesHKDF(192, "kda-hkdf-with-sha256", "AES", "AES", providerName);
-        aesHKDF(192, "kda-hkdf-with-sha-256", "AES", "AES", providerName);
+        aesHKDF(192, "kda-hkdf-with-sha256", "AES", "AES", getProviderName());
+        aesHKDF(192, "kda-hkdf-with-sha-256", "AES", "AES", getProviderName());
     }
 
+    @Test
     public void testHKDF384() throws Exception {
 
-        aesHKDF(256, "kda-hkdf-with-sha384", "AES", "AES", providerName);
-        aesHKDF(256, "kda-hkdf-with-sha-384", "AES", "AES", providerName);
+        aesHKDF(256, "kda-hkdf-with-sha384", "AES", "AES", getProviderName());
+        aesHKDF(256, "kda-hkdf-with-sha-384", "AES", "AES", getProviderName());
     }
 
+    @Test
     public void testHKDF512() throws Exception {
 
-        aesHKDF(256, "kda-hkdf-with-sha512", "AES", "AES", providerName);
-        aesHKDF(256, "kda-hkdf-with-sha-512", "AES", "AES", providerName);
+        aesHKDF(256, "kda-hkdf-with-sha512", "AES", "AES", getProviderName());
+        aesHKDF(256, "kda-hkdf-with-sha-512", "AES", "AES", getProviderName());
     }
 
+    @Test
     public void test3DesHKDF256() throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchPaddingException,
             IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
         String curveName = "secp256r1";
 
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support 3DES. So skip the test
             return;
         }
 
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
-        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, providerName, providerName);
+        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, getProviderName(), getProviderName());
 
         HKDFParameterSpec hkdfDeriveSpec = new HKDFParameterSpec(sharedSecret, null, null,
                 (long) (192 / 8), "DESede");
-        KeyGenerator hkdfDerive = KeyGenerator.getInstance("kda-hkdf-with-sha256", providerName);
+        KeyGenerator hkdfDerive = KeyGenerator.getInstance("kda-hkdf-with-sha256", getProviderName());
         hkdfDerive.init(hkdfDeriveSpec);
         SecretKey calcOkm = hkdfDerive.generateKey();
         String strToEncrypt = "Hello string to be encrypted";
@@ -200,13 +189,14 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
 
     }
 
+    @Test
     public void testLongOKM() throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchPaddingException,
             IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
         String curveName = "secp256r1";
 
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
-        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, providerName, providerName);
+        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, getProviderName(), getProviderName());
 
         try {
             new HKDFParameterSpec(sharedSecret, null, null,
@@ -218,6 +208,7 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
 
     }
 
+    @Test
     public void testInvalidKeyAlgorithms1() throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchPaddingException,
             IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
@@ -234,8 +225,7 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
 
     }
 
-
-
+    @Test
     public void testInvalidKeyAlgorithms2() throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchPaddingException,
             IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
@@ -246,7 +236,7 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
             HKDFParameterSpec hkdfDeriveSpec = new HKDFParameterSpec(sharedSecret, null, null,
                     (long) ((255 * 40)), "AES");
             KeyGenerator hkdfDerive = KeyGenerator.getInstance("kda-hkdf-with-sha256",
-                    providerName);
+                    getProviderName());
             hkdfDerive.init(hkdfDeriveSpec);
             assertTrue(false);
         } catch (InvalidAlgorithmParameterException iae) {
@@ -255,22 +245,23 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
 
     }
 
+    @Test
     public void testEcdhHKDF1() throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchPaddingException,
             IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
 
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support SHA1. Skip test
             return;
         }
         String curveName = "secp256r1";
 
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
-        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, providerName, providerName);
+        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, getProviderName(), getProviderName());
 
         HKDFParameterSpec hkdfDeriveSpec = new HKDFParameterSpec(sharedSecret, null, null,
                 (long) (192 / 8), "AES");
-        KeyGenerator hkdfDerive = KeyGenerator.getInstance("kda-hkdf-with-sha1", providerName);
+        KeyGenerator hkdfDerive = KeyGenerator.getInstance("kda-hkdf-with-sha1", getProviderName());
         hkdfDerive.init(hkdfDeriveSpec);
         SecretKey calcOkm = hkdfDerive.generateKey();
         String strToEncrypt = "Hello string to be encrypted";
@@ -280,17 +271,18 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
 
     }
 
+    @Test
     public void testEcdhHKDF256() throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchPaddingException,
             IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
         String curveName = "secp256r1";
 
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
-        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, providerName, providerName);
+        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, getProviderName(), getProviderName());
 
         HKDFParameterSpec hkdfDeriveSpec = new HKDFParameterSpec(sharedSecret, null, null,
                 (long) (256 / 8), "AES");
-        KeyGenerator hkdfDerive = KeyGenerator.getInstance("kda-hkdf-with-sha256", providerName);
+        KeyGenerator hkdfDerive = KeyGenerator.getInstance("kda-hkdf-with-sha256", getProviderName());
         hkdfDerive.init(hkdfDeriveSpec);
         SecretKey calcOkm = hkdfDerive.generateKey();
         String strToEncrypt = "Hello string to be encrypted";
@@ -300,17 +292,18 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
 
     }
 
+    @Test
     public void testEcdhHKDF512() throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchPaddingException,
             IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
         String curveName = "secp256r1";
 
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
-        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, providerName, providerName);
+        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, getProviderName(), getProviderName());
 
         HKDFParameterSpec hkdfDeriveSpec = new HKDFParameterSpec(sharedSecret, null, null,
                 (long) (256 / 8), "AES");
-        KeyGenerator hkdfDerive = KeyGenerator.getInstance("kda-hkdf-with-sha512", providerName);
+        KeyGenerator hkdfDerive = KeyGenerator.getInstance("kda-hkdf-with-sha512", getProviderName());
         hkdfDerive.init(hkdfDeriveSpec);
         SecretKey calcOkm = hkdfDerive.generateKey();
         String strToEncrypt = "Hello string to be encrypted";
@@ -415,6 +408,7 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
         return b;
     }
 
+    @Test
     public void testThroguhProvider() throws Exception {
         try {
             // HKDF hkdf = HKDF.getInstance("kda-hkdf-with-sha256", providerName);
@@ -437,7 +431,7 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
                 // System.out.println("i=" + i);
                 if (digestAlgo.equals("SHA256")) {
                     KeyGenerator hkdfExtract = KeyGenerator.getInstance("kda-hkdf-with-sha256",
-                            providerName);
+                            getProviderName());
                     // System.out.println("HKDF digest algorithm " +
                     // hkdfExtract.getDigestAlgorithm());
 
@@ -454,7 +448,7 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
                     assert (prkequal == true);
 
                     KeyGenerator hkdfExpand = KeyGenerator.getInstance("kda-hkdf-with-sha256",
-                            providerName);
+                            getProviderName());
                     HKDFExpandParameterSpec expandSpec = new HKDFExpandParameterSpec(prkArray,
                             infoArray, okmLength, "TlsEarlySecret");
                     hkdfExpand.init(expandSpec);
@@ -465,12 +459,12 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
                     assert (okmequal == true);
                     assert (calcOkmArray.length == okmLength);
                 } else {
-                    if (providerName.equals("OpenJCEPlusFIPS")) {
+                    if (getProviderName().equals("OpenJCEPlusFIPS")) {
                         //FIPS does not support SHA1. Skip test
                         break;
                     }
                     KeyGenerator hkdfExtract = KeyGenerator.getInstance("kda-hkdf-with-sha1",
-                            providerName);
+                            getProviderName());
                     // System.out.println("HKDF digest algorithm " +
                     // hkdfExtract.getDigestAlgorithm());
 
@@ -487,7 +481,7 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
                     assert (prkequal == true);
 
                     KeyGenerator hkdfExpand = KeyGenerator.getInstance("kda-hkdf-with-sha1",
-                            providerName);
+                            getProviderName());
                     HKDFExpandParameterSpec expandSpec = new HKDFExpandParameterSpec(prkArray,
                             infoArray, okmLength, "TlsEarlySecret");
                     hkdfExpand.init(expandSpec);
@@ -516,6 +510,7 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
     }
 
     // One OCK call does both extract and derive
+    @Test
     public void testDerive() throws Exception {
         try {
 
@@ -537,7 +532,7 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
                 // System.out.println("i=" + i);
                 if (digestAlgo.equals("SHA256")) {
                     KeyGenerator hkdfDerive = KeyGenerator.getInstance("kda-hkdf-with-sha256",
-                            providerName);
+                            getProviderName());
                     // System.out.println("HKDF digest algorithm " +
                     // hkdfExtract.getDigestAlgorithm());
 
@@ -554,13 +549,13 @@ public class BaseTestHKDF extends ibm.jceplus.junit.base.BaseTest {
                     assert (okmequal == true);
                     assert (calcOkmArray.length == okmLength);
                 } else {
-                    if (providerName.equals("OpenJCEPlusFIPS")) {
+                    if (getProviderName().equals("OpenJCEPlusFIPS")) {
                         //FIPS does not support SHA1. Skip test
                         break;
                     }
 
                     KeyGenerator hkdfDerive = KeyGenerator.getInstance("kda-hkdf-with-sha1",
-                            providerName);
+                            getProviderName());
                     // System.out.println("HKDF digest algorithm " +
                     // hkdfExtract.getDigestAlgorithm());
 

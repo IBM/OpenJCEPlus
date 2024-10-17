@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -37,13 +37,17 @@ import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestAESGCMUpdate extends BaseTest {
+public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
     private final static int GCM_IV_LENGTH = 12;
     private final static int GCM_TAG_LENGTH = 16;
     private static int ARRAY_OFFSET = 16;
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
-
 
     protected KeyGenerator aesKeyGen;
     protected AlgorithmParameters params = null;
@@ -69,37 +73,14 @@ public class BaseTestAESGCMUpdate extends BaseTest {
     byte[] ivBytes = "123456".getBytes();
     byte[] aadBytes = new byte[16];
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestAESGCMUpdate(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestAESGCMUpdate(String providerName, int keySize) throws Exception {
-        super(providerName);
-        System.out.println("Warning: keySize ignored");
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
-        aesKeyGen = KeyGenerator.getInstance("AES", providerName);
+        aesKeyGen = KeyGenerator.getInstance("AES", getProviderName());
         if (specifiedKeySize > 0) {
             aesKeyGen.init(specifiedKeySize);
         }
         key = aesKeyGen.generateKey();
     }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
 
     static String[] plainTextStrArray = {"a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
             "abcdefgh", "abcdefghi", "abcdefghi", "abcdefghij", "abcdefghijk", "abcdefghijkl",
@@ -121,7 +102,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
     private Cipher createCipher(int mode, SecretKey sKey, GCMParameterSpec ivSpec)
             throws Exception {
 
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipher.init(mode, sKey, ivSpec);
         return cipher;
     }
@@ -139,6 +120,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         return output.toString();*/
     }
 
+    @Disabled
     public void testNoDataUpdate1(String dataStr, SecretKey skey) throws Exception {
         for (int keysizeloop = 1; keysizeloop < 3; keysizeloop++) {
 
@@ -160,7 +142,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
     private String doEncryptNoDataUpdate(String privateString, SecretKey skey) throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
         cipher.init(Cipher.ENCRYPT_MODE, skey, ivSpec);
         cipher.updateAAD("12345678".getBytes());
@@ -180,7 +162,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
 
         byte[] iv = Arrays.copyOfRange(decoded, 0, GCM_IV_LENGTH);
 
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
         cipher.init(Cipher.DECRYPT_MODE, skey, ivSpec);
         cipher.updateAAD("12345678".getBytes());
@@ -192,6 +174,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         return result;
     }
 
+    @Test
     public void testCaseWithLongString2() throws Exception {
 
         byte[] iv = new byte[GCM_IV_LENGTH];
@@ -221,6 +204,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         }
     }
 
+    @Test
     public void testCaseWithShorString3() throws Exception {
 
         byte[] iv = new byte[GCM_IV_LENGTH];
@@ -260,6 +244,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         return (outputText3);
     }
 
+    @Test
     public void testCaseShortBufferError4() throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
@@ -328,6 +313,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         }
     }
 
+    @Test
     public void testCaseCallAfterShortBuffer5() throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
@@ -399,6 +385,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         }
     }
 
+    @Test
     public void testCaseCallUpdateAfterFinal() throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
@@ -491,6 +478,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
      * read the encrypted file and decrypt it and write the decrypted bytes to a decrypted file
      * read both the plain and decrypted files and verify they are same.
      */
+    @Test
     public void testReadWriteToAFile6() throws Exception {
 
         byte[] iv = new byte[GCM_IV_LENGTH];
@@ -558,7 +546,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
             fosEncrypted = new FileOutputStream(fileNameEncrypted);
             outStreamEncrypted = new DataOutputStream(new BufferedOutputStream(fosEncrypted));
 
-            Cipher cipherE = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cipherE = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             cipherE.init(Cipher.ENCRYPT_MODE, sKey, ivSpec);
             cipherE.updateAAD(AAD);
             byte[] bufferE = new byte[BUFFER_SIZE_ENCRYPTING];
@@ -574,7 +562,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
             inputStreamPlain.close();
 
 
-            Cipher cipherD = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cipherD = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             cipherD.init(Cipher.DECRYPT_MODE, sKey, ivSpec);
             cipherD.updateAAD(AAD);
 
@@ -644,6 +632,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
 
     }
 
+    @Test
     public void testWithOneDataUpdate7() throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
@@ -669,13 +658,13 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         //System.out.println ("====== doTestWithOneUpdate Entering " + modeStr + "dataText.length=" +  dataText.length);
         // first, generate the cipher text at an allocated buffer
 
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipher.init(mode, sKey, ivSpec);
         cipher.updateAAD(AAD);
         byte[] outputText = cipher.doFinal(dataText);
 
         // new cipher for encrypt operation
-        Cipher secondCipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher secondCipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         secondCipher.init(mode, sKey, ivSpec);
         secondCipher.updateAAD(AAD);
         byte[] destText = new byte[secondCipher.getOutputSize(dataText.length)];
@@ -702,6 +691,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         return destText;
     }
 
+    @Test
     public void testWith1UpdateinPlace8() throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
@@ -769,6 +759,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         return copyOfOutput;
     }
 
+    @Test
     public void testWithMultipleDataUpdate9() throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
@@ -795,6 +786,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         }
     }
 
+    @Test
     public void testWithMultipleDataUpdate10() throws Exception {
         byte[] myAAD = "12345678".getBytes();
         byte[] iv = new byte[GCM_IV_LENGTH];
@@ -823,14 +815,14 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         // first, generate the cipher text at an allocated buffer
         //System.out.println ("================doTestWithMultipleDataUpdate mode = " + modeStr);
 
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipher.init(mode, sKey, ivSpec);
         cipher.updateAAD(AAD);
         byte[] outputText = cipher.doFinal(text);
         //System.out.println ("================doTestWithMultipleDataUpdate outputText.length = " + outputText.length);
 
         // new cipher for encrypt operation
-        Cipher secondCipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher secondCipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         secondCipher.init(mode, sKey, ivSpec);
         secondCipher.updateAAD(AAD);
         byte[] destText = new byte[outputText.length];
@@ -870,6 +862,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         return destText;
     }
 
+    @Test
     public void testByteBuffer11() throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
@@ -915,6 +908,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         return (outputText12);
     }
 
+    @Test
     public void test1Update1Final12() throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
@@ -966,6 +960,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
 
     }
 
+    @Test
     public void testCalllAAEDAfterDataUpdate13() throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
@@ -1031,14 +1026,12 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testWithUpdatesShortBuffer() throws Exception {
         Cipher cpl = null;
         try {
 
-            cpl = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            cpl = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             GCMParameterSpec parameterSpec = new GCMParameterSpec(128, ivBytes); //128 bit auth tag length
             cpl.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
             cpl.updateAAD(aadBytes);
@@ -1053,11 +1046,9 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testWithUdpatesEncryptAfterShortBufferRetry() throws Exception {
-        Cipher cpl = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cpl = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         GCMParameterSpec parameterSpec = new GCMParameterSpec(128, ivBytes); //128 bit auth tag length
         try {
             cpl.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
@@ -1083,13 +1074,14 @@ public class BaseTestAESGCMUpdate extends BaseTest {
 
     }
 
+    @Test
     public void testWithUpdatesDecryptAfterShortBufferRetry() throws Exception {
         byte[] cipherText = null;
         Cipher cpl = null;
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
         try {
-            cpl = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            cpl = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             GCMParameterSpec gcmParamSpec = new GCMParameterSpec(128, iv); //128 bit auth tag length
 
             // Encrypt the plain text
@@ -1098,7 +1090,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
 
             AlgorithmParameters params = cpl.getParameters();
 
-            cpl = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            cpl = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             cpl.init(Cipher.DECRYPT_MODE, key, params);
             byte[] sbPlainText = new byte[15];
             System.out.println("cipherText.length=" + cipherText.length);
@@ -1122,11 +1114,12 @@ public class BaseTestAESGCMUpdate extends BaseTest {
     }
 
     // Respecify parameters twice and it should fail.
+    @Test
     public void testWithUpdatesCipherStates() throws Exception {
         Cipher cpl = null;
 
         try {
-            cpl = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            cpl = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             GCMParameterSpec gcmParamSpec = new GCMParameterSpec(128, ivBytes); //128 bit auth tag length
             // Encrypt the plain text
 
@@ -1170,6 +1163,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
 
     }
 
+    @Test
     public void testCallUpdateFailsSameKeyIV() throws Exception {
         int len = 0;
         GCMParameterSpec gcmParamSpec = new GCMParameterSpec(128, ivBytes); // 128 bit auth tag length
@@ -1202,9 +1196,10 @@ public class BaseTestAESGCMUpdate extends BaseTest {
 
     }
 
+    @Test
     public void testMultipleUpdateWithoutAllocatingExternalBuffer19() throws Exception {
 
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", providerName);
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", getProviderName());
         keyGenerator.init(16 * 8);
 
         // Generate Key
@@ -1239,7 +1234,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         // Get Cipher Instance
         Cipher cipher = null;
         try {
-            cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
 
             // Create SecretKeySpec
             SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
@@ -1287,7 +1282,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
     public byte[] doMultipleUpdateWithoutAllocatingExternalBufferDecrypt(byte[] cipherText,
             SecretKey key, byte[] IV) throws Exception {
         // Get Cipher Instance
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
 
         // Create SecretKeySpec
         SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
@@ -1304,6 +1299,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
         return decryptedText;
     }
 
+    @Test
     public void testNoDataUpdate20() throws Exception {
         for (int keysizeloop = 1; keysizeloop < 3; keysizeloop++) {
 
@@ -1323,7 +1319,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
     private byte[] doEncryptNoDataUpdate(byte[] plainTextBytes, SecretKey skey) throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
         cipher.init(Cipher.ENCRYPT_MODE, skey, ivSpec);
         cipher.updateAAD("12345678".getBytes());
@@ -1339,7 +1335,7 @@ public class BaseTestAESGCMUpdate extends BaseTest {
 
         byte[] iv = Arrays.copyOfRange(encrypted, 0, GCM_IV_LENGTH);
 
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
         cipher.init(Cipher.DECRYPT_MODE, skey, ivSpec);
         cipher.updateAAD("12345678".getBytes());

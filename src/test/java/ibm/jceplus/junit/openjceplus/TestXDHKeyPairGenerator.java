@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,50 +8,17 @@
 
 package ibm.jceplus.junit.openjceplus;
 
-import java.security.KeyPairGenerator;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.junit.Before;
+import ibm.jceplus.junit.base.BaseTestXDHKeyPairGenerator;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-public class TestXDHKeyPairGenerator extends ibm.jceplus.junit.base.BaseTestXDHKeyPairGenerator {
+@TestInstance(Lifecycle.PER_CLASS)
+public class TestXDHKeyPairGenerator extends BaseTestXDHKeyPairGenerator {
 
-    KeyPairGenerator kpg = null;
-    KeyPairGenerator kpgc = null;
-
-    @Before
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        kpg = KeyPairGenerator.getInstance("XDH", providerName);
-        kpgc = KeyPairGenerator.getInstance("XDH", providerName);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public TestXDHKeyPairGenerator() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TestXDHKeyPairGenerator.class);
-        return suite;
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 }

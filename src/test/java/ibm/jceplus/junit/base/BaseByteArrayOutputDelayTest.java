@@ -14,16 +14,13 @@ import java.lang.reflect.Method;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for ByteArrayOutputDelay
  *
  */
 public class BaseByteArrayOutputDelayTest extends BaseTestPublicMethodsToMakeNonPublic {
-
-    public BaseByteArrayOutputDelayTest(String providerName) {
-        super(providerName);
-    }
 
     private static byte[] TEST_DATA = new byte[1024];
 
@@ -36,42 +33,35 @@ public class BaseByteArrayOutputDelayTest extends BaseTestPublicMethodsToMakeNon
 
     private static int TEST_COUNT = 0;
 
-    public static void main(String[] args) throws IOException {
-
-        testSingleByte();
-        testIllegalByteDelay();
-        testDifferentDelayWritingByteAtATime();
-        testDelayLargerThanInput();
-        testDelaySameSizeAsInput();
-        testRandom();
-
-        System.out.println("Number of succesful tests = " + TEST_COUNT);
-    }
-
-    public static void testInputSizeNotMultipleOfDelay() throws IOException {
+    @Test
+    public void testInputSizeNotMultipleOfDelay() throws IOException {
         testByteArrayOutputDelay(16, 11, TEST_DATA); // test left overs
     }
 
-    public static void testDelaySameSizeAsInput() throws IOException {
+    @Test
+    public void testDelaySameSizeAsInput() throws IOException {
         testByteArrayOutputDelay(1024, 1024, TEST_DATA); // test one shot
     }
 
-    public static void testDelayLargerThanInput() throws IOException {
+    @Test
+    public void testDelayLargerThanInput() throws IOException {
         testByteArrayOutputDelay(4096, 1, TEST_DATA); // test buffer larger than data
     }
 
-    public static void testRandom() throws IOException {
+    @Test
+    public void testRandom() throws IOException {
         testRandom(20);
     }
 
-    public static void testDifferentDelayWritingByteAtATime() throws IOException {
+    @Test
+    public void testDifferentDelayWritingByteAtATime() throws IOException {
         for (int bufferSize = 0; bufferSize < 17; ++bufferSize) {
             testByteArrayOutputDelay(bufferSize, 1, TEST_DATA);
         }
 
     }
 
-    private static void testRandom(int iterations) throws IOException {
+    private void testRandom(int iterations) throws IOException {
         System.out.println("Running " + iterations + " random iterations");
         Random random = new SecureRandom();
 
@@ -96,7 +86,8 @@ public class BaseByteArrayOutputDelayTest extends BaseTestPublicMethodsToMakeNon
      * 
      * @throws IOException
      */
-    public static void testSingleByte() throws IOException {
+    @Test
+    public void testSingleByte() throws IOException {
         byte[] oneByte = {(byte) 255};
         testByteArrayOutputDelay(0, 1, oneByte); // no buffer
         testByteArrayOutputDelay(1, 1, oneByte);
@@ -109,7 +100,8 @@ public class BaseByteArrayOutputDelayTest extends BaseTestPublicMethodsToMakeNon
      * 
      * @throws IOException
      */
-    public static void testIllegalByteDelay() throws IOException {
+    @Test
+    public void testIllegalByteDelay() throws IOException {
         byte[] oneByte = {(byte) 255};
         try {
             testByteArrayOutputDelay(-1, 1, oneByte);
@@ -129,7 +121,7 @@ public class BaseByteArrayOutputDelayTest extends BaseTestPublicMethodsToMakeNon
      * @param testData  - data test with
      * @throws IOException
      */
-    public static void testByteArrayOutputDelay(int delayByte, int chopSize, byte[] testData)
+    private void testByteArrayOutputDelay(int delayByte, int chopSize, byte[] testData)
             throws IOException {
         System.out.println("Test bufferSize: " + delayByte + " chopSize: " + chopSize
                 + " Total length of input data: " + testData.length);

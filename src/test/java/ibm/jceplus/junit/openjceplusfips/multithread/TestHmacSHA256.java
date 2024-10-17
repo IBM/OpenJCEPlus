@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -11,35 +11,16 @@ package ibm.jceplus.junit.openjceplusfips.multithread;
 
 import ibm.jceplus.junit.base.BaseTestHmacSHA256;
 import ibm.jceplus.junit.openjceplusfips.Utils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-public class TestHmacSHA256 extends ibm.jceplus.junit.base.BaseTestHmacSHA256 {
+@TestInstance(Lifecycle.PER_CLASS)
+public class TestHmacSHA256 extends BaseTestHmacSHA256 {
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public TestHmacSHA256() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-    }
-
-    public void testHmacMD5() throws Exception {
-        System.out.println("executing testHmacSHA256");
-        BaseTestHmacSHA256 bt = new BaseTestHmacSHA256(providerName);
-        bt.run();
-
-    }
-
-    public static void main(String[] args) {
-        String[] nargs = {
-                ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA256.class.getName()};
-        junit.textui.TestRunner.main(nargs);
-    }
-
 }
-

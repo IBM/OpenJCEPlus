@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,37 +10,16 @@ package ibm.jceplus.junit.openjceplusfips.multithread;
 
 import ibm.jceplus.junit.base.BaseTestAESGCMWithByteBuffer;
 import ibm.jceplus.junit.openjceplusfips.Utils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+@TestInstance(Lifecycle.PER_CLASS)
 public class TestAESGCMWithByteBuffer extends BaseTestAESGCMWithByteBuffer {
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public TestAESGCMWithByteBuffer() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-    }
-
-
-
-    public static void main(String[] args) throws Exception {
-        String[] nargs = {TestAESGCMWithByteBuffer.class.getName()};
-        junit.textui.TestRunner.main(nargs);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void testAESGCMSameBuffer() throws Exception {
-        System.out.println("executing testAESGCMWithByteBuffer");
-        BaseTestAESGCMWithByteBuffer bt = new BaseTestAESGCMWithByteBuffer(providerName);
-        bt.run();
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 }
-
