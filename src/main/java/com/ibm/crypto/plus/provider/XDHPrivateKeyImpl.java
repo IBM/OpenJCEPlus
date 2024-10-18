@@ -311,11 +311,11 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
 
         // Read, convert, then write private key
         byte[] keyBytes = inputValue[2].getOctetString();
-        DerInputStream derStream = new DerInputStream(keyBytes);
         try {
             // XDH private key in SunEC new Java 17 design requires [octet-string[octet-string[key-bytes]]] format,
             // otherwise, it causes interop issue.
             if (isCorrectlyFormedOctetString(keyBytes)) {
+                DerInputStream derStream = new DerInputStream(keyBytes);
                 k = derStream.getOctetString(); // We know we are working with the format [octet-string[octet-string[key-bytes]]]
             } else {
                 k = keyBytes; // Try J11 format [octet-string[key-bytes]]
