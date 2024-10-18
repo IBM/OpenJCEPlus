@@ -34,7 +34,7 @@ import org.junit.platform.suite.api.Suite;
         TestHmacSHA512InteropSunJCE.class, TestHmacSHA3_224.class, TestHmacSHA3_256.class,
         TestHmacSHA3_384.class, TestHmacSHA3_512.class, TestImplementationClassesExist.class,
         TestImplementationClassesFinal.class, TestMD5.class,
-        TestInvalidArrayIndex.class, TestPublicMethodsToMakeNonPublic.class, TestRSA.class,
+        TestInvalidArrayIndex.class, TestPublicMethodsToMakeNonPublic.class, TestResetByteBuffer.class, TestRSA.class,
         TestRSA_512.class, TestRSA_1024.class, TestRSA_2048.class, TestRSAKey.class, TestRSAPSS.class,
         TestRSAPSSInterop.class, TestRSAPSS2.class, TestMiniRSAPSS2.class, TestRSAPSSInterop2.class,
         TestRSAPSSInterop3.class, TestRSASignature.class, TestRSASignatureInteropSunRsaSign.class,
