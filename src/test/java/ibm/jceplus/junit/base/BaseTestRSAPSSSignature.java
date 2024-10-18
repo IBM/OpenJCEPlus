@@ -133,7 +133,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             dotestSignature(content, IBM_ALG, 512, null, getProviderName());
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -166,7 +165,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             }
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -249,7 +247,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             }
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -275,7 +272,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             }
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -302,7 +298,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             }
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -329,7 +324,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             }
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -345,7 +339,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             dotestSignaturePSSParameterSpec(content1, IBM_ALG, 512);
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -363,7 +356,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -382,7 +374,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -401,7 +392,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -420,7 +410,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -438,7 +427,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -454,7 +442,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             dotestSignaturePSSParameterSpec(oneByte, IBM_ALG, 2048, pssParameterSpec);
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -473,7 +460,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             dotestSignatureBC2IBM(oneByte, IBM_ALG, BC_ALG, 512, 60);
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -489,7 +475,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             doSignatureIBM2BC(oneByte, IBM_ALG, BC_ALG, 512, -1);
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -505,7 +490,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
             doSignatureIBM2BC(oneByte, IBM_ALG, BC_ALG, 512, 0);
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -648,7 +632,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         try {
             algParams.getParameterSpec(PSSParameterSpec.class);
         } catch (InvalidParameterSpecException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -743,7 +726,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         try {
             algParams.getParameterSpec(PSSParameterSpec.class);
         } catch (InvalidParameterSpecException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -1532,11 +1514,9 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         try {
             sig_ibm = Signature.getInstance(IBM_ALG, getProviderName());
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         } catch (NoSuchProviderException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -1557,7 +1537,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         try {
             sig_ibm.setParameter(pssParameterSpec);
         } catch (InvalidAlgorithmParameterException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
             assertTrue(false);
         }
@@ -1594,7 +1573,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
         try {
             sig_bc.setParameter(pssParameterSpec_bc);
         } catch (InvalidAlgorithmParameterException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
             assertTrue(false);
         }
@@ -1653,7 +1631,6 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
                     publicKey.getPublicExponent().equals(publicKey2.getPublicExponent()));
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }

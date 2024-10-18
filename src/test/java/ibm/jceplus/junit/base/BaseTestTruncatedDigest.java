@@ -84,7 +84,6 @@ public class BaseTestTruncatedDigest extends BaseTestSignature {
         try {
             dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -94,7 +93,6 @@ public class BaseTestTruncatedDigest extends BaseTestSignature {
         //     dotestSignature(content, IBM_ALG, 2048, pssParameter2,
         //             getProviderName());
         // } catch (Exception e) {
-        //     // TODO Auto-generated catch block
         //     e.printStackTrace();
         // }
 
@@ -106,7 +104,6 @@ public class BaseTestTruncatedDigest extends BaseTestSignature {
             dotestSignature(content, IBM_ALG, 2048, pssParameter3, getProviderName());
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -116,22 +113,16 @@ public class BaseTestTruncatedDigest extends BaseTestSignature {
      * SHA512/256
      * @throws Exception
      */
-    // public void testRSASignatureSHA512_256() throws Exception {
-
-    //     PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512/256", "MGF1",
-    //             MGF1ParameterSpec.SHA512_256,20, 1);
-    //     try {
-    //         dotestSignature(content, IBM_ALG, 2048, pssParameter,
-    //                 getProviderName());
-
-    //     } catch (Exception e) {
-    //         // TODO Auto-generated catch block
-    //         e.printStackTrace();
-    //         assertTrue(false);
-    //     }
-    // }
-
-
+    public void testRSASignatureSHA512_256() throws Exception {
+        PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512/256", "MGF1",
+                MGF1ParameterSpec.SHA512_256,20, 1);
+        try {
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
+        } catch (Exception e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
     /**
      * Helper method
