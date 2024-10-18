@@ -11,6 +11,7 @@
 TOPDIR = $(MAKEDIR)../../..
 
 PLAT = win
+CFLAGS= -nologo -DWINDOWS
 
 #DEBUG_DETAIL = -DDEBUG_RANDOM_DETAIL -DDEBUG_RAND_DETAIL -DDEBUG_DH_DETAIL -DDEBUG_DSA_DETAIL -DDEBUG_DIGEST_DETAIL -DDEBUG_EC_DETAIL  -DDEBUG_EXTENDED_RANDOM_DETAIL -DDEBUG_GCM_DETAIL -DDEBUG_CCM_DETAIL -DDEBUG_HMAC_DETAIL -DDEBUG_PKEY_DETAIL -DDEBUG_CIPHER_DETAIL -DDEBUG_RSA_DETAIL -DDEBUG_SIGNATURE_DETAIL -DDEBUG_SIGNATURE_DSANONE_DETAIL -DDEBUG_SIGNATURE_RSASSL_DETAIL -DDEBUG_HKDF_DETAIL -DDEBUG_RSAPSS_DETAIL -DDEBUG_SIGNATURE_EDDSA_DETAIL
 
@@ -25,7 +26,8 @@ HOSTOUT = $(BUILDTOP)/host64
 OPENJCEPLUS_HEADER_FILES ?= $(TOPDIR)/src/main/native
 JAVACLASSDIR = $(TOPDIR)/target/classes
 
-OBJS= $(HOSTOUT)/BasicRandom.obj \
+OBJS= \
+	$(HOSTOUT)/BasicRandom.obj \
 	$(HOSTOUT)/BuildDate.obj \
 	$(HOSTOUT)/CCM.obj \
 	$(HOSTOUT)/Digest.obj \
@@ -54,40 +56,51 @@ TARGET = $(HOSTOUT)/libjgskit_64.dll
 JGSKIT_RC_SRC = jgskit_resource.rc
 JGSKIT_RC_OBJ = $(HOSTOUT)/jgskit_resource.res
 
-all: headers $(TARGET)
+all : $(TARGET)
 
-noheaders: $(TARGET)
-
-dircreate:
-	-@mkdir -p $(HOSTOUT) 2>nul
-
-headers: dircreate
-	$(JAVA_HOME)/bin/javac \
-	--add-exports java.base/sun.security.util=openjceplus \
-	--add-exports java.base/sun.security.util=ALL-UNNAMED \
-	$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java \
-	$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/FastJNIBuffer.java \
-	$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/OCKContext.java \
-	$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/OCKException.java \
-	-d $(JAVACLASSDIR) -h $(TOPDIR)/src/main/native/
-
-$(TARGET): $(OBJS) $(JGSKIT_RC_OBJ)
+$(TARGET) : $(OBJS) $(JGSKIT_RC_OBJ)
 	link -dll -out:$@ $(OBJS) $(JGSKIT_RC_OBJ) -LIBPATH:"$(GSKIT_HOME)/lib" jgsk8iccs_64.lib
+
+$(JGSKIT_RC_OBJ) : $(JGSKIT_RC_SRC)
+	rc $(BUILD_CFLAGS) -Fo$@ $(JGSKIT_RC_SRC)
+
+$(HOSTOUT)/%.obj : %.c
+	-@mkdir -p $(HOSTOUT) 2>nul
+	cl \
+		$(DEBUG_FLAGS) \
+		$(CFLAGS) \
+		-c \
+		-I"$(GSKIT_HOME)/inc" \
+		-I"$(JAVA_HOME)/include" \
+		-I"$(JAVA_HOME)/include/win32" \
+		-I"$(OPENJCEPLUS_HEADER_FILES)" \
+		-Fo$@ \
+		$<
 
 # Force BuildDate to be recompiled every time
 #
-$(HOSTOUT)/BuildDate.obj: FORCE dircreate
+$(HOSTOUT)/BuildDate.obj : FORCE
 
-FORCE:
+FORCE :
 
-$(HOSTOUT)/%.obj: %.c dircreate
-	cl -nologo -DWINDOWS $(DEBUG_FLAGS) -c -I"$(GSKIT_HOME)/inc" -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/win32" -I"$(OPENJCEPLUS_HEADER_FILES)" $< -Fo$@
+ifneq (${EXTERNAL_HEADERS},true)
 
-$(JGSKIT_RC_OBJ) : $(JGSKIT_RC_SRC) dircreate
-	-@rc $(BUILD_CFLAGS) -Fo$@ $(JGSKIT_RC_SRC)
+$(OBJS) : | headers
 
+headers :
+	echo "Compiling OpenJCEPlus headers"
+	$(JAVA_HOME)/bin/javac \
+		--add-exports java.base/sun.security.util=openjceplus \
+		-d $(JAVACLASSDIR) \
+		-h $(TOPDIR)/src/main/native/ \
+		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java \
+		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/FastJNIBuffer.java \
+		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/OCKContext.java \
+		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/OCKException.java
 
-clean:
+endif # ! EXTERNAL_HEADERS
+
+clean :
 	-@del $(HOSTOUT)/*.obj
 	-@del $(HOSTOUT)/*.exp
 	-@del $(HOSTOUT)/*.lib
