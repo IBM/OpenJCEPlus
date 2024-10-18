@@ -29,7 +29,7 @@ import org.junit.platform.suite.api.Suite;
         TestHmacSHA3_224.class, TestHmacSHA3_256.class, TestHmacSHA3_384.class,
         TestHmacSHA3_512.class, TestImplementationClassesExist.class,
         TestImplementationClassesFinal.class, TestInvalidArrayIndex.class,
-        TestPublicMethodsToMakeNonPublic.class, TestRSA.class, TestRSA_2048.class, TestRSAKey.class,
+        TestPublicMethodsToMakeNonPublic.class, TestResetByteBuffer.class, TestRSA.class, TestRSA_2048.class, TestRSAKey.class,
         TestRSAPSS.class, TestMiniRSAPSS2.class, TestRSASignature.class,
         TestRSASignatureInteropSunRsaSign.class, TestRSASignatureChunkUpdate.class,
         TestRSATypeCheckDefault.class, TestSHA1.class, TestSHA224.class, TestSHA256.class,
