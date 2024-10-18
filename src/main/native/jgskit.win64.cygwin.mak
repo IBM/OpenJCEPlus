@@ -11,6 +11,7 @@
 TOPDIR = $(MAKEDIR)\..\..\..
 
 PLAT = win
+CFLAGS= -nologo -DWINDOWS
 
 #DEBUG_DETAIL = -DDEBUG_RANDOM_DETAIL -DDEBUG_RAND_DETAIL -DDEBUG_DH_DETAIL -DDEBUG_DSA_DETAIL -DDEBUG_DIGEST_DETAIL -DDEBUG_EC_DETAIL  -DDEBUG_EXTENDED_RANDOM_DETAIL -DDEBUG_GCM_DETAIL -DDEBUG_CCM_DETAIL -DDEBUG_HMAC_DETAIL -DDEBUG_PKEY_DETAIL -DDEBUG_CIPHER_DETAIL -DDEBUG_RSA_DETAIL -DDEBUG_SIGNATURE_DETAIL -DDEBUG_SIGNATURE_DSANONE_DETAIL -DDEBUG_SIGNATURE_RSASSL_DETAIL -DDEBUG_HKDF_DETAIL -DDEBUG_RSAPSS_DETAIL -DDEBUG_SIGNATURE_EDDSA_DETAIL
 
@@ -23,7 +24,9 @@ PLAT = win
 BUILDTOP = $(TOPDIR)\target\build$(PLAT)
 HOSTOUT = $(BUILDTOP)\host64
 JAVACLASSDIR = $(TOPDIR)\target\classes
-OBJS= BasicRandom.obj \
+
+OBJS= \
+	BasicRandom.obj \
 	BuildDate.obj \
 	CCM.obj \
 	Digest.obj \
@@ -52,47 +55,54 @@ TARGET = libjgskit_64.dll
 JGSKIT_RC_SRC = jgskit_resource.rc
 JGSKIT_RC_OBJ = jgskit_resource.res
 
-all:  headers $(TARGET) copy
+all : copy
 
-dircreate:
+copy : $(TARGET)
 	-@mkdir -p $(HOSTOUT) 2>nul
-
-headers: dircreate
-	$(JAVA_HOME)\bin\javac \
-	--add-exports java.base/sun.security.util=openjceplus \
-	--add-exports java.base/sun.security.util=ALL-UNNAMED \
-	$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\ock\NativeInterface.java \
-	$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\ock\FastJNIBuffer.java \
-	$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\ock\OCKContext.java \
-	$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\ock\OCKException.java \
-	-d $(JAVACLASSDIR) -h $(TOPDIR)\src\main\native\
-
-$(TARGET): $(OBJS) $(JGSKIT_RC_OBJ)
-	-link -dll -out:$@ $(OBJS) $(JGSKIT_RC_OBJ) -LIBPATH:"$(GSKIT_HOME)/lib" jgsk8iccs_64.lib
-
-copy: dircreate
 	-@cp *.obj $(HOSTOUT)
 	-@cp jgskit_resource.res $(HOSTOUT)
 	-@cp libjgskit_64.dll $(HOSTOUT)
 
-# Force BuildDate to be recompiled every time
-#
-BuildDate.obj: FORCE
-
-FORCE:
-
-.c.obj:
-	-cl -nologo -DWINDOWS $(DEBUG_FLAGS) -c -I"$(GSKIT_HOME)/inc" -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/win32" $*.c
+$(TARGET) : $(OBJS) $(JGSKIT_RC_OBJ)
+	link -dll -out:$@ $(OBJS) $(JGSKIT_RC_OBJ) -LIBPATH:"$(GSKIT_HOME)/lib" jgsk8iccs_64.lib
 
 $(JGSKIT_RC_OBJ) : $(JGSKIT_RC_SRC)
-	-@rc $(BUILD_CFLAGS) -Fo$@ $(JGSKIT_RC_SRC)
+	rc $(BUILD_CFLAGS) -Fo$@ $(JGSKIT_RC_SRC)
 
+.c.obj :
+	cl \
+		$(DEBUG_FLAGS) \
+		$(CFLAGS) \
+		-c \
+		-I"$(GSKIT_HOME)/inc" \
+		-I"$(JAVA_HOME)/include" \
+		-I"$(JAVA_HOME)/include/win32" \
+		$*.c
 
-clean:
+# Force BuildDate to be recompiled every time
+#
+BuildDate.obj : FORCE
+
+FORCE :
+
+$(OBJS) : headers
+
+headers :
+	echo "Compiling OpenJCEPlus headers"
+	$(JAVA_HOME)\bin\javac \
+		--add-exports java.base/sun.security.util=openjceplus \
+		-d $(JAVACLASSDIR) \
+		-h $(TOPDIR)\src\main\native\ \
+		$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\ock\NativeInterface.java \
+		$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\ock\FastJNIBuffer.java \
+		$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\ock\OCKContext.java \
+		$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\ock\OCKException.java
+
+clean :
 	-@del $(HOSTOUT)\*.obj
 	-@del $(HOSTOUT)\*.exp
 	-@del $(HOSTOUT)\*.lib
 	-@del $(HOSTOUT)\*.dll
 	-@del $(HOSTOUT)\*.res
 
-.PHONY: all dircreate headers copy clean
+.PHONY : all clean copy headers
