@@ -422,23 +422,10 @@ public class BaseTestRSAPSS extends BaseTest {
     /**
      * Helper method
      * @param content
-     * @param ibmalgorithm
-     * @param bcalgorithm
-     * @param keySize
-     * @param saltSize
-     * @throws Exception
-     */
-
-
-
-    /**
-     * Helper method
-     * @param content
      * @param algorithm
      * @param keySize
      * @throws Exception
      */
-
     protected void dotestSignaturePSSParameterSpec(byte[] content, String algorithm, int keySize)
             throws Exception {
         if (printJunitTrace)
