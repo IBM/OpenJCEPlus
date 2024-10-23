@@ -351,27 +351,6 @@ public final class CertAndKeyGen {
      * @param validity
      *            how long the certificate should be valid, in seconds
      */
-    // Removed deprecated symbol since it wound up getting applied to
-    // the getSelfCertificate method even though it was for the comments
-    // prior to the commented out getSelfCert.
-    // @ deprecated Use the new <a href =
-    // "#getSelfCertificate(com.ibm.security.x509.X500Name, long)">
-
-    /***
-     * LOCKDOWN get rid of deprecated X509Cert class public X509Cert
-     * getSelfCert(X500Name myname, long validity) throws InvalidKeyException,
-     * SignatureException, NoSuchAlgorithmException { X509Certificate cert;
-     * 
-     * try { cert = getSelfCertificate(myname, validity); return new
-     * X509Cert(cert.getEncoded()); } catch (CertificateException e) { throw new
-     * SignatureException(e.getMessage()); } catch (NoSuchProviderException e) {
-     * throw new NoSuchAlgorithmException(e.getMessage()); } catch (IOException
-     * e) { throw new SignatureException(e.getMessage()); } } LOCKDOWN get rid
-     * of deprecated X509Cert class
-     ***/
-
-    // create for KeyTool to use, to workaround the problem with PKCS11Impl
-    // provider
     public X509Certificate getSelfCert(X500Name myname, long validity)
             throws CertificateException, InvalidKeyException, SignatureException,
             NoSuchAlgorithmException, NoSuchProviderException {
