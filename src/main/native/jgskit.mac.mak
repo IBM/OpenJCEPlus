@@ -83,6 +83,7 @@ headers :
 	echo "Compiling OpenJCEPlus headers"
 	${JAVA_HOME}/bin/javac \
 		--add-exports java.base/sun.security.util=openjceplus \
+		--add-exports java.base/sun.security.util=ALL-UNNAMED \
 		-d ${JAVACLASSDIR} \
 		-h ${TOPDIR}/src/main/native/ \
 		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java \
