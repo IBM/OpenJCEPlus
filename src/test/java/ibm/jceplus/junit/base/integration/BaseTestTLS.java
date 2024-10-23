@@ -266,7 +266,7 @@ public class BaseTestTLS {
 
         ec_rsa_pkcs1_sha256(
                 "EC",
-                /**
+                /*
                  * Signature Algorithm: sha256WithRSAEncryption
                  * Issuer: CN = root
                  * Validity Not Before: Jun 5 07:20:59 2018 GMT
@@ -292,7 +292,7 @@ public class BaseTestTLS {
                 + "ADGGckA4107gVrR2r8YvzS/cO9Q97XWEXlfeHs5t7TQSJdNg6Gep1jLpFEQ98h/c\n"
                 + "y4VBmOqhZ4vJ+/k16IW83XV8NcroIrqyfVJFRxVTCpitj4kDecqd9XHRE2/Xf5bb\n"
                 + "-----END CERTIFICATE-----\n",
-                /**
+                /*
                  * Signature Algorithm: sha256WithRSAEncryption
                  * Issuer: CN = root
                  * Validity Not Before: Jun 5 07:20:59 2018 GMT
@@ -327,7 +327,7 @@ public class BaseTestTLS {
         ),
         ecdsa_sha1(
                 "EC",
-                /**
+                /*
                  * Signature Algorithm: ecdsa-with-SHA1
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 4 15:20:45 2018 GMT
@@ -354,7 +354,7 @@ public class BaseTestTLS {
         ),
         ecdsa_sha256(
                 "EC",
-                /**
+                /*
                  * Signature Algorithm: ecdsa-with-SHA256
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 4 15:20:45 2018 GMT
@@ -383,7 +383,7 @@ public class BaseTestTLS {
         ),
         rsa_pss_pss_sha256(
                 "RSASSA-PSS",
-                /**
+                /*
                  * Signature Algorithm: rsassaPss
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 6 07:11:00 2018 GMT
@@ -444,7 +444,7 @@ public class BaseTestTLS {
         ),
         rsa_pss_rsae_sha256(
                 "RSA",
-                /**
+                /*
                  * Signature Algorithm: rsassaPss
                  * Issuer: CN = root
                  * Validity Not Before: Jun 6 07:11:39 2018 GMT
@@ -472,7 +472,7 @@ public class BaseTestTLS {
                 + "pZh0//f+9cjUiWChx0ROa+3DmDc5mzFIxC0VGMGZWSekgFAyi7eOu09DB2BDg2O/\n"
                 + "C3MPBzynuw9E1a4NhEqNx+Cm0gJj5ZAUAAE1/aR8103fND3CA1SqiTgDVJh9Xg8i\n"
                 + "-----END CERTIFICATE-----\n",
-                /**
+                /*
                  * Signature Algorithm: rsassaPss
                  * Issuer: CN = root
                  * Validity Not Before: Jun 6 07:11:39 2018 GMT
@@ -536,7 +536,7 @@ public class BaseTestTLS {
         ),
         rsa_pkcs1_sha1(
                 "RSA",
-                /**
+                /*
                  * Signature Algorithm: sha1WithRSAEncryption
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 4 15:23:09 2018 GMT
@@ -595,7 +595,7 @@ public class BaseTestTLS {
         ),
         rsa_pkcs1_sha256(
                 "RSA",
-                /**
+                /*
                  * Signature Algorithm: sha256WithRSAEncryption
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 4 15:22:04 2018 GMT
@@ -654,7 +654,7 @@ public class BaseTestTLS {
         ),
         rsa_pkcs1_sha384(
                 "RSA",
-                /**
+                /*
                  * Signature Algorithm: sha384WithRSAEncryption
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 7 07:59:56 2018 GMT
@@ -713,7 +713,7 @@ public class BaseTestTLS {
         ),
         rsa_pkcs1_sha512(
                 "RSA",
-                /**
+                /*
                  * Signature Algorithm: sha512WithRSAEncryption
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 7 08:00:45 2018 GMT
@@ -772,7 +772,7 @@ public class BaseTestTLS {
         ),
         ecdsa_secp384r1_sha384(
                 "EC",
-                /**
+                /*
                  * Signature Algorithm: ecdsa-with-SHA384
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 7 08:02:00 2018 GMT
@@ -802,7 +802,7 @@ public class BaseTestTLS {
         ),
         ecdsa_secp521r1_sha512(
                 "EC",
-                /**
+                /*
                  * Signature Algorithm: ecdsa-with-SHA512
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 7 08:03:11 2018 GMT
@@ -835,7 +835,7 @@ public class BaseTestTLS {
         ),
         rsa_pss_rsae_sha384(
                 "RSA",
-                /**
+                /*
                  * Signature Algorithm: rsassaPss
                  * Issuer: CN = root
                  * Validity Not Before: Jun 7 08:04:01 2018 GMT
@@ -863,7 +863,7 @@ public class BaseTestTLS {
                 + "XerJdFBQ1wEJQr9JdcbAXJkQCbiFq/sgdzLuo9KwiQ9WOm99eB//iHQkOiNF0NLn\n"
                 + "hMdqUqaPOvUBl2gVC+aPm0cdlFj1IcbAaOq6Kg2OA3edapyUQF3+jZm4pnPHyT8Y\n"
                 + "-----END CERTIFICATE-----\n",
-                /**
+                /*
                  * Signature Algorithm: rsassaPss
                  * Issuer: CN = root
                  * Validity Not Before: Jun 7 08:04:01 2018 GMT
@@ -927,7 +927,7 @@ public class BaseTestTLS {
         ),
         rsa_pss_rsae_sha512(
                 "RSA",
-                /**
+                /*
                  * Signature Algorithm: rsassaPss
                  * Issuer: CN = root
                  * Validity Not Before: Jun 7 08:05:27 2018 GMT
@@ -955,7 +955,7 @@ public class BaseTestTLS {
                 + "6JTWKzCMp2pMFvUllP0FNEzIc1Q5qTkwFCzf8d5NLVa143kWuU0G9VbAjAJaEEfa\n"
                 + "PUlfJQzkEKn0MsGWkpYMepbF4z7FB37jrLaHgHZvxpX1dXg8NWOqBXGSD154hzpf\n"
                 + "-----END CERTIFICATE-----\n",
-                /**
+                /*
                  * Signature Algorithm: rsassaPss
                  * Issuer: CN = root
                  * Validity Not Before: Jun 7 08:05:27 2018 GMT
@@ -1019,7 +1019,7 @@ public class BaseTestTLS {
         ),
         rsa_pss_pss_sha384(
                 "RSASSA-PSS",
-                /**
+                /*
                  * Signature Algorithm: rsassaPss
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 7 08:06:30 2018 GMT
@@ -1080,7 +1080,7 @@ public class BaseTestTLS {
         ),
         rsa_pss_pss_sha512(
                 "RSASSA-PSS",
-                /**
+                /*
                  * Signature Algorithm: rsassaPss
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 7 08:07:22 2018 GMT
@@ -1141,7 +1141,7 @@ public class BaseTestTLS {
         ),
         dsa_sha256(
                 "DSA",
-                /**
+                /*
                  * Signature Algorithm: dsa_with_SHA256
                  * Issuer: CN = localhost
                  * Validity Not Before: Jun 7 08:06:30 2018 GMT
