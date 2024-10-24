@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -12,13 +12,10 @@ import java.util.Random;
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestHmacSHA224Interop extends BaseTestInterop {
-    //--------------------------------------------------------------------------
-    //
-    //
-    static boolean warmup = false;
+public class BaseTestHmacSHA224Interop extends BaseTestJunit5Interop {
 
     // test vectors from http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/HMAC_SHA224.pdf
     static final byte[] key_1 = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
@@ -100,92 +97,52 @@ public class BaseTestHmacSHA224Interop extends BaseTestInterop {
             (byte) 0x6c, (byte) 0xa4, (byte) 0xb4, (byte) 0xb1, (byte) 0xc2, (byte) 0x3d,
             (byte) 0x27, (byte) 0xbd, (byte) 0xe0, (byte) 0x67, (byte) 0xd6,};
 
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestHmacSHA224Interop(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_data1() throws Exception {
-        doHmac(data_1, providerName, interopProviderName);
-        doHmac(data_1, interopProviderName, providerName);
+        doHmac(data_1, getProviderName(), getInteropProviderName());
+        doHmac(data_1, getInteropProviderName(), getProviderName());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_data2() throws Exception {
-        doHmac(data_2, providerName, interopProviderName);
-        doHmac(data_2, interopProviderName, providerName);
+        doHmac(data_2, getProviderName(), getInteropProviderName());
+        doHmac(data_2, getInteropProviderName(), getProviderName());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_data3() throws Exception {
-        doHmac(data_3, providerName, interopProviderName);
-        doHmac(data_3, interopProviderName, providerName);
+        doHmac(data_3, getProviderName(), getInteropProviderName());
+        doHmac(data_3, getInteropProviderName(), getProviderName());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_payload_512() throws Exception {
         byte[] data_512 = new byte[512];
         Random r = new Random(10);
         r.nextBytes(data_512);
-        doHmac(data_512, providerName, interopProviderName);
-        doHmac(data_512, interopProviderName, providerName);
+        doHmac(data_512, getProviderName(), getInteropProviderName());
+        doHmac(data_512, getInteropProviderName(), getProviderName());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_payload_2048() throws Exception {
         byte[] data_2048 = new byte[2048];
         Random r = new Random(10);
         r.nextBytes(data_2048);
-        doHmac(data_2048, providerName, interopProviderName);
-        doHmac(data_2048, interopProviderName, providerName);
+        doHmac(data_2048, getProviderName(), getInteropProviderName());
+        doHmac(data_2048, getInteropProviderName(), getProviderName());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_payload_8192() throws Exception {
         byte[] data_8192 = new byte[8192];
         Random r = new Random(10);
         r.nextBytes(data_8192);
-        doHmac(data_8192, providerName, interopProviderName);
-        doHmac(data_8192, interopProviderName, providerName);
+        doHmac(data_8192, getProviderName(), getInteropProviderName());
+        doHmac(data_8192, getInteropProviderName(), getProviderName());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected void doHmac(byte[] data, String provider, String interopProvider) throws Exception {
         KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA224", provider);
         SecretKey key = keyGen.generateKey();
@@ -201,24 +158,6 @@ public class BaseTestHmacSHA224Interop extends BaseTestInterop {
         byte[] digest2 = mac2.doFinal();
 
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest2));
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void warmup() throws Exception {
-
-        try {
-            Mac mac = Mac.getInstance("HmacSHA224", providerName);
-            SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA224");
-            for (long i = 0; i < 10000; i++) {
-                mac.init(key);
-                mac.update(data_1);
-                mac.doFinal();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
 

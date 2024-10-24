@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -20,7 +20,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.GCMParameterSpec;
-import org.junit.Assume;
+import org.junit.jupiter.api.Test;
 
 /**
  * @test
@@ -28,24 +28,14 @@ import org.junit.Assume;
  * @summary Test AES encryption with no padding. Expect the original data length
  *          is the same as the encrypted data.
  */
-public class BaseTestAESGCMNonExpanding extends BaseTest {
+public class BaseTestAESGCMNonExpanding extends BaseTestJunit5 {
 
     private static final String ALGORITHM = "AES";
     private static final String[] MODES = {"GCM"};
     private static final String PADDING = "NoPadding";
     protected int specifiedKeySize = 128;
 
-    public BaseTestAESGCMNonExpanding(String providerName) {
-        super(providerName);
-    }
-
-    public BaseTestAESGCMNonExpanding(String providerName, int keySize) throws Exception {
-        super(providerName);
-        this.specifiedKeySize = keySize;
-        Assume.assumeTrue(javax.crypto.Cipher.getMaxAllowedKeyLength("AES") >= keySize);
-    }
-
-
+    @Test
     public void testNonExpanding() throws Exception {
 
         for (String mode : MODES) {
@@ -63,9 +53,9 @@ public class BaseTestAESGCMNonExpanding extends BaseTest {
             byte[] plainText = new byte[128];
             rdm.nextBytes(plainText);
 
-            ci = Cipher.getInstance(algo + "/" + mo + "/" + pad, providerName);
+            ci = Cipher.getInstance(algo + "/" + mo + "/" + pad, getProviderName());
 
-            KeyGenerator kg = KeyGenerator.getInstance(algo, providerName);
+            KeyGenerator kg = KeyGenerator.getInstance(algo, getProviderName());
             kg.init(specifiedKeySize);
             key = kg.generateKey();
 

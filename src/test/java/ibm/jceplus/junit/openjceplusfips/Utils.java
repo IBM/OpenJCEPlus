@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,14 +10,8 @@ package ibm.jceplus.junit.openjceplusfips;
 
 abstract public class Utils extends ibm.jceplus.junit.base.BaseUtils {
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public static final String TEST_SUITE_PROVIDER_NAME = PROVIDER_OpenJCEPlusFIPS;
 
-    //--------------------------------------------------------------------------
-    //
-    //
     public static java.security.Provider loadProviderTestSuite() {
         try {
             return loadProviderOpenJCEPlusFIPS();

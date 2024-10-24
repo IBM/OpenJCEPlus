@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -15,9 +15,10 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import org.junit.Assume;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestAESGCMCopySafe extends BaseTest {
+public class BaseTestAESGCMCopySafe extends BaseTestJunit5 {
 
     private static boolean DEBUG = false;
     private static int INPUT_LENGTH = 160; // must be multiple of block size
@@ -29,20 +30,9 @@ public class BaseTestAESGCMCopySafe extends BaseTest {
     private static int[] OFFSETS = {1, 8, 9, 16, 17, 32, 33};
 
     private static final String[] MODES = {"GCM"};
-    protected int specifiedKeySize = 0;
+    protected int specifiedKeySize = 128;
 
-    public BaseTestAESGCMCopySafe(String providerName) {
-        super(providerName);
-        this.specifiedKeySize = 128;
-    }
-
-    public BaseTestAESGCMCopySafe(String providerName, int keySize) throws Exception {
-        super(providerName);
-        this.specifiedKeySize = keySize;
-        Assume.assumeTrue(javax.crypto.Cipher.getMaxAllowedKeyLength("AES") >= keySize);
-    }
-
-
+    @Test
     public void testOverlappingBuffer() throws Exception {
 
         KEY = new SecretKeySpec(new byte[specifiedKeySize / 8], "AES");
@@ -56,7 +46,7 @@ public class BaseTestAESGCMCopySafe extends BaseTest {
             if (isGCM) {
                 params = new GCMParameterSpec(specifiedKeySize, IV);
             }
-            Cipher c = Cipher.getInstance(transformation, providerName);
+            Cipher c = Cipher.getInstance(transformation, getProviderName());
             //System.out.println("Testing " + transformation + ":");
             for (int offset : OFFSETS) {
                 //System.out.print("=> offset " + offset + ": ");

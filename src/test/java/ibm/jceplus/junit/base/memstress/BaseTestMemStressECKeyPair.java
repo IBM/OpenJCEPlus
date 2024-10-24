@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,19 +8,19 @@
 
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTest;
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class BaseTestMemStressECKeyPair extends BaseTest {
+public class BaseTestMemStressECKeyPair extends BaseTestJunit5 {
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
 
     static ECParameterSpec algParameterSpec;
 
@@ -31,44 +31,20 @@ public class BaseTestMemStressECKeyPair extends BaseTest {
     KeyPairGenerator kpgc = null;
     int ecSize = 0;
 
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressECKeyPair(String providerName) {
-        super(providerName);
-
-    }
-
-    public BaseTestMemStressECKeyPair(String providerName, int ecSize) {
-        super(providerName);
-        this.ecSize = ecSize;
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
             numTimes = Integer.valueOf(numTimesStr);
         }
-        kpg = KeyPairGenerator.getInstance("EC", providerName);
-        kpgc = KeyPairGenerator.getInstance("EC", providerName);
+        kpg = KeyPairGenerator.getInstance("EC", getProviderName());
+        kpgc = KeyPairGenerator.getInstance("EC", getProviderName());
         printheapstats = Boolean
                 .valueOf(System.getProperty("com.ibm.jceplus.memstress.printheapstats"));
         System.out.println("Testing ECKeyPair ");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-
+    @Test
     public void testECKeyPair() throws Exception {
 
         Runtime rt = Runtime.getRuntime();

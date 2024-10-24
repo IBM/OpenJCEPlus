@@ -55,7 +55,7 @@ import org.junit.jupiter.api.Test;
 import sun.security.x509.X500Name;
 import static org.junit.Assert.assertTrue;
 
-public class BaseTestRSAPSSSignature extends BaseTestSignature {
+public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
 
     String IBM_ALG = "RSAPSS";
     String BC_ALG = "SHA1withRSAandMGF1";
@@ -1383,8 +1383,7 @@ public class BaseTestRSAPSSSignature extends BaseTestSignature {
 
     }
 
-
-
+    @Test
     public void testReadDefaultParams3rdPartyCertificates()
             throws IOException, CertificateException, InvalidKeyException, NoSuchAlgorithmException,
             NoSuchProviderException, SignatureException, InvalidParameterSpecException,

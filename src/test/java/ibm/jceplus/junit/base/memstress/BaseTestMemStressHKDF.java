@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base.memstress;
 
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import ibm.security.internal.spec.HKDFExpandParameterSpec;
 import ibm.security.internal.spec.HKDFExtractParameterSpec;
 import java.io.IOException;
@@ -26,9 +27,11 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-
-public class BaseTestMemStressHKDF extends ibm.jceplus.junit.base.BaseTest {
+public class BaseTestMemStressHKDF extends BaseTestJunit5 {
 
     public String testName;
     public String algName;
@@ -46,25 +49,7 @@ public class BaseTestMemStressHKDF extends ibm.jceplus.junit.base.BaseTest {
     int keysize = 192;
     String algo = "kda-hkdf-with-sha256";
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressHKDF(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressHKDF(String providerName, String algo, int keyszie) {
-        super(providerName);
-        this.keysize = keyszie;
-        this.algo = algo;
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
@@ -75,13 +60,7 @@ public class BaseTestMemStressHKDF extends ibm.jceplus.junit.base.BaseTest {
         System.out.println("Testing HKDF keysize=" + this.keysize + " algorihm=" + this.algo);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-
-
+    @Test
     public void testHKDF() throws Exception {
         Runtime rt = Runtime.getRuntime();
         long prevTotalMemory = 0;
@@ -91,7 +70,7 @@ public class BaseTestMemStressHKDF extends ibm.jceplus.junit.base.BaseTest {
         long currentUsedMemory = 0;
         long prevUsedMemory = 0;
         for (int i = 0; i < numTimes; i++) {
-            aesHKDF(192, "kda-hkdf-with-sha256", "AES", "AES", providerName);
+            aesHKDF(192, "kda-hkdf-with-sha256", "AES", "AES", getProviderName());
             currentTotalMemory = rt.totalMemory();
             currentFreeMemory = rt.freeMemory();
             currentUsedMemory = currentTotalMemory - currentFreeMemory;
@@ -120,8 +99,8 @@ public class BaseTestMemStressHKDF extends ibm.jceplus.junit.base.BaseTest {
         SecretKey psk = keyGen.generateKey(); // System.out.println("Generated secretKey=" + psk);
 
         MessageDigest md = MessageDigest.getInstance(hashAlg.replace("kda-hkdf-with-", ""),
-                providerName);
-        KeyGenerator hkdfExtract = KeyGenerator.getInstance(hashAlg, providerName);
+                getProviderName());
+        KeyGenerator hkdfExtract = KeyGenerator.getInstance(hashAlg, getProviderName());
         byte[] zeros = new byte[md.getDigestLength()];
 
         hkdfExtract.init(new HKDFExtractParameterSpec(psk.getEncoded(), zeros, extractAlg));
@@ -131,7 +110,7 @@ public class BaseTestMemStressHKDF extends ibm.jceplus.junit.base.BaseTest {
         byte[] label = ("tls13 res binder").getBytes();
 
         byte[] hkdfInfo = createHkdfInfo(label, new byte[0], md.getDigestLength());
-        KeyGenerator hkdfExpand = KeyGenerator.getInstance(hashAlg, providerName);
+        KeyGenerator hkdfExpand = KeyGenerator.getInstance(hashAlg, getProviderName());
         hkdfExpand.init(new HKDFExpandParameterSpec(earlySecret, hkdfInfo,
                 (aesKeySize / 8)/* md.getDigestLength() */, expandAlg));
         SecretKey expandSecretKey = hkdfExpand.generateKey();

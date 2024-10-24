@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -19,34 +19,15 @@ import java.security.interfaces.DSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestDSASignatureInterop2 extends BaseTestSignatureInterop {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestDSASignatureInterop2(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_2244withDSA_1024() throws Exception {
         try {
             KeyPair keyPairFromProvider = generateKeyPair(1024);
@@ -57,7 +38,7 @@ public class BaseTestDSASignatureInterop2 extends BaseTestSignatureInterop {
             doSignVerify("SHA3-224withDSA", origMsg, keyPairFromInteropProvider.getPrivate(),
                     keyPairFromInteropProvider.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -65,15 +46,13 @@ public class BaseTestDSASignatureInterop2 extends BaseTestSignatureInterop {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256withDSA_1024() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             doSignVerify("SHA3-256withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -81,15 +60,13 @@ public class BaseTestDSASignatureInterop2 extends BaseTestSignatureInterop {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_384withDSA_1024() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             doSignVerify("SHA3-384withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -97,15 +74,13 @@ public class BaseTestDSASignatureInterop2 extends BaseTestSignatureInterop {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_512withDSA_1024() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(1024);
             doSignVerify("SHA3-512withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -113,15 +88,13 @@ public class BaseTestDSASignatureInterop2 extends BaseTestSignatureInterop {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_224withDSA_2048() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(2048);
             doSignVerify("SHA3-224withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -129,15 +102,13 @@ public class BaseTestDSASignatureInterop2 extends BaseTestSignatureInterop {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256withDSA_2048() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(2048);
             doSignVerify("SHA3-256withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -145,15 +116,13 @@ public class BaseTestDSASignatureInterop2 extends BaseTestSignatureInterop {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_384withDSA_2048() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(2048);
             doSignVerify("SHA3-384withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -161,15 +130,13 @@ public class BaseTestDSASignatureInterop2 extends BaseTestSignatureInterop {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_512withDSA_2048() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(2048);
             doSignVerify("SHA3-512withDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -177,11 +144,12 @@ public class BaseTestDSASignatureInterop2 extends BaseTestSignatureInterop {
         }
     }
 
+    @Test
     public void test_encoding() throws Exception {
-        test_dsa_encoded(providerName, providerName);
-        test_dsa_encoded(interopProviderName, interopProviderName);
-        test_dsa_encoded(providerName, interopProviderName);
-        test_dsa_encoded(interopProviderName, providerName);
+        test_dsa_encoded(getProviderName(), getProviderName());
+        test_dsa_encoded(getInteropProviderName(), getInteropProviderName());
+        test_dsa_encoded(getProviderName(), getInteropProviderName());
+        test_dsa_encoded(getInteropProviderName(), getProviderName());
     }
 
     void test_dsa_encoded(String providerNameX, String providerNameY) throws Exception {
@@ -240,17 +208,15 @@ public class BaseTestDSASignatureInterop2 extends BaseTestSignatureInterop {
 
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     protected KeyPair generateKeyPair(int keysize) throws Exception {
-        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", providerName);
+        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", getProviderName());
         dsaKeyPairGen.initialize(keysize);
         return dsaKeyPairGen.generateKeyPair();
     }
 
     protected KeyPair generateKeyPairFromInteropProvider(int keysize) throws Exception {
-        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", interopProviderName);
+        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", getInteropProviderName());
         dsaKeyPairGen.initialize(keysize);
         return dsaKeyPairGen.generateKeyPair();
     }

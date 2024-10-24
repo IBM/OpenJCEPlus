@@ -90,5 +90,4 @@ public class TestTLS extends BaseTestTLS {
     public void testTLS(String tlsProtocol, String keyType, String cipher) throws Exception {
         runServerClient(tlsProtocol, keyType, cipher);
     }
-    
 }

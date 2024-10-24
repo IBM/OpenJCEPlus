@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -16,8 +16,10 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestAESGCMUpdateInteropBC extends BaseTestInterop {
+public class BaseTestAESGCMUpdateInteropBC extends BaseTestJunit5Interop {
     private final static int GCM_IV_LENGTH = 12;
     private final static int GCM_TAG_LENGTH = 16;
     private static int ARRAY_OFFSET = 16;
@@ -34,32 +36,6 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestInterop {
     //protected Constructor ctorGCMParameterSpec = null;
     //protected Method methodGCMParameterSpecSetAAD = null;
     protected int specifiedKeySize = 0;
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestAESGCMUpdateInteropBC(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-    }
-
-    public BaseTestAESGCMUpdateInteropBC(String providerName, String interopProviderName,
-            int keySize) {
-        super(providerName, interopProviderName);
-        System.out.println("Warning: Keysize is ignored");
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {
-
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
 
     static String[] plainTextStrArray = {"a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
             "abcdefgh", "abcdefghi", "abcdefghi", "abcdefghij", "abcdefghijk", "abcdefghijkl",
@@ -91,6 +67,7 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestInterop {
         return original;
     }
 
+    @Test
     public void testWithOneDataUpdate() throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
@@ -114,13 +91,13 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestInterop {
 
         // first, generate the cipher text at an allocated buffer
 
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", interopProviderName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getInteropProviderName());
         cipher.init(mode, sKey, ivSpec);
         cipher.updateAAD(AAD);
         byte[] outputText = cipher.doFinal(dataText);
 
         // new cipher for encrypt operation
-        Cipher secondCipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher secondCipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         secondCipher.init(mode, sKey, ivSpec);
         secondCipher.updateAAD(AAD);
         byte[] destText = new byte[secondCipher.getOutputSize(dataText.length)];
@@ -142,6 +119,7 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestInterop {
         return destText;
     }
 
+    @Test
     public void testWith1UpdateinPlace2() throws Exception {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
@@ -174,11 +152,11 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestInterop {
         System.arraycopy(input, 0, copyOfInput, 0, input.length);
 
         // first, generate the cipher text at an allocated buffer
-        Cipher cipher = createCipher(interopProviderName, mode, sKey, ivSpec);
+        Cipher cipher = createCipher(getInteropProviderName(), mode, sKey, ivSpec);
         cipher.updateAAD(AAD);
         byte[] outputText = cipher.doFinal(copyOfInput, 0, input.length);
         // new cipher for encrypt operation
-        Cipher anotherCipher = createCipher(providerName, mode, sKey, ivSpec);
+        Cipher anotherCipher = createCipher(getProviderName(), mode, sKey, ivSpec);
         anotherCipher.updateAAD(AAD);
 
         // next, generate cipher text again at the same buffer of plain text
@@ -203,6 +181,7 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestInterop {
         return copyOfOutput;
     }
 
+    @Test
     public void testWithMultipleDataUpdate() throws Exception {
         byte[] myAAD = "12345678".getBytes();
         byte[] iv = new byte[GCM_IV_LENGTH];
@@ -227,13 +206,13 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestInterop {
     private byte[] doTestWithMultipleDataUpdate(int mode, SecretKey sKey, byte[] AAD, byte[] text,
             GCMParameterSpec ivSpec, int numUpdTimes) throws Exception {
 
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", interopProviderName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getInteropProviderName());
         cipher.init(mode, sKey, ivSpec);
         cipher.updateAAD(AAD);
         byte[] outputText = cipher.doFinal(text);
 
         // new cipher for encrypt operation
-        Cipher secondCipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher secondCipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         secondCipher.init(mode, sKey, ivSpec);
         secondCipher.updateAAD(AAD);
         byte[] destText = new byte[outputText.length];
