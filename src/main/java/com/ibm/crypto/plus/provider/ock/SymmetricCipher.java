@@ -371,7 +371,7 @@ public final class SymmetricCipher {
         byte[] copyOfInput = null;
         if (input == output) {
             if ((inputOffset == outputOffset)
-                    || ((inputOffset < outputOffset) && (outputOffset < (inputOffset = inputLen)))
+                    || ((inputOffset < outputOffset) && (outputOffset < (inputOffset + inputLen)))
                     || ((inputOffset > outputOffset) && (inputOffset < (outputOffset + len)))) {
                 copyOfInput = new byte[inputLen];
                 System.arraycopy(input, inputOffset, copyOfInput, 0, inputLen);
@@ -501,7 +501,7 @@ public final class SymmetricCipher {
         byte[] copyOfInput = null;
         if (input == output) {
             if ((inputOffset == outputOffset)
-                    || ((inputOffset < outputOffset) && (outputOffset < (inputOffset = inputLen)))
+                    || ((inputOffset < outputOffset) && (outputOffset < (inputOffset + inputLen)))
                     || ((inputOffset > outputOffset) && (inputOffset < (outputOffset + len)))) {
                 copyOfInput = new byte[inputLen];
                 System.arraycopy(input, inputOffset, copyOfInput, 0, inputLen);
