@@ -11,7 +11,7 @@ package ibm.jceplus.junit.openjceplusfips;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class TestAESGCMCopySafe extends ibm.jceplus.junit.base.BaseTestAESGCMCopySafe {
+public class TestAESCopySafe extends ibm.jceplus.junit.base.BaseTestAESCopySafe {
 
     //--------------------------------------------------------------------------
     //
@@ -23,7 +23,7 @@ public class TestAESGCMCopySafe extends ibm.jceplus.junit.base.BaseTestAESGCMCop
     //--------------------------------------------------------------------------
     //
     //
-    public TestAESGCMCopySafe() {
+    public TestAESCopySafe() {
         super(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 
@@ -39,7 +39,7 @@ public class TestAESGCMCopySafe extends ibm.jceplus.junit.base.BaseTestAESGCMCop
     //
     //
     public static Test suite() {
-        TestSuite suite = new TestSuite(TestAESGCMCopySafe.class);
+        TestSuite suite = new TestSuite(TestAESCopySafe.class);
         return suite;
     }
 }
