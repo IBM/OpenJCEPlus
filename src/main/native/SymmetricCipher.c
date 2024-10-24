@@ -449,21 +449,36 @@ JNIEXPORT int CIPHER_zKMC_internal(unsigned char* input, unsigned char* output, 
 
 JNIEXPORT jint JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_z_1kmc_1native(JNIEnv * env, jclass clazz, jbyteArray input, jint inputOffset, jbyteArray output, jint outputOffset, jlong paramPointer, jint inputLength, jint mode)
 {
-  // Get input and output buffer
-  jboolean isCopy = 0;
+  jboolean isCopy = JNI_FALSE;
   jint len = 0;
-  unsigned char* inputPointer  = (unsigned char*)((*env)->GetPrimitiveArrayCritical(env, input,  &isCopy)) + inputOffset;
-  unsigned char* outputPointer = (unsigned char*)((*env)->GetPrimitiveArrayCritical(env, output, &isCopy)) + outputOffset;
+  unsigned char* inputPointer  = NULL;
+  unsigned char* outputPointer = NULL;
 
-  if( NULL == outputPointer || NULL == inputPointer ) {
+  // Get input buffer.
+  inputPointer  = (unsigned char*)((*env)->GetPrimitiveArrayCritical(env, input,  &isCopy));
+  if (NULL == inputPointer) {
     throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical!");
-  }
-  else {
-      len = (jint)CIPHER_zKMC_internal(inputPointer, outputPointer, (int)inputLength, (long)paramPointer, (int)mode);
+    return -1;
   }
 
-  if(inputPointer != NULL) (*env)->ReleasePrimitiveArrayCritical(env, input, inputPointer, 0);
-  if(outputPointer != NULL) (*env)->ReleasePrimitiveArrayCritical(env, output, outputPointer, 0);
+  // Get output buffer.
+  outputPointer = (unsigned char*)((*env)->GetPrimitiveArrayCritical(env, output, &isCopy));
+  if (NULL == outputPointer) {
+    (*env)->ReleasePrimitiveArrayCritical(env, input, inputPointer, 0);
+    throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical!");
+    return -1;
+  }
+
+  len = (jint)CIPHER_zKMC_internal(inputPointer + inputOffset, outputPointer + outputOffset, (int)inputLength, (long)paramPointer, (int)mode);
+
+  if (inputPointer != NULL) {
+      (*env)->ReleasePrimitiveArrayCritical(env, input, inputPointer, 0);
+  }
+
+  if (outputPointer != NULL) {
+    (*env)->ReleasePrimitiveArrayCritical(env, output, outputPointer, 0);
+  }
+
   return len;
 }
 
