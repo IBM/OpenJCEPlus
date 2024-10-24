@@ -15,7 +15,7 @@ import org.junit.platform.suite.api.Suite;
         TestAESCCM2.class, TestAESCCMParameters.class, TestAESCCMInteropBC.class, TestAESGCM.class,
         TestAESGCMUpdate.class, TestAESGCMUpdateInteropBC.class, TestAESGCM_128.class,
         TestAESGCM_ExtIV.class, TestAESGCM_IntIV.class, TestAESCipherInputStreamExceptions.class,
-        TestAESGCMCopySafe.class, TestAESGCMNonExpanding.class, TestAESGCMSameBuffer.class,
+        TestAESCopySafe.class, TestAESGCMNonExpanding.class, TestAESGCMSameBuffer.class,
         TestAESGCMWithByteBuffer.class, TestAESGCMCICOWithGCM.class,
         TestAESGCMCICOWithGCMAndAAD.class, TestAESGCMLong.class, TestAESGCMBufferIV.class,
         TestAliases.class, TestByteArrayOutputDelay.class, TestChaCha20.class,
