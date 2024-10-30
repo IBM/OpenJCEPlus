@@ -8,10 +8,10 @@
 
 package ibm.jceplus.junit.openjceplus.multithread;
 
-import ibm.jceplus.junit.base.BaseTestAESGCMCopySafe;
+import ibm.jceplus.junit.base.BaseTestAESCopySafe;
 import ibm.jceplus.junit.openjceplus.Utils;
 
-public class TestAESGCMCopySafe extends BaseTestAESGCMCopySafe {
+public class TestAESCopySafe extends BaseTestAESCopySafe {
 
     //--------------------------------------------------------------------------
     //
@@ -23,7 +23,7 @@ public class TestAESGCMCopySafe extends BaseTestAESGCMCopySafe {
     //--------------------------------------------------------------------------
     //
     //
-    public TestAESGCMCopySafe() {
+    public TestAESCopySafe() {
         super(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 
@@ -31,16 +31,16 @@ public class TestAESGCMCopySafe extends BaseTestAESGCMCopySafe {
 
     public static void main(String[] args) throws Exception {
         String[] nargs = {
-                ibm.jceplus.junit.openjceplus.multithread.TestAESGCMCopySafe.class.getName()};
+                ibm.jceplus.junit.openjceplus.multithread.TestAESCopySafe.class.getName()};
         junit.textui.TestRunner.main(nargs);
     }
 
     // --------------------------------------------------------------------------
     //
     //
-    public void testAESGCMCopySafe() throws Exception {
-        System.out.println("executing testAESGCMCopySafe");
-        BaseTestAESGCMCopySafe bt = new BaseTestAESGCMCopySafe(providerName);
+    public void testAESCopySafe() throws Exception {
+        System.out.println("executing testAESCopySafe");
+        BaseTestAESCopySafe bt = new BaseTestAESCopySafe(providerName);
         bt.run();
     }
 }
