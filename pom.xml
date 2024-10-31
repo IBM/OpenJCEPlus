@@ -101,8 +101,22 @@
             </activation>
             <properties>
                 <build.native.file>${basedir}/buildNativeMac.sh</build.native.file>
-                <build.platform.value>Mac</build.platform.value>
-                <build.target.jgskitlib.dir>${project.basedir}/target/buildmac/aarch64/</build.target.jgskitlib.dir>
+                <build.platform.value>aarch64-mac</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-aarch64-mac/</build.target.jgskitlib.dir>
+            </properties>
+          </profile>
+          <profile>
+            <id>Profile for Mac OS X x86-64</id>
+            <activation>
+              <os>
+                <name>Mac OS X</name>
+                <arch>x86_64</arch>
+              </os>
+            </activation>
+            <properties>
+                <build.native.file>${basedir}/buildNativeMac.sh</build.native.file>
+                <build.platform.value>x86_64-mac</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-x86_64-mac/</build.target.jgskitlib.dir>
             </properties>
           </profile>
           <profile>

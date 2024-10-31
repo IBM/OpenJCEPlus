@@ -36,6 +36,7 @@ Build Status:
 | Windows Server 2022     | amd64       |
 | AIX                     | ppc64       |
 | Mac OS X*               | aarch64*    |
+| Mac OS X*               | amd64*      |
 * Mac OS X currently is only able to compile and run tests using the `OpenJCEPlus` provider, not `OpenJCEPlusFIPS`. The provider `OpenJCEPlusFIPS` will not load.
 
 Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with a dependent Java Native Interface library. Keep in mind that `$PROJECT_HOME` can represent any directory on your system and will be referred to as such in the subsequent instructions. Also keep in mind that the value `$JAVA_VERSION` below must match the same version of the branch of OpenJCEPlus being built. For example if building the `java21` branch the `$JAVA_VERSION` must match the Java 21 SDK version such as `21.0.2+13`.
@@ -58,24 +59,22 @@ Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers al
 
 1. Copy the OCK library referred to as ICC to the correct location:
 
-   Create the `lib64` directory and copy the `libjgsk8iccs_64.so` library to that location:
+    Based on the platform, the library file (i.e., `$LIBJGSKIT_LIBRARY`) is named differently. The  values are as follows:
+   * AIX/Linux: `libjgsk8iccs_64.so`
+   * Mac OS X: `libjgsk8iccs.dylib`
+   * Windows: `jgsk8iccs_64.dll`
+
+   Create the `lib64` directory and copy the `$LIBJGSKIT_LIBRARY` library to that location:
 
    ```console
    mkdir $PROJECT_HOME/OCK/jgsk_sdk/lib64
-   cp $PROJECT_HOME/OCK/libjgsk8iccs_64.so $PROJECT_HOME/OCK/jgsk_sdk/lib64
+   cp $PROJECT_HOME/OCK/$LIBJGSKIT_LIBRARY $PROJECT_HOME/OCK/jgsk_sdk/lib64
    ```
 
-   On AIX copy the library to the `jgsk_sdk` directory **in addition** to the `lib64` directory above.
+   On AIX also copy the library to the `jgsk_sdk` directory **in addition** to the `lib64` directory above.
 
    ```console
-   cp $PROJECT_HOME/OCK/libjgsk8iccs_64.so $PROJECT_HOME/OCK/jgsk_sdk
-   ```
-
-   On Mac:
-
-   ```console
-   mkdir $PROJECT_HOME/OCK/jgsk_crypto_sdk/jgsk_sdk/lib64
-   cp $PROJECT_HOME/OCK/jgsk_crypto/libjgsk8iccs_64.so $PROJECT_HOME/OCK/jgsk_crypto_sdk/jgsk_sdk/lib64
+   cp $PROJECT_HOME/OCK/$LIBJGSKIT_LIBRARY $PROJECT_HOME/OCK/jgsk_sdk
    ```
 
 1. Install `Maven` and place the command in your `PATH`. These instructions are OS dependant. It is recommended to make use of version `3.9.2`, although other versions of `Maven` are known to work.
@@ -109,12 +108,6 @@ You can test your installation by issuing `mvn --version`. For example:
     ```console
     export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
     ```
-
-   On Mac:
-
-   ```console
-   export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_crypto_sdk/jgsk_sdk"
-   ```
 
 1. **(Only for Windows)** Some additional environment variables need to be set in Windows. There are certain header files and libraries that are required to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers in a Windows environment and those files are found in the exported directories. It is assumed that you are running through a `CYGWIN` prompt.
 

@@ -10,25 +10,32 @@
 
 TOPDIR=../../..
 
-PLAT=mac
-CFLAGS= -arch arm64 -pedantic -Wall -fstack-protector
+CFLAGS= -fPIC -DMAC -Werror -pedantic -Wall -fstack-protector
+LDFLAGS= -shared -m64 -DMAC
+
+ifeq (${PLATFORM},x86_64-mac)
+  ARCHFLAGS= -arch x86_64
+else ifeq (${PLATFORM},aarch64-mac)
+  ARCHFLAGS= -arch arm64
+endif
+
 #Setting this flag will result non key material such as handle to OCK Objects etc being logged to the trace file.
 #This flag must be disabled before building production version
 #DEBUG_FLAGS += -DDEBUG
-#DEBUG_DETAIL = -DDEBUG_RANDOM_DETAIL -DDEBUG_RAND_DETAIL -DDEBUG_DH_DETAIL -DDEBUG_DSA_DETAIL -DDEBUG_DIGEST_DETAIL -DDEBUG_EC_DETAIL  -DDEBUG_EXTENDED_RANDOM_DETAIL -DDEBUG_GCM_DETAIL -DDEBUG_CCM_DETAIL -DDEBUG_HMAC_DETAIL -DDEBUG_PKEY_DETAIL -DDEBUG_CIPHER_DETAIL -DDEBUG_RSA_DETAIL -DDEBUG_SIGNATURE_DETAIL -DDEBUG_SIGNATURE_DSANONE_DETAIL -DDEBUG_SIGNATURE_RSASSL_DETAIL -DDEBUG_HKDF_DETAIL -DDEBUG_RSAPSS_DETAIL -DDEBUG_SIGNATURE_EDDSA_DETAIL
+#DEBUG_DETAIL = -DDEBUG_RANDOM_DETAIL -DDEBUG_RAND_DETAIL -DDEBUG_DH_DETAIL -DDEBUG_DSA_DETAIL -DDEBUG_DIGEST_DETAIL -DDEBUG_EC_DETAIL -DDEBUG_EXTENDED_RANDOM_DETAIL -DDEBUG_GCM_DETAIL -DDEBUG_CCM_DETAIL -DDEBUG_HMAC_DETAIL -DDEBUG_PKEY_DETAIL -DDEBUG_CIPHER_DETAIL -DDEBUG_RSA_DETAIL -DDEBUG_SIGNATURE_DETAIL -DDEBUG_SIGNATURE_DSANONE_DETAIL -DDEBUG_SIGNATURE_RSASSL_DETAIL -DDEBUG_HKDF_DETAIL -DDEBUG_RSAPSS_DETAIL -DDEBUG_SIGNATURE_EDDSA_DETAIL
 
 #Setting this flag will result sensitive key material such as private/public key bytes/parameter bytes being logged to the trace file.
-#Please warn the customer know that it not suitable to deploy jgskit library on production system,  enabling this flag.
+#Please warn the customer know that it not suitable to deploy jgskit library on production system, enabling this flag.
 #This flag must be disabled before building production version
-#DEBUG_DATA =  -DDEBUG_DH_DATA -DDEBUG_DSA_DATA -DDEBUG_EC_DATA -DDEBUG_GCM_DATA -DDEBUG_CCM_DATA -DDEBUG_HMAC_DATA -DDEBUG_CIPHER_DATA -DDEBUG_RSA_DATA -DDEBUG_SIGNATURE_DATA -DDEBUG_SIGNATURE_DSANONE_DATA -DDEBUG_SIGNATURE_RSASSL_DATA -DDEBUG_HKDF_DATA -DDEBUG_RSAPSS_DATA -DDEBUG_SIGNATURE_EDDSA_DATA
-#DEBUG_FLAGS+= -g ${DEBUG_DETAIL}  ${DEBUG_DATA}
+#DEBUG_DATA = -DDEBUG_DH_DATA -DDEBUG_DSA_DATA -DDEBUG_EC_DATA -DDEBUG_GCM_DATA -DDEBUG_CCM_DATA -DDEBUG_HMAC_DATA -DDEBUG_CIPHER_DATA -DDEBUG_RSA_DATA -DDEBUG_SIGNATURE_DATA -DDEBUG_SIGNATURE_DSANONE_DATA -DDEBUG_SIGNATURE_RSASSL_DATA -DDEBUG_HKDF_DATA -DDEBUG_RSAPSS_DATA -DDEBUG_SIGNATURE_EDDSA_DATA
+#DEBUG_FLAGS+= -g ${DEBUG_DETAIL} ${DEBUG_DATA}
 
-BUILDTOP = ${TOPDIR}/target/build${PLAT}
-HOSTOUT = ${BUILDTOP}/aarch64
+BUILDTOP = ${TOPDIR}/target
+HOSTOUT = ${BUILDTOP}/jgskit-${PLATFORM}
 OPENJCEPLUS_HEADER_FILES ?= ${TOPDIR}/src/main/native
-JAVACLASSDIR=${TOPDIR}/target/classes
+JAVACLASSDIR=${BUILDTOP}/classes
 
-OBJS= \
+OBJS = \
 	${HOSTOUT}/BasicRandom.o \
 	${HOSTOUT}/BuildDate.o \
 	${HOSTOUT}/CCM.o \
@@ -58,22 +65,27 @@ TARGET = ${HOSTOUT}/libjgskit.dylib
 all : ${TARGET}
 
 ${TARGET} : ${OBJS}
-	gcc -shared -m64 -arch arm64 -o ${TARGET} -DMAC ${OBJS} -L ${GSKIT_HOME}/lib64 -l jgsk8iccs
+	gcc ${LDFLAGS} ${ARCHFLAGS} -o ${TARGET} ${OBJS} -L ${GSKIT_HOME}/lib64 -l jgsk8iccs
 
 ${HOSTOUT}/%.o : %.c
 	test -d ${@D} || mkdir -p ${@D} 2>/dev/null
 	gcc \
-		-fPIC \
-		${DEBUG_FLAGS} \
+		${ARCHFLAGS} \
 		${CFLAGS} \
+		${DEBUG_FLAGS} \
 		-c \
-		-I${TOPDIR}/src/main/native/ \
 		-I${GSKIT_HOME}/inc \
 		-I${JAVA_HOME}/include \
 		-I${JAVA_HOME}/include/darwin \
 		-I${OPENJCEPLUS_HEADER_FILES} \
 		-o $@ \
 		$<
+
+# Force BuildDate to be compiled every time.
+#
+${HOSTOUT}/BuildDate.o : FORCE
+
+FORCE :
 
 ifneq (${EXTERNAL_HEADERS},true)
 
@@ -86,8 +98,8 @@ headers :
 		--add-exports java.base/sun.security.util=ALL-UNNAMED \
 		-d ${JAVACLASSDIR} \
 		-h ${TOPDIR}/src/main/native/ \
-		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java \
 		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/FastJNIBuffer.java \
+		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java \
 		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/OCKContext.java \
 		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/OCKException.java
 
@@ -95,10 +107,8 @@ endif # ! EXTERNAL_HEADERS
 
 clean :
 	rm -f ${HOSTOUT}/*.o
-	rm -f ${HOSTOUT}/*.so
-	rm -f ${TOPDIR}/src/main/native/com_ibm_crypto_plus_provider_ock_NativeInterface.h
-	rm -f ${TOPDIR}/src/main/native/com_ibm_crypto_plus_provider_ock_FastJNIBuffer.h
-	rm -f ${TOPDIR}/src/main/native/com_ibm_crypto_plus_provider_ock_OCKContext.h
-	rm -f ${TOPDIR}/src/main/native/com_ibm_crypto_plus_provider_ock_OCKException.h
+	rm -f ${HOSTOUT}/*.dylib
+	rm -f com_ibm_crypto_plus_provider_ock_FastJNIBuffer.h
+	rm -f com_ibm_crypto_plus_provider_ock_NativeInterface.h
 
-.PHONY : all headers clean
+.PHONY : all headers clean FORCE
