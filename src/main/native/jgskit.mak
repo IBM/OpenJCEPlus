@@ -189,10 +189,7 @@ endif # ! EXTERNAL_HEADERS
 clean :
 	rm -f ${HOSTOUT}/*.o
 	rm -f ${HOSTOUT}/*.so
-
-cleanAll :
-	rm -rf ${BUILDTOP}
 	rm -f com_ibm_crypto_plus_provider_ock_FastJNIBuffer.h
 	rm -f com_ibm_crypto_plus_provider_ock_NativeInterface.h
 
-.PHONY : all headers clean cleanAll FORCE
+.PHONY : all headers clean FORCE
