@@ -94,10 +94,8 @@ headers :
 		--add-exports java.base/sun.security.util=ALL-UNNAMED \
 		-d $(JAVACLASSDIR) \
 		-h $(TOPDIR)/src/main/native/ \
-		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java \
 		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/FastJNIBuffer.java \
-		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/OCKContext.java \
-		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/OCKException.java
+		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/NativeInterface.java
 
 endif # ! EXTERNAL_HEADERS
 
