@@ -20,6 +20,7 @@ import java.security.Provider;
 import java.security.ProviderException;
 import java.security.PublicKey;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.crypto.SecretKey;
@@ -67,12 +68,49 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     private static boolean ockInitialized = false;
     private static OCKContext ockContext;
 
+    private static final boolean isPlatformSupported;
+    private static final Map<String, List<String>> supportedPlatforms = new HashMap<>();
+    private static final String osName;
+    private static final String osArch;
+
+    static {
+        supportedPlatforms.put("Arch", List.of("amd64", "ppc64", "s390x"));
+        supportedPlatforms.put("OS", List.of("Linux", "AIX", "Windows"));
+
+        osName = System.getProperty("os.name");
+        osArch = System.getProperty("os.arch");;
+
+        boolean isOsSupported, isArchSupported;
+        // Check whether the OpenJCEPlus FIPS is supported.
+        isOsSupported = false;
+        for (String os: supportedPlatforms.get("OS")) {
+            if (osName.contains(os)) {
+                isOsSupported = true;
+                break;
+            }
+        }
+        isArchSupported = false;
+        for (String arch: supportedPlatforms.get("Arch")) {
+            if (osArch.contains(arch)) {
+                isArchSupported = true;
+                break;
+            }
+        }
+        isPlatformSupported = isOsSupported && isArchSupported;
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     public OpenJCEPlusFIPS() {
         super("OpenJCEPlusFIPS", info);
         if (debug != null) {
             debug.println("New OpenJCEPlusFIPS instance");
         }
+
+        if (!isPlatformSupported) {
+            throw new UnsupportedOperationException(
+                        "OpenJCEPlusFIPS is not supported on this non FIPS " + osName + " " + osArch + " platform");
+        }
+
         final OpenJCEPlusProvider jce = this;
 
         AccessController.doPrivileged(new java.security.PrivilegedAction() {
