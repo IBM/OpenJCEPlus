@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -139,43 +139,7 @@ final class NativeInterface {
                 // win64_x86
                 loadFile = new File(jgskitPath, "libjgskit_64.dll");
             }
-        } else if ((osArch.equals("aarch64")) && (osName.equals("Mac OS X"))) {
-            loadFile = new File(jgskitPath, "libjgskit.dylib");
-        } else {
-            loadFile = new File(jgskitPath, "libjgskit.so");
-        }
-
-
-        boolean jgskitLibraryPreloaded = loadIfExists(loadFile);
-        if (jgskitLibraryPreloaded == false) {
-            String exceptionMessage = "Could not load dependent jgskit library";
-
-            if (debug != null) {
-                // Do not use loadFile or libraryName in message in an effort to hide OCK usage
-                // from users
-                //
-                exceptionMessage = "Could not load dependent jgskit library for os.name=" + osName
-                        + ", os.arch=" + osArch;
-            }
-
-            throw new ProviderException(exceptionMessage);
-        }
-    }
-
-    static void preloadOCK(String libraryToLoad) {
-        osName = System.getProperty("os.name");
-        osArch = System.getProperty("os.arch");
-        String jgskitPath = getJGskitLoadPath();
-        File loadFile = null;
-        if (osName.startsWith("Windows")) {
-            if (osArch.equals("x86")) {
-                // win32_x86
-                loadFile = new File(jgskitPath, "libjgskit.dll");
-            } else {
-                // win64_x86
-                loadFile = new File(jgskitPath, "libjgskit_64.dll");
-            }
-        } else if ((osArch.equals("aarch64")) && (osName.equals("Mac OS X"))) {
+        } else if (osName.equals("Mac OS X")) {
             loadFile = new File(jgskitPath, "libjgskit.dylib");
         } else {
             loadFile = new File(jgskitPath, "libjgskit.so");
@@ -269,17 +233,7 @@ final class NativeInterface {
                 loadFile = new File(ockPath, "lib" + libraryToLoad + "_64.so");
             }
         } else if (osName.equals("Mac OS X")) {
-            // FIXME - remove when we will be officially supporting MAC
-            //
-            requirePreloadOCK = false;
-
-            if (osArch.equals("x86_64")) {
-                loadFile = new File(ockPath, "lib" + libraryToLoad + ".dylib");
-            }
-
-            if (osArch.equals("aarch64")) {
-                loadFile = new File(ockPath, "lib" + libraryToLoad + ".dylib");
-            }
+            loadFile = new File(ockPath, "lib" + libraryToLoad + ".dylib");
         } else if (osName.equals("z/OS")) {
             if (osArch.equals("s390") || !add64) {
                 loadFile = new File(ockPath, "lib" + libraryToLoad + ".so");
