@@ -121,6 +121,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_in
 
     if( debug ) {
       gslogMessage("ICC_Status mode: %d", status.mode);
+      gslogMessage("ICC ockCtx : %d", (long) ockCtx);
     }
 
     if( debug ) {
