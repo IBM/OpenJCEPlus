@@ -107,6 +107,12 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterfa
     gslogFunctionEntry(functionName);
   }
 
+#ifdef DEBUG_DH_DETAIL
+    if (debug) {
+      gslogMessage("DETAIL_DH ICC_DH_generate_parameters");
+    }
+#endif
+
   ockDH = ICC_DH_generate_parameters(ockCtx, (int)numBits, 2, NULL, NULL);
   if( ockDH == NULL ) {
     ockCheckStatus(ockCtx);
@@ -233,11 +239,22 @@ JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_DH
     const unsigned char * pBytes = (const unsigned char *)parmBytesNative;
 #ifdef DEBUG_DH_DETAIL
     if ( debug ) {
-      gslogMessage("DETAIL_DH DHKey_generate(params) size=%d", (int) size);
+      gslogMessage("DETAIL_DH DHKey_generate ICC_d2i_DHparams(ockCtx) : %d", (long) ockCtx);
+      gslogMessage("DETAIL_DH DHKey_generate(params) ICC_d2i_DHparams(NULL)");
+#ifdef DEBUG_DH_DATA
+      gslogMessagePrefix ("DETAIL_DH DHKey_generate ICC_d2i_DHparams(pBytes) : ");
+      gslogMessageHex ((char *) pBytes, 0, size, 0, 0, NULL);
+#endif
+      gslogMessagePrefix ("DETAIL_DH DHKey_generate ICC_d2i_DHparams(size) : %d\n", (int) size);
     }
 #endif
 
     ockDH = ICC_d2i_DHparams(ockCtx, NULL, &pBytes, size);
+#ifdef DEBUG_DH_DETAIL
+    if ( debug ) {
+      gslogMessage("DETAIL_DH DHKey_generate ICC_d2i_DHparams returned : %d\n", (long) ockDH);
+    }
+#endif
     if ( ockDH == NULL ) {
       ockCheckStatus(ockCtx);
 #ifdef DEBUG_DH_DETAIL
@@ -247,6 +264,12 @@ JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_DH
 #endif
       throwOCKException(env, 0, "NULL from ICC_d2i_DHparams");
     } else {
+#ifdef DEBUG_DH_DETAIL
+      if ( debug ) {
+        gslogMessage("DETAIL_DH DHKey_generate ICC_DH_generate_key(ockCtx) : %d", (long) ockCtx);
+        gslogMessage("DETAIL_DH DHKey_generate ICC_DH_generate_key(ockDH) : %d", (long) ockDH);
+      }
+#endif
       int rc = ICC_DH_generate_key(ockCtx, ockDH);
       if( rc != ICC_OSSL_SUCCESS ) {
         ockCheckStatus(ockCtx);

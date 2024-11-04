@@ -1125,7 +1125,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_XE
     if ( debug ) {
       gslogMessage ("DATA_XEC size=%d", (int) size);
       gslogMessagePrefix ("DATA_EC privateKeyBytes : ");
-      gslogMessageHex (pBytes, 0, size, 0, 0, NULL);
+      gslogMessageHex ((char*) pBytes, 0, size, 0, 0, NULL);
    }
 #endif
     ICC_d2i_PrivateKey(ockCtx, ICC_EVP_PKEY_EC, &ockEVPKey, (unsigned char**) &pBytes, (long)size);
@@ -1329,7 +1329,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_XE
     if ( debug ) {
      
       gslogMessagePrefix ("DATA_XEC publicKeyBytes : ");
-      gslogMessageHex (pBytes, 0, size, 0, 0, NULL);
+      gslogMessageHex ((char*) pBytes, 0, size, 0, 0, NULL);
     }
 #endif
     ptr = keyBytesNative;
