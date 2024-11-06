@@ -22,6 +22,20 @@
     </properties>
         <profiles>
           <profile>
+            <id>Profile for linux aarch64</id>
+            <activation>
+              <os>
+                <name>linux</name>
+                <arch>aarch64</arch>
+              </os>
+            </activation>
+            <properties>
+                <build.native.file>${basedir}/buildNative.sh</build.native.file>
+                <build.platform.value>arm-linux64</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-xr-64/</build.target.jgskitlib.dir>
+            </properties>
+          </profile>
+          <profile>
             <id>Profile for linux amd64</id>
             <activation>
               <os>

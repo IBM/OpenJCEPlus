@@ -10,7 +10,7 @@
 #
 ###############################################################################
 
-PLATFORMS=(x86-linux64 x86-linux32 s390-linux64 s390-linux31 ppc-linux64 ppc-linux32 ppcle-linux64 ppc-aix64 ppc-aix32 s390-zos31 s390-zos64)
+PLATFORMS=(arm-linux64 x86-linux64 x86-linux32 s390-linux64 s390-linux31 ppc-linux64 ppc-linux32 ppcle-linux64 ppc-aix64 ppc-aix32 s390-zos31 s390-zos64)
 
 if [ -z "$JAVA_HOME" ]; 
   then 
