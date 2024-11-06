@@ -175,8 +175,7 @@ final class NativeInterface {
         // aix64_ppc: lib<ockCoreLibraryName>_64.so
         // hpux32_ia64: lib<ockCoreLibraryName>_32.so
         // hpux64_ia64: lib<ockCoreLibraryName>_64.so
-        // linux-arm32: lib<ockCoreLibraryName>.so
-        // linux-arm64: lib<ockCoreLibraryName>_64.so
+        // linux-aarch64: lib<ockCoreLibraryName>_64.so
         // linux31_s390: lib<ockCoreLibraryName>.so
         // linux32_ppc: lib<ockCoreLibraryName>.so
         // linux32_x86: lib<ockCoreLibraryName>.so
@@ -222,6 +221,9 @@ final class NativeInterface {
                 loadFile = new File(ockPath, "lib" + libraryToLoad + ".so");
             } else if (osArch.equals("s390x")) {
                 // linux64_s390
+                loadFile = new File(ockPath, "lib" + libraryToLoad + "_64.so");
+            } else if (osArch.equals("aarch64")) {
+                // linux-aarch64
                 loadFile = new File(ockPath, "lib" + libraryToLoad + "_64.so");
             }
         } else if (osName.equals("AIX") || osName.equals("OS/400")) {
