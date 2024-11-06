@@ -17,7 +17,13 @@ LDFLAGS= -shared
 IS64SYSTEM=
 AIX_LIBPATH = /usr/lib:/lib
 
-ifeq (${PLATFORM},ppc-aix32)
+ifeq (${PLATFORM},arm-linux64)
+  PLAT=xr
+  CFLAGS+= -DLINUX -Werror -std=gnu99 -pedantic -Wall -fstack-protector
+  LDFLAGS+= -DLINUX
+  IS64SYSTEM=64
+  OSINCLUDEDIR=linux
+else ifeq (${PLATFORM},ppc-aix32)
   PLAT=ap
   CC=xlc
   CFLAGS= -qcpluscmt -q32 -qpic -DAIX
