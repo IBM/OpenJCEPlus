@@ -10,7 +10,7 @@
 #
 ###############################################################################
 
-PLATFORMS=(arm-linux64 x86-linux64 x86-linux32 s390-linux64 s390-linux31 ppc-linux64 ppc-linux32 ppcle-linux64 ppc-aix64 ppc-aix32 s390-zos31 s390-zos64)
+PLATFORMS=(arm-linux64 ppc-aix64 ppcle-linux64 s390-linux64 s390-zos64 x86-linux64)
 
 if [ -z "$JAVA_HOME" ]; 
   then 
@@ -42,13 +42,13 @@ done
 
 if [ ${PLATFORM_FOUND} -eq 0 ];
   then
-  echo "PLATFORM is not accepted. PLATFORM should be one the following:"
+  echo "PLATFORM ${PLATFORM} is not accepted. PLATFORM should be one the following:"
   echo ${PLATFORMS[*]}
   exit;
 fi
 
 make=make
-if [ ${PLATFORM} == "ppc-aix64" ] || [ ${PLATFORM} == "ppc-aix32" ];
+if [ ${PLATFORM} == "ppc-aix64" ];
   then
   make=gmake
 fi

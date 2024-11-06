@@ -14,83 +14,42 @@ PLAT=x86
 CC=gcc
 CFLAGS= -fPIC
 LDFLAGS= -shared
-IS64SYSTEM=
 AIX_LIBPATH = /usr/lib:/lib
 
 ifeq (${PLATFORM},arm-linux64)
   PLAT=xr
   CFLAGS+= -DLINUX -Werror -std=gnu99 -pedantic -Wall -fstack-protector
   LDFLAGS+= -DLINUX
-  IS64SYSTEM=64
   OSINCLUDEDIR=linux
-else ifeq (${PLATFORM},ppc-aix32)
-  PLAT=ap
-  CC=xlc
-  CFLAGS= -qcpluscmt -q32 -qpic -DAIX
-  LDFLAGS= -G -q32 -blibpath:${AIX_LIBPATH}
 else ifeq (${PLATFORM},ppc-aix64)
   PLAT=ap
   CC=xlc
   CFLAGS= -qcpluscmt -q64 -qpic -DAIX -qhalt=w
   LDFLAGS= -G -q64 -blibpath:${AIX_LIBPATH}
-  IS64SYSTEM=64
   OSINCLUDEDIR=aix
-else ifeq (${PLATFORM},ppc-linux32)
-  PLAT=xp
-  CFLAGS+= -m32 -DLINUX
-  LDFLAGS+= -m32
-else ifeq (${PLATFORM},ppc-linux64)
-  PLAT=xp
-  CFLAGS+= -DLINUX
-  LDFLAGS+= -m64
-  IS64SYSTEM=64
-  OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},ppcle-linux64)
   PLAT=xl
   CFLAGS+= -DLINUX -Werror
   LDFLAGS+= -m64
-  IS64SYSTEM=64
   OSINCLUDEDIR=linux
-else ifeq (${PLATFORM},s390-linux31)
-  PLAT=xz
-  CFLAGS+= -m31 -DS390_PLATFORM -DLINUX
-  LDFLAGS+= -m31
 else ifeq (${PLATFORM},s390-linux64)
   PLAT=xz
   LDFLAGS+= -m64
   CFLAGS+= -DS390_PLATFORM -DLINUX -Werror
-  IS64SYSTEM=64
   OSINCLUDEDIR=linux
-else ifeq (${PLATFORM},s390-zos31)
-  CC=xlc
-  PLAT=mz
-  CFLAGS= -DS390
-# CFLAGS+= -DPKCS11_DEBUG
-  CFLAGS+= -O3 -Wc,strict,hgpr,hot
-  CFLAGS+= -Wc,xplink,dll,exportall
-  LDFLAGS= -Wl,xplink,dll
-  ICCARCHIVE = ${GSKIT_HOME}/libjgsk8iccs.x
-  OSINCLUDEDIR=zos
 else ifeq (${PLATFORM},s390-zos64)
   CC=xlc
   PLAT=mz
   CFLAGS= -DS390
-# CFLAGS+= -DPKCS11_DEBUG
   CFLAGS+= -O3 -Wc,strict,hgpr,hot
   CFLAGS+= -Wc,XPLINK,LP64,DLL,exportall
   LDFLAGS= -Wl,XPLINK,LP64,DLL,AMODE=64
   ICCARCHIVE = ${GSKIT_HOME}/libjgsk8iccs_64.x
-  IS64SYSTEM=64
   OSINCLUDEDIR=zos
-else ifeq (${PLATFORM},x86-linux32)
-  PLAT=xi
-  CFLAGS+= -m32 -DLINUX
-  LDFLAGS+= -m32
 else ifeq (${PLATFORM},x86-linux64)
   PLAT=xa
   CFLAGS+= -DLINUX -Werror -std=gnu99 -pedantic -Wall -fstack-protector
   LDFLAGS+= -m64
-  IS64SYSTEM=64
   OSINCLUDEDIR=linux
 endif
 
@@ -106,11 +65,8 @@ endif
 #DEBUG_FLAGS+= -g ${DEBUG_DETAIL} ${DEBUG_DATA}
 
 BUILDTOP = ${TOPDIR}/target
-ifeq (${IS64SYSTEM},64)
-  HOSTOUT = ${BUILDTOP}/jgskit-${PLAT}-64
-else
-  HOSTOUT = ${BUILDTOP}/jgskit-${PLAT}
-endif
+HOSTOUT = ${BUILDTOP}/jgskit-${PLAT}-64
+
 OPENJCEPLUS_HEADER_FILES ?= ${TOPDIR}/src/main/native
 JAVACLASSDIR=${BUILDTOP}/classes
 
@@ -142,14 +98,13 @@ OBJS = \
 TARGET = ${HOSTOUT}/libjgskit.so
 
 GSK8ICCS64=jgsk8iccs_64
-GSK8ICCS=jgsk8iccs
 
 all : ${TARGET}
 
-ifneq (,$(filter s390-zos31 s390-zos64,${PLATFORM}))
+ifneq (,$(filter s390-zos64,${PLATFORM}))
   TARGET_LIBS := ${ICCARCHIVE}
 else
-  TARGET_LIBS := -L ${GSKIT_HOME}/lib${IS64SYSTEM} -l ${GSK8ICCS${IS64SYSTEM}}
+  TARGET_LIBS := -L ${GSKIT_HOME}/lib64 -l ${GSK8ICCS64}
 endif
 
 ${TARGET} : ${OBJS}
