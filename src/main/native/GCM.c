@@ -339,15 +339,15 @@ int GCM_InitForUpdateEncrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX*
 
 #ifdef DEBUG_GCM_DATA
     if ( debug ) {
-        gslogMessagePrefix ("DATA_GCM ivNative : ");
-        gslogMessageHex (ivNative, 0, (int) ivLen, 0, 0, NULL);
+        gslogMessagePrefix ("DATA_GCM iv : ");
+        gslogMessageHex ((char*) iv, 0, (int) ivLen, 0, 0, NULL);
 
-        gslogMessagePrefix ("DATA_GCM keyNative : ");
-        gslogMessageHex (keyNative, 0, (int) keyLen, 0, 0, NULL);
+        gslogMessagePrefix ("DATA_GCM key : ");
+        gslogMessageHex ((char*) key, 0, (int) keyLen, 0, 0, NULL);
 
 
-        gslogMessagePrefix ("DATA_GCM aadNative : ");
-        gslogMessageHex (aadNative, 0, (int) aadLen, 0, 0, NULL);
+        gslogMessagePrefix ("DATA_GCM aad : ");
+        gslogMessageHex ((char*) aad, 0, (int) aadLen, 0, 0, NULL);
     }
 #endif
 #ifdef DEBUG_GCM_DETAIL
@@ -450,8 +450,8 @@ int GCM_UpdForUpdateEncrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* 
 
 #ifdef DEBUG_GCM_DATA
     if ( debug ) {
-        gslogMessagePrefix ("DATA_GCM dataNative : ");
-        gslogMessageHex (datatNative, 0, (int) dataLen, 0, 0, NULL);
+        gslogMessagePrefix ("DATA_GCM data : ");
+        gslogMessageHex ((char*) data, 0, (int) dataLen, 0, 0, NULL);
 
 //        gslogMessagePrefix ("DATA_GCM aadNative : ");
 //        gslogMessageHex (aadNative, 0, (int) aadLen, 0, 0, NULL);
@@ -663,8 +663,8 @@ int GCM_FinalForUpdateEncrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX
 
 #ifdef DEBUG_GCM_DATA
     if ( debug ) {
-        gslogMessagePrefix ("DATA_GCM aadNative : ");
-        gslogMessageHex (tagNative, 0, (int) tagLen, 0, 0, NULL);
+        gslogMessagePrefix ("DATA_GCM tagNative : ");
+        gslogMessageHex ((char*) tagNative, 0, (int) tagLen, 0, 0, NULL);
     }
 #endif
     //if(gcmCtx == 0) gcmCtx = getOrfreeGCMContext(ockCtx, keyLen);
@@ -1141,16 +1141,16 @@ int GCM_encrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
 #ifdef DEBUG_GCM_DATA
     if ( debug ) {
         gslogMessagePrefix ("DATA_GCM ivNative : ");
-        gslogMessageHex (ivNative, 0, (int) ivLen, 0, 0, NULL);
+        gslogMessageHex ((char*) ivNative, 0, (int) ivLen, 0, 0, NULL);
 
         gslogMessagePrefix ("DATA_GCM keyNative : ");
-        gslogMessageHex (keyNative, 0, (int) keyLen, 0, 0, NULL);
+        gslogMessageHex ((char*) keyNative, 0, (int) keyLen, 0, 0, NULL);
 
         gslogMessagePrefix ("DATA_GCM iphertextNative : ");
-        gslogMessageHex (plaintextNative, 0, (int) plaintextLen, 0, 0, NULL);
+        gslogMessageHex ((char*) plaintextNative, 0, (int) plaintextLen, 0, 0, NULL);
 
         gslogMessagePrefix ("DATA_GCM aadNative : ");
-        gslogMessageHex (aadNative, 0, (int) aadLen, 0, 0, NULL);
+        gslogMessageHex ((char*) aadNative, 0, (int) aadLen, 0, 0, NULL);
     }
 #endif
     if (gcmCtx == 0) {
@@ -1539,7 +1539,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_do_
 
 #ifdef DEBUG_GCM_DETAIL
     if ( debug ) {
-        gslogMessage ("NI do_GCM_UpdForUpdateEncrypt cls %x\n", cls);
+        gslogMessage ("NI do_GCM_UpdForUpdateEncrypt thisObj %x\n", thisObj);
     }
 #endif
 
