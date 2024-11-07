@@ -375,8 +375,8 @@ int CCM_encrypt_core(JNIEnv* env, ICC_CTX* ockCtx,
     unsigned char* iv    , int ivLen,
     unsigned char* aad   , int aadLen,
     int tagLen,
-    unsigned char* plain , int plaintextLen,
-    unsigned char* cipher, unsigned long  ciphertextLen) {
+    unsigned char* plainText , int plaintextLen,
+    unsigned char* cipherText, unsigned long  ciphertextLen) {
     int             rc               = ICC_OSSL_SUCCESS;
     static const char * functionName = "NativeInterface.CCM_encrypt_core";
 
@@ -385,20 +385,20 @@ int CCM_encrypt_core(JNIEnv* env, ICC_CTX* ockCtx,
     }
 #ifdef DEBUG_CCM_DATA
     if ( debug ) {
-        gslogMessagePrefix ("DATA_CCM ivNative : ");
-        gslogMessageHex (ivNative, 0, (int) ivLen, 0, 0, NULL);
+        gslogMessagePrefix ("DATA_CCM iv : ");
+        gslogMessageHex ((char*) iv, 0, (int) ivLen, 0, 0, NULL);
 
-        gslogMessagePrefix ("DATA_CCM keyNative : ");
-        gslogMessageHex (keyNative, 0, (int) keyLen, 0, 0, NULL);
+        gslogMessagePrefix ("DATA_CCM key : ");
+        gslogMessageHex ((char*) key, 0, (int) keyLen, 0, 0, NULL);
 
-        gslogMessagePrefix ("DATA_CCM iphertextNative : ");
-        gslogMessageHex (plaintextNative, 0, (int) plaintextLen, 0, 0, NULL);
+        gslogMessagePrefix ("DATA_CCM plainText : ");
+        gslogMessageHex ((char*) plainText, 0, (int) plaintextLen, 0, 0, NULL);
 
-        gslogMessagePrefix ("DATA_CCM aadNative : ");
-        gslogMessageHex (aadNative, 0, (int) aadLen, 0, 0, NULL);
+        gslogMessagePrefix ("DATA_CCM aad : ");
+        gslogMessageHex ((char*) aad, 0, (int) aadLen, 0, 0, NULL);
     }
 #endif
-    rc = ICC_AES_CCM_Encrypt(ockCtx, iv, ivLen, key, keyLen, aad, aadLen, plain, plaintextLen, cipher, &ciphertextLen, tagLen);
+    rc = ICC_AES_CCM_Encrypt(ockCtx, iv, ivLen, key, keyLen, aad, aadLen, plainText, plaintextLen, cipherText, &ciphertextLen, tagLen);
 
     if (rc != ICC_OSSL_SUCCESS) {
         ockCheckStatus(ockCtx);
