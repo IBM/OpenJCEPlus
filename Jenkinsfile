@@ -524,7 +524,7 @@ pipeline {
                 font-style: italic;
             """
         )
-        booleanParam(name: 'ppc64_aix', defaultValue: false, description: '\
+        booleanParam(name: 'ppc64_aix', defaultValue: true, description: '\
             Build for ppc64_aix platform')
         booleanParam(name: 'x86_64_linux', defaultValue: true, description: '\
             Build for x86-64_linux platform')
