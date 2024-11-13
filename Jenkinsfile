@@ -216,6 +216,15 @@ def getJava(hardware, software) {
             returnStdout: true
         ).trim()
         fileOperations([folderRenameOperation(destination: 'jdk', source: "$java_folder")])
+
+        // AIX always loads the bundled version of native libraries. We delete them to
+        // ensure that the one provided by the user is utilized.
+        if (software == "aix") {
+            fileOperations([fileDeleteOperation(excludes: '', includes: 'jdk/lib/libjgsk8iccs_64.so'),
+                            fileDeleteOperation(excludes: '', includes: 'jdk/lib/libjgskit.so'),
+                            folderDeleteOperation('jdk/lib/C'),
+                            folderDeleteOperation('jdk/lib/N')])
+        }
     }
 }
 
@@ -562,7 +571,7 @@ pipeline {
             The OpenJCEPlus branch to be used. When not specified this will default to the branch scanned by this multibranch pipeline.')
         string(name: 'JAVA_VERSION', defaultValue: '17', description: '\
             Specify the Java version your branch uses to build.')
-        string(name: 'JAVA_RELEASE', defaultValue: 'jdk-17.0.9+9_openj9-0.41.0', description: '\
+        string(name: 'JAVA_RELEASE', defaultValue: '', description: '\
             Indicate a specific Java release that you want to use to build your branch.<br> \
             If left empty, the default release for the chosen version will be used.<br> \
             Specify the full name of the release.<br> \

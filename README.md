@@ -141,11 +141,21 @@ Tests are available within the `OpenJCEPlus` repository. These Junit tests can b
 
 ### Run all tests
 
-On AIX you must set an additional setting for the `LIBPATH` environment variable:
+On AIX:
 
-```console
-export LIBPATH="$PROJECT_HOME/OCK/:$PROJECT_HOME/OCK/jgsk_sdk"
-```
+   * You must set an additional setting for the `LIBPATH` environment variable:
+
+   ```console
+    export LIBPATH="$PROJECT_HOME/OCK/:$PROJECT_HOME/OCK/jgsk_sdk"
+   ```
+
+   * If you are using a JDK that bundles `OpenJCEPlus`, like `Semeru`, and you want to make sure that you use an `OCK` library different than the one bundled with the JDK, you need to delete the bundled one. More specifically you need to run:
+
+   ```console
+    rm $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/libjgsk8iccs_64.so
+    rm -rf $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/C
+    rm -rf $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/N
+   ```
 
 On all platforms set the following environment variables and execute all the tests using `mvn`. You must set your JAVA_HOME value to Java version 17 when using code located in the `java17` branch.
 
