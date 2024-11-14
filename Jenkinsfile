@@ -7,7 +7,7 @@
  */
 
 import groovy.json.JsonOutput;
-import groovy.transform.Field
+import groovy.transform.Field;
 
 @Field boolean PPC64_AIX
 @Field boolean X86_64_LINUX
