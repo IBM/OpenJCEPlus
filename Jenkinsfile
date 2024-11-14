@@ -216,6 +216,15 @@ def getJava(hardware, software) {
             returnStdout: true
         ).trim()
         fileOperations([folderRenameOperation(destination: 'jdk', source: "$java_folder")])
+
+        // AIX always loads the bundled version of native libraries. We delete them to
+        // ensure that the one provided by the user is utilized.
+        if (software == "aix") {
+            fileOperations([fileDeleteOperation(excludes: '', includes: 'jdk/lib/libjgsk8iccs_64.so'),
+                            fileDeleteOperation(excludes: '', includes: 'jdk/lib/libjgskit.so'),
+                            folderDeleteOperation('jdk/lib/C'),
+                            folderDeleteOperation('jdk/lib/N')])
+        }
     }
 }
 
@@ -524,7 +533,7 @@ pipeline {
                 font-style: italic;
             """
         )
-        booleanParam(name: 'ppc64_aix', defaultValue: false, description: '\
+        booleanParam(name: 'ppc64_aix', defaultValue: true, description: '\
             Build for ppc64_aix platform')
         booleanParam(name: 'x86_64_linux', defaultValue: true, description: '\
             Build for x86-64_linux platform')
