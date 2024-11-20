@@ -37,6 +37,7 @@ final class NativeInterface {
     // Default ock core library name
     //
     private static final String OCK_CORE_LIBRARY_NAME = "jgsk8iccs";
+    private static final String JGSKIT_CORE_LIBRARY_NAME = "jgskit";
     private static String osName = null;
     private static String osArch = null;
     private static String JVMFIPSmode = null;
@@ -49,12 +50,12 @@ final class NativeInterface {
                     // ensure we are picking up the expected version within
                     // the JRE.
                     //
-                    preloadOCK("jgsk8iccs", true);
+                    preloadOCK();
                 }
 
                 // Load native code for java-gskit
                 //
-                preloadJGskit("jgskit");
+                preloadJGskit();
                 return null;
             }
         });
@@ -126,145 +127,55 @@ final class NativeInterface {
         return jgskitPath;
     }
 
-    static void preloadJGskit(String libraryToLoad) {
+    static void preloadJGskit() {
         osName = System.getProperty("os.name");
         osArch = System.getProperty("os.arch");
         String jgskitPath = getJGskitLoadPath();
         File loadFile = null;
-        if (osName.startsWith("Windows")) {
-            if (osArch.equals("x86")) {
-                // win32_x86
-                loadFile = new File(jgskitPath, "libjgskit.dll");
-            } else {
-                // win64_x86
-                loadFile = new File(jgskitPath, "libjgskit_64.dll");
-            }
+        if (osName.startsWith("Windows") && osArch.equals("amd64")) {
+            loadFile = new File(jgskitPath, "lib" + JGSKIT_CORE_LIBRARY_NAME + "_64.dll");
         } else if (osName.equals("Mac OS X")) {
-            loadFile = new File(jgskitPath, "libjgskit.dylib");
+            loadFile = new File(jgskitPath, "lib" + JGSKIT_CORE_LIBRARY_NAME + ".dylib");
         } else {
-            loadFile = new File(jgskitPath, "libjgskit.so");
+            loadFile = new File(jgskitPath, "lib" + JGSKIT_CORE_LIBRARY_NAME + ".so");
         }
-
 
         boolean jgskitLibraryPreloaded = loadIfExists(loadFile);
         if (jgskitLibraryPreloaded == false) {
-            String exceptionMessage = "Could not load dependent jgskit library";
-
-            if (debug != null) {
-                // Do not use loadFile or libraryName in message in an effort to hide OCK usage
-                // from users
-                //
-                exceptionMessage = "Could not load dependent jgskit library for os.name=" + osName
-                        + ", os.arch=" + osArch;
-            }
-
-            throw new ProviderException(exceptionMessage);
+            throw new ProviderException("Could not load dependent " + JGSKIT_CORE_LIBRARY_NAME + " library for os.name=" + osName
+                        + ", os.arch=" + osArch);
         }
     }
 
-    static void preloadOCK(String libraryToLoad, boolean add64) {
+    static void preloadOCK() {
         osName = System.getProperty("os.name");
         osArch = System.getProperty("os.arch");
         String ockPath = getOCKLoadPath();
         File loadFile = null;
 
         // --------------------------------------------------------------
-        // Determine the OCK library to load
+        // Determine the OCK library to load for a given OS and architecture.
         //
-        // aix32_ppc: lib<ockCoreLibraryName>.so
-        // aix64_ppc: lib<ockCoreLibraryName>_64.so
-        // hpux32_ia64: lib<ockCoreLibraryName>_32.so
-        // hpux64_ia64: lib<ockCoreLibraryName>_64.so
-        // linux-aarch64: lib<ockCoreLibraryName>_64.so
-        // linux31_s390: lib<ockCoreLibraryName>.so
-        // linux32_ppc: lib<ockCoreLibraryName>.so
-        // linux32_x86: lib<ockCoreLibraryName>.so
-        // linux64_ppc: lib<ockCoreLibraryName>_64.so
-        // linux64_ppcle: lib<ockCoreLibraryName>_64.so
-        // linux64_s390: lib<ockCoreLibraryName>_64.so
-        // linux64_x86: lib<ockCoreLibraryName>_64.so
-        // osx_fat: lib<ockCoreLibraryName>.dylib
-        // sun32_sparc: lib<ockCoreLibraryName>.so
-        // sun32_x86: lib<ockCoreLibraryName>.so
-        // sun64_sparc: lib<ockCoreLibraryName>_64.so
-        // sun64_x86: lib<ockCoreLibraryName>_64.so
-        // win32_x86: <ockCoreLibraryName>.dll
-        // win64_x86: <ockCoreLibraryName>_64.dll
+        // AIX: lib<OCK_CORE_LIBRARY_NAME>_64.so
+        // Linux aarch64: lib<OCK_CORE_LIBRARY_NAME>.dylib
+        // Linux ppc64le: lib<OCK_CORE_LIBRARY_NAME>_64.so
+        // Linux s390x: lib<OCK_CORE_LIBRARY_NAME>_64.so
+        // Linux x86_64: lib<OCK_CORE_LIBRARY_NAME>_64.so
+        // Mac OS X: lib<OCK_CORE_LIBRARY_NAME>_64.so
+        // Windows* amd64: <OCK_CORE_LIBRARY_NAME>_64.dll
         // --------------------------------------------------------------
-
-        if (osName.startsWith("Windows")) {
-            if (osArch.equals("x86") || !add64) {
-                // win32_x86
-                loadFile = new File(ockPath, libraryToLoad + ".dll");
-            } else {
-                // win64_x86
-                loadFile = new File(ockPath, libraryToLoad + "_64.dll");
-            }
-        } else if (osName.equals("Linux")) {
-            if (osArch.equals("x86") || !add64) {
-                // linux32_x86
-                loadFile = new File(ockPath, "lib" + libraryToLoad + ".so");
-            } else if (osArch.equals("x86_64") || osArch.equals("amd64")) {
-                // linux64_x86
-                loadFile = new File(ockPath, "lib" + libraryToLoad + "_64.so");
-            } else if (osArch.equals("ppc")) {
-                // linux32_ppc
-                loadFile = new File(ockPath, "lib" + libraryToLoad + ".so");
-            } else if (osArch.equals("ppc64")) {
-                // linux64_ppc
-                loadFile = new File(ockPath, "lib" + libraryToLoad + "_64.so");
-            } else if (osArch.equals("ppc64le")) {
-                // linux64_ppcle
-                loadFile = new File(ockPath, "lib" + libraryToLoad + "_64.so");
-            } else if (osArch.equals("s390")) {
-                // linux31_s390
-                loadFile = new File(ockPath, "lib" + libraryToLoad + ".so");
-            } else if (osArch.equals("s390x")) {
-                // linux64_s390
-                loadFile = new File(ockPath, "lib" + libraryToLoad + "_64.so");
-            } else if (osArch.equals("aarch64")) {
-                // linux-aarch64
-                loadFile = new File(ockPath, "lib" + libraryToLoad + "_64.so");
-            }
-        } else if (osName.equals("AIX") || osName.equals("OS/400")) {
-            if (osArch.equals("ppc") || !add64) {
-                // aix32_ppc
-                loadFile = new File(ockPath, "lib" + libraryToLoad + ".so");
-            } else if (osArch.equals("ppc64")) {
-                // aix64_ppc
-                loadFile = new File(ockPath, "lib" + libraryToLoad + "_64.so");
-            }
-        } else if (osName.equals("Mac OS X")) {
-            loadFile = new File(ockPath, "lib" + libraryToLoad + ".dylib");
-        } else if (osName.equals("z/OS")) {
-            if (osArch.equals("s390") || !add64) {
-                loadFile = new File(ockPath, "lib" + libraryToLoad + ".so");
-            } else {
-                loadFile = new File(ockPath, "lib" + libraryToLoad + "_64.so");
-            }
+        if (osName.equals("Mac OS X")) {
+            loadFile = new File(ockPath, "lib" + OCK_CORE_LIBRARY_NAME + ".dylib");
+        } else if (osName.startsWith("Windows") && osArch.equals("amd64")) {
+            loadFile = new File(ockPath, OCK_CORE_LIBRARY_NAME + "_64.dll");
+        } else {
+            loadFile = new File(ockPath, "lib" + OCK_CORE_LIBRARY_NAME + "_64.so");
         }
 
-        if (loadFile == null) {
-            if (requirePreloadOCK) {
-                throw new ProviderException(
-                        "Could not determine dependent ock library to load for os.name=" + osName
-                                + ", os.arch=" + osArch);
-            }
-        } else {
-            boolean ockLibraryPreloaded = loadIfExists(loadFile);
-            if ((ockLibraryPreloaded == false) && requirePreloadOCK) {
-                String exceptionMessage = "Could not load dependent ock library";
-
-                if (debug != null) {
-                    // Do not use loadFile or libraryName in message in an effort to hide OCK usage
-                    // from users
-                    //
-                    exceptionMessage = "Could not load dependent ock library for os.name=" + osName
-                            + ", os.arch=" + osArch;
-                }
-
-                throw new ProviderException(exceptionMessage);
-            }
+        boolean ockLibraryPreloaded = loadIfExists(loadFile);
+        if ((ockLibraryPreloaded == false) && requirePreloadOCK) {
+            throw new ProviderException("Could not load dependent ock library for os.name=" + osName
+                        + ", os.arch=" + osArch);
         }
     }
 
