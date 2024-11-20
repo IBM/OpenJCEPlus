@@ -18,7 +18,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
-        <jupiter.version>5.11.1</jupiter.version>
     </properties>
         <profiles>
           <profile>
@@ -499,7 +498,7 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>3.5.0</version>
+            <version>3.6.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.maven.reporting</groupId>
@@ -523,17 +522,23 @@
         <dependency>
             <groupId>org.apache.maven.reporting</groupId>
             <artifactId>maven-reporting-impl</artifactId>
-            <version>4.0.0-M15</version>
+            <version>4.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>4.0.0-beta-4</version>
+            <!--
+            We are currently unable to move to "4.0.0-beta-5" or higher due to a compilation class 
+            version mismatch error. The 4.x version of this plugin is only supported on Java 17
+            and higher as seen at https://maven.apache.org/docs/history.html hence the use of
+            version 3.x here in Java 11.
+            -->
+            <version>3.9.9</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>3.4.1</version>
+            <version>3.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
@@ -543,7 +548,7 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.5.0</version>
+            <version>3.5.2</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -554,31 +559,31 @@
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
-            <version>5.11.0</version>
+            <version>5.11.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
-            <version>1.11.1</version>
+            <version>1.11.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${jupiter.version}</version>
+            <version>5.11.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${jupiter.version}</version>
+            <version>5.11.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>${jupiter.version}</version>
+            <version>5.11.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -643,12 +648,12 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.78.1</version>
+            <version>1.79</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk18on</artifactId>
-            <version>1.78.1</version>
+            <version>1.79</version>
         </dependency>
         <dependency>
           <groupId>org.bouncycastle</groupId>
