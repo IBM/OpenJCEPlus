@@ -374,14 +374,17 @@
                         <arg>java.base/jdk.internal.logger=openjceplus</arg>
                         <!--
                         Exports statements below this line are necessary for
-                        compiling only the test source with target `test-compile`.
+                        compiling the test source with target `test-compile`.
                         When compiling only the tests, using an SDK that contains
-                        a bundled version of OpenJCEPlus, the package
-                        com.ibm.crypto.plus.provider.ock must be explictly exported
-                        for unit testing purposes for the tests to compile.
+                        a bundled version of OpenJCEPlus, some packages must
+                        still be explicitly exported for compilation to pass.
                         -->
                         <arg>--add-exports </arg>
                         <arg>openjceplus/com.ibm.crypto.plus.provider.ock=ALL-UNNAMED</arg>
+                        <arg>--add-exports </arg>
+                        <arg>java.base/sun.util.logging=ALL-UNNAMED</arg>
+                        <arg>--add-exports </arg>
+                        <arg>java.base/jdk.internal.logger=ALL-UNNAMED</arg>
                     </compilerArgs>
                     <fork>true</fork>
                     <debug>true</debug>
