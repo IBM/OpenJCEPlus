@@ -34,6 +34,7 @@ abstract class RSAKeyPairGenerator extends KeyPairGeneratorSpi {
     RSAKeyPairGenerator(OpenJCEPlusProvider provider, KeyType type, int keySize) {
         this.provider = provider;
         this.type = type;
+        this.rsaId = RSAUtil.createAlgorithmId(type, null);
         this.keysize = keySize;
     }
 
@@ -117,8 +118,8 @@ abstract class RSAKeyPairGenerator extends KeyPairGeneratorSpi {
         try {
             RSAKey rsaKey = RSAKey.generateKeyPair(provider.getOCKContext(), this.keysize,
                     this.publicExponent);
-            java.security.interfaces.RSAPrivateKey privKey = new RSAPrivateCrtKey(provider, rsaKey);
-            java.security.interfaces.RSAPublicKey pubKey = new RSAPublicKey(provider, rsaKey);
+            java.security.interfaces.RSAPrivateKey privKey = new RSAPrivateCrtKey(rsaId, provider, rsaKey);
+            java.security.interfaces.RSAPublicKey pubKey = new RSAPublicKey(rsaId, provider, rsaKey);
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
             throw provider.providerException("Failure in generateKeyPair", e);
