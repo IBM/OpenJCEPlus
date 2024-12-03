@@ -211,13 +211,23 @@ JNIEXPORT jlong JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_CI
 
       if( rc == ICC_OSSL_SUCCESS ) {
         rc = ICC_EVP_CIPHER_CTX_set_padding(ockCtx, ockCipher->cipherCtx, ockPadType);
-        if(ockCipher->copy_context == 0) {
-          ockCipher->cached_context = ICC_EVP_CIPHER_CTX_new(ockCtx);
-          ICC_EVP_CIPHER_CTX_copy(ockCtx, ockCipher->cached_context, ockCipher->cipherCtx);
-        }
         if( rc != ICC_OSSL_SUCCESS ) {
           ockCheckStatus(ockCtx);
           throwOCKException(env, 0, "ICC_EVP_set_padding failed");
+        }
+        if (0 == ockCipher->copy_context) {
+          if (NULL == ockCipher->cached_context) {
+            ockCipher->cached_context = ICC_EVP_CIPHER_CTX_new(ockCtx);
+          }
+          if (NULL == ockCipher->cached_context) {
+            ockCheckStatus(ockCtx);
+            throwOCKException(env, 0, "ICC_EVP_CIPHER_CTX_new failed for CIPHER_init cached context");
+          }
+          rc = ICC_EVP_CIPHER_CTX_copy(ockCtx, ockCipher->cached_context, ockCipher->cipherCtx);
+          if( rc != ICC_OSSL_SUCCESS ) {
+            ockCheckStatus(ockCtx);
+            throwOCKException(env, 0, "ICC_EVP_CIPHER_CTX_copy failed for CIPHER_init");
+          }
         }
       }
     }
