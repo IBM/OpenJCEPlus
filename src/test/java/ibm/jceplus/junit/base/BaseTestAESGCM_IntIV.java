@@ -22,14 +22,16 @@ import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestAESGCM_IntIV extends BaseTest {
+public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
 
     private static final int DEFAULT_TAG_LENGTH = 128;
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     private final static String RUN_FULL_TEST_SUITE = System.getProperty("run_full_test_suite",
             "false");
 
@@ -38,28 +40,17 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
 
     public static final String GENERATED_IV_MAX_INVOCATIONS_PLUS_ONE = "18446744073709551616";
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     KeyGenerator aesKeyGen;
     SecretKey key;
     int tagLength = 16;
     AlgorithmParameterSpec aParamSpec = null;
     AlgorithmParameters aParams = null;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestAESGCM_IntIV(String providerName) {
-        super(providerName);
-    }
+    @BeforeEach
+    public void setUp() throws Exception {
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    protected void setUp() throws Exception {
-
-        aesKeyGen = KeyGenerator.getInstance("AES", providerName);
+        aesKeyGen = KeyGenerator.getInstance("AES", getProviderName());
 
         key = aesKeyGen.generateKey();
 
@@ -68,18 +59,16 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
         rnd.nextBytes(iv);
 
         aParamSpec = new javax.crypto.spec.GCMParameterSpec(DEFAULT_TAG_LENGTH, iv);
-        aParams = AlgorithmParameters.getInstance("AESGCM", providerName);
+        aParams = AlgorithmParameters.getInstance("AESGCM", getProviderName());
         aParams.init(aParamSpec);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESGCM_IntIV_Test01() throws Exception {
 
         /* Do the encrypt using the internally generated IV */
 
-        Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
 
         cipherEncrypt.init(Cipher.ENCRYPT_MODE, key);
 
@@ -92,7 +81,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
 
         /* Do the decryption using the internally generated IV */
 
-        Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipherDecrypt.init(Cipher.DECRYPT_MODE, key, ap);
 
         byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
@@ -102,9 +91,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
                 Arrays.equals(plainTextEncrypt, plainTextDecrypt));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESGCM_IntIV_Test02() throws Exception {
 
         /*
@@ -112,7 +99,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
          * generated IVs
          */
 
-        Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
 
         for (int i = 1; i < 6; i++) {
 
@@ -134,7 +121,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
 
             /* Do the decryption using the internally generated IV */
 
-            Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             cipherDecrypt.init(Cipher.DECRYPT_MODE, key, ap);
 
             byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
@@ -145,14 +132,12 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESGCM_IntIV_Test03() throws Exception {
 
         /* Do the encrypt using the internally generated IV */
 
-        Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
 
         cipherEncrypt.init(Cipher.ENCRYPT_MODE, key, (AlgorithmParameters) null);
 
@@ -166,7 +151,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
 
         /* Do the decryption using the internally generated IV */
 
-        Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipherDecrypt.init(Cipher.DECRYPT_MODE, key, ap);
 
         byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
@@ -176,14 +161,12 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
                 Arrays.equals(plainTextEncrypt, plainTextDecrypt));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESGCM_IntIV_Test04() throws Exception {
 
         /* Do the encrypt using the internally generated IV */
 
-        Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
 
         cipherEncrypt.init(Cipher.ENCRYPT_MODE, key, (AlgorithmParameterSpec) null);
 
@@ -198,7 +181,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
 
         /* Do the decryption using the internally generated IV */
 
-        Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipherDecrypt.init(Cipher.DECRYPT_MODE, key, apSpec);
 
         byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
@@ -208,15 +191,13 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
                 Arrays.equals(plainTextEncrypt, plainTextDecrypt));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESGCM_IntIV_Test05() throws Exception {
 
         try {
             /* Do the encrypt using the internally generated IV */
 
-            Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
 
             cipherEncrypt.init(Cipher.ENCRYPT_MODE, key, (AlgorithmParameters) null);
 
@@ -226,7 +207,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
 
             /* Do the decryption using the internally generated IV */
 
-            Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             cipherDecrypt.init(Cipher.DECRYPT_MODE, key);
 
             byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
@@ -240,15 +221,13 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESGCM_IntIV_Test06() throws Exception {
 
         try {
             /* Do the encrypt using the internally generated IV */
 
-            Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
 
             cipherEncrypt.init(Cipher.ENCRYPT_MODE, key, (AlgorithmParameters) null);
 
@@ -258,7 +237,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
 
             /* Do the decryption using the internally generated IV */
 
-            Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             cipherDecrypt.init(Cipher.DECRYPT_MODE, key, (AlgorithmParameters) null);
 
             byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
@@ -271,15 +250,13 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESGCM_IntIV_Test07() throws Exception {
 
         try {
             /* Do the encrypt using the internally generated IV */
 
-            Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
 
             cipherEncrypt.init(Cipher.ENCRYPT_MODE, key, (AlgorithmParameterSpec) null);
 
@@ -289,7 +266,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
 
             /* Do the decryption using the internally generated IV */
 
-            Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             cipherDecrypt.init(Cipher.DECRYPT_MODE, key, (AlgorithmParameterSpec) null);
 
             byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
@@ -302,9 +279,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESGCM_IntIV_Test08() throws Exception {
 
         //Assume.assumeTrue(RUN_FULL_TEST_SUITE.equals("true"));
@@ -320,7 +295,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
              * generated IV
              */
 
-            Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            Cipher cipherEncrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
 
             cipherEncrypt.init(Cipher.ENCRYPT_MODE, key);
 
@@ -340,7 +315,7 @@ public class BaseTestAESGCM_IntIV extends BaseTest {
 
                 /* Do the decryption using the internally generated IV */
 
-                Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+                Cipher cipherDecrypt = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
                 cipherDecrypt.init(Cipher.DECRYPT_MODE, key, ap);
 
                 byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];

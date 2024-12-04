@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -9,13 +9,7 @@ package ibm.jceplus.junit.base;
 
 import java.util.StringTokenizer;
 
-public class BaseTestCipher extends BaseTest {
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestCipher(String providerName) {
-        super(providerName);
-    }
+public class BaseTestCipher extends BaseTestJunit5 {
 
     // --------------------------------------------------------------------------
     // This method is to check whether a transformation is valid for the cipher

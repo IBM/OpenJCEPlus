@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -9,13 +9,11 @@ package ibm.jceplus.junit.base;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
 public class BaseTestSHA3_256KAT extends BaseTestMessageDigestClone {
-
-    //--------------------------------------------------------------------------
-    //
-    //
-
 
     final String[][] tests = {{
             "b1caa396771a09a1db9bc20543e988e359d47c2a616417bbca1b62cb02796a888fc6eeff5c0b5c3d5062fcb4256f6ae1782f492c1cf03610b4a1fb7b814c057878e1190b9835425c7a4a0e182ad1f91535ed2a35033a5d8c670e21c575ff43c194a58a82d4a1a44881dd61f9f8161fc6b998860cbe4975780be93b6f87980bad0a99aa2cb7556b478ca35d1f3746c33e2bb7c47af426641cc7bbb3425e2144820345e1d0ea5b7da2c3236a52906acdc3b4d34e474dd714c0c40bf006a3a1d889a632983814bbc4a14fe5f159aa89249e7c738b3b73666bac2a615a83fd21ae0a1ce7352ade7b278b587158fd2fabb217aa1fe31d0bda53272045598015a8ae4d8cec226fefa58daa05500906c4d85e7567",
@@ -484,18 +482,14 @@ public class BaseTestSHA3_256KAT extends BaseTestMessageDigestClone {
             {"56ea14d7fcb0db748ff649aaa5d0afdc2357528a9aad6076d73b2805b53d89e73681abfad26bee6c0f3d20215295f354f538ae80990d2281be6de0f6919aa9eb048c26b524f4d91ca87b54c0c54aa9b54ad02171e8bf31e8d158a9f586e92ffce994ecce9a5185cc80364d50a6f7b94849a914242fcb73f33a86ecc83c3403630d20650ddb8cd9c4",
                     "4beae3515ba35ec8cbd1d94567e22b0d7809c466abfbafe9610349597ba15b45"}};
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestSHA3_256KAT(String providerName) {
-        super(providerName, "SHA3-256");
+    @BeforeAll
+    public void setUp() {
+        setAlgorithm("SHA3-256");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256KAT() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
 
         for (int x = 0; x < tests.length; x++) {
             md.update(BaseUtils.hexStringToByteArray(tests[x][0]));
@@ -506,22 +500,18 @@ public class BaseTestSHA3_256KAT extends BaseTestMessageDigestClone {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256_SingleBlock() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         byte[] digest = md.digest(BaseUtils.hexStringToByteArray(tests[0][0]));
 
         assertTrue("Digest did not match expected",
                 Arrays.equals(digest, BaseUtils.hexStringToByteArray(tests[0][1])));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256_reset() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         md.update(BaseUtils.hexStringToByteArray(tests[0][0]));
         md.reset();
         md.update(BaseUtils.hexStringToByteArray(tests[1][0]));
@@ -531,22 +521,18 @@ public class BaseTestSHA3_256KAT extends BaseTestMessageDigestClone {
                 Arrays.equals(result, BaseUtils.hexStringToByteArray(tests[1][1])));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256_MultiBlock() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         byte[] digest = md.digest(BaseUtils.hexStringToByteArray(tests[1][0]));
 
         assertTrue("Digest did not match expected",
                 Arrays.equals(digest, BaseUtils.hexStringToByteArray(tests[1][1])));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         int digestLength = md.getDigestLength();
         boolean isExpectedValue = (digestLength == 32);
         assertTrue("Unexpected digest length", isExpectedValue);

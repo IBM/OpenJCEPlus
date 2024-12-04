@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -39,21 +39,20 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
-import org.junit.Assume;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestRSA extends BaseTestCipher {
-    //--------------------------------------------------------------------------
-    //
-    //
+
     static final char[] hexDigits = "0123456789abcdef".toCharArray();
 
     static final byte[] plainText = "testmessage_a very long test message".getBytes();
 
     static final int DEFAULT_KEY_SIZE = 2048;
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected KeyPairGenerator rsaKeyPairGen;
     protected KeyPair rsaKeyPair;
     protected RSAPublicKey rsaPub;
@@ -61,28 +60,9 @@ public class BaseTestRSA extends BaseTestCipher {
     protected int specifiedKeySize = 0;
     protected boolean providerStripsLeadingZerosForNoPaddingDecrypt = false; // FIXME - IBMJCE tests will need this to be true
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestRSA(String providerName) {
-        super(providerName);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestRSA(String providerName, int keySize) throws Exception {
-        super(providerName);
-        this.specifiedKeySize = keySize;
-
-        Assume.assumeTrue(javax.crypto.Cipher.getMaxAllowedKeyLength("RSA") >= keySize);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    protected void setUp() throws Exception {
-        rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", providerName);
+    @BeforeEach
+    public void setUp() throws Exception {
+        rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", getProviderName());
         if (specifiedKeySize > 0) {
             rsaKeyPairGen.initialize(specifiedKeySize, null);
         }
@@ -91,16 +71,12 @@ public class BaseTestRSA extends BaseTestCipher {
         rsaPriv = (RSAPrivateCrtKey) rsaKeyPair.getPrivate();
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher() throws Exception {
         encryptDecrypt("RSA");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAPlainCipher() throws Exception {
         KeyFactory kf;
 
@@ -129,13 +105,13 @@ public class BaseTestRSA extends BaseTestCipher {
         String rin1 = "09:01:06:53:a7:96:09:63:ef:e1:3f:e9:8d:95:22:d1:0e:1b:87:c1:a2:41:b2:09:97:a3:5e:e0:a4:1d:59:91:21:e4:ca:87:bf:77:4a:7e:a2:22:ff:59:1e:bd:a4:80:aa:93:4a:41:56:95:5b:f4:57:df:fc:52:2f:46:9b:45:d7:03:ae:22:8e:67:9e:6c:b9:95:4f:bd:8e:e8:67:90:5b:fe:de:2f:11:22:2e:9d:30:93:6d:c0:48:00:cb:08:b9:c4:36:e9:03:7c:08:2d:68:42:cb:71:d0:7d:47:22:c1:58:c5:b8:2f:28:3e:98:78:11:6d:71:5b:3b:36:3c";
         String rout1 = "4a:21:64:20:56:5f:27:0c:90:1d:f3:1b:64:8e:16:d3:af:79:ca:c6:65:56:19:77:8f:25:35:70:be:f3:15:b3:e3:d8:8f:04:ec:c3:60:59:d0:9a:66:be:1c:ad:f7:09:46:a9:09:46:12:5f:28:b6:28:b1:53:fb:fe:07:73:b8:8b:f8:83:64:8e:2d:45:ca:1a:fd:85:4a:2c:fa:fc:e6:58:f7:e4:83:68:8c:38:49:2b:f3:5c:c1:2d:24:6a:cd:22:6d:cb:f4:f1:8c:9e:1a:94:a7:4b:6f:d1:b4:b4:ab:56:8b:a3:a9:89:88:c3:5d:a8:47:2a:67:50:32:71:19";
 
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support plain keys
             return;
         }
 
         try {
-            kf = KeyFactory.getInstance("RSA", providerName);
+            kf = KeyFactory.getInstance("RSA", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             kf = KeyFactory.getInstance("RSA");
         }
@@ -189,7 +165,7 @@ public class BaseTestRSA extends BaseTestCipher {
     }
 
     private void plainKeyEncDec(String alg, int len, Key encKey, Key decKey) throws Exception {
-        Cipher c = Cipher.getInstance(alg, providerName);
+        Cipher c = Cipher.getInstance(alg, getProviderName());
 
         byte[] b = new byte[len];
         Random rnd = new Random();
@@ -210,7 +186,7 @@ public class BaseTestRSA extends BaseTestCipher {
 
     public void plainKeyCipher(String alg, int mode, Key key, String in, String out, boolean result)
             throws Exception {
-        Cipher c = Cipher.getInstance(alg, providerName);
+        Cipher c = Cipher.getInstance(alg, getProviderName());
         c.init(mode, key);
         byte[] r = c.doFinal(parse(in));
         byte[] s = parse(out);
@@ -219,65 +195,47 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_PKCS1Padding() throws Exception {
         encryptDecrypt("RSA/ECB/PKCS1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_NoPadding() throws Exception {
         encryptDecrypt("RSA/ECB/NoPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_ECB_PKCS1Padding() throws Exception {
         encryptDecrypt("RSA/ECB/PKCS1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_ECB_NoPadding() throws Exception {
         encryptDecrypt("RSA/ECB/NoPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_ECB_ZeroPadding() throws Exception {
         encryptDecrypt("RSA/ECB/ZeroPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithNoPad() throws Exception {
         encryptDecrypt("RSAwithNoPad");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherForSSL() throws Exception {
         encryptDecrypt("RSAforSSL");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_SSL_PKCS1Padding() throws Exception {
         encryptDecrypt("RSA/SSL/PKCS1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithOAEPPadding() throws Exception {
         byte[] message = getMessage_OAEP_SHA1();
         if (message != null) {
@@ -285,9 +243,7 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA_1() throws Exception {
         byte[] message = getMessage_OAEP_SHA1();
         if (message != null) {
@@ -295,9 +251,7 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA1() throws Exception {
         byte[] message = getMessage_OAEP_SHA1();
         if (message != null) {
@@ -305,9 +259,7 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA224() throws Exception {
         byte[] message = getMessage_OAEP_SHA224();
         if (message != null) {
@@ -315,9 +267,7 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA256() throws Exception {
         byte[] message = getMessage_OAEP_SHA256();
         if (message != null) {
@@ -325,9 +275,7 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA384() throws Exception {
         byte[] message = getMessage_OAEP_SHA384();
         if (message != null) {
@@ -335,9 +283,7 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA512() throws Exception {
         byte[] message = getMessage_OAEP_SHA512();
         if (message != null) {
@@ -345,13 +291,11 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAShortBuffer() throws Exception {
 
         try {
-            Cipher cp = Cipher.getInstance("RSA", providerName);
+            Cipher cp = Cipher.getInstance("RSA", getProviderName());
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, rsaPub);
@@ -366,9 +310,7 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAShortBuffer2() throws Exception {
         String algorithm = "RSA/ECB/NoPadding";
         int outputByteLength = 64;
@@ -376,7 +318,7 @@ public class BaseTestRSA extends BaseTestCipher {
 
         try {
 
-            Cipher cipher = Cipher.getInstance(algorithm, providerName);
+            Cipher cipher = Cipher.getInstance(algorithm, getProviderName());
 
             if (cipher.equals(null))
                 System.out.println("The cipher was null.");
@@ -394,14 +336,12 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSABadPadding() throws Exception {
 
         try {
             // Test RSA Cipher
-            Cipher cp = Cipher.getInstance("RSA", providerName);
+            Cipher cp = Cipher.getInstance("RSA", getProviderName());
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, rsaPub);
@@ -418,13 +358,11 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAIllegalMode() throws Exception {
 
         // Test RSA Cipher
-        Cipher cp = Cipher.getInstance("RSA/ECB/PKCS1Padding", providerName);
+        Cipher cp = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
 
         // Encrypt the plain text
         cp.init(Cipher.ENCRYPT_MODE, rsaPub);
@@ -441,151 +379,113 @@ public class BaseTestRSA extends BaseTestCipher {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_getParams() throws Exception {
         checkGetParamsNull("RSA");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_PKCS1Padding_getParams() throws Exception {
         checkGetParamsNull("RSA/ECB/PKCS1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_NoPadding_getParams() throws Exception {
         checkGetParamsNull("RSA/ECB/NoPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_ECB_PKCS1Padding_getParams() throws Exception {
         checkGetParamsNull("RSA/ECB/PKCS1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_ECB_NoPadding_getParams() throws Exception {
         checkGetParamsNull("RSA/ECB/NoPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_ECB_ZeroPadding_getParams() throws Exception {
         checkGetParamsNull("RSA/ECB/ZeroPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithNoPad_getParams() throws Exception {
         checkGetParamsNull("RSAwithNoPad");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherForSSL_getParams() throws Exception {
         checkGetParamsNull("RSAforSSL");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_SSL_PKCS1Padding_getParams() throws Exception {
         checkGetParamsNull("RSA/SSL/PKCS1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithOAEPPadding_getParams() throws Exception {
         checkGetParamsNotNull("RSA/ECB/OAEPPadding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA_1_getParams() throws Exception {
         checkGetParamsNotNull("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA1_getParams() throws Exception {
         checkGetParamsNotNull("RSA/ECB/OAEPWithSHA1AndMGF1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA224_getParams() throws Exception {
         checkGetParamsNotNull("RSA/ECB/OAEPWithSHA-224AndMGF1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA256_getParams() throws Exception {
         checkGetParamsNotNull("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA384_getParams() throws Exception {
         checkGetParamsNotNull("RSA/ECB/OAEPWithSHA-384AndMGF1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherWithPaddingSHA512_getParams() throws Exception {
         checkGetParamsNotNull("RSA/ECB/OAEPWithSHA-512AndMGF1Padding");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public void checkGetParamsNull(String transformation) throws Exception {
         if (isTransformationValidButUnsupported(transformation)) {
             return;
         }
 
-        Cipher cp = Cipher.getInstance(transformation, providerName);
+        Cipher cp = Cipher.getInstance(transformation, getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub);
         AlgorithmParameters algParams = cp.getParameters();
         assertTrue("AlgorithmParameters not null", (algParams == null));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public void checkGetParamsNotNull(String transformation) throws Exception {
         if (isTransformationValidButUnsupported(transformation)) {
             return;
         }
 
-        Cipher cp = Cipher.getInstance(transformation, providerName);
+        Cipher cp = Cipher.getInstance(transformation, getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub);
         AlgorithmParameters algParams = cp.getParameters();
         assertTrue("AlgorithmParameters is null", (algParams != null));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherOutputSize() throws Exception {
-        Cipher cp = Cipher.getInstance("RSA", providerName);
+        Cipher cp = Cipher.getInstance("RSA", getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub);
         int outputSize = cp.getOutputSize(1);
 
@@ -596,12 +496,10 @@ public class BaseTestRSA extends BaseTestCipher {
         assertTrue("Unexpected getOutputSize result", (outputSize == keySize / 8));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipherExceedInput() throws Exception {
         try {
-            Cipher cp = Cipher.getInstance("RSA", providerName);
+            Cipher cp = Cipher.getInstance("RSA", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, rsaPub);
 
             int n = ((RSAKey) rsaPub).getModulus().bitLength();
@@ -616,49 +514,39 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_cert() throws Exception {
         // FIXME
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_certnull() throws Exception {
         try {
-            Cipher cp = Cipher.getInstance("RSA", providerName);
+            Cipher cp = Cipher.getInstance("RSA", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, (Certificate) null);
             fail("Did not get InvalidKeyException");
         } catch (InvalidKeyException e) {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_cert_sr() throws Exception {
         // FIXME
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_certnull_sr() throws Exception {
         try {
-            Cipher cp = Cipher.getInstance("RSA", providerName);
+            Cipher cp = Cipher.getInstance("RSA", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, (Certificate) null, new SecureRandom());
             fail("Did not get InvalidKeyException");
         } catch (InvalidKeyException e) {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key() throws Exception {
-        Cipher cp = Cipher.getInstance("RSA", providerName);
+        Cipher cp = Cipher.getInstance("RSA", getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub);
         byte[] cipherText = cp.doFinal(plainText);
 
@@ -670,23 +558,19 @@ public class BaseTestRSA extends BaseTestCipher {
         assertTrue("Decrypted text does not match expected", success);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_keynull() throws Exception {
         try {
-            Cipher cp = Cipher.getInstance("RSA", providerName);
+            Cipher cp = Cipher.getInstance("RSA", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, (Key) null);
             fail("Did not get InvalidKeyException");
         } catch (InvalidKeyException e) {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key_sr() throws Exception {
-        Cipher cp = Cipher.getInstance("RSA", providerName);
+        Cipher cp = Cipher.getInstance("RSA", getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub, new SecureRandom());
         byte[] cipherText = cp.doFinal(plainText);
 
@@ -698,11 +582,9 @@ public class BaseTestRSA extends BaseTestCipher {
         assertTrue("Decrypted text does not match expected", success);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key_srnull() throws Exception {
-        Cipher cp = Cipher.getInstance("RSA", providerName);
+        Cipher cp = Cipher.getInstance("RSA", getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub, (SecureRandom) null);
         byte[] cipherText = cp.doFinal(plainText);
 
@@ -714,9 +596,7 @@ public class BaseTestRSA extends BaseTestCipher {
         assertTrue("Decrypted text does not match expected", success);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key_algparms() throws Exception {
         // FIXME
         //AlgorithmParameters algParams = ??;
@@ -732,11 +612,9 @@ public class BaseTestRSA extends BaseTestCipher {
         //assertTrue("Decrypted text does not match expected", success);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key_algparmsnull() throws Exception {
-        Cipher cp = Cipher.getInstance("RSA", providerName);
+        Cipher cp = Cipher.getInstance("RSA", getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub, (AlgorithmParameters) null);
         byte[] cipherText = cp.doFinal(plainText);
 
@@ -748,9 +626,7 @@ public class BaseTestRSA extends BaseTestCipher {
         assertTrue("Decrypted text does not match expected", success);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key_algparmspec() throws Exception {
         String transformation = "RSA/ECB/OAEPPadding";
         AlgorithmParameterSpec algParams = new OAEPParameterSpec("SHA-1",
@@ -764,11 +640,9 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key_algparmspec_SHA1() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support SHA1
             return;
         }
@@ -783,9 +657,7 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key_algparmspec_SHA224() throws Exception {
         String oaepHashAlgorithm = "SHA-224";
         String transformation = "RSA/ECB/OAEPWith" + oaepHashAlgorithm + "AndMGF1Padding";
@@ -797,9 +669,7 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key_algparmspec_SHA256() throws Exception {
         String oaepHashAlgorithm = "SHA-256";
         String transformation = "RSA/ECB/OAEPWith" + oaepHashAlgorithm + "AndMGF1Padding";
@@ -811,9 +681,7 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key_algparmspec_SHA384() throws Exception {
         String oaepHashAlgorithm = "SHA-384";
         String transformation = "RSA/ECB/OAEPWith" + oaepHashAlgorithm + "AndMGF1Padding";
@@ -825,9 +693,7 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key_algparmspec_SHA512() throws Exception {
         String oaepHashAlgorithm = "SHA-512";
         String transformation = "RSA/ECB/OAEPWith" + oaepHashAlgorithm + "AndMGF1Padding";
@@ -839,16 +705,14 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public void doTestRSACipher_init_key_algparmspec_oaep(String transformation,
             AlgorithmParameterSpec algParams, byte[] message) throws Exception {
         if (isTransformationValidButUnsupported(transformation)) {
             return;
         }
 
-        Cipher cp = Cipher.getInstance(transformation, providerName);
+        Cipher cp = Cipher.getInstance(transformation, getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub, algParams);
         byte[] cipherText = cp.doFinal(message);
 
@@ -860,11 +724,9 @@ public class BaseTestRSA extends BaseTestCipher {
         assertTrue("Decrypted text does not match expected", success);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSACipher_init_key_algparmspecnull() throws Exception {
-        Cipher cp = Cipher.getInstance("RSA", providerName);
+        Cipher cp = Cipher.getInstance("RSA", getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub, (AlgorithmParameterSpec) null);
         byte[] cipherText = cp.doFinal(plainText);
 
@@ -878,9 +740,7 @@ public class BaseTestRSA extends BaseTestCipher {
 
 
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public void decryptDoFinalOutLen() throws Exception {
 
         String algorithm = "RSA";
@@ -889,12 +749,12 @@ public class BaseTestRSA extends BaseTestCipher {
 
         try {
             KeyPairGenerator RSAKeyPairGenerator = KeyPairGenerator.getInstance(keyType,
-                    providerName);
+                    getProviderName());
             RSAKeyPairGenerator.initialize(keySize);
             KeyPair keyPair = RSAKeyPairGenerator.generateKeyPair();
 
             Key publicKey = keyPair.getPublic();
-            Cipher cipher = Cipher.getInstance(algorithm, providerName);
+            Cipher cipher = Cipher.getInstance(algorithm, getProviderName());
 
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             byte[] cipherText1 = cipher.update(plainText);
@@ -905,7 +765,7 @@ public class BaseTestRSA extends BaseTestCipher {
             System.arraycopy(cipherText2, 0, encrpytedByteData, cipherText1.length,
                     cipherText2.length);
 
-            RSAKeyPairGenerator = KeyPairGenerator.getInstance(keyType, providerName);
+            RSAKeyPairGenerator = KeyPairGenerator.getInstance(keyType, getProviderName());
             RSAKeyPairGenerator.initialize(keySize);
             keyPair = RSAKeyPairGenerator.generateKeyPair();
 
@@ -927,34 +787,28 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected void encryptDecrypt(String algorithm) throws Exception {
         encryptDecryptDoFinal(algorithm, plainText);
         encryptDecryptUpdate(algorithm, plainText);
         encryptDecryptPartialUpdate(algorithm, plainText);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected void encryptDecrypt(String algorithm, byte[] message) throws Exception {
         encryptDecryptDoFinal(algorithm, message);
         encryptDecryptUpdate(algorithm, message);
         encryptDecryptPartialUpdate(algorithm, message);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected void encryptDecryptDoFinal(String algorithm, byte[] message) throws Exception {
 
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
         }
 
-        Cipher cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
 
         // Encrypt the plain text
         cp.init(Cipher.ENCRYPT_MODE, rsaPub);
@@ -968,16 +822,14 @@ public class BaseTestRSA extends BaseTestCipher {
         assertTrue("Decrypted text does not match expected", success);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected void encryptDecryptUpdate(String algorithm, byte[] message) throws Exception {
 
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
         }
 
-        Cipher cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
 
         // Encrypt the plain text
         cp.init(Cipher.ENCRYPT_MODE, rsaPub);
@@ -993,16 +845,14 @@ public class BaseTestRSA extends BaseTestCipher {
         assertTrue("Decrypted text does not match expected", success);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected void encryptDecryptPartialUpdate(String algorithm, byte[] message) throws Exception {
 
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
         }
 
-        Cipher cp = Cipher.getInstance(algorithm, providerName);
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
 
         // Encrypt the plain text
         cp.init(Cipher.ENCRYPT_MODE, rsaPub);
@@ -1055,9 +905,7 @@ public class BaseTestRSA extends BaseTestCipher {
         return true;
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     private boolean decryptResultsMatch(String algorithm, byte[] originalText, byte[] decryptText) {
 
         boolean isAlgorithmNoPadding = algorithm.endsWith("NoPadding");
@@ -1086,44 +934,32 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     private byte[] getMessage_OAEP_SHA1() {
         return getMessage_OAEP(20);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     private byte[] getMessage_OAEP_SHA224() {
         return getMessage_OAEP(28);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     private byte[] getMessage_OAEP_SHA256() {
         return getMessage_OAEP(32);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     private byte[] getMessage_OAEP_SHA384() {
         return getMessage_OAEP(48);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     private byte[] getMessage_OAEP_SHA512() {
         return getMessage_OAEP(64);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     private byte[] getMessage_OAEP(int digestLen) {
         int keySize = specifiedKeySize;
         if (keySize == 0) {
@@ -1139,9 +975,7 @@ public class BaseTestRSA extends BaseTestCipher {
         return message;
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public static String toString(byte[] b) {
         if (b == null) {
             return "(null)";
@@ -1158,9 +992,7 @@ public class BaseTestRSA extends BaseTestCipher {
         return sb.toString();
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public static byte[] parse(String s) {
         try {
             int n = s.length();
@@ -1214,9 +1046,7 @@ public class BaseTestRSA extends BaseTestCipher {
         return super.isPaddingValidButUnsupported(padding);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     private static int nextNibble(StringReader r) throws IOException {
         while (true) {
             int ch = r.read();
