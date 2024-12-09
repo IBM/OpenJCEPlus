@@ -11,16 +11,20 @@ import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.security.ProviderException;
+import java.security.PublicKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertTrue;
+import sun.security.util.InternalPrivateKey;
 
 public class BaseTestECKeyPairGenerator extends BaseTestJunit5 {
 
@@ -99,6 +103,23 @@ public class BaseTestECKeyPairGenerator extends BaseTestJunit5 {
         assertTrue(ecurvePriv.getB().compareTo(ecurvePub.getB()) == 0);
         assertTrue(ecurvePriv.getField().getFieldSize() == ecurvePub.getField().getFieldSize());
 
+    }
+
+    @Test
+    public void testECPrivateKey_calculatePublicKey() throws Exception {
+        kpg.initialize(256);
+        KeyPair kp = kpg.generateKeyPair();
+
+        PublicKey ecpu = kp.getPublic();
+        PrivateKey ecpr = kp.getPrivate();
+
+        byte[] originalEncoded = ecpu.getEncoded();
+        byte[] calculatedEncoded = ((InternalPrivateKey) ecpr).calculatePublicKey().getEncoded();
+
+        System.out.println("---- Comparing EC public key from KeyPair vs calculated from private key ----");
+        System.out.println("EC public key from Keypair: " + BaseUtils.bytesToHex(originalEncoded));
+        System.out.println("EC public key from calculatePublicKey(): " + BaseUtils.bytesToHex(calculatedEncoded));
+        Assert.assertArrayEquals(originalEncoded, calculatedEncoded);
     }
 
     @Test

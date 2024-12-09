@@ -23,12 +23,47 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertTrue;
+import sun.security.util.InternalPrivateKey;
 
 public class BaseTestECKeyImportInterop extends BaseTestJunit5Interop {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
+
+    @Test
+    public void testCreateKeyPairECGenParamImportCalculatePublic() throws Exception {
+        doCreateKeyPairECGenParamImportCalculatePublic(getProviderName(), getInteropProviderName());
+        doCreateKeyPairECGenParamImportCalculatePublic(getInteropProviderName(), getProviderName());
+    }
+
+    public void doCreateKeyPairECGenParamImportCalculatePublic(String generateProviderName,
+            String importProviderName) throws Exception {
+
+        //final String methodName = "testECGenParamImportHardcoded";
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("EC", generateProviderName);
+
+        keyPairGen.initialize(256);
+        KeyPair keyPair = keyPairGen.generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        // Recreate private key from encoding.
+        byte[] privKeyBytes = privateKey.getEncoded();
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", importProviderName);
+        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privKeyBytes);
+        privateKey = keyFactory.generatePrivate(privateKeySpec);
+
+        // Get public key bytes from private.
+        byte[] calculatedPublicKey = ((InternalPrivateKey) privateKey).calculatePublicKey().getEncoded();
+
+        // Get public key bytes from original public key.
+        byte[] publicKeyBytes = publicKey.getEncoded();
+
+        // The original and calculated public keys should be the same
+        Assert.assertArrayEquals(calculatedPublicKey, publicKeyBytes);
+    }
 
     @Test
     public void testCreateKeyPairECGenParamImport() throws Exception {

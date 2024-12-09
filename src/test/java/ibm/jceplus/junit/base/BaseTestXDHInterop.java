@@ -11,13 +11,17 @@ package ibm.jceplus.junit.base;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
+import sun.security.util.InternalPrivateKey;
 
 public class BaseTestXDHInterop extends BaseTestJunit5Interop {
 
@@ -28,6 +32,42 @@ public class BaseTestXDHInterop extends BaseTestJunit5Interop {
     String openJDK_public_X448 = "MEQwBwYDK2VvBQADOQC+jxO+a0rKrAPolPsmmsipDDtobNXjxrzap2Rde9rgJe7/fsbJ+j1+YlgJp11IGFwLxsslJYTTww==";
     String openJDK_private_X448 = "MEYCAQAwBwYDK2VvBQAEOOJFsgLYxgAIEWuN1FLAGWDzGQRSataAbPLDc1wv5aky4T8hevyWbYdhggc1OCcqQ93gY8rqVTDb";
     // OpenJDK does not currently support FFDHE hence interop testing for FFDHE is not possible
+
+    @Test
+    public void testCreateKeyPairXDHGenParamImportCalculatePublic() throws Exception {
+        if (!"BC".equals(getInteropProviderName())) {
+            doCreateKeyPairXDHGenParamImportCalculatePublic(getProviderName(), getInteropProviderName());
+            doCreateKeyPairXDHGenParamImportCalculatePublic(getInteropProviderName(), getProviderName());
+        }
+        
+    }
+
+    public void doCreateKeyPairXDHGenParamImportCalculatePublic(String generateProviderName,
+            String importProviderName) throws Exception {
+
+        //final String methodName = "testECGenParamImportHardcoded";
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("XDH", generateProviderName);
+
+        keyPairGen.initialize(255);
+        KeyPair keyPair = keyPairGen.generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        // Recreate private key from encoding.
+        byte[] privKeyBytes = privateKey.getEncoded();
+        KeyFactory keyFactory = KeyFactory.getInstance("XDH", importProviderName);
+        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privKeyBytes);
+        privateKey = keyFactory.generatePrivate(privateKeySpec);
+
+        // Get public key bytes from private.
+        byte[] calculatedPublicKey = ((InternalPrivateKey) privateKey).calculatePublicKey().getEncoded();
+
+        // Get public key bytes from original public key.
+        byte[] publicKeyBytes = publicKey.getEncoded();
+
+        // The original and calculated public keys should be the same
+        Assert.assertArrayEquals(calculatedPublicKey, publicKeyBytes);
+    }
 
     @Test
     public void testXDHInterop_X25519_OpenJDK() throws Exception {

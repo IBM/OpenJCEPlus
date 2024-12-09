@@ -17,6 +17,8 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyRep;
+import java.security.ProviderException;
+import java.security.PublicKey;
 import java.security.interfaces.XECPrivateKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.NamedParameterSpec;
@@ -374,7 +376,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         return true;
     }
 
-    public XECKey getOCKKey() {
+    XECKey getOCKKey() {
         return this.xecKey;
     }
 
@@ -422,6 +424,16 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         }
 
         return "XDH";
+    }
+
+    @Override
+    public PublicKey calculatePublicKey() {
+        try {
+            return new XDHPublicKeyImpl(provider, xecKey, curve);
+        } catch (InvalidKeyException exc) {
+            throw new ProviderException(
+                    "Unexpected error calculating public key", exc);
+        }
     }
 
     /**
