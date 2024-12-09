@@ -23,8 +23,10 @@ import java.security.spec.PSSParameterSpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestRSAPSS extends BaseTest {
+public class BaseTestRSAPSS extends BaseTestJunit5 {
 
     String IBM_ALG = "RSASA-PSS";
     //String BC_ALG = "SHA1withRSAandMGF1";
@@ -110,27 +112,16 @@ public class BaseTestRSAPSS extends BaseTest {
 
     static boolean printJunitTrace = false;
 
-    public BaseTestRSAPSS(String providerName) {
-        super(providerName);
-        printJunitTrace = Boolean
-                .valueOf(System.getProperty("com.ibm.jceplus.junit.printJunitTrace"));
-    }
-
-
-    protected void setUp() throws Exception {
-
-    }
-
-    @org.junit.Test
+    @Test
     public void testRSAPlainKeySignatureWithPSS() throws Exception {
         KeyFactory kf;
 
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support RSA plain keys
             return;
         }
 
-        kf = KeyFactory.getInstance("RSA", providerName);
+        kf = KeyFactory.getInstance("RSA", getProviderName());
 
         RSAPublicKeySpec pubSpec = new RSAPublicKeySpec(N, E);
         PublicKey publicKey = kf.generatePublic(pubSpec);
@@ -142,7 +133,7 @@ public class BaseTestRSAPSS extends BaseTest {
                 20, 1);
 
         // Generate Signature
-        Signature sig = Signature.getInstance("RSAPSS", providerName);
+        Signature sig = Signature.getInstance("RSAPSS", getProviderName());
         if (pssParameter != null) {
             sig.setParameter(pssParameter);
             AlgorithmParameters algParams = sig.getParameters();
@@ -164,16 +155,16 @@ public class BaseTestRSAPSS extends BaseTest {
         assertTrue("signature is invalid!!", signatureVerified);
     }
 
-    @org.junit.Test
+    @Test
     public void testRSASignatureWithPSS_SHA1() throws Exception {
         try {
             //dotestSignature(content, IBM_ALG, 1024, null, providerName);
             int keySize = 1024;
 
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 keySize = 2048;
             }
-            dotestSignature(msg.getBytes(), IBM_ALG, keySize, null, providerName);
+            dotestSignature(msg.getBytes(), IBM_ALG, keySize, null, getProviderName());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -186,18 +177,18 @@ public class BaseTestRSAPSS extends BaseTest {
      * Generate a key once and use it for multiple tests - The OpenJCEPlusFIPS does not allow keysize < 2048
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testRSASignatureWithPSSBigMsgMultiKeySize() throws Exception {
         try {
             int startSize = 1024;
 
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 startSize = 2048;
             }
             for (int i = startSize; i < 4096;) {
                 if (printJunitTrace)
                     System.out.println("keySize=" + i);
-                KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", providerName);
+                KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
                 keyGen.initialize(i, new java.security.SecureRandom());
                 KeyPair keyPair = keyGen.genKeyPair();
                 dotestSignature(content3, IBM_ALG, keyPair, null);
@@ -218,12 +209,12 @@ public class BaseTestRSAPSS extends BaseTest {
      * IBM vs BC
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testRSASignatureWithPSSMultiByteSize_timed() throws Exception {
         try {
             int keySize = 1024;
 
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 keySize = 2048;
             }
 
@@ -236,7 +227,7 @@ public class BaseTestRSAPSS extends BaseTest {
                     System.out.println("msgSize=" + dynMsg.length);
                 //dotestSignature(dynMsg, IBM_ALG, 512, null, providerName);
 
-                dotestSignature(dynMsg, IBM_ALG, keySize, null, providerName);
+                dotestSignature(dynMsg, IBM_ALG, keySize, null, getProviderName());
             }
 
         } catch (Exception e) {
@@ -249,10 +240,10 @@ public class BaseTestRSAPSS extends BaseTest {
      * Test after setting parameters
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testRSASignatureWithPSSParameterSpec() throws Exception {
         try {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
                 return;
             }
@@ -269,12 +260,12 @@ public class BaseTestRSAPSS extends BaseTest {
      * SHA256
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testRSASignatureSHA256() throws Exception {
 
         try {
             PSSParameterSpec pssParameter = specSHA256Salt20;
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, providerName);
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -286,13 +277,13 @@ public class BaseTestRSAPSS extends BaseTest {
      * SHA512
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testRSASignatureSHA512() throws Exception {
 
         PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512", "MGF1",
                 MGF1ParameterSpec.SHA512, 20, 1);
         try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, providerName);
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -304,12 +295,12 @@ public class BaseTestRSAPSS extends BaseTest {
      * SHA384
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testRSASignatureSHA384() throws Exception {
         try {
             PSSParameterSpec pssParameter = new PSSParameterSpec("SHA384", "MGF1",
                     MGF1ParameterSpec.SHA384, 20, 1);
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, providerName);
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -320,7 +311,7 @@ public class BaseTestRSAPSS extends BaseTest {
     /**
      * SHA256 - test one byte
      */
-    @org.junit.Test
+    @Test
     public void testRSASignatureSHA256OneByte() throws Exception {
         try {
             PSSParameterSpec pssParameterSpec = specSHA256Salt40;
@@ -396,7 +387,7 @@ public class BaseTestRSAPSS extends BaseTest {
         // keyGen.initialize(keySize, new java.security.SecureRandom());
         // KeyPair keyPair = keyGen.genKeyPair();
 
-        Signature sig = Signature.getInstance(algorithm, providerName);
+        Signature sig = Signature.getInstance(algorithm, getProviderName());
         if (pssParameterSpec != null) {
             if (printJunitTrace)
                 System.out.println("calling sig.setParameter");
@@ -433,16 +424,16 @@ public class BaseTestRSAPSS extends BaseTest {
 
         // Generate Signature
 
-        if (providerName.equals("OpenJCEPlusFIPS") && keySize == 1024) {
+        if (getProviderName().equals("OpenJCEPlusFIPS") && keySize == 1024) {
             assertTrue(true);
             return;
         }
 
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", providerName);
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
         keyGen.initialize(keySize, new java.security.SecureRandom());
         KeyPair keyPair = keyGen.genKeyPair();
 
-        Signature sig = Signature.getInstance(algorithm, providerName);
+        Signature sig = Signature.getInstance(algorithm, getProviderName());
         // Set salt length
         PSSParameterSpec pss = new PSSParameterSpec("SHA-1", "MGF1",
                 MGF1ParameterSpec.SHA1, 20, 1);
@@ -476,11 +467,11 @@ public class BaseTestRSAPSS extends BaseTest {
 
         // Generate Signature
 
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", providerName);
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
         keyGen.initialize(keySize, new java.security.SecureRandom());
         KeyPair keyPair = keyGen.genKeyPair();
 
-        Signature sig = Signature.getInstance(algorithm, providerName);
+        Signature sig = Signature.getInstance(algorithm, getProviderName());
         // Set salt length
         if (pssParameterSpec != null) {
             sig.setParameter(pssParameterSpec);
@@ -512,29 +503,29 @@ public class BaseTestRSAPSS extends BaseTest {
         return buf.toString();
     }
 
-    @org.junit.Test
+    @Test
     public void testRSAPSSKeyFactory() throws Exception {
         try {
             int keySize = 1024;
 
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 keySize = 2048;
             }
 
             if (printJunitTrace)
-                System.out.println("Test RSAPSS KeyFactory provider: " + providerName);
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", providerName);
+                System.out.println("Test RSAPSS KeyFactory provider: " + getProviderName());
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
             keyGen.initialize(keySize, new java.security.SecureRandom());
             KeyPair keyPair = keyGen.genKeyPair();
             RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
 
-            KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS", providerName);
+            KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS", getProviderName());
             X509EncodedKeySpec x509KeySpec = kf.getKeySpec(publicKey,
                     X509EncodedKeySpec.class);
             byte[] encodedKey = x509KeySpec.getEncoded();
 
             X509EncodedKeySpec x509KeySpec2 = new X509EncodedKeySpec(encodedKey);
-            KeyFactory.getInstance("RSASSA-PSS", providerName);
+            KeyFactory.getInstance("RSASSA-PSS", getProviderName());
             RSAPublicKey publicKey2 = (RSAPublicKey) kf.generatePublic(x509KeySpec2);
             assertTrue("Algorithm name different",
                     publicKey.getAlgorithm().equalsIgnoreCase(publicKey2.getAlgorithm()));

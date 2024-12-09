@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -12,15 +12,16 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.Provider;
 import java.security.Security;
 import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class BaseTestMiniRSAPSS2 extends BaseTest {
+public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
     String signingProvidersSignatureAlgorithmName = null;
     String verifyingProvidersSignatureAlgorithmName = null;
@@ -37,26 +38,18 @@ public class BaseTestMiniRSAPSS2 extends BaseTest {
     static final byte[] dataToBeSignedLong = "this is text to test the RSAPSS Signature xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
             .getBytes();
 
-    static KeyPairGenerator rsaKeyPairGen = null;
+    KeyPairGenerator rsaKeyPairGen = null;
 
-    static KeyPair rsaKeyPair_OpenJCEPlus[] = new KeyPair[1];
-    static KeyPair rsaKeyPair_SunRsaSign[] = new KeyPair[1];
-    static KeyPair rsaKeyPair_OpenJCEPlusFIPS[] = new KeyPair[1];
+    KeyPair rsaKeyPair_OpenJCEPlus[] = new KeyPair[1];
+    KeyPair rsaKeyPair_SunRsaSign[] = new KeyPair[1];
+    KeyPair rsaKeyPair_OpenJCEPlusFIPS[] = new KeyPair[1];
 
-    static PSSParameterSpec pssParameterSpec = null;
+    PSSParameterSpec pssParameterSpec = null;
 
-    static int testCaseNumber = 1;
+    int testCaseNumber = 1;
 
-    Provider provider = null;
-
-
-    public BaseTestMiniRSAPSS2(String providerName) {
-        super(providerName);
-    }
-
-
-
-    protected void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
 
         System.out.println(
                 "===============================================================================");
@@ -67,22 +60,8 @@ public class BaseTestMiniRSAPSS2 extends BaseTest {
 
         //signingProviderName   = "OpenJCEPlus";
         //verifyingProviderName = "OpenJCEPlus";
-        signingProviderName = providerName;
-        verifyingProviderName = providerName;
-
-        // Add the OpenJCEPlus provider to the provider's list
-        if (providerName.equals("OpenJCEPlus")) {
-            provider = (Provider) new com.ibm.crypto.plus.provider.OpenJCEPlus();
-        } else {
-            provider = (Provider) new com.ibm.crypto.plus.provider.OpenJCEPlusFIPS();
-        }
-        try {
-            Security.insertProviderAt(provider, 3);
-        } catch (Exception ex) {
-            System.out.println("Failed to create the " + providerName
-                    + " provider.  The following exception was thrown.");
-            ex.printStackTrace();
-        }
+        signingProviderName = getProviderName();
+        verifyingProviderName = getProviderName();
 
         java.security.Provider[] providers = Security.getProviders();
         System.out.println("The providers in the providers list are:");
@@ -101,7 +80,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTest {
             signingProvidersSignatureAlgorithmName = "RSAPSS";
             verifyingProvidersSignatureAlgorithmName = "RSAPSS";
         }
-
 
         System.out.println(
                 "BaseTestRSAPSS2.java:  setup():  Following the call to setUp(), signingProviderName   = "
@@ -143,14 +121,11 @@ public class BaseTestMiniRSAPSS2 extends BaseTest {
         }
     }
 
-
-
     //==================================================================================================================
     //   BEGINNING OF RSA-PSS SIGNATURE TESTS
     //==================================================================================================================
 
-
-
+    @Test
     public void testRSAPSS() throws Exception {
 
         KeyPair rsaKeyPair = null;
@@ -210,7 +185,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTest {
                         + "  =====================================================");
                 System.out.println(
                         "====================================================================================");
-                if (!providerName.equals("OpenJCEPlusFIPS")) {
+                if (!getProviderName().equals("OpenJCEPlusFIPS")) {
                     //FIPS does not support SHA1
                     try {
                         if (ii == 0) {
@@ -1407,7 +1382,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTest {
                         + "  =====================================================");
                 System.out.println(
                         "====================================================================================");
-                if (!providerName.equals("OpenJCEPlusFIPS")) {
+                if (!getProviderName().equals("OpenJCEPlusFIPS")) {
                     //FIPS does not support SHA1 skip test
                     try {
                         if (ii == 0) {
@@ -1768,6 +1743,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTest {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => An unexpected exception was thrown with message = "
                             + ex.getMessage());
+                    ex.printStackTrace();
                     Assert.fail();
                 }
 
@@ -2092,7 +2068,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTest {
                 System.out.println(
                         "====================================================================================");
 
-                if (!providerName.equals("OpenJCEPlusFIPS") && ii == 0) {
+                if (!getProviderName().equals("OpenJCEPlusFIPS") && ii == 0) {
                     //512 keysize not supported by FIPS
                     try {
                         if (ii == 0) {
@@ -2177,31 +2153,8 @@ public class BaseTestMiniRSAPSS2 extends BaseTest {
         } // end loop for each RSA key size
     } // end testRSAPSS()
 
-
-
-    //   public static void main(String[] args){
-    //
-    //       System.out.println("BaseTestRSAPSS2.java:  main(): METHOD ENTRY");
-    //
-    //      BaseTestRSAPSS2 test = new BaseTestRSAPSS2();
-    //
-    //      try {
-    //          test.mySetUp();
-    //          test.testRSAPSS();
-    //      }
-    //      catch (Exception ex)
-    //      {
-    //           System.out.println("The following exception was thrown:");
-    //          ex.printStackTrace();
-    //      }
-    //
-    //       System.out.println("\nBaseTestRSAPSS2.java:  main(): METHOD EXIT");
-    //   }
-
-
-
     // Compute the signature, but do not use PSSParameters class
-    private static boolean doSignature(byte[] dataToBeSigned, KeyPair rsaKeyPair,
+    private boolean doSignature(byte[] dataToBeSigned, KeyPair rsaKeyPair,
             String signingProvidersSignatureAlgorithmName,
             String verifingProvidersSignatureAlgorithmName, String signingProviderName,
             String verifyingProviderName,
@@ -2289,7 +2242,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTest {
 
 
 
-    private static void showProviders() {
+    private void showProviders() {
         java.security.Provider[] providers = Security.getProviders();
         System.out.println("\n================================================");
         System.out.println("The security provider's list is:");
@@ -2308,7 +2261,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTest {
 
 
     /** * Converts a byte array to hex string */
-    private static String toHexString(byte[] block) {
+    private String toHexString(byte[] block) {
         StringBuffer buf = new StringBuffer();
         char[] hexChars = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
                 'E', 'F'};

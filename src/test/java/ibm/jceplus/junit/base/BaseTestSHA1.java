@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -9,13 +9,11 @@ package ibm.jceplus.junit.base;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
 public class BaseTestSHA1 extends BaseTestMessageDigestClone {
-    static boolean warmup = false;
-
-    //--------------------------------------------------------------------------
-    //
-    //
 
     static byte[] each = {(byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x1, (byte) 0x0, (byte) 0x73,
             (byte) 0x0, (byte) 0x75, (byte) 0x0, (byte) 0x62, (byte) 0x0, (byte) 0x2d, (byte) 0x0,
@@ -70,28 +68,15 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
             (byte) 0xC4, (byte) 0xDA, (byte) 0xA4, (byte) 0xF6, (byte) 0x1E, (byte) 0xEB,
             (byte) 0x2B, (byte) 0xDB, (byte) 0xAD, (byte) 0x27, (byte) 0x31, (byte) 0x65,
             (byte) 0x34, (byte) 0x01, (byte) 0x6F};
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestSHA1(String providerName) {
-        super(providerName, "SHA-1");
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @BeforeAll
+    public void setUp() {
+        setAlgorithm("SHA1");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
 
         for (int i = 0; i < each.length; i++)
             md.update(each[i]);
@@ -105,12 +90,10 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1_A() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         md.update(sha_A_input);
         byte[] result = md.digest();
 
@@ -118,12 +101,10 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1_B() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         md.update(sha_B_input);
         byte[] result = md.digest();
 
@@ -131,12 +112,10 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1_C() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         for (int counter = 0; counter < 1000000; counter++) {
             md.update((byte) 0x61);
         }
@@ -147,12 +126,10 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1_reset() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         md.update(sha_A_input);
         md.reset();
         md.update(sha_B_input);
@@ -162,18 +139,17 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         int digestLength = md.getDigestLength();
         boolean isExpectedValue = (digestLength == 20);
         assertTrue("Unexpected digest length", isExpectedValue);
     }
 
+    @Test
     public void testSHA1_ArrayOutofBoundsException() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         byte[] bytes = new byte[] {1, 1, 1, 1, 1};
         try {
             md.update(bytes, -1, 1);
@@ -182,22 +158,6 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
             assertTrue("Expected IndexOutOfBoundsException", true);
         }
 
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void warmup() throws Exception {
-
-        try {
-            MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
-            for (long i = 0; i < 10000; i++) {
-                md.update(sha_A_input);
-                md.digest();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
 

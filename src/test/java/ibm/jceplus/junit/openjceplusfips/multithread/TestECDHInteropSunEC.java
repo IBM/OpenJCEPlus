@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,37 +10,17 @@ package ibm.jceplus.junit.openjceplusfips.multithread;
 
 import ibm.jceplus.junit.base.BaseTestECDHInterop;
 import ibm.jceplus.junit.openjceplusfips.Utils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+@TestInstance(Lifecycle.PER_CLASS)
 public class TestECDHInteropSunEC extends BaseTestECDHInterop {
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public TestECDHInteropSunEC() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME, Utils.PROVIDER_SunEC);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void testECDHInteropSunEC() throws Exception {
-        System.out.println("executing testECDHInteropSunEC");
-        BaseTestECDHInterop bt = new BaseTestECDHInterop(providerName, Utils.PROVIDER_SunEC);
-        bt.run();
-
-    }
-
-    public static void main(String[] args) {
-        String[] nargs = {
-                ibm.jceplus.junit.openjceplusfips.multithread.TestECDHInteropSunEC.class.getName()};
-        junit.textui.TestRunner.main(nargs);
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
+        setInteropProviderName(Utils.PROVIDER_SunEC);
     }
 }
-

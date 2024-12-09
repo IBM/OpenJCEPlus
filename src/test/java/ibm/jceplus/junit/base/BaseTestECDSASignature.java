@@ -31,7 +31,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestECDSASignature extends BaseTestSignature {
+public class BaseTestECDSASignature extends BaseTestJunit5Signature {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
@@ -808,9 +808,7 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     private KeyPair generateKeyPair(int keysize) throws Exception {
         KeyPairGenerator ecKeyPairGen = KeyPairGenerator.getInstance("EC", getProviderName());
         ecKeyPairGen.initialize(keysize);

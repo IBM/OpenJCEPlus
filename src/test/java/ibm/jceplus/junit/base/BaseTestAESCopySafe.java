@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -18,10 +18,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestAESCopySafe extends BaseTest {
+public class BaseTestAESCopySafe extends BaseTestJunit5 {
 
     private static final boolean DEBUG = false;
     private static final int INPUT_LENGTH = 32; // should be a multiple of block size
@@ -32,27 +34,19 @@ public class BaseTestAESCopySafe extends BaseTest {
 
     enum MODE { CBC, GCM };
 
-    protected int specifiedKeySize = 0;
+    protected int specifiedKeySize = 128;
 
-    public BaseTestAESCopySafe(String providerName) {
-        super(providerName);
-        this.specifiedKeySize = 128;
-    }
-
-    public BaseTestAESCopySafe(String providerName, int keySize) throws Exception {
-        super(providerName);
-        this.specifiedKeySize = keySize;
-        Assume.assumeTrue(javax.crypto.Cipher.getMaxAllowedKeyLength("AES") >= keySize);
-    }
-
+    @Test
     public void testOverlappingBuffer() throws Exception {
+
+        Assumptions.assumeTrue(javax.crypto.Cipher.getMaxAllowedKeyLength("AES") >= specifiedKeySize);
 
         KEY = new SecretKeySpec(new byte[specifiedKeySize / 8], "AES");
 
         for (MODE mode : MODE.values()) {
             String transformation = "AES/" + mode.toString() + "/NoPadding";
-            Cipher c = Cipher.getInstance(transformation, providerName);
-            System.out.println("Testing " + transformation + " from provider: " + providerName);
+            Cipher c = Cipher.getInstance(transformation, getProviderName());
+            System.out.println("Testing " + transformation + " from provider: " + getProviderName());
             for (int inputOffset : OFFSETS) {
                 for (int outputOffset : OFFSETS) {
                     System.out.println("Mode: " + mode + " inputOffset: " + inputOffset + " outputOffset: " + outputOffset);
