@@ -11,8 +11,10 @@ package ibm.jceplus.junit;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
-@SelectClasses({ibm.jceplus.junit.openjceplus.TestAll.class,
-                ibm.jceplus.junit.openjceplusfips.TestAll.class,})
+@SelectClasses({
+    ibm.jceplus.junit.openjceplus.TestAll.class,
+    ibm.jceplus.junit.openjceplusfips.TestAll.class
+})
 
 @Suite
 public class TestAll {

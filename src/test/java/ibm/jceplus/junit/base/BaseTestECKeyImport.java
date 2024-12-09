@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -23,43 +23,25 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestECKeyImport extends BaseTest {
+public class BaseTestECKeyImport extends BaseTestJunit5 {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
-
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestECKeyImport(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
 
     /**
      * Generate a KeyPair using ECGEenParam and then import the key pair
      *
      * @throws Exception
      */
+    @Test
     public void testCreateKeyPairECGenParamImport() throws Exception {
 
         //final String methodName = "testCreateKeyPairECGenParamImport";
 
         ECGenParameterSpec ecgn = new ECGenParameterSpec("secp192k1");
-        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("EC", providerName);
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("EC", getProviderName());
 
         keyPairGen.initialize(ecgn);
         KeyPair keyPair = keyPairGen.generateKeyPair();
@@ -78,7 +60,7 @@ public class BaseTestECKeyImport extends BaseTest {
         // System.out.println (methodName + " privKeyBytes = " +
         // BaseUtils.bytesToHex(privKeyBytes));
 
-        KeyFactory keyFactory = KeyFactory.getInstance("EC", providerName);
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", getProviderName());
         EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privKeyBytes);
         PrivateKey privateKey2 = keyFactory.generatePrivate(privateKeySpec);
 
@@ -98,6 +80,7 @@ public class BaseTestECKeyImport extends BaseTest {
      *             During the encoding, the provider should recognize that this is
      *             same as a Known curve and encodes only the OID for named Curve
      */
+    @Test
     public void testCreateKeyPairECParamImport() throws Exception {
 
         //final String methodName = "testCreateKeyPairECParamImport";
@@ -120,7 +103,7 @@ public class BaseTestECKeyImport extends BaseTest {
 
         int cofactor = 1;
         ECParameterSpec ecParamSpec = new ECParameterSpec(curve, g, order, cofactor);
-        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("EC", providerName);
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("EC", getProviderName());
 
         keyPairGen.initialize(ecParamSpec);
         KeyPair keyPair = keyPairGen.generateKeyPair();
@@ -139,7 +122,7 @@ public class BaseTestECKeyImport extends BaseTest {
         // System.out.println (methodName + " privKeyBytes = " +
         // BaseUtils.bytesToHex(privKeyBytes));
 
-        KeyFactory keyFactory = KeyFactory.getInstance("EC", providerName);
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", getProviderName());
         EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privKeyBytes);
         PrivateKey privateKey2 = keyFactory.generatePrivate(privateKeySpec);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -19,9 +19,10 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-//public class BaseTestRSAPSSInterop2 extends TestCase {
-public class BaseTestRSAPSSInterop2 extends BaseTest {
+public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
 
     String signingProvidersSignatureAlgorithmName = null;
     String verifyingProvidersSignatureAlgorithmName = null;
@@ -51,15 +52,8 @@ public class BaseTestRSAPSSInterop2 extends BaseTest {
     Provider provider = null;
     static boolean printJunitTrace = false;
 
-    public BaseTestRSAPSSInterop2(String providerName) {
-        super(providerName);
-        printJunitTrace = Boolean
-                .valueOf(System.getProperty("com.ibm.jceplus.junit.printJunitTrace"));
-    }
-
-
-
-    protected void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
 
         if (printJunitTrace)
             System.out.println(
@@ -216,8 +210,7 @@ public class BaseTestRSAPSSInterop2 extends BaseTest {
     //   BEGINNING OF RSA-PSS SIGNATURE TESTS
     //==================================================================================================================
 
-
-
+    @Test
     public void testRSAPSS() throws Exception {
 
         KeyPair rsaKeyPair = null;
@@ -3437,29 +3430,6 @@ public class BaseTestRSAPSSInterop2 extends BaseTest {
             } // end loop for each dataToBeSigned length
         } // end loop for each RSA key size
     } // end testRSAPSS()
-
-
-
-    //   public static void main(String[] args){
-    //
-    //      if (printJunitTrace) System.out.println("BaseTestRSAPSSInterop2.java:  main(): METHOD ENTRY");
-    //
-    //      BaseTestRSAPSSInterop2 test = new BaseTestRSAPSSInterop2();
-    //
-    //      try {
-    //          test.mySetUp();
-    //          test.testRSAPSS();
-    //      }
-    //      catch (Exception ex)
-    //      {
-    //          if (printJunitTrace) System.out.println("The following exception was thrown:");
-    //          ex.printStackTrace();
-    //      }
-    //
-    //      if (printJunitTrace) System.out.println("\nBaseTestRSAPSSInterop2.java:  main(): METHOD EXIT");
-    //   }
-
-
 
     // Compute the signature, but do not use PSSParameters class
     private static boolean doSignature(byte[] dataToBeSigned, KeyPair rsaKeyPair,
