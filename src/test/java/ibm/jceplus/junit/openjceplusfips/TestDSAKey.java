@@ -8,16 +8,19 @@
 
 package ibm.jceplus.junit.openjceplusfips;
 
+import ibm.jceplus.junit.base.BaseTestDSAKey;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-public class TestDSAKey extends ibm.jceplus.junit.base.BaseTestDSAKey {
+@TestInstance(Lifecycle.PER_CLASS)
+public class TestDSAKey extends BaseTestDSAKey {
 
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-    }
-
-    public TestDSAKey() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 
     @Disabled("DSA key generation is not available in FIPS mode.")
@@ -32,4 +35,3 @@ public class TestDSAKey extends ibm.jceplus.junit.base.BaseTestDSAKey {
     @Override
     public void testDSAKeyGenFromParams_1024() throws Exception {}
 }
-

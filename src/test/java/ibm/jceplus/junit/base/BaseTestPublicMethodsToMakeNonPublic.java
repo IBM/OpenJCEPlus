@@ -19,27 +19,18 @@ import java.util.Enumeration;
 import java.util.Vector;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
+abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTestJunit5 {
     private boolean debug = false;
     private boolean debugAllChecked = false;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestPublicMethodsToMakeNonPublic(String providerName) {
-        super(providerName);
-    }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
+
+
+
 
     // --------------------------------------------------------------------------
     // Implementing testcase must override this method to indicate whether
@@ -48,15 +39,12 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
     // reported as a test failure.
     //
     abstract public boolean isMethodMeantToBePublicAndExplicitlyCallableByUsers(Method method);
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testCheckForPublicMethods() throws Exception {
         Vector<String> publicMethodNamesToCheck = new Vector<String>();
 
         String[] classNames = getClassNamesInSamePackage(
-                Security.getProvider(providerName).getClass().getName());
+                Security.getProvider(getProviderName()).getClass().getName());
         for (int index = 0; index < classNames.length; ++index) {
             Method[] publicMethods = getPublicMethodsOfClass(classNames[index]);
 
@@ -90,9 +78,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
                 (publicMethodNamesToCheck.size() == 0));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     private String[] getClassNamesInSamePackage(String className) {
         Vector<String> v = new Vector<String>();
 
@@ -120,9 +106,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
         return v.toArray(new String[0]);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     private JarFile getJarContainingClass(String className) {
         try {
             Class<?> c = Class.forName(className);
@@ -143,9 +127,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
         return null;
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     private String[] getClassNamesInJarFile(JarFile jarFile) {
         Vector<String> v = new Vector<String>();
 
@@ -275,9 +257,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
         return v.toArray(new Method[0]);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     private Method findMethod(Class<?> c, Method method) {
         if (c == null) {
             return null;
@@ -311,9 +291,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTest {
         return null;
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     protected String getPrintFriendlyMethodSignature(Method method) {
         StringBuffer sb = new StringBuffer();
         sb.append(method.getDeclaringClass().getName() + "." + method.getName());

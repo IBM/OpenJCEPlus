@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -21,24 +21,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.ChaCha20ParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.Test;
 
 public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20Constants {
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestChaCha20NoReuse(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
 
     private static final String ALG_CC20 = "ChaCha20";
     private static final String ALG_CC20_P1305 = "ChaCha20-Poly1305";
@@ -171,7 +156,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
     /**
      * Make sure we do not use this Cipher object without initializing it at all
      */
-    public static final TestMethod noInitTest = new TestMethod() {
+    public final TestMethod noInitTest = new TestMethod() {
         @Override
         public boolean isValid(String algorithm) {
             return true; // Valid for all algs
@@ -181,7 +166,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
         public boolean run(String algorithm, String providerName) {
             System.out.println("----- No Init Test noInitTest [" + algorithm + "] -----");
             try {
-                Cipher cipher = Cipher.getInstance(algorithm, providerName);
+                Cipher cipher = Cipher.getInstance(algorithm, getProviderName());
                 TestData testData;
                 switch (algorithm) {
                     case ALG_CC20:
@@ -223,7 +208,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
     /**
      * Make sure we don't allow a double init using the same parameters
      */
-    public static final TestMethod doubleInitTest = new TestMethod() {
+    public final TestMethod doubleInitTest = new TestMethod() {
         @Override
         public boolean isValid(String algorithm) {
             return true; // Valid for all algs
@@ -234,7 +219,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
             System.out.println("----- Double Init Test doubleInitTest [" + algorithm + "] -----");
             try {
                 AlgorithmParameterSpec spec;
-                Cipher cipher = Cipher.getInstance(algorithm, providerName);
+                Cipher cipher = Cipher.getInstance(algorithm, getProviderName());
                 TestData testData;
                 switch (algorithm) {
                     case ALG_CC20:
@@ -279,7 +264,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
     /**
      * Attempt to run two full encryption operations without an init in between.
      */
-    public static final TestMethod encTwiceNoInit = new TestMethod() {
+    public final TestMethod encTwiceNoInit = new TestMethod() {
         @Override
         public boolean isValid(String algorithm) {
             return true; // Valid for all algs
@@ -291,7 +276,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
                     + "] -----");
             try {
                 AlgorithmParameterSpec spec;
-                Cipher cipher = Cipher.getInstance(algorithm, providerName);
+                Cipher cipher = Cipher.getInstance(algorithm, getProviderName());
                 TestData testData;
                 switch (algorithm) {
                     case ALG_CC20:
@@ -346,7 +331,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
     /**
      * Attempt to run two full decryption operations without an init in between.
      */
-    public static final TestMethod decTwiceNoInit = new TestMethod() {
+    public final TestMethod decTwiceNoInit = new TestMethod() {
         @Override
         public boolean isValid(String algorithm) {
             return true; // Valid for all algs
@@ -358,7 +343,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
                     + "] -----");
             try {
                 AlgorithmParameterSpec spec;
-                Cipher cipher = Cipher.getInstance(algorithm, providerName);
+                Cipher cipher = Cipher.getInstance(algorithm, getProviderName());
                 TestData testData;
                 switch (algorithm) {
                     case ALG_CC20:
@@ -418,7 +403,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
      * Perform an AEAD decryption with corrupted data so the tag does not match.
      * Then attempt to reuse the cipher without initialization.
      */
-    public static final TestMethod decFailNoInit = new TestMethod() {
+    public final TestMethod decFailNoInit = new TestMethod() {
         @Override
         public boolean isValid(String algorithm) {
             return algorithm.equals(ALG_CC20_P1305);
@@ -434,7 +419,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
                 byte[] corruptInput = testData.input.clone();
                 corruptInput[0]++; // Corrupt the ciphertext
                 SecretKey key = new SecretKeySpec(testData.key, ALG_CC20);
-                Cipher cipher = Cipher.getInstance(algorithm, providerName);
+                Cipher cipher = Cipher.getInstance(algorithm, getProviderName());
 
                 try {
                     // Initialize and encrypt
@@ -473,7 +458,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
     /**
      * Encrypt once successfully, then attempt to init with the same key and nonce.
      */
-    public static final TestMethod encTwiceInitSameParams = new TestMethod() {
+    public final TestMethod encTwiceInitSameParams = new TestMethod() {
         @Override
         public boolean isValid(String algorithm) {
             return true; // Valid for all algs
@@ -485,7 +470,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
                     .println("----- Encrypt, then init with same params [" + algorithm + "] -----");
             try {
                 AlgorithmParameterSpec spec;
-                Cipher cipher = Cipher.getInstance(algorithm, providerName);
+                Cipher cipher = Cipher.getInstance(algorithm, getProviderName());
                 TestData testData;
                 switch (algorithm) {
                     case ALG_CC20:
@@ -541,7 +526,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
     /**
      * Decrypt once successfully, then attempt to init with the same key and nonce.
      */
-    public static final TestMethod decTwiceInitSameParams = new TestMethod() {
+    public final TestMethod decTwiceInitSameParams = new TestMethod() {
         @Override
         public boolean isValid(String algorithm) {
             return true; // Valid for all algs
@@ -553,7 +538,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
                     + algorithm + "] -----");
             try {
                 AlgorithmParameterSpec spec;
-                Cipher cipher = Cipher.getInstance(algorithm, providerName);
+                Cipher cipher = Cipher.getInstance(algorithm, getProviderName());
                 TestData testData;
                 switch (algorithm) {
                     case ALG_CC20:
@@ -607,16 +592,13 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
 
     public static final List<String> algList = Arrays.asList(ALG_CC20, ALG_CC20_P1305);
 
-    public static final List<TestMethod> testMethodList = Arrays.asList(noInitTest, doubleInitTest,
+    public final List<TestMethod> testMethodList = Arrays.asList(noInitTest, doubleInitTest,
             encTwiceNoInit, decTwiceNoInit, decFailNoInit, encTwiceInitSameParams,
             decTwiceInitSameParams);
 
     //    public static final List<String> algList = Arrays.asList(ALG_CC20_P1305);                //DEBUG ONLY
     //    public static final List<TestMethod> testMethodList = Arrays.asList(decFailNoInit);    //DEBUG ONLY
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaChaNoReuse() throws Exception {
         {
             int testsPassed = 0;
@@ -627,7 +609,7 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
                 for (String alg : algList) {
                     if (tm.isValid(alg)) {
                         testNumber++;
-                        boolean result = tm.run(alg, providerName);
+                        boolean result = tm.run(alg, getProviderName());
                         System.out.println(tm.getName() + "[" + alg + "] Result: "
                                 + (result ? "PASS" : "FAIL"));
                         System.out.println(

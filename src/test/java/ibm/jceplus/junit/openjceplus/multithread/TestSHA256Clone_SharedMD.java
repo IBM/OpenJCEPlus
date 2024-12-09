@@ -8,43 +8,18 @@
 
 package ibm.jceplus.junit.openjceplus.multithread;
 
+import ibm.jceplus.junit.base.BaseTestSHA256Clone_SharedMD;
 import ibm.jceplus.junit.openjceplus.Utils;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-public class TestSHA256Clone_SharedMD extends ibm.jceplus.junit.base.BaseTestSHA256Clone_SharedMD {
+@TestInstance(Lifecycle.PER_CLASS)
+public class TestSHA256Clone_SharedMD extends BaseTestSHA256Clone_SharedMD {
 
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public TestSHA256Clone_SharedMD() throws NoSuchAlgorithmException, NoSuchProviderException {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TestSHA256Clone_SharedMD.class);
-        return suite;
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 }
-
-

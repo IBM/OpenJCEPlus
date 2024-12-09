@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class BaseTestDSASignature extends BaseTestSignature {
+public class BaseTestDSASignature extends BaseTestJunit5Signature {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 

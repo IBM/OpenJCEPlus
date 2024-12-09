@@ -19,39 +19,55 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestDH extends BaseTest {
+public class BaseTestDH extends BaseTestJunit5 {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
-    static DHParameterSpec algParameterSpec_1024, algParameterSpec_2048, algParameterSpec_3072,
+    DHParameterSpec algParameterSpec_1024, algParameterSpec_2048, algParameterSpec_3072,
             algParameterSpec_4096, algParameterSpec_6144, algParameterSpec_8192;
 
-    static KeyPairGenerator kpgA = null;
-    static KeyPairGenerator kpgB = null;
+    KeyPairGenerator kpgA = null;
+    KeyPairGenerator kpgB = null;
 
-    static KeyPair keyPairA_1024, keyPairA_2048, keyPairA_3072, keyPairA_4096, keyPairA_6144,
+    KeyPair keyPairA_1024, keyPairA_2048, keyPairA_3072, keyPairA_4096, keyPairA_6144,
             keyPairA_8192;
-    static KeyPair keyPairB_1024, keyPairB_2048, keyPairB_3072, keyPairB_4096, keyPairB_6144,
+    KeyPair keyPairB_1024, keyPairB_2048, keyPairB_3072, keyPairB_4096, keyPairB_6144,
             keyPairB_8192;
 
-    public boolean isMulti = false;
-    static String myProviderName = null;
-    static boolean generated = false;
+    private boolean isMulti = false;
 
-    synchronized static void generateParameters(String provider_name) {
+    @BeforeEach
+    public void setUp() throws Exception {
+        generateParameters(getProviderName());
+    }
+
+    public boolean isMulti() {
+        return isMulti;
+    }
+
+    public void setMulti(boolean isMulti) {
+        this.isMulti = isMulti;
+    }
+
+    boolean generated = false;
+
+    synchronized void generateParameters(String provider_name) {
         if (generated)
             return;
         try {
             System.out.println("Provider name = " + provider_name);
             if (!provider_name.equals("OpenJCEPlusFIPS")) {
-                algParameterSpec_1024 = generateDHParameters_static(1024);
+                algParameterSpec_1024 = generateDHParameters(1024);
             }
-            algParameterSpec_2048 = generateDHParameters_static(2048);
-            algParameterSpec_3072 = generateDHParameters_static(3072);
-            algParameterSpec_4096 = generateDHParameters_static(4096);
-            algParameterSpec_6144 = generateDHParameters_static(6144);
-            algParameterSpec_8192 = generateDHParameters_static(8192);
+            algParameterSpec_2048 = generateDHParameters(2048);
+            algParameterSpec_3072 = generateDHParameters(3072);
+            algParameterSpec_4096 = generateDHParameters(4096);
+            algParameterSpec_6144 = generateDHParameters(6144);
+            algParameterSpec_8192 = generateDHParameters(8192);
 
             kpgA = KeyPairGenerator.getInstance("DH", provider_name);
             if (!provider_name.equals("OpenJCEPlusFIPS")) {
@@ -97,34 +113,25 @@ public class BaseTestDH extends BaseTest {
         }
     }
 
-    public BaseTestDH(String providerName) {
-        super(providerName);
-        myProviderName = providerName;
-        generateParameters(providerName);
-    }
-
-    public void setUp() throws Exception {}
-
-    public void tearDown() throws Exception {}
-
     /**
      * Basic DH example
      *
      * @throws Exception
      */
-
+    @Test
     public void testDHKeyPairGeneratorGetAlgorithm() throws Exception {
         String algorithms[] = {"DiffieHellman", "DH", "1.2.840.113549.1.3.1",
                 "OID.1.2.840.113549.1.3.1"};
         for (int i = 0; i < algorithms.length; i++) {
-            assertTrue(KeyPairGenerator.getInstance(algorithms[i], providerName).getAlgorithm()
+            assertTrue(KeyPairGenerator.getInstance(algorithms[i], getProviderName()).getAlgorithm()
                     .equals(algorithms[i]));
         }
     }
 
+    @Test
     public void testDH_1024() throws Exception {
 
-        if (!providerName.equals("OpenJCEPlusFIPS")) {
+        if (!getProviderName().equals("OpenJCEPlusFIPS")) {
 
             DHParameterSpec dhps = generateDHParameters(1024);
             compute_dh_key("1024", dhps);
@@ -135,6 +142,7 @@ public class BaseTestDH extends BaseTest {
         }
     }
 
+    @Test
     public void testDH_2048() throws Exception {
         //System.out.println ("Testing DH 2048");
 
@@ -145,6 +153,7 @@ public class BaseTestDH extends BaseTest {
 
     }
 
+    @Test
     public void testDH_3072() throws Exception {
         //System.out.println ("Testing DH 3072");
 
@@ -155,6 +164,7 @@ public class BaseTestDH extends BaseTest {
 
     }
 
+    @Test
     public void testDH_4096() throws Exception {
         //System.out.println ("Testing DH 4096");
 
@@ -165,6 +175,7 @@ public class BaseTestDH extends BaseTest {
 
     }
 
+    @Test
     public void testDH_6144() throws Exception {
         //System.out.println ("Testing DH 6144");
 
@@ -175,6 +186,7 @@ public class BaseTestDH extends BaseTest {
 
     }
 
+    @Test
     public void testDH_8192() throws Exception {
         //System.out.println ("Testing DH 8192");
 
@@ -185,11 +197,12 @@ public class BaseTestDH extends BaseTest {
 
     }
 
+    @Test
     public void testDH_DHSpec() throws Exception {
 
         String methodId = "DHParamSpec";
 
-        if (!providerName.equals("OpenJCEPlusFIPS")) {
+        if (!getProviderName().equals("OpenJCEPlusFIPS")) {
             DHParameterSpec dhParamSpec = generateDHParameters(1024);
 
             compute_dh_key(methodId, dhParamSpec);
@@ -206,7 +219,7 @@ public class BaseTestDH extends BaseTest {
 
         KeyPairGenerator kpgA = null;
         try {
-            kpgA = KeyPairGenerator.getInstance("DH", providerName);
+            kpgA = KeyPairGenerator.getInstance("DH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -228,7 +241,7 @@ public class BaseTestDH extends BaseTest {
         // set up
         KeyAgreement keyAgreeA = null;
         try {
-            keyAgreeA = KeyAgreement.getInstance("DH", providerName);
+            keyAgreeA = KeyAgreement.getInstance("DH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -246,7 +259,7 @@ public class BaseTestDH extends BaseTest {
         KeyPairGenerator kpgB = null;
 
         try {
-            kpgB = KeyPairGenerator.getInstance("DH", providerName);
+            kpgB = KeyPairGenerator.getInstance("DH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -269,7 +282,7 @@ public class BaseTestDH extends BaseTest {
 
         KeyAgreement keyAgreeB = null;
         try {
-            keyAgreeB = KeyAgreement.getInstance("DH", providerName);
+            keyAgreeB = KeyAgreement.getInstance("DH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -333,7 +346,7 @@ public class BaseTestDH extends BaseTest {
     private DHParameterSpec generateDHParameters(int size) throws Exception {
 
         AlgorithmParameterGenerator algParamGen = AlgorithmParameterGenerator.getInstance("DH",
-                providerName);
+                getProviderName());
         algParamGen.init(size);
         AlgorithmParameters algParams = algParamGen.generateParameters();
         DHParameterSpec dhps = algParams.getParameterSpec(DHParameterSpec.class);
@@ -382,7 +395,7 @@ public class BaseTestDH extends BaseTest {
         // set up A
         KeyAgreement keyAgreeA = null;
         try {
-            keyAgreeA = KeyAgreement.getInstance("DH", providerName);
+            keyAgreeA = KeyAgreement.getInstance("DH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -400,7 +413,7 @@ public class BaseTestDH extends BaseTest {
         // set up B
         KeyAgreement keyAgreeB = null;
         try {
-            keyAgreeB = KeyAgreement.getInstance("DH", providerName);
+            keyAgreeB = KeyAgreement.getInstance("DH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -457,14 +470,5 @@ public class BaseTestDH extends BaseTest {
         }
         assertTrue(assertFlag);
 
-    }
-
-    static private DHParameterSpec generateDHParameters_static(int size) throws Exception {
-        AlgorithmParameterGenerator algParamGen = AlgorithmParameterGenerator.getInstance("DH",
-                myProviderName);
-        algParamGen.init(size);
-        AlgorithmParameters algParams = algParamGen.generateParameters();
-        DHParameterSpec dhps = algParams.getParameterSpec(DHParameterSpec.class);
-        return dhps;
     }
 }

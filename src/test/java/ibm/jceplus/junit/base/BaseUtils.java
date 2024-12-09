@@ -11,9 +11,7 @@ package ibm.jceplus.junit.base;
 import java.security.Provider;
 
 abstract public class BaseUtils {
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public static final String PROVIDER_BC = "BC"; // BouncyCastle
     public static final String PROVIDER_SUN = "SUN"; // SUN
     public static final String PROVIDER_SunJCE = "SunJCE"; // SunJCE
@@ -51,9 +49,7 @@ abstract public class BaseUtils {
         return bytes;
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public static byte[] hexStringToByteArray(String string) {
         String s = string.trim().replaceAll(" +", ""); // remove all spaces
 
@@ -66,17 +62,13 @@ abstract public class BaseUtils {
         return b;
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public static Provider loadProvider(String providerName, String providerClassName)
             throws Exception {
         return loadProvider(providerName, providerClassName, true);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public static Provider loadProvider(String providerName, String providerClassName,
             boolean addToProviderList) throws Exception {
         Provider provider = java.security.Security.getProvider(providerName);
@@ -90,23 +82,17 @@ abstract public class BaseUtils {
         return provider;
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public static Provider loadProviderBC() throws Exception {
         return loadProvider(PROVIDER_BC, "org.bouncycastle.jce.provider.BouncyCastleProvider");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public static Provider loadProviderOpenJCEPlus() throws Exception {
         return loadProvider(PROVIDER_OpenJCEPlus, "com.ibm.crypto.plus.provider.OpenJCEPlus");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public static Provider loadProviderOpenJCEPlusFIPS() throws Exception {
         return loadProvider(PROVIDER_OpenJCEPlusFIPS,
                 "com.ibm.crypto.plus.provider.OpenJCEPlusFIPS");

@@ -19,81 +19,36 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+
+public class BaseTestDHInterop extends BaseTestJunit5Interop {
 
 
-public class BaseTestDHInterop extends BaseTestInterop {
-
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
-    private int keySize = 1024;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestDHInterop(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestDHInterop(String providerName, String interopProviderName, int size) {
-        super(providerName, interopProviderName);
-        this.keySize = size;
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
     /**
      * Basic ECDH example
      *
      * @throws Exception
      */
-
+    @Test
     public void testDH() throws Exception {
 
-        String idString = (Integer.valueOf(this.keySize)).toString();
+        String idString = ("testDH Keysize:" + Integer.valueOf(getKeySize())).toString();
 
-        DHParameterSpec dhps = generateDHParameters(this.keySize);
+        DHParameterSpec dhps = generateDHParameters(getKeySize());
+        String myInteropProvider = getInteropProviderName();
+        String myProvider = getProviderName();
 
-        compute_dh_key_interop(idString, dhps, providerName, interopProviderName);
-        compute_dh_key_interop(idString, dhps, interopProviderName, providerName);
-
-
-
-    }
-
-
-
-    public void testDH_DHSpec() throws Exception {
-
-        String methodId = "DHParamSpec";
-
-        DHParameterSpec dhParamSpec = generateDHParameters(this.keySize);
-
-        compute_dh_key_interop(methodId, dhParamSpec, providerName, interopProviderName);
-        compute_dh_key_interop(methodId, dhParamSpec, interopProviderName, providerName);
-
+        compute_dh_key_interop(idString, dhps, myProvider, myInteropProvider);
+        compute_dh_key_interop(idString, dhps, myInteropProvider, myProvider);
     }
 
     void compute_dh_key_interop(String idString, AlgorithmParameterSpec algParameterSpec,
             String providerA, String providerB) throws InvalidKeyException,
             NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         compute_dh_key(idString, algParameterSpec, providerA, providerB);
-
     }
 
     void compute_dh_key_interop_sameKeyPairGenerator(String idString,
@@ -101,7 +56,6 @@ public class BaseTestDHInterop extends BaseTestInterop {
             throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException,
             InvalidAlgorithmParameterException {
         compute_dh_key_sameKeyPairGenerator(idString, algParameterSpec, providerA, providerB);
-
     }
 
     void compute_dh_key(String idString, AlgorithmParameterSpec algParameterSpec, String providerA,
@@ -239,7 +193,6 @@ public class BaseTestDHInterop extends BaseTestInterop {
 
         }
         assertTrue(assertFlag);
-
     }
 
     void compute_dh_key_sameKeyPairGenerator(String idString,
@@ -353,24 +306,16 @@ public class BaseTestDHInterop extends BaseTestInterop {
                     "KeyPairB.privKey=" + BaseUtils.bytesToHex(keyPairB.getPrivate().getEncoded()));
             System.out.println("KeyPairB.publicKey="
                     + BaseUtils.bytesToHex(keyPairB.getPublic().getEncoded()));
-
         }
         assertTrue(assertFlag);
-
-
     }
 
-
     private DHParameterSpec generateDHParameters(int size) throws Exception {
-
         AlgorithmParameterGenerator algParamGen = AlgorithmParameterGenerator.getInstance("DH",
-                providerName);
+                getProviderName());
         algParamGen.init(size);
         AlgorithmParameters algParams = algParamGen.generateParameters();
         DHParameterSpec dhps = algParams.getParameterSpec(DHParameterSpec.class);
         return dhps;
-
     }
-
-
 }

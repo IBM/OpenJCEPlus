@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -11,38 +11,17 @@ package ibm.jceplus.junit.base;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestSignatureInterop extends BaseTestInterop {
+public class BaseTestSignatureInterop extends BaseTestJunit5Interop {
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestSignatureInterop(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
     protected void doSignVerify(String sigAlgo, byte[] message, PrivateKey privateKey,
             PublicKey publicKey) throws Exception {
-        doSignVerify(sigAlgo, message, privateKey, publicKey, providerName, interopProviderName);
-        doSignVerify(sigAlgo, message, privateKey, publicKey, interopProviderName, providerName);
+        doSignVerify(sigAlgo, message, privateKey, publicKey, getProviderName(), getInteropProviderName());
+        doSignVerify(sigAlgo, message, privateKey, publicKey, getInteropProviderName(), getProviderName());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected static void doSignVerify(String sigAlgo, byte[] message, PrivateKey privateKey,
             PublicKey publicKey, String signProvider, String verifyProvider) throws Exception {
         Signature signing = Signature.getInstance(sigAlgo, signProvider);
