@@ -31,7 +31,7 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertTrue;
 
-public class BaseTestEdDSASignature extends BaseTestSignature {
+public class BaseTestEdDSASignature extends BaseTestJunit5Signature {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
@@ -269,7 +269,6 @@ public class BaseTestEdDSASignature extends BaseTestSignature {
 
         assertTrue("Signature verification failed", sig.verify(computedSig));
     }
-
 
     @Test
     public void testRunBasicEdDSATests() throws Exception {

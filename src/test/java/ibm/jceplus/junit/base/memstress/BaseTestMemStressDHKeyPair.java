@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -7,7 +7,7 @@
  */
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTest;
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -15,12 +15,12 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class BaseTestMemStressDHKeyPair extends BaseTest {
+public class BaseTestMemStressDHKeyPair extends BaseTestJunit5 {
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
 
     static DHParameterSpec algParameterSpec;
 
@@ -29,22 +29,7 @@ public class BaseTestMemStressDHKeyPair extends BaseTest {
     boolean printheapstats = false;
     int dhSize = 2048;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressDHKeyPair(String providerName) {
-        super(providerName);
-
-    }
-
-    public BaseTestMemStressDHKeyPair(String providerName, int dhSize) {
-        super(providerName);
-        this.dhSize = dhSize;
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
@@ -55,15 +40,7 @@ public class BaseTestMemStressDHKeyPair extends BaseTest {
         System.out.println("Testing DHKeyPair ");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-
+    @Test
     public void testDHKeyPair() throws Exception {
 
         Runtime rt = Runtime.getRuntime();
@@ -105,6 +82,7 @@ public class BaseTestMemStressDHKeyPair extends BaseTest {
         }
     }
 
+    @Test
     public void testDHKeyPairWithComputeSecret() throws Exception {
 
         Runtime rt = Runtime.getRuntime();

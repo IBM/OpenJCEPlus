@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -19,19 +19,13 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestXDHMultiParty extends BaseTest {
+public class BaseTestXDHMultiParty extends BaseTestJunit5 {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
-
-    public BaseTestXDHMultiParty(String providerName) {
-        super(providerName);
-    }
-
-    public void setUp() throws Exception {}
-
-    public void tearDown() throws Exception {}
-
+    @Test
     public void testXDHMulti_x25519() throws Exception {
 
         String curveName = "X25519";
@@ -39,7 +33,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         NamedParameterSpec nps = new NamedParameterSpec(curveName);
 
         try {
-            compute_xdh_multiparty_oneprovider(curveName, nps, providerName);
+            compute_xdh_multiparty_oneprovider(curveName, nps, getProviderName());
         } catch (IllegalStateException e) {
             assertTrue(true);
             return;
@@ -47,6 +41,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         assertTrue(false);
     }
 
+    @Test
     public void testXDHMulti_x448() throws Exception {
 
         String curveName = "X448";
@@ -54,7 +49,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         NamedParameterSpec nps = new NamedParameterSpec(curveName);
 
         try {
-            compute_xdh_multiparty_oneprovider(curveName, nps, providerName);
+            compute_xdh_multiparty_oneprovider(curveName, nps, getProviderName());
         } catch (IllegalStateException e) {
             assertTrue(true);
             return;
@@ -62,6 +57,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         assertTrue(false);
     }
 
+    @Test
     public void testXDHMulti_ffdhe2048() throws Exception {
 
         String curveName = "FFDHE2048";
@@ -69,7 +65,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         NamedParameterSpec nps = new NamedParameterSpec(curveName);
 
         try {
-            compute_xdh_multiparty_oneprovider(curveName, nps, providerName);
+            compute_xdh_multiparty_oneprovider(curveName, nps, getProviderName());
         } catch (IllegalStateException e) {
             assertTrue(true);
             return;
@@ -77,6 +73,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         assertTrue(false);
     }
 
+    @Test
     public void testXDHMulti_ffdhe3072() throws Exception {
 
         String curveName = "FFDHE3072";
@@ -84,7 +81,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         NamedParameterSpec nps = new NamedParameterSpec(curveName);
 
         try {
-            compute_xdh_multiparty_oneprovider(curveName, nps, providerName);
+            compute_xdh_multiparty_oneprovider(curveName, nps, getProviderName());
         } catch (IllegalStateException e) {
             assertTrue(true);
             return;
@@ -92,6 +89,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         assertTrue(false);
     }
 
+    @Test
     public void testXDHMulti_ffdhe4096() throws Exception {
 
         String curveName = "FFDHE4096";
@@ -99,7 +97,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         NamedParameterSpec nps = new NamedParameterSpec(curveName);
 
         try {
-            compute_xdh_multiparty_oneprovider(curveName, nps, providerName);
+            compute_xdh_multiparty_oneprovider(curveName, nps, getProviderName());
         } catch (IllegalStateException e) {
             assertTrue(true);
             return;
@@ -107,6 +105,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         assertTrue(false);
     }
 
+    @Test
     public void testXDHMulti_ffdhe6144() throws Exception {
 
         String curveName = "FFDHE6144";
@@ -114,7 +113,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         NamedParameterSpec nps = new NamedParameterSpec(curveName);
 
         try {
-            compute_xdh_multiparty_oneprovider(curveName, nps, providerName);
+            compute_xdh_multiparty_oneprovider(curveName, nps, getProviderName());
         } catch (IllegalStateException e) {
             assertTrue(true);
             return;
@@ -122,6 +121,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         assertTrue(false);
     }
 
+    @Test
     public void testXDHMulti_ffdhe8192() throws Exception {
 
         String curveName = "FFDHE8192";
@@ -129,7 +129,7 @@ public class BaseTestXDHMultiParty extends BaseTest {
         NamedParameterSpec nps = new NamedParameterSpec(curveName);
 
         try {
-            compute_xdh_multiparty_oneprovider(curveName, nps, providerName);
+            compute_xdh_multiparty_oneprovider(curveName, nps, getProviderName());
         } catch (IllegalStateException e) {
             //System.out.println(e.getMessage());
             assertTrue(true);

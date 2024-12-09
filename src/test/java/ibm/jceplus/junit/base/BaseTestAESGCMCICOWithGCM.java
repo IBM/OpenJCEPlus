@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -16,41 +16,35 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import org.junit.Assume;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestAESGCMCICOWithGCM extends BaseTest {
+public class BaseTestAESGCMCICOWithGCM extends BaseTestJunit5 {
     protected int specifiedKeySize = 128;
 
-    public BaseTestAESGCMCICOWithGCM(String providerName) {
-        super(providerName);
-    }
-
-    public BaseTestAESGCMCICOWithGCM(String providerName, int keySize) throws Exception {
-
-        super(providerName);
-        this.specifiedKeySize = keySize;
-        Assume.assumeTrue(javax.crypto.Cipher.getMaxAllowedKeyLength("AES") >= keySize);
-    }
-
+    @Test
     public void testDefault() throws Exception {
         dotestAESGCMCICOWithGCM(specifiedKeySize);
     }
 
+    @Test
     public void testAESGCMCICOWithGCM128() throws Exception {
         dotestAESGCMCICOWithGCM(128);
     }
 
+    @Test
     public void testAESGCMCICOWithGCM192() throws Exception {
         dotestAESGCMCICOWithGCM(192);
     }
 
+    @Test
     public void testAESGCMCICOWithGCM256() throws Exception {
         dotestAESGCMCICOWithGCM(256);
     }
 
     protected void dotestAESGCMCICOWithGCM(int myKeysize) throws Exception {
         int LEN = 100;
-        KeyGenerator kg = KeyGenerator.getInstance("AES", providerName);
+        KeyGenerator kg = KeyGenerator.getInstance("AES", getProviderName());
         kg.init(myKeysize);
         SecretKey key = kg.generateKey();
 
@@ -61,10 +55,10 @@ public class BaseTestAESGCMCICOWithGCM extends BaseTest {
         rdm.nextBytes(plainText);
 
         //init ciphers
-        Cipher encCipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher encCipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         encCipher.init(Cipher.ENCRYPT_MODE, key);
 
-        Cipher decCipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher decCipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         decCipher.init(Cipher.DECRYPT_MODE, key, encCipher.getParameters());
 
 
