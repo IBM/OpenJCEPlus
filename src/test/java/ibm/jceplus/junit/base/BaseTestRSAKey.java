@@ -21,40 +21,26 @@ import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestRSAKey extends BaseTest {
+public class BaseTestRSAKey extends BaseTestJunit5 {
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected KeyPairGenerator rsaKeyPairGen;
     protected KeyFactory rsaKeyFactory;
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestRSAKey(String providerName) {
-        super(providerName);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
-        rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", providerName);
-        rsaKeyFactory = KeyFactory.getInstance("RSA", providerName);
+        rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", getProviderName());
+        rsaKeyFactory = KeyFactory.getInstance("RSA", getProviderName());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyGen_1024() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support 1024 bit keys
             return;
         }
@@ -63,80 +49,62 @@ public class BaseTestRSAKey extends BaseTest {
         rsaKeyPair.getPrivate();
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyGen_2048() throws Exception {
         KeyPair rsaKeyPair = generateKeyPair(2048);
         rsaKeyPair.getPublic();
         rsaKeyPair.getPrivate();
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyGen_4096() throws Exception {
         KeyPair rsaKeyPair = generateKeyPair(4096);
         rsaKeyPair.getPublic();
         rsaKeyPair.getPrivate();
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyFactoryCreateFromEncoded_1024() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support 1024 bit keys
             return;
         }
         keyFactoryCreateFromEncoded(1024);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyFactoryCreateFromEncoded_2048() throws Exception {
         keyFactoryCreateFromEncoded(2048);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyFactoryCreateFromEncoded_4096() throws Exception {
         keyFactoryCreateFromEncoded(4096);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyFactoryCreateFromKeySpec_1024() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support 1024 bit keys
             return;
         }
         keyFactoryCreateFromKeySpec(1024);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyFactoryCreateFromKeySpec_2048() throws Exception {
         keyFactoryCreateFromKeySpec(2048);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyFactoryCreateFromKeySpec_4096() throws Exception {
         keyFactoryCreateFromKeySpec(4096);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAKeyFactoryCreateFromKeySpec() throws Exception {
 
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support 1024 bit keys
             return;
         }
@@ -174,9 +142,7 @@ public class BaseTestRSAKey extends BaseTest {
         rsaKeyFactory.generatePublic(rsaPublicSpec);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected KeyPair generateKeyPair(int size) throws Exception {
         rsaKeyPairGen.initialize(size);
         KeyPair keyPair = rsaKeyPairGen.generateKeyPair();
@@ -200,9 +166,7 @@ public class BaseTestRSAKey extends BaseTest {
         return keyPair;
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected void keyFactoryCreateFromEncoded(int size) throws Exception {
 
         KeyPair rsaKeyPair = generateKeyPair(size);
@@ -223,9 +187,7 @@ public class BaseTestRSAKey extends BaseTest {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected void keyFactoryCreateFromKeySpec(int size) throws Exception {
 
         KeyPair rsaKeyPair = generateKeyPair(size);

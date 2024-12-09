@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,13 +10,11 @@ package ibm.jceplus.junit.base;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
 public class BaseTestSHA384 extends BaseTestMessageDigestClone {
-    static boolean warmup = false;
-
-    //--------------------------------------------------------------------------
-    //
-    //
 
     final byte[] input_1 = {(byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61,
             (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61};
@@ -73,27 +71,15 @@ public class BaseTestSHA384 extends BaseTestMessageDigestClone {
             (byte) 0xc3, (byte) 0xe9, (byte) 0xfa, (byte) 0x91, (byte) 0x74, (byte) 0x60,
             (byte) 0x39};
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestSHA384(String providerName) {
-        super(providerName, "SHA-384");
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @BeforeAll
+    public void setUp() {
+        setAlgorithm("SHA-384");
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA384() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
 
         for (int i = 0; i < 100000; i++)
             md.update(input_1);
@@ -103,24 +89,20 @@ public class BaseTestSHA384 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA384_SingleBlock() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         byte[] digest = md.digest(input_2);
 
         assertTrue("Digest did not match expected", Arrays.equals(digest, result_2));
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA384_reset() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         md.update(input_1);
         md.reset();
         md.update(input_2);
@@ -130,12 +112,10 @@ public class BaseTestSHA384 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA384_MultiBlock() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
 
         byte[] digest = md.digest(input_3);
 
@@ -143,29 +123,11 @@ public class BaseTestSHA384 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA384_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         int digestLength = md.getDigestLength();
         boolean isExpectedValue = (digestLength == 48);
         assertTrue("Unexpected digest length", isExpectedValue);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void warmup() throws Exception {
-
-        try {
-            MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
-            for (long i = 0; i < 10000; i++) {
-                md.update(input_1);
-                md.digest();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

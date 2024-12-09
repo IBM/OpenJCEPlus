@@ -20,16 +20,17 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /*
  * Run subset of KAT (Known-Answer Tests) from http://csrc.nist.gov/groups/STM/cavp/documents/mac/gcmtestvectors.zip
  */
 
-public class BaseTestAESGCM_ExtIV extends BaseTest {
+public class BaseTestAESGCM_ExtIV extends BaseTestJunit5 {
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     private KeyGenerator aesKeyGen = null;
     private SecretKey key = null;
     private AlgorithmParameters params = null;
@@ -47,17 +48,8 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
 
     private static Method methCipherGetInstance = null;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestAESGCM_ExtIV(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    protected void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
 
         /*
          * Try constructing a javax.crypto.spec.GCMParameterSpec instance (Java
@@ -98,9 +90,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
         rnd.nextBytes(iv);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESGCM_ExtIV_Test00() throws Exception {
         runTestEncrypt(104, // init_tag_length,
                 "66a3c722ccf9709525650973ecc100a9", // str_key_bytes,
@@ -111,6 +101,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "3fd5c0132acfab97b5fff651c4"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test01() throws Exception {
         runTestEncrypt(104, // init_tag_length,
                 "d9821b713dae03c8f246ff3fd65454d7", // str_key_bytes,
@@ -121,6 +112,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "e6f91e55ad30c74b9f94577375"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test02() throws Exception {
         runTestEncrypt(128, // init_tag_length,
                 "89850dd398e1f1e28443a33d40162664", // str_key_bytes,
@@ -131,6 +123,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "d84a8c3eac57d1bb0e890a8f461d1065"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test03() throws Exception {
         runTestEncrypt(64, // init_tag_length,
                 "41d0e604d7be7bc069bcc725e6b9ac1d", // str_key_bytes,
@@ -141,6 +134,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "81c928129992ba8d"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test04() throws Exception {
         runTestEncrypt(64, // init_tag_length,
                 "7e95066b60093f66175493d141359dbd", // str_key_bytes,
@@ -151,6 +145,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "4fd94671abde616e"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test05() throws Exception {
         runTestEncrypt(32, // init_tag_length,
                 "62dc8e1a98863c7de64f30b74c01d530", // str_key_bytes,
@@ -161,6 +156,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "e413041a"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test06() throws Exception {
         runTestEncrypt(128, // init_tag_length,
                 "aa740abfadcda779220d3b406c5d7ec09a77fe9d94104539", // str_key_bytes,
@@ -171,6 +167,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "f149e2b5f0adaa9842ca5f45b768a8fc"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test07() throws Exception {
         runTestEncrypt(120, // init_tag_length,
                 "d74a0b3c2172b1692c5c22741d0cfb2dc898dc100b584a1b", // str_key_bytes,
@@ -181,6 +178,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "20ff32821d8532b54c7101858b9b88"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test08() throws Exception {
         runTestEncrypt(128, // init_tag_length,
                 "a23dfb84b5976b46b1830d93bcf61941cae5e409e4f5551dc684bdcef9876480", // str_key_bytes,
@@ -191,6 +189,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "f28217649230bd7a40a9a4ddabc67c43"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test09() throws Exception {
         runTestEncrypt(112, // init_tag_length,
                 "368b486ee83404c9a839f1829c12f064b84788577ba171ab5bf50a54a67b901e", // str_key_bytes,
@@ -201,6 +200,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "d6a90ccddf478c250f8b84bcc6a"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test10() throws Exception {
         runTestEncrypt(96, // init_tag_length,
                 "b33b0e4c5b9f7ef77cec1a29ed5844bda3853238bdf7766e7645029931f169f0", // str_key_bytes,
@@ -211,6 +211,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "93af01abb6a970047a7fc010"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test11() throws Exception {
         runTestDecrypt(128, // init_tag_length,
                 "cf063a34d4a9a76c2c86787d3f96db71", // str_key_bytes,
@@ -221,6 +222,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "72ac8493e3a5228b5d130a69d2510e42"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test12() throws Exception {
         runTestDecrypt(120, // init_tag_length,
                 "6dfa1a07c14f978020ace450ad663d18", // str_key_bytes,
@@ -231,6 +233,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "751f3098d59cf4ea1d2fb0853bde1c"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test13() throws Exception {
         runTestDecrypt(112, // init_tag_length,
                 "4ccbed984d83124fbc8646aaaa0cad56", // str_key_bytes,
@@ -241,6 +244,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "106844f33ac3667d7ca6e0e4f38b"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test14() throws Exception {
         runTestDecrypt(104, // init_tag_length,
                 "e029db25c48151c44a089c31dbb7e8d7", // str_key_bytes,
@@ -251,6 +255,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "b94ed63b00aa5eeeea9558e135"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test15() throws Exception {
         runTestDecrypt(96, // init_tag_length,
                 "94a16fd10c3f34082d443909d076127b", // str_key_bytes,
@@ -261,6 +266,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "c723b505654410ad9d5112a8"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test16() throws Exception {
         runTestDecrypt(96, // init_tag_length,
                 "748dd62db5ec077e08aaf77243de11ec1794ee66a8d897e4", // str_key_bytes,
@@ -271,6 +277,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "984a39fecd9c61ca9a6fdabc"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test17() throws Exception {
         runTestDecrypt(64, // init_tag_length,
                 "8a68f0860f05db6d688e38c3dd931b7e1c476df9ea835fd5", // str_key_bytes,
@@ -281,6 +288,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "014089a8a0c53bed"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test18() throws Exception {
         runTestDecrypt(32, // init_tag_length,
                 "d0f31becae6c6f526b686b468c14bafcbdab4aaf3f6a7892", // str_key_bytes,
@@ -291,6 +299,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "3e5f75c9"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test19() throws Exception {
         runTestDecrypt(64, // init_tag_length,
                 "cc71a2842d54ebf3eaac8aeb6ac59cd30f2672b190f18c7ad5bcced5567401b7", // str_key_bytes,
@@ -301,6 +310,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "e1507520c358afec"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test20() throws Exception {
         runTestDecrypt(64, // init_tag_length,
                 "f7b640b7d59b4938689139e1f14179a9388f84c89852e045c568930da83c7521", // str_key_bytes,
@@ -311,6 +321,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "45d81bc44c0a8ab4"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test21() throws Exception {
         runTestDecryptFail(128, // init_tag_length,
                 "a49a5e26a2f8cb63d05546c2a62f5343", // str_key_bytes,
@@ -321,6 +332,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "a2be08210d8c470a8df6e8fbd79ec5cf"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test22() throws Exception {
         runTestDecryptFail(104, // init_tag_length,
                 "4be099b41ca9753a1ee2c390128717f0", // str_key_bytes,
@@ -331,6 +343,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "d4e80f72dcd5e9c80ca16bf0c4"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test23() throws Exception {
         runTestDecryptFail(120, // init_tag_length,
                 "64d8c86131e97843f5aee06bd6e56f321e779bf8a1c8d4c0", // str_key_bytes,
@@ -341,6 +354,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "e1e1e01085ffd36c4ca2f8a94593a1"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test24() throws Exception {
         runTestDecryptFail(64, // init_tag_length,
                 "01643b56c34eb12ab7a4f4223636201b954ec56019b4d1f0", // str_key_bytes,
@@ -351,6 +365,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "266685ebed5dab3d"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test25() throws Exception {
         runTestDecryptFail(32, // init_tag_length,
                 "2bcc18d95b3137479f15dce3a0220adeea720032d64f7686", // str_key_bytes,
@@ -361,6 +376,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "348a2cfa"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test26() throws Exception {
         runTestDecryptFail(96, // init_tag_length,
                 "55680523b7056ac2c365393b9c7bdff3df75528e73baf67ffa615323b9e84543", // str_key_bytes,
@@ -371,6 +387,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "8aaa9e6b012f5ca26dd237a1"); // str_tag
     }
 
+    @Test
     public void testAESGCM_ExtIV_Test27() throws Exception {
         runTestDecryptFail(112, // init_tag_length,
                 "fb5dcada6ee653f69e2e5946c661141e9e1665b4cd0a1cba", // str_key_bytes,
@@ -381,9 +398,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 "d4893f0edeabc8f16f219ee12cb4"); // str_tag
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     public void runTestEncrypt(int init_tag_length, String key_bytes, String init_vec,
             String plain_text, String added_auth_data, String cipher_text, String tag)
             throws Exception {
@@ -392,9 +407,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 asciiToHex(tag));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     public void runTestEncrypt(int init_tag_length, byte[] key_bytes, byte[] init_vec,
             byte[] plain_text, byte[] added_auth_data, byte[] cipher_text, byte[] tag)
             throws Exception {
@@ -415,7 +428,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
 
         SecretKeySpec key = new SecretKeySpec(key_bytes, "AES");
 
-        cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipher.init(Cipher.ENCRYPT_MODE, key, gcm_param_spec);
 
         /* For Java 7/8 */
@@ -440,9 +453,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     public void runTestDecrypt(int init_tag_length, String key_bytes, String init_vec,
             String plain_text, String added_auth_data, String cipher_text, String tag)
             throws Exception {
@@ -451,9 +462,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 asciiToHex(tag));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     public void runTestDecrypt(int init_tag_length, byte[] key_bytes, byte[] init_vec,
             byte[] plain_text, byte[] added_auth_data, byte[] cipher_text, byte[] tag)
             throws Exception {
@@ -479,7 +488,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
 
         SecretKeySpec key = new SecretKeySpec(key_bytes, "AES");
 
-        cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipher.init(Cipher.DECRYPT_MODE, key, gcm_param_spec);
 
         /* For Java 7/8 */
@@ -497,9 +506,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     public void runTestDecryptFail(int init_tag_length, String key_bytes, String init_vec,
             String plain_text, String added_auth_data, String cipher_text, String tag)
             throws Exception {
@@ -508,9 +515,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
                 asciiToHex(tag));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     public void runTestDecryptFail(int init_tag_length, byte[] key_bytes, byte[] init_vec,
             byte[] plain_text, byte[] added_auth_data, byte[] cipher_text, byte[] tag)
             throws Exception {
@@ -537,7 +542,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
 
             SecretKeySpec key = new SecretKeySpec(key_bytes, "AES");
 
-            cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+            cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             cipher.init(Cipher.DECRYPT_MODE, key, gcm_param_spec);
 
             /* For Java 7/8 */
@@ -559,9 +564,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     private boolean byteEqual(byte[] b1, int offset1, byte[] b2, int offset2, int len) {
         if (((b1.length - offset1) < len) || ((b2.length - offset2) < len)) {
             return false;
@@ -575,9 +578,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
         return true;
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     public static String hexToAscii(byte[] b) {
         char[] hexDigits = "0123456789abcdef".toCharArray();
         if (b == null) {
@@ -595,9 +596,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
         return sb.toString();
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     public static byte[] asciiToHex(String s) {
         try {
             int n = s.length();
@@ -627,9 +626,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     public static int nextNibble(StringReader r) throws IOException {
         while (true) {
             int ch = r.read();
