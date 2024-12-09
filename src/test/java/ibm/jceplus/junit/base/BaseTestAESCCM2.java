@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -20,10 +20,11 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 // This test case exercises the AES/CCM cipher using a CCMParameters object
 
-public class BaseTestAESCCM2 extends BaseTest {
+public class BaseTestAESCCM2 extends BaseTestJunit5 {
 
     public int iterationLimit = 100;
     public int iterationCounter = 0;
@@ -50,22 +51,9 @@ public class BaseTestAESCCM2 extends BaseTest {
 
     private Object myMutexObject = new Object();
 
-    public String provider;
+    public boolean printJunitTrace = Boolean.valueOf(System.getProperty("com.ibm.jceplus.junit.printJunitTrace"));
 
-    public boolean printJunitTrace = false;
-
-
-    public BaseTestAESCCM2(String providerName) {
-        super(providerName);
-        provider = providerName;
-        printJunitTrace = Boolean
-                .valueOf(System.getProperty("com.ibm.jceplus.junit.printJunitTrace"));
-    }
-
-
-    protected void setUp() throws Exception {}
-
-
+    @Test
     public void testAESCCM() throws Exception {
         while (iterationCounter < iterationLimit) {
 
@@ -93,7 +81,6 @@ public class BaseTestAESCCM2 extends BaseTest {
             } else if (whichPlainTextString == 2) {
                 plainText = plainTextLong;
             }
-
 
             // IF USED, THIS DEBUG BLOCK OF CODE WILL ENSURE THAT THE SAME plaintext WILL BE USED FOR EVERY ITERATION
             // plainText = plainTextShort;
@@ -124,7 +111,7 @@ public class BaseTestAESCCM2 extends BaseTest {
             }
 
 
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", provider);
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", getProviderName());
             if (printJunitTrace)
                 System.out.println("BaseTestAESCCM2.java:  testAESCCM():  The KeyGenerator is a:  "
                         + keyGenerator.getClass().getName());
@@ -322,7 +309,7 @@ public class BaseTestAESCCM2 extends BaseTest {
         }
 
         // Get Cipher Instance
-        Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", provider);
+        Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
         if (printJunitTrace)
             System.out.println(
                     "BaseTestAESCCM2.java:  encrypt():  The encryption cipher is a:                "
@@ -349,7 +336,7 @@ public class BaseTestAESCCM2 extends BaseTest {
         // Create a CCMParameters object
         AlgorithmParameters ccmParameters = null;
         try {
-            ccmParameters = AlgorithmParameters.getInstance("CCM", provider);
+            ccmParameters = AlgorithmParameters.getInstance("CCM", getProviderName());
             ccmParameters.init(ccmParameterSpec);
         } catch (Exception ex) {
             if (printJunitTrace)
@@ -596,7 +583,7 @@ public class BaseTestAESCCM2 extends BaseTest {
         }
 
         // Get Cipher Instance
-        Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", provider);
+        Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
         if (printJunitTrace)
             System.out.println(
                     "BaseTestAESCCM2.java:  decrypt():  The decryption cipher is a:                "
@@ -623,7 +610,7 @@ public class BaseTestAESCCM2 extends BaseTest {
         // Create a CCMParameters object
         AlgorithmParameters ccmParameters = null;
         try {
-            ccmParameters = AlgorithmParameters.getInstance("CCM", provider);
+            ccmParameters = AlgorithmParameters.getInstance("CCM", getProviderName());
             ccmParameters.init(ccmParameterSpec);
         } catch (Exception ex) {
             if (printJunitTrace)
@@ -909,22 +896,6 @@ public class BaseTestAESCCM2 extends BaseTest {
         }
         return ivBufferLength;
     }
-
-
-
-    //  public static void main(String args[]) {
-    //      try {
-    //          BaseTestAESCCM2 test = new BaseTestAESCCM2();
-    //          test.testAESCCM();
-    //      }
-    //      catch (Exception ex)
-    //      {
-    //          if (printJunitTrace) System.out.println("main() BaseTestAESCCM2.java:  The following exception was thrown:");
-    //          ex.printStackTrace( System.out );
-    //      }
-    //  }
-
-
 
     /** * Converts a byte array to hex string */
     private static String toHexString(byte[] block) {

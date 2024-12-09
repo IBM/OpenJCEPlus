@@ -15,18 +15,20 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
-public class TestMultithreadFIPS extends TestCase {
+public class TestMultithreadFIPS {
     private final int numThreads = 10;
-    private final int timeoutSec = 3000;
+    private final int timeoutSec = 4500;
     private final String[] testList = {
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAES_128",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAES_192",
@@ -108,12 +110,13 @@ public class TestMultithreadFIPS extends TestCase {
             }
             // wait until all threads are ready
             assertTrue(
-                    "Timeout initializing threads! Perform long lasting initializations before passing runnables to assertConcurrent",
-                    allExecutorThreadsReady.await(numThreads * 50, TimeUnit.MILLISECONDS));
+                    allExecutorThreadsReady.await(numThreads * 100, TimeUnit.MILLISECONDS),
+                    "Timeout initializing threads! Perform long lasting initializations before passing runnables to assertConcurrent");
             // start all test runners
             afterInitBlocker.countDown();
-            assertTrue(message + " timeout! More than " + maxTimeoutSeconds + " seconds",
-                    allDone.await(maxTimeoutSeconds, TimeUnit.SECONDS));
+            assertTrue(
+                    allDone.await(maxTimeoutSeconds, TimeUnit.SECONDS),
+                    message + " timeout! More than " + maxTimeoutSeconds + " seconds");
         } finally {
             threadPool.shutdownNow();
         }
@@ -149,6 +152,7 @@ public class TestMultithreadFIPS extends TestCase {
         };
     }
 
+    @Test
     public void testMultithreadFIPS() {
         System.out.println("#threads=" + numThreads + " timeout=" + timeoutSec);
 

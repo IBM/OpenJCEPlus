@@ -8,17 +8,17 @@
 
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTest;
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.security.MessageDigest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class BaseTestMemStressSHAClone extends BaseTest {
+public class BaseTestMemStressSHAClone extends BaseTestJunit5 {
 
     /* This test by default tests SHA-256 */
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     byte[] input_1, result_1, input_2, result_2;
 
     final byte[] def_input_1 = {(byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61,
@@ -46,7 +46,8 @@ public class BaseTestMemStressSHAClone extends BaseTest {
 
     protected String digestAlg = "SHA-256";
 
-    protected void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
             numTimes = Integer.valueOf(numTimesStr);
@@ -54,35 +55,9 @@ public class BaseTestMemStressSHAClone extends BaseTest {
         System.out.println("Testing " + digestAlg);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressSHAClone(String providerName) {
-        super(providerName);
-        this.input_1 = def_input_1.clone();
-        this.input_2 = def_input_2.clone();
-        this.result_1 = def_result_1.clone();
-        this.result_2 = def_result_2.clone();
-    }
-
-
-    /* This constructor must be used for digests other than SHA-256" */
-    public BaseTestMemStressSHAClone(String providerName, String algorithm, byte[] input1,
-            byte[] result1, byte[] input2, byte[] result2) {
-        super(providerName);
-        this.input_1 = input1.clone();
-        this.input_2 = input2.clone();
-        this.result_1 = result1.clone();
-        this.result_2 = result2.clone();
-        this.digestAlg = algorithm;
-
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(digestAlg, providerName);
+        MessageDigest md = MessageDigest.getInstance(digestAlg, getProviderName());
         MessageDigest[] mdCopies = new MessageDigest[numTimes];
 
         for (int i = 0; i < numTimes; i++) {

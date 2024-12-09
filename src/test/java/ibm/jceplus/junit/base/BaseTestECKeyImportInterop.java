@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -23,43 +23,19 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestECKeyImportInterop extends BaseTestInterop {
+public class BaseTestECKeyImportInterop extends BaseTestJunit5Interop {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestECKeyImportInterop(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testCreateKeyPairECGenParamImport() throws Exception {
-        doCreateKeyPairECGenParamImport(providerName, interopProviderName);
-        doCreateKeyPairECGenParamImport(interopProviderName, providerName);
+        doCreateKeyPairECGenParamImport(getProviderName(), getInteropProviderName());
+        doCreateKeyPairECGenParamImport(getInteropProviderName(), getProviderName());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     public void doCreateKeyPairECGenParamImport(String generateProviderName,
             String importProviderName) throws Exception {
 
@@ -97,14 +73,15 @@ public class BaseTestECKeyImportInterop extends BaseTestInterop {
         assertTrue(Arrays.equals(privateKey2.getEncoded(), privKeyBytes));
     }
 
+    @Test
     public void testCreateKeyPairECParamCustomCurveImport() throws Exception {
-        doCreateKeyPairECParamCustomCurveImport(providerName, interopProviderName);
+        doCreateKeyPairECParamCustomCurveImport(getProviderName(), getInteropProviderName());
         if (System.getProperty("os.name").equals("z/OS")) {
             System.out.println(
                     "SunEC doesn't have the necessary EC algorithms, test BaseTestECKeyImportInterop.testCreateKeyPairECParamCustomCurveImport() skipped.");
             return;
         }
-        doCreateKeyPairECParamCustomCurveImport(interopProviderName, providerName);
+        doCreateKeyPairECParamCustomCurveImport(getInteropProviderName(), getProviderName());
     }
 
     public void doCreateKeyPairECParamCustomCurveImport(String createProviderName,

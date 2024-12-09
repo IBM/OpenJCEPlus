@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -19,40 +19,19 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestECDHMultiParty extends BaseTest {
+public class BaseTestECDHMultiParty extends BaseTestJunit5 {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestECDHMultiParty(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
     /**
      * Basic ECDH example
      *
      * @throws Exception
      */
-
+    @Test
     public void testECDHMulti_secp192k1() throws Exception {
 
         String curveName = "secp192k1";
@@ -60,7 +39,7 @@ public class BaseTestECDHMultiParty extends BaseTest {
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
 
         try {
-            compute_ecdh_multiparty_oneprovider(curveName, ecgn, providerName);
+            compute_ecdh_multiparty_oneprovider(curveName, ecgn, getProviderName());
         } catch (IllegalStateException e) {
             //System.out.println(e.getMessage());
             assertTrue(true);

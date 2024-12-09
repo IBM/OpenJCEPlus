@@ -9,16 +9,16 @@ package ibm.jceplus.junit.base.memstress;
 
 import ibm.jceplus.junit.base.BaseTestCipher;
 import java.security.AlgorithmParameters;
-import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import org.junit.Assume;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
 public class BaseTestMemStressAES extends BaseTestCipher {
 
@@ -26,11 +26,6 @@ public class BaseTestMemStressAES extends BaseTestCipher {
     static int iteration = 0;
     static final byte[] plainText1024 = new byte[1024];
     static final byte[] plainText16 = "12345678".getBytes();
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    static boolean warmup = false;
     protected SecretKey key = null;
     protected AlgorithmParameters params = null;
     protected Cipher cp = null;
@@ -38,58 +33,20 @@ public class BaseTestMemStressAES extends BaseTestCipher {
     protected int specifiedKeySize = 0;
     static int numTimes = 100;
     boolean printheapstats = false;
-    int DEFAULT_KEYSIZE = 256;
     byte[] encodedKey = null;
     KeyGenerator keyGenerator = null;
     SecretKey keyFromIBMJCE = null;
 
-
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressAES(String providerName) {
-        super(providerName);
-        this.specifiedKeySize = DEFAULT_KEYSIZE;
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressAES(String providerName, int keySize) throws Exception {
-        super(providerName);
-        this.specifiedKeySize = keySize;
-
-        Assume.assumeTrue(javax.crypto.Cipher.getMaxAllowedKeyLength("AES") >= keySize);
-
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-        }
-
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
 
-        encodedKey = new byte[(specifiedKeySize > 0 ? specifiedKeySize : 128) / 8];
+        this.specifiedKeySize = getKeySize();
+        encodedKey = new byte[specifiedKeySize / 8];
         r.nextBytes(plainText1024);
 
         //key = new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
-        keyGenerator = KeyGenerator.getInstance("AES", "OpenJCEPlus");
-        keyGenerator.init(DEFAULT_KEYSIZE);
+        keyGenerator = KeyGenerator.getInstance("AES", getProviderName());
+        keyGenerator.init(this.specifiedKeySize);
         keyFromIBMJCE = keyGenerator.generateKey();
 
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
@@ -102,14 +59,7 @@ public class BaseTestMemStressAES extends BaseTestCipher {
         System.out.println("Testing AES " + this.specifiedKeySize);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES() throws Exception {
         Runtime rt = Runtime.getRuntime();
         long prevTotalMemory = 0;
@@ -144,16 +94,14 @@ public class BaseTestMemStressAES extends BaseTestCipher {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
 
     private void encryptDecryptData(String algorithm) throws Exception {
         byte[] clearText = {(byte) 0x0, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
                 (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09, (byte) 0x10,
                 (byte) 0x11, (byte) 0x12, (byte) 0x13, (byte) 0x14, (byte) 0x15};
 
-        SecretKeyFactory kf = SecretKeyFactory.getInstance("AES", providerName);
+        SecretKeyFactory kf = SecretKeyFactory.getInstance("AES", getProviderName());
         //test KeyFactory routines.
         kf.translateKey(keyFromIBMJCE);
 
@@ -161,7 +109,7 @@ public class BaseTestMemStressAES extends BaseTestCipher {
         AlgorithmParameters params = null;
         // Encrypt once
 
-        Cipher cipher = Cipher.getInstance(algorithm, providerName);
+        Cipher cipher = Cipher.getInstance(algorithm, getProviderName());
 
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
@@ -173,78 +121,4 @@ public class BaseTestMemStressAES extends BaseTestCipher {
         byte[] plainTextDecrypted = cipher.doFinal(cipherData);
         assertTrue(Arrays.equals(clearText, plainTextDecrypted));
     } // end encryptDecryptData()
-
-
-
-    //--------------------------------------------------------------------------
-    // warmup functions for enable fastjni
-    //
-    static public void warmup() throws Exception {
-        java.security.Provider java_provider = null;
-        int modeInt;
-        boolean stream = false;
-        SecretKeySpec skey;
-        int key_size = 128;
-        byte[] skey_bytes = new byte[key_size / 8];
-        int len = 4096;
-        byte[] iv;
-        byte[] data = plainText16;
-        byte[] out;
-        Cipher cipher;
-        Random r;
-        try {
-            java_provider = java.security.Security.getProvider("OpenJCEPlus");
-            if (java_provider == null) {
-                java_provider = new com.ibm.crypto.plus.provider.OpenJCEPlus();
-                java.security.Security.insertProviderAt(java_provider, 1);
-            }
-
-            r = new Random(10);
-            String mode = "encrypt_stream";
-            String cipherMode = "AES/CBC/NoPadding";
-
-            if (mode.contains("encrypt"))
-                modeInt = 1;
-            else if (mode.contains("decrypt"))
-                modeInt = 0;
-            else
-                throw new RuntimeException("Unsupported mode");
-
-            if (mode.contains("block"))
-                stream = false;
-            else if (mode.contains("stream"))
-                stream = true;
-            else
-                throw new RuntimeException("block mode or stream mode must be specified");
-
-            r.nextBytes(skey_bytes);
-            skey = new SecretKeySpec(skey_bytes, "AES");
-
-
-            for (int i = 0; i < numTimes; i++) {
-                cipher = Cipher.getInstance(cipherMode, java_provider);
-                out = new byte[len];
-                iv = new byte[16];
-                r.nextBytes(iv);
-                AlgorithmParameterSpec iviv = new IvParameterSpec(iv);
-
-                if (modeInt == 0)
-                    cipher.init(Cipher.DECRYPT_MODE, skey, iviv);
-                else
-                    cipher.init(Cipher.ENCRYPT_MODE, skey, iviv);
-                if (stream) {
-                    for (long j = 0; j < 9; j++)
-                        cipher.update(data, 0, data.length, out);
-                } else {
-                    for (long k = 0; k < 9; k++) {
-                        cipher.update(data, 0, data.length, out);
-                        // cipher.doFinal();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
 }

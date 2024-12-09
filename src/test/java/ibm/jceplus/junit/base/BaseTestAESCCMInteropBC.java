@@ -17,14 +17,12 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
-// This test case exercises the AES/CCM cipher using a CCMParameterSpec object.
-
-// This test case was compiled with:
-//       javac  -Xlint:deprecation -cp .;.\hamcrest-core-1.3.jar;.\junit-4.13.jar;.\bcprov-jdk18on-173.jar
-
-
-public class BaseTestAESCCMInteropBC extends BaseTestInterop {
+/**
+ * This test case exercises the AES/CCM cipher using a CCMParameterSpec object.
+ */
+public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
 
     public static int iterationLimit = 100;
     public static int iterationCounter = 0;
@@ -51,27 +49,12 @@ public class BaseTestAESCCMInteropBC extends BaseTestInterop {
 
     private static Object myMutexObject = new Object();
 
-    public static String provider = null;
-    public static String interopProvider = null;
-
     public static String encryptionProvider = null;
     public static String decryptionProvider = null;
     public static boolean printJunitTrace = false;
 
-
-    public BaseTestAESCCMInteropBC(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-        provider = providerName;
-        interopProvider = interopProviderName;
-        printJunitTrace = Boolean
-                .valueOf(System.getProperty("com.ibm.jceplus.junit.printJunitTrace"));
-    }
-
-
-    protected void setUp() throws Exception {}
-
-
-    public static void testAESCCM() throws Exception {
+    @Test
+    public void testAESCCM() throws Exception {
         while (iterationCounter < iterationLimit) {
 
             iterationCounter++;
@@ -92,12 +75,12 @@ public class BaseTestAESCCMInteropBC extends BaseTestInterop {
             Random randomForEncryptionProviderSelection = new Random();
             int whichEncryptionProvider = randomForEncryptionProviderSelection.nextInt(2); // The specified value is excluded
             if (whichEncryptionProvider == 0) {
-                encryptionProvider = provider;
-                decryptionProvider = interopProvider;
+                encryptionProvider = getProviderName();
+                decryptionProvider = getInteropProviderName();
             } else // else whichEncryptionProvider == 1
             {
-                encryptionProvider = interopProvider;
-                decryptionProvider = provider;
+                encryptionProvider = getInteropProviderName();
+                decryptionProvider = getProviderName();
             }
 
             if (printJunitTrace)
@@ -896,21 +879,6 @@ public class BaseTestAESCCMInteropBC extends BaseTestInterop {
         }
         return ivBufferLength;
     }
-
-
-    //  public static void main(String args[]) {
-    //      try {
-    //          BaseTestInteropBC test = new BaseTestInteropBC();
-    //          test.testAESCCM();
-    //      }
-    //      catch (Exception ex)
-    //      {
-    //          if (printJunitTrace) System.out.println("main() BaseTestInteropBC.java:  The following exception was thrown:");
-    //          ex.printStackTrace( System.out );
-    //      }
-    //  }
-
-
 
     /** * Converts a byte array to hex string */
     private static String toHexString(byte[] block) {

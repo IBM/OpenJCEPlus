@@ -1,12 +1,14 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution.
  */
+
 package ibm.jceplus.junit.openjceplusfips;
 
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -14,25 +16,22 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestFIPSVerifyOnlyTest extends ibm.jceplus.junit.base.BaseTest {
+@TestInstance(Lifecycle.PER_CLASS)
+public class TestFIPSVerifyOnlyTest extends BaseTestJunit5 {
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 
-    public TestFIPSVerifyOnlyTest() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testFIPSDSAVerifyOnlyTest() {
         try {
             assertTrue(doVerify("DSA", "SHA256withDSA", 1024, "OpenJCEPlus", "OpenJCEPlusFIPS"));
@@ -43,9 +42,7 @@ public class TestFIPSVerifyOnlyTest extends ibm.jceplus.junit.base.BaseTest {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testFIPSECDSAVerifyOnlyTest() {
         try {
             assertTrue(doVerify("EC", "SHA256withECDSA", 192, "OpenJCEPlus", "OpenJCEPlusFIPS"));
@@ -55,9 +52,7 @@ public class TestFIPSVerifyOnlyTest extends ibm.jceplus.junit.base.BaseTest {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testFIPSRSAVerifyOnlyTest() {
         try {
             assertTrue(doVerify("RSA", "SHA256withRSA", 1024, "OpenJCEPlus", "OpenJCEPlusFIPS"));
@@ -67,10 +62,7 @@ public class TestFIPSVerifyOnlyTest extends ibm.jceplus.junit.base.BaseTest {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public boolean doVerify(String keyAlg, String sigAlg, int keySize, String keygenProv,
+    private boolean doVerify(String keyAlg, String sigAlg, int keySize, String keygenProv,
             String testProv) {
         Signature signature1 = null;
         KeyFactory kf2;
@@ -118,19 +110,4 @@ public class TestFIPSVerifyOnlyTest extends ibm.jceplus.junit.base.BaseTest {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TestFIPSVerifyOnlyTest.class);
-        return suite;
-    }
 }
-
