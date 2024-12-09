@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class BaseTestRSASignatureChunkUpdate extends BaseTestSignature {
+public class BaseTestRSASignatureChunkUpdate extends BaseTestJunit5Signature {
     static final String KEY_ALGO = "RSA";
     static final int KEY_SIZE = 2048;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -17,8 +17,10 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestAESGCMWithByteBuffer extends BaseTest {
+public class BaseTestAESGCMWithByteBuffer extends BaseTestJunit5 {
 
     private static Random random = new SecureRandom();
     private static int dataSize = 4096; // see javax.crypto.CipherSpi
@@ -26,12 +28,9 @@ public class BaseTestAESGCMWithByteBuffer extends BaseTest {
     private static String testVariant[] = {"HEAP_HEAP", "HEAP_DIRECT", "DIRECT_HEAP",
             "DIRECT_DIRECT"};
 
-    public BaseTestAESGCMWithByteBuffer(String providerName) {
-        super(providerName);
-    }
-
+    @Test
     public void testAESGCMWithByteBuffer() throws Exception {
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         System.out.println("Testing " + cipher.getProvider());
 
         boolean failedOnce = false;

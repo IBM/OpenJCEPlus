@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,12 +10,11 @@ package ibm.jceplus.junit.base;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
 public class BaseTestMD5 extends BaseTestMessageDigestClone {
 
-    //--------------------------------------------------------------------------
-    //
-    //
     static byte[] each = {(byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x1, (byte) 0x0, (byte) 0x73,
             (byte) 0x0, (byte) 0x75, (byte) 0x0, (byte) 0x62, (byte) 0x0, (byte) 0x2d, (byte) 0x0,
             (byte) 0x61, (byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x0,
@@ -115,21 +114,10 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
             (byte) 0xe3, (byte) 0xc9, (byte) 0x55, (byte) 0xac, (byte) 0x49, (byte) 0xda,
             (byte) 0x2e, (byte) 0x21, (byte) 0x07, (byte) 0xb6, (byte) 0x7a};
 
-
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMD5(String providerName) {
-        super(providerName, "MD5");
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testMD5() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
 
         for (int i = 0; i < each.length; i++)
             md.update(each[i]);
@@ -142,24 +130,20 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testMD5_A() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         byte[] result = md.digest();
 
         assertTrue("Digest did not match expected", Arrays.equals(result, md5_A));
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testMD5_B() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         md.update(md5_B_input);
         byte[] result = md.digest();
 
@@ -167,12 +151,10 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testMD5_C() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         md.update(md5_C_input);
         byte[] result = md.digest();
 
@@ -180,12 +162,10 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testMD5_D() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         md.update(md5_D_input);
         byte[] result = md.digest();
 
@@ -193,12 +173,10 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testMD5_E() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         md.update(md5_E_input);
         byte[] result = md.digest();
 
@@ -206,12 +184,10 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testMD5_F() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         md.update(md5_F_input);
         byte[] result = md.digest();
 
@@ -219,12 +195,10 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testMD5_G() throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         md.update(md5_G_input);
         byte[] result = md.digest();
 

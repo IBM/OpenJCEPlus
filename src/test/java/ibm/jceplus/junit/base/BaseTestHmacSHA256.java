@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,12 +10,10 @@ package ibm.jceplus.junit.base;
 import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestHmacSHA256 extends BaseTest {
-    //--------------------------------------------------------------------------
-    //
-    //
-    static boolean warmup = false;
+public class BaseTestHmacSHA256 extends BaseTestJunit5 {
 
     // test vectors from http://www.ietf.org/proceedings/02jul/I-D/draft-ietf-ipsec-ciph-sha-256-01.txt
     final byte[] key_1 = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05,
@@ -271,37 +269,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
             (byte) 0xfc, (byte) 0x2a, (byte) 0xc7, (byte) 0xd8, (byte) 0xe0, (byte) 0x64,
             (byte) 0xc3, (byte) 0xb2, (byte) 0xe6};
 
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestHmacSHA256(String providerName) {
-        super(providerName);
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA256_key1() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA256");
         mac.init(key);
         mac.update(data_1);
@@ -310,11 +280,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_1));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA256_key2() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_2, "HmacSHA256");
         mac.init(key);
         mac.update(data_2);
@@ -323,11 +291,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_2));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA256_key3() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_3, "HmacSHA256");
         mac.init(key);
         mac.update(data_3);
@@ -336,11 +302,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_3));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA256_key4() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_4, "HmacSHA256");
         mac.init(key);
         mac.update(data_4);
@@ -349,11 +313,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_4));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA256_key5() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_5, "HmacSHA256");
         mac.init(key);
         mac.update(data_5);
@@ -362,11 +324,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_5));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA256_key6() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_6, "HmacSHA256");
         mac.init(key);
         mac.update(data_6);
@@ -375,11 +335,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_6));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA256_key7() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_7, "HmacSHA256");
         mac.init(key);
         mac.update(data_7);
@@ -388,11 +346,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_7));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA256_key8() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_8, "HmacSHA256");
         mac.init(key);
         mac.update(data_8);
@@ -401,11 +357,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_8));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA256_key9() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_9, "HmacSHA256");
         mac.init(key);
         mac.update(data_9);
@@ -414,11 +368,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_9));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA256_key10() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_10, "HmacSHA256");
         mac.init(key);
         mac.update(data_10);
@@ -427,11 +379,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_10));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_reset() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_4, "HmacSHA256");
         mac.init(key);
         mac.update(data_4);
@@ -442,11 +392,9 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_4));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_reuse() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_4, "HmacSHA256");
         mac.init(key);
         mac.update(data_4);
@@ -460,32 +408,12 @@ public class BaseTestHmacSHA256 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest2, digest_4));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_mac_length() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256", providerName);
+        Mac mac = Mac.getInstance("HmacSHA256", getProviderName());
         int macLength = mac.getMacLength();
         boolean isExpectedValue = (macLength == 32);
         assertTrue("Unexpected mac length", isExpectedValue);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void warmup() throws Exception {
-
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256", providerName);
-            SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA256");
-            for (long i = 0; i < 10000; i++) {
-                mac.init(key);
-                mac.update(data_1);
-                mac.doFinal();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
 

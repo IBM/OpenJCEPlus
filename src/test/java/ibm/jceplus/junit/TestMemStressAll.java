@@ -11,7 +11,10 @@ package ibm.jceplus.junit;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
-@SelectClasses({ibm.jceplus.junit.openjceplus.memstress.TestMemStressAll.class})
+@SelectClasses({
+    ibm.jceplus.junit.openjceplus.memstress.TestMemStressAll.class
+})
+
 @Suite
 public class TestMemStressAll {
 }

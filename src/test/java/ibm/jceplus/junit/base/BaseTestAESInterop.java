@@ -13,7 +13,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import java.util.Random;
 import javax.crypto.BadPaddingException;
@@ -24,14 +23,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import org.junit.Assume;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestAESInterop extends BaseTestInterop {
-
-    // --------------------------------------------------------------------------
-    //
-    //
-
+public class BaseTestAESInterop extends BaseTestJunit5Interop {
     // 14 bytes: PASSED
     static final byte[] plainText14 = "12345678123456".getBytes();
 
@@ -60,10 +57,6 @@ public class BaseTestAESInterop extends BaseTestInterop {
     static final byte[] plainText16KB = new byte[16384];
     static final byte[] plainText = plainText128; // default value
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    static boolean warmup = false;
     protected SecretKey key;
     protected AlgorithmParameters params = null;
     protected Cipher cpA = null;
@@ -71,113 +64,7 @@ public class BaseTestAESInterop extends BaseTestInterop {
     protected boolean success = true;
     protected int specifiedKeySize = 0;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestAESInterop(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-        }
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestAESInterop(String providerName, String interopProviderName, int keySize)
-            throws Exception {
-        super(providerName, interopProviderName);
-        this.specifiedKeySize = keySize;
-
-        Assume.assumeTrue(javax.crypto.Cipher.getMaxAllowedKeyLength("AES") >= keySize);
-
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-        }
-    }
-
-    // --------------------------------------------------------------------------
-    // warmup functions for enable fastjni
-    //
-    static public void warmup() throws Exception {
-        java.security.Provider java_provider = null;
-        int modeInt;
-        boolean stream = false;
-        SecretKeySpec skey;
-        int key_size = 128;
-        byte[] skey_bytes = new byte[key_size / 8];
-        int len = 4096;
-        byte[] iv;
-        byte[] data = plainText16;
-        byte[] out;
-        Cipher cipher;
-        Random r;
-        try {
-            java_provider = java.security.Security.getProvider("OpenJCEPlus");
-            if (java_provider == null) {
-                java_provider = new com.ibm.crypto.plus.provider.OpenJCEPlus();
-                java.security.Security.insertProviderAt(java_provider, 1);
-            }
-
-            r = new Random(10);
-            String mode = "encrypt_stream";
-            String cipherMode = "AES/CBC/NoPadding";
-
-            if (mode.contains("encrypt"))
-                modeInt = 1;
-            else if (mode.contains("decrypt"))
-                modeInt = 0;
-            else
-                throw new RuntimeException("Unsupported mode");
-
-            if (mode.contains("block"))
-                stream = false;
-            else if (mode.contains("stream"))
-                stream = true;
-            else
-                throw new RuntimeException("block mode or stream mode must be specified");
-
-            r.nextBytes(skey_bytes);
-            skey = new SecretKeySpec(skey_bytes, "AES");
-
-            for (int i = 0; i < 999999; i++) {
-                cipher = Cipher.getInstance(cipherMode, java_provider);
-                out = new byte[len];
-                iv = new byte[16];
-                r.nextBytes(iv);
-                AlgorithmParameterSpec iviv = new IvParameterSpec(iv);
-
-                if (modeInt == 0)
-                    cipher.init(Cipher.DECRYPT_MODE, skey, iviv);
-                else
-                    cipher.init(Cipher.ENCRYPT_MODE, skey, iviv);
-                if (stream) {
-                    for (long j = 0; j < 9; j++)
-                        cipher.update(data, 0, data.length, out);
-                } else {
-                    for (long k = 0; k < 9; k++) {
-                        cipher.update(data, 0, data.length, out);
-                        // cipher.doFinal();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
         byte[] encodedKey = new byte[(specifiedKeySize > 0 ? specifiedKeySize : 128) / 8];
         r.nextBytes(plainText512);
@@ -189,65 +76,48 @@ public class BaseTestAESInterop extends BaseTestInterop {
         key = new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES() throws Exception {
-        encryptDecrypt("AES", providerName, interopProviderName);
-        encryptDecrypt("AES", interopProviderName, providerName);
+        encryptDecrypt("AES", getProviderName(), getInteropProviderName());
+        encryptDecrypt("AES", getInteropProviderName(), getProviderName());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES_CBC_NoPadding() throws Exception {
-        encryptDecrypt("AES/CBC/NoPadding", true, false, providerName, interopProviderName);
-        encryptDecrypt("AES/CBC/NoPadding", true, false, interopProviderName, providerName);
+        encryptDecrypt("AES/CBC/NoPadding", true, false, getProviderName(), getInteropProviderName());
+        encryptDecrypt("AES/CBC/NoPadding", true, false, getInteropProviderName(), getProviderName());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES_CBC_PKCS5Padding() throws Exception {
-        encryptDecrypt("AES/CBC/PKCS5Padding", providerName, interopProviderName);
-        encryptDecrypt("AES/CBC/PKCS5Padding", interopProviderName, providerName);
+        encryptDecrypt("AES/CBC/PKCS5Padding", getProviderName(), getInteropProviderName());
+        encryptDecrypt("AES/CBC/PKCS5Padding", getInteropProviderName(), getProviderName());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES_CFB8_NoPadding() throws Exception {
-        encryptDecrypt("AES/CFB8/NoPadding", providerName, interopProviderName);
-        encryptDecrypt("AES/CFB8/NoPadding", interopProviderName, providerName);
+        encryptDecrypt("AES/CFB8/NoPadding", getProviderName(), getInteropProviderName());
+        encryptDecrypt("AES/CFB8/NoPadding", getInteropProviderName(), getProviderName());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES_CFB_NoPadding() throws Exception {
-        encryptDecrypt("AES/CFB/NoPadding", providerName, interopProviderName);
-        encryptDecrypt("AES/CFB/NoPadding", interopProviderName, providerName);
+        encryptDecrypt("AES/CFB/NoPadding", getProviderName(), getInteropProviderName());
+        encryptDecrypt("AES/CFB/NoPadding", getInteropProviderName(), getProviderName());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES_CFB128_NoPadding() throws Exception {
-        encryptDecrypt("AES/CFB128/NoPadding", providerName, interopProviderName);
-        encryptDecrypt("AES/CFB128/NoPadding", interopProviderName, providerName);
+        encryptDecrypt("AES/CFB128/NoPadding", getProviderName(), getInteropProviderName());
+        encryptDecrypt("AES/CFB128/NoPadding", getInteropProviderName(), getProviderName());
     }
 
     // --------------------------------------------------------------------------
     // To-Do enable later.
 
     //    public void testAES_CFB8_PKCS5Padding() throws Exception {
-    //        encryptDecrypt("AES/CFB8/PKCS5Padding", interopProviderName, providerName);
-    //        encryptDecrypt("AES/CFB8/PKCS5Padding", providerName, interopProviderName);
+    //        encryptDecrypt("AES/CFB8/PKCS5Padding", getInteropProviderName(), getProviderName());
+    //        encryptDecrypt("AES/CFB8/PKCS5Padding", getProviderName(), getInteropProviderName());
     //
     //    }
 
@@ -256,8 +126,8 @@ public class BaseTestAESInterop extends BaseTestInterop {
     //
     //    public void testAES_CFB_PKCS5Padding() throws Exception
     //    {
-    //        encryptDecrypt("AES/CFB/PKCS5Padding", providerName, interopProviderName);
-    //        encryptDecrypt("AES/CFB/PKCS5Padding", interopProviderName, providerName);
+    //        encryptDecrypt("AES/CFB/PKCS5Padding", getProviderName(), getInteropProviderName());
+    //        encryptDecrypt("AES/CFB/PKCS5Padding", getInteropProviderName(), getProviderName());
     //    }
     //
     //    
@@ -267,70 +137,51 @@ public class BaseTestAESInterop extends BaseTestInterop {
     //
     //    public void testAES_CFB128_PKCS5Padding() throws Exception
     //    {
-    //        encryptDecrypt("AES/CFB128/PKCS5Padding", providerName, interopProviderName);
-    //        encryptDecrypt("AES/CFB128/PKCS5Padding", interopProviderName, providerName);
+    //        encryptDecrypt("AES/CFB128/PKCS5Padding", getProviderName(), getInteropProviderName());
+    //        encryptDecrypt("AES/CFB128/PKCS5Padding", getInteropProviderName(), getProviderName());
     //    }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES_CTR_NoPadding() throws Exception {
-        encryptDecrypt("AES/CTR/NoPadding", providerName, interopProviderName);
-        encryptDecrypt("AES/CTR/NoPadding", interopProviderName, providerName);
+        encryptDecrypt("AES/CTR/NoPadding", getProviderName(), getInteropProviderName());
+        encryptDecrypt("AES/CTR/NoPadding", getInteropProviderName(), getProviderName());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    // Investigate
-    //    public void testAES_CTR_PKCS5Padding() throws Exception
-    //    {
-    //        encryptDecrypt("AES/CTR/ISO10126Padding", providerName, interopProviderName);
-    //        encryptDecrypt("AES/CTR/ISO10126Padding", interopProviderName, providerName);
-    //    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES_ECB_NoPadding() throws Exception {
-        encryptDecrypt("AES/ECB/NoPadding", true, false, providerName, interopProviderName);
-        encryptDecrypt("AES/ECB/NoPadding", true, false, interopProviderName, providerName);
+        encryptDecrypt("AES/ECB/NoPadding", true, false, getProviderName(), getInteropProviderName());
+        encryptDecrypt("AES/ECB/NoPadding", true, false, getInteropProviderName(), getProviderName());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES_ECB_PKCS5Padding() throws Exception {
-        encryptDecrypt("AES/ECB/PKCS5Padding", providerName, interopProviderName);
-        encryptDecrypt("AES/ECB/PKCS5Padding", interopProviderName, providerName);
+        encryptDecrypt("AES/ECB/PKCS5Padding", getProviderName(), getInteropProviderName());
+        encryptDecrypt("AES/ECB/PKCS5Padding", getInteropProviderName(), getProviderName());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES_OFB_NoPadding() throws Exception {
-        encryptDecrypt("AES/OFB/NoPadding", providerName, interopProviderName);
-        encryptDecrypt("AES/OFB/NoPadding", interopProviderName, providerName);
+        encryptDecrypt("AES/OFB/NoPadding", getProviderName(), getInteropProviderName());
+        encryptDecrypt("AES/OFB/NoPadding", getInteropProviderName(), getProviderName());
     }
 
     // --------------------------------------------------------------------------
     //    public void testAES_OFB_PKCS5Padding() throws Exception
     //    {
-    //        encryptDecrypt("AES/OFB/PKCS5Padding", providerName, interopProviderName);
-    //        encryptDecrypt("AES/OFB/PKCS5Padding", interopProviderName, providerName);
+    //        encryptDecrypt("AES/OFB/PKCS5Padding", getProviderName(), getInteropProviderName());
+    //        encryptDecrypt("AES/OFB/PKCS5Padding", getInteropProviderName(), getProviderName());
     //    }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESShortBuffer() throws Exception {
-        doTestAESShortBuffer("AES", providerName);
-        doTestAESShortBuffer("AES", interopProviderName);
+        doTestAESShortBuffer("AES", getProviderName());
+        doTestAESShortBuffer("AES", getInteropProviderName());
     }
 
     private void doTestAESShortBuffer(String algorithm, String providerA) throws Exception {
         try {
             // Test AES Cipher
-            cpA = Cipher.getInstance(algorithm, providerName);
+            cpA = Cipher.getInstance(algorithm, getProviderName());
 
             // Encrypt the plain text
             cpA.init(Cipher.ENCRYPT_MODE, key);
@@ -342,12 +193,10 @@ public class BaseTestAESInterop extends BaseTestInterop {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESIllegalBlockSizeEncrypt() throws Exception {
-        doTestAESIllegalBlockSizeEncrypt("AES/CBC/NoPadding", providerName);
-        doTestAESIllegalBlockSizeEncrypt("AES/CBC/NoPadding", interopProviderName);
+        doTestAESIllegalBlockSizeEncrypt("AES/CBC/NoPadding", getProviderName());
+        doTestAESIllegalBlockSizeEncrypt("AES/CBC/NoPadding", getInteropProviderName());
     }
 
     private void doTestAESIllegalBlockSizeEncrypt(String algorithm, String providerA)
@@ -370,12 +219,10 @@ public class BaseTestAESInterop extends BaseTestInterop {
 
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESIllegalBlockSizeDecrypt() throws Exception {
-        doTestAESIllegalBlockSizeDecrypt("AES/CBC/PKCS5Padding", providerName);
-        doTestAESIllegalBlockSizeDecrypt("AES/CBC/PKCS5Padding", interopProviderName);
+        doTestAESIllegalBlockSizeDecrypt("AES/CBC/PKCS5Padding", getProviderName());
+        doTestAESIllegalBlockSizeDecrypt("AES/CBC/PKCS5Padding", getInteropProviderName());
     }
 
     private void doTestAESIllegalBlockSizeDecrypt(String algorithm, String providerA)
@@ -400,13 +247,11 @@ public class BaseTestAESInterop extends BaseTestInterop {
 
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAESBadPaddingDecrypt() throws NoSuchAlgorithmException, NoSuchProviderException,
             NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
-        doTestAESBadPaddingDecrypt("AES/CBC/PKCS5Padding", providerName, interopProviderName);
-        doTestAESBadPaddingDecrypt("AES/CBC/PKCS5Padding", interopProviderName, providerName);
+        doTestAESBadPaddingDecrypt("AES/CBC/PKCS5Padding", getProviderName(), getInteropProviderName());
+        doTestAESBadPaddingDecrypt("AES/CBC/PKCS5Padding", getInteropProviderName(), getProviderName());
     }
 
     private void doTestAESBadPaddingDecrypt(String algorithm, String providerA, String providerB)
@@ -441,6 +286,7 @@ public class BaseTestAESInterop extends BaseTestInterop {
 
     }
 
+    @Test
     public void testAESOnlyFinal() throws Exception {
         byte[] fullBlock = "0123456789ABCDEF".getBytes();
         byte[] incompleteBlock = "0123456789ABCDEF012".getBytes();
@@ -509,6 +355,7 @@ public class BaseTestAESInterop extends BaseTestInterop {
 
     }
 
+    @Test
     public void testAESWithUpdateForEncryptionButOnlyFinalForDecryption() throws Exception {
         byte[] fullBlock = "0123456789ABCDEF".getBytes();
         byte[] incompleteBlock = "0123456789ABCDEF012".getBytes();
@@ -580,6 +427,7 @@ public class BaseTestAESInterop extends BaseTestInterop {
 
     }
 
+    @Test
     public void testAESWithUpdateForEncryptionAndDecryption() throws Exception {
         byte[] fullBlock = "0123456789ABCDEF".getBytes();
         byte[] incompleteBlock = "0123456789ABCDEF012".getBytes();
@@ -693,26 +541,20 @@ public class BaseTestAESInterop extends BaseTestInterop {
 
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     protected void encryptDecrypt(String algorithm, String providerA, String providerB)
             throws Exception {
         encryptDecrypt(algorithm, false, false, providerA, providerB);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             boolean testFinalizeOnly, String providerA, String providerB) throws Exception {
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, null, testFinalizeOnly, providerA,
                 providerB);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, boolean testFinalizeOnly, String providerA,
             String providerB) throws Exception {
@@ -742,9 +584,7 @@ public class BaseTestAESInterop extends BaseTestInterop {
 
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message, boolean testFinalizeOnly,
             String providerA, String providerB) throws Exception {
@@ -1099,6 +939,7 @@ public class BaseTestAESInterop extends BaseTestInterop {
         }
     }
 
+    @Test
     public void testUpdateForAES_CBC_PKCS5Padding() throws Exception {
 
         try {
@@ -1110,7 +951,7 @@ public class BaseTestAESInterop extends BaseTestInterop {
             Arrays.fill(key, (byte) 1);
             SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
 
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", providerName);
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", getProviderName());
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
 
             byte[] plain = new byte[10000];

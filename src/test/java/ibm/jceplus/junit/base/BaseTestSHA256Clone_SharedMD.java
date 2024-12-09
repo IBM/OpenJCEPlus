@@ -11,14 +11,12 @@ package ibm.jceplus.junit.base;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class BaseTestSHA256Clone_SharedMD extends BaseTest {
+public class BaseTestSHA256Clone_SharedMD extends BaseTestJunit5 {
     static MessageDigest md = null;
-
-    //--------------------------------------------------------------------------
-    //
-    //
 
     final byte[] input = {(byte) 0x61, (byte) 0x62, (byte) 0x63};
 
@@ -29,19 +27,15 @@ public class BaseTestSHA256Clone_SharedMD extends BaseTest {
             (byte) 0x9c, (byte) 0xb4, (byte) 0x10, (byte) 0xff, (byte) 0x61, (byte) 0xf2,
             (byte) 0x00, (byte) 0x15, (byte) 0xad};
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestSHA256Clone_SharedMD(String providerName) throws NoSuchAlgorithmException, NoSuchProviderException {
-        super(providerName);
+    @BeforeEach
+    public void setUp() throws NoSuchAlgorithmException, NoSuchProviderException {
+        setAlgorithm("SHA256");
         if (md == null) {
-            md = MessageDigest.getInstance("SHA-256", providerName);
+            md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testCloneSharedMD() throws Exception {
 
         MessageDigest mdCopy = (MessageDigest) md.clone();
