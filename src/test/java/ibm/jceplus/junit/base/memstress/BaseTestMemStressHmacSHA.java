@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -7,18 +7,17 @@
  */
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTest;
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestMemStressHmacSHA extends BaseTest {
+public class BaseTestMemStressHmacSHA extends BaseTestJunit5 {
     /* This test by default tests HmacSHAWith256 */
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    static boolean warmup = false;
     int numTimes = 100;
     boolean printheapstats = false;
     String hmacAlgo = "HmacSHA256";
@@ -43,50 +42,11 @@ public class BaseTestMemStressHmacSHA extends BaseTest {
 
     byte[] digest_1, data_1, key_1;
 
-
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressHmacSHA(String providerName) {
-        super(providerName);
+    @BeforeEach
+    public void setUp() throws Exception {
         this.data_1 = def_data_1.clone();
         this.key_1 = def_key_1.clone();
         this.digest_1 = def_digest_1.clone();
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public BaseTestMemStressHmacSHA(String providerName, String digestAlgo, String hmacAlgo,
-            byte[] data1, byte[] key1, byte[] digest1) {
-        super(providerName);
-        this.data_1 = data1.clone();
-        this.key_1 = key1.clone();
-        this.digest_1 = digest1.clone();
-        this.hmacAlgo = hmacAlgo;
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
             numTimes = Integer.valueOf(numTimesStr);
@@ -96,16 +56,9 @@ public class BaseTestMemStressHmacSHA extends BaseTest {
         System.out.println("Testing HmacSHA " + this.hmacAlgo);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA_key1() throws Exception {
-        Mac mac = Mac.getInstance(this.hmacAlgo, providerName);
+        Mac mac = Mac.getInstance(this.hmacAlgo, getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_1, this.hmacAlgo);
         Runtime rt = Runtime.getRuntime();
         long prevTotalMemory = 0;
@@ -135,26 +88,6 @@ public class BaseTestMemStressHmacSHA extends BaseTest {
                 prevTotalMemory = currentTotalMemory;
                 prevFreeMemory = currentFreeMemory;
             }
-        }
-    }
-
-
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void warmup() throws Exception {
-
-        try {
-            Mac mac = Mac.getInstance(this.hmacAlgo, providerName);
-            SecretKeySpec key = new SecretKeySpec(key_1, this.hmacAlgo);
-            for (long i = 0; i < 10000; i++) {
-                mac.init(key);
-                mac.update(data_1);
-                mac.doFinal();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

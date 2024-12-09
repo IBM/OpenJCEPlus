@@ -26,9 +26,8 @@ import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.crypto.signers.Ed448Signer;
 import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestEdDSASignatureInterop extends BaseTestSignature {
+public class BaseTestEdDSASignatureInterop extends BaseTestJunit5Signature {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
@@ -54,9 +53,7 @@ public class BaseTestEdDSASignatureInterop extends BaseTestSignature {
         return xecKeyPairGen.generateKeyPair();
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     //Sign the message with OpenJCEPlus provided EdDSA
     private byte[] doSign(String sigAlgo, byte[] message, PrivateKey privateKey) throws Exception {
         Signature signing = Signature.getInstance(sigAlgo, getProviderName());
@@ -66,9 +63,7 @@ public class BaseTestEdDSASignatureInterop extends BaseTestSignature {
         return signedBytes;
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     //Verify the message with BouncyCastle provided Ed25519
     protected void doVerifyEd25519(byte[] message, byte[] signedBytes, PublicKey publicKey)
             throws Exception {
@@ -87,9 +82,7 @@ public class BaseTestEdDSASignatureInterop extends BaseTestSignature {
         assertTrue("Signature verification failed ", signer.verifySignature(signedBytes));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     //Verify the message with BouncyCastle provided Ed448
     protected void doVerifyEd448(byte[] message, byte[] signedBytes, PublicKey publicKey)
             throws Exception {

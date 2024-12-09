@@ -9,7 +9,6 @@
 package ibm.jceplus.junit.openjceplusfips;
 
 import ibm.jceplus.junit.base.BaseTestAESCipherInputStreamExceptions;
-import ibm.jceplus.junit.openjceplus.Utils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -23,4 +22,3 @@ public class TestAESCipherInputStreamExceptions extends BaseTestAESCipherInputSt
         setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 }
-

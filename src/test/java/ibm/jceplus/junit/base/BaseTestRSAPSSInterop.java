@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -16,15 +16,15 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestRSAPSSInterop extends BaseTestInterop {
+public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
 
     String JCEPlus_ALG = "RSASA-PSS";
     String BC_ALG = "SHA1withRSAandMGF1";
@@ -98,21 +98,11 @@ public class BaseTestRSAPSSInterop extends BaseTestInterop {
     final int NONDEFAULT_PARAMS = 2;
     final int PARAMS_SALT40 = 3;
 
-
-    public BaseTestRSAPSSInterop(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-        Security.addProvider(new BouncyCastleProvider());
-    }
-
-    protected void setUp() throws Exception {
-
-    }
-
-    @org.junit.Test
+    @Test
     public void testRSASignatureWithPSS_SHA1() throws Exception {
         try {
-            dotestSignature(content, JCEPlus_ALG, JCEPlus_ALG, 1024, null, providerName,
-                    providerName);
+            dotestSignature(content, JCEPlus_ALG, JCEPlus_ALG, 1024, null, getProviderName(),
+                    getProviderName());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,77 +115,77 @@ public class BaseTestRSAPSSInterop extends BaseTestInterop {
      * Generate a key once and use it for multiple tests - The OpenJCEPlusFIPS does not allow keysize < 1024
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testRSAPSSBigMsgMultiKeySize() throws Exception {
         try {
             for (int i = 1024; i < 4096;) {
 
 
-                KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", providerName);
+                KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
                 keyGen.initialize(i, new java.security.SecureRandom());
                 KeyPair keyPair = keyGen.genKeyPair();
 
                 /* Sign and Verify with JCEPlus only  with PSSParameterSpec.DEFAULT */
-                dotestSignature(content3, JCEPlus_ALG, JCEPlus_ALG, keyPair, null, providerName,
-                        providerName);
+                dotestSignature(content3, JCEPlus_ALG, JCEPlus_ALG, keyPair, null, getProviderName(),
+                        getProviderName());
 
-                dotestSignature(oneByte, JCEPlus_ALG, JCEPlus_ALG, keyPair, null, providerName,
-                        providerName);
+                dotestSignature(oneByte, JCEPlus_ALG, JCEPlus_ALG, keyPair, null, getProviderName(),
+                        getProviderName());
 
                 dotestSignature(msg.getBytes(), JCEPlus_ALG, JCEPlus_ALG, keyPair, null,
-                        providerName, providerName);
+                        getProviderName(), getProviderName());
 
-                dotestSignature(content, JCEPlus_ALG, JCEPlus_ALG, keyPair, null, providerName,
-                        providerName);
+                dotestSignature(content, JCEPlus_ALG, JCEPlus_ALG, keyPair, null, getProviderName(),
+                        getProviderName());
 
 
 
                 /* Sign and Verify with 2 providers with PSSParameterSpec.DEFAULT*/
 
-                dotestSignature(content3, JCEPlus_ALG, SunJCE_ALG, keyPair, null, providerName,
-                        interopProviderName);
-                dotestSignature(oneByte, JCEPlus_ALG, SunJCE_ALG, keyPair, null, providerName,
-                        interopProviderName);
+                dotestSignature(content3, JCEPlus_ALG, SunJCE_ALG, keyPair, null, getProviderName(),
+                        getInteropProviderName());
+                dotestSignature(oneByte, JCEPlus_ALG, SunJCE_ALG, keyPair, null, getProviderName(),
+                        getInteropProviderName());
                 dotestSignature(msg.getBytes(), JCEPlus_ALG, SunJCE_ALG, keyPair, null,
-                        providerName, interopProviderName);
-                dotestSignature(content, JCEPlus_ALG, SunJCE_ALG, keyPair, null, providerName,
-                        interopProviderName);
+                        getProviderName(), getInteropProviderName());
+                dotestSignature(content, JCEPlus_ALG, SunJCE_ALG, keyPair, null, getProviderName(),
+                        getInteropProviderName());
 
 
                 /* Use Specified salt size - Generarte Signature with JCEPlus and Verify with JCE */
                 dotestSignatureProviderAToProviderB(content, JCEPlus_ALG, SunJCE_ALG, keyPair, 20,
-                        providerName, interopProviderName);
+                        getProviderName(), getInteropProviderName());
                 dotestSignatureProviderAToProviderB(content, JCEPlus_ALG, SunJCE_ALG, keyPair, 30,
-                        providerName, interopProviderName);
+                        getProviderName(), getInteropProviderName());
                 dotestSignatureProviderAToProviderB(content, JCEPlus_ALG, SunJCE_ALG, keyPair, 40,
-                        providerName, interopProviderName);
+                        getProviderName(), getInteropProviderName());
 
                 /* Use Specified salt size - Generarte Signature with JCE and Verify with JCEPlus */
 
                 dotestSignatureProviderAToProviderB(content, SunJCE_ALG, JCEPlus_ALG, keyPair, 20,
-                        interopProviderName, providerName);
+                        getInteropProviderName(), getProviderName());
                 dotestSignatureProviderAToProviderB(content, SunJCE_ALG, JCEPlus_ALG, keyPair, 30,
-                        interopProviderName, providerName);
+                        getInteropProviderName(), getProviderName());
                 dotestSignatureProviderAToProviderB(content, SunJCE_ALG, JCEPlus_ALG, keyPair, 40,
-                        interopProviderName, providerName);
+                        getInteropProviderName(), getProviderName());
 
 
                 /* Use Specified salt size - Generarte Signature with JCEPlus and Verify with BC */
                 dotestSignatureProviderAToProviderB(content, JCEPlus_ALG, BC_ALG, keyPair, 20,
-                        providerName, BCProvider);
+                        getProviderName(), BCProvider);
                 dotestSignatureProviderAToProviderB(content, JCEPlus_ALG, SunJCE_ALG, keyPair, 30,
-                        providerName, BCProvider);
+                        getProviderName(), BCProvider);
                 dotestSignatureProviderAToProviderB(content, JCEPlus_ALG, SunJCE_ALG, keyPair, 40,
-                        providerName, BCProvider);
+                        getProviderName(), BCProvider);
 
                 /* Use Specified salt size - Generarte Signature with BC and Verify with JCEPlus */
 
                 dotestSignatureProviderAToProviderB(content, BC_ALG, JCEPlus_ALG, keyPair, 20,
-                        BCProvider, providerName);
+                        BCProvider, getProviderName());
                 dotestSignatureProviderAToProviderB(content, BC_ALG, JCEPlus_ALG, keyPair, 30,
-                        BCProvider, providerName);
+                        BCProvider, getProviderName());
                 dotestSignatureProviderAToProviderB(content, BC_ALG, JCEPlus_ALG, keyPair, 40,
-                        BCProvider, providerName);
+                        BCProvider, getProviderName());
 
                 i = i + 512;
 
@@ -216,7 +206,7 @@ public class BaseTestRSAPSSInterop extends BaseTestInterop {
      * IBM vs BC
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testRSASignatureWithPSSMultiByteSize_timed() throws Exception {
         try {
             for (int i = 1; i <= 10; i++) {
@@ -225,15 +215,15 @@ public class BaseTestRSAPSSInterop extends BaseTestInterop {
                     System.arraycopy(elevenBytes, 0, dynMsg, j * 11, 11);
                 }
                 // //System.out.println("msgSize=" + dynMsg.length);
-                dotestSignature(dynMsg, JCEPlus_ALG, JCEPlus_ALG, 1024, null, providerName,
-                        providerName);
-                dotestSignature(dynMsg, JCEPlus_ALG, BC_ALG, 1024, null, providerName, BCProvider);
-                dotestSignature(dynMsg, BC_ALG, JCEPlus_ALG, 1024, null, BCProvider, providerName);
+                dotestSignature(dynMsg, JCEPlus_ALG, JCEPlus_ALG, 1024, null, getProviderName(),
+                        getProviderName());
+                dotestSignature(dynMsg, JCEPlus_ALG, BC_ALG, 1024, null, getProviderName(), BCProvider);
+                dotestSignature(dynMsg, BC_ALG, JCEPlus_ALG, 1024, null, BCProvider, getProviderName());
 
-                dotestSignature(dynMsg, JCEPlus_ALG, SunJCE_ALG, 1024, null, providerName,
-                        interopProviderName);
-                dotestSignature(dynMsg, SunJCE_ALG, JCEPlus_ALG, 1024, null, interopProviderName,
-                        providerName);
+                dotestSignature(dynMsg, JCEPlus_ALG, SunJCE_ALG, 1024, null, getProviderName(),
+                        getInteropProviderName());
+                dotestSignature(dynMsg, SunJCE_ALG, JCEPlus_ALG, 1024, null, getInteropProviderName(),
+                        getProviderName());
 
             }
 
@@ -242,16 +232,12 @@ public class BaseTestRSAPSSInterop extends BaseTestInterop {
             assertTrue(false);
         }
     }
-    //
-    //
-    //    
 
     /** Test multiple raw messages generated by IBM and verified by BC
      * 
      * @throws Exception
      */
-
-    @org.junit.Test
+    @Test
     public void testRSASignatureWithPSSMultiByteSize_IBM2BC2() throws Exception {
         try {
             for (int i = 1; i <= 301; i++) {
@@ -260,11 +246,11 @@ public class BaseTestRSAPSSInterop extends BaseTestInterop {
                     System.arraycopy(elevenBytes, 0, dynMsg, j * 11, 11);
                 }
                 //System.out.println("msgSize=" + dynMsg.length);
-                doSignatureJCEPlusToOther(dynMsg, JCEPlus_ALG, BC_ALG, 1024, 20, providerName,
+                doSignatureJCEPlusToOther(dynMsg, JCEPlus_ALG, BC_ALG, 1024, 20, getProviderName(),
                         BCProvider);
-                doSignatureJCEPlusToOther(dynMsg, JCEPlus_ALG, BC_ALG, 1024, 40, providerName,
+                doSignatureJCEPlusToOther(dynMsg, JCEPlus_ALG, BC_ALG, 1024, 40, getProviderName(),
                         BCProvider);
-                doSignatureJCEPlusToOther(dynMsg, JCEPlus_ALG, BC_ALG, 1024, -1, providerName,
+                doSignatureJCEPlusToOther(dynMsg, JCEPlus_ALG, BC_ALG, 1024, -1, getProviderName(),
                         BCProvider);
 
                 //                doSignatureJCEPlusToOther(dynMsg, JCEPlus_ALG, SunJCE_ALG, 1024, 20, providerName, interopProviderName);

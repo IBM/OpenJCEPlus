@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -19,25 +19,16 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import org.junit.Assume;
+import org.junit.jupiter.api.Test;
 
-public class BaseTestAESGCMCICOWithGCMAndAAD extends BaseTest {
+public class BaseTestAESGCMCICOWithGCMAndAAD extends BaseTestJunit5 {
     protected int specifiedKeySize = 128;
 
-    public BaseTestAESGCMCICOWithGCMAndAAD(String providerName) {
-        super(providerName);
-    }
-
-    public BaseTestAESGCMCICOWithGCMAndAAD(String providerName, int keySize) throws Exception {
-        super(providerName);
-        this.specifiedKeySize = keySize;
-        Assume.assumeTrue(javax.crypto.Cipher.getMaxAllowedKeyLength("AES") >= keySize);
-    }
-
+    @Test
     public void testGCMWithAAD() throws Exception {
         //init Secret Key
         //KeyGenerator kg = KeyGenerator.getInstance("AES", "SunJCE");
-        KeyGenerator kg = KeyGenerator.getInstance("AES", providerName);
+        KeyGenerator kg = KeyGenerator.getInstance("AES", getProviderName());
         kg.init(specifiedKeySize);
         SecretKey key = kg.generateKey();
 
@@ -51,10 +42,10 @@ public class BaseTestAESGCMCICOWithGCMAndAAD extends BaseTest {
         byte[] aad2 = aad.clone();
         aad2[50]++;
 
-        Cipher encCipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher encCipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         encCipher.init(Cipher.ENCRYPT_MODE, key);
         encCipher.updateAAD(aad);
-        Cipher decCipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher decCipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         decCipher.init(Cipher.DECRYPT_MODE, key, encCipher.getParameters());
         decCipher.updateAAD(aad);
 

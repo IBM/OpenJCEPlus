@@ -15,29 +15,18 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.RC2ParameterSpec;
 import javax.crypto.spec.RC5ParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestInvalidArrayIndex extends BaseTest {
+public class BaseTestInvalidArrayIndex extends BaseTestJunit5 {
 
     private static final byte[] BYTES = new byte[20];
 
     static int IAE = 1; // IllegalArgumentException
     static int AIOOBE = 2; // ArrayIndexOutOfBoundsException
 
-    public static Test suite() {
-
-        TestSuite suite = new TestSuite(BaseTestInvalidArrayIndex.class);
-        return suite;
-
-    }
-
-    public BaseTestInvalidArrayIndex(String arg1) {
-        super(arg1);
-    }
-
-
-    public static void testInvalidArrayIndex() throws Exception {
+    @Test
+    public void testInvalidArrayIndex() throws Exception {
         // test various spec classes with invalid array offset, length values
         // and see if the expected exception is thrown
         try {

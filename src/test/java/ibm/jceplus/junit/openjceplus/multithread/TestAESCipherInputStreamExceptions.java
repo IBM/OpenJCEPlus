@@ -23,4 +23,3 @@ public class TestAESCipherInputStreamExceptions extends BaseTestAESCipherInputSt
         setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 }
-
