@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023,2024
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -9,21 +9,17 @@
 package ibm.jceplus.junit.openjceplusfips.multithread;
 
 import ibm.jceplus.junit.base.BaseTestSHA3_384KAT;
-import ibm.jceplus.junit.openjceplus.Utils;
+import ibm.jceplus.junit.openjceplusfips.Utils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-public class TestSHA3_384 extends ibm.jceplus.junit.base.BaseTestSHA3_384KAT {
+@TestInstance(Lifecycle.PER_CLASS)
+public class TestSHA3_384 extends BaseTestSHA3_384KAT {
 
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-    }
-
-    public TestSHA3_384() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-    }
-
-    public void testSHA3_384() throws Exception {
-        System.out.println("executing testSHA3_384");
-        BaseTestSHA3_384KAT bt = new BaseTestSHA3_384KAT(providerName);
-        bt.run();
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 }

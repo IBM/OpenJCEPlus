@@ -7,7 +7,7 @@
  */
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTest;
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -19,12 +19,13 @@ import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestMemStressDSAKeyPair extends BaseTest {
+public class BaseTestMemStressDSAKeyPair extends BaseTestJunit5 {
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
 
     static DSAParameterSpec algParameterSpec;
 
@@ -34,22 +35,7 @@ public class BaseTestMemStressDSAKeyPair extends BaseTest {
     protected KeyFactory dsaKeyFactory;
     int dsaSize = 2048;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressDSAKeyPair(String providerName) {
-        super(providerName);
-
-    }
-
-    public BaseTestMemStressDSAKeyPair(String providerName, int dsaSize) {
-        super(providerName);
-        this.dsaSize = dsaSize;
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
@@ -58,18 +44,10 @@ public class BaseTestMemStressDSAKeyPair extends BaseTest {
         printheapstats = Boolean
                 .valueOf(System.getProperty("com.ibm.jceplus.memstress.printheapstats"));
         System.out.println("Testing DSAKeyPair ");
-        dsaKeyFactory = KeyFactory.getInstance("DSA", providerName);
+        dsaKeyFactory = KeyFactory.getInstance("DSA", getProviderName());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-
+    @Test
     public void testDSAKeyPair() throws Exception {
 
         Runtime rt = Runtime.getRuntime();
@@ -130,9 +108,7 @@ public class BaseTestMemStressDSAKeyPair extends BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     protected void keyFactoryCreateFromKeySpec(int size) throws Exception {
 
         KeyPair dsaKeyPair = generateKeyPair(size);

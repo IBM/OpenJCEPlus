@@ -23,8 +23,11 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestDSAKey extends BaseTest {
+public class BaseTestDSAKey extends BaseTestJunit5 {
     private static String publicKey1024 = "MIIBuDCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7"
                                         + "s5Of2EbdSPO9EAMMeP4C2USZpRV1AIlH7WT2NWPq/xfW6MPbLm1"
                                         + "Vs14E7gB00b/JmYLdrmVClpJ+f6AR7ECLCT7up1/63xhv4O1fnx"
@@ -86,17 +89,14 @@ public class BaseTestDSAKey extends BaseTest {
                                         + "qMpislBtDj4EIgIgJGAGjgXTmTeq0L8Oo2jCuSCLmEeFfMM9xjt"
                                         +"tGLOCEc8=";
 
-    public BaseTestDSAKey(String providerName) {
-        super(providerName);
-    }
-
+    @Test
     public void testDSAKeyGen_1024() throws Exception {
         try {
             KeyPair dsaKeyPair = generateKeyPair(1024);
             dsaKeyPair.getPublic();
             dsaKeyPair.getPrivate();
         } catch (InvalidParameterException | InvalidKeyException ikex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -104,12 +104,14 @@ public class BaseTestDSAKey extends BaseTest {
         }
     }
 
+    @Test
     public void testDSAKeyGen_2048() throws Exception {
         KeyPair dsaKeyPair = generateKeyPair(2048);
         dsaKeyPair.getPublic();
         dsaKeyPair.getPrivate();
     }
 
+    @Test
     public void testDSAKeyGenFromParams_1024() throws Exception {
         try {
             AlgorithmParameters algParams = generateParameters(1024);
@@ -119,7 +121,7 @@ public class BaseTestDSAKey extends BaseTest {
             dsaKeyPair.getPublic();
             dsaKeyPair.getPrivate();
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -128,12 +130,13 @@ public class BaseTestDSAKey extends BaseTest {
 
     }
 
+    @Test
     public void testDSAKeyFactoryCreateFromEncoded_1024() throws Exception {
         try {
 
             keyFactoryCreateFromEncoded(1024);
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -141,15 +144,17 @@ public class BaseTestDSAKey extends BaseTest {
         }
     }
 
+    @Test
     public void testDSAKeyFactoryCreateFromEncoded_2048() throws Exception {
         keyFactoryCreateFromEncoded(2048);
     }
 
+    @Test
     public void testDSAKeyFactoryCreateFromKeySpec_1024() throws Exception {
         try {
             keyFactoryCreateFromKeySpec(1024);
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -158,20 +163,21 @@ public class BaseTestDSAKey extends BaseTest {
 
     }
 
+    @Test
     public void testDSAKeyFactoryCreateFromKeySpec_2048() throws Exception {
         keyFactoryCreateFromKeySpec(2048);
     }
 
     protected AlgorithmParameters generateParameters(int size) throws Exception {
         AlgorithmParameterGenerator algParmGen = AlgorithmParameterGenerator.getInstance("DSA",
-                providerName);
+                getProviderName());
         algParmGen.init(size);
         AlgorithmParameters algParams = algParmGen.generateParameters();
         return algParams;
     }
 
     protected KeyPair generateKeyPair(int size) throws Exception {
-        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", providerName);
+        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", getProviderName());
         dsaKeyPairGen.initialize(size);
         KeyPair keyPair = dsaKeyPairGen.generateKeyPair();
 
@@ -195,7 +201,7 @@ public class BaseTestDSAKey extends BaseTest {
     }
 
     protected KeyPair generateKeyPair(DSAParameterSpec dsaParameterSpec) throws Exception {
-        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", providerName);
+        KeyPairGenerator dsaKeyPairGen = KeyPairGenerator.getInstance("DSA", getProviderName());
         dsaKeyPairGen.initialize(dsaParameterSpec);
         KeyPair keyPair = dsaKeyPairGen.generateKeyPair();
 
@@ -221,7 +227,7 @@ public class BaseTestDSAKey extends BaseTest {
     protected KeyPair keyFactoryCreateFromEncoded(int size) throws Exception {
         byte[] publicKeyArray = null;
         byte[] privateKeyArray = null;
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             if (size == 1024) {
                 publicKeyArray = Base64.getDecoder().decode(publicKey1024);
                 privateKeyArray = Base64.getDecoder().decode(privateKey1024);
@@ -240,7 +246,7 @@ public class BaseTestDSAKey extends BaseTest {
         X509EncodedKeySpec x509Spec = new X509EncodedKeySpec(publicKeyArray);
         PKCS8EncodedKeySpec pkcs8Spec = new PKCS8EncodedKeySpec(privateKeyArray);
 
-        KeyFactory dsaKeyFactory = KeyFactory.getInstance("DSA", providerName);
+        KeyFactory dsaKeyFactory = KeyFactory.getInstance("DSA", getProviderName());
         DSAPublicKey dsaPub = (DSAPublicKey) dsaKeyFactory.generatePublic(x509Spec);
         DSAPrivateKey dsaPriv = (DSAPrivateKey) dsaKeyFactory.generatePrivate(pkcs8Spec);
 
@@ -259,7 +265,7 @@ public class BaseTestDSAKey extends BaseTest {
 
         KeyPair dsaKeyPair = keyFactoryCreateFromEncoded(size);
 
-        KeyFactory dsaKeyFactory = KeyFactory.getInstance("DSA", providerName);
+        KeyFactory dsaKeyFactory = KeyFactory.getInstance("DSA", getProviderName());
         DSAPublicKeySpec dsaPubSpec = dsaKeyFactory
                 .getKeySpec(dsaKeyPair.getPublic(), DSAPublicKeySpec.class);
         DSAPublicKey dsaPub = (DSAPublicKey) dsaKeyFactory.generatePublic(dsaPubSpec);

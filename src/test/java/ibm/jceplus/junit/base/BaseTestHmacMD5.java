@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,10 +10,10 @@ package ibm.jceplus.junit.base;
 import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestHmacMD5 extends BaseTest {
-    static boolean warmup = false;
-
+public class BaseTestHmacMD5 extends BaseTestJunit5 {
     final byte[] key_1 = {(byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b,
             (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b,
             (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b};
@@ -157,29 +157,10 @@ public class BaseTestHmacMD5 extends BaseTest {
             (byte) 0xcd, (byte) 0xa0, (byte) 0xee, (byte) 0x1f, (byte) 0xb1, (byte) 0xf5,
             (byte) 0x62, (byte) 0xdb, (byte) 0x3a, (byte) 0xa5, (byte) 0x3e};
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestHmacMD5(String providerName) {
-
-        super(providerName);
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacMD5_key1() throws Exception {
 
-        Mac mac = Mac.getInstance("HmacMD5", providerName);
+        Mac mac = Mac.getInstance("HmacMD5", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_1, "HmacMD5");
         mac.init(key);
         mac.update(data_1);
@@ -189,11 +170,9 @@ public class BaseTestHmacMD5 extends BaseTest {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacMD5_key2() throws Exception {
-        Mac mac = Mac.getInstance("HmacMD5", providerName);
+        Mac mac = Mac.getInstance("HmacMD5", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_2, "HmacMD5");
         mac.init(key);
         mac.update(data_2);
@@ -203,12 +182,10 @@ public class BaseTestHmacMD5 extends BaseTest {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacMD5_key3() throws Exception {
 
-        Mac mac = Mac.getInstance("HmacMD5", providerName);
+        Mac mac = Mac.getInstance("HmacMD5", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_3, "HmacMD5");
         mac.init(key);
         mac.update(data_3);
@@ -218,12 +195,10 @@ public class BaseTestHmacMD5 extends BaseTest {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacMD5_key4() throws Exception {
 
-        Mac mac = Mac.getInstance("HmacMD5", providerName);
+        Mac mac = Mac.getInstance("HmacMD5", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_4, "HmacMD5");
         mac.init(key);
         mac.update(data_4);
@@ -233,12 +208,10 @@ public class BaseTestHmacMD5 extends BaseTest {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacMD5_key5() throws Exception {
 
-        Mac mac = Mac.getInstance("HmacMD5", providerName);
+        Mac mac = Mac.getInstance("HmacMD5", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_5, "HmacMD5");
         mac.init(key);
         mac.update(data_5);
@@ -248,12 +221,10 @@ public class BaseTestHmacMD5 extends BaseTest {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacMD5_key6() throws Exception {
 
-        Mac mac = Mac.getInstance("HmacMD5", providerName);
+        Mac mac = Mac.getInstance("HmacMD5", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_6, "HmacMD5");
         mac.init(key);
         mac.update(data_6);
@@ -263,12 +234,10 @@ public class BaseTestHmacMD5 extends BaseTest {
 
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacMD5_key7() throws Exception {
 
-        Mac mac = Mac.getInstance("HmacMD5", providerName);
+        Mac mac = Mac.getInstance("HmacMD5", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_7, "HmacMD5");
         mac.init(key);
         mac.update(data_7);
@@ -276,23 +245,5 @@ public class BaseTestHmacMD5 extends BaseTest {
 
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_7));
 
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void warmup() throws Exception {
-
-        try {
-            Mac mac = Mac.getInstance("HmacMD5", providerName);
-            SecretKeySpec key = new SecretKeySpec(key_1, "HmacMD5");
-            for (long i = 0; i < 10000; i++) {
-                mac.init(key);
-                mac.update(data_1);
-                mac.doFinal();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

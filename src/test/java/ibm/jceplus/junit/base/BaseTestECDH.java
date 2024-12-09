@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -26,12 +26,14 @@ import java.security.spec.EllipticCurve;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
+public class BaseTestECDH extends BaseTestJunit5 {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
     static ECGenParameterSpec algParameterSpec_192k1, algParameterSpec_256r1;
 
@@ -41,8 +43,17 @@ public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
     static KeyPair keyPairA_192k1, keyPairA_256r1;
     static KeyPair keyPairB_192k1, keyPairB_256r1;
 
-    public boolean isMulti = false;
+    private boolean isMulti = false;
+
     static boolean generated = false;
+
+    public boolean isMulti() {
+        return isMulti;
+    }
+
+    public void setMulti(boolean isMulti) {
+        this.isMulti = isMulti;
+    }
 
     synchronized static void generateParams(String provider_name) {
         if (generated)
@@ -81,33 +92,17 @@ public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestECDH(String providerName) {
-        super(providerName);
-        generateParams(providerName);
+    @BeforeEach
+    public void setUp() {
+        generateParams(getProviderName());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
     /**
      * Basic ECDH example
      *
      * @throws Exception
      */
-
+    @Test
     public void testECDH_secp192k1() throws Exception {
 
         String curveName = "secp192k1";
@@ -120,6 +115,7 @@ public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
 
     }
 
+    @Test
     public void testECDH_secp256r1() throws Exception {
 
         String curveName = "secp256r1";
@@ -132,6 +128,7 @@ public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
 
     }
 
+    @Test
     public void testECDH_ECSpec() throws Exception {
 
         String methodId = "ECDHECParamSpec";
@@ -166,7 +163,7 @@ public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
 
         KeyPairGenerator kpgA = null;
         try {
-            kpgA = KeyPairGenerator.getInstance("EC", providerName);
+            kpgA = KeyPairGenerator.getInstance("EC", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -189,7 +186,7 @@ public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
         // set up
         KeyAgreement keyAgreeA = null;
         try {
-            keyAgreeA = KeyAgreement.getInstance("ECDH", providerName);
+            keyAgreeA = KeyAgreement.getInstance("ECDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -207,7 +204,7 @@ public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
         KeyPairGenerator kpgB = null;
 
         try {
-            kpgB = KeyPairGenerator.getInstance("EC", providerName);
+            kpgB = KeyPairGenerator.getInstance("EC", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -231,7 +228,7 @@ public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
 
         KeyAgreement keyAgreeB = null;
         try {
-            keyAgreeB = KeyAgreement.getInstance("ECDH", providerName);
+            keyAgreeB = KeyAgreement.getInstance("ECDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -280,12 +277,13 @@ public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
      * unrecognized curve name.
      * Was throwing an InvalidParameterException from ECNamedCurve constructor taking single String argument
      */
+    @Test
     public void testEC_engineInit_AlgorithmParameterSpec_paramSpec() throws Exception {
         String curveName = "UnknownCurveNameShouldGenerateInvalidParameterSpecException";
 
         AlgorithmParameters algorithmParameters = AlgorithmParameters.getInstance("EC",
-                providerName);
-        assertNotNull("AlgorithmParameters EC not found in provider" + providerName,
+                getProviderName());
+        assertNotNull("AlgorithmParameters EC not found in provider" + getProviderName(),
                 algorithmParameters);
 
         AlgorithmParameterSpec algorithmParameterSpec = new ECGenParameterSpec(curveName);
@@ -324,7 +322,7 @@ public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
         // set up
         KeyAgreement keyAgreeA = null;
         try {
-            keyAgreeA = KeyAgreement.getInstance("ECDH", providerName);
+            keyAgreeA = KeyAgreement.getInstance("ECDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -342,7 +340,7 @@ public class BaseTestECDH extends ibm.jceplus.junit.base.BaseTest {
 
         KeyAgreement keyAgreeB = null;
         try {
-            keyAgreeB = KeyAgreement.getInstance("ECDH", providerName);
+            keyAgreeB = KeyAgreement.getInstance("ECDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
