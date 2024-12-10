@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
+import com.ibm.crypto.plus.provider.ock.XECKey;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -19,13 +21,8 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
-
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
-
-import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
-import com.ibm.crypto.plus.provider.ock.XECKey;
-
 import sun.security.util.BitArray;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
@@ -64,7 +61,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
         int bMod8 = (keyArray.length * 8) % 8;
         if (bMod8 != 0) {
             int msk = (1 << bMod8) - 1;
-            keyArray[0] &= msk;
+            keyArray[0] &= (byte)msk;
         }
 
         this.u = new BigInteger(1, keyArray); // u is the public key reversed
@@ -126,7 +123,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
             int bMod8 = (reverseKey.length * 8) % 8;
             if (bMod8 != 0) {
                 int msk = (1 << bMod8) - 1;
-                reverseKey[0] &= msk;
+                reverseKey[0] &= (byte)msk;
             }
 
             this.u = new BigInteger(1, reverseKey); // u is the public key reversed

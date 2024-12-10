@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
@@ -76,10 +75,6 @@ import sun.security.util.ObjectIdentifier;
  *    ECPoint  ::= OCTET STRING      -- Elliptic curve point
  *
  * </pre>
- *
- */
-
-/**
  *
  */
 public final class ECParameters extends AlgorithmParametersSpi {

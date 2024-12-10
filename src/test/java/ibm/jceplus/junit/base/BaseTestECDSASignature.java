@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,47 +8,36 @@
 
 package ibm.jceplus.junit.base;
 
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPrivateKeySpec;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestECDSASignature extends BaseTestSignature {
+public class BaseTestECDSASignature extends BaseTestJunit5Signature {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestECDSASignature(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1withECDSA_192() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports cuirve P-192. So skip test
             return;
         }
@@ -56,11 +45,9 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         doSignVerify("SHA1withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1withECDSA_224() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports SHA-1. So skip test
             return;
         }
@@ -68,11 +55,9 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         doSignVerify("SHA1withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1withECDSA_256() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports SHA-1. So skip test
             return;
         }
@@ -80,11 +65,9 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         doSignVerify("SHA1withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1withECDSA_384() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports SHA-1. So skip test
             return;
         }
@@ -92,11 +75,9 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         doSignVerify("SHA1withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1withECDSA_521() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports SHA-1. So skip test
             return;
         }
@@ -104,11 +85,9 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         doSignVerify("SHA1withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA224withECDSA_192() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports cuirve P-192. So skip test
             return;
         }
@@ -116,43 +95,33 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         doSignVerify("SHA224withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA224withECDSA_224() throws Exception {
         KeyPair keyPair = generateKeyPair(224);
         doSignVerify("SHA224withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA224withECDSA_256() throws Exception {
         KeyPair keyPair = generateKeyPair(256);
         doSignVerify("SHA224withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA224withECDSA_384() throws Exception {
         KeyPair keyPair = generateKeyPair(384);
         doSignVerify("SHA224withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA224withECDSA_521() throws Exception {
         KeyPair keyPair = generateKeyPair(521);
         doSignVerify("SHA224withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA256withECDSA_192() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports cuirve P-192. So skip test
             return;
         }
@@ -160,67 +129,53 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         doSignVerify("SHA256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA256withECDSA_224() throws Exception {
         KeyPair keyPair = generateKeyPair(224);
         doSignVerify("SHA256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA256withECDSA_256() throws Exception {
         KeyPair keyPair = generateKeyPair(256);
         doSignVerify("SHA256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA256withECDSA_384() throws Exception {
         KeyPair keyPair = generateKeyPair(384);
         doSignVerify("SHA256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA256withECDSA_521() throws Exception {
         KeyPair keyPair = generateKeyPair(521);
         doSignVerify("SHA256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA384withECDSA_521() throws Exception {
         KeyPair keyPair = generateKeyPair(521);
         doSignVerify("SHA384withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA512withECDSA_521() throws Exception {
         KeyPair keyPair = generateKeyPair(521);
         doSignVerify("SHA512withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_224withECDSA_192() throws Exception {
         try {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 //FIPS no longer supports cuirve P-192. So skip test
                 return;
             }
             KeyPair keyPair = generateKeyPair(192);
             doSignVerify("SHA3-224withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -228,11 +183,9 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256withECDSA_192() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports cuirve P-192. So skip test
             return;
         }
@@ -240,7 +193,7 @@ public class BaseTestECDSASignature extends BaseTestSignature {
             KeyPair keyPair = generateKeyPair(192);
             doSignVerify("SHA3-256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -248,19 +201,17 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_384withECDSA_192() throws Exception {
         try {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 //FIPS no longer supports cuirve P-192. So skip test
                 return;
             }
             KeyPair keyPair = generateKeyPair(192);
             doSignVerify("SHA3-384withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -268,11 +219,9 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_512withECDSA_192() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports cuirve P-192. So skip test
             return;
         }
@@ -280,7 +229,7 @@ public class BaseTestECDSASignature extends BaseTestSignature {
             KeyPair keyPair = generateKeyPair(192);
             doSignVerify("SHA3-512withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -288,15 +237,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_224withECDSA_224() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(224);
             doSignVerify("SHA3-224withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -304,15 +251,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256withECDSA_224() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(224);
             doSignVerify("SHA3-256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -320,15 +265,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_384withECDSA_224() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(224);
             doSignVerify("SHA3-384withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -336,15 +279,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_512withECDSA_224() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(224);
             doSignVerify("SHA3-512withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -352,15 +293,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_224withECDSA_256() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(256);
             doSignVerify("SHA3-224withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -368,15 +307,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256withECDSA_256() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(256);
             doSignVerify("SHA3-256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -384,15 +321,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_384withECDSA_256() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(256);
             doSignVerify("SHA3-384withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -400,15 +335,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_512withECDSA_256() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(256);
             doSignVerify("SHA3-512withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -416,15 +349,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_224withECDSA_384() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(384);
             doSignVerify("SHA3-224withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -432,15 +363,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256withECDSA_384() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(384);
             doSignVerify("SHA3-256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -448,15 +377,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_384withECDSA_384() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(384);
             doSignVerify("SHA3-384withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -464,15 +391,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_512withECDSA_384() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(384);
             doSignVerify("SHA3-512withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -480,15 +405,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_224withECDSA_521() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(521);
             doSignVerify("SHA3-224withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -496,15 +419,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256withECDSA_521() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(521);
             doSignVerify("SHA3-256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -512,15 +433,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_384withECDSA_521() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(521);
             doSignVerify("SHA3-384withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -528,15 +447,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_512withECDSA_521() throws Exception {
         try {
             KeyPair keyPair = generateKeyPair(521);
             doSignVerify("SHA3-512withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -544,71 +461,59 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDatawithECDSA_192() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports cuirve P-192. So skip test
             return;
         }
         KeyPair keyPair = generateKeyPair(192);
-        MessageDigest md = MessageDigest.getInstance("SHA-1", providerName);
+        MessageDigest md = MessageDigest.getInstance("SHA-1", getProviderName());
         md.update(origMsg);
         byte[] digest = md.digest();
         doSignVerify("NONEwithECDSA", digest, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDatawithECDSA_224() throws Exception {
         KeyPair keyPair = generateKeyPair(224);
-        MessageDigest md = MessageDigest.getInstance("SHA-224", providerName);
+        MessageDigest md = MessageDigest.getInstance("SHA-224", getProviderName());
         md.update(origMsg);
         byte[] digest = md.digest();
         doSignVerify("NONEwithECDSA", digest, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDatawithECDSA_256() throws Exception {
         KeyPair keyPair = generateKeyPair(256);
-        MessageDigest md = MessageDigest.getInstance("SHA-256", providerName);
+        MessageDigest md = MessageDigest.getInstance("SHA-256", getProviderName());
         md.update(origMsg);
         byte[] digest = md.digest();
         doSignVerify("NONEwithECDSA", digest, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDatawithECDSA_384() throws Exception {
         KeyPair keyPair = generateKeyPair(384);
-        MessageDigest md = MessageDigest.getInstance("SHA-384", providerName);
+        MessageDigest md = MessageDigest.getInstance("SHA-384", getProviderName());
         md.update(origMsg);
         byte[] digest = md.digest();
         doSignVerify("NONEwithECDSA", digest, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDatawithECDSA_521() throws Exception {
         KeyPair keyPair = generateKeyPair(521);
-        MessageDigest md = MessageDigest.getInstance("SHA-512", providerName);
+        MessageDigest md = MessageDigest.getInstance("SHA-512", getProviderName());
         md.update(origMsg);
         byte[] digest = md.digest();
         doSignVerify("NONEwithECDSA", digest, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDatawithECDSA_longdgst_err_224() throws Exception {
         KeyPair keyPair = generateKeyPair(224);
-        MessageDigest md = MessageDigest.getInstance("SHA-256", providerName);
+        MessageDigest md = MessageDigest.getInstance("SHA-256", getProviderName());
         md.update(origMsg);
         byte[] digest = md.digest();
         try {
@@ -621,12 +526,10 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDatawithECDSA_longdgst_err_256() throws Exception {
         KeyPair keyPair = generateKeyPair(256);
-        MessageDigest md = MessageDigest.getInstance("SHA-512", providerName);
+        MessageDigest md = MessageDigest.getInstance("SHA-512", getProviderName());
         md.update(origMsg);
         byte[] digest = md.digest();
         try {
@@ -639,12 +542,10 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDatawithECDSA_longdgst_err_384() throws Exception {
         KeyPair keyPair = generateKeyPair(384);
-        MessageDigest md = MessageDigest.getInstance("SHA-512", providerName);
+        MessageDigest md = MessageDigest.getInstance("SHA-512", getProviderName());
         md.update(origMsg);
         byte[] digest = md.digest();
         try {
@@ -657,12 +558,10 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testDatawithECDSA_longdgst_err_512() throws Exception {
         KeyPair keyPair = generateKeyPair(512);
-        MessageDigest md = MessageDigest.getInstance("SHA-512", providerName);
+        MessageDigest md = MessageDigest.getInstance("SHA-512", getProviderName());
         md.update(origMsg);
         byte[] digest = md.digest();
         byte[] digestLarge = new byte[digest.length * 2];
@@ -678,9 +577,10 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
+    @Test
     public void testDatawithECDSA_longdgst_521() throws Exception {
         KeyPair keyPair = generateKeyPair(521);
-        MessageDigest md = MessageDigest.getInstance("SHA-512", providerName);
+        MessageDigest md = MessageDigest.getInstance("SHA-512", getProviderName());
         md.update(origMsg);
         byte[] digest = md.digest();
         byte[] digestLarge = new byte[digest.length * 2];
@@ -694,11 +594,14 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    /* Tests with supported curveNames */
+    /**
+     *  Tests with supported curveNames
+     */
+    @Test
     public void testSHA256withECDSA_256curves() throws Exception {
 
         KeyPair keyPair = null;
-        if (!providerName.equals("OpenJCEPlusFIPS")) {
+        if (!getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support these curves. So skip test
             keyPair = generateKeyPair("secp256k1");
             doSignVerify("SHA256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
@@ -722,6 +625,7 @@ public class BaseTestECDSASignature extends BaseTestSignature {
 
     }
 
+    @Test
     public void testSHA256withECDSA_384curves() throws Exception {
         KeyPair keyPair = generateKeyPair("secp384r1");
         doSignVerify("SHA384withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
@@ -734,6 +638,7 @@ public class BaseTestECDSASignature extends BaseTestSignature {
 
     }
 
+    @Test
     public void testSHA256withECDSA_521curves() throws Exception {
         KeyPair keyPair = generateKeyPair("secp521r1");
         doSignVerify("SHA512withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
@@ -746,8 +651,9 @@ public class BaseTestECDSASignature extends BaseTestSignature {
 
     }
 
+    @Test
     public void testSHA224withECDSA_160curves() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports cuirve P-192. So skip test
             return;
         }
@@ -770,9 +676,10 @@ public class BaseTestECDSASignature extends BaseTestSignature {
 
     }
 
+    @Test
     public void testSHA224withECDSA_192curves() throws Exception {
 
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports cuirve P-192. So skip test
             return;
         }
@@ -792,10 +699,11 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         doSignVerify("SHA224withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
+    @Test
     public void testSHA224withECDSA_124curves() throws Exception {
 
         KeyPair keyPair = null;
-        if (!providerName.equals("OpenJCEPlusFIPS")) {
+        if (!getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support this. so skip test
             keyPair = generateKeyPair("secp224k1");
             doSignVerify("SHA256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
@@ -812,12 +720,13 @@ public class BaseTestECDSASignature extends BaseTestSignature {
 
     }
 
+    @Test
     public void testX962PrimeCurves() throws Exception {
 
 
         /* ANSI X9.62 prime curves */
 
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support this. so skip test
             return;
         }
@@ -849,17 +758,31 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         doSignVerify("SHA256withECDSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    // OSB Oracle Security Fix 8277233 test
+    @Test
     public void testPostiveSigBytes() throws Exception {
-        doTestPositiveSigBytes("EC", "SHA256withECDSA", this.providerName);
+        doTestPositiveSigBytes("EC", "SHA256withECDSA", this.getProviderName());
 
-        if (!providerName.equals("OpenJCEPlusFIPS")) {
+        if (!getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support this. so skip test
-            doTestPositiveSigBytes("DSA", "SHA256withDSA", this.providerName);
+            doTestPositiveSigBytes("DSA", "SHA256withDSA", this.getProviderName());
         }
     }
 
-    void doTestPositiveSigBytes(String keyAlg, String sigAlg, String providerName)
+    @ParameterizedTest
+    @ValueSource(strings = {"secp256r1", "secp384r1", "secp521r1"})
+    public void testECDSASignatureWithInvalidKeySpec(String curveName) throws Exception {
+        ECPrivateKey ecPrivKey = generateInvalidPrivateKey(curveName);
+        Signature sig = Signature.getInstance("SHA256withECDSA", this.getProviderName());
+        try {
+            sig.initSign(ecPrivKey);
+            fail("Expected <java.security.InvalidKeyException> to be thrown");
+        } catch (java.security.InvalidKeyException ike) {
+            System.out.println("Expected exception <java.security.InvalidKeyException> for " +
+                                "ECDSA/SHA256withECDSA/" + curveName + "is caught.");
+        }
+    }
+
+    private void doTestPositiveSigBytes(String keyAlg, String sigAlg, String providerName)
             throws Exception {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance(keyAlg, providerName);
         KeyPair kp = kpg.generateKeyPair();
@@ -885,20 +808,36 @@ public class BaseTestECDSASignature extends BaseTestSignature {
         }
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     private KeyPair generateKeyPair(int keysize) throws Exception {
-        KeyPairGenerator ecKeyPairGen = KeyPairGenerator.getInstance("EC", providerName);
+        KeyPairGenerator ecKeyPairGen = KeyPairGenerator.getInstance("EC", getProviderName());
         ecKeyPairGen.initialize(keysize);
         return ecKeyPairGen.generateKeyPair();
     }
 
     private KeyPair generateKeyPair(String curveName) throws Exception {
-        KeyPairGenerator ecKeyPairGen = KeyPairGenerator.getInstance("EC", providerName);
+        KeyPairGenerator ecKeyPairGen = KeyPairGenerator.getInstance("EC", getProviderName());
         ECGenParameterSpec ecgenParameterSpec = new ECGenParameterSpec(curveName);
         ecKeyPairGen.initialize(ecgenParameterSpec);
         return ecKeyPairGen.generateKeyPair();
     }
 
+    public final ECPrivateKey generateInvalidPrivateKey(String curveName) throws Exception {
+        System.out.println("Creating private key for curve " + curveName);
+
+        AlgorithmParameters params = AlgorithmParameters.getInstance("EC", getProviderName());
+        params.init(new ECGenParameterSpec(curveName));
+        ECParameterSpec ecParameters = params.getParameterSpec(ECParameterSpec.class);
+        BigInteger order = ecParameters.getOrder(); // the N value
+        System.out.println("Order is: " + order);
+
+        // Create a private key value (d) that is outside the range
+        // [1, N-1]
+        BigInteger dVal = order.add(BigInteger.TWO);
+        System.out.println("Modified d Value is: " + dVal);
+
+        // Create the private key
+        KeyFactory kf = KeyFactory.getInstance("EC", getProviderName());
+        return (ECPrivateKey) kf.generatePrivate(new ECPrivateKeySpec(dVal, ecParameters));
+    }
 }

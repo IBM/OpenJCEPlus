@@ -13,14 +13,27 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>OpenJCEPlus</artifactId>
-    <version>22</version>
+    <version>23</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
-        <jupiter.version>5.10.3</jupiter.version>
     </properties>
         <profiles>
+          <profile>
+            <id>Profile for linux aarch64</id>
+            <activation>
+              <os>
+                <name>linux</name>
+                <arch>aarch64</arch>
+              </os>
+            </activation>
+            <properties>
+                <build.native.file>${basedir}/buildNative.sh</build.native.file>
+                <build.platform.value>arm-linux64</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-xr-64/</build.target.jgskitlib.dir>
+            </properties>
+          </profile>
           <profile>
             <id>Profile for linux amd64</id>
             <activation>
@@ -101,17 +114,31 @@
             </activation>
             <properties>
                 <build.native.file>${basedir}/buildNativeMac.sh</build.native.file>
-                <build.platform.value>Mac</build.platform.value>
-                <build.target.jgskitlib.dir>${project.basedir}/target/buildmac/aarch64/</build.target.jgskitlib.dir>
+                <build.platform.value>aarch64-mac</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-aarch64-mac/</build.target.jgskitlib.dir>
             </properties>
           </profile>
           <profile>
-            <id>Profile for JDK 22 Build</id>
+            <id>Profile for Mac OS X x86-64</id>
             <activation>
-              <jdk>22</jdk>
+              <os>
+                <name>Mac OS X</name>
+                <arch>x86_64</arch>
+              </os>
             </activation>
             <properties>
-                <jdk.build.target>22</jdk.build.target>
+                <build.native.file>${basedir}/buildNativeMac.sh</build.native.file>
+                <build.platform.value>x86_64-mac</build.platform.value>
+                <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-x86_64-mac/</build.target.jgskitlib.dir>
+            </properties>
+          </profile>
+          <profile>
+            <id>Profile for JDK 23 Build</id>
+            <activation>
+              <jdk>23</jdk>
+            </activation>
+            <properties>
+                <jdk.build.target>23</jdk.build.target>
             </properties>
           </profile>
           <!--
@@ -138,6 +165,7 @@
                   <configuration>
                     <useModulePath>false</useModulePath>
                     <!-- Could add -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:8787 for debug -->
+                    <!-- Could add -Djava.security.auth.debug=all for debug -->
                     <argLine>
                       @{argLine}
                       --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
@@ -161,11 +189,11 @@
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.multithread=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.integration=ALL-UNNAMED
+                      --add-opens=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
                     <systemPropertyVariables>
                       <jgskit.library.path>${build.target.jgskitlib.dir}</jgskit.library.path>
-                      <!--java.security.auth.debug>all</java.security.auth.debug-->
                     </systemPropertyVariables>
                     <includes>
                       <include>
@@ -196,6 +224,8 @@
             </activation>
             <properties>
               <test.compilation.export.target>ALL-UNNAMED</test.compilation.export.target>
+              <skip.native.compile>true</skip.native.compile>
+              <build.native.file>None_not_really_used_here</build.native.file>
             </properties>
             <build>
               <plugins>
@@ -206,6 +236,7 @@
                   <configuration>
                     <useModulePath>false</useModulePath>
                     <trimStackTrace>false</trimStackTrace>
+                    <!-- Could add -Djava.security.auth.debug=all for debug -->
                     <argLine>
                       --add-exports openjceplus/com.ibm.crypto.plus.provider.ock=ALL-UNNAMED
                       --add-exports java.base/sun.security.util=ALL-UNNAMED
@@ -257,8 +288,8 @@
                         <message>"Property ock.library.path is not set, perhaps this required property is missing from the command line?"</message>
                       </requireProperty>
                       <requireJavaVersion>
-                        <version>x = 22</version>
-                        <message>"Java 22 required to build OpenJCEPlus."</message>
+                        <version>x = 23</version>
+                        <message>"Java 23 required to build OpenJCEPlus."</message>
                       </requireJavaVersion>
                       <requireEnvironmentVariable>
                         <variableName>JAVA_HOME</variableName>
@@ -275,7 +306,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.5.0</version>
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
@@ -300,7 +331,7 @@
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
               <artifactId>exec-maven-plugin</artifactId>
-              <version>3.3.0</version>
+              <version>3.4.1</version>
               <executions>
                 <execution>
                   <id>Execute Native Library Build Script</id>
@@ -309,6 +340,7 @@
                     <goal>exec</goal>
                   </goals>
                   <configuration>
+                    <skip>${skip.native.compile}</skip>
                     <environmentVariables>
                       <PLATFORM>${build.platform.value}</PLATFORM>
                     </environmentVariables>
@@ -342,19 +374,20 @@
                         <arg>java.base/jdk.internal.logger=openjceplus</arg>
                         <!--
                         Exports statements below this line are necessary for
-                        compiling only the test source with target `test-compile`.
+                        compiling the test source with target `test-compile`.
                         When compiling only the tests, using an SDK that contains
-                        a bundled version of OpenJCEPlus, the packages com.ibm.misc and
-                        com.ibm.crypto.plus.provider.ock must be explictly exported
-                        for unit testing purposes for the tests to compile.
+                        a bundled version of OpenJCEPlus, some packages must
+                        still be explicitly exported for compilation to pass.
                         -->
                         <arg>--add-exports </arg>
-                        <arg>openjceplus/com.ibm.misc=ALL-UNNAMED</arg>
-                        <arg>--add-exports </arg>
                         <arg>openjceplus/com.ibm.crypto.plus.provider.ock=ALL-UNNAMED</arg>
+                        <arg>--add-exports </arg>
+                        <arg>java.base/sun.util.logging=ALL-UNNAMED</arg>
+                        <arg>--add-exports </arg>
+                        <arg>java.base/jdk.internal.logger=ALL-UNNAMED</arg>
                     </compilerArgs>
                     <fork>true</fork>
-                    <debug>true</debug>  
+                    <debug>true</debug>
                 </configuration>
             </plugin>
             <plugin> <!-- Make sure we have the correct entries in the manifest file. -->
@@ -459,19 +492,6 @@
             </resource>
         </resources>
     </build>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>5.10.3</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
@@ -481,7 +501,7 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>3.4.0</version>
+            <version>3.6.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.maven.reporting</groupId>
@@ -491,22 +511,31 @@
                     <groupId>org.apache.maven</groupId>
                     <artifactId>maven-core</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>33.3.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.reporting</groupId>
             <artifactId>maven-reporting-impl</artifactId>
-            <version>4.0.0-M15</version>
+            <version>4.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>3.9.8</version>
+            <version>4.0.0-beta-5</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
@@ -516,7 +545,7 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.5.2</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -525,39 +554,33 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>5.10.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
-            <version>1.10.3</version>
+            <version>1.11.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${jupiter.version}</version>
+            <version>5.11.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${jupiter.version}</version>
+            <version>5.11.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>${jupiter.version}</version>
+            <version>5.11.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.13.0</version>
+            <version>4.0.0-beta-1</version>
             <type>maven-plugin</type>
             <exclusions>
                 <exclusion>
@@ -569,12 +592,12 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.16.1</version>
+            <version>2.17.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
-            <version>3.4.2</version>
+            <version>4.0.0-beta-1</version>
             <type>maven-plugin</type>
             <exclusions>
                 <exclusion>
@@ -595,7 +618,7 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-archiver</artifactId>
-            <version>4.9.2</version>
+            <version>4.10.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.codehaus.plexus</groupId>
@@ -606,22 +629,22 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.26.2</version>
+            <version>1.27.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-clean-plugin</artifactId>
-            <version>3.4.0</version>
+            <version>4.0.0-beta-1</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.78.1</version>
+            <version>1.79</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk18on</artifactId>
-            <version>1.78.1</version>
+            <version>1.79</version>
         </dependency>
         <dependency>
           <groupId>org.bouncycastle</groupId>

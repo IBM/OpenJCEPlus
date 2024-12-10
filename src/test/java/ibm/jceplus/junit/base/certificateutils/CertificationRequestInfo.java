@@ -14,9 +14,6 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PublicKey;
 import java.util.Arrays;
-
-import com.ibm.misc.Debug;
-
 import sun.security.pkcs.PKCS9Attribute;
 import sun.security.pkcs.PKCS9Attributes;
 import sun.security.util.DerOutputStream;

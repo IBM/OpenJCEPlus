@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.ECKey;
+import com.ibm.crypto.plus.provider.ock.OCKException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -24,8 +26,6 @@ import javax.crypto.KeyAgreementSpi;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
-import com.ibm.crypto.plus.provider.ock.ECKey;
-import com.ibm.crypto.plus.provider.ock.OCKException;
 
 public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
                                                               // AlgorithmStatus
@@ -312,7 +312,7 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
             throw new InvalidKeyException("Key is not an ECPrivateKey");
         }
         java.security.interfaces.ECPrivateKey ecPrivKey = (java.security.interfaces.ECPrivateKey) key;
-
+        sun.security.util.ECUtil.checkPrivateKey(ecPrivKey);
         // check if private key parameters are compatible with
         // initialized ones
         if (params != null) {

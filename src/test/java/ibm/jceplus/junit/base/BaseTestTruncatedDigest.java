@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -10,14 +10,13 @@ package ibm.jceplus.junit.base;
 import java.security.AlgorithmParameters;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.Security;
 import java.security.Signature;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestTruncatedDigest extends BaseTestSignature {
-
+public class BaseTestTruncatedDigest extends BaseTestJunit5Signature {
 
     String IBM_ALG = "RSAPSS";
 
@@ -72,28 +71,19 @@ public class BaseTestTruncatedDigest extends BaseTestSignature {
     final int NONDEFAULT_PARAMS = 2;
     final int PARAMS_SALT40 = 3;
 
-
-    public BaseTestTruncatedDigest(String providerName) {
-        super(providerName);
-        Security.addProvider(new BouncyCastleProvider());
-    }
-
-    public void setUp() throws Exception {}
-
-
     /**
      * SHA512/224
      * @throws Exception
      */
+    @Test
     public void testRSASignatureSHA512_224() throws Exception {
 
 
         PSSParameterSpec pssParameter = new PSSParameterSpec("SHA-512", "MGF1",
                 MGF1ParameterSpec.SHA512, 64, 1);
         try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, providerName);
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -101,9 +91,8 @@ public class BaseTestTruncatedDigest extends BaseTestSignature {
         //         MGF1ParameterSpec.SHA512_224,28, 1);
         // try {
         //     dotestSignature(content, IBM_ALG, 2048, pssParameter2,
-        //             providerName);
+        //             getProviderName());
         // } catch (Exception e) {
-        //     // TODO Auto-generated catch block
         //     e.printStackTrace();
         // }
 
@@ -112,10 +101,9 @@ public class BaseTestTruncatedDigest extends BaseTestSignature {
         // PSSParameterSpec pssParameter = new PSSParameterSpec("SHA-512", "MGF1",
         //         MGF1ParameterSpec.SHA512,64, 1);
         try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter3, providerName);
+            dotestSignature(content, IBM_ALG, 2048, pssParameter3, getProviderName());
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             assertTrue(false);
         }
@@ -125,22 +113,16 @@ public class BaseTestTruncatedDigest extends BaseTestSignature {
      * SHA512/256
      * @throws Exception
      */
-    // public void testRSASignatureSHA512_256() throws Exception {
-
-    //     PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512/256", "MGF1",
-    //             MGF1ParameterSpec.SHA512_256,20, 1);
-    //     try {
-    //         dotestSignature(content, IBM_ALG, 2048, pssParameter,
-    //                 providerName);
-
-    //     } catch (Exception e) {
-    //         // TODO Auto-generated catch block
-    //         e.printStackTrace();
-    //         assertTrue(false);
-    //     }
-    // }
-
-
+    public void testRSASignatureSHA512_256() throws Exception {
+        PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512/256", "MGF1",
+                MGF1ParameterSpec.SHA512_256,20, 1);
+        try {
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
+        } catch (Exception e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
     /**
      * Helper method
@@ -151,7 +133,6 @@ public class BaseTestTruncatedDigest extends BaseTestSignature {
      * @param jceprovider
      * @throws Exception
      */
-
     protected void dotestSignature(byte[] content, String algorithm, int keySize,
             PSSParameterSpec pssParameterSpec, String jceprovider) throws Exception {
 
@@ -182,7 +163,7 @@ public class BaseTestTruncatedDigest extends BaseTestSignature {
 
         // Check Signature
         // Signature verifySig = Signature.getInstance("SHA1withRSA/PSS",
-        // providerName);
+        // getProviderName());
         // verifySig.initVerify(cert);
         // verifySig.update(content);
         boolean signatureVerified = sig.verify(sigBytes);

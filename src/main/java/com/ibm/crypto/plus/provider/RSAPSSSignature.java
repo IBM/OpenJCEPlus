@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS;
+import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS.InitOp;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
@@ -25,8 +27,6 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.util.Arrays;
 import java.util.Hashtable;
-import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS;
-import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS.InitOp;
 
 /**
  * PKCS#1 RSA-PSS signatures with the various message digest algorithms. This
@@ -489,23 +489,6 @@ public final class RSAPSSSignature extends SignatureSpi {
         }
         return buf.toString();
     }
-    /**
-     * Function used in NIST testing only - Uncomment this.
-     *
-     * @param s
-     * @return
-     */
-
-    // public static byte[] hexStringToByteArray(String s) {
-    // byte[] b = new byte[s.length() / 2];
-    // for (int i = 0; i < b.length; i++) {
-    // int index = i * 2;
-    // int v = Integer.parseInt(s.substring(index, index + 2), 16);
-    // b[i] = (byte) v;
-    // }
-    // return b;
-    // }
-
 
     /**
      * Utility method for checking key length against digest length and

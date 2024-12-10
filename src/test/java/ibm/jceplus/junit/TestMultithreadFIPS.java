@@ -15,68 +15,79 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import org.junit.platform.launcher.listeners.TestExecutionSummary;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Request;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-public class TestMultithreadFIPS extends TestCase {
+public class TestMultithreadFIPS {
     private final int numThreads = 10;
-    private final int timeoutSec = 1500;
-    private final String[] testList = {"ibm.jceplus.junit.openjceplusfips.multithread.TestAliases",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMUpdate",*/
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCopySafe",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCipherInputStreamExceptions",
+    private final int timeoutSec = 4500;
+    private final String[] testList = {
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAES_128",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAES_192",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAES_256",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_128",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_192",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_256",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCM",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMSameBuffer",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithByteBuffer",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCMAndAAD",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESCipherInputStreamExceptions",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESCopySafe",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMLong",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_128",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_192",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCM_256",*/
-            "ibm.jceplus.junit.openjceplus.multithread.TestDH",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMNonExpanding",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMSameBuffer",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMUpdate",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithByteBuffer",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestAliases",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestDESede",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestDH",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestDSAKey",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestDSASignatureInteropSUN",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestECDH",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestECDHInteropSunEC",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestDSAKey",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAES_128",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAES_192",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAES_256",*/
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestDESede",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestECDSASignature",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestDSASignatureInteropSUN",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestHmacMD5", */
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestHmacMD5InteropSunJCE",*/
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestHKDF",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA256",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA256InteropSunJCE",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA256Clone_SharedMD",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA3_224",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA3_256",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA3_384",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA3_512",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestMiniRSAPSS2",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignature",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestRSA_2048",*/
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSA_2048",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAKey",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignatureInteropSunRsaSign",
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestHKDF",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestMiniRSAPSS2",*/
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCMAndAAD",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMNonExpanding"//,
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithKeyAndIvCheck",*/
-            /*"ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS2",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop2",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop3"*/};
+            //"ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop2",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop3",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignatureInteropSunRsaSign",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA256Clone_SharedMD",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA3_224",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA3_256",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA3_384",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA3_512",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512_224",
+            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512_256",
+            //"ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMWithKeyAndIvCheck", // test not in other test suites?
+    };
     public final Object ob = new Object();
 
     public TestMultithreadFIPS() {}
 
-    private boolean assertConcurrent(final String message, final Callable<List<Failure>> callable,
+    private boolean assertConcurrent(final String message, final Callable<List<TestExecutionSummary.Failure>> callable,
             final int maxTimeoutSeconds) throws InterruptedException {
         boolean failed = false;
         final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<Throwable>());
-        final List<Failure> failures = Collections.synchronizedList(new ArrayList<Failure>());
+        final List<TestExecutionSummary.Failure> failures = Collections.synchronizedList(new ArrayList<TestExecutionSummary.Failure>());
         final ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
         try {
             final CountDownLatch allExecutorThreadsReady = new CountDownLatch(numThreads);
@@ -99,12 +110,13 @@ public class TestMultithreadFIPS extends TestCase {
             }
             // wait until all threads are ready
             assertTrue(
-                    "Timeout initializing threads! Perform long lasting initializations before passing runnables to assertConcurrent",
-                    allExecutorThreadsReady.await(numThreads * 50, TimeUnit.MILLISECONDS));
+                    allExecutorThreadsReady.await(numThreads * 100, TimeUnit.MILLISECONDS),
+                    "Timeout initializing threads! Perform long lasting initializations before passing runnables to assertConcurrent");
             // start all test runners
             afterInitBlocker.countDown();
-            assertTrue(message + " timeout! More than " + maxTimeoutSeconds + " seconds",
-                    allDone.await(maxTimeoutSeconds, TimeUnit.SECONDS));
+            assertTrue(
+                    allDone.await(maxTimeoutSeconds, TimeUnit.SECONDS),
+                    message + " timeout! More than " + maxTimeoutSeconds + " seconds");
         } finally {
             threadPool.shutdownNow();
         }
@@ -115,7 +127,7 @@ public class TestMultithreadFIPS extends TestCase {
         }
         failed = !exceptions.isEmpty();
 
-        for (Failure failure : failures) {
+        for (TestExecutionSummary.Failure failure : failures) {
             failure.getException().printStackTrace();
         }
         failed = !failures.isEmpty();
@@ -123,29 +135,24 @@ public class TestMultithreadFIPS extends TestCase {
         return failed;
     }
 
-    private Callable<List<Failure>> testToCallable(String classAndMethod) {
-        String[] classAndMethodList = classAndMethod.split("#");
-        try {
-            Request request = null;
-            if (classAndMethodList.length == 2) {
-                request = Request.method(Class.forName(classAndMethodList[0]),
-                        classAndMethodList[1]);
-            } else {
-                request = Request.aClass(Class.forName(classAndMethodList[0]));
+    private Callable<List<TestExecutionSummary.Failure>> testToCallable(String className) {
+        SummaryGeneratingListener listener = new SummaryGeneratingListener();
+        LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request().
+            selectors(selectClass(className)).build();
+        
+        Launcher launcher = LauncherFactory.create();
+        launcher.discover(request);
+        launcher.registerTestExecutionListeners(listener);
+
+        return new Callable<List<TestExecutionSummary.Failure>>() {
+            public List<TestExecutionSummary.Failure> call() {
+                launcher.execute(request);
+                return listener.getSummary().getFailures();
             }
-            final Request myrequest = request;
-            return new Callable<List<Failure>>() {
-                public List<Failure> call() {
-                    Result result = new JUnitCore().run(myrequest);
-                    return result.getFailures();
-                }
-            };
-        } catch (ClassNotFoundException ex) {
-            assertTrue("Class not Found: " + classAndMethod, false);
-        }
-        return null;
+        };
     }
 
+    @Test
     public void testMultithreadFIPS() {
         System.out.println("#threads=" + numThreads + " timeout=" + timeoutSec);
 
@@ -169,14 +176,5 @@ public class TestMultithreadFIPS extends TestCase {
                 fail("Failed tests:\n\t" + allFailedTests);
             }
         }
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TestMultithreadFIPS.class);
-        return suite;
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
     }
 }

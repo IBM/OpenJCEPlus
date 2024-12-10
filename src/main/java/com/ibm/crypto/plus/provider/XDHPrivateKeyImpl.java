@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
+import com.ibm.crypto.plus.provider.ock.XECKey;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -20,13 +22,8 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
 import java.util.Optional;
-
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
-
-import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
-import com.ibm.crypto.plus.provider.ock.XECKey;
-
 import sun.security.pkcs.PKCS8Key;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
@@ -314,11 +311,11 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
 
         // Read, convert, then write private key
         byte[] keyBytes = inputValue[2].getOctetString();
-        DerInputStream derStream = new DerInputStream(keyBytes);
         try {
             // XDH private key in SunEC new Java 17 design requires [octet-string[octet-string[key-bytes]]] format,
             // otherwise, it causes interop issue.
             if (isCorrectlyFormedOctetString(keyBytes)) {
+                DerInputStream derStream = new DerInputStream(keyBytes);
                 k = derStream.getOctetString(); // We know we are working with the format [octet-string[octet-string[key-bytes]]]
             } else {
                 k = keyBytes; // Try J11 format [octet-string[key-bytes]]

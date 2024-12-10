@@ -8,8 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import java.security.ProviderException;
 import com.ibm.crypto.plus.provider.ock.OCKContext;
+import java.security.ProviderException;
 
 // Internal interface for OpenJCEPlus and OpenJCEPlus implementation classes.
 // Implemented as an abstract class rather than an interface so that 
@@ -24,8 +24,7 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
 
     private static final String JAVA_VER = System.getProperty("java.specification.version");
 
-    // Are we debugging? -- for developers
-    static final boolean debug2 = false;
+    static final String DEBUG_VALUE = "jceplus";
 
     //    private static boolean verifiedSelfIntegrity = false;
     private static boolean verifiedSelfIntegrity = true;

@@ -36,16 +36,18 @@ Build Status:
 | Windows Server 2022     | amd64       |
 | AIX                     | ppc64       |
 | Mac OS X*               | aarch64*    |
+| Mac OS X*               | amd64*      |
 * Mac OS X currently is only able to compile and run tests using the `OpenJCEPlus` provider, not `OpenJCEPlusFIPS`. The provider `OpenJCEPlusFIPS` will not load.
 
-Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with a dependent Java Native Interface library. Keep in mind that `$PROJECT_HOME` can represent any directory on your
-system and will be referred to as such in the subsequent instructions:
+Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with a dependent Java Native Interface library. Keep in mind that `$PROJECT_HOME` can represent any directory on your system and will be referred to as such in the subsequent instructions. Also keep in mind that the value `$JAVA_VERSION` below must match the same version of the branch of OpenJCEPlus being built. For example if building the `java21` branch the `$JAVA_VERSION` must match the Java 21 SDK version such as `21.0.2+13`.
 
 1. Create an OCK directory, for example:
 
     ```console
     mkdir $PROJECT_HOME/OCK
     ```
+
+1. Follow instructions available in the project [OpenCryptographyKitC](https://github.com/IBM/OpenCryptographyKitC/) to build both the SDK tar file and the binary distribution tar file. You can also refer to this projects [github-actions.yml](.github/workflows/github-actions.yml) file for details on how this project incorporates and builds the [OpenCryptographyKitC](https://github.com/IBM/OpenCryptographyKitC/) project for testing purposes.
 
 1. Extract the Java gskit SDK tar and gskit tar file into the directory previously created:
 
@@ -57,24 +59,22 @@ system and will be referred to as such in the subsequent instructions:
 
 1. Copy the OCK library referred to as ICC to the correct location:
 
-   Create the `lib64` directory and copy the `libjgsk8iccs_64.so` library to that location:
+    Based on the platform, the library file (i.e., `$LIBJGSKIT_LIBRARY`) is named differently. The  values are as follows:
+   * AIX/Linux: `libjgsk8iccs_64.so`
+   * Mac OS X: `libjgsk8iccs.dylib`
+   * Windows: `jgsk8iccs_64.dll`
+
+   Create the `lib64` directory and copy the `$LIBJGSKIT_LIBRARY` library to that location:
 
    ```console
    mkdir $PROJECT_HOME/OCK/jgsk_sdk/lib64
-   cp $PROJECT_HOME/OCK/libjgsk8iccs_64.so $PROJECT_HOME/OCK/jgsk_sdk/lib64
+   cp $PROJECT_HOME/OCK/$LIBJGSKIT_LIBRARY $PROJECT_HOME/OCK/jgsk_sdk/lib64
    ```
 
-   On AIX copy the library to the `jgsk_sdk` directory **in addition** to the `lib64` directory above.
+   On AIX also copy the library to the `jgsk_sdk` directory **in addition** to the `lib64` directory above.
 
    ```console
-   cp $PROJECT_HOME/OCK/libjgsk8iccs_64.so $PROJECT_HOME/OCK/jgsk_sdk
-   ```
-
-   On Mac:
-
-   ```console
-   mkdir $PROJECT_HOME/OCK/jgsk_crypto_sdk/jgsk_sdk/lib64
-   cp $PROJECT_HOME/OCK/jgsk_crypto/libjgsk8iccs_64.so $PROJECT_HOME/OCK/jgsk_crypto_sdk/jgsk_sdk/lib64
+   cp $PROJECT_HOME/OCK/$LIBJGSKIT_LIBRARY $PROJECT_HOME/OCK/jgsk_sdk
    ```
 
 1. Install `Maven` and place the command in your `PATH`. These instructions are OS dependant. It is recommended to make use of version `3.9.2`, although other versions of `Maven` are known to work.
@@ -84,12 +84,12 @@ You can test your installation by issuing `mvn --version`. For example:
     $ mvn --version
     Apache Maven 3.9.2 (c9616018c7a021c1c39be70fb2843d6f5f9b8a1c)
     Maven home: /tools/apache-maven-3.9.2
-    Java version: 1.8.0_361, vendor: IBM Corporation, runtime: /opt/ibm/sdks/jdk-22.0.1+8
+    Java version: $JAVA_VERSION, vendor: IBM Corporation, runtime: /opt/ibm/sdks/jdk-$JAVA_VERSION
     Default locale: en_US, platform encoding: ISO8859-1
     OS name: "aix", version: "7.2", arch: "ppc64", family: "unix"
     ```
 
-1. Clone the `OpenJCEPlus` respository.
+1. Clone the `OpenJCEPlus` repository.
 
 1. Change directory to the root directory where the `pom.xml` file exists.
 
@@ -100,7 +100,7 @@ You can test your installation by issuing `mvn --version`. For example:
 1. Set your `JAVA_HOME` environment variable. This will be the SDK used to compile the project. You must set your JAVA_HOME value to the latest generally available version of Java when using code located in the `main` branch.
 
     ```console
-    export JAVA_HOME="/opt/ibm/sdks/jdk-22.0.1+8"
+    export JAVA_HOME="/opt/ibm/sdks/jdk-$JAVA_VERSION"
     ```
 
 1. Set the location of the variable `GSKIT_SDK` to the directory extracted in the above steps.
@@ -108,12 +108,6 @@ You can test your installation by issuing `mvn --version`. For example:
     ```console
     export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
     ```
-
-   On Mac:
-
-   ```console
-   export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_crypto_sdk/jgsk_sdk"
-   ```
 
 1. **(Only for Windows)** Some additional environment variables need to be set in Windows. There are certain header files and libraries that are required to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers in a Windows environment and those files are found in the exported directories. It is assumed that you are running through a `CYGWIN` prompt.
 
@@ -147,16 +141,26 @@ Tests are available within the `OpenJCEPlus` repository. These Junit tests can b
 
 ### Run all tests
 
-On AIX you must set an additional setting for the `LIBPATH` environment variable:
+On AIX:
 
-```console
-export LIBPATH="$PROJECT_HOME/OCK/:$PROJECT_HOME/OCK/jgsk_sdk"
-```
+   * You must set an additional setting for the `LIBPATH` environment variable:
+
+   ```console
+    export LIBPATH="$PROJECT_HOME/OCK/:$PROJECT_HOME/OCK/jgsk_sdk"
+   ```
+
+   * If you are using a JDK that bundles `OpenJCEPlus`, like `Semeru`, and you want to make sure that you use an `OCK` library different than the one bundled with the JDK, you need to delete the bundled one. More specifically you need to run:
+
+   ```console
+    rm $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/libjgsk8iccs_64.so
+    rm -rf $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/C
+    rm -rf $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/N
+   ```
 
 On all platforms set the following environment variables and execute all the tests using `mvn`. You must set your JAVA_HOME value to the latest generally available version of Java when using code located in the `main` branch.
 
 ```console
-export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-22.0.1+8"
+export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION"
 export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
 mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test
 ```
@@ -175,7 +179,7 @@ On all platforms change to the OpenJCEPlus directory and set the following envir
 
 ```console
 cd OpenJCEPlus
-export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-22.0.1+8"
+export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION"
 export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
 mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test -Dtest=TestClassname
 ```
@@ -206,7 +210,7 @@ below represents your desired preference order.
 
 # Features And Algorithms
 
-The following algorothms are registered by the OpenJCEPlus and OpenJCEPlusFIPS providers.
+The following algorithms are registered by the OpenJCEPlus and OpenJCEPlusFIPS providers.
 
 | Algorithm Type            | Algorithm Name             | OpenJCEPlusFIPS | OpenJCEPlus  |
 | --------------------------|----------------------------|-----------------|--------------|

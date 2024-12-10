@@ -7,20 +7,30 @@
  */
 package ibm.jceplus.junit.openjceplusfips.integration;
 
+import ibm.jceplus.junit.base.integration.BaseTestTLS;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import ibm.jceplus.junit.base.integration.BaseTestTLS;
+public class TestTLS extends BaseTestTLS {
 
-public class TestTLS extends BaseTestTLS{
+    private static boolean insertProviderUponCleanup = false;
 
     @BeforeAll
     public static void init() throws Exception {
         if (java.security.Security.getProvider("OpenJCEPlus") != null) {
+            insertProviderUponCleanup = true;
             java.security.Security.removeProvider("OpenJCEPlus");
         }
         insertProvider("OpenJCEPlusFIPS", "com.ibm.crypto.plus.provider.OpenJCEPlusFIPS", 1);
+    }
+
+    @AfterAll
+    public static void cleanup() throws Exception {
+        if (insertProviderUponCleanup) {
+            insertProvider("OpenJCEPlus", "com.ibm.crypto.plus.provider.OpenJCEPlus", 2);
+        }
     }
     
     @ParameterizedTest
@@ -80,5 +90,4 @@ public class TestTLS extends BaseTestTLS{
     public void testTLS(String tlsProtocol, String keyType, String cipher) throws Exception {
         runServerClient(tlsProtocol, keyType, cipher);
     }
-    
 }

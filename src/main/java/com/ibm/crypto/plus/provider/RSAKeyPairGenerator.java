@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
+import com.ibm.crypto.plus.provider.ock.RSAKey;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -17,8 +19,6 @@ import java.security.KeyPairGeneratorSpi;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
-import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
-import com.ibm.crypto.plus.provider.ock.RSAKey;
 import sun.security.x509.AlgorithmId;
 
 abstract class RSAKeyPairGenerator extends KeyPairGeneratorSpi {
@@ -34,6 +34,7 @@ abstract class RSAKeyPairGenerator extends KeyPairGeneratorSpi {
     RSAKeyPairGenerator(OpenJCEPlusProvider provider, KeyType type, int keySize) {
         this.provider = provider;
         this.type = type;
+        this.rsaId = RSAUtil.createAlgorithmId(type, null);
         this.keysize = keySize;
     }
 
@@ -117,8 +118,8 @@ abstract class RSAKeyPairGenerator extends KeyPairGeneratorSpi {
         try {
             RSAKey rsaKey = RSAKey.generateKeyPair(provider.getOCKContext(), this.keysize,
                     this.publicExponent);
-            java.security.interfaces.RSAPrivateKey privKey = new RSAPrivateCrtKey(provider, rsaKey);
-            java.security.interfaces.RSAPublicKey pubKey = new RSAPublicKey(provider, rsaKey);
+            java.security.interfaces.RSAPrivateKey privKey = new RSAPrivateCrtKey(rsaId, provider, rsaKey);
+            java.security.interfaces.RSAPublicKey pubKey = new RSAPublicKey(rsaId, provider, rsaKey);
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
             throw provider.providerException("Failure in generateKeyPair", e);

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -25,14 +25,13 @@ import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestRSASignature extends BaseTestSignature {
+public class BaseTestRSASignature extends BaseTestJunit5Signature {
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
-    int keySize = 1024;
 
     static final BigInteger N = new BigInteger(
             "116231208661367609700141079576488663663527180869991078124978203037949869"
@@ -50,49 +49,17 @@ public class BaseTestRSASignature extends BaseTestSignature {
                     + "843638089774095747779777512895029847721754360216404183209801002443859648"
                     + "26168432372077852785");
 
-    //--------------------------------------------------------------------------
-    //
-    //
-
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestRSASignature(String providerName) {
-        super(providerName);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestRSASignature(String providerName, int size) {
-        super(providerName);
-        this.keySize = size;
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAPlainKeySignature() throws Exception {
 
         KeyFactory kf;
 
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support plain keys
             return;
         }
 
-        kf = KeyFactory.getInstance("RSA", providerName);
+        kf = KeyFactory.getInstance("RSA", getProviderName());
 
         RSAPublicKeySpec pubSpec = new RSAPublicKeySpec(N, E);
         PublicKey publicKey = kf.generatePublic(pubSpec);
@@ -103,19 +70,17 @@ public class BaseTestRSASignature extends BaseTestSignature {
         doSignVerify("SHA1withRSA", origMsg, privateKey, publicKey);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAPlainKeySSLSignature() throws Exception {
 
         KeyFactory kf;
 
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support plain keys
             return;
         }
 
-        kf = KeyFactory.getInstance("RSA", providerName);
+        kf = KeyFactory.getInstance("RSA", getProviderName());
 
         RSAPublicKeySpec pubSpec = new RSAPublicKeySpec(N, E);
         PublicKey publicKey = kf.generatePublic(pubSpec);
@@ -126,59 +91,47 @@ public class BaseTestRSASignature extends BaseTestSignature {
         doSignVerify("RSAforSSL", origMsg, privateKey, publicKey);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA1withRSA() throws Exception {
-        if (providerName.equals("OpenJCEPlusFIPS")) {
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //SHA1 not supported in FIPS
             return;
         }
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         doSignVerify("SHA1withRSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA224withRSA() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         doSignVerify("SHA224withRSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA256withRSA() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         doSignVerify("SHA256withRSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA384withRSA() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         doSignVerify("SHA384withRSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA512withRSA() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         doSignVerify("SHA512withRSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_224withRSA() throws Exception {
         try {
-            KeyPair keyPair = generateKeyPair(this.keySize);
+            KeyPair keyPair = generateKeyPair(getKeySize());
             doSignVerify("SHA3-224withRSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -186,15 +139,13 @@ public class BaseTestRSASignature extends BaseTestSignature {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_256withRSA() throws Exception {
         try {
-            KeyPair keyPair = generateKeyPair(this.keySize);
+            KeyPair keyPair = generateKeyPair(getKeySize());
             doSignVerify("SHA3-256withRSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -202,15 +153,13 @@ public class BaseTestRSASignature extends BaseTestSignature {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_384withRSA() throws Exception {
         try {
-            KeyPair keyPair = generateKeyPair(this.keySize);
+            KeyPair keyPair = generateKeyPair(getKeySize());
             doSignVerify("SHA3-384withRSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -218,15 +167,13 @@ public class BaseTestRSASignature extends BaseTestSignature {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testSHA3_512withRSA() throws Exception {
         try {
-            KeyPair keyPair = generateKeyPair(this.keySize);
+            KeyPair keyPair = generateKeyPair(getKeySize());
             doSignVerify("SHA3-512withRSA", origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (InvalidParameterException | InvalidKeyException | NoSuchAlgorithmException ipex) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertTrue(true);
             } else {
                 assertTrue(false);
@@ -234,126 +181,97 @@ public class BaseTestRSASignature extends BaseTestSignature {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAforSSL_hash1() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         byte[] sslHash = Arrays.copyOf(origMsg, 1);
         doSignVerify("RSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAforSSL_hash5() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         byte[] sslHash = Arrays.copyOf(origMsg, 5);
         doSignVerify("RSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAforSSL_hash20() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         byte[] sslHash = Arrays.copyOf(origMsg, 20);
         doSignVerify("RSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAforSSL_hash36() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         byte[] sslHash = Arrays.copyOf(origMsg, 36);
         doSignVerify("RSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testRSAforSSL_hash40() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         byte[] sslHash = Arrays.copyOf(origMsg, 40);
         doSignVerify("RSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testNONEwithRSA_hash1() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         byte[] sslHash = Arrays.copyOf(origMsg, 1);
         doSignVerify("NONEwithRSA", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testNONEwithRSA_hash5() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         byte[] sslHash = Arrays.copyOf(origMsg, 5);
         doSignVerify("NONEwithRSA", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testNONEwithRSA_hash20() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         byte[] sslHash = Arrays.copyOf(origMsg, 20);
         doSignVerify("NONEwithRSA", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testNONEwithRSA_hash36() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         byte[] sslHash = Arrays.copyOf(origMsg, 36);
         doSignVerify("NONEwithRSA", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testNONEwithRSA_hash40() throws Exception {
-        KeyPair keyPair = generateKeyPair(this.keySize);
+        KeyPair keyPair = generateKeyPair(getKeySize());
         byte[] sslHash = Arrays.copyOf(origMsg, 40);
         doSignVerify("NONEwithRSA", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     protected KeyPair generateKeyPair(int keysize) throws Exception {
-        KeyPairGenerator rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", providerName);
+        KeyPairGenerator rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", getProviderName());
         rsaKeyPairGen.initialize(keysize);
         return rsaKeyPairGen.generateKeyPair();
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     protected KeyPair generateKeyPairFromEncoded(int keysize) throws Exception {
-        KeyPairGenerator rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", providerName);
+        KeyPairGenerator rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", getProviderName());
         rsaKeyPairGen.initialize(keysize);
         KeyPair keyPair = rsaKeyPairGen.generateKeyPair();
 
         X509EncodedKeySpec x509Spec = new X509EncodedKeySpec(keyPair.getPublic().getEncoded());
         PKCS8EncodedKeySpec pkcs8Spec = new PKCS8EncodedKeySpec(keyPair.getPrivate().getEncoded());
 
-        KeyFactory rsaKeyFactory = KeyFactory.getInstance("RSA", providerName);
+        KeyFactory rsaKeyFactory = KeyFactory.getInstance("RSA", getProviderName());
 
         PublicKey publicKey = rsaKeyFactory.generatePublic(x509Spec);
         PrivateKey privateKey = rsaKeyFactory.generatePrivate(pkcs8Spec);
         return new KeyPair(publicKey, privateKey);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
     protected KeyPair generateKeyPairFromSpec() throws Exception {
         RSAPrivateCrtKeySpec crtSpec = new RSAPrivateCrtKeySpec(
                 new BigInteger("00BF6097526F553D345A702A86DA69A3C98379EFC52BD9246DBDD7F75B17CA115"
@@ -382,7 +300,7 @@ public class BaseTestRSASignature extends BaseTestSignature {
                                 + "48219A23BD70BF9FAEE7AA795D5A8537C90E88D3E4F8CA146907CB",
                         16));
 
-        KeyFactory rsaKeyFactory = KeyFactory.getInstance("RSA", providerName);
+        KeyFactory rsaKeyFactory = KeyFactory.getInstance("RSA", getProviderName());
 
         RSAPrivateCrtKey rsaPrivateKey = (RSAPrivateCrtKey) rsaKeyFactory.generatePrivate(crtSpec);
 

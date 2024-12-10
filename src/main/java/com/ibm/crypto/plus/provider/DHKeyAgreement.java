@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.DHKey;
+import com.ibm.crypto.plus.provider.ock.OCKException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -21,8 +23,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import com.ibm.crypto.plus.provider.ock.DHKey;
-import com.ibm.crypto.plus.provider.ock.OCKException;
 import sun.security.util.KeyUtil;
 
 public final class DHKeyAgreement extends KeyAgreementSpi {

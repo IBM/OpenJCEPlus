@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -30,29 +30,26 @@ import java.security.spec.XECPrivateKeySpec;
 import java.security.spec.XECPublicKeySpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
+public class BaseTestXDH extends BaseTestJunit5 {
 
-    public BaseTestXDH(String providerName) {
-        super(providerName);
-    }
-
-    public void setUp() throws Exception {}
-
-    public void tearDown() throws Exception {}
-
+    @Test
     public void testXDH_X25519() throws Exception {
         String curveName = "X25519";
         NamedParameterSpec nps = new NamedParameterSpec(curveName);
         compute_xdh_key(curveName, nps);
     }
 
+    @Test
     public void testXDH_X448() throws Exception {
         String curveName = "X448";
         NamedParameterSpec nps = new NamedParameterSpec(curveName);
         compute_xdh_key(curveName, nps);
     }
 
+    @Test
     public void testXDH_runBasicTests() throws Exception {
 
         System.out.println(
@@ -60,6 +57,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         runBasicTests();
     }
 
+    @Test
     public void testXDH_runKAT() throws Exception {
 
         System.out.println(
@@ -67,6 +65,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         runKAT();
     }
 
+    @Test
     public void testXDH_runSmallOrderTest() throws Exception {
 
         System.out.println(
@@ -74,6 +73,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         runSmallOrderTest();
     }
 
+    @Test
     public void testXDH_runNonCanonicalTest() throws Exception {
 
         System.out.println(
@@ -81,6 +81,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         runNonCanonicalTest();
     }
 
+    @Test
     public void testXDH_runCurveMixTest() throws Exception {
 
         System.out.println(
@@ -95,7 +96,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
 
         KeyPairGenerator kpgA = null;
         try {
-            kpgA = KeyPairGenerator.getInstance("XDH", providerName);
+            kpgA = KeyPairGenerator.getInstance("XDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -116,7 +117,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         // set up
         KeyAgreement keyAgreeA = null;
         try {
-            keyAgreeA = KeyAgreement.getInstance("XDH", providerName);
+            keyAgreeA = KeyAgreement.getInstance("XDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -134,7 +135,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         KeyPairGenerator kpgB = null;
 
         try {
-            kpgB = KeyPairGenerator.getInstance("XDH", providerName);
+            kpgB = KeyPairGenerator.getInstance("XDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -158,7 +159,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
 
         KeyAgreement keyAgreeB = null;
         try {
-            keyAgreeB = KeyAgreement.getInstance("XDH", providerName);
+            keyAgreeB = KeyAgreement.getInstance("XDH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -216,7 +217,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
 
     private void runBasicTest(String name, Object param) throws Exception {
 
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(name, providerName);
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(name, getProviderName());
         AlgorithmParameterSpec paramSpec = null;
 
         System.out.println("Name: " + name);
@@ -229,13 +230,13 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         }
         KeyPair kp = kpg.generateKeyPair();
 
-        KeyAgreement ka = KeyAgreement.getInstance(name, providerName);
+        KeyAgreement ka = KeyAgreement.getInstance(name, getProviderName());
         ka.init(kp.getPrivate(), paramSpec);
         ka.doPhase(kp.getPublic(), true);
 
         byte[] secret = ka.generateSecret();
 
-        KeyFactory kf = KeyFactory.getInstance(name, providerName);
+        KeyFactory kf = KeyFactory.getInstance(name, getProviderName());
         // Test with X509 and PKCS8 key specs
         X509EncodedKeySpec pubSpec = kf.getKeySpec(kp.getPublic(), X509EncodedKeySpec.class);
         //System.out.println("After getKeySpec");
@@ -478,20 +479,20 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
 
     private void runDiffieHellmanTest(String a_pri, String b_pub, String result) throws Exception {
 
-        KeyFactory kf = KeyFactory.getInstance("XDH", providerName);
-        byte[] a_pri_ba = hexStringToByteArray(a_pri);
+        KeyFactory kf = KeyFactory.getInstance("XDH", getProviderName());
+        byte[] a_pri_ba = BaseUtils.hexStringToByteArray(a_pri);
         KeySpec privateSpec = new PKCS8EncodedKeySpec(a_pri_ba);
         PrivateKey privateKey = kf.generatePrivate(privateSpec);
-        byte[] b_pub_ba = hexStringToByteArray(b_pub);
+        byte[] b_pub_ba = BaseUtils.hexStringToByteArray(b_pub);
         KeySpec publicSpec = new X509EncodedKeySpec(b_pub_ba);
         PublicKey publicKey = kf.generatePublic(publicSpec);
 
-        KeyAgreement ka = KeyAgreement.getInstance("XDH", providerName);
+        KeyAgreement ka = KeyAgreement.getInstance("XDH", getProviderName());
         ka.init(privateKey);
         ka.doPhase(publicKey, true);
 
         byte[] sharedSecret = ka.generateSecret();
-        byte[] expectedResult = hexStringToByteArray(result);
+        byte[] expectedResult = BaseUtils.hexStringToByteArray(result);
         if (!Arrays.equals(sharedSecret, expectedResult)) {
             throw new RuntimeException(
                     "fail: expected=" + result + ", actual=" + byteArrayToHexString(sharedSecret));
@@ -506,8 +507,8 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
 
         System.out.println("Test curve = " + curveName);
         NamedParameterSpec paramSpec = new NamedParameterSpec(curveName);
-        KeyFactory kf = KeyFactory.getInstance("XDH", providerName);
-        KeySpec privateSpec = new XECPrivateKeySpec(paramSpec, hexStringToByteArray(a_pri));
+        KeyFactory kf = KeyFactory.getInstance("XDH", getProviderName());
+        KeySpec privateSpec = new XECPrivateKeySpec(paramSpec, BaseUtils.hexStringToByteArray(a_pri));
         PrivateKey privateKey = kf.generatePrivate(privateSpec);
         boolean clearHighBit = curveName.equals("X25519");
 
@@ -525,7 +526,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         byte[] encodedPublicKey = publicKey.getEncoded();
         System.out.println("Encoded public: " + byteArrayToHexString(encodedPublicKey));
 
-        KeyAgreement ka = KeyAgreement.getInstance("XDH", providerName);
+        KeyAgreement ka = KeyAgreement.getInstance("XDH", getProviderName());
         //System.out.println("1");
         ka.init(privateKey);
         //System.out.println("2");
@@ -534,7 +535,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
 
         byte[] sharedSecret = ka.generateSecret();
         //System.out.println("4");
-        byte[] expectedResult = hexStringToByteArray(result);
+        byte[] expectedResult = BaseUtils.hexStringToByteArray(result);
         //System.out.println("5");
         if (!Arrays.equals(sharedSecret, expectedResult)) {
             //System.out.println("6");
@@ -557,7 +558,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
 
     private void runCurveMixTest(String name, Object param) throws Exception {
 
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(name, providerName);
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(name, getProviderName());
 
         try {
             if (param instanceof Integer) {
@@ -582,11 +583,11 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         //System.out.println("Other name = "+otherName);
         //System.out.println("Name = "+name);
 
-        KeyPairGenerator otherKpg = KeyPairGenerator.getInstance(otherName, providerName);
+        KeyPairGenerator otherKpg = KeyPairGenerator.getInstance(otherName, getProviderName());
         KeyPair otherKp = otherKpg.generateKeyPair();
 
         // ensure the KeyFactory rejects incorrect keys
-        KeyFactory kf = KeyFactory.getInstance(name, providerName);
+        KeyFactory kf = KeyFactory.getInstance(name, getProviderName());
         try {
             kf.getKeySpec(otherKp.getPublic(), XECPublicKeySpec.class);
             throw new RuntimeException(name + " KeyFactory accepted " + param.toString() + " key");
@@ -613,7 +614,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
             // expected
         }
 
-        KeyFactory otherKf = KeyFactory.getInstance(otherName, providerName);
+        KeyFactory otherKf = KeyFactory.getInstance(otherName, getProviderName());
         XECPublicKeySpec otherPubSpec = otherKf.getKeySpec(otherKp.getPublic(),
                 XECPublicKeySpec.class);
         try {
@@ -632,7 +633,7 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
         }
 
         // ensure the KeyAgreement rejects incorrect keys
-        KeyAgreement ka = KeyAgreement.getInstance(name, providerName);
+        KeyAgreement ka = KeyAgreement.getInstance(name, getProviderName());
         try {
             ka.init(otherKp.getPrivate());
             throw new RuntimeException(
@@ -669,17 +670,6 @@ public class BaseTestXDH extends ibm.jceplus.junit.base.BaseTest {
     public static byte[] byteToByteArray(byte v, int length) {
         byte[] result = new byte[length];
         result[0] = v;
-        return result;
-    }
-
-    // Convert a hexadecimal string to a byte array
-    public static byte[] hexStringToByteArray(String str) {
-        byte[] result = new byte[str.length() / 2];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = (byte) Character.digit(str.charAt(2 * i), 16);
-            result[i] <<= 4;
-            result[i] += Character.digit(str.charAt(2 * i + 1), 16);
-        }
         return result;
     }
 

@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.ock.OCKContext;
+import com.ibm.crypto.plus.provider.ock.OCKException;
 import java.lang.reflect.Constructor;
 import java.security.AccessController;
 import java.security.InvalidParameterException;
@@ -21,9 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.crypto.SecretKey;
-import com.ibm.crypto.plus.provider.ock.OCKContext;
-import com.ibm.crypto.plus.provider.ock.OCKException;
-import com.ibm.misc.Debug;
+import sun.security.util.Debug;
 
 @SuppressWarnings({"removal", "deprecation"})
 public final class OpenJCEPlus extends OpenJCEPlusProvider {
@@ -44,7 +44,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "                                       kda-hkdf-with-sha512\n"
             + "Key pair generator                 : DiffieHellman, DSA, EC, XEC, RSA\n"
             + "Message authentication code (MAC)  : HmacMD5, HmacSHA1, HmacSHA224, HmacSHA256, HmacSHA384, HmacSHA512\n"
-            + "                                       , HmacSHA384, HmacSHA512, HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512\n"
+            + "                                       , HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512\n"
             + "Message digest                     : MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256, SHA3-224, SHA3-256, SHA3-384, SHA3-512\n"
             + "Secret key factory                 : AES, ChaCha20, DESede\n"
             + "Secure random                      : HASHDRBG, SHA256DRBG, SHA512DRBG\n"
@@ -64,7 +64,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
     private static volatile OpenJCEPlus instance;
 
     // User enabled debugging
-    private static Debug debug = Debug.getInstance("jceplus");
+    private static Debug debug = Debug.getInstance(DEBUG_VALUE);
 
     private static boolean ockInitialized = false;
     private static OCKContext ockContext;
@@ -74,8 +74,8 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
     public OpenJCEPlus() {
         super("OpenJCEPlus", info);
 
-        if (debug2) {
-            System.out.println("New OpenJCEPlus instance");
+        if (debug != null) {
+            debug.println("New OpenJCEPlus instance");
         }
 
         final OpenJCEPlusProvider jce = this;
@@ -100,23 +100,15 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         if (instance == null) {
             instance = this;
         }
-
-        if (debug2 || (debug != null)) {
-            System.out
-                    .println("OpenJCEPlus Build-Level: " + getDebugDate(this.getClass().getName()));
-            System.out
-                    .println("OpenJCEPlus library build date: " + OCKContext.getLibraryBuildDate());
+    
+        if (debug != null) {
+            debug.println("OpenJCEPlus Build-Level: " + getDebugDate(this.getClass().getName()));
+            debug.println("OpenJCEPlus library build date: " + OCKContext.getLibraryBuildDate());
             try {
-                System.out.println(
-                        "OpenJCEPlus dependent library version: " + ockContext.getOCKVersion());
-                if (debug2) {
-                    System.out.println("OpenJCEPlus dependent library path: "
-                            + ockContext.getOCKInstallPath());
-                }
+                debug.println("OpenJCEPlus dependent library version: " + ockContext.getOCKVersion());
+                debug.println("OpenJCEPlus dependent library path: " + ockContext.getOCKInstallPath());
             } catch (Throwable t) {
-                if (debug2) {
-                    t.printStackTrace(System.out);
-                }
+                t.printStackTrace(System.out);
             }
         }
     }
@@ -808,9 +800,9 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
                 String[] aliases, Map<String, String> attributes) {
             super(provider, type, algorithm, className, toList(aliases), attributes);
 
-            if (debug2) {
-                System.out.println("Constructing OpenJCEPlusService: " + provider + ", " + type
-                        + ", " + algorithm + ", " + className);
+            if (debug != null) {
+                debug.println("Constructing OpenJCEPlusService: " + provider + ", " + type
+                            + ", " + algorithm + ", " + className);
             }
         }
 
@@ -1000,7 +992,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
                 }
             }
 
-            if (debug2 || (debug != null)) {
+            if (debug != null) {
                 exceptionToThrow.printStackTrace(System.out);
             }
 
@@ -1030,7 +1022,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
     }
 
     void setOCKExceptionCause(Exception exception, Throwable ockException) {
-        if (debug2) {
+        if (debug != null) {
             exception.initCause(ockException);
         }
     }
