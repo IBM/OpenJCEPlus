@@ -461,7 +461,7 @@ JNIEXPORT  jbyteArray JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterf
   jbyteArray  resKey = NULL;
   unsigned char *      resKeyNative = NULL;
   jbyteArray  retResKey = NULL;
-  unsigned char *resKeyLocal;
+  unsigned char *resKeyLocal = NULL;
   size_t saltLen = (size_t) saltLenl;
   size_t inKeyLen = (size_t) inKeyLenl;
   size_t infoLen = (size_t) infoLenl;
@@ -575,33 +575,35 @@ JNIEXPORT  jbyteArray JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterf
       } /*infoKeyNative == NULL */
     } /* inKeyNative == NULL */
   } /* saltNative == NULL */
-     
 
-      
-    
+  if ( NULL != resKeyLocal ) {
+    free(resKeyLocal);
+  }
 
-  if( inKeyNative != NULL ) {
+  if( NULL != inKeyNative ) {
     (*env)->ReleasePrimitiveArrayCritical(env, inKey, inKeyNative, 0);
   }
-  
-  if( saltNative != NULL ) {
+
+  if( NULL != saltNative ) {
     (*env)->ReleasePrimitiveArrayCritical(env, salt, saltNative, 0);
   }
 
-  if( infoNative != NULL ) {
+  if( NULL != infoNative ) {
     (*env)->ReleasePrimitiveArrayCritical(env, info, infoNative, 0);
   }
-  if( resKeyNative != NULL ) {
+
+  if( NULL != resKeyNative ) {
     (*env)->ReleasePrimitiveArrayCritical(env, resKey,  resKeyNative, 0);
   }
 
-  if( (resKey != NULL) && (retResKey == NULL) ) {
+  if( ( NULL != resKey ) && ( NULL == retResKey ) ) {
     (*env)->DeleteLocalRef(env, resKey);
   }
+
   if( debug ) {
     gslogFunctionExit(functionName);
   }
-  
+
   return retResKey;
 }
 
