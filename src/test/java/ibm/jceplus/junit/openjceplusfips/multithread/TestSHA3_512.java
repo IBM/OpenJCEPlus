@@ -9,21 +9,17 @@
 package ibm.jceplus.junit.openjceplusfips.multithread;
 
 import ibm.jceplus.junit.base.BaseTestSHA3_512KAT;
-import ibm.jceplus.junit.openjceplus.Utils;
+import ibm.jceplus.junit.openjceplusfips.Utils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-public class TestSHA3_512 extends ibm.jceplus.junit.base.BaseTestSHA3_512KAT {
+@TestInstance(Lifecycle.PER_CLASS)
+public class TestSHA3_512 extends BaseTestSHA3_512KAT {
 
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-    }
-
-    public TestSHA3_512() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-    }
-
-    public void testSHA3_512() throws Exception {
-        System.out.println("executing testSHA3_512");
-        BaseTestSHA3_512KAT bt = new BaseTestSHA3_512KAT(providerName);
-        bt.run();
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 }

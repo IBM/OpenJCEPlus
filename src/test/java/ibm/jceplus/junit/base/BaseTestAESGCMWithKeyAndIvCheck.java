@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -16,21 +16,14 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestAESGCMWithKeyAndIvCheck extends BaseTest {
+public class BaseTestAESGCMWithKeyAndIvCheck extends BaseTestJunit5 {
 
     private static final byte[] AAD = new byte[5];
     private static final byte[] PT = new byte[18];
     protected int specifiedKeySize = 16;
-
-    public BaseTestAESGCMWithKeyAndIvCheck(String providerName) {
-        super(providerName);
-    }
-
-    public BaseTestAESGCMWithKeyAndIvCheck(String providerName, int keySize) {
-        super(providerName);
-        System.out.println("Warning: KeySize is ignored");
-    }
 
     private void checkISE(Cipher c) throws Exception {
         // Subsequent encryptions should fail
@@ -55,8 +48,9 @@ public class BaseTestAESGCMWithKeyAndIvCheck extends BaseTest {
         }
     }
 
+    @Test
     public void testKeyAndIv() throws Exception {
-        Cipher c = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher c = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
 
         SecretKey key = new SecretKeySpec(new byte[specifiedKeySize], "AES");
         // First try parameter-less init.

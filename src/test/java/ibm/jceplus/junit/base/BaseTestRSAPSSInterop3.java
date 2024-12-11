@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -12,16 +12,16 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.Provider;
 import java.security.Security;
 import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-//public class BaseTestRSAPSSInterop3 extends TestCase {
-public class BaseTestRSAPSSInterop3 extends BaseTest {
+public class BaseTestRSAPSSInterop3 extends BaseTestJunit5 {
 
     String signingProvidersSignatureAlgorithmName = null;
     String verifyingProvidersSignatureAlgorithmName = null;
@@ -38,30 +38,23 @@ public class BaseTestRSAPSSInterop3 extends BaseTest {
     static final byte[] dataToBeSignedLong = "this is text to test the RSAPSS Signature xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
             .getBytes();
 
-    static KeyPairGenerator rsaKeyPairGen = null;
+    KeyPairGenerator rsaKeyPairGen = null;
 
-    static KeyPair rsaKeyPair_OpenJCEPlus[] = new KeyPair[6];
-    static KeyPair rsaKeyPair_SunRsaSign[] = new KeyPair[6];
-    static KeyPair rsaKeyPair_OpenJCEPlusFIPS[] = new KeyPair[6];
+    KeyPair rsaKeyPair_OpenJCEPlus[] = new KeyPair[6];
+    KeyPair rsaKeyPair_SunRsaSign[] = new KeyPair[6];
+    KeyPair rsaKeyPair_OpenJCEPlusFIPS[] = new KeyPair[6];
 
-    static PSSParameterSpec pssParameterSpec = null;
+    PSSParameterSpec pssParameterSpec = null;
 
-    static int testCaseNumber = 1;
+    int testCaseNumber = 1;
 
-    Provider provider = null;
-    static boolean printJunitTrace = false;
+    boolean printJunitTrace = false;
 
+    @BeforeEach
+    public void setUp() throws Exception {
 
-    public BaseTestRSAPSSInterop3(String providerName) {
-        super(providerName);
         printJunitTrace = Boolean
                 .valueOf(System.getProperty("com.ibm.jceplus.junit.printJunitTrace"));
-    }
-
-
-
-    protected void setUp() throws Exception {
-
         if (printJunitTrace)
             System.out.println(
                     "======================================================================================");
@@ -74,18 +67,6 @@ public class BaseTestRSAPSSInterop3 extends BaseTest {
 
         signingProviderName = "OpenJCEPlus";
         verifyingProviderName = "SunRsaSign";
-
-        // Add the OpenJCEPlus provider to the provider's list
-        provider = (Provider) new com.ibm.crypto.plus.provider.OpenJCEPlus();
-
-        try {
-            Security.insertProviderAt(provider, 3);
-        } catch (Exception ex) {
-            if (printJunitTrace)
-                System.out.println(
-                        "Failed to create the OpenJCEPlus provider.  The following exception was thrown.");
-            ex.printStackTrace();
-        }
 
         java.security.Provider[] providers = Security.getProviders();
         if (printJunitTrace)
@@ -218,8 +199,7 @@ public class BaseTestRSAPSSInterop3 extends BaseTest {
     //   BEGINNING OF RSA-PSS SIGNATURE TESTS
     //==================================================================================================================
 
-
-
+    @Test
     public void testRSAPSS() throws Exception {
 
         KeyPair rsaKeyPair = null;
@@ -3434,31 +3414,8 @@ public class BaseTestRSAPSSInterop3 extends BaseTest {
         } // end loop for each RSA key size
     } // end testRSAPSS()
 
-
-
-    //   public static void main(String[] args){
-    //
-    //      if (printJunitTrace) System.out.println("BaseTestRSAPSSInterop3.java:  main(): METHOD ENTRY");
-    //
-    //      BaseTestRSAPSSInterop3 test = new BaseTestRSAPSSInterop3();
-    //
-    //      try {
-    //          test.mySetUp();
-    //          test.testRSAPSS();
-    //      }
-    //      catch (Exception ex)
-    //      {
-    //          if (printJunitTrace) System.out.println("The following exception was thrown:");
-    //          ex.printStackTrace();
-    //      }
-    //
-    //      if (printJunitTrace) System.out.println("\nBaseTestRSAPSSInterop3.java:  main(): METHOD EXIT");
-    //   }
-
-
-
     // Compute the signature, but do not use PSSParameters class
-    private static boolean doSignature(byte[] dataToBeSigned, KeyPair rsaKeyPair,
+    private boolean doSignature(byte[] dataToBeSigned, KeyPair rsaKeyPair,
             String signingProvidersSignatureAlgorithmName,
             String verifingProvidersSignatureAlgorithmName, String signingProviderName,
             String verifyingProviderName,
@@ -3558,56 +3515,4 @@ public class BaseTestRSAPSSInterop3 extends BaseTest {
             throw ex;
         }
     } // end doSignature( )
-
-
-
-    private static void showProviders() {
-        java.security.Provider[] providers = Security.getProviders();
-        if (printJunitTrace)
-            System.out.println("\n================================================");
-        if (printJunitTrace)
-            System.out.println("The security provider's list is:");
-        for (int i = 0; i < providers.length; ++i) {
-            if (printJunitTrace)
-                System.out.print("provider \"");
-            if (printJunitTrace)
-                System.out.print(providers[i].getName());
-            if (printJunitTrace)
-                System.out.print("\": ");
-            if (printJunitTrace)
-                System.out.println(providers[i].toString());
-            //              if (printJunitTrace) System.out.println(providers[i].getInfo());
-            if (printJunitTrace)
-                System.out.println();
-        }
-
-        if (printJunitTrace)
-            System.out.println("================================================\n\n\n");
-    }
-
-
-
-    /** * Converts a byte array to hex string */
-    private static String toHexString(byte[] block) {
-        StringBuffer buf = new StringBuffer();
-        char[] hexChars = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
-                'E', 'F'};
-        int len = block.length;
-        int high = 0;
-        int low = 0;
-
-        for (int i = 0; i < len; i++) {
-            if (i % 16 == 0)
-                buf.append('\n');
-            high = ((block[i] & 0xf0) >> 4);
-            low = (block[i] & 0x0f);
-            buf.append(hexChars[high]);
-            buf.append(hexChars[low]);
-            buf.append(' ');
-        }
-
-        return buf.toString();
-    }
-
 }
-

@@ -16,7 +16,7 @@ import java.security.spec.PSSParameterSpec;
 import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertTrue;
 
-public class BaseTestTruncatedDigest extends BaseTestSignature {
+public class BaseTestTruncatedDigest extends BaseTestJunit5Signature {
 
     String IBM_ALG = "RSAPSS";
 

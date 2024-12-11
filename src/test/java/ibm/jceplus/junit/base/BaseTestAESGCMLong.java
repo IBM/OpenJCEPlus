@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -15,8 +15,10 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestAESGCMLong extends BaseTest {
+public class BaseTestAESGCMLong extends BaseTestJunit5 {
     private final static int GCM_IV_LENGTH = 12;
     private final static int GCM_TAG_LENGTH = 16;
     private static int ARRAY_OFFSET = 16;
@@ -27,41 +29,15 @@ public class BaseTestAESGCMLong extends BaseTest {
     protected AlgorithmParameters params = null;
     protected Method methodCipherUpdateAAD = null;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestAESGCMLong(String providerName) {
-        super(providerName);
-    }
-
-    public BaseTestAESGCMLong(String providerName, int keySize) {
-        super(providerName);
-        System.out.println("keySize is ignored");
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {
-
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-
     private Cipher createCipher(int mode, SecretKey sKey, GCMParameterSpec ivSpec)
             throws Exception {
 
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipher.init(mode, sKey, ivSpec);
         return cipher;
     }
 
-
-
+    @Test
     public void testWith128Times8() throws Exception {
 
         //Create a 1K string
@@ -109,6 +85,7 @@ public class BaseTestAESGCMLong extends BaseTest {
         }
     }
 
+    @Test
     public void testWith128Times7() throws Exception {
 
         //Create a 1K string
@@ -164,13 +141,13 @@ public class BaseTestAESGCMLong extends BaseTest {
         for (int j = 0; j < numUpdTimes; j++) {
             System.arraycopy(dataBytes, 0, largeByteBuffer, j * dataBytes.length, dataBytes.length);
         }
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipher.init(mode, sKey, ivSpec);
         cipher.updateAAD(AAD);
         byte[] outputBytes = cipher.doFinal(largeByteBuffer);
 
         // new cipher for encrypt operation
-        Cipher cipher2 = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher2 = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipher2.init(mode, sKey, ivSpec);
         cipher2.updateAAD(AAD);
         int outputLength = cipher2.getOutputSize(10 * dataBytes.length);
@@ -204,13 +181,13 @@ public class BaseTestAESGCMLong extends BaseTest {
             byte[] largeByteBuffer, GCMParameterSpec ivSpec, int numUpdTimes,
             boolean noDataForFinal) throws Exception {
 
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipher.init(mode, sKey, ivSpec);
         cipher.updateAAD(AAD);
         byte[] outputBytes = cipher.doFinal(largeByteBuffer);
 
         // new cipher for encrypt operation
-        Cipher cipher2 = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        Cipher cipher2 = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipher2.init(mode, sKey, ivSpec);
         cipher2.updateAAD(AAD);
 
