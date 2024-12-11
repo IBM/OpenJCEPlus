@@ -13,43 +13,7 @@ import java.security.PublicKey;
 import java.security.Signature;
 import static org.junit.Assert.assertTrue;
 
-public class BaseTestSignature extends BaseTestJunit5 {
-
-    private int keysize = 0;
-
-    private String algo = null;
-
-    /**
-     * Sets the algorithm associated with this test.
-     * @param algorithm
-     */
-    public void setAlgorithm(String algorithm) {
-        this.algo = algorithm;
-    }
-
-    /**
-     * Gets the algorithm associated with this test.
-     * @return
-     */
-    public String getAlgorithm() {
-        return this.algo;
-    }
-
-    /**
-     * Sets the key size associated with this test.
-     * @param keySize
-     */
-    public void setKeySize(int keySize) {
-        this.keysize = keySize;
-    }
-
-    /**
-     * Gets the key size associated with this test.
-     * @return
-     */
-    public int getKeySize() {
-        return this.keysize;
-    }
+public class BaseTestJunit5Signature extends BaseTestJunit5 {
 
     protected void doSignVerify(String sigAlgo, byte[] message, PrivateKey privateKey,
             PublicKey publicKey) throws Exception {
@@ -65,4 +29,3 @@ public class BaseTestSignature extends BaseTestJunit5 {
         assertTrue("Signature verification failed", verifying.verify(signedBytes));
     }
 }
-

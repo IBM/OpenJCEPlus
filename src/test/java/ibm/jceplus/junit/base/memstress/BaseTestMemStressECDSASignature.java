@@ -7,13 +7,13 @@
  */
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTestSignature;
+import ibm.jceplus.junit.base.BaseTestJunit5Signature;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class BaseTestMemStressECDSASignature extends BaseTestSignature {
+public class BaseTestMemStressECDSASignature extends BaseTestJunit5Signature {
     int numTimes = 100;
     boolean printheapstats = false;
 
@@ -23,7 +23,7 @@ public class BaseTestMemStressECDSASignature extends BaseTestSignature {
 
     int curveSize = 256;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {

@@ -5,24 +5,21 @@
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution.
  */
+
 package ibm.jceplus.junit.openjceplusfips.multithread;
 
 import ibm.jceplus.junit.base.BaseTestSHA512_256;
-import ibm.jceplus.junit.openjceplus.Utils;
+import ibm.jceplus.junit.openjceplusfips.Utils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+@TestInstance(Lifecycle.PER_CLASS)
 public class TestSHA512_256 extends BaseTestSHA512_256 {
 
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-    }
-
-    public TestSHA512_256() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-    }
-
-    public void testSHA512_256() throws Exception {
-        System.out.println("executing testSHA512_256");
-        BaseTestSHA512_256 bt = new BaseTestSHA512_256(providerName);
-        bt.run();
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 }

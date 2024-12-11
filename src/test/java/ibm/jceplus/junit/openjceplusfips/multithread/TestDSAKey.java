@@ -10,16 +10,18 @@ package ibm.jceplus.junit.openjceplusfips.multithread;
 
 import ibm.jceplus.junit.base.BaseTestDSAKey;
 import ibm.jceplus.junit.openjceplusfips.Utils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+@TestInstance(Lifecycle.PER_CLASS)
 public class TestDSAKey extends BaseTestDSAKey {
 
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-    }
-
-    public TestDSAKey() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 
     @Disabled("DSA key generation is not available in FIPS mode.")

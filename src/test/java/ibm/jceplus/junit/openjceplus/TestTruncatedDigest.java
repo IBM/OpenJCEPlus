@@ -14,6 +14,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class TestTruncatedDigest extends BaseTestTruncatedDigest {
+
     @BeforeAll
     public void beforeAll() {
         Utils.loadProviderTestSuite();

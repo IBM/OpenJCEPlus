@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,14 +8,14 @@
 
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTest;
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.security.KeyPairGenerator;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class BaseTestMemStressRSAKeyPair extends BaseTest {
+public class BaseTestMemStressRSAKeyPair extends BaseTestJunit5 {
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
 
 
 
@@ -23,22 +23,7 @@ public class BaseTestMemStressRSAKeyPair extends BaseTest {
     boolean printheapstats = false;
     int rsaSize = 2048;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressRSAKeyPair(String providerName) {
-        super(providerName);
-
-    }
-
-    public BaseTestMemStressRSAKeyPair(String providerName, int rsaSize) {
-        super(providerName);
-        this.rsaSize = rsaSize;
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
@@ -49,15 +34,7 @@ public class BaseTestMemStressRSAKeyPair extends BaseTest {
         System.out.println("Testing RSAKeyPair ");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-
+    @Test
     public void testRSAKeyPair() throws Exception {
 
         Runtime rt = Runtime.getRuntime();

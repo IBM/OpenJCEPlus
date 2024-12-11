@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,25 +8,24 @@
 
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTest;
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.lang.reflect.Method;
 import java.security.AlgorithmParameters;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import org.junit.Assume;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestMemStressAESGCM extends BaseTest {
+public class BaseTestMemStressAESGCM extends BaseTestJunit5 {
 
     // 16 bytes: PASSED
     static final byte[] plainText16 = "1234567812345678".getBytes();
 
     static final byte[] plainText1024 = new byte[1024];
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected KeyGenerator aesKeyGen;
     protected SecretKey key;
     protected AlgorithmParameters params = null;
@@ -38,28 +37,9 @@ public class BaseTestMemStressAESGCM extends BaseTest {
     int numTimes = 100;
     boolean printheapstats = false;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressAESGCM(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressAESGCM(String providerName, int keySize) throws Exception {
-        super(providerName);
-        this.specifiedKeySize = keySize;
-
-        Assume.assumeTrue(javax.crypto.Cipher.getMaxAllowedKeyLength("AES") >= keySize);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
-        aesKeyGen = KeyGenerator.getInstance("AES", providerName);
+        aesKeyGen = KeyGenerator.getInstance("AES", getProviderName());
         if (specifiedKeySize > 0) {
             aesKeyGen.init(specifiedKeySize);
         }
@@ -73,18 +53,10 @@ public class BaseTestMemStressAESGCM extends BaseTest {
         System.out.println("Testing AESGCM");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testAES_GCM() throws Exception {
         // Test AES GCM Cipher
-        cp = Cipher.getInstance("AES/GCM/NoPadding", providerName);
+        cp = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         Runtime rt = Runtime.getRuntime();
         long prevTotalMemory = 0;
         long prevFreeMemory = rt.freeMemory();
@@ -111,14 +83,8 @@ public class BaseTestMemStressAESGCM extends BaseTest {
                 prevFreeMemory = currentFreeMemory;
             }
         }
-
-
-
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(Cipher cp) throws Exception {
         cp.init(Cipher.ENCRYPT_MODE, key);
         byte[] cipherText = cp.doFinal(plainText1024);
@@ -130,38 +96,23 @@ public class BaseTestMemStressAESGCM extends BaseTest {
         assertTrue(java.util.Arrays.equals(plainText1024, newPlainText));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm) throws Exception {
-
         encryptDecrypt(algorithm, false);
-
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize)
             throws Exception {
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, null);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams) throws Exception {
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText1024);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message) throws Exception {
         encryptDecryptDoFinal(algorithm, requireLengthMultipleBlockSize, algParams, message);
-
     }
 
     // --------------------------------------------------------------------------
@@ -171,7 +122,7 @@ public class BaseTestMemStressAESGCM extends BaseTest {
             AlgorithmParameters algParams, byte[] message) throws Exception
 
     {
-        cp = Cipher.getInstance(algorithm, providerName);
+        cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -210,4 +161,3 @@ public class BaseTestMemStressAESGCM extends BaseTest {
 
 
 }
-

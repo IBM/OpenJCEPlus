@@ -22,6 +22,11 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.RC2ParameterSpec;
 import javax.crypto.spec.RC5ParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BaseTestDESede extends BaseTestCipher {
 
@@ -44,7 +49,6 @@ public class BaseTestDESede extends BaseTestCipher {
 
     static final byte[] plainText = plainText128; // default value
 
-    protected boolean supportsEncrypt;
     protected String encryptProviderName;
     protected KeyGenerator keyGen;
     protected SecretKey key;
@@ -57,21 +61,13 @@ public class BaseTestDESede extends BaseTestCipher {
      */
     protected Cipher cp = null;
 
-    public BaseTestDESede(String providerName) {
-        this(providerName, true);
-    }
-
-    public BaseTestDESede(String providerName, boolean supportsEncrypt) {
-        super(providerName);
-        this.supportsEncrypt = supportsEncrypt;
-        this.encryptProviderName = supportsEncrypt ? providerName : "IBMJCE";
-    }
-
+    @BeforeEach
     public void setUp() throws Exception {
+        this.encryptProviderName = getProviderName();
         try {
-            keyGen = KeyGenerator.getInstance("DESede", providerName);
+            keyGen = KeyGenerator.getInstance("DESede", getProviderName());
         } catch (NoSuchAlgorithmException nsae) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertEquals("no such algorithm: DESede for provider OpenJCEPlusFIPS", nsae.getMessage());
                 return;
             } else {
@@ -81,11 +77,12 @@ public class BaseTestDESede extends BaseTestCipher {
         key = keyGen.generateKey();
     }
 
+    @Test
     public void testDESede() throws Exception {
         try {
             encryptDecrypt("DESede");
         } catch (NoSuchAlgorithmException nsae) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertEquals("No such algorithm: DESede", nsae.getMessage());
                 return;
             } else {
@@ -94,12 +91,13 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testDESede_CBC_ISO10126Padding() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/CBC/ISO10126Padding", providerName);
+            cp = Cipher.getInstance("DESede/CBC/ISO10126Padding", getProviderName());
             fail(" NoSuchPaddingException is NOT thrown");
         } catch (NoSuchAlgorithmException nsae) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertEquals("No such algorithm: DESede/CBC/ISO10126Padding", nsae.getMessage());
                 return;
             } else {
@@ -110,11 +108,12 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testDESede_CBC_NoPadding() throws Exception {
         try {
             encryptDecrypt("DESede/CBC/NoPadding", true);
         } catch (NoSuchAlgorithmException nsae) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertEquals("No such algorithm: DESede/CBC/NoPadding", nsae.getMessage());
                 return;
             } else {
@@ -123,11 +122,12 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testDESede_CBC_PKCS5Padding() throws Exception {
         try {
             encryptDecrypt("DESede/CBC/PKCS5Padding");
         } catch (NoSuchAlgorithmException nsae) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertEquals("No such algorithm: DESede/CBC/PKCS5Padding", nsae.getMessage());
                 return;
             } else {
@@ -136,6 +136,7 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testDESede_CFB_ISO10126Padding() throws Exception {
         String algorithm = "DESede/CFB/ISO10126Padding";
 
@@ -144,21 +145,24 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance(algorithm, providerName);
+            cp = Cipher.getInstance(algorithm, getProviderName());
             fail(" NoSuchPaddingException is NOT thrown");
         } catch (NoSuchPaddingException e) {
             assertTrue(true);
         }
     }
 
+    @Test
     public void testDESede_CFB_NoPadding() throws Exception {
         encryptDecrypt("DESede/CFB/NoPadding");
     }
 
+    @Test
     public void testDESede_CFB_PKCS5Padding() throws Exception {
         encryptDecrypt("DESede/CFB/PKCS5Padding");
     }
 
+    @Test
     public void testDESede_CFB64_ISO10126Padding() throws Exception {
         String algorithm = "DESede/CFB64/ISO10126Padding";
 
@@ -167,76 +171,85 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance(algorithm, providerName);
+            cp = Cipher.getInstance(algorithm, getProviderName());
             fail(" NoSuchPaddingException is NOT thrown");
         } catch (NoSuchPaddingException e) {
             assertTrue(true);
         }
     }
 
+    @Test
     public void testDESede_CFB64_NoPadding() throws Exception {
         encryptDecrypt("DESede/CFB64/NoPadding");
     }
 
+    @Test
     public void testDESede_CFB64_PKCS5Padding() throws Exception {
         encryptDecrypt("DESede/CFB64/PKCS5Padding");
     }
 
+    @Test
     public void testDESede_CTR_ISO10126Padding() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/CTR/ISO10126Padding", providerName);
+            cp = Cipher.getInstance("DESede/CTR/ISO10126Padding", getProviderName());
             fail(" NoSuchAlgorithmException is NOT thrown");
         } catch (NoSuchAlgorithmException e) {
         }
     }
 
+    @Test
     public void testDESede_CTR_NoPadding() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/CTR/NoPadding", providerName);
+            cp = Cipher.getInstance("DESede/CTR/NoPadding", getProviderName());
             fail(" NoSuchAlgorithmException is NOT thrown");
         } catch (NoSuchAlgorithmException e) {
         }
     }
 
+    @Test
     public void testDESede_CTR_PKCS5Padding() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/CTR/PKCS5Padding", providerName);
+            cp = Cipher.getInstance("DESede/CTR/PKCS5Padding", getProviderName());
             fail(" NoSuchAlgorithmException is NOT thrown");
         } catch (NoSuchAlgorithmException e) {
         }
     }
 
+    @Test
     public void testDESede_CTS_ISO10126Padding() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/CTS/ISO10126Padding", providerName);
+            cp = Cipher.getInstance("DESede/CTS/ISO10126Padding", getProviderName());
             fail(" NoSuchAlgorithmException is NOT thrown");
         } catch (NoSuchAlgorithmException e) {
         }
     }
 
+    @Test
     public void testDESede_CTS_NoPadding() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/CTS/NoPadding", providerName);
+            cp = Cipher.getInstance("DESede/CTS/NoPadding", getProviderName());
             fail(" NoSuchAlgorithmException is NOT thrown");
         } catch (NoSuchAlgorithmException e) {
         }
     }
 
+    @Test
     public void testDESede_CTS_PKCS5Padding() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/CTS/PKCS5Padding", providerName);
+            cp = Cipher.getInstance("DESede/CTS/PKCS5Padding", getProviderName());
             fail(" NoSuchAlgorithmException is NOT thrown");
         } catch (NoSuchAlgorithmException e) {
             assertTrue(true);
         }
     }
 
+    @Test
     public void testDESede_ECB_ISO10126Padding() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/ECB/ISO10126Padding", providerName);
+            cp = Cipher.getInstance("DESede/ECB/ISO10126Padding", getProviderName());
             fail(" NoSuchPaddingException is NOT thrown");
         } catch (NoSuchAlgorithmException nsae) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertEquals("No such algorithm: DESede/ECB/ISO10126Padding", nsae.getMessage());
                 return;
             } else {
@@ -247,11 +260,12 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testDESede_ECB_NoPadding() throws Exception {
         try {
             encryptDecrypt("DESede/ECB/NoPadding", true);
         } catch (NoSuchAlgorithmException nsae) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertEquals("No such algorithm: DESede/ECB/NoPadding", nsae.getMessage());
                 return;
             } else {
@@ -260,11 +274,12 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testDESede_ECB_PKCS5Padding() throws Exception {
         try {
             encryptDecrypt("DESede/ECB/PKCS5Padding");
         } catch (NoSuchAlgorithmException nsae) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertEquals("No such algorithm: DESede/ECB/PKCS5Padding", nsae.getMessage());
                 return;
             } else {
@@ -273,6 +288,7 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testDESede_OFB_ISO10126Padding() throws Exception {
         String algorithm = "DESede/OFB/ISO10126Padding";
 
@@ -280,54 +296,60 @@ public class BaseTestDESede extends BaseTestCipher {
             return;
         }
         try {
-            cp = Cipher.getInstance(algorithm, providerName);
+            cp = Cipher.getInstance(algorithm, getProviderName());
             fail(" NoSuchPaddingException is NOT thrown");
         } catch (NoSuchPaddingException e) {
             assertTrue(true);
         }
     }
 
+    @Test
     public void testDESede_OFB_NoPadding() throws Exception {
         encryptDecrypt("DESede/OFB/NoPadding");
     }
 
+    @Test
     public void testDESede_OFB_PKCS5Padding() throws Exception {
         encryptDecrypt("DESede/OFB/PKCS5Padding");
     }
 
+    @Test
     public void testDESede_PCBC_ISO10126Padding() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/PCBC/ISO10126Padding", providerName);
+            cp = Cipher.getInstance("DESede/PCBC/ISO10126Padding", getProviderName());
             fail(" NoSuchAlgorithmException is NOT thrown");
         } catch (NoSuchAlgorithmException e) {
             assertTrue(true);
         }
     }
 
+    @Test
     public void testDESede_PCBC_NoPadding() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/PCBC/NoPadding", providerName);
+            cp = Cipher.getInstance("DESede/PCBC/NoPadding", getProviderName());
             fail(" NoSuchAlgorithmException is NOT thrown");
         } catch (NoSuchAlgorithmException e) {
             assertTrue(true);
         }
     }
 
+    @Test
     public void testDESede_PCBC_PKCS5Padding() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/PCBC/PKCS5Padding", providerName);
+            cp = Cipher.getInstance("DESede/PCBC/PKCS5Padding", getProviderName());
             fail(" NoSuchAlgorithmException is NOT thrown");
         } catch (NoSuchAlgorithmException e) {
             assertTrue(true);
         }
     }
 
+    @Test
     public void testDESedeShortBuffer() throws Exception {
         try {
             // Test DESede Cipher
             Cipher cp = null;
             try {
-                cp = Cipher.getInstance("DESede", encryptProviderName);
+                cp = Cipher.getInstance("DESede", getProviderName());
             } catch (NoSuchAlgorithmException nsae) {
                 if (encryptProviderName.equals("OpenJCEPlusFIPS")) {
                     assertEquals("No such algorithm: DESede", nsae.getMessage());
@@ -342,7 +364,7 @@ public class BaseTestDESede extends BaseTestCipher {
             byte[] cipherText = cp.doFinal(plainText);
             params = cp.getParameters();
 
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText = new byte[5];
             cp.doFinal(cipherText, 0, cipherText.length, newPlainText);
@@ -353,17 +375,14 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testDESedeIllegalBlockSizeEncrypt() throws Exception {
-        if (supportsEncrypt == false) {
-            return;
-        }
-
         try {
             Cipher cp = null;
             try {
-                cp = Cipher.getInstance("DESede/CBC/NoPadding", providerName);
+                cp = Cipher.getInstance("DESede/CBC/NoPadding", getProviderName());
             } catch (NoSuchAlgorithmException nsae) {
-                if (providerName.equals("OpenJCEPlusFIPS")) {
+                if (getProviderName().equals("OpenJCEPlusFIPS")) {
                     assertEquals("No such algorithm: DESede/CBC/NoPadding", nsae.getMessage());
                     return;
                 } else {
@@ -385,11 +404,12 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testDESedeIllegalBlockSizeDecrypt() throws Exception {
         try {
             Cipher cp = null;
             try {
-                cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", encryptProviderName);
+                cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", getProviderName());
             } catch (NoSuchAlgorithmException nsae) {
                 if (encryptProviderName.equals("OpenJCEPlusFIPS")) {
                     assertEquals("No such algorithm: DESede/CBC/PKCS5Padding", nsae.getMessage());
@@ -405,7 +425,7 @@ public class BaseTestDESede extends BaseTestCipher {
             params = cp.getParameters();
 
             // Verify the text
-            cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", providerName);
+            cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, params);
             cp.doFinal(cipherText, 0, cipherText.length - 1);
 
@@ -415,19 +435,21 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testDESedeNoSuchAlgorithm() throws Exception {
         try {
-            cp = Cipher.getInstance("DESede/BBC/PKCS5Padding", providerName);
+            cp = Cipher.getInstance("DESede/BBC/PKCS5Padding", getProviderName());
             fail("Expected NoSuchAlgorithmException did not occur");
         } catch (NoSuchAlgorithmException ex) {
             assertTrue(true);
         }
     }
 
+    @Test
     public void testDESedeNull() throws Exception {
         Cipher cp = null;
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
         } catch (NoSuchAlgorithmException nsae) {
             if (encryptProviderName.equals("OpenJCEPlusFIPS")) {
                 assertEquals("No such algorithm: DESede", nsae.getMessage());
@@ -453,12 +475,13 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testIllegalParamSpec() throws Exception {
         Cipher cp = null;
         try {
-            cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", providerName);
+            cp = Cipher.getInstance("DESede/CBC/PKCS5Padding", getProviderName());
         } catch (NoSuchAlgorithmException nsae) {
-            if (providerName.equals("OpenJCEPlusFIPS")) {
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 assertEquals("No such algorithm: DESede/CBC/PKCS5Padding", nsae.getMessage());
                 return;
             } else {
@@ -516,10 +539,11 @@ public class BaseTestDESede extends BaseTestCipher {
         }
     }
 
+    @Test
     public void testArgumentsDecrypt() throws Exception {
         Cipher cp = null;
         try {
-            cp = Cipher.getInstance("DESede", encryptProviderName);
+            cp = Cipher.getInstance("DESede", getProviderName());
         } catch (NoSuchAlgorithmException nsae) {
             if (encryptProviderName.equals("OpenJCEPlusFIPS")) {
                 assertEquals("No such algorithm: DESede", nsae.getMessage());
@@ -535,35 +559,35 @@ public class BaseTestDESede extends BaseTestCipher {
         params = cp.getParameters();
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, params);
             cp.doFinal(null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, params);
             cp.doFinal(new byte[0]);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, params);
             cp.doFinal(null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, params);
             cp.doFinal(null, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(cipherText);
             cp.doFinal(new byte[0], 0);
@@ -572,7 +596,7 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.doFinal(new byte[0], 1);
             fail("Should have gotten exception on doFinal(new byte[0], 1)");
@@ -580,7 +604,7 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(cipherText);
             cp.doFinal(new byte[cp.getOutputSize(0)], 1);
@@ -589,28 +613,28 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.doFinal(null, 0, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.doFinal(null, 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.doFinal(null, 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(cipherText);
             cp.doFinal(new byte[0], 0, 0);
@@ -619,7 +643,7 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.doFinal(new byte[0], 1, 0);
             fail("Did not get expected exception on doFinal(new byte[0], 1, 0)");
@@ -627,7 +651,7 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 1);
             fail("Did not get expected exception on doFinal(new byte[0], 0, 1)");
@@ -635,14 +659,14 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.doFinal(null, 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(cipherText);
             cp.doFinal(new byte[0], 0, 0, new byte[0]);
@@ -651,14 +675,14 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(cipherText);
             cp.doFinal(new byte[0], 0, 0, new byte[0], 0);
@@ -667,14 +691,14 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(new byte[0]);
         } catch (Exception e) {
@@ -682,28 +706,28 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(null, 0, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(null, 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(null, 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(new byte[0], 0, 0);
         } catch (Exception e) {
@@ -711,79 +735,77 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(new byte[0], 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(new byte[0], 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(null, 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(null, 0, 0, new byte[0]);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, new byte[0]);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, new byte[0], 0);
         } catch (Exception e) {
         }
     }
 
+    @Test
     public void testArgumentsEncrypt() throws Exception {
-        if (supportsEncrypt == false) {
-            return;
-        }
         Cipher cp = null;
         try {
             try {
-                cp = Cipher.getInstance("DESede", providerName);
+                cp = Cipher.getInstance("DESede", getProviderName());
             } catch (NoSuchAlgorithmException nsae) {
-                if (providerName.equals("OpenJCEPlusFIPS")) {
+                if (getProviderName().equals("OpenJCEPlusFIPS")) {
                     assertEquals("No such algorithm: DESede", nsae.getMessage());
                     return;
                 } else {
@@ -796,7 +818,7 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0]);
         } catch (Exception e) {
@@ -804,21 +826,21 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0);
             fail("Did not get expected ShortBufferException on doFinal(new byte[0], 0)");
@@ -826,7 +848,7 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 1);
             fail("Should have gotten exception on doFinal(new byte[0], 1)");
@@ -834,7 +856,7 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[cp.getOutputSize(0)], 1);
             fail("Expected ShortBufferException");
@@ -842,28 +864,28 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0);
         } catch (Exception e) {
@@ -871,7 +893,7 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 1, 0);
             fail("Did not get expected exception on doFinal(new byte[0], 1, 0)");
@@ -879,7 +901,7 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 1);
             fail("Did not get expected exception on doFinal(new byte[0], 0, 1)");
@@ -887,14 +909,14 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, new byte[0]);
             fail("Did not get expected ShortBufferException on doFinal(new byte[0], 0, 9, new byte[0])");
@@ -902,14 +924,14 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, new byte[0], 0);
             fail("Did not get expected ShortBufferException on doFinal(new byte[0], 0, 0, new byte[0], 0)");
@@ -917,14 +939,14 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0]);
         } catch (Exception e) {
@@ -932,28 +954,28 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0);
         } catch (Exception e) {
@@ -961,63 +983,63 @@ public class BaseTestDESede extends BaseTestCipher {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 1, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0, new byte[0]);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, new byte[0]);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null, 0);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null, 1);
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance("DESede", providerName);
+            cp = Cipher.getInstance("DESede", getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, new byte[0], 0);
         } catch (Exception e) {
@@ -1073,7 +1095,7 @@ public class BaseTestDESede extends BaseTestCipher {
             return;
         }
 
-        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1092,8 +1114,8 @@ public class BaseTestDESede extends BaseTestCipher {
             }
 
             // Verify the text
-            if (providerName.equals(encryptProviderName) == false) {
-                cp = Cipher.getInstance(algorithm, providerName);
+            if (getProviderName().equals(encryptProviderName) == false) {
+                cp = Cipher.getInstance(algorithm, getProviderName());
             }
             cp.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText = cp.doFinal(cipherText);
@@ -1123,7 +1145,7 @@ public class BaseTestDESede extends BaseTestCipher {
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
         }
-        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1143,8 +1165,8 @@ public class BaseTestDESede extends BaseTestCipher {
             }
 
             // Verify the text
-            if (providerName.equals(encryptProviderName) == false) {
-                cp = Cipher.getInstance(algorithm, providerName);
+            if (getProviderName().equals(encryptProviderName) == false) {
+                cp = Cipher.getInstance(algorithm, getProviderName());
             }
             cp.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText1 = (cipherText1 == null) ? new byte[0] : cp.update(cipherText1);
@@ -1177,7 +1199,7 @@ public class BaseTestDESede extends BaseTestCipher {
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
         }
-        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1198,8 +1220,8 @@ public class BaseTestDESede extends BaseTestCipher {
             }
 
             // Verify the text
-            if (providerName.equals(encryptProviderName) == false) {
-                cp = Cipher.getInstance(algorithm, providerName);
+            if (getProviderName().equals(encryptProviderName) == false) {
+                cp = Cipher.getInstance(algorithm, getProviderName());
             }
             cp.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText1 = (cipherText1 == null) ? new byte[0] : cp.update(cipherText1);
@@ -1236,7 +1258,7 @@ public class BaseTestDESede extends BaseTestCipher {
             return;
         }
 
-        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1261,8 +1283,8 @@ public class BaseTestDESede extends BaseTestCipher {
             assertTrue("Re-encrypted text does not match", success);
 
             // Verify the text
-            if (providerName.equals(encryptProviderName) == false) {
-                cp = Cipher.getInstance(algorithm, providerName);
+            if (getProviderName().equals(encryptProviderName) == false) {
+                cp = Cipher.getInstance(algorithm, getProviderName());
             }
             cp.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText = cp.doFinal(cipherText);
@@ -1294,7 +1316,7 @@ public class BaseTestDESede extends BaseTestCipher {
             return;
         }
 
-        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1320,8 +1342,8 @@ public class BaseTestDESede extends BaseTestCipher {
             assertTrue("Encrypted text does not match expected result", success);
 
             // Verify the text
-            if (providerName.equals(encryptProviderName) == false) {
-                cp = Cipher.getInstance(algorithm, providerName);
+            if (getProviderName().equals(encryptProviderName) == false) {
+                cp = Cipher.getInstance(algorithm, getProviderName());
             }
             cp.init(Cipher.DECRYPT_MODE, key, params);
             resultBuffer = Arrays.copyOf(cipherText, cp.getOutputSize(cipherText.length));
@@ -1351,7 +1373,7 @@ public class BaseTestDESede extends BaseTestCipher {
             return;
         }
 
-        Cipher cp = Cipher.getInstance(algorithm, encryptProviderName);
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1381,8 +1403,8 @@ public class BaseTestDESede extends BaseTestCipher {
             assertTrue("Encrypted text does not match expected result", success);
 
             // Verify the text
-            if (providerName.equals(encryptProviderName) == false) {
-                cp = Cipher.getInstance(algorithm, providerName);
+            if (getProviderName().equals(encryptProviderName) == false) {
+                cp = Cipher.getInstance(algorithm, getProviderName());
             }
             cp.init(Cipher.DECRYPT_MODE, key, params);
             resultBuffer = Arrays.copyOf(cipherText, cp.getOutputSize(cipherText.length));

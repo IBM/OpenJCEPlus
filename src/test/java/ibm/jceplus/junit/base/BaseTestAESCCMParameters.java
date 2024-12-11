@@ -15,8 +15,9 @@ import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
 import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
-public class BaseTestAESCCMParameters extends BaseTest {
+public class BaseTestAESCCMParameters extends BaseTestJunit5 {
     // Valid tagLen values in bits are 32, 48, 64, 80, 96, 112, 128
     public static int tagLenMaximum = 128;
     public static int tagLenMinimum = 32;
@@ -36,29 +37,8 @@ public class BaseTestAESCCMParameters extends BaseTest {
 
     private static Object myMutexObject = new Object();
 
-    public static String provider;
-
-
-    public BaseTestAESCCMParameters(String providerName) {
-        super(providerName);
-        provider = providerName;
-    }
-
-
-    protected void setUp() throws Exception {}
-
-
-    //  public static void main(String[] args) throws Exception
-    //  {
-    //         testAESCCMParameterSpec();
-    //         testAESCCMParameters();
-    //         testAESCCMParameterGenerator();
-    //
-    //         System.out.println("\n====== END OF SUCCESSFUL TEST ======");
-    //  }
-
-
-    public static void testAESCCMParameterSpec() {
+    @Test
+    public void testAESCCMParameterSpec() {
         synchronized (myMutexObject) {
             System.out.println(
                     "\n======================================================================");
@@ -241,7 +221,8 @@ public class BaseTestAESCCMParameters extends BaseTest {
     //==========================================================================================
 
 
-    public static void testAESCCMParameters() {
+    @Test
+    public void testAESCCMParameters() {
         synchronized (myMutexObject) {
             System.out.println(
                     "\n===================================================================");
@@ -264,7 +245,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
 
         AlgorithmParameters ccmParameters1 = null;
         try {
-            ccmParameters1 = AlgorithmParameters.getInstance("CCM", provider); // This is an instance of CCMParameters.
+            ccmParameters1 = AlgorithmParameters.getInstance("CCM", getProviderName()); // This is an instance of CCMParameters.
             ccmParameters1.init(ccmParameterSpec1);
         } catch (Exception ex) {
             System.out.println(
@@ -291,7 +272,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
         }
 
 
-        if (!(ccmParameters1.getProvider().getName().equals(provider))) {
+        if (!(ccmParameters1.getProvider().getName().equals(getProviderName()))) {
             System.out.println(
                     "testAESCCMParameters():  ERROR:  ccmParameters1.getProvider().getname() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
@@ -358,7 +339,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
         byte[] ccmParameters2Encoded = null;
         try {
             ccmParameters2Encoded = ccmParameters1Encoded;
-            ccmParameters2 = AlgorithmParameters.getInstance("CCM", provider); // This is an instance of CCMParameters.
+            ccmParameters2 = AlgorithmParameters.getInstance("CCM", getProviderName()); // This is an instance of CCMParameters.
             ccmParameters2.init(ccmParameters2Encoded);
         } catch (Exception ex) {
             System.out.println(
@@ -376,7 +357,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
             Assert.fail();
         }
 
-        if (!(ccmParameters2.getProvider().getName().equals(provider))) {
+        if (!(ccmParameters2.getProvider().getName().equals(getProviderName()))) {
             System.out.println(
                     "testAESCCMParameters():  ERROR:  ccmParameters2.getProvider() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
@@ -392,7 +373,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
         byte[] ccmParameters3Encoded = null;
         try {
             ccmParameters3Encoded = ccmParameters2Encoded;
-            ccmParameters3 = AlgorithmParameters.getInstance("CCM", provider); // This is an instance of CCMParameters.
+            ccmParameters3 = AlgorithmParameters.getInstance("CCM", getProviderName()); // This is an instance of CCMParameters.
             ccmParameters3.init(ccmParameters3Encoded, "decodingMethod");
         } catch (Exception ex) {
             System.out.println(
@@ -410,7 +391,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
             Assert.fail();
         }
 
-        if (!(ccmParameters3.getProvider().getName().equals(provider))) {
+        if (!(ccmParameters3.getProvider().getName().equals(getProviderName()))) {
             System.out.println(
                     "testAESCCMParameters():  ERROR:  ccmParameters3.getProvider() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
@@ -450,7 +431,8 @@ public class BaseTestAESCCMParameters extends BaseTest {
     //==========================================================================================
 
 
-    public static void testAESCCMParameterGenerator() {
+    @Test
+    public void testAESCCMParameterGenerator() {
         synchronized (myMutexObject) {
             System.out.println(
                     "\n==========================================================================");
@@ -463,7 +445,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
         Provider openJCEPlusProvider = null;
         java.security.Provider[] providers = Security.getProviders();
         for (int i = 0; i < providers.length; ++i) {
-            if ((providers[i].getName()).equals(provider)) {
+            if ((providers[i].getName()).equals(getProviderName())) {
                 openJCEPlusProvider = providers[i];
                 break;
             }
@@ -480,7 +462,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
 
         AlgorithmParameterGenerator ccmParameterGenerator = null;
         try {
-            ccmParameterGenerator = AlgorithmParameterGenerator.getInstance("CCM", provider);
+            ccmParameterGenerator = AlgorithmParameterGenerator.getInstance("CCM", getProviderName());
         } catch (Exception ex) {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  The unexpected exception below was thrown while getting a CCMParameterGenerator object.  ");
@@ -507,7 +489,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
         }
 
 
-        if (!(ccmParameterGenerator.getProvider().getName().equals(provider))) {
+        if (!(ccmParameterGenerator.getProvider().getName().equals(getProviderName()))) {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  ccmParameterGenerator.getProvider().getName() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
@@ -558,7 +540,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
         }
 
 
-        if (!(algorithmParameters.getProvider().getName().equals(provider))) {
+        if (!(algorithmParameters.getProvider().getName().equals(getProviderName()))) {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  algorithmParameters.getProvider().getName() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
@@ -662,7 +644,7 @@ public class BaseTestAESCCMParameters extends BaseTest {
             Assert.fail();
         }
 
-        if (!(algorithmParameters.getProvider().getName().equals(provider))) {
+        if (!(algorithmParameters.getProvider().getName().equals(getProviderName()))) {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  algorithmParameters.getProvider().getName() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
