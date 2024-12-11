@@ -8,7 +8,7 @@
 
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTest;
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -21,12 +21,13 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestMemStressDH extends BaseTest {
+public class BaseTestMemStressDH extends BaseTestJunit5 {
 
-    // --------------------------------------------------------------------------
-    //
-    //
+
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
     static DHParameterSpec algParameterSpec;
@@ -38,22 +39,7 @@ public class BaseTestMemStressDH extends BaseTest {
     boolean printheapstats = false;
     int dhSize = 2048;
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestMemStressDH(String providerName) {
-        super(providerName);
-
-    }
-
-    public BaseTestMemStressDH(String providerName, int dhSize) {
-        super(providerName);
-        this.dhSize = dhSize;
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
@@ -64,15 +50,7 @@ public class BaseTestMemStressDH extends BaseTest {
         System.out.println("Testing DH");
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-
+    @Test
     public void testDH() throws Exception {
 
         DHParameterSpec dhps = generateDHParameters(dhSize);
@@ -108,7 +86,7 @@ public class BaseTestMemStressDH extends BaseTest {
 
         KeyPairGenerator kpgA = null;
         try {
-            kpgA = KeyPairGenerator.getInstance("DH", providerName);
+            kpgA = KeyPairGenerator.getInstance("DH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -129,7 +107,7 @@ public class BaseTestMemStressDH extends BaseTest {
         // set up
         KeyAgreement keyAgreeA = null;
         try {
-            keyAgreeA = KeyAgreement.getInstance("DH", providerName);
+            keyAgreeA = KeyAgreement.getInstance("DH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -147,7 +125,7 @@ public class BaseTestMemStressDH extends BaseTest {
         KeyPairGenerator kpgB = null;
 
         try {
-            kpgB = KeyPairGenerator.getInstance("DH", providerName);
+            kpgB = KeyPairGenerator.getInstance("DH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -169,7 +147,7 @@ public class BaseTestMemStressDH extends BaseTest {
 
         KeyAgreement keyAgreeB = null;
         try {
-            keyAgreeB = KeyAgreement.getInstance("DH", providerName);
+            keyAgreeB = KeyAgreement.getInstance("DH", getProviderName());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw e;
@@ -213,7 +191,7 @@ public class BaseTestMemStressDH extends BaseTest {
     private DHParameterSpec generateDHParameters(int size) throws Exception {
 
         AlgorithmParameterGenerator algParamGen = AlgorithmParameterGenerator.getInstance("DH",
-                providerName);
+                getProviderName());
         algParamGen.init(size);
         AlgorithmParameters algParams = algParamGen.generateParameters();
         DHParameterSpec dhps = algParams.getParameterSpec(DHParameterSpec.class);

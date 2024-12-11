@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -11,12 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestHmacSHA224 extends BaseTest {
-    //--------------------------------------------------------------------------
-    //
-    //
-    static boolean warmup = false;
+public class BaseTestHmacSHA224 extends BaseTestJunit5 {
 
     // test vectors from http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/HMAC_SHA224.pdf
     static final byte[] key_1 = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
@@ -98,37 +96,9 @@ public class BaseTestHmacSHA224 extends BaseTest {
             (byte) 0x6c, (byte) 0xa4, (byte) 0xb4, (byte) 0xb1, (byte) 0xc2, (byte) 0x3d,
             (byte) 0x27, (byte) 0xbd, (byte) 0xe0, (byte) 0x67, (byte) 0xd6,};
 
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestHmacSHA224(String providerName) {
-        super(providerName);
-        try {
-            if (warmup == false) {
-                warmup = true;
-                warmup();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA224_key1() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA224", providerName);
+        Mac mac = Mac.getInstance("HmacSHA224", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA224");
         mac.init(key);
         mac.update(data_1);
@@ -137,11 +107,9 @@ public class BaseTestHmacSHA224 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_1));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA224_key2() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA224", providerName);
+        Mac mac = Mac.getInstance("HmacSHA224", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_2, "HmacSHA224");
         mac.init(key);
         mac.update(data_2);
@@ -150,11 +118,9 @@ public class BaseTestHmacSHA224 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_2));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA224_key3() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA224", providerName);
+        Mac mac = Mac.getInstance("HmacSHA224", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_3, "HmacSHA224");
         mac.init(key);
         mac.update(data_3);
@@ -163,11 +129,9 @@ public class BaseTestHmacSHA224 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_3));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testHmacSHA224_key4() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA224", providerName);
+        Mac mac = Mac.getInstance("HmacSHA224", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_4, "HmacSHA224");
         mac.init(key);
         mac.update(data_4);
@@ -179,11 +143,9 @@ public class BaseTestHmacSHA224 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(truncatedDigest, digest_4));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_reset() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA224", providerName);
+        Mac mac = Mac.getInstance("HmacSHA224", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_3, "HmacSHA224");
         mac.init(key);
         mac.update(data_3);
@@ -194,11 +156,9 @@ public class BaseTestHmacSHA224 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_3));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_reuse() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA224", providerName);
+        Mac mac = Mac.getInstance("HmacSHA224", getProviderName());
         SecretKeySpec key = new SecretKeySpec(key_3, "HmacSHA224");
         mac.init(key);
         mac.update(data_3);
@@ -212,32 +172,12 @@ public class BaseTestHmacSHA224 extends BaseTest {
         assertTrue("Mac digest did not equal expected", Arrays.equals(digest2, digest_3));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void test_mac_length() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA224", providerName);
+        Mac mac = Mac.getInstance("HmacSHA224", getProviderName());
         int macLength = mac.getMacLength();
         boolean isExpectedValue = (macLength == 28);
         assertTrue("Unexpected mac length", isExpectedValue);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void warmup() throws Exception {
-
-        try {
-            Mac mac = Mac.getInstance("HmacSHA224", providerName);
-            SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA224");
-            for (long i = 0; i < 10000; i++) {
-                mac.init(key);
-                mac.update(data_1);
-                mac.doFinal();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
 

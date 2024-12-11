@@ -10,22 +10,17 @@ package ibm.jceplus.junit.openjceplusfips.multithread;
 
 import ibm.jceplus.junit.base.BaseTestDH;
 import ibm.jceplus.junit.openjceplusfips.Utils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+@TestInstance(Lifecycle.PER_CLASS)
 public class TestDH extends BaseTestDH {
 
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-    }
-
-    public TestDH() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-        isMulti = true;
-    }
-
-    public void testDH() throws Exception {
-        System.out.println("executing testDH");
-        BaseTestDH bt = new BaseTestDH(providerName);
-        bt.run();
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
+        setMulti(true);
     }
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -20,11 +20,14 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20Constants {
-    //--------------------------------------------------------------------------
-    //
-    //
+
 
     // 14 bytes: PASSED
     static final byte[] PLAIN_TEXT_14 = "12345678123456".getBytes();
@@ -59,9 +62,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
 
     static final IvParameterSpec CHACHA20_POLY1305_PARAM_SPEC = new IvParameterSpec(NONCE_12_BYTE);
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     protected KeyGenerator keyGen = null;
     protected SecretKey key = null;
     protected IvParameterSpec paramSpec = null;
@@ -69,37 +70,19 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
     protected boolean success = true;
     protected int specifiedKeySize = 0;
 
-
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public BaseTestChaCha20Poly1305(String providerName) {
-        super(providerName);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @BeforeEach
     public void setUp() throws Exception {
-        keyGen = KeyGenerator.getInstance(CHACHA20_ALGORITHM, providerName);
+        keyGen = KeyGenerator.getInstance(CHACHA20_ALGORITHM, getProviderName());
         if (specifiedKeySize > 0) {
             keyGen.init(specifiedKeySize);
         }
         key = keyGen.generateKey();
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305IllegalKeyNonceReuse() throws Exception {
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             cp.init(Cipher.DECRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
 
@@ -111,12 +94,10 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305ShortBuffer() throws Exception {
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
 
             // Encrypt the plain text
             cp.init(Cipher.ENCRYPT_MODE, key);
@@ -128,12 +109,10 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305EncryptAfterShortBufferRetry() throws Exception {
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             IvParameterSpec ivParamSpec = new IvParameterSpec(NONCE_12_BYTE);
 
             // Encrypt the plain text
@@ -157,11 +136,12 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
     }
 
+    @Test
     public void testChaCha20Poly1305DecryptAfterShortBufferRetry() throws Exception {
         byte[] cipherText = null;
         Cipher cpl = null;
         try {
-            cpl = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cpl = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             IvParameterSpec ivParamSpec = new IvParameterSpec(NONCEA_12_BYTE);
 
             // Encrypt the plain text
@@ -170,7 +150,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
 
             ivParamSpec = cpl.getParameters().getParameterSpec(IvParameterSpec.class);
 
-            cpl = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cpl = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cpl.init(Cipher.DECRYPT_MODE, key, ivParamSpec);
             byte[] sbPlainText = new byte[15];
             System.out.println("cipherText.length=" + cipherText.length);
@@ -192,58 +172,48 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305GetBlockSizeEncryptDecrypt() throws Exception {
         chaCha20GetBlockSize(Cipher.ENCRYPT_MODE);
         chaCha20GetBlockSize(Cipher.DECRYPT_MODE);
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+
     public void chaCha20GetBlockSize(int opMode) throws Exception {
         IvParameterSpec chaCha20ParamSpec = new IvParameterSpec(NONCE_12_BYTE);
-        cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+        cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
         cp.init(opMode, key, chaCha20ParamSpec);
         assertTrue("ChaCha20 Block size must be: " + ChaCha20_BLOCK_SIZE,
                 (cp.getBlockSize() == ChaCha20_BLOCK_SIZE));
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305ValidTransformations() throws Exception {
         String transformation = null;
         try {
             transformation = CHACHA20_POLY1305_ALGORITHM;
-            cp = Cipher.getInstance(transformation, providerName);
+            cp = Cipher.getInstance(transformation, getProviderName());
             transformation = "ChaCha20-Poly1305/None/NoPadding";
-            cp = Cipher.getInstance(transformation, providerName);
+            cp = Cipher.getInstance(transformation, getProviderName());
         } catch (NoSuchAlgorithmException ex) {
             fail("NoSuchAlgorithmException occurred for transform: " + transformation);
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305InvalidTransformation() throws Exception {
         String transformation = "BogusChaCha20-Poly1305/BogusMode/BogusPadding";
         try {
-            cp = Cipher.getInstance(transformation, providerName);
+            cp = Cipher.getInstance(transformation, getProviderName());
             fail("Expected NoSuchAlgorithmException did not occur");
         } catch (NoSuchAlgorithmException ex) {
             assertTrue(true);
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305NullKey() throws Exception {
-        cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+        cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
         SecretKey nullKey = null;
 
         try {
@@ -259,20 +229,18 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305NoParamSpec() throws Exception {
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             byte[] cipherText = cp.doFinal(PLAIN_TEXT);
 
             paramSpec = cp.getParameters().getParameterSpec(IvParameterSpec.class);
 
             // Verify the text
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
             byte[] newPlainText = cp.doFinal(cipherText, 0, cipherText.length);
 
@@ -283,21 +251,19 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305NullParamSpec() throws Exception {
 
         try {
             IvParameterSpec ivSpec = null;
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, ivSpec);
             byte[] cipherText = cp.doFinal(PLAIN_TEXT);
 
             paramSpec = cp.getParameters().getParameterSpec(IvParameterSpec.class);
 
             // Verify the text
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
             byte[] newPlainText = cp.doFinal(cipherText, 0, cipherText.length);
 
@@ -308,15 +274,13 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305InvalidParamSpec() throws Exception {
 
         try {
             byte[] iv = null;
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, ivSpec);
             fail("Expected NullPointerException or InvalidAlgorithmParameterException");
         } catch (NullPointerException npe) {
@@ -326,7 +290,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         try {
             byte[] iv = null;
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, ivSpec);
             fail("Expected NullPointerException or InvalidAlgorithmParameterException");
         } catch (NullPointerException npe) {
@@ -335,8 +299,8 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
 
         try {
             AlgorithmParameters algParameters = AlgorithmParameters
-                    .getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+                    .getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, algParameters);
             fail("Expected NullPointerException or InvalidAlgorithmParameterException");
         } catch (NullPointerException npe) {
@@ -345,8 +309,8 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
 
         try {
             AlgorithmParameters algParameters = AlgorithmParameters
-                    .getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+                    .getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, algParameters);
             fail("Expected NullPointerException or InvalidAlgorithmParameterException");
         } catch (NullPointerException npe) {
@@ -355,7 +319,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
 
         try {
             IvParameterSpec ivSpec = new IvParameterSpec(NONCE_11_BYTE);
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, ivSpec);
             fail("Expected NullPointerException or InvalidAlgorithmParameterException");
         } catch (NullPointerException npe) {
@@ -364,7 +328,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
 
         try {
             IvParameterSpec ivSpec = new IvParameterSpec(NONCE_13_BYTE);
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, ivSpec);
             fail("Expected NullPointerException or InvalidAlgorithmParameterException");
         } catch (NullPointerException npe) {
@@ -372,13 +336,11 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305EncryptUpdateAndDoFinalArguments() throws Exception {
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             cp.update(PLAIN_TEXT);
             // Update AAD must be done before cipher update, or do final...
@@ -388,7 +350,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             cp.doFinal(PLAIN_TEXT);
             // Update AAD must be done before cipher update, or do final...
@@ -399,21 +361,21 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.updateAAD(CHACHA20_POLY1305_AAD, 0, CHACHA20_POLY1305_AAD.length);
             fail("Did not get expected IllegalStateException(Cipher not initialized)");
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.doFinal(new byte[0]);
             fail("Did not get expected IllegalStateException(Cipher not initialized)");
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null);
             fail("Did not get expected IllegalArgumentException on doFinal(null)");
@@ -421,7 +383,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0]);
         } catch (Exception e) {
@@ -429,7 +391,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0);
             fail("Did not get expected IllegalArgumentException on doFinal(null, 0)");
@@ -437,7 +399,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 1);
             fail("Did not get expected IllegalArgumentException on doFinal(null, 1)");
@@ -445,7 +407,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0);
             fail("Did not get expected exception on doFinal(new byte[0], 0)");
@@ -453,7 +415,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 1);
             fail("Did not get expected IllegalArgumentException on doFinal(new byte[0], 1)");
@@ -461,7 +423,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[cp.getOutputSize(0)], 1);
             fail("Did not get expected IllegalArgumentException on doFinal(new byte[cp.getOutputSize(0)], 1)");
@@ -469,7 +431,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 0);
             fail("Did not get expected IllegalArgumentException on doFinal(null, 0, 0)");
@@ -477,7 +439,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 1, 0);
             fail("Did not get expected IllegalArgumentException on doFinal(null, 1, 0)");
@@ -485,7 +447,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 1);
             fail("Did not get expected IllegalArgumentException on doFinal(null, 0, 1)");
@@ -493,7 +455,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0);
         } catch (Exception e) {
@@ -501,7 +463,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 1, 0);
             fail("Did not get expected IllegalArgumentException on doFinal(new byte[0], 1, 0)");
@@ -509,7 +471,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 1);
             fail("Did not get expected IllegalArgumentException on doFinal(new byte[0], 0, 1)");
@@ -517,7 +479,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(null, 0, 0, null);
             fail("Did not get expected IllegalArgumentException on doFinal(new byte[0], 0, 1)");
@@ -525,7 +487,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, new byte[0]);
             fail("Did not get expected exception on doFinal(new byte[0], 0, 0, new byte[0])");
@@ -533,7 +495,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, null, 0);
             fail("Did not get expected IllegalArgumentException on doFinal(new byte[0], 0, 0, null, 0)");
@@ -541,7 +503,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.doFinal(new byte[0], 0, 0, new byte[0], 0);
             fail("Did not get expected exception on doFinal(new byte[0], 0, 0, new byte[0], 0)");
@@ -549,14 +511,14 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.update(new byte[0]);
             fail("Did not get expected IllegalStateException(Cipher not initialized)");
         } catch (Exception e) {
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null);
             fail("Did not get expected IllegalArgumentException on update(null)");
@@ -564,7 +526,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0]);
         } catch (Exception e) {
@@ -572,7 +534,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0);
             fail("Did not get expected IllegalArgumentException on update(null, 0, 0)");
@@ -580,7 +542,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 1, 0);
             fail("Did not get expected IllegalArgumentException on update(null, 1, 0)");
@@ -588,7 +550,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 1);
             fail("Did not get expected IllegalArgumentException on update(null, 0, 1)");
@@ -596,7 +558,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0);
         } catch (Exception e) {
@@ -604,7 +566,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 1, 0);
             fail("Did not get expected IllegalArgumentException on update(new byte[0], 1, 0)");
@@ -612,7 +574,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 1);
             fail("Did not get expected IllegalArgumentException on update(new byte[0], 0, 1)");
@@ -620,7 +582,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0, null);
             fail("Did not get expected IllegalArgumentException on update(null, 0, 0, null)");
@@ -628,7 +590,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(null, 0, 0, new byte[0]);
             fail("Did not get expected IllegalArgumentException on update(null, 0, 0, new byte[0])");
@@ -636,7 +598,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null);
         } catch (Exception e) {
@@ -644,7 +606,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, new byte[0]);
         } catch (Exception e) {
@@ -652,7 +614,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null, 0);
         } catch (Exception e) {
@@ -660,7 +622,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, null, 1);
         } catch (Exception e) {
@@ -668,7 +630,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key);
             cp.update(new byte[0], 0, 0, new byte[0], 0);
         } catch (Exception e) {
@@ -676,18 +638,16 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
     }
 
-    //--------------------------------------------------------------------------
-    //
-    //
+    @Test
     public void testChaCha20Poly1305DecryptUpdateAndDoFinalArguments() throws Exception {
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             cp.updateAAD(CHACHA20_POLY1305_AAD, 0, CHACHA20_POLY1305_AAD.length);
             cp.doFinal(PLAIN_TEXT);
 
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             cp.update(PLAIN_TEXT);
             // Update AAD must be done before cipher update, or do final...
@@ -697,12 +657,12 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             cp.updateAAD(CHACHA20_POLY1305_AAD, 0, CHACHA20_POLY1305_AAD.length);
             cp.doFinal(PLAIN_TEXT);
 
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             cp.doFinal(PLAIN_TEXT);
             // Update AAD must be done before cipher update, or do final...
@@ -712,7 +672,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         }
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.updateAAD(CHACHA20_POLY1305_AAD, 0, CHACHA20_POLY1305_AAD.length);
             fail("Did not get expected IllegalStateException(Cipher not initialized)");
         } catch (Exception e) {
@@ -723,16 +683,17 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
     //--------------------------------------------------------------------------
     // Run encrypt/decrypt test using just doFinal calls
     //
+    @Test
     public void testChaCha20Poly1305EncryptDecryptDoFinalWithoutAAD() throws Exception {
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             byte[] cipherText = cp.doFinal(PLAIN_TEXT);
 
             paramSpec = cp.getParameters().getParameterSpec(IvParameterSpec.class);
 
             // Verify the text
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
             byte[] newPlainText = cp.doFinal(cipherText, 0, cipherText.length);
 
@@ -746,9 +707,10 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
     //--------------------------------------------------------------------------
     // Run encrypt/decrypt test using just doFinal calls
     //
+    @Test
     public void testChaCha20Poly1305EncryptDecryptDoFinalWithAAD() throws Exception {
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             cp.updateAAD(CHACHA20_POLY1305_AAD, 0, CHACHA20_POLY1305_AAD.length);
             byte[] cipherText = cp.doFinal(PLAIN_TEXT);
@@ -756,7 +718,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             paramSpec = cp.getParameters().getParameterSpec(IvParameterSpec.class);
 
             // Verify the text
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
             cp.updateAAD(CHACHA20_POLY1305_AAD, 0, CHACHA20_POLY1305_AAD.length);
             byte[] newPlainText = cp.doFinal(cipherText, 0, cipherText.length);
@@ -771,9 +733,10 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
     //--------------------------------------------------------------------------
     // Run encrypt/decrypt test using just doFinal calls
     //
+    @Test
     public void testChaCha20Poly1305EncryptDecryptDoFinalWithoutAadBadTag() throws Exception {
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             byte[] cipherText = cp.doFinal(PLAIN_TEXT);
             System.arraycopy(BAD_TAG_16, 0, cipherText, cipherText.length - BAD_TAG_16.length,
@@ -782,7 +745,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             paramSpec = cp.getParameters().getParameterSpec(IvParameterSpec.class);
 
             // Verify the text
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
             cp.doFinal(cipherText, 0, cipherText.length);
 
@@ -795,17 +758,18 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
     //--------------------------------------------------------------------------
     // Run encrypt/decrypt test using just doFinal calls
     //
+    @Test
     public void testChaCha20Poly1305DecryptDoFinalWithAadNoTag() throws Exception {
         try {
 
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             cp.updateAAD(CHACHA20_POLY1305_AAD, 0, CHACHA20_POLY1305_AAD.length);
             cp.doFinal(PLAIN_TEXT);
 
             paramSpec = cp.getParameters().getParameterSpec(IvParameterSpec.class);
 
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
             cp.updateAAD(CHACHA20_POLY1305_AAD, 0, CHACHA20_POLY1305_AAD.length);
             cp.doFinal();
@@ -819,9 +783,10 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
     //--------------------------------------------------------------------------
     // Run encrypt/decrypt test using just update, empty doFinal calls
     //
+    @Test
     public void testChaCha20Poly1305EncryptDecryptUpdate() throws Exception {
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             byte[] cipherText1 = cp.update(PLAIN_TEXT);
             byte[] cipherText2 = cp.doFinal();
@@ -829,7 +794,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             paramSpec = cp.getParameters().getParameterSpec(IvParameterSpec.class);
 
             // Verify the text
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
             byte[] newPlainText1 = (cipherText1 == null) ? new byte[0] : cp.update(cipherText1);
             byte[] newPlainText2 = cp.doFinal(cipherText2);
@@ -852,11 +817,12 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
     //--------------------------------------------------------------------------
     // Run encrypt/decrypt test with partial update
     //
+    @Test
     public void testChaCha20Poly1305EncryptDecryptPartialUpdate() throws Exception {
         int partialLen = PLAIN_TEXT.length > 10 ? 10 : 1;
 
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             byte[] cipherText1 = cp.update(PLAIN_TEXT, 0, partialLen);
             byte[] cipherText2 = cp.doFinal(PLAIN_TEXT, partialLen, PLAIN_TEXT.length - partialLen);
@@ -864,7 +830,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             paramSpec = cp.getParameters().getParameterSpec(IvParameterSpec.class);
 
             // Verify the text
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
             byte[] newPlainText1 = (cipherText1 == null) ? new byte[0] : cp.update(cipherText1);
             byte[] newPlainText2 = cp.doFinal(cipherText2);
@@ -887,9 +853,10 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
     //--------------------------------------------------------------------------
     // Run encrypt twice using same Cipher instance, same key, but different nonce
     //
+    @Test
     public void testChaCha20Poly1305ReuseObjectSameKeyDifferentNonce() throws Exception {
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             byte[] cipherText1 = cp.doFinal(PLAIN_TEXT);
 
@@ -912,15 +879,16 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
     //--------------------------------------------------------------------------
     // Run encrypt/decrypt test using just doFinal calls (copy-safe)
     //
+    @Test
     public void testChaCha20Poly1305EncryptDecryptDoFinalCopySafe() throws Exception {
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
 
             byte[] cipherText0 = cp.doFinal(PLAIN_TEXT);
 
             byte[] resultBuffer = Arrays.copyOf(PLAIN_TEXT, cp.getOutputSize(PLAIN_TEXT.length));
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             int resultLen = cp.doFinal(resultBuffer, 0, PLAIN_TEXT.length, resultBuffer);
             byte[] cipherText = Arrays.copyOf(resultBuffer, resultLen);
@@ -931,7 +899,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             assertTrue("Encrypted text does not match expected result", success);
 
             // Verify the text
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
             resultBuffer = Arrays.copyOf(cipherText, cipherText.length);//cp.getOutputSize(cipherText.length));
             resultLen = cp.doFinal(resultBuffer, 0, cipherText.length, resultBuffer);
@@ -949,15 +917,16 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
     //--------------------------------------------------------------------------
     // Run encrypt/decrypt test using just update, empty doFinal calls (copy-safe)
     //
+    @Test
     public void testChaCha20Poly1305EncryptDecryptUpdateCopySafe() throws Exception {
         try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
 
             byte[] cipherText0 = cp.doFinal(PLAIN_TEXT);
 
             byte[] cipherText1 = Arrays.copyOf(PLAIN_TEXT, cp.getOutputSize(PLAIN_TEXT.length));
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
             int cipherText1Len = cp.update(cipherText1, 0, PLAIN_TEXT.length, cipherText1);
             byte[] cipherText2 = cp.doFinal();
@@ -972,7 +941,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             assertTrue("Encrypted text does not match expected result", success);
 
             // Verify the text
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
 
             byte[] plainText1 = Arrays.copyOf(cipherText12, cp.getOutputSize(cipherText12.length));

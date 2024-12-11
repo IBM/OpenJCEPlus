@@ -8,23 +8,23 @@
 
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTestSignature;
+import ibm.jceplus.junit.base.BaseTestJunit5Signature;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestMemStressDSASignature extends BaseTestSignature {
+public class BaseTestMemStressDSASignature extends BaseTestJunit5Signature {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
     int numTimes = 100;
     boolean printheapstats = false;
     String algo = "SHA256withDSA";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {

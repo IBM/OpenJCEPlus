@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,54 +8,19 @@
 
 package ibm.jceplus.junit.openjceplus;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import ibm.jceplus.junit.base.BaseTestRSAKeyInterop;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-public class TestRSAKeyInterop extends ibm.jceplus.junit.base.BaseTestRSAKeyInterop {
+@TestInstance(Lifecycle.PER_CLASS)
+public class TestRSAKeyInterop extends BaseTestRSAKeyInterop {
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
+        setInteropProviderName(Utils.PROVIDER_SunRsaSign);
+        setKeySize(1024);
     }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public TestRSAKeyInterop() {
-        //super(Utils.TEST_SUITE_PROVIDER_NAME, Utils.PROVIDER_IBMJCE); // Invalid
-        super(Utils.TEST_SUITE_PROVIDER_NAME, Utils.PROVIDER_SunRsaSign); // Passed
-        //super(Utils.TEST_SUITE_PROVIDER_NAME, Utils.PROVIDER_OpenJCEPlus); // Passed
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public TestRSAKeyInterop(int keySize) throws Exception {
-        //super(Utils.TEST_SUITE_PROVIDER_NAME, Utils.PROVIDER_IBMJCE, keySize);
-        super(Utils.TEST_SUITE_PROVIDER_NAME, Utils.PROVIDER_SunRsaSign, keySize); // Passed
-        //super(Utils.TEST_SUITE_PROVIDER_NAME, Utils.PROVIDER_OpenJCEPlus, keySize); // Passed
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TestRSAKeyInterop.class);
-        return suite;
-    }
-
-    // --------------------------------------------------------------------------
-    // This method is to check whether an algorithm is valid for the cipher
-    // but not supported by a given provider.
-    //
 }
-

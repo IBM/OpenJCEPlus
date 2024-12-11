@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,38 +8,18 @@
 
 package ibm.jceplus.junit.openjceplus.multithread;
 
-
 import ibm.jceplus.junit.base.BaseTestHmacSHA3_224;
 import ibm.jceplus.junit.openjceplus.Utils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-public class TestHmacSHA3_224 extends ibm.jceplus.junit.base.BaseTestHmacSHA3_224 {
+@TestInstance(Lifecycle.PER_CLASS)
+public class TestHmacSHA3_224 extends BaseTestHmacSHA3_224 {
 
-    //--------------------------------------------------------------------------
-    //
-    //
-    static {
+    @BeforeAll
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
-
-    //--------------------------------------------------------------------------
-    //
-    //
-    public TestHmacSHA3_224() {
-        super(Utils.TEST_SUITE_PROVIDER_NAME);
-    }
-
-    public void testHmacSHA3_224() throws Exception {
-        System.out.println("executing testHmacSHA3_224");
-        BaseTestHmacSHA3_224 bt = new BaseTestHmacSHA3_224(providerName);
-        bt.run();
-
-    }
-
-    public static void main(String[] args) {
-        String[] nargs = {
-                ibm.jceplus.junit.openjceplus.multithread.TestHmacSHA3_224.class.getName()};
-        junit.textui.TestRunner.main(nargs);
-    }
-
 }
-

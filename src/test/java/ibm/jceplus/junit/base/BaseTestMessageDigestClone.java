@@ -10,11 +10,11 @@ package ibm.jceplus.junit.base;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-abstract public class BaseTestMessageDigestClone extends BaseTest {
-    // message digest algorithm to be used in all tests
-    final String algorithm;
+abstract public class BaseTestMessageDigestClone extends BaseTestJunit5 {
 
     final byte[] input_1 = {(byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61,
             (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61};
@@ -32,13 +32,9 @@ abstract public class BaseTestMessageDigestClone extends BaseTest {
             (byte) 0x6f, (byte) 0x6d, (byte) 0x6e, (byte) 0x6f, (byte) 0x70, (byte) 0x6e,
             (byte) 0x6f, (byte) 0x70, (byte) 0x71};
 
-    public BaseTestMessageDigestClone(String providerName, String algorithm) {
-        super(providerName);
-        this.algorithm = algorithm;
-    }
-
+    @Test
     public void testUpdateCloneSameUpdate() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
 
         md.update(input_1);
 
@@ -50,8 +46,9 @@ abstract public class BaseTestMessageDigestClone extends BaseTest {
         assertArrayEquals(digest2, digest1, "Digest of original did not match clone's digest");
     }
 
+    @Test
     public void testUpdateCloneDifferentUpdate() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
 
         md.update(input_1);
 
@@ -63,8 +60,9 @@ abstract public class BaseTestMessageDigestClone extends BaseTest {
         assertFalse("Digest of original matches clone's digest when it shouldn't", Arrays.equals(digest1, digest2));
     }
 
+    @Test
     public void testCloneSameUpdate() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
 
         MessageDigest mdCopy = (MessageDigest) md.clone();
 
@@ -74,8 +72,9 @@ abstract public class BaseTestMessageDigestClone extends BaseTest {
         assertArrayEquals(digest2, digest1, "Digest of original did not match clone's digest");
     }
 
+    @Test
     public void testCloneDifferentUpdate() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(this.algorithm, providerName);
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
 
         MessageDigest mdCopy = (MessageDigest) md.clone();
 

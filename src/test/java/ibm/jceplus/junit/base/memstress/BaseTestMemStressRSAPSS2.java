@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -8,14 +8,17 @@
 
 package ibm.jceplus.junit.base.memstress;
 
-import ibm.jceplus.junit.base.BaseTest;
+import ibm.jceplus.junit.base.BaseTestJunit5;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestMemStressRSAPSS2 extends BaseTest {
+public class BaseTestMemStressRSAPSS2 extends BaseTestJunit5 {
 
     String IBM_ALG = "RSASA-PSS";
 
@@ -50,25 +53,15 @@ public class BaseTestMemStressRSAPSS2 extends BaseTest {
 
     int numTimes = 100;
     boolean printheapstats = false;
-    int keysize = 2048;
 
-    public BaseTestMemStressRSAPSS2(String providerName) {
-        super(providerName);
-    }
-
-    public BaseTestMemStressRSAPSS2(String providerName, int keysize) {
-        super(providerName);
-        this.keysize = keysize;
-    }
-
-    protected void setUp() throws Exception {
+    @BeforeAll
+    public void setUp() throws Exception {
         String numTimesStr = System.getProperty("com.ibm.jceplus.memstress.numtimes");
         if (numTimesStr != null) {
             numTimes = Integer.valueOf(numTimesStr);
         }
         printheapstats = Boolean
                 .valueOf(System.getProperty("com.ibm.jceplus.memstress.printheapstats"));
-        System.out.println("Testing RSAPSS keysize = " + this.keysize);
     }
 
     /**
@@ -78,7 +71,7 @@ public class BaseTestMemStressRSAPSS2 extends BaseTest {
      * 
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testRSAPSSSignature() throws Exception {
 
         Runtime rt = Runtime.getRuntime();
@@ -89,8 +82,9 @@ public class BaseTestMemStressRSAPSS2 extends BaseTest {
         long currentUsedMemory = 0;
         long prevUsedMemory = 0;
 
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", providerName);
-        keyGen.initialize(this.keysize, new java.security.SecureRandom());
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
+        System.out.println("Testing RSAPSS keysize = " + getKeySize());
+        keyGen.initialize(getKeySize(), new java.security.SecureRandom());
         KeyPair keyPair = keyGen.genKeyPair();
         PSSParameterSpec pssparamSpec = new PSSParameterSpec("SHA-1", "MGF1",
                     MGF1ParameterSpec.SHA1, 20, 1);
@@ -134,7 +128,7 @@ public class BaseTestMemStressRSAPSS2 extends BaseTest {
     protected void dotestSignature(byte[] content, String algorithm, KeyPair keyPair,
             PSSParameterSpec pssParameterSpec) throws Exception {
 
-        Signature sig = Signature.getInstance(algorithm, providerName);
+        Signature sig = Signature.getInstance(algorithm, getProviderName());
         if (pssParameterSpec != null) {
             // System.out.println ("calling sig.setParameter");
             sig.setParameter(pssParameterSpec);
@@ -148,7 +142,7 @@ public class BaseTestMemStressRSAPSS2 extends BaseTest {
         sig.update(content);
 
         // Check Signature
-        // Signature verifySig = Signature.getInstance("SHA1withRSA/PSS", providerName);
+        // Signature verifySig = Signature.getInstance("SHA1withRSA/PSS", getProviderName());
         // verifySig.initVerify(cert);
         // verifySig.update(content);
         boolean signatureVerified = sig.verify(sigBytes);
