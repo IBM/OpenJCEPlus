@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -14,6 +14,9 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
 public class BaseTestChaCha20Poly1305ChunkUpdate extends BaseTestCipher
         implements ChaCha20Constants {
@@ -27,20 +30,16 @@ public class BaseTestChaCha20Poly1305ChunkUpdate extends BaseTestCipher
     protected SecretKey key = null;
     protected int specifiedKeySize = 0;
 
-    public BaseTestChaCha20Poly1305ChunkUpdate(String providerName) {
-        super(providerName);
-    }
-
+    @BeforeEach
     public void setUp() throws Exception {
-        keyGen = KeyGenerator.getInstance(CHACHA20_ALGORITHM, providerName);
+        keyGen = KeyGenerator.getInstance(CHACHA20_ALGORITHM, getProviderName());
         if (specifiedKeySize > 0) {
             keyGen.init(specifiedKeySize);
         }
         key = keyGen.generateKey();
     }
 
-    public void tearDown() throws Exception {}
-
+    @Test
     public void testChunks() throws Exception {
         testChunkUpdate(0);
         testChunkUpdate(1);
@@ -88,7 +87,7 @@ public class BaseTestChaCha20Poly1305ChunkUpdate extends BaseTestCipher
     }
 
     private byte[] encrypt(byte[] pText) throws Exception {
-        Cipher cipher = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+        Cipher cipher = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
         cipher.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
         byte[] encryptedText = cipher.doFinal(pText);
         byte[] output = ByteBuffer.allocate(encryptedText.length + ChaCha20_NONCE_SIZE)
@@ -104,7 +103,7 @@ public class BaseTestChaCha20Poly1305ChunkUpdate extends BaseTestCipher
         bb.get(encryptedText);
         bb.get(nonce);
 
-        Cipher cipher = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, providerName);
+        Cipher cipher = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
         IvParameterSpec iv = new IvParameterSpec(nonce);
         cipher.init(Cipher.DECRYPT_MODE, key, iv);
 

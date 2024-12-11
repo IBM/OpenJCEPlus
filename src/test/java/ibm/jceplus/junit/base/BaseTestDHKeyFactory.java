@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -21,73 +21,62 @@ import javax.crypto.KeyAgreement;
 import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.Test;
 
-public class BaseTestDHKeyFactory extends BaseTestInterop {
+public class BaseTestDHKeyFactory extends BaseTestJunit5Interop {
 
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestDHKeyFactory(String providerName, String interopProviderName) {
-        super(providerName, interopProviderName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
+    @Test
     public void testDHKeyFactory() throws Exception {
 
-        test_dh_keyFactory(interopProviderName, interopProviderName);
-        test_dh_keyFactory(providerName, providerName);
-        if (providerName.equals("OpenJCEPlusFIPS")
-                || interopProviderName.equals("OpenJCEPlusFIPS")) {
+        test_dh_keyFactory(getInteropProviderName(), getInteropProviderName());
+        test_dh_keyFactory(getProviderName(), getProviderName());
+        if (getProviderName().equals("OpenJCEPlusFIPS")
+                || getInteropProviderName().equals("OpenJCEPlusFIPS")) {
             // OpenJCEPlusFIPS will not work with the static DHParams from IBMJCE. They are no longer FIPS usable.
-            if (providerName.equals("OpenJCEPlusFIPS")) {
-                test_dh_keyFactory(providerName, interopProviderName);
+            if (getProviderName().equals("OpenJCEPlusFIPS")) {
+                test_dh_keyFactory(getProviderName(), getInteropProviderName());
             } else {
-                test_dh_keyFactory(interopProviderName, providerName);
+                test_dh_keyFactory(getInteropProviderName(), getProviderName());
             }
         } else {
-            test_dh_keyFactory(providerName, interopProviderName);
-            test_dh_keyFactory(interopProviderName, providerName);
+            test_dh_keyFactory(getProviderName(), getInteropProviderName());
+            test_dh_keyFactory(getInteropProviderName(), getProviderName());
         }
 
     }
 
+    @Test
     public void testDHShortSecret1() throws Exception {
-        test_dh_short_secret(providerName, providerName);
-        test_dh_short_secret(interopProviderName, interopProviderName);
-        test_dh_short_secret(providerName, interopProviderName);
-        test_dh_short_secret(interopProviderName, providerName);
+        test_dh_short_secret(getProviderName(), getProviderName());
+        test_dh_short_secret(getInteropProviderName(), getInteropProviderName());
+        test_dh_short_secret(getProviderName(), getInteropProviderName());
+        test_dh_short_secret(getInteropProviderName(), getProviderName());
     }
 
-
+    @Test
     public void testDHShortSecret2a() throws Exception {
-        test_dh_short_secret2ndmethod(providerName, providerName);
+        test_dh_short_secret2ndmethod(getProviderName(), getProviderName());
     }
 
+    @Test
     public void testDHShortSecret2b() throws Exception {
 
-        test_dh_short_secret2ndmethod(interopProviderName, interopProviderName);
+        test_dh_short_secret2ndmethod(getInteropProviderName(), getInteropProviderName());
 
 
     }
 
+    @Test
     public void testDHShortSecret2c() throws Exception {
 
-        test_dh_short_secret2ndmethod(providerName, interopProviderName);
+        test_dh_short_secret2ndmethod(getProviderName(), getInteropProviderName());
 
     }
 
+    @Test
     public void testDHShortSecret2d() throws Exception {
 
-        test_dh_short_secret2ndmethod(interopProviderName, providerName);
+        test_dh_short_secret2ndmethod(getInteropProviderName(), getProviderName());
 
     }
 

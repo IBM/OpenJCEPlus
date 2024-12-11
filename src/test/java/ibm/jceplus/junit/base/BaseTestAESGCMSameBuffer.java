@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -14,6 +14,7 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
+import org.junit.jupiter.api.Test;
 
 /*
  * @test
@@ -21,7 +22,7 @@ import javax.crypto.spec.GCMParameterSpec;
  * @summary Check if AEAD operations work correctly when buffers used
  *          for storing plain text and cipher text are overlapped or the same
  */
-public class BaseTestAESGCMSameBuffer extends BaseTest {
+public class BaseTestAESGCMSameBuffer extends BaseTestJunit5 {
 
     private static final String AES = "AES";
     private static final String GCM = "GCM";
@@ -37,11 +38,7 @@ public class BaseTestAESGCMSameBuffer extends BaseTest {
     private int textLength;
     private int AADLength;
 
-    public BaseTestAESGCMSameBuffer(String pname) {
-        super(pname);
-    }
-
-
+    @Test
     public void testAESGCMSameBuffer() throws Exception {
         for (int keyLength : KEY_LENGTHS) {
             for (int textLength : TEXT_LENGTHS) {
@@ -71,7 +68,7 @@ public class BaseTestAESGCMSameBuffer extends BaseTest {
         }
 
         // init a secret key
-        KeyGenerator kg = KeyGenerator.getInstance(algo, providerName);
+        KeyGenerator kg = KeyGenerator.getInstance(algo, getProviderName());
         kg.init(keyLength);
         key = kg.generateKey();
 
@@ -351,7 +348,7 @@ public class BaseTestAESGCMSameBuffer extends BaseTest {
      * existing Cipher.
      */
     private Cipher createCipher(int mode, AlgorithmParameters params) throws Exception {
-        Cipher cipher = Cipher.getInstance(transformation, providerName);
+        Cipher cipher = Cipher.getInstance(transformation, getProviderName());
         if (Cipher.ENCRYPT_MODE == mode) {
             // initiate it with the saved parameters
             if (params != null) {

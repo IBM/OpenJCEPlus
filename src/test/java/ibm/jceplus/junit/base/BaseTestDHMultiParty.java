@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -18,44 +18,19 @@ import java.security.NoSuchProviderException;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
+import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertTrue;
 
-public class BaseTestDHMultiParty extends BaseTest {
+public class BaseTestDHMultiParty extends BaseTestJunit5 {
 
-    // --------------------------------------------------------------------------
-    //
-    //
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
-    // --------------------------------------------------------------------------
-    //
-    //
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public BaseTestDHMultiParty(String providerName) {
-        super(providerName);
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void setUp() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
-    public void tearDown() throws Exception {}
-
-    // --------------------------------------------------------------------------
-    //
-    //
     /**
      * Basic DH example
      *
      * @throws Exception
      */
-
+    @Test
     public void testDHMulti() throws Exception {
 
         String id = "testDHMulti";
@@ -69,7 +44,7 @@ public class BaseTestDHMultiParty extends BaseTest {
         DHParameterSpec dhParams = new DHParameterSpec(p_2048, g_2048);
 
         try {
-            compute_dh_multiparty(id, dhParams, providerName);
+            compute_dh_multiparty(id, dhParams, getProviderName());
         } catch (IllegalStateException e) {
             //System.out.println(e.getMessage());
             assertTrue(true);
@@ -176,4 +151,3 @@ public class BaseTestDHMultiParty extends BaseTest {
 
     }
 }
-

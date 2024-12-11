@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2024
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -19,10 +19,11 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 // This test case exercises the AES/CCM cipher using a CCMParameterSpec object
 
-public class BaseTestAESCCM extends BaseTest {
+public class BaseTestAESCCM extends BaseTestJunit5 {
 
     public static int iterationLimit = 100;
     public static int iterationCounter = 0;
@@ -49,23 +50,10 @@ public class BaseTestAESCCM extends BaseTest {
 
     private static Object myMutexObject = new Object();
 
-    public static String provider;
-    public static boolean printJunitTrace = false;
+    public static boolean printJunitTrace = Boolean.valueOf(System.getProperty("com.ibm.jceplus.junit.printJunitTrace"));
 
-
-
-    public BaseTestAESCCM(String providerName) {
-        super(providerName);
-        provider = providerName;
-        printJunitTrace = Boolean
-                .valueOf(System.getProperty("com.ibm.jceplus.junit.printJunitTrace"));
-    }
-
-
-    protected void setUp() throws Exception {}
-
-
-    public static void testAESCCM() throws Exception {
+    @Test
+    public void testAESCCM() throws Exception {
         while (iterationCounter < iterationLimit) {
 
             iterationCounter++;
@@ -123,7 +111,7 @@ public class BaseTestAESCCM extends BaseTest {
             }
 
 
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", provider);
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", getProviderName());
             if (printJunitTrace)
                 System.out.println("BaseTestAESCCM.java:  testAESCCM():  The KeyGenerator is a:  "
                         + keyGenerator.getClass().getName());
@@ -282,7 +270,6 @@ public class BaseTestAESCCM extends BaseTest {
 
         } // end iteration loop
 
-
         synchronized (myMutexObject) {
             if (printJunitTrace)
                 System.out.println(
@@ -303,9 +290,7 @@ public class BaseTestAESCCM extends BaseTest {
 
     } // end testAESCCM()
 
-
-
-    private static byte[] encrypt(byte[] plaintext, SecretKey key, byte[] IV, int ccmTagLength)
+    private byte[] encrypt(byte[] plaintext, SecretKey key, byte[] IV, int ccmTagLength)
             throws Exception {
         synchronized (myMutexObject) {
             if (printJunitTrace)
@@ -320,7 +305,7 @@ public class BaseTestAESCCM extends BaseTest {
         }
 
         // Get Cipher Instance
-        Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", provider);
+        Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
         if (printJunitTrace)
             System.out.println(
                     "BaseTestAESCCM.java:  encrypt():  The encryption cipher is a:                "
@@ -563,9 +548,7 @@ public class BaseTestAESCCM extends BaseTest {
         return cipherText;
     } // end encrypt( )
 
-
-
-    private static String decrypt(byte[] cipherText, SecretKey key, byte[] IV, int ccmTagLength)
+    private String decrypt(byte[] cipherText, SecretKey key, byte[] IV, int ccmTagLength)
             throws Exception {
 
         synchronized (myMutexObject) {
@@ -581,7 +564,7 @@ public class BaseTestAESCCM extends BaseTest {
         }
 
         // Get Cipher Instance
-        Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", provider);
+        Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
         if (printJunitTrace)
             System.out.println(
                     "BaseTestAESCCM.java:  decrypt():  The decryption cipher is a:                "
@@ -827,11 +810,9 @@ public class BaseTestAESCCM extends BaseTest {
         return new String(decryptedText);
     } // end decrypt( )
 
-
-
     // This CCM tag length is specified in bits.  Valid values are:  32, 48, 64, 80, 96, 112, 128
     // The ccmTagLength will be selected randomly for each iteration.
-    private static int computeTagLength() {
+    private int computeTagLength() {
         int ccmTagLength = 0;
 
         // Generate a random tag length of:  32, 48, 64, 80, 96, 112, or 128)
@@ -858,7 +839,7 @@ public class BaseTestAESCCM extends BaseTest {
 
     // The IV buffer length is specified in bytes.  Valid values are 7 thru 13 inclusive.
     // The ivBufferLength will be selected randomly for each iteration.
-    private static int computeIVBufferLength() {
+    private int computeIVBufferLength() {
         int ivBufferLength = 0;
 
         // Generate a random IV buffer length ( 7 bytes thru 13 bytes inclusive )
@@ -882,24 +863,8 @@ public class BaseTestAESCCM extends BaseTest {
         return ivBufferLength;
     }
 
-
-
-    //  public static void main(String args[]) {
-    //      try {
-    //          BaseTestAESCCM test = new BaseTestAESCCM();
-    //          test.testAESCCM();
-    //      }
-    //      catch (Exception ex)
-    //      {
-    //          if (printJunitTrace) System.out.println("main() BaseTestAESCCM.java:  The following exception was thrown:");
-    //          ex.printStackTrace( System.out );
-    //      }
-    //  }
-
-
-
     /** * Converts a byte array to hex string */
-    private static String toHexString(byte[] block) {
+    private String toHexString(byte[] block) {
         StringBuffer buf = new StringBuffer();
         char[] hexChars = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
                 'E', 'F'};
@@ -920,5 +885,4 @@ public class BaseTestAESCCM extends BaseTest {
 
         return buf.toString();
     }
-
 }
