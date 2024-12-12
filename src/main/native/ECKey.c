@@ -2118,15 +2118,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterfa
   jbyteArray           secretBytes = NULL;
   unsigned char *      secretBytesNative = NULL;
   jboolean             isCopy = 0;
-  jbyteArray           retSecretBytes = NULL;
   size_t               secret_key_len = 0;
 
-  if( debug ) {
+  if (debug) {
     gslogFunctionEntry(functionName);
   }
 
   gen_ctx = ICC_EVP_PKEY_CTX_new(ockCtx,(ICC_EVP_PKEY *) ockPrivXecKey,NULL); /* Set private key */
-  if ( NULL == gen_ctx ) {
+  if (NULL == gen_ctx) {
      throwOCKException(env, 0, "NULL from ICC_EVP_PKEY_CTX_new");
   } else {
     ICC_EVP_PKEY_derive_init(ockCtx, gen_ctx);
@@ -2137,24 +2136,20 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterfa
         ICC_EVP_PKEY_derive(ockCtx, gen_ctx, NULL, &secret_key_len); /* Get secret key size */
     }
     secretBytes = (*env)->NewByteArray(env, secret_key_len); /* Create Java secret bytes array with size */
-    if( NULL == secretBytes ) {
+    if(NULL == secretBytes) {
       throwOCKException(env, 0, "NewByteArray failed"); 
     } else {
       secretBytesNative = (unsigned char*)((*env)->GetPrimitiveArrayCritical(env, secretBytes, &isCopy));
-      if( NULL == secretBytesNative ) {
+      if(NULL == secretBytesNative) {
         throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical");
       } else {
         ICC_EVP_PKEY_derive(ockCtx, gen_ctx, secretBytesNative, &secret_key_len);
-        retSecretBytes = secretBytes;
         ICC_EVP_PKEY_CTX_free(ockCtx, gen_ctx);
         (*env)->ReleasePrimitiveArrayCritical(env, secretBytes, secretBytesNative, 0);
-        if( NULL == retSecretBytes ) {
-          (*env)->DeleteLocalRef(env, secretBytes);
-        }
-        if( debug ) {
+        if(debug) {
           gslogFunctionExit(functionName);
         }
-        return retSecretBytes;
+        return secretBytes;
       }
     }
   }
@@ -2163,15 +2158,15 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterfa
     ICC_EVP_PKEY_CTX_free(ockCtx, gen_ctx);
   }
 
-  if( NULL != secretBytesNative ) {
+  if(NULL != secretBytesNative) {
     (*env)->ReleasePrimitiveArrayCritical(env, secretBytes, secretBytesNative, 0);
   }
 
-  if( ( NULL != secretBytes ) && ( NULL == retSecretBytes ) ) {
+  if(NULL != secretBytes) {
     (*env)->DeleteLocalRef(env, secretBytes);
   }
 
-  if( debug ) {
+  if(debug) {
     gslogFunctionExit(functionName);
   }
 
