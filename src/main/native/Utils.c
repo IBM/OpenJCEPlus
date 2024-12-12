@@ -199,7 +199,7 @@ throwOCKException( JNIEnv *env, int code, const char* msg )
 
         strcpy(msgCopy,msg);
 #ifdef __MVS__
-        rc = __etoa(msgCopy);
+        int rc = __etoa(msgCopy);
         if (rc < 1) {
             gslogError("_etoa failed in %s",__FUNCTION__);
         }
