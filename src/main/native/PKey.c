@@ -23,28 +23,28 @@
  * Method:    PKEY_delete
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PKEY_1delete
-  (JNIEnv * env, jclass thisObj, jlong ockContextId, jlong pkeyId)
-{
-  static const char * functionName = "NativeInterface.PKEY_delete";
+JNIEXPORT void JNICALL
+Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PKEY_1delete(
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jlong pkeyId) {
+    static const char *functionName = "NativeInterface.PKEY_delete";
 
-  ICC_CTX *      ockCtx = (ICC_CTX *)((intptr_t) ockContextId);
-  ICC_EVP_PKEY * ockPKey = (ICC_EVP_PKEY *)((intptr_t) pkeyId);
+    ICC_CTX      *ockCtx  = (ICC_CTX *)((intptr_t)ockContextId);
+    ICC_EVP_PKEY *ockPKey = (ICC_EVP_PKEY *)((intptr_t)pkeyId);
 
-  if( debug ) {
-    gslogFunctionEntry(functionName);
-  }
+    if (debug) {
+        gslogFunctionEntry(functionName);
+    }
 
 #ifdef DEBUG_PKEY_DETAIL
-  if ( debug ) {
-    gslogMessage ("DETAIL_PKEY pkeyId=%lx", (long) pkeyId);
-  }
-#endif 
-  if (ockPKey != NULL) {
-	  ICC_EVP_PKEY_free(ockCtx, ockPKey);
-	  ockPKey = NULL;
-  }
-  if( debug ) {
-    gslogFunctionExit(functionName);
-  }
+    if (debug) {
+        gslogMessage("DETAIL_PKEY pkeyId=%lx", (long)pkeyId);
+    }
+#endif
+    if (ockPKey != NULL) {
+        ICC_EVP_PKEY_free(ockCtx, ockPKey);
+        ockPKey = NULL;
+    }
+    if (debug) {
+        gslogFunctionExit(functionName);
+    }
 }

@@ -1,0 +1,10 @@
+﻿---
+# Formatting rules for clang-format tool used by the OpenJCEPlus project.
+BasedOnStyle: Google
+UseTab: Never
+InsertBraces: True
+IndentWidth: 4
+SortIncludes: false
+ColumnLimit: 80
+AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: true

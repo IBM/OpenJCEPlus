@@ -12,9 +12,9 @@
 // NOTE: These constants must match those defined in
 //       com.ibm.crypto.plus.provider.ock.OCKException
 //
-#define GKR_FIPS_MODE_INVALID  0x00000001
-#define GKR_OCK_ATTACH_FAILED  0x00000002
+#define GKR_FIPS_MODE_INVALID 0x00000001
+#define GKR_OCK_ATTACH_FAILED 0x00000002
 #define GKR_DECRYPT_FINAL_BAD_PADDING_ERROR 0x00000003
-#define GKR_UNSPECIFIED  0x80000000;
+#define GKR_UNSPECIFIED 0x80000000;
 
 #endif

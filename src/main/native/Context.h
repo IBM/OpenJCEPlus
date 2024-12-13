@@ -12,8 +12,8 @@
 // NOTE: These constants must match those defined in
 //       com.ibm.crypto.plus.provider.ock.OCKContext
 //
-#define VALUE_ID_FIPS_APPROVED_MODE    0
-#define VALUE_ID_OCK_INSTALL_PATH      1
-#define VALUE_ID_OCK_VERSION           2
+#define VALUE_ID_FIPS_APPROVED_MODE 0
+#define VALUE_ID_OCK_INSTALL_PATH 1
+#define VALUE_ID_OCK_VERSION 2
 
 #endif
