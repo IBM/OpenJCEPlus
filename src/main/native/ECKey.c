@@ -2119,6 +2119,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterfa
   unsigned char *      secretBytesNative = NULL;
   jboolean             isCopy = 0;
   size_t               secret_key_len = 0;
+  int                  rc = 0;
 
   if (debug) {
     gslogFunctionEntry(functionName);
@@ -2143,7 +2144,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterfa
       if (NULL == secretBytesNative) {
         throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical");
       } else {
-        ICC_EVP_PKEY_derive(ockCtx, gen_ctx, secretBytesNative, &secret_key_len);
+        rc = ICC_EVP_PKEY_derive(ockCtx, gen_ctx, secretBytesNative, &secret_key_len);
+        if (rc != ICC_OSSL_SUCCESS) {
+          throwOCKException(env, 0, "ICC_EVP_PKEY_derive failed to derive a key");
+        }
         ICC_EVP_PKEY_CTX_free(ockCtx, gen_ctx);
         (*env)->ReleasePrimitiveArrayCritical(env, secretBytes, secretBytesNative, 0);
         if (debug) {
