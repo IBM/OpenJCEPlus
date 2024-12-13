@@ -12,7 +12,7 @@
 // NOTE: These constants must match those defined in
 //       com.ibm.crypto.plus.provider.ock.Padding
 //
-#define PADDING_NONE    0
-#define PADDING_PKCS5   1
+#define PADDING_NONE 0
+#define PADDING_PKCS5 1
 
 #endif

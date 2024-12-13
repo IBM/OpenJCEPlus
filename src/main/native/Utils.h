@@ -31,24 +31,25 @@
 #define FAIL_HMAC_INTERNAL_DOFINAL -3
 
 #define FREE_N_NULL(_ptr) \
-if ((_ptr) != NULL) { \
-free((_ptr)); \
-(_ptr)=NULL; \
-}
+    if ((_ptr) != NULL) { \
+        free((_ptr));     \
+        (_ptr) = NULL;    \
+    }
 
 extern int debug;
 
 void com_ibm_crypto_plus_provider_initialize(void);
 
-int gslogFunctionEntry( const char * functionName );
-int gslogError( const char * formatString, ...);
-int gslogMessage( const char * formatString, ...);
-int gslogMessagePrefix( const char * formatString, ...);
-int gslogMessageHex( char byte[], int offset, int length, int spaceAfter, int newlineAfter, char * newlinePrefix );
-int gslogFunctionExit( const char * functionName );
+int gslogFunctionEntry(const char* functionName);
+int gslogError(const char* formatString, ...);
+int gslogMessage(const char* formatString, ...);
+int gslogMessagePrefix(const char* formatString, ...);
+int gslogMessageHex(char byte[], int offset, int length, int spaceAfter,
+                    int newlineAfter, char* newlinePrefix);
+int gslogFunctionExit(const char* functionName);
 
-void ockCheckStatus( ICC_CTX * ctx);
+void ockCheckStatus(ICC_CTX* ctx);
 
-void throwOCKException( JNIEnv *env, int code, const char* msg );
+void throwOCKException(JNIEnv* env, int code, const char* msg);
 
 #endif
