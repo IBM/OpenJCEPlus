@@ -12,10 +12,9 @@
 #include <jcc_a.h>
 #include <icc.h>
 
-typedef struct OCKDigest
-{
-  ICC_EVP_MD_CTX * mdCtx;
-  const ICC_EVP_MD * md;
+typedef struct OCKDigest {
+    ICC_EVP_MD_CTX*   mdCtx;
+    const ICC_EVP_MD* md;
 } OCKDigest;
 
 #endif
