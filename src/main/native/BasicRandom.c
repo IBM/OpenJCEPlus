@@ -23,43 +23,43 @@
  * Method:    RAND_nextBytes
  * Signature: (J[B)V
  */
-JNIEXPORT void JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RAND_1nextBytes
-  (JNIEnv * env, jclass thisObj, jlong ockContextId, jbyteArray bytes)
-{
-  static const char * functionName = "NativeInterface.RAND_nextbytes";
+JNIEXPORT void JNICALL
+Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RAND_1nextBytes(
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jbyteArray bytes) {
+    static const char *functionName = "NativeInterface.RAND_nextbytes";
 
-  ICC_CTX *       ockCtx = (ICC_CTX *)((intptr_t) ockContextId);
-  unsigned char * bytesNative = NULL;
-  jboolean        isCopy;
-  jint            size;
-  int             rc = ICC_OK;
+    ICC_CTX       *ockCtx      = (ICC_CTX *)((intptr_t)ockContextId);
+    unsigned char *bytesNative = NULL;
+    jboolean       isCopy;
+    jint           size;
+    int            rc = ICC_OK;
 
-  if( debug ) {
-    gslogFunctionEntry(functionName);
-  }
-
-  bytesNative   = (*env)->GetPrimitiveArrayCritical(env, bytes, &isCopy);
-  if( bytesNative == NULL ) {
-    throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical!");
-  } else {
-    size = (*env)->GetArrayLength(env, bytes);
-#ifdef DEBUG_RANDOM_DETAIL
-    gslogMessage ("DETAIL_RANDOM size=%d", (int) size);
-#endif
-    rc = ICC_RAND_bytes(ockCtx, bytesNative, size);
-    if( rc != ICC_OSSL_SUCCESS ) {
-      ockCheckStatus(ockCtx);
-      throwOCKException(env, 0, "ICC_RAND_BYTES failed");
+    if (debug) {
+        gslogFunctionEntry(functionName);
     }
-  }
 
-  if( bytesNative != NULL ) {
-    (*env)->ReleasePrimitiveArrayCritical(env, bytes, bytesNative, 0);
-  }
+    bytesNative = (*env)->GetPrimitiveArrayCritical(env, bytes, &isCopy);
+    if (bytesNative == NULL) {
+        throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical!");
+    } else {
+        size = (*env)->GetArrayLength(env, bytes);
+#ifdef DEBUG_RANDOM_DETAIL
+        gslogMessage("DETAIL_RANDOM size=%d", (int)size);
+#endif
+        rc = ICC_RAND_bytes(ockCtx, bytesNative, size);
+        if (rc != ICC_OSSL_SUCCESS) {
+            ockCheckStatus(ockCtx);
+            throwOCKException(env, 0, "ICC_RAND_BYTES failed");
+        }
+    }
 
-  if( debug ) {
-    gslogFunctionExit(functionName);
-  }
+    if (bytesNative != NULL) {
+        (*env)->ReleasePrimitiveArrayCritical(env, bytes, bytesNative, 0);
+    }
+
+    if (debug) {
+        gslogFunctionExit(functionName);
+    }
 }
 
 //============================================================================
@@ -68,39 +68,39 @@ JNIEXPORT void JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RAN
  * Method:    RAND_setSeed
  * Signature: (J[B)V
  */
-JNIEXPORT void JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RAND_1setSeed
-  (JNIEnv * env, jclass thisObj, jlong ockContextId, jbyteArray seed)
-{
-  static const char * functionName = "NativeInterface.RAND_setSeed";
+JNIEXPORT void JNICALL
+Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RAND_1setSeed(
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jbyteArray seed) {
+    static const char *functionName = "NativeInterface.RAND_setSeed";
 
-  ICC_CTX *       ockCtx = (ICC_CTX *)((intptr_t) ockContextId);
-  unsigned char * seedNative = NULL;
-  jboolean        isCopy;
-  jint            size;
+    ICC_CTX       *ockCtx     = (ICC_CTX *)((intptr_t)ockContextId);
+    unsigned char *seedNative = NULL;
+    jboolean       isCopy;
+    jint           size;
 
-  if( debug ) {
-    gslogFunctionEntry(functionName);
-  }
+    if (debug) {
+        gslogFunctionEntry(functionName);
+    }
 
-  seedNative = (*env)->GetPrimitiveArrayCritical(env, seed, &isCopy);
-  if( seedNative == NULL ) {
-    throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical!");
-  } else {
-    size = (*env)->GetArrayLength(env, seed);
+    seedNative = (*env)->GetPrimitiveArrayCritical(env, seed, &isCopy);
+    if (seedNative == NULL) {
+        throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical!");
+    } else {
+        size = (*env)->GetArrayLength(env, seed);
 #ifdef DEBUG_RANDOM_DETAIL
-    gslogMessage ("DETAIL_RANDOM size=%d", (int) size);
+        gslogMessage("DETAIL_RANDOM size=%d", (int)size);
 #endif
 
-    ICC_RAND_seed(ockCtx, seedNative, size);
-  }
+        ICC_RAND_seed(ockCtx, seedNative, size);
+    }
 
-  if( seedNative != NULL ) {
-    (*env)->ReleasePrimitiveArrayCritical(env, seed, seedNative, 0);
-  }
+    if (seedNative != NULL) {
+        (*env)->ReleasePrimitiveArrayCritical(env, seed, seedNative, 0);
+    }
 
-  if( debug ) {
-    gslogFunctionExit(functionName);
-  }
+    if (debug) {
+        gslogFunctionExit(functionName);
+    }
 }
 
 //============================================================================
@@ -109,43 +109,42 @@ JNIEXPORT void JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RAN
  * Method:    RAND_generateSeed
  * Signature: (J[B)V
  */
-JNIEXPORT void JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RAND_1generateSeed
-  (JNIEnv * env, jclass thisObj, jlong ockContextId, jbyteArray seed)
-{
-  static const char * functionName = "NativeInterface.RAND_generateSeed";
+JNIEXPORT void JNICALL
+Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RAND_1generateSeed(
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jbyteArray seed) {
+    static const char *functionName = "NativeInterface.RAND_generateSeed";
 
-  ICC_CTX *       ockCtx = (ICC_CTX *)((intptr_t) ockContextId);
-  unsigned char * seedNative = NULL;
-  jboolean        isCopy;
-  jint            size;
-  ICC_STATUS      status;
+    ICC_CTX       *ockCtx     = (ICC_CTX *)((intptr_t)ockContextId);
+    unsigned char *seedNative = NULL;
+    jboolean       isCopy;
+    jint           size;
+    ICC_STATUS     status;
 
-  if( debug ) {
-    gslogFunctionEntry(functionName);
-  }
+    if (debug) {
+        gslogFunctionEntry(functionName);
+    }
 
-  seedNative = (*env)->GetPrimitiveArrayCritical(env, seed, &isCopy);
-  if( seedNative == NULL ) {
-    throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical!");
-  } else {
-    size = (*env)->GetArrayLength(env, seed);
+    seedNative = (*env)->GetPrimitiveArrayCritical(env, seed, &isCopy);
+    if (seedNative == NULL) {
+        throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical!");
+    } else {
+        size = (*env)->GetArrayLength(env, seed);
 
-    ICC_GenerateRandomSeed(ockCtx, &status, size, seedNative);
+        ICC_GenerateRandomSeed(ockCtx, &status, size, seedNative);
 #ifdef DEBUG_RANDOM_DETAIL
-  if( debug ) {
-    gslogMessage ("DETAIL_RAND size=%d", (int) size);
-    gslogMessagePrefix ("DETAIL_RAND size =%d", (int) size);
-    gslogMessageHex ((char *)seedNative, 0, (int) size, 0, 0, NULL);
-   }
+        if (debug) {
+            gslogMessage("DETAIL_RAND size=%d", (int)size);
+            gslogMessagePrefix("DETAIL_RAND size =%d", (int)size);
+            gslogMessageHex((char *)seedNative, 0, (int)size, 0, 0, NULL);
+        }
 #endif
-  }
+    }
 
-  if( seedNative != NULL ) {
-    (*env)->ReleasePrimitiveArrayCritical(env, seed, seedNative, 0);
-  }
+    if (seedNative != NULL) {
+        (*env)->ReleasePrimitiveArrayCritical(env, seed, seedNative, 0);
+    }
 
-  if( debug ) {
-    gslogFunctionExit(functionName);
-  }
+    if (debug) {
+        gslogFunctionExit(functionName);
+    }
 }
-

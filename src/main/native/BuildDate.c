@@ -20,45 +20,45 @@
  * Method:    getLibraryBuildDate
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterface_getLibraryBuildDate
-  (JNIEnv * env, jclass thisObj)
-{
-  static const char * functionName = "NativeInterface.getLibraryBuildDate";
-  const char * buildDateString = NULL;
-  jstring retValue = NULL;
+JNIEXPORT jstring JNICALL
+Java_com_ibm_crypto_plus_provider_ock_NativeInterface_getLibraryBuildDate(
+    JNIEnv* env, jclass thisObj) {
+    static const char* functionName    = "NativeInterface.getLibraryBuildDate";
+    const char*        buildDateString = NULL;
+    jstring            retValue        = NULL;
 
-  if( debug ) {
-    gslogFunctionEntry(functionName);
-  }
+    if (debug) {
+        gslogFunctionEntry(functionName);
+    }
 
 #ifdef __MVS__
-  #pragma convert("ISO8859-1")
+#pragma convert("ISO8859-1")
 #endif
 
 #if defined(BUILD_DATE)
-  // Compile flag specifying the build date
-  buildDateString = BUILD_DATE;
+    // Compile flag specifying the build date
+    buildDateString = BUILD_DATE;
 #elif defined(__DATE__) && defined(__TIME__)
-  // Pre-processor macros
-  buildDateString = __DATE__ " "  __TIME__;
+    // Pre-processor macros
+    buildDateString = __DATE__ " " __TIME__;
 #elif defined(__DATE__)
-  // Pre-processor macro
-  buildDateString = __DATE__;
+    // Pre-processor macro
+    buildDateString = __DATE__;
 #else
-  buildDateString = "<UNKNOWN>";
+    buildDateString = "<UNKNOWN>";
 #endif
 
 #ifdef __MVS__
-  #pragma convert(pop)
+#pragma convert(pop)
 #endif
 
-  if( buildDateString != NULL ) {
-      retValue = (*env)->NewStringUTF(env, buildDateString);
-  }
+    if (buildDateString != NULL) {
+        retValue = (*env)->NewStringUTF(env, buildDateString);
+    }
 
-  if( debug ) {
-    gslogFunctionExit(functionName);
-  }
+    if (debug) {
+        gslogFunctionExit(functionName);
+    }
 
-  return retValue;
+    return retValue;
 }
