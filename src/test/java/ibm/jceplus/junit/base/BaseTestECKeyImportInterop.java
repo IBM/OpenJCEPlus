@@ -25,8 +25,8 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
 import sun.security.util.InternalPrivateKey;
+import static org.junit.Assert.assertTrue;
 
 public class BaseTestECKeyImportInterop extends BaseTestJunit5Interop {
 
