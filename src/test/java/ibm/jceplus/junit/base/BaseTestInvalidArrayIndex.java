@@ -16,7 +16,7 @@ import javax.crypto.spec.RC2ParameterSpec;
 import javax.crypto.spec.RC5ParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestInvalidArrayIndex extends BaseTestJunit5 {
 
@@ -55,11 +55,10 @@ public class BaseTestInvalidArrayIndex extends BaseTestJunit5 {
                     Integer.MAX_VALUE - 1, "");
             System.out
                     .println("Test Passed for IVParameterSpec, GCMParameterSpec and SecretKeySpec");
-            assertTrue("Spec Tests passed for IVParamerSpec, GCMParameterSpec and SecretKeySpec",
-                    true);
+            assertTrue(true, "Spec Tests passed for IVParamerSpec, GCMParameterSpec and SecretKeySpec");
         } catch (Exception ex) {
-            assertTrue("Spec Tests failed for IVParamerSpec, GCMParameterSpec and SecretKeySpec "
-                    + ex.getMessage(), false);
+            assertTrue(false, "Spec Tests failed for IVParamerSpec, GCMParameterSpec and SecretKeySpec "
+                    + ex.getMessage());
         }
     }
 

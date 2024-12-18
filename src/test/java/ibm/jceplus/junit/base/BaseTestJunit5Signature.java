@@ -11,7 +11,7 @@ package ibm.jceplus.junit.base;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestJunit5Signature extends BaseTestJunit5 {
 
@@ -26,6 +26,6 @@ public class BaseTestJunit5Signature extends BaseTestJunit5 {
         verifying.initVerify(publicKey);
         verifying.update(message);
 
-        assertTrue("Signature verification failed", verifying.verify(signedBytes));
+        assertTrue(verifying.verify(signedBytes), "Signature verification failed");
     }
 }

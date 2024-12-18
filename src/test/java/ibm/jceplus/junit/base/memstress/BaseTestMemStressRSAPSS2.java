@@ -16,7 +16,7 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestMemStressRSAPSS2 extends BaseTestJunit5 {
 
@@ -147,6 +147,6 @@ public class BaseTestMemStressRSAPSS2 extends BaseTestJunit5 {
         // verifySig.update(content);
         boolean signatureVerified = sig.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 }
