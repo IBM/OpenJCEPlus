@@ -28,9 +28,9 @@ import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestECDH extends BaseTestJunit5 {
 
@@ -283,8 +283,7 @@ public class BaseTestECDH extends BaseTestJunit5 {
 
         AlgorithmParameters algorithmParameters = AlgorithmParameters.getInstance("EC",
                 getProviderName());
-        assertNotNull("AlgorithmParameters EC not found in provider" + getProviderName(),
-                algorithmParameters);
+        assertNotNull(algorithmParameters, "AlgorithmParameters EC not found in provider" + getProviderName());
 
         AlgorithmParameterSpec algorithmParameterSpec = new ECGenParameterSpec(curveName);
 

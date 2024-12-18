@@ -11,7 +11,7 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestSHA3_224KAT extends BaseTestMessageDigestClone {
 
@@ -506,8 +506,7 @@ public class BaseTestSHA3_224KAT extends BaseTestMessageDigestClone {
             md.update(BaseUtils.hexStringToByteArray(tests[x][0]));
             byte[] digest = md.digest();
 
-            assertTrue("Digest did not match expected = " + x,
-                    Arrays.equals(digest, BaseUtils.hexStringToByteArray(tests[x][1])));
+            assertTrue(Arrays.equals(digest, BaseUtils.hexStringToByteArray(tests[x][1])), "Digest did not match expected = " + x);
         }
     }
 
@@ -516,8 +515,7 @@ public class BaseTestSHA3_224KAT extends BaseTestMessageDigestClone {
         MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         byte[] digest = md.digest(BaseUtils.hexStringToByteArray(tests[0][0]));
 
-        assertTrue("Digest did not match expected",
-                Arrays.equals(digest, BaseUtils.hexStringToByteArray(tests[0][1])));
+        assertTrue(Arrays.equals(digest, BaseUtils.hexStringToByteArray(tests[0][1])), "Digest did not match expected");
     }
 
     @Test
@@ -528,8 +526,7 @@ public class BaseTestSHA3_224KAT extends BaseTestMessageDigestClone {
         md.update(BaseUtils.hexStringToByteArray(tests[1][0]));
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected",
-                Arrays.equals(result, BaseUtils.hexStringToByteArray(tests[1][1])));
+        assertTrue(Arrays.equals(result, BaseUtils.hexStringToByteArray(tests[1][1])), "Digest did not match expected");
     }
 
     @Test
@@ -537,8 +534,7 @@ public class BaseTestSHA3_224KAT extends BaseTestMessageDigestClone {
         MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         byte[] digest = md.digest(BaseUtils.hexStringToByteArray(tests[1][0]));
 
-        assertTrue("Digest did not match expected",
-                Arrays.equals(digest, BaseUtils.hexStringToByteArray(tests[1][1])));
+        assertTrue(Arrays.equals(digest, BaseUtils.hexStringToByteArray(tests[1][1])), "Digest did not match expected");
     }
 
     @Test
@@ -546,6 +542,6 @@ public class BaseTestSHA3_224KAT extends BaseTestMessageDigestClone {
         MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         int digestLength = md.getDigestLength();
         boolean isExpectedValue = (digestLength == 28);
-        assertTrue("Unexpected digest length", isExpectedValue);
+        assertTrue(isExpectedValue, "Unexpected digest length");
     }
 }

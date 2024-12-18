@@ -17,7 +17,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestAESGCMCICOWithGCM extends BaseTestJunit5 {
     protected int specifiedKeySize = 128;
@@ -86,9 +86,9 @@ public class BaseTestAESGCMCICOWithGCM extends BaseTestJunit5 {
         byte[] recovered = baOutput.toByteArray();
 
         if (!Arrays.equals(plainText, recovered)) {
-            assertTrue("diff check failed!", false);
+            assertTrue(false, "diff check failed!");
         } else {
-            assertTrue("diff check passed", true);
+            assertTrue(true, "diff check passed");
         }
     }
 

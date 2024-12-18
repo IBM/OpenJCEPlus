@@ -14,7 +14,7 @@ import java.security.AlgorithmParameters;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class BaseTestAESCCMParameters extends BaseTestJunit5 {
@@ -54,7 +54,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterSpec():  ERROR:  The unexpected exception below was thrown.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         try {
@@ -63,7 +63,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterSpec():  ERROR:  The unexpected exception below was thrown.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         try {
@@ -74,7 +74,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterSpec():  ERROR:  The unexpected exception below was thrown.  ");
             iaex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         try {
@@ -85,7 +85,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterSpec():  ERROR:  The unexpected exception below was thrown.  ");
             iaex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         try {
@@ -96,7 +96,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterSpec():  ERROR:  The unexpected exception below was thrown.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         //-----------------------------------------------------------------------
@@ -109,7 +109,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterSpec():  ERROR:  The unexpected exception below was thrown.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         try {
@@ -122,7 +122,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterSpec():  ERROR:  The unexpected exception below was thrown.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         try {
@@ -135,7 +135,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterSpec():  ERROR:  The unexpected exception below was thrown.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         try {
@@ -148,7 +148,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterSpec():  ERROR:  The unexpected exception below was thrown.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         try {
@@ -161,7 +161,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterSpec():  ERROR:  The unexpected exception below was thrown.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         try {
@@ -174,7 +174,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterSpec():  ERROR:  The unexpected exception below was thrown.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         CCMParameterSpec ccmParameterSpec = new CCMParameterSpec(tagLenGood, ivBufferGood,
@@ -185,7 +185,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     + ") was read from the CCMParameterSpec object.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
         byte[] iv = ccmParameterSpec.getIV();
         if (iv.length != ivBufferGood.length) {
@@ -194,7 +194,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                             + iv.length + ") was read from the CCMParameterSpec object.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
         for (int i = 0; i < iv.length; i++) {
             if (iv[i] != ivBufferGood[i]) {
@@ -202,7 +202,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                         "testAESCCMParameterSpec():  ERROR:  Unexpected IV bytes were read from the CCMParameterSpec object.  ");
                 RuntimeException rtex = new RuntimeException();
                 rtex.printStackTrace(System.out);
-                Assert.fail();
+                Assertions.fail();
             }
         }
 
@@ -239,7 +239,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameters():  ERROR:  The following exception was thrown while instantiating a CCMParameterSpec object.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -251,7 +251,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameters():  ERROR:  The unexpected exception below was thrown while creating a CCMParameters object.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -259,7 +259,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println("testAESCCMParameters():  ERROR:  ccmParameters1 is null.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -268,7 +268,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  ccmParameters1.getAlgorithm() did not return the string \"CCM\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -277,7 +277,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  ccmParameters1.getProvider().getname() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         // Obtain a CCMParameterSpec object from the CCMParameters object
@@ -289,7 +289,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameters():  ERROR:  The following exception was thrown while encoding and decoding CCMParameters.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         if (ccmParameterSpec1.getTLen() != newCCMParameterSpec.getTLen()) {
@@ -297,7 +297,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  CCMParameterSpec with a bad tagLen was produced.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         if (ccmParameterSpec1.getIV().length != newCCMParameterSpec.getIV().length) {
@@ -305,7 +305,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  CCMParameterSpec with a bad IV length was produced.");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         byte[] originalIV = ccmParameterSpec1.getIV();
@@ -317,7 +317,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                         "testAESCCMParameters():  ERROR:  CCMParameterSpec with a bad IV was produced.  ");
                 RuntimeException rtex = new RuntimeException();
                 rtex.printStackTrace(System.out);
-                Assert.fail();
+                Assertions.fail();
             }
         }
 
@@ -331,7 +331,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameters():  ERROR:  ccmParameters1.getEncoded() threw the following exception.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -345,7 +345,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameters():  ERROR:  The unexpected exception below was thrown while getting a CCMParameters object.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -354,7 +354,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  ccmParameters2.getAlgorithm() did not return the string \"CCM\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         if (!(ccmParameters2.getProvider().getName().equals(getProviderName()))) {
@@ -362,7 +362,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  ccmParameters2.getProvider() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         String ccmParameters2String = ccmParameters2.toString();
@@ -379,7 +379,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameters():  ERROR:  The unexpected exception below was thrown while getting a CCMParameters object.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -388,7 +388,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  ccmParameters3.getAlgorithm() did not return the string \"CCM\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         if (!(ccmParameters3.getProvider().getName().equals(getProviderName()))) {
@@ -396,7 +396,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  ccmParameters3.getProvider() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         String ccmParameters3String = ccmParameters3.toString();
@@ -407,7 +407,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  ccmParameters is not equal to ccmParameters2.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         if (!(ccmParameters1String.equals(ccmParameters3String))) {
@@ -415,7 +415,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  ccmParameters is not equal to ccmParameters3.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         synchronized (myMutexObject) {
@@ -456,7 +456,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  The OpenJCEPlus provider was not found in the provider's list.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -467,7 +467,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  The unexpected exception below was thrown while getting a CCMParameterGenerator object.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -476,7 +476,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  The CCMParameterGenerator is null.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -485,7 +485,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  CCMParameterGenerator.getAlgorithm() did not return \"CCM\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -494,7 +494,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  ccmParameterGenerator.getProvider().getName() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         //-----------------------------------
@@ -507,7 +507,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  The unexpected exception below was thrown while executing CCMParameterGenerator.init( tagLen ).  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -518,7 +518,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  The unexpected exception below was thrown while executing CCMParameterGenerator.generateParameters().  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         if (algorithmParameters == null) {
@@ -526,7 +526,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  The generated algorithmParameters are null.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -536,7 +536,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  algorithmParameters.getClass().getName() did not return the string \"java.security.AlgorithmParameters\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -545,7 +545,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  algorithmParameters.getProvider().getName() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
 
@@ -554,7 +554,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  algorithmParameters.getAlgorithm() did not return the string \"CCM\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         String algorithmParametersClassName = algorithmParameters.getClass().getName();
@@ -564,7 +564,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(algorithmParametersClassName);
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         // Get a CCMParametersSpec object from the generated algorithmParameters (CCMParameters) object
@@ -576,7 +576,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameters():  ERROR:  The following exception was thrown while encoding and decoding AlgorithmParameters(CCMParameters).  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         // Verify the tagLen within the CCMParameterSpec object
@@ -585,7 +585,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  CCMParameterSpec with a bad tagLen was produced.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         // Verify the IV within the CCMParameterSpec object
@@ -594,7 +594,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameters():  ERROR:  CCMParameterSpec with a bad IV length was produced.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         byte[] iv = ccmParameterSpec.getIV();
@@ -614,7 +614,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  The unexpected exception below was thrown while executing CCMParameterGenerator.init(int size).  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         algorithmParameters = null;
@@ -624,7 +624,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  The unexpected exception below was thrown while executing CCMParameterGenerator.generateParameters().  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         if (algorithmParameters == null) {
@@ -632,7 +632,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  The generated algorithmParameters are null.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         if (!(algorithmParameters.getClass().getName()
@@ -641,7 +641,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  algorithmParameters.getClass().getName() did not return the string \"java.security.AlgorithmParameters\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         if (!(algorithmParameters.getProvider().getName().equals(getProviderName()))) {
@@ -649,7 +649,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  algorithmParameters.getProvider().getName() did not return the string \"OpenJCEPlus\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         if (!(algorithmParameters.getAlgorithm().equals("CCM"))) {
@@ -657,7 +657,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  algorithmParameters.getAlgorithm() did not return the string \"CCM\".  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         algorithmParametersClassName = algorithmParameters.getClass().getName();
@@ -667,7 +667,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(algorithmParametersClassName);
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         // Get a CCMParametersSpec object from the generated algorithmParameters (CCMParameters) object
@@ -679,7 +679,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  The following exception was thrown while encoding and decoding AlgorithmParameters(CCMParameters).  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         // Verify the tagLen within the CCMParameterSpec object
@@ -688,7 +688,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  CCMParameterSpec with a bad tagLen was produced.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         // Verify the IV within the CCMParameterSpec object
@@ -697,7 +697,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                     "testAESCCMParameterGenerator():  ERROR:  CCMParameterSpec with a bad IV length was produced.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         iv = ccmParameterSpec.getIV();
@@ -713,7 +713,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
                 }
                 RuntimeException rtex = new RuntimeException();
                 rtex.printStackTrace(System.out);
-                Assert.fail();
+                Assertions.fail();
             }
         }
 

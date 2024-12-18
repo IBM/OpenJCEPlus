@@ -17,9 +17,11 @@ import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
@@ -247,14 +249,14 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                        Assert.assertTrue("signature is invalid!!", result);
+                        assertTrue(result, "signature is invalid!!");
 
 
                     } catch (Exception ex) {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Exception thrown with message = " + ex.getMessage());
                         ex.printStackTrace();
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -323,13 +325,13 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.assertTrue("signature is invalid!!", result);
+                    assertTrue(result, "signature is invalid!!");
 
                 } catch (Exception ex) {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Exception thrown with message = " + ex.getMessage());
                     ex.printStackTrace();
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 //======================================================================================================
@@ -396,13 +398,13 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.assertTrue("signature is invalid!!", result);
+                    assertTrue(result, "signature is invalid!!");
 
                 } catch (Exception ex) {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Exception thrown with message = " + ex.getMessage());
                     ex.printStackTrace();
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 //======================================================================================================
@@ -474,7 +476,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => An unexpected exception was thrown with message = "
                             + ex.getMessage());
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
 
@@ -549,7 +551,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => An unexpected exception was thrown with message = "
                             + ex.getMessage());
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
 
@@ -622,7 +624,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -634,7 +636,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -702,7 +704,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -714,7 +716,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -783,7 +785,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -795,7 +797,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -864,7 +866,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -876,7 +878,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -945,7 +947,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -957,7 +959,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1034,7 +1036,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1046,7 +1048,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1113,7 +1115,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1125,7 +1127,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1193,7 +1195,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1205,7 +1207,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1274,7 +1276,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1286,7 +1288,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1354,7 +1356,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1366,7 +1368,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1444,13 +1446,13 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                        Assert.assertTrue("signature is invalid!!", result);
+                        assertTrue(result, "signature is invalid!!");
 
                     } catch (Exception ex) {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Exception thrown with message = " + ex.getMessage());
                         ex.printStackTrace();
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1523,7 +1525,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => An unexpected exception was thrown with message = "
                             + ex.getMessage());
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
 
@@ -1596,7 +1598,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => An unexpected exception was thrown with message = "
                             + ex.getMessage());
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
 
@@ -1670,7 +1672,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => An unexpected exception was thrown with message = "
                             + ex.getMessage());
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 //======================================================================================================
@@ -1744,7 +1746,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             + " => An unexpected exception was thrown with message = "
                             + ex.getMessage());
                     ex.printStackTrace();
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 //======================================================================================================
@@ -1819,15 +1821,15 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.assertTrue("signature is invalid!!", result);
+                    assertTrue(result, "signature is invalid!!");
 
                 } catch (InvalidAlgorithmParameterException ex) {
-                    Assert.assertTrue(true);
+                    assertTrue(true);
                 } catch (Exception ex) {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Exception thrown with message = " + ex.getMessage());
                     ex.printStackTrace();
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 //======================================================================================================
@@ -1895,15 +1897,15 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.assertTrue("signature is invalid!!", result);
+                    assertTrue(result, "signature is invalid!!");
 
                 } catch (InvalidAlgorithmParameterException ex) {
-                    Assert.assertTrue(true);
+                    assertTrue(true);
                 } catch (Exception ex) {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Exception thrown with message = " + ex.getMessage());
                     ex.printStackTrace();
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 //======================================================================================================
@@ -1971,15 +1973,15 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
-                    Assert.assertTrue("signature is invalid!!", result);
+                    assertTrue(result, "signature is invalid!!");
 
                 } catch (InvalidAlgorithmParameterException ex) {
-                    Assert.assertTrue(true);
+                    assertTrue(true);
                 } catch (Exception ex) {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Exception thrown with message = " + ex.getMessage());
                     ex.printStackTrace();
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 //======================================================================================================
@@ -2050,12 +2052,12 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
 
                 } catch (InvalidAlgorithmParameterException ex) {
-                    Assert.assertTrue(true);
+                    assertTrue(true);
                 } catch (InvalidKeyException ex) {
                     System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => An unexpected exception was thrown with message = "
                             + ex.getMessage());
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
 
@@ -2133,12 +2135,12 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     } catch (InvalidAlgorithmParameterException ex) {
-                        Assert.assertTrue(true);
+                        assertTrue(true);
                     } catch (InvalidKeyException ex) {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
 
                 }

@@ -13,7 +13,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestHmacSHA1Interop extends BaseTestJunit5Interop {
 
@@ -265,7 +265,7 @@ public class BaseTestHmacSHA1Interop extends BaseTestJunit5Interop {
         mac2.update(data);
         byte[] digest2 = mac2.doFinal();
 
-        assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest2));
+        assertTrue(Arrays.equals(digest, digest2), "Mac digest did not equal expected");
     }
 }
 

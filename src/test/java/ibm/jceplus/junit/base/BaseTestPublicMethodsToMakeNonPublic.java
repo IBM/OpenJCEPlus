@@ -20,7 +20,7 @@ import java.util.Vector;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTestJunit5 {
     private boolean debug = false;
@@ -74,8 +74,8 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTestJunit
             }
         }
 
-        assertTrue("Public methods to make non-public: " + publicMethodNamesString,
-                (publicMethodNamesToCheck.size() == 0));
+        assertTrue((publicMethodNamesToCheck.size() == 0),
+            "Public methods to make non-public: " + publicMethodNamesString);
     }
 
 
