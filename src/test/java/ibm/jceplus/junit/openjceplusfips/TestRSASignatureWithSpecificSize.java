@@ -18,8 +18,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class TestRSASignatureWithSpecificSize extends BaseTestJunit5 { 
@@ -81,9 +81,9 @@ public class TestRSASignatureWithSpecificSize extends BaseTestJunit5 {
         }
         verify.update(message);
         if (signedBytes != null) {
-            assertTrue("Signature verification failed", verify.verify(signedBytes));
+            assertTrue(verify.verify(signedBytes), "Signature verification failed");
         } else {
-            assertFalse("Signature verification failed", verify.verify(signedBytes));
+            assertFalse(verify.verify(signedBytes), "Signature verification failed");
         }
     }
 

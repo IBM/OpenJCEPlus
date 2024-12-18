@@ -24,7 +24,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
@@ -87,8 +87,7 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
         byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
         cipherDecrypt.doFinal(cipherTextPlusT, 0, cipherTextPlusT.length, plainTextDecrypt, 0);
 
-        assertTrue("Plaintext did not match expected",
-                Arrays.equals(plainTextEncrypt, plainTextDecrypt));
+        assertTrue(Arrays.equals(plainTextEncrypt, plainTextDecrypt), "Plaintext did not match expected");
     }
 
     @Test
@@ -127,8 +126,7 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
             byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
             cipherDecrypt.doFinal(cipherTextPlusT, 0, cipherTextPlusT.length, plainTextDecrypt, 0);
 
-            assertTrue("Plaintext did not match expected",
-                    Arrays.equals(plainTextEncrypt, plainTextDecrypt));
+            assertTrue(Arrays.equals(plainTextEncrypt, plainTextDecrypt), "Plaintext did not match expected");
         }
     }
 
@@ -157,8 +155,7 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
         byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
         cipherDecrypt.doFinal(cipherTextPlusT, 0, cipherTextPlusT.length, plainTextDecrypt, 0);
 
-        assertTrue("Plaintext did not match expected",
-                Arrays.equals(plainTextEncrypt, plainTextDecrypt));
+        assertTrue(Arrays.equals(plainTextEncrypt, plainTextDecrypt), "Plaintext did not match expected");
     }
 
     @Test
@@ -187,8 +184,7 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
         byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
         cipherDecrypt.doFinal(cipherTextPlusT, 0, cipherTextPlusT.length, plainTextDecrypt, 0);
 
-        assertTrue("Plaintext did not match expected",
-                Arrays.equals(plainTextEncrypt, plainTextDecrypt));
+        assertTrue(Arrays.equals(plainTextEncrypt, plainTextDecrypt), "Plaintext did not match expected");
     }
 
     @Test
@@ -213,9 +209,9 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
             byte[] plainTextDecrypt = new byte[plainTextEncrypt.length];
             cipherDecrypt.doFinal(cipherTextPlusT, 0, cipherTextPlusT.length, plainTextDecrypt, 0);
         } catch (InvalidKeyException ex) {
-            assertTrue("Got expected invalid key exception", true);
+            assertTrue(true, "Got expected invalid key exception");
         } catch (RuntimeException rte) {
-            assertTrue("Got expected exception", true);
+            assertTrue(true, "Got expected exception");
         } catch (Exception e) {
             fail("Unexpected exception: " + e.getMessage());
         }
@@ -244,7 +240,7 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
             cipherDecrypt.doFinal(cipherTextPlusT, 0, cipherTextPlusT.length, plainTextDecrypt, 0);
 
         } catch (InvalidAlgorithmParameterException ipe) {
-            assertTrue("Got expected exception", true);
+            assertTrue(true, "Got expected exception");
         } catch (Exception e) {
             fail("Unexpected exception: " + e.getMessage());
         }
@@ -273,7 +269,7 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
             cipherDecrypt.doFinal(cipherTextPlusT, 0, cipherTextPlusT.length, plainTextDecrypt, 0);
 
         } catch (InvalidAlgorithmParameterException ipe) {
-            assertTrue("Got expected exception", true);
+            assertTrue(true, "Got expected exception");
         } catch (Exception e) {
             fail("Unexpected exception: " + e.getMessage());
         }
@@ -284,7 +280,7 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
 
         //Assume.assumeTrue(RUN_FULL_TEST_SUITE.equals("true"));
         if (!RUN_FULL_TEST_SUITE.equals("true")) {
-            assertTrue("Test skipped", true);
+            assertTrue(true, "Test skipped");
             return;
         }
 
@@ -324,7 +320,7 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
             }
 
         } catch (IllegalStateException ise) {
-            assertTrue("Got expected exception", true);
+            assertTrue(true, "Got expected exception");
         } catch (Exception e) {
             fail("Unexpected exception: " + e.getMessage());
         }

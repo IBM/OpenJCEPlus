@@ -19,9 +19,11 @@ import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestRSAPSS2 extends BaseTestJunit5 {
 
@@ -445,7 +447,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                         if (printJunitTrace)
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " = " + result);
-                        Assert.assertTrue("signature is invalid!!", result);
+                        assertTrue(result, "signature is invalid!!");
 
 
                     } catch (Exception ex) {
@@ -453,7 +455,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => Exception thrown with message = " + ex.getMessage());
                         ex.printStackTrace();
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -572,14 +574,14 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.assertTrue("signature is invalid!!", result);
+                    assertTrue(result, "signature is invalid!!");
 
                 } catch (Exception ex) {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Exception thrown with message = " + ex.getMessage());
                     ex.printStackTrace();
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 //======================================================================================================
@@ -697,14 +699,14 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.assertTrue("signature is invalid!!", result);
+                    assertTrue(result, "signature is invalid!!");
 
                 } catch (Exception ex) {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Exception thrown with message = " + ex.getMessage());
                     ex.printStackTrace();
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 //======================================================================================================
@@ -825,7 +827,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     // For all key sizes and data lengths
                     if (ii <= 0) //If key size <= 512
                     {
-                        Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                        fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
@@ -843,7 +845,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                                         + (testCaseNumber - 1)
                                         + " => An unexpected exception was thrown with message = "
                                         + ex.getMessage());
-                            Assert.fail();
+                            Assertions.fail();
                         }
                     } else // else key size > 512
                     {
@@ -851,7 +853,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -974,7 +976,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     // For all key sizes and data lengths
                     if (ii <= 0) //If key size <= 512
                     {
-                        Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                        fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
@@ -992,7 +994,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                                         + (testCaseNumber - 1)
                                         + " => An unexpected exception was thrown with message = "
                                         + ex.getMessage());
-                            Assert.fail();
+                            Assertions.fail();
                         }
                     } else // else key size > 512
                     {
@@ -1000,7 +1002,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1124,7 +1126,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1138,7 +1140,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1257,7 +1259,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1271,7 +1273,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1390,7 +1392,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1404,7 +1406,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1523,7 +1525,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1537,7 +1539,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1656,7 +1658,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1670,7 +1672,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1798,7 +1800,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1812,7 +1814,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -1930,7 +1932,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -1944,7 +1946,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -2063,7 +2065,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -2077,7 +2079,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -2197,7 +2199,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -2211,7 +2213,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -2330,7 +2332,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException ex) {
@@ -2344,7 +2346,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -2457,14 +2459,14 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                         if (printJunitTrace)
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " = " + result);
-                        Assert.assertTrue("signature is invalid!!", result);
+                        assertTrue(result, "signature is invalid!!");
 
                     } catch (Exception ex) {
                         if (printJunitTrace)
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => Exception thrown with message = " + ex.getMessage());
                         ex.printStackTrace();
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -2586,7 +2588,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     // For all key sizes and data lengths
                     if (ii <= 0) //If key size <= 512
                     {
-                        Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                        fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
@@ -2604,7 +2606,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                                         + (testCaseNumber - 1)
                                         + " => An unexpected exception was thrown with message = "
                                         + ex.getMessage());
-                            Assert.fail();
+                            Assertions.fail();
                         }
                     } else // else key size > 512
                     {
@@ -2612,7 +2614,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -2735,7 +2737,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     // For all key sizes and data lengths
                     if (ii <= 0) //If key size <= 512
                     {
-                        Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                        fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
@@ -2753,7 +2755,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                                         + (testCaseNumber - 1)
                                         + " => An unexpected exception was thrown with message = "
                                         + ex.getMessage());
-                            Assert.fail();
+                            Assertions.fail();
                         }
                     } else // else key size > 512
                     {
@@ -2761,7 +2763,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -2884,7 +2886,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     // For all key sizes and data lengths
                     if (ii <= 1) //If key size <= 1024
                     {
-                        Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                        fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
@@ -2902,7 +2904,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                                         + (testCaseNumber - 1)
                                         + " => An unexpected exception was thrown with message = "
                                         + ex.getMessage());
-                            Assert.fail();
+                            Assertions.fail();
                         }
                     } else // else key size > 1024
                     {
@@ -2910,7 +2912,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -3032,7 +3034,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     // For all key sizes and data lengths
                     if (ii <= 2) //If key size <= 2048
                     {
-                        Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                        fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
@@ -3050,7 +3052,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                                         + (testCaseNumber - 1)
                                         + " => An unexpected exception was thrown with message = "
                                         + ex.getMessage());
-                            Assert.fail();
+                            Assertions.fail();
                         }
                     } else // else key size > 2048
                     {
@@ -3058,7 +3060,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -3184,16 +3186,16 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.assertTrue("signature is invalid!!", result);
+                    assertTrue(result, "signature is invalid!!");
 
                 } catch (InvalidAlgorithmParameterException apex) {
-                    Assert.assertTrue("expected exception", true);
+                    assertTrue(true, "expected exception");
                 } catch (Exception ex) {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Exception thrown with message = " + ex.getMessage());
                     ex.printStackTrace();
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 //======================================================================================================
@@ -3301,16 +3303,16 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                         if (printJunitTrace)
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " = " + result);
-                        Assert.assertTrue("signature is invalid!!", result);
+                        assertTrue(result, "signature is invalid!!");
 
                     } catch (InvalidAlgorithmParameterException apex) {
-                        Assert.assertTrue("expected exception", true);
+                        assertTrue(true, "expected exception");
                     } catch (Exception ex) {
                         if (printJunitTrace)
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => Exception thrown with message = " + ex.getMessage());
                         ex.printStackTrace();
-                        Assert.fail();
+                        Assertions.fail();
                     }
                 }
 
@@ -3429,16 +3431,16 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
-                    Assert.assertTrue("Did not get InvalidAlgorithmParameterException ", false);
+                    assertTrue(false, "Did not get InvalidAlgorithmParameterException ");
 
                 } catch (InvalidAlgorithmParameterException apex) {
-                    Assert.assertTrue("expected exception", true);
+                    assertTrue(true, "expected exception");
                 } catch (Exception ex) {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Exception thrown with message = " + ex.getMessage());
                     ex.printStackTrace();
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 //======================================================================================================
@@ -3558,17 +3560,17 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     // For all key sizes and data lengths
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException apex) {
-                    Assert.assertTrue("expected exception", true);
+                    assertTrue(true, "expected exception");
                 } catch (InvalidKeyException ex) {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
 
@@ -3690,17 +3692,17 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     // For all key sizes and data lengths
-                    Assert.fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
+                    fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                             + " => Instead, this test should have produced an InvalidAlgorithmParameterException");
 
                 } catch (InvalidAlgorithmParameterException apex) {
-                    Assert.assertTrue("expected exception", true);
+                    assertTrue(true, "expected exception");
                 } catch (InvalidKeyException ex) {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => An unexpected exception was thrown with message = "
                                 + ex.getMessage());
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
 
@@ -3775,7 +3777,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                 if (printJunitTrace)
                     System.out.println(
                             "BaseTestRSAPSS2.java:  testRSAPSS_SameObjectTest():  The signature did not verify -FAILED ");
-                Assert.fail();
+                Assertions.fail();
             }
 
             //=======================================================
@@ -3788,19 +3790,19 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                 if (printJunitTrace)
                     System.out.println(
                             "BaseTestRSAPSS2.java:  testRSAPSS_SameObjectTest():  The signature did verify and should not have - FAILED ");
-                Assert.fail();
+                Assertions.fail();
             }
 
             if (printJunitTrace)
                 System.out
                         .println("BaseTestRSAPSS2.java:  testRSAPSS_SameObjectTest():  Successful");
-            Assert.assertTrue("Test SUCCESSFUL", true);
+            assertTrue(true, "Test SUCCESSFUL");
         } catch (Exception ex) {
             if (printJunitTrace)
                 System.out.println(
                         "BaseTestRSAPSS2.java:  testRSAPSS_SameObjectTest():  The following exception was thrown: ");
             ex.printStackTrace();
-            Assert.fail();
+            Assertions.fail();
         }
     } // end testRSAPSS_SameObjectTest()( )
 

@@ -19,8 +19,8 @@ import javax.crypto.spec.DHParameterSpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sun.security.util.KeyUtil;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestDHKeyPairGenerator extends BaseTestJunit5 {
@@ -317,12 +317,10 @@ public class BaseTestDHKeyPairGenerator extends BaseTestJunit5 {
         DHParameterSpec generatedDhPrivateKeyParams = ((DHKey) kp.getPrivate()).getParams();
 
         // if ((generated.getP().bitLength() != expKeySize) || (generated.getL() != expLSize))  original osb code used equality test not greater than or equal
-        assertTrue(
+        assertTrue(((generatedDhPrivateKeyParams.getP().bitLength() == expectedKeySize) &&
+                    (generatedDhPrivateKeyParams.getL() >= expectedMinimumPrivateKeyExponentBitLength)),
                 "Error: size check failed, got " + generatedDhPrivateKeyParams.getP().bitLength()
-                        + " and " + generatedDhPrivateKeyParams.getL(),
-                ((generatedDhPrivateKeyParams.getP().bitLength() == expectedKeySize)
-                        && (generatedDhPrivateKeyParams
-                                .getL() >= expectedMinimumPrivateKeyExponentBitLength)));
+                        + " and " + generatedDhPrivateKeyParams.getL());
 
         return generatedDhPrivateKeyParams;
     }
@@ -349,22 +347,19 @@ public class BaseTestDHKeyPairGenerator extends BaseTestJunit5 {
         BigInteger left = BigInteger.ONE;
         BigInteger right = p.subtract(BigInteger.ONE);
         BigInteger x = dhpr.getX();
-        assertFalse("Private exponent X outside range [2, p - 2]: x: " + x + " p: " + p,
-                ((x.compareTo(left) <= 0) || (x.compareTo(right) >= 0)));
+        assertFalse(((x.compareTo(left) <= 0) || (x.compareTo(right) >= 0)), "Private exponent X outside range [2, p - 2]: x: " + x + " p: " + p);
 
         BigInteger y = dhpu.getY();
-        assertFalse("Public exponent Y outside range [2, p - 2]: x: " + x + " p: " + p,
-                ((y.compareTo(left) <= 0) || (y.compareTo(right) >= 0)));
+        assertFalse(((y.compareTo(left) <= 0) || (y.compareTo(right) >= 0)), "Public exponent Y outside range [2, p - 2]: x: " + x + " p: " + p);
 
         //Exponent bit length does not have to be the exact same but private should be at least 1/2 of keysize
         //OpenJCEPlus will generate a private key with exponent bit length of keysize - 1
         @SuppressWarnings("restriction")
         int keysize = KeyUtil.getKeySize(dhpu);
         int minimumPrivateExponentBitLength = keysize - 1;
-        assertTrue(
+        assertTrue(dhpr.getParams().getL() >= minimumPrivateExponentBitLength,
                 "Minimum exponent bit length: " + minimumPrivateExponentBitLength + " not met by: "
-                        + dhpr.getParams().getL() + " for DH keysize: " + keysize,
-                dhpr.getParams().getL() >= minimumPrivateExponentBitLength);
+                        + dhpr.getParams().getL() + " for DH keysize: " + keysize);
 
         //the key parameter exponent length equality test was removed and replaced by the minimum exponent test above
         //        assertEquals("Invalid public key exponent bit length" , dhpu.getParams().getL(), dhpr.getParams().getL());

@@ -18,7 +18,7 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 // This test case exercises the AES/CCM cipher using a CCMParameterSpec object
@@ -196,7 +196,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                         + iterationCounter);
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } else {
                     if (printJunitTrace)
                         System.out.println(toHexString(cipherText));
@@ -209,7 +209,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                     + iterationCounter);
                 RuntimeException rtex = new RuntimeException();
                 rtex.printStackTrace(System.out);
-                Assert.fail();
+                Assertions.fail();
             }
 
 
@@ -248,7 +248,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                             "BaseTestAESCCM.java:  testAESCCM():   The decryptedText bytes are: ");
                 if (printJunitTrace)
                     System.out.println(toHexString(decryptedText.getBytes()));
-                Assert.fail();
+                Assertions.fail();
             } else {
                 plainText = null;
                 decryptedText = null;
@@ -360,7 +360,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  encrypt():  ERROR.  An exception should have been thrown.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } catch (ProviderException proex) {
                     // do nothing.  This exception is expected because AES/CCM does not support cipher.update().
                 }
@@ -383,7 +383,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  encrypt():  ERROR.  An exception should have been thrown.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } catch (ProviderException proex) {
                     // do nothing.  This exception is expected because AES/CCM does not support cipher.update().
                 }
@@ -413,7 +413,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  encrypt():  ERROR.  An exception should have been thrown.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } catch (ProviderException proex) {
                     // do nothing.  This exception is expected because AES/CCM does not support cipher.update().
                 }
@@ -428,7 +428,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 // All the encryption was performed on Cipher.doFinal( )
@@ -454,7 +454,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  encrypt():  ERROR.  An exception should have been thrown.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } catch (ProviderException proex) {
                     // do nothing.  This exception is expected because AES/CCM does not support cipher.update().
                 }
@@ -470,7 +470,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 // All the encryption was performed on Cipher.doFinal( )
@@ -493,7 +493,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  encrypt():  ERROR.  An exception should have been thrown.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } catch (ProviderException proex) {
                     // do nothing.  This exception is expected because AES/CCM does not support cipher.update().
                 }
@@ -511,7 +511,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 // All the encryption was performed on Cipher.doFinal( )
@@ -524,7 +524,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                 System.out.println(
                         "BaseTestAESCCM.java:  encrypt():  ERROR:  The following exception was thrown.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         if (printJunitTrace)
@@ -619,7 +619,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  decrypt():  ERROR:  Cipher.update( ) should have thrown a RuntimeException.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } catch (RuntimeException rtex) {
                     // Do nothing.  Cipher.update() for decryption is not supported.
                 }
@@ -643,7 +643,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  decrypt():   ERROR:  Cipher.update( ) should have thrown a RuntimeException.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } catch (RuntimeException rtex) {
                     // Do nothing.  Cipher.update() for decryption is not supported.
                 }
@@ -673,7 +673,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  decrypt():   ERROR:  Cipher.update( ) should have thrown a RuntimeException.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } catch (RuntimeException rtex) {
                     // Do nothing.  Cipher.update() for decryption is not supported.
                 }
@@ -689,7 +689,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 // All the decryption was performed on Cipher.doFinal( )
@@ -714,7 +714,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  decrypt():  ERROR:  Cipher.update( ) should have thrown a RuntimeException.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } catch (RuntimeException rtex) {
                     // Do nothing.  Cipher.update() for decryption is not supported.
                 }
@@ -730,7 +730,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 // All the decryption was performed on Cipher.doFinal( )
@@ -759,7 +759,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  decrypt():  ERROR:  Cipher.update( ) should have thrown a RuntimeException.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } catch (RuntimeException rtex) {
                     // Do nothing.  Cipher.update() for decryption is not supported.
                 }
@@ -773,7 +773,7 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                                 "BaseTestAESCCM.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 }
 
                 // All the decryption was performed on Cipher.doFinal( )
@@ -786,13 +786,13 @@ public class BaseTestAESCCM extends BaseTestJunit5 {
                 System.out.println(
                         "BaseTestAESCCM.java:  decrypt():  ERROR:  The following AEADBadTagException was thrown on the cipher.doFinal() call.");
             abte.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ex) {
             if (printJunitTrace)
                 System.out.println(
                         "BaseTestAESCCM.java:  decrypt():  ERROR:  The following exception was thrown.  ");
             ex.printStackTrace(System.out);
-            Assert.fail();
+            Assertions.fail();
         }
 
         synchronized (myMutexObject) {
