@@ -13,7 +13,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestMemStressHmacSHA extends BaseTestJunit5 {
     /* This test by default tests HmacSHAWith256 */
@@ -73,7 +73,7 @@ public class BaseTestMemStressHmacSHA extends BaseTestJunit5 {
             mac.update(data_1);
             byte[] digest = mac.doFinal();
 
-            assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_1));
+            assertTrue(Arrays.equals(digest, digest_1), "Mac digest did not equal expected");
             currentTotalMemory = rt.totalMemory();
             currentFreeMemory = rt.freeMemory();
             currentUsedMemory = currentTotalMemory - currentFreeMemory;

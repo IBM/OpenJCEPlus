@@ -53,7 +53,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import sun.security.x509.X500Name;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
 
@@ -541,7 +541,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         // verifySig.update(content);
         boolean signatureVerified = sig.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /**
@@ -581,7 +581,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         // verifySig.update(content);
         boolean signatureVerified = sig.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /** 
@@ -650,7 +650,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         if (printJunitTrace)
             System.out.println("Inter-op test " + signatureVerified);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /**
@@ -747,7 +747,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         if (printJunitTrace)
             System.out.println("Inter-op test " + signatureVerified);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /** 
@@ -784,7 +784,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
 
         boolean signatureVerified = sig.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /**
@@ -822,7 +822,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
 
         boolean signatureVerified = sig.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /**
@@ -1623,11 +1623,9 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
             X509EncodedKeySpec x509KeySpec2 = new X509EncodedKeySpec(encodedKey);
             KeyFactory.getInstance("RSASSA-PSS", providerNameKF);
             RSAPublicKey publicKey2 = (RSAPublicKey) kf.generatePublic(x509KeySpec2);
-            assertTrue("Algorithm name different",
-                    publicKey.getAlgorithm().equalsIgnoreCase(publicKey2.getAlgorithm()));
-            assertTrue("Modulus different", publicKey.getModulus().equals(publicKey2.getModulus()));
-            assertTrue("Exponentdifferent",
-                    publicKey.getPublicExponent().equals(publicKey2.getPublicExponent()));
+            assertTrue(publicKey.getAlgorithm().equalsIgnoreCase(publicKey2.getAlgorithm()), "Algorithm name different");
+            assertTrue(publicKey.getModulus().equals(publicKey2.getModulus()), "Modulus different");
+            assertTrue(publicKey.getPublicExponent().equals(publicKey2.getPublicExponent()), "Exponent different");
 
         } catch (Exception e) {
             e.printStackTrace();

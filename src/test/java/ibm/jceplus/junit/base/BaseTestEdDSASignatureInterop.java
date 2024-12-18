@@ -25,7 +25,7 @@ import org.bouncycastle.crypto.params.Ed448PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.crypto.signers.Ed448Signer;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestEdDSASignatureInterop extends BaseTestJunit5Signature {
 
@@ -79,7 +79,7 @@ public class BaseTestEdDSASignatureInterop extends BaseTestJunit5Signature {
         Signer signer = new Ed25519Signer();
         signer.init(false, publicKeyBC);
         signer.update(message, 0, message.length);
-        assertTrue("Signature verification failed ", signer.verifySignature(signedBytes));
+        assertTrue(signer.verifySignature(signedBytes), "Signature verification failed ");
     }
 
 
@@ -99,7 +99,7 @@ public class BaseTestEdDSASignatureInterop extends BaseTestJunit5Signature {
         Signer signer = new Ed448Signer(new byte[0]);
         signer.init(false, publicKeyBC);
         signer.update(message, 0, message.length);
-        assertTrue("Signature verification failed ", signer.verifySignature(signedBytes));
+        assertTrue(signer.verifySignature(signedBytes), "Signature verification failed ");
     }
 
     private static void reverseByteArray(byte[] arr) throws IOException {
