@@ -17,7 +17,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestMemStressAESGCM extends BaseTestJunit5 {
 
@@ -134,10 +134,9 @@ public class BaseTestMemStressAESGCM extends BaseTestJunit5 {
             params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
-                assertTrue(
+                assertTrue(((blockSize > 0) && (message.length % blockSize) == 0),
                         "Did not get expected IllegalBlockSizeException, blockSize=" + blockSize
-                                + ", msglen=" + message.length,
-                        ((blockSize > 0) && (message.length % blockSize) == 0));
+                                + ", msglen=" + message.length);
             }
 
             // Verify the text
@@ -152,10 +151,9 @@ public class BaseTestMemStressAESGCM extends BaseTestJunit5 {
             assertTrue(java.util.Arrays.equals(newPlainText, newPlainText2));
 
         } catch (IllegalBlockSizeException e) {
-            assertTrue(
+            assertTrue((!requireLengthMultipleBlockSize || (message.length % blockSize) != 0),
                     "Unexpected IllegalBlockSizeException, blockSize=" + blockSize + ", msglen="
-                            + message.length,
-                    (!requireLengthMultipleBlockSize || (message.length % blockSize) != 0));
+                            + message.length);
         }
     }
 

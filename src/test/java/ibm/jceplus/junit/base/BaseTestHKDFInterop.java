@@ -33,7 +33,7 @@ import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.generators.HKDFBytesGenerator;
 import org.bouncycastle.crypto.params.HKDFParameters;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
     String HKDF_KA[][] = {

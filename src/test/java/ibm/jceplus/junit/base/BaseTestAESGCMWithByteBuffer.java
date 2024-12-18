@@ -18,7 +18,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestAESGCMWithByteBuffer extends BaseTestJunit5 {
 

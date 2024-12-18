@@ -14,7 +14,7 @@ import java.security.Signature;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestTruncatedDigest extends BaseTestJunit5Signature {
 
@@ -168,7 +168,7 @@ public class BaseTestTruncatedDigest extends BaseTestJunit5Signature {
         // verifySig.update(content);
         boolean signatureVerified = sig.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
 }

@@ -29,7 +29,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestEdDSASignature extends BaseTestJunit5Signature {
 
@@ -267,7 +267,7 @@ public class BaseTestEdDSASignature extends BaseTestJunit5Signature {
         sig.initVerify(pubKey);
         sig.update(msgBytes);
 
-        assertTrue("Signature verification failed", sig.verify(computedSig));
+        assertTrue(sig.verify(computedSig), "Signature verification failed");
     }
 
     @Test
@@ -357,7 +357,7 @@ public class BaseTestEdDSASignature extends BaseTestJunit5Signature {
         msgSig = sig.sign();
         sig.initVerify(pubKey2);
         sig.update(testMessage);
-        assertTrue("Signature verification failed", sig.verify(msgSig));
+        assertTrue(sig.verify(msgSig), "Signature verification failed");
     }
 
     /*
@@ -527,7 +527,7 @@ public class BaseTestEdDSASignature extends BaseTestJunit5Signature {
         Signature verifying = Signature.getInstance(sigAlgo, getProviderName());
         verifying.initVerify(publicKey);
         verifying.update(message);
-        assertTrue("Signature verification failed", verifying.verify(signedBytes));
+        assertTrue(verifying.verify(signedBytes), "Signature verification failed");
     }
 
     private void reverseByteArray(byte[] arr) throws IOException {
