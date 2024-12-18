@@ -2145,7 +2145,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_crypto_plus_provider_ock_NativeInterfa
         throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical");
       } else {
         rc = ICC_EVP_PKEY_derive(ockCtx, gen_ctx, secretBytesNative, &secret_key_len);
-        if (rc != ICC_OSSL_SUCCESS) {
+        if (ICC_OSSL_SUCCESS != rc ) {
           throwOCKException(env, 0, "ICC_EVP_PKEY_derive failed to derive a key");
         }
         ICC_EVP_PKEY_CTX_free(ockCtx, gen_ctx);

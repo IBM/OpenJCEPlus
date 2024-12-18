@@ -32,7 +32,7 @@ import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestXDH extends BaseTestJunit5 {
 
