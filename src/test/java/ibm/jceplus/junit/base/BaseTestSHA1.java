@@ -11,7 +11,7 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestSHA1 extends BaseTestMessageDigestClone {
 
@@ -86,7 +86,7 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
 
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, sharesult));
+        assertTrue(Arrays.equals(result, sharesult), "Digest did not match expected");
 
     }
 
@@ -97,7 +97,7 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
         md.update(sha_A_input);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, sha_A));
+        assertTrue(Arrays.equals(result, sha_A), "Digest did not match expected");
 
     }
 
@@ -108,7 +108,7 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
         md.update(sha_B_input);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, sha_B));
+        assertTrue(Arrays.equals(result, sha_B), "Digest did not match expected");
 
     }
 
@@ -122,7 +122,7 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
 
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, sha_C));
+        assertTrue(Arrays.equals(result, sha_C), "Digest did not match expected");
 
     }
 
@@ -135,7 +135,7 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
         md.update(sha_B_input);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, sha_B));
+        assertTrue(Arrays.equals(result, sha_B), "Digest did not match expected");
 
     }
 
@@ -144,7 +144,7 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
         MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         int digestLength = md.getDigestLength();
         boolean isExpectedValue = (digestLength == 20);
-        assertTrue("Unexpected digest length", isExpectedValue);
+        assertTrue(isExpectedValue, "Unexpected digest length");
     }
 
     @Test
@@ -153,9 +153,9 @@ public class BaseTestSHA1 extends BaseTestMessageDigestClone {
         byte[] bytes = new byte[] {1, 1, 1, 1, 1};
         try {
             md.update(bytes, -1, 1);
-            assertTrue("No expected IndexOutOfBoundsException", false);
+            assertTrue(false, "No expected IndexOutOfBoundsException");
         } catch (IndexOutOfBoundsException e) {
-            assertTrue("Expected IndexOutOfBoundsException", true);
+            assertTrue(true, "Expected IndexOutOfBoundsException");
         }
 
     }
