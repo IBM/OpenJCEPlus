@@ -41,7 +41,7 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestRSA extends BaseTestCipher {
@@ -375,7 +375,7 @@ public class BaseTestRSA extends BaseTestCipher {
         byte[] newPlainText = cp.doFinal();
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), plainText, newPlainText);
-        assertTrue("Decrypted text does not match expected", success);
+        assertTrue(success, "Decrypted text does not match expected");
 
     }
 
@@ -468,7 +468,7 @@ public class BaseTestRSA extends BaseTestCipher {
         Cipher cp = Cipher.getInstance(transformation, getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub);
         AlgorithmParameters algParams = cp.getParameters();
-        assertTrue("AlgorithmParameters not null", (algParams == null));
+        assertTrue((algParams == null), "AlgorithmParameters not null");
     }
 
 
@@ -480,7 +480,7 @@ public class BaseTestRSA extends BaseTestCipher {
         Cipher cp = Cipher.getInstance(transformation, getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub);
         AlgorithmParameters algParams = cp.getParameters();
-        assertTrue("AlgorithmParameters is null", (algParams != null));
+        assertTrue((algParams != null), "AlgorithmParameters is null");
     }
 
     @Test
@@ -493,7 +493,7 @@ public class BaseTestRSA extends BaseTestCipher {
         if (keySize == 0) {
             keySize = ((java.security.interfaces.RSAKey) rsaPub).getModulus().bitLength();
         }
-        assertTrue("Unexpected getOutputSize result", (outputSize == keySize / 8));
+        assertTrue((outputSize == keySize / 8), "Unexpected getOutputSize result");
     }
 
     @Test
@@ -555,7 +555,7 @@ public class BaseTestRSA extends BaseTestCipher {
         byte[] newPlainText = cp.doFinal(cipherText);
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), plainText, newPlainText);
-        assertTrue("Decrypted text does not match expected", success);
+        assertTrue(success, "Decrypted text does not match expected");
     }
 
     @Test
@@ -579,7 +579,7 @@ public class BaseTestRSA extends BaseTestCipher {
         byte[] newPlainText = cp.doFinal(cipherText);
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), plainText, newPlainText);
-        assertTrue("Decrypted text does not match expected", success);
+        assertTrue(success, "Decrypted text does not match expected");
     }
 
     @Test
@@ -593,7 +593,7 @@ public class BaseTestRSA extends BaseTestCipher {
         byte[] newPlainText = cp.doFinal(cipherText);
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), plainText, newPlainText);
-        assertTrue("Decrypted text does not match expected", success);
+        assertTrue(success, "Decrypted text does not match expected");
     }
 
     @Test
@@ -623,7 +623,7 @@ public class BaseTestRSA extends BaseTestCipher {
         byte[] newPlainText = cp.doFinal(cipherText);
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), plainText, newPlainText);
-        assertTrue("Decrypted text does not match expected", success);
+        assertTrue(success, "Decrypted text does not match expected");
     }
 
     @Test
@@ -721,7 +721,7 @@ public class BaseTestRSA extends BaseTestCipher {
         byte[] newPlainText = cp.doFinal(cipherText);
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), message, newPlainText);
-        assertTrue("Decrypted text does not match expected", success);
+        assertTrue(success, "Decrypted text does not match expected");
     }
 
     @Test
@@ -735,7 +735,7 @@ public class BaseTestRSA extends BaseTestCipher {
         byte[] newPlainText = cp.doFinal(cipherText);
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), plainText, newPlainText);
-        assertTrue("Decrypted text does not match expected", success);
+        assertTrue(success, "Decrypted text does not match expected");
     }
 
 
@@ -819,7 +819,7 @@ public class BaseTestRSA extends BaseTestCipher {
         byte[] newPlainText = cp.doFinal(cipherText);
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), message, newPlainText);
-        assertTrue("Decrypted text does not match expected", success);
+        assertTrue(success, "Decrypted text does not match expected");
     }
 
 
@@ -842,7 +842,7 @@ public class BaseTestRSA extends BaseTestCipher {
         byte[] newPlainText = cp.doFinal();
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), message, newPlainText);
-        assertTrue("Decrypted text does not match expected", success);
+        assertTrue(success, "Decrypted text does not match expected");
     }
 
 
@@ -873,7 +873,7 @@ public class BaseTestRSA extends BaseTestCipher {
         System.arraycopy(newPlainText2, 0, newPlainText, l, newPlainText2.length);
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), message, newPlainText);
-        assertTrue("Decrypted text does not match expected", success);
+        assertTrue(success, "Decrypted text does not match expected");
     }
 
     /*

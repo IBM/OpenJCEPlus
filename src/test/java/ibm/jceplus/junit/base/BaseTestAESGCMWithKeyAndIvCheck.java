@@ -17,7 +17,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestAESGCMWithKeyAndIvCheck extends BaseTestJunit5 {
 
@@ -148,7 +148,7 @@ public class BaseTestAESGCMWithKeyAndIvCheck extends BaseTestJunit5 {
             // expected
         }
 
-        assertTrue("Test Passed!", true);
+        assertTrue(true, "Test Passed!");
     }
 
 

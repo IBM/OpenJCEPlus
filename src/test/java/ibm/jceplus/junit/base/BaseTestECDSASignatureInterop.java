@@ -13,15 +13,15 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.Signature;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestECDSASignatureInterop extends BaseTestSignatureInterop {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
-    @Ignore("Curve secp192r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
+    @Disabled("Curve secp192r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
     public void ignore_testSHA1withDSA_192() throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support SHA-1 or P-192. So skip test
@@ -32,7 +32,7 @@ public class BaseTestECDSASignatureInterop extends BaseTestSignatureInterop {
     }
 
 
-    @Ignore("Curve secp224r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
+    @Disabled("Curve secp224r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
     public void ignore_testSHA1withDSA_224() throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support SHA-1. So skip test
@@ -73,7 +73,7 @@ public class BaseTestECDSASignatureInterop extends BaseTestSignatureInterop {
     }
 
 
-    @Ignore("Curve secp192r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
+    @Disabled("Curve secp192r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
     public void ignore_testSHA224withECDSA_192() throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support P-192. So skip test
@@ -84,7 +84,7 @@ public class BaseTestECDSASignatureInterop extends BaseTestSignatureInterop {
     }
 
 
-    @Ignore("Curve secp224r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
+    @Disabled("Curve secp224r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
     public void ignore_testSHA224withECDSA_224() throws Exception {
 
         KeyPair keyPair = generateKeyPair(224);
@@ -110,7 +110,7 @@ public class BaseTestECDSASignatureInterop extends BaseTestSignatureInterop {
     }
 
 
-    @Ignore("Curve secp192r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
+    @Disabled("Curve secp192r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
     public void ignore_testSHA256withECDSA_192() throws Exception {
 
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
@@ -122,7 +122,7 @@ public class BaseTestECDSASignatureInterop extends BaseTestSignatureInterop {
     }
 
 
-    @Ignore("Curve secp224r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
+    @Disabled("Curve secp224r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
     public void ignore_testSHA256withECDSA_224() throws Exception {
 
         KeyPair keyPair = generateKeyPair(224);
@@ -148,7 +148,7 @@ public class BaseTestECDSASignatureInterop extends BaseTestSignatureInterop {
     }
 
 
-    @Ignore("Curve secp192r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
+    @Disabled("Curve secp192r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
     public void ignore_testDatawithECDSA_SHA1_192() throws Exception {
 
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
@@ -164,7 +164,7 @@ public class BaseTestECDSASignatureInterop extends BaseTestSignatureInterop {
     }
 
 
-    @Ignore("Curve secp224r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
+    @Disabled("Curve secp224r1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
     public void ignore_testDatawithECDSA_SHA224_224() throws Exception {
         KeyPair keyPair = generateKeyPair(224);
         MessageDigest md = MessageDigest.getInstance("SHA-224", getProviderName());

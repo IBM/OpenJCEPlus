@@ -13,7 +13,7 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestMemStressSHA extends BaseTestJunit5 {
 
@@ -66,7 +66,7 @@ public class BaseTestMemStressSHA extends BaseTestJunit5 {
             md.update(input_1);
         byte[] digest = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(digest, result_1));
+        assertTrue(Arrays.equals(digest, result_1), "Digest did not match expected");
     }
 
     @Test
@@ -83,7 +83,7 @@ public class BaseTestMemStressSHA extends BaseTestJunit5 {
             MessageDigest md = MessageDigest.getInstance(digestAlg, getProviderName());
             byte[] digest = md.digest(input_2);
 
-            assertTrue("Digest did not match expected", Arrays.equals(digest, result_2));
+            assertTrue(Arrays.equals(digest, result_2), "Digest did not match expected");
             currentTotalMemory = rt.totalMemory();
             currentFreeMemory = rt.freeMemory();
             currentUsedMemory = currentTotalMemory - currentFreeMemory;

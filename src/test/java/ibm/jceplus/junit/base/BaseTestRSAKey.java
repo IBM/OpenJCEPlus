@@ -23,7 +23,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestRSAKey extends BaseTestJunit5 {
@@ -218,7 +218,7 @@ public class BaseTestRSAKey extends BaseTestJunit5 {
                 /*fail("JCEPlus should require RSA private keys to be CRT (Chinese Remainder Theorem) key");*/
             } catch (InvalidKeySpecException ikse) {
                 //assertTrue("JCEPlus requires RSA private keys to be CRT (Chinese Remainder Theorem) keys", true);
-                assertTrue("JCEPlus InvalidKeySpeccException = " + ikse.getMessage(), false);
+                assertTrue(false, "JCEPlus InvalidKeySpeccException = " + ikse.getMessage());
             }
         } else {
             RSAPrivateKeySpec rsaPrivateSpec = rsaKeyFactory
