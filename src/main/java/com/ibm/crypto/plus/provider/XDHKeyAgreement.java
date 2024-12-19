@@ -110,7 +110,7 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
             this.secret = XECKey.computeECDHSecret(provider.getOCKContext(), genCtx,
                     ockXecKeyPub.getPKeyId(), ockXecKeyPriv.getPKeyId(), secrectBufferSize);
         } catch (OCKException e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException("Failed to generate secret", e);
         } catch (Exception e) {
             throw new InvalidKeyException("Failed to generate secret", e);
         }
