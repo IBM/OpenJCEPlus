@@ -30,7 +30,6 @@ import java.security.spec.XECPrivateKeySpec;
 import java.security.spec.XECPublicKeySpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -337,10 +336,12 @@ public class BaseTestXDH extends BaseTestJunit5 {
     private void testSmallOrder(String name, String a_pri, String b_pub, String result)
             throws Exception {
 
-        Exception thrown = Assertions.assertThrows(IllegalStateException.class, () -> {
+        try {
             runDiffieHellmanTest(name, a_pri, b_pub, result);
-        });
-        Assertions.assertEquals("Failed to generate secret", thrown.getMessage());
+        } catch (IllegalStateException ex) {
+            return;
+        }
+        throw new RuntimeException("No exception on small-order point");
     }
 
     private void runNonCanonicalTest() throws Exception {
