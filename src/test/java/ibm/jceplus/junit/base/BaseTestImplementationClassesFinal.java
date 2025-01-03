@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestImplementationClassesFinal extends BaseTestJunit5 {
 
@@ -50,7 +50,6 @@ public class BaseTestImplementationClassesFinal extends BaseTestJunit5 {
             }
         }
 
-        assertTrue("Non-final implementation classes for " + nonFinalClassNames.toString(),
-                (nonFinalClassNames.size() == 0));
+        assertTrue((nonFinalClassNames.size() == 0), "Non-final implementation classes for " + nonFinalClassNames.toString());
     }
 }

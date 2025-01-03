@@ -30,7 +30,7 @@ import javax.crypto.spec.RC2ParameterSpec;
 import javax.crypto.spec.RC5ParameterSpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestAESGCM extends BaseTestJunit5 {
@@ -186,8 +186,8 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
         byte[] decrypted = new byte[cp.getOutputSize(encryptLength)];
         cp.doFinal(encrypted, offset, encryptLength, decrypted, 0);
 
-        assertTrue("Decrypted text does not match expected",
-                byteEqual(plainText, 0, decrypted, 0, plainText.length));
+        assertTrue(byteEqual(plainText, 0, decrypted, 0, plainText.length),
+              "Decrypted text does not match expected");
     }
 
     @Test
@@ -222,8 +222,8 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
         byte[] decrypted = new byte[cp.getOutputSize(encryptLength) + offset];
         cp.doFinal(encrypted, 0, encryptLength, decrypted, offset);
 
-        assertTrue("Decrypted text does not match expected",
-                byteEqual(plainText, 0, decrypted, offset, plainText.length));
+        assertTrue(byteEqual(plainText, 0, decrypted, offset, plainText.length),
+            "Decrypted text does not match expected");
     }
 
     @Test
@@ -247,13 +247,13 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
         int encryptLength = cp.doFinal(plainText, 0, plainText.length, encrypted, 0);
 
         if (expected_encryptLength != encryptLength) {
-            assertTrue("Failure -\n" + "Actual   encrypt output length from Cipher.doFinal: "
+            assertTrue(false, "Failure -\n" + "Actual   encrypt output length from Cipher.doFinal: "
                     + encryptLength + "\n" + "Expected encrypt output length from Cipher.doFinal: "
                     + expected_encryptLength + "\n"
                     + "Buffer encrypt length passed to Cipher.doFinal:     " + encrypted.length
-                    + "\n", false);
+                    + "\n");
         } else {
-            assertTrue("Passed - Output encrypt with large buffer", true);
+            assertTrue(true, "Passed - Output encrypt with large buffer");
         }
     }
 
@@ -287,13 +287,13 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
         int decryptLength = cp.doFinal(encrypted, 0, encryptLength, decrypted, 0);
 
         if (expected_decryptLength != decryptLength) {
-            assertTrue("Failure -\n" + "Actual   decrypt output length from Cipher.doFinal: "
+            assertTrue(false, "Failure -\n" + "Actual   decrypt output length from Cipher.doFinal: "
                     + decryptLength + "\n" + "Expected decrypt output length from Cipher.doFinal: "
                     + expected_decryptLength + "\n"
                     + "Buffer decrypt length passed to Cipher.doFinal:     " + decrypted.length
-                    + "\n", false);
+                    + "\n");
         } else {
-            assertTrue("Passed - Output encrypt with large buffer", true);
+            assertTrue(true, "Passed - Output encrypt with large buffer");
         }
     }
 
@@ -311,8 +311,8 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
         cp.init(Cipher.DECRYPT_MODE, key, params);
         byte[] newPlainText1 = cp.doFinal(cipherText1);
 
-        assertTrue("Decrypted text does not match expected",
-                byteEqual(plainText, 0, newPlainText1, 0, plainText.length));
+        assertTrue(byteEqual(plainText, 0, newPlainText1, 0, plainText.length),
+            "Decrypted text does not match expected");
     }
 
     @Test
@@ -338,8 +338,8 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
         cp.init(Cipher.DECRYPT_MODE, key, params); // call init again
         newPlainText1 = cp.doFinal(cipherText1); // call final again
 
-        assertTrue("Decrypted text does not match expected",
-                byteEqual(plainText, 0, newPlainText1, 0, plainText.length));
+        assertTrue(byteEqual(plainText, 0, newPlainText1, 0, plainText.length),
+            "Decrypted text does not match expected");
     }
 
     @Test
@@ -353,11 +353,11 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
             params = cp.getParameters();
             cp.doFinal();
         } catch (Exception ex) {
-            assertTrue("Failed - Should not have been exception: \n" + ex.getStackTrace(), false);
+            assertTrue(false, "Failed - Should not have been exception: \n" + ex.getStackTrace());
             return;
         }
 
-        assertTrue("Passed - Cipher.doFinal() encrypt empty text", true);
+        assertTrue(true, "Passed - Cipher.doFinal() encrypt empty text");
     }
 
     @Test
@@ -369,14 +369,12 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
             cp.init(Cipher.DECRYPT_MODE, key);
             cp.doFinal();
         } catch (Exception ex) {
-            assertTrue(
-                    "Passed - Cipher.doFinal() decrypt without parameters throws expected exception",
-                    true);
+            assertTrue(true,
+                    "Passed - Cipher.doFinal() decrypt without parameters throws expected exception");
             return;
         }
-        assertTrue(
-                "Failed - Cipher.doFinal() decrypt without parameters should have thrown exception",
-                false);
+        assertTrue(false,
+                "Failed - Cipher.doFinal() decrypt without parameters should have thrown exception");
     }
 
     @Test
@@ -394,11 +392,10 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
             params = cp.getParameters();
             cp.doFinal();
         } catch (Exception ex) {
-            assertTrue("Passed - Cipher.doFinal() decrypt empty text throws expected exception",
-                    true);
+            assertTrue(true, "Passed - Cipher.doFinal() decrypt empty text throws expected exception");
             return;
         }
-        assertTrue("Failed - Cipher.doFinal() decrypt should have thrown exception", false);
+        assertTrue(false, "Failed - Cipher.doFinal() decrypt should have thrown exception");
     }
 
     @Test
@@ -418,14 +415,14 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
             cp.doFinal(plainText);
         } catch (Exception ex) {
             if (ex.getClass().getSimpleName().equals("AEADBadTagException")) {
-                assertTrue("Passed - AEADBadTagException thrown on bad decrypt input", true);
+                assertTrue(true, "Passed - AEADBadTagException thrown on bad decrypt input");
             } else {
-                assertTrue("Failed - Expected AEADBadTagException:\n" + ex.getStackTrace(), false);
+                assertTrue(false, "Failed - Expected AEADBadTagException:\n" + ex.getStackTrace());
             }
             return;
         }
 
-        assertTrue("Failed - Expected AEADBadTagException", false);
+        assertTrue(false, "Failed - Expected AEADBadTagException");
     }
 
     @Test
@@ -439,7 +436,7 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
             //cp.init(Cipher.ENCRYPT_MODE, key);
             //params = cp.getParameters();
             cp.update(plainText);
-            assertTrue("Failed - Did not get expected ProviderException", false);
+            assertTrue(false, "Failed - Did not get expected ProviderException");
         } catch (Exception ex) {
             System.out.println("caught " + ex.getMessage());
             //ex.printStackTrace();
@@ -449,11 +446,11 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
                 }
                 throw ex;
             } else {
-                assertTrue("Unexpected Exception: " + ex.getStackTrace(), false);
+                assertTrue(false, "Unexpected Exception: " + ex.getStackTrace());
                 return;
             }
         }
-        assertTrue("Failed - Expected IllegalStateException", true);
+        assertTrue(true, "Failed - Expected IllegalStateException");
     }
 
     @Test
@@ -883,10 +880,9 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
             params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
-                assertTrue(
+                assertTrue(((blockSize > 0) && (message.length % blockSize) == 0),
                         "Did not get expected IllegalBlockSizeException, blockSize=" + blockSize
-                                + ", msglen=" + message.length,
-                        ((blockSize > 0) && (message.length % blockSize) == 0));
+                                + ", msglen=" + message.length);
             }
 
             // Verify the text
@@ -894,19 +890,18 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
             byte[] newPlainText = cp.doFinal(cipherText);
 
             boolean success = byteEqual(message, 0, newPlainText, 0, message.length);
-            assertTrue("Decrypted text does not match expected, msglen=" + message.length, success);
+            assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
 
             // Verify the text again
             cp.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText2 = cp.doFinal(cipherText, 0, cipherText.length);
 
             success = byteEqual(message, 0, newPlainText2, 0, message.length);
-            assertTrue("Decrypted text does not match expected, msglen=" + message.length, success);
+            assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
         } catch (IllegalBlockSizeException e) {
-            assertTrue(
+            assertTrue((!requireLengthMultipleBlockSize || (message.length % blockSize) != 0),
                     "Unexpected IllegalBlockSizeException, blockSize=" + blockSize + ", msglen="
-                            + message.length,
-                    (!requireLengthMultipleBlockSize || (message.length % blockSize) != 0));
+                            + message.length);
         }
     }
 
@@ -928,10 +923,9 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
             params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
-                assertTrue(
+                assertTrue(((message.length % blockSize) == 0),
                         "Did not get expected IllegalBlockSizeException, blockSize=" + blockSize
-                                + ", msglen=" + message.length,
-                        ((message.length % blockSize) == 0));
+                                + ", msglen=" + message.length);
             }
 
             // Verify the text
@@ -948,12 +942,11 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
             System.arraycopy(newPlainText2, 0, newPlainText, l, newPlainText2.length);
 
             boolean success = byteEqual(message, 0, newPlainText, 0, message.length);
-            assertTrue("Decrypted text does not match expected, msglen=" + message.length, success);
+            assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
         } catch (IllegalBlockSizeException e) {
-            assertTrue(
+            assertTrue((!requireLengthMultipleBlockSize || (message.length % blockSize) != 0),
                     "Unexpected IllegalBlockSizeException, blockSize=" + blockSize + ", msglen="
-                            + message.length,
-                    (!requireLengthMultipleBlockSize || (message.length % blockSize) != 0));
+                            + message.length);
         }
     }
 
@@ -977,10 +970,9 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
             params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
-                assertTrue(
+                assertTrue(((message.length % blockSize) == 0),
                         "Did not get expected IllegalBlockSizeException, blockSize=" + blockSize
-                                + ", msglen=" + message.length,
-                        ((message.length % blockSize) == 0));
+                                + ", msglen=" + message.length);
             }
 
             // Verify the text
@@ -997,13 +989,11 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
             System.arraycopy(newPlainText2, 0, newPlainText, l, newPlainText2.length);
 
             boolean success = byteEqual(message, 0, newPlainText, 0, message.length);
-            assertTrue("Decrypted text does not match expected, partial msglen=" + message.length,
-                    success);
+            assertTrue(success, "Decrypted text does not match expected, partial msglen=" + message.length);
         } catch (IllegalBlockSizeException e) {
-            assertTrue(
+            assertTrue((!requireLengthMultipleBlockSize || (message.length % blockSize) != 0),
                     "Unexpected IllegalBlockSizeException, blockSize=" + blockSize + ", msglen="
-                            + message.length,
-                    (!requireLengthMultipleBlockSize || (message.length % blockSize) != 0));
+                            + message.length);
         }
     }
 

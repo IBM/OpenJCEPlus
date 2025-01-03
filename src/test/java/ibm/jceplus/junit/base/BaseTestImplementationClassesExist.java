@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestImplementationClassesExist extends BaseTestJunit5 {
 
@@ -47,7 +47,6 @@ public class BaseTestImplementationClassesExist extends BaseTestJunit5 {
             }
         }
 
-        assertTrue("Missing implementation classes for " + missingClassNames.toString(),
-                (missingClassNames.size() == 0));
+        assertTrue((missingClassNames.size() == 0), "Missing implementation classes for " + missingClassNames.toString());
     }
 }
