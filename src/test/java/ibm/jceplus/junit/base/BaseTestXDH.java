@@ -31,7 +31,7 @@ import java.security.spec.XECPublicKeySpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestXDH extends BaseTestJunit5 {
 
@@ -337,18 +337,10 @@ public class BaseTestXDH extends BaseTestJunit5 {
             throws Exception {
 
         try {
-            //System.out.println("Pub - "+b_pub);
             runDiffieHellmanTest(name, a_pri, b_pub, result);
-        } catch (InvalidKeyException ex) {
-            assertTrue(true);
+        } catch (IllegalStateException ex) {
             return;
-        } catch (InvalidKeySpecException ex) {
-            assertTrue(true);
-            return;
-        } catch (Exception e1) {
-            System.out.println(e1.getMessage());
         }
-
         throw new RuntimeException("No exception on small-order point");
     }
 
