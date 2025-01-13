@@ -10,7 +10,6 @@ package com.ibm.crypto.plus.provider;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.KeyFactorySpi;
 import java.security.PrivateKey;
@@ -30,10 +29,6 @@ import javax.crypto.spec.DHPublicKeySpec;
 public final class DHKeyFactory extends KeyFactorySpi {
 
     private OpenJCEPlusProvider provider;
-    public final static int MIN_KEYSIZE_NONFIPS = 512;
-    public final static int MAX_KEYSIZE_NONFIPS = 8192;
-    public final static int MIN_KEYSIZE_FIPS = 2048;
-    public final static int MAX_KEYSIZE_FIPS = 8192;
 
     static DHKey toDHKey(OpenJCEPlusProvider provider, Key key) throws InvalidKeyException {
         return (DHKey) new DHKeyFactory(provider).engineTranslateKey(key);
@@ -225,35 +220,4 @@ public final class DHKeyFactory extends KeyFactorySpi {
             throw new InvalidKeyException("Cannot translate key", e);
         }
     }
-
-    /**
-     * Check the length of an RSA key modulus/exponent to make sure it is not
-     * too short or long. Some impls have their own min and max key sizes that
-     * may or may not match with a system defined value.
-     *
-     * @param modulusLen
-     *            the bit length of the RSA modulus.
-     * @param exponent
-     *            the RSA exponent
-     * @param minModulusLen
-     *            if > 0, check to see if modulusLen is at least this long,
-     *            otherwise unused.
-     * @param maxModulusLen
-     *            caller will allow this max number of bits. Allow the smaller
-     *            of the system-defined maximum and this param.
-     *
-     * @throws InvalidKeyException
-     *             if any of the values are unacceptable.
-     */
-    static void checkKeyLengths(int keysize, int minsize, int maxsize)
-            throws InvalidParameterException {
-
-        if ((keysize < minsize) || (keysize > maxsize) || ((keysize & 0x3F) != 0)) {
-            throw new InvalidParameterException(
-                    "DH key size must be multiple of 64, and can only range "
-                            + "from 512 to 8192 (inclusive). " + "The specific key size " + keysize
-                            + " is not supported");
-        }
-    }
-
 }
