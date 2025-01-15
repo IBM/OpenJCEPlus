@@ -250,7 +250,7 @@ KeyFactory                  | X25519                     |                 |X   
 KeyFactory                  | X448                       |                 |X             |
 KeyFactory                  | XDH                        |                 |X             |
 KeyGenerator                | AES                        |X                |X             |
-KeyGenerator                | ChaCha20                   |                |X             |
+KeyGenerator                | ChaCha20                   |                 |X             |
 KeyGenerator                | DESede                     |                 |X             |
 KeyGenerator                | HmacMD5                    |                 |X             |
 KeyGenerator                | HmacSHA1                   |                 |X             |
@@ -308,6 +308,11 @@ MessageDigest               | SHA3-512                   |X                |X   
 SecretKeyFactory            | AES                        |X                |X             |
 SecretKeyFactory            | ChaCha20                   |                 |X             |
 SecretKeyFactory            | DESede                     |                 |X             |
+SecretKeyFactory            | PBKDF2WithHmacSHA1         |                 |X             |
+SecretKeyFactory            | PBKDF2WithHmacSHA224       |X                |X             |
+SecretKeyFactory            | PBKDF2WithHmacSHA256       |X                |X             |
+SecretKeyFactory            | PBKDF2WithHmacSHA384       |X                |X             |
+SecretKeyFactory            | PBKDF2WithHmacSHA512       |X                |X             |
 SecureRandom                | SHA256DRBG                 |X                |X             |
 SecureRandom                | SHA512DRBG                 |X                |X             |
 Signature                   | NONEwithDSA                |X                |X             |
