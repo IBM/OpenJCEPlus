@@ -9,7 +9,6 @@
 #ifndef _RSAPADDING_H
 #define _RSAPADDING_H
 
-
 // NOTE: These constants must match those defined in
 //       com.ibm.crypto.plus.provider.ock.RSAPadding
 //
