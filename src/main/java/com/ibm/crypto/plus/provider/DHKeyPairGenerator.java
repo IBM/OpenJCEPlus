@@ -25,8 +25,12 @@ public final class DHKeyPairGenerator extends KeyPairGeneratorSpi {
     private int keySize = 2048;
     private DHParameterSpec params;
 
-    public DHKeyPairGenerator(OpenJCEPlusProvider provider) {
+    public final static int MIN_KEYSIZE_NONFIPS = 512;
+    public final static int MAX_KEYSIZE_NONFIPS = 8192;
+    public final static int MIN_KEYSIZE_FIPS = 2048;
+    public final static int MAX_KEYSIZE_FIPS = 8192;
 
+    public DHKeyPairGenerator(OpenJCEPlusProvider provider) {
 
         if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
@@ -36,7 +40,6 @@ public final class DHKeyPairGenerator extends KeyPairGeneratorSpi {
         initialize(2048, null);
 
     }
-
 
     /**
      * Initialize the receiver to use a given secure random generator, and
@@ -71,11 +74,9 @@ public final class DHKeyPairGenerator extends KeyPairGeneratorSpi {
     private void initialize(int keySize, boolean genParams, java.security.SecureRandom random) {
 
         if (provider.isFIPS()) {
-            DHKeyFactory.checkKeyLengths(keySize, DHKeyFactory.MIN_KEYSIZE_FIPS,
-                    DHKeyFactory.MAX_KEYSIZE_FIPS);
+            checkKeySize(keySize, MIN_KEYSIZE_FIPS, MAX_KEYSIZE_FIPS, 0);
         } else {
-            DHKeyFactory.checkKeyLengths(keySize, DHKeyFactory.MIN_KEYSIZE_NONFIPS,
-                    DHKeyFactory.MAX_KEYSIZE_NONFIPS);
+            checkKeySize(keySize, MIN_KEYSIZE_NONFIPS, MAX_KEYSIZE_NONFIPS, 0);
         }
 
         if (genParams) {
@@ -116,11 +117,9 @@ public final class DHKeyPairGenerator extends KeyPairGeneratorSpi {
             throws InvalidParameterException {
         int keySize = params.getP().bitLength();
         if (provider.isFIPS()) {
-            DHKeyFactory.checkKeyLengths(keySize, DHKeyFactory.MIN_KEYSIZE_FIPS,
-                    DHKeyFactory.MAX_KEYSIZE_FIPS);
+            checkKeySize(keySize, MIN_KEYSIZE_FIPS, MAX_KEYSIZE_FIPS, params.getL());
         } else {
-            DHKeyFactory.checkKeyLengths(keySize, DHKeyFactory.MIN_KEYSIZE_NONFIPS,
-                    DHKeyFactory.MAX_KEYSIZE_NONFIPS);
+            checkKeySize(keySize, MIN_KEYSIZE_NONFIPS, MAX_KEYSIZE_NONFIPS, params.getL());
         }
         this.keySize = keySize;
         this.params = params;
@@ -165,6 +164,40 @@ public final class DHKeyPairGenerator extends KeyPairGeneratorSpi {
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
             throw provider.providerException("Failure in generateKeyPair", e);
+        }
+    }
+
+    /**
+     * Check the length of an DH key modulus/exponent to make sure it is not
+     * too short or long. Some impls have their own min and max key sizes that
+     * may or may not match with a system defined value.
+     *
+     * @param keySize
+     *                the bit length of the modulus.
+     * @param minSize
+     *                the minimum length of the modulus.
+     * @param maxSize
+     *                the maximum length of the modulus.
+     * @param expSize
+     *                the bit length of the exponent.
+     *
+     * @throws InvalidParameterException
+     *                             if any of the values are unacceptable.
+     */
+    static void checkKeySize(int keySize, int minSize, int maxSize, int expSize)
+            throws InvalidParameterException {
+
+        if ((keySize < minSize) || (keySize > maxSize) || ((keySize & 0x3F) != 0)) {
+            throw new InvalidParameterException(
+                    "DH key size must be multiple of 64, and can only range " +
+                            "from " + minSize + " to " + maxSize + " (inclusive). " +
+                            "The specific key size " + keySize + " is not supported");
+        }
+
+        // optional, could be 0 if not specified
+        if ((expSize < 0) || (expSize > keySize)) {
+            throw new InvalidParameterException("Exponent size must be positive and no larger than" +
+                    " modulus size");
         }
     }
 
