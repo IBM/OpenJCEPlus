@@ -24,7 +24,7 @@ import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestRSAPSS extends BaseTestJunit5 {
 
@@ -152,7 +152,7 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
 
         boolean signatureVerified = sig.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     @Test
@@ -366,7 +366,7 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
         // verifySig.update(content);
         boolean signatureVerified = sig.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /**
@@ -407,7 +407,7 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
         // verifySig.update(content);
         boolean signatureVerified = sig.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /**
@@ -448,7 +448,7 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
 
         boolean signatureVerified = sig.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /**
@@ -486,7 +486,7 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
 
         boolean signatureVerified = sig.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /*
@@ -527,11 +527,9 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
             X509EncodedKeySpec x509KeySpec2 = new X509EncodedKeySpec(encodedKey);
             KeyFactory.getInstance("RSASSA-PSS", getProviderName());
             RSAPublicKey publicKey2 = (RSAPublicKey) kf.generatePublic(x509KeySpec2);
-            assertTrue("Algorithm name different",
-                    publicKey.getAlgorithm().equalsIgnoreCase(publicKey2.getAlgorithm()));
-            assertTrue("Modulus different", publicKey.getModulus().equals(publicKey2.getModulus()));
-            assertTrue("Exponentdifferent",
-                    publicKey.getPublicExponent().equals(publicKey2.getPublicExponent()));
+            assertTrue(publicKey.getAlgorithm().equalsIgnoreCase(publicKey2.getAlgorithm()), "Algorithm name different");
+            assertTrue(publicKey.getModulus().equals(publicKey2.getModulus()), "Modulus different");
+            assertTrue(publicKey.getPublicExponent().equals(publicKey2.getPublicExponent()), "Exponent different");
 
         } catch (Exception e) {
             e.printStackTrace();

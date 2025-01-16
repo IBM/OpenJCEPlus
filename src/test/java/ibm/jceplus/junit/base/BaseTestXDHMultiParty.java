@@ -20,7 +20,7 @@ import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestXDHMultiParty extends BaseTestJunit5 {
 

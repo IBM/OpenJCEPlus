@@ -23,8 +23,8 @@ import java.security.spec.EllipticCurve;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sun.security.util.InternalPrivateKey;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestECKeyPairGenerator extends BaseTestJunit5 {
 

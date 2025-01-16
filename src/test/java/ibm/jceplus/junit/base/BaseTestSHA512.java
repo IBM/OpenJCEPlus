@@ -12,7 +12,7 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestSHA512 extends BaseTestMessageDigestClone {
 
@@ -89,7 +89,7 @@ public class BaseTestSHA512 extends BaseTestMessageDigestClone {
             md.update(input_1);
         byte[] digest = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(digest, result_1));
+        assertTrue(Arrays.equals(digest, result_1), "Digest did not match expected");
 
     }
 
@@ -101,7 +101,7 @@ public class BaseTestSHA512 extends BaseTestMessageDigestClone {
         md.update(input_2);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, result_2));
+        assertTrue(Arrays.equals(result, result_2), "Digest did not match expected");
 
     }
 
@@ -110,7 +110,7 @@ public class BaseTestSHA512 extends BaseTestMessageDigestClone {
         MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         byte[] digest = md.digest(input_2);
 
-        assertTrue("Digest did not match expected", Arrays.equals(digest, result_2));
+        assertTrue(Arrays.equals(digest, result_2), "Digest did not match expected");
 
     }
 
@@ -119,7 +119,7 @@ public class BaseTestSHA512 extends BaseTestMessageDigestClone {
         MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         byte[] digest = md.digest(input_3);
 
-        assertTrue("Digest did not match expected", Arrays.equals(digest, result_3));
+        assertTrue(Arrays.equals(digest, result_3), "Digest did not match expected");
 
     }
 
@@ -128,6 +128,6 @@ public class BaseTestSHA512 extends BaseTestMessageDigestClone {
         MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         int digestLength = md.getDigestLength();
         boolean isExpectedValue = (digestLength == 64);
-        assertTrue("Unexpected digest length", isExpectedValue);
+        assertTrue(isExpectedValue, "Unexpected digest length");
     }
 }

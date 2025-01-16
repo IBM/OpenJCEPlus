@@ -29,8 +29,8 @@ import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestAES extends BaseTestCipher {
 
@@ -795,10 +795,9 @@ public class BaseTestAES extends BaseTestCipher {
             AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
-                assertTrue(
+                assertTrue(((blockSize > 0) && (message.length % blockSize) == 0),
                         "Did not get expected IllegalBlockSizeException, blockSize=" + blockSize
-                                + ", msglen=" + message.length,
-                        ((blockSize > 0) && (message.length % blockSize) == 0));
+                                + ", msglen=" + message.length);
             }
 
             // Verify the text
@@ -806,18 +805,17 @@ public class BaseTestAES extends BaseTestCipher {
             byte[] newPlainText = cp.doFinal(cipherText);
 
             boolean success = Arrays.equals(newPlainText, message);
-            assertTrue("Decrypted text does not match expected, msglen=" + message.length, success);
+            assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
 
             // Verify the text again
             cp.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText2 = cp.doFinal(cipherText, 0, cipherText.length);
             success = Arrays.equals(newPlainText2, message);
-            assertTrue("Decrypted text does not match expected, msglen=" + message.length, success);
+            assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
         } catch (IllegalBlockSizeException e) {
-            assertTrue(
+            assertTrue((!requireLengthMultipleBlockSize || (message.length % blockSize) != 0),
                     "Unexpected IllegalBlockSizeException, blockSize=" + blockSize + ", msglen="
-                            + message.length,
-                    (!requireLengthMultipleBlockSize || (message.length % blockSize) != 0));
+                            + message.length);
         }
     }
 
@@ -839,10 +837,9 @@ public class BaseTestAES extends BaseTestCipher {
             AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
-                assertTrue(
+                assertTrue(((message.length % blockSize) == 0),
                         "Did not get expected IllegalBlockSizeException, blockSize=" + blockSize
-                                + ", msglen=" + message.length,
-                        ((message.length % blockSize) == 0));
+                                + ", msglen=" + message.length);
             }
 
             // Verify the text
@@ -859,12 +856,11 @@ public class BaseTestAES extends BaseTestCipher {
             System.arraycopy(newPlainText2, 0, newPlainText, l, newPlainText2.length);
 
             boolean success = Arrays.equals(newPlainText, message);
-            assertTrue("Decrypted text does not match expected, msglen=" + message.length, success);
+            assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
         } catch (IllegalBlockSizeException e) {
-            assertTrue(
+            assertTrue((!requireLengthMultipleBlockSize || (message.length % blockSize) != 0),
                     "Unexpected IllegalBlockSizeException, blockSize=" + blockSize + ", msglen="
-                            + message.length,
-                    (!requireLengthMultipleBlockSize || (message.length % blockSize) != 0));
+                            + message.length);
         }
     }
 
@@ -888,10 +884,9 @@ public class BaseTestAES extends BaseTestCipher {
             AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
-                assertTrue(
+                assertTrue(((message.length % blockSize) == 0),
                         "Did not get expected IllegalBlockSizeException, blockSize=" + blockSize
-                                + ", msglen=" + message.length,
-                        ((message.length % blockSize) == 0));
+                                + ", msglen=" + message.length);
             }
 
             // Verify the text
@@ -908,13 +903,11 @@ public class BaseTestAES extends BaseTestCipher {
             System.arraycopy(newPlainText2, 0, newPlainText, l, newPlainText2.length);
 
             boolean success = Arrays.equals(newPlainText, message);
-            assertTrue("Decrypted text does not match expected, partial msglen=" + message.length,
-                    success);
+            assertTrue(success, "Decrypted text does not match expected, partial msglen=" + message.length);
         } catch (IllegalBlockSizeException e) {
-            assertTrue(
+            assertTrue((!requireLengthMultipleBlockSize || (message.length % blockSize) != 0),
                     "Unexpected IllegalBlockSizeException, blockSize=" + blockSize + ", msglen="
-                            + message.length,
-                    (!requireLengthMultipleBlockSize || (message.length % blockSize) != 0));
+                            + message.length);
         }
     }
 
@@ -938,32 +931,30 @@ public class BaseTestAES extends BaseTestCipher {
             AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
-                assertTrue(
+                assertTrue(((blockSize > 0) && (message.length % blockSize) == 0),
                         "Did not get expected IllegalBlockSizeException, blockSize=" + blockSize
-                                + ", msglen=" + message.length,
-                        ((blockSize > 0) && (message.length % blockSize) == 0));
+                                + ", msglen=" + message.length);
             }
 
             // Verify that the cipher object can be used to encrypt again without re-init
             byte[] cipherText2 = cp.doFinal(message);
             boolean success = Arrays.equals(cipherText2, cipherText);
-            assertTrue("Re-encrypted text does not match", success);
+            assertTrue(success, "Re-encrypted text does not match");
 
             // Verify the text
             cp.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText = cp.doFinal(cipherText);
             success = Arrays.equals(newPlainText, message);
-            assertTrue("Decrypted text does not match expected, msglen=" + message.length, success);
+            assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
 
             // Verify that the cipher object can be used to decrypt again without re-init
             byte[] newPlainText2 = cp.doFinal(cipherText, 0, cipherText.length);
             success = Arrays.equals(newPlainText2, newPlainText);
-            assertTrue("Re-decrypted text does not match", success);
+            assertTrue(success, "Re-decrypted text does not match");
         } catch (IllegalBlockSizeException e) {
-            assertTrue(
+            assertTrue((!requireLengthMultipleBlockSize || (message.length % blockSize) != 0),
                     "Unexpected IllegalBlockSizeException, blockSize=" + blockSize + ", msglen="
-                            + message.length,
-                    (!requireLengthMultipleBlockSize || (message.length % blockSize) != 0));
+                            + message.length);
         }
     }
 
@@ -992,14 +983,13 @@ public class BaseTestAES extends BaseTestCipher {
             AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
-                assertTrue(
+                assertTrue(((blockSize > 0) && (message.length % blockSize) == 0),
                         "Did not get expected IllegalBlockSizeException, blockSize=" + blockSize
-                                + ", msglen=" + message.length,
-                        ((blockSize > 0) && (message.length % blockSize) == 0));
+                                + ", msglen=" + message.length);
             }
 
             boolean success = Arrays.equals(cipherText, cipherText0);
-            assertTrue("Encrypted text does not match expected result", success);
+            assertTrue(success, "Encrypted text does not match expected result");
 
             // Verify the text
             cp.init(Cipher.DECRYPT_MODE, key, params);
@@ -1008,12 +998,11 @@ public class BaseTestAES extends BaseTestCipher {
             byte[] newPlainText = Arrays.copyOf(resultBuffer, resultLen);
 
             success = Arrays.equals(newPlainText, message);
-            assertTrue("Decrypted text does not match expected, msglen=" + message.length, success);
+            assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
         } catch (IllegalBlockSizeException e) {
-            assertTrue(
+            assertTrue((!requireLengthMultipleBlockSize || (message.length % blockSize) != 0),
                     "Unexpected IllegalBlockSizeException, blockSize=" + blockSize + ", msglen="
-                            + message.length,
-                    (!requireLengthMultipleBlockSize || (message.length % blockSize) != 0));
+                            + message.length);
         }
     }
 
@@ -1045,14 +1034,13 @@ public class BaseTestAES extends BaseTestCipher {
             AlgorithmParameters params = cp.getParameters();
 
             if (requireLengthMultipleBlockSize) {
-                assertTrue(
+                assertTrue(((blockSize > 0) && (message.length % blockSize) == 0),
                         "Did not get expected IllegalBlockSizeException, blockSize=" + blockSize
-                                + ", msglen=" + message.length,
-                        ((blockSize > 0) && (message.length % blockSize) == 0));
+                                + ", msglen=" + message.length);
             }
 
             boolean success = Arrays.equals(cipherText, cipherText0);
-            assertTrue("Encrypted text does not match expected result", success);
+            assertTrue(success, "Encrypted text does not match expected result");
 
             // Verify the text
             cp.init(Cipher.DECRYPT_MODE, key, params);
@@ -1065,12 +1053,11 @@ public class BaseTestAES extends BaseTestCipher {
             System.arraycopy(plainText2, 0, newPlainText, plainText1Len, plainText2.length);
 
             success = Arrays.equals(newPlainText, message);
-            assertTrue("Decrypted text does not match expected, msglen=" + message.length, success);
+            assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
         } catch (IllegalBlockSizeException e) {
-            assertTrue(
+            assertTrue((!requireLengthMultipleBlockSize || (message.length % blockSize) != 0),
                     "Unexpected IllegalBlockSizeException, blockSize=" + blockSize + ", msglen="
-                            + message.length,
-                    (!requireLengthMultipleBlockSize || (message.length % blockSize) != 0));
+                            + message.length);
         }
     }
 

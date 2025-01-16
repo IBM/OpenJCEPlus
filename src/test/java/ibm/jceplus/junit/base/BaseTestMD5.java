@@ -11,7 +11,7 @@ package ibm.jceplus.junit.base;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestMD5 extends BaseTestMessageDigestClone {
 
@@ -126,7 +126,7 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
         md.update(array3);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, md5result));
+        assertTrue(Arrays.equals(result, md5result), "Digest did not match expected");
 
     }
 
@@ -136,7 +136,7 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
         MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, md5_A));
+        assertTrue(Arrays.equals(result, md5_A), "Digest did not match expected");
 
     }
 
@@ -147,7 +147,7 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
         md.update(md5_B_input);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, md5_B));
+        assertTrue(Arrays.equals(result, md5_B), "Digest did not match expected");
 
     }
 
@@ -158,7 +158,7 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
         md.update(md5_C_input);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, md5_C));
+        assertTrue(Arrays.equals(result, md5_C), "Digest did not match expected");
 
     }
 
@@ -169,7 +169,7 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
         md.update(md5_D_input);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, md5_D));
+        assertTrue(Arrays.equals(result, md5_D), "Digest did not match expected");
 
     }
 
@@ -180,7 +180,7 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
         md.update(md5_E_input);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, md5_E));
+        assertTrue(Arrays.equals(result, md5_E), "Digest did not match expected");
 
     }
 
@@ -191,7 +191,7 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
         md.update(md5_F_input);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, md5_F));
+        assertTrue(Arrays.equals(result, md5_F), "Digest did not match expected");
 
     }
 
@@ -202,7 +202,7 @@ public class BaseTestMD5 extends BaseTestMessageDigestClone {
         md.update(md5_G_input);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, md5_G));
+        assertTrue(Arrays.equals(result, md5_G), "Digest did not match expected");
 
     }
 

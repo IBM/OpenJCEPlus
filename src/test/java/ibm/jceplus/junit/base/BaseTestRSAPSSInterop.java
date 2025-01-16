@@ -22,7 +22,7 @@ import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
 
@@ -496,7 +496,7 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
 
         boolean signatureVerified = sig1.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     //    
@@ -549,7 +549,7 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
         // verifySig.update(content);
         boolean signatureVerified = sigB.verify(sigBytes);
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /** 
@@ -649,7 +649,7 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
         boolean signatureVerified = sigB.verify(sigBytes);
         /*System.out.println("Inter-op test " + signatureVerified);*/
 
-        assertTrue("signature is invalid!!", signatureVerified);
+        assertTrue(signatureVerified, "signature is invalid!!");
     }
 
     /**
