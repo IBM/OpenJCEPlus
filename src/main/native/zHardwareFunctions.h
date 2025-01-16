@@ -8,15 +8,18 @@
 
 typedef size_t UDATA;
 
-typedef int ( *PFI)(void);
+typedef int (*PFI)(void);
 
 typedef struct {
-  char *name;
-  PFI func;
+    char *name;
+    PFI   func;
 } FUNC;
 
 // Function pointers for z specific hardware instructions.
-typedef void (*ECB_FuncPtr)(signed char *, signed char *, UDATA *, signed char *, UDATA *);
+typedef void (*ECB_FuncPtr)(signed char *, signed char *, UDATA *,
+                            signed char *, UDATA *);
 typedef void (*GHASH_FuncPtr)(signed char *, UDATA *, signed char *, UDATA *);
-typedef void (*zS390_FuncPtr)(unsigned char *, unsigned char *, unsigned char *, long *, long *, unsigned char *, long *);
-typedef void (*KMC_FuncPtr)(unsigned char *, unsigned char *, UDATA *, long, UDATA *);
+typedef void (*zS390_FuncPtr)(unsigned char *, unsigned char *, unsigned char *,
+                              long *, long *, unsigned char *, long *);
+typedef void (*KMC_FuncPtr)(unsigned char *, unsigned char *, UDATA *, long,
+                            UDATA *);
