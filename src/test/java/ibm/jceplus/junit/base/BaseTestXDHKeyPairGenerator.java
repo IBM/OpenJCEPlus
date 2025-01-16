@@ -10,11 +10,15 @@ package ibm.jceplus.junit.base;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.interfaces.XECPrivateKey;
 import java.security.interfaces.XECPublicKey;
 import java.security.spec.NamedParameterSpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import sun.security.util.InternalPrivateKey;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class BaseTestXDHKeyPairGenerator extends BaseTestJunit5 {
 
@@ -80,6 +84,23 @@ public class BaseTestXDHKeyPairGenerator extends BaseTestJunit5 {
         //System.out.println("---- EC keypair for key size " + keypairSize + "  ----");
         //System.out.println("ECPublic (x,y): (" + ecpu.getW().getAffineX() + ", " + ecpu.getW().getAffineY() + ")");
         //System.out.println("ECPrivate: " + ecpr.getS());
+    }
+
+    @Test
+    public void testXDHPrivateKey_calculatePublicKey() throws Exception {
+        kpg.initialize(255);
+        KeyPair kp = kpg.generateKeyPair();
+
+        PublicKey ecpu = kp.getPublic();
+        PrivateKey ecpr = kp.getPrivate();
+
+        byte[] originalEncoded = ecpu.getEncoded();
+        byte[] calculatedEncoded = ((InternalPrivateKey) ecpr).calculatePublicKey().getEncoded();
+
+        System.out.println("---- Comparing XDH public key from KeyPair vs calculated from private key ----");
+        System.out.println("XDH public key from Keypair: " + BaseUtils.bytesToHex(originalEncoded));
+        System.out.println("XDH public key from calculatePublicKey(): " + BaseUtils.bytesToHex(calculatedEncoded));
+        assertArrayEquals(originalEncoded, calculatedEncoded);
     }
 
     @Test
