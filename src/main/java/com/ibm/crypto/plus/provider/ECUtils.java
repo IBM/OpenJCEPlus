@@ -95,4 +95,33 @@ final class ECUtils {
         return new String(hexChars);
     }
 
+    public static String getCurvefromSize(int keySize) {
+        switch (keySize) {
+        case 112:
+            return "secp112r1";
+        case 128:
+            return "secp128r1";
+        case 160:
+            return "secp160k1";
+        case 192:
+            return "secp192r1 [NIST P-192, X9.62 prime192v1]";
+        case 224:
+            return "secp224r1 [NIST P-224]";
+        case 239:
+            return "X9.62 prime239v1";
+        case 256:
+            return "secp256r1 [NIST P-256, X9.62 prime256v1]";
+        case 320:
+            return "brainpoolP320r1";
+        case 384:
+            return "secp384r1 [NIST P-384]";
+        case 512:
+            return "brainpoolP512r1";
+        case 521:
+            return "secp521r1 [NIST P-521]";
+        default:
+            return null;
+        }
+    }
+
 }
