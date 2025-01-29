@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -93,6 +93,35 @@ final class ECUtils {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public static String getCurvefromSize(int keySize) {
+        switch (keySize) {
+            case 112:
+                return "secp112r1";
+            case 128:
+                return "secp128r1";
+            case 160:
+                return "secp160k1";
+            case 192:
+                return "secp192r1";
+            case 224:
+                return "secp224r1";
+            case 239:
+                return "X9.62 prime239v1";
+            case 256:
+                return "secp256r1";
+            case 320:
+                return "brainpoolP320r1";
+            case 384:
+                return "secp384r1";
+            case 512:
+                return "brainpoolP512r1";
+            case 521:
+                return "secp521r1";
+            default:
+                return null;
+        }
     }
 
 }
