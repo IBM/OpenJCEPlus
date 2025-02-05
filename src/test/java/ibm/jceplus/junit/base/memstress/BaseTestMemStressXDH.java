@@ -20,7 +20,7 @@ import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestMemStressXDH extends BaseTestJunit5 {
     /* This class by default tests "X25519" */
