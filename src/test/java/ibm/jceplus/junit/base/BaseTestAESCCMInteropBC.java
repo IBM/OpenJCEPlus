@@ -16,7 +16,7 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -221,7 +221,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                                         + iterationCounter);
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
-                    Assert.fail();
+                    Assertions.fail();
                 } else {
                     if (printJunitTrace)
                         System.out.println(toHexString(cipherText));
@@ -234,7 +234,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                                     + iterationCounter);
                 RuntimeException rtex = new RuntimeException();
                 rtex.printStackTrace(System.out);
-                Assert.fail();
+                Assertions.fail();
             }
 
 
@@ -273,7 +273,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                             "BaseTestInteropBC.java:  testAESCCM():   The decryptedText bytes are: ");
                 if (printJunitTrace)
                     System.out.println(toHexString(decryptedText.getBytes()));
-                Assert.fail();
+                Assertions.fail();
             } else {
                 plainText = null;
                 decryptedText = null;
@@ -421,7 +421,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                                     "BaseTestInteropBC.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
-                        Assert.fail();
+                        Assertions.fail();
                     }
 
                     // All the encryption was performed on Cipher.doFinal( )
@@ -450,7 +450,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                                     "BaseTestInteropBC.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
-                        Assert.fail();
+                        Assertions.fail();
                     }
 
                     // All the encryption was performed on Cipher.doFinal( )
@@ -481,7 +481,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                                     "BaseTestInteropBC.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
-                        Assert.fail();
+                        Assertions.fail();
                     }
 
                     // All the encryption was performed on Cipher.doFinal( )
@@ -493,7 +493,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     System.out.println(
                             "BaseTestInteropBC.java:  encrypt():  ERROR:  The following exception was thrown.  ");
                 ex.printStackTrace(System.out);
-                Assert.fail();
+                Assertions.fail();
             }
 
             if (printJunitTrace)
@@ -677,7 +677,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                                     "BaseTestInteropBC.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
-                        Assert.fail();
+                        Assertions.fail();
                     }
 
                     // All the decryption was performed on Cipher.doFinal( )
@@ -706,7 +706,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                                     "BaseTestInteropBC.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
-                        Assert.fail();
+                        Assertions.fail();
                     }
 
                     // All the decryption was performed on Cipher.doFinal( )
@@ -738,7 +738,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                                     "BaseTestInteropBC.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
-                        Assert.fail();
+                        Assertions.fail();
                     }
 
                     // All the decryption was performed on Cipher.doFinal( )
@@ -750,13 +750,13 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     System.out.println(
                             "BaseTestInteropBC.java:  decrypt():  ERROR:  The following AEADBadTagException was thrown on the cipher.doFinal() call.");
                 abte.printStackTrace(System.out);
-                Assert.fail();
+                Assertions.fail();
             } catch (Exception ex) {
                 if (printJunitTrace)
                     System.out.println(
                             "BaseTestInteropBC.java:  decrypt():  ERROR:  The following exception was thrown.  ");
                 ex.printStackTrace(System.out);
-                Assert.fail();
+                Assertions.fail();
             }
 
 
