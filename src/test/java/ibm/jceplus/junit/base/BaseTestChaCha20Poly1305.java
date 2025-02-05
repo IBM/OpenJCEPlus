@@ -22,8 +22,8 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20Constants {
@@ -183,8 +183,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
         IvParameterSpec chaCha20ParamSpec = new IvParameterSpec(NONCE_12_BYTE);
         cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
         cp.init(opMode, key, chaCha20ParamSpec);
-        assertTrue("ChaCha20 Block size must be: " + ChaCha20_BLOCK_SIZE,
-                (cp.getBlockSize() == ChaCha20_BLOCK_SIZE));
+        assertTrue((cp.getBlockSize() == ChaCha20_BLOCK_SIZE), "ChaCha20 Block size must be: " + ChaCha20_BLOCK_SIZE);
     }
 
     @Test
@@ -870,7 +869,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             byte[] cipherText2 = cp.doFinal(PLAIN_TEXT);
 
             boolean sameCipher = Arrays.equals(cipherText2, cipherText1);
-            assertFalse("Re-encrypted text with diffent nonce is same", sameCipher);
+            assertFalse(sameCipher, "Re-encrypted text with diffent nonce is same");
         } catch (Exception e) {
             fail("Got unexpected exception on encrypt/decrypt...");
         }
@@ -896,7 +895,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             paramSpec = cp.getParameters().getParameterSpec(IvParameterSpec.class);;
 
             boolean success = Arrays.equals(cipherText, cipherText0);
-            assertTrue("Encrypted text does not match expected result", success);
+            assertTrue(success, "Encrypted text does not match expected result");
 
             // Verify the text
             cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
@@ -906,8 +905,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             byte[] newPlainText = Arrays.copyOf(resultBuffer, resultLen);
 
             success = Arrays.equals(newPlainText, PLAIN_TEXT);
-            assertTrue("Decrypted text does not match expected, msglen=" + PLAIN_TEXT.length,
-                    success);
+            assertTrue(success, "Decrypted text does not match expected, msglen=" + PLAIN_TEXT.length);
 
         } catch (Exception e) {
             fail("Got unexpected exception on encrypt/decrypt...");
@@ -938,7 +936,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             paramSpec = cp.getParameters().getParameterSpec(IvParameterSpec.class);
 
             boolean success = Arrays.equals(cipherText12, cipherText0);
-            assertTrue("Encrypted text does not match expected result", success);
+            assertTrue(success, "Encrypted text does not match expected result");
 
             // Verify the text
             cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
@@ -953,8 +951,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             System.arraycopy(plainText2, 0, plainText12, plainText1Len, plainText2.length);
 
             success = Arrays.equals(plainText12, PLAIN_TEXT);
-            assertTrue("Decrypted text does not match expected, msglen=" + PLAIN_TEXT.length,
-                    success);
+            assertTrue(success, "Decrypted text does not match expected, msglen=" + PLAIN_TEXT.length);
 
         } catch (Exception e) {
             fail("Got unexpected exception on encrypt/decrypt...");

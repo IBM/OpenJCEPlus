@@ -12,7 +12,7 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestSHA224 extends BaseTestMessageDigestClone {
     static final byte[] input_1 = {(byte) 0x61, (byte) 0x62, (byte) 0x63};
@@ -38,14 +38,14 @@ public class BaseTestSHA224 extends BaseTestMessageDigestClone {
     @Test
     public void testSHA224_1() throws Exception {
         boolean result = checkDigest(input_1, digest_1);
-        assertTrue("Digest did not match expected, testSHA224_1:", result);
+        assertTrue(result, "Digest did not match expected, testSHA224_1:");
 
     }
 
     @Test
     public void testSHA224_2() throws Exception {
         boolean result = checkDigest(input_2, digest_2);
-        assertTrue("Digest did not match expected, testSHA224_2", result);
+        assertTrue(result, "Digest did not match expected, testSHA224_2");
     }
 
     @Test
@@ -56,7 +56,7 @@ public class BaseTestSHA224 extends BaseTestMessageDigestClone {
         md.update(input_2);
         byte[] result = md.digest();
 
-        assertTrue("Digest did not match expected", Arrays.equals(result, digest_2));
+        assertTrue(Arrays.equals(result, digest_2), "Digest did not match expected");
     }
 
     @Test
@@ -64,7 +64,7 @@ public class BaseTestSHA224 extends BaseTestMessageDigestClone {
         MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         int digestLength = md.getDigestLength();
         boolean isExpectedValue = (digestLength == 28);
-        assertTrue("Unexpected digest length", isExpectedValue);
+        assertTrue(isExpectedValue, "Unexpected digest length");
     }
 
 

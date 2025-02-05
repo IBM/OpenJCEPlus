@@ -28,7 +28,7 @@ import java.util.Arrays;
 import javax.crypto.Cipher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
@@ -297,7 +297,7 @@ public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
             try {
                 rsaKeyFactoryJCE.generatePrivate(rsaPrivateSpecJCE);
             } catch (InvalidKeySpecException ikse) {
-                assertTrue("JCEPlus InvalidKeySpeccException = " + ikse.getMessage(), false);
+                assertTrue(false, "JCEPlus InvalidKeySpeccException = " + ikse.getMessage());
             }
         } else {
             RSAPrivateKeySpec rsaPrivateSpecJCE = rsaKeyFactoryJCE
@@ -340,8 +340,7 @@ public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
 
                 rsaKeyFactoryPlus.generatePrivate(rsaPrivateSpecPlus);
             } catch (InvalidKeySpecException ikse) {
-
-                assertTrue("JCEPlus InvalidKeySpeccException = " + ikse.getMessage(), false);
+                assertTrue(false, "JCEPlus InvalidKeySpeccException = " + ikse.getMessage());
             }
         } else {
             RSAPrivateKeySpec rsaPrivateSpecPlus = rsaKeyFactoryPlus
@@ -381,10 +380,10 @@ public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
             Signature verifyingPlus = Signature.getInstance("SHA256withRSA", getProviderName());
             verifyingPlus.initVerify(rsaPubPlus);
             verifyingPlus.update(origMsg);
-            assertTrue("Signature verification failed", verifyingPlus.verify(signedBytesJCE));
+            assertTrue(verifyingPlus.verify(signedBytesJCE), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue("signJCEAndVerifyPlus failed", false);
+            assertTrue(false, "signJCEAndVerifyPlus failed");
         }
     }
 
@@ -414,10 +413,10 @@ public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
             Signature verifyingPlus = Signature.getInstance("SHA256withRSA", getProviderName());
             verifyingPlus.initVerify(rsaPubPlus);
             verifyingPlus.update(origMsg);
-            assertTrue("Signature verification failed", verifyingPlus.verify(signedBytesJCE));
+            assertTrue(verifyingPlus.verify(signedBytesJCE), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue("signJCEAndVerifyPlus failed", false);
+            assertTrue(false, "signJCEAndVerifyPlus failed");
         }
     }
 
@@ -446,12 +445,12 @@ public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
             Signature verifyingJCE = Signature.getInstance("SHA256withRSA", getInteropProviderName());
             verifyingJCE.initVerify(rsaPubJCE);
             verifyingJCE.update(origMsg);
-            assertTrue("Signature verification", verifyingJCE.verify(signedBytesPlus));
+            assertTrue(verifyingJCE.verify(signedBytesPlus), "Signature verification");
         }
 
         catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue("SignAndVerify failed", false);
+            assertTrue(false, "SignAndVerify failed");
         }
 
 
@@ -482,10 +481,10 @@ public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
             Signature verifyingJCE = Signature.getInstance("SHA256withRSA", getProviderName());
             verifyingJCE.initVerify(rsaPubJCE);
             verifyingJCE.update(origMsg);
-            assertTrue("Signature verification failed", verifyingJCE.verify(signedBytesPlus));
+            assertTrue(verifyingJCE.verify(signedBytesPlus), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue("signPlusAndVerifyJCE failed", false);
+            assertTrue( false, "signPlusAndVerifyJCE failed");
         }
     }
 
@@ -525,7 +524,7 @@ public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
             assertTrue(Arrays.equals(msgBytes, decryptedBytes));
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue("testEncryptPlusDecryptJCE", false);
+            assertTrue(false, "testEncryptPlusDecryptJCE");
         }
     }
 
@@ -563,7 +562,7 @@ public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
             assertTrue(Arrays.equals(msgBytes, decryptedBytes));
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(" testEncryptJCEDecryptPlus", false);
+            assertTrue(false, " testEncryptJCEDecryptPlus");
         }
     }
 
