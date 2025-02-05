@@ -11,8 +11,8 @@ package ibm.jceplus.junit.base;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 abstract public class BaseTestMessageDigestClone extends BaseTestJunit5 {
 
@@ -57,7 +57,7 @@ abstract public class BaseTestMessageDigestClone extends BaseTestJunit5 {
         byte[] digest1 = md.digest(input_2);
         byte[] digest2 = mdCopy.digest(input_3);
 
-        assertFalse("Digest of original matches clone's digest when it shouldn't", Arrays.equals(digest1, digest2));
+        assertFalse(Arrays.equals(digest1, digest2), "Digest of original matches clone's digest when it shouldn't");
     }
 
     @Test
@@ -81,6 +81,6 @@ abstract public class BaseTestMessageDigestClone extends BaseTestJunit5 {
         byte[] digest1 = md.digest(input_2);
         byte[] digest2 = mdCopy.digest(input_3);
 
-        assertFalse("Digest of original matches clone's digest when it shouldn't", Arrays.equals(digest1, digest2));
+        assertFalse(Arrays.equals(digest1, digest2), "Digest of original matches clone's digest when it shouldn't");
     }
 }

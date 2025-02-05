@@ -31,9 +31,9 @@ import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.SecretKeySpec;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestECDHInterop extends BaseTestJunit5Interop {
 
@@ -44,7 +44,7 @@ public class BaseTestECDHInterop extends BaseTestJunit5Interop {
      *
      * @throws Exception
      */
-    @Ignore("Curve secp192k1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
+    @Disabled("Curve secp192k1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
     public void ignore_testECDH_secp192k1() throws Exception {
 
         String curveName = "secp192k1";
@@ -86,7 +86,7 @@ public class BaseTestECDHInterop extends BaseTestJunit5Interop {
 
     }
 
-    @Ignore("Curve secp256k1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
+    @Disabled("Curve secp256k1 removed via https://bugs.openjdk.org/browse/JDK-8251547 in JDK16")
     public void ignore_testECDH_ECSpec() throws Exception {
         if (System.getProperty("os.name").equals("z/OS")) {
             System.out.println(

@@ -13,7 +13,7 @@ import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestHmacSHA512 extends BaseTestJunit5 {
     // test vectors from http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/HMAC_SHA512.pdf
@@ -77,7 +77,7 @@ public class BaseTestHmacSHA512 extends BaseTestJunit5 {
         mac.update(data_1);
         byte[] digest = mac.doFinal();
 
-        assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_1));
+        assertTrue(Arrays.equals(digest, digest_1), "Mac digest did not equal expected");
     }
 
     @Test
@@ -88,7 +88,7 @@ public class BaseTestHmacSHA512 extends BaseTestJunit5 {
         mac.update(data_2);
         byte[] digest = mac.doFinal();
 
-        assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_2));
+        assertTrue(Arrays.equals(digest, digest_2), "Mac digest did not equal expected");
     }
 
     @Test
@@ -99,7 +99,7 @@ public class BaseTestHmacSHA512 extends BaseTestJunit5 {
         mac.update(data_3);
         byte[] digest = mac.doFinal();
 
-        assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_3));
+        assertTrue(Arrays.equals(digest, digest_3), "Mac digest did not equal expected");
     }
 
     @Test
@@ -114,7 +114,7 @@ public class BaseTestHmacSHA512 extends BaseTestJunit5 {
         byte[] truncatedDigest = new byte[taglen];
         System.arraycopy(digest, 0, truncatedDigest, 0, taglen);
 
-        assertTrue("Mac digest did not equal expected", Arrays.equals(truncatedDigest, digest_4));
+        assertTrue(Arrays.equals(truncatedDigest, digest_4), "Mac digest did not equal expected");
     }
 
     @Test
@@ -127,7 +127,7 @@ public class BaseTestHmacSHA512 extends BaseTestJunit5 {
         mac.update(data_1);
         byte[] digest = mac.doFinal();
 
-        assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_1));
+        assertTrue(Arrays.equals(digest, digest_1), "Mac digest did not equal expected");
     }
 
     @Test
@@ -138,12 +138,12 @@ public class BaseTestHmacSHA512 extends BaseTestJunit5 {
         mac.update(data_1);
         byte[] digest = mac.doFinal();
 
-        assertTrue("Mac digest did not equal expected", Arrays.equals(digest, digest_1));
+        assertTrue(Arrays.equals(digest, digest_1), "Mac digest did not equal expected");
 
         mac.update(data_1);
         byte[] digest2 = mac.doFinal();
 
-        assertTrue("Mac digest did not equal expected", Arrays.equals(digest2, digest_1));
+        assertTrue(Arrays.equals(digest2, digest_1), "Mac digest did not equal expected");
     }
 
     @Test
@@ -151,7 +151,7 @@ public class BaseTestHmacSHA512 extends BaseTestJunit5 {
         Mac mac = Mac.getInstance("HmacSHA512", getProviderName());
         int macLength = mac.getMacLength();
         boolean isExpectedValue = (macLength == 64);
-        assertTrue("Unexpected mac length", isExpectedValue);
+        assertTrue(isExpectedValue, "Unexpected mac length");
     }
 }
 
