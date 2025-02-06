@@ -78,7 +78,8 @@ abstract class PBKDF2Core extends SecretKeyFactorySpi {
      */
     protected KeySpec engineGetKeySpec(SecretKey key, Class<?> keySpecCl)
             throws InvalidKeySpecException {
-        if (key instanceof javax.crypto.interfaces.PBEKey pKey) {
+        if (key instanceof javax.crypto.interfaces.PBEKey) {
+            javax.crypto.interfaces.PBEKey pkey = (javax.crypto.interfaces.PBEKey)key;
             // Check if requested key spec is amongst the valid ones
             if ((keySpecCl != null) && keySpecCl.isAssignableFrom(PBEKeySpec.class)) {
                 char[] passwd = pKey.getPassword();
@@ -122,7 +123,8 @@ abstract class PBKDF2Core extends SecretKeyFactorySpi {
             }
 
             // Check if key implements the PBEKey
-            if (key instanceof javax.crypto.interfaces.PBEKey pKey) {
+            if (key instanceof javax.crypto.interfaces.PBEKey) {
+                javax.crypto.interfaces.PBEKey pKey = (javax.crypto.interfaces.PBEKey)key;
                 char[] password = pKey.getPassword();
                 byte[] encoding = pKey.getEncoded();
                 PBEKeySpec spec = new PBEKeySpec(password, pKey.getSalt(), pKey.getIterationCount(),
