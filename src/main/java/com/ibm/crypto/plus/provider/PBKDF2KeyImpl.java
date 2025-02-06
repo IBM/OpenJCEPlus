@@ -39,7 +39,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
 
-    @java.io.Serial
     private static final long serialVersionUID = -2234868909660948157L;
 
     private char[] passwd;
@@ -214,7 +213,6 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
      * @throws ObjectStreamException if a new object representing
      * this PBE key could not be created
      */
-    @java.io.Serial
     private Object writeReplace() throws ObjectStreamException {
         try {
             return new KeyRep(KeyRep.Type.SECRET, getAlgorithm(), getFormat(), key);
@@ -233,7 +231,6 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
      * @throws IOException if an I/O error occurs
      * @throws ClassNotFoundException if a serialized class cannot be loaded
      */
-    @java.io.Serial
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         throw new InvalidObjectException("PBKDF2KeyImpl keys are not directly deserializable");
     }
