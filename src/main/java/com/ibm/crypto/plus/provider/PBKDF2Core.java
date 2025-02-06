@@ -51,7 +51,8 @@ abstract class PBKDF2Core extends SecretKeyFactorySpi {
      * is inappropriate for this key factory to produce a public key.
      */
     protected SecretKey engineGenerateSecret(KeySpec keySpec) throws InvalidKeySpecException {
-        if (keySpec instanceof PBEKeySpec ks) {
+        if (keySpec instanceof PBEKeySpec) {
+            PBEKeySpec ks = (PBEKeySpec)keySpec;
             return new PBKDF2KeyImpl(this.provider, ks, prfAlgo);
         } else {
             throw new InvalidKeySpecException("Only PBEKeySpec is accepted");
