@@ -11,7 +11,6 @@ package ibm.jceplus.junit.base;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.AlgorithmParameters;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyFactory;
@@ -19,16 +18,12 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPrivateKeySpec;
-import java.security.spec.MGF1ParameterSpec;
-import java.security.spec.PSSParameterSpec;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,80 +34,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class BaseTestECDSASignature extends BaseTestJunit5Signature {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
-
-    @Test
-    public void testEngineSetParameter_invalidSpec() throws Exception {
-        KeyPair keyPair = generateKeyPair(256);
-        
-        String sigAlgo = "SHA256withECDSA";
-        PrivateKey privateKey = keyPair.getPrivate();
-        PublicKey publicKey = keyPair.getPublic();
-
-        AlgorithmParameters pssParams = AlgorithmParameters.getInstance("RSASSA-PSS", getProviderName());
-        pssParams.init(new PSSParameterSpec("SHA-1", "MGF1", MGF1ParameterSpec.SHA1, 20, 1));
-        PSSParameterSpec pssParameterSpec = pssParams.getParameterSpec(PSSParameterSpec.class);
-
-        AlgorithmParameters ecParams = AlgorithmParameters.getInstance("EC", getProviderName());
-        ecParams.init(new ECGenParameterSpec("secp521r1"));
-        ECParameterSpec ecParameterSpec = ecParams.getParameterSpec(ECParameterSpec.class);
-
-        Signature signing = Signature.getInstance(sigAlgo, getProviderName());
-        signing.initSign(privateKey);
-
-        // Check with different type of AlgorithmParameterSpec.
-        try {
-            signing.setParameter(pssParameterSpec);
-        } catch (InvalidAlgorithmParameterException iape) {
-            if (!"Parameters must be of type ECParameterSpec".equals(iape.getMessage())) {
-                throw iape;
-            }
-        }
-
-        // Check against private key with same type of AlgorithmParameterSpec, but different curve.
-        try {
-            signing.setParameter(ecParameterSpec);
-            fail("InvalidAlgorithmParameterException expected.");
-        } catch (InvalidAlgorithmParameterException iape) {
-            if (!"Signature params does not match key params".equals(iape.getMessage())) {
-                throw iape;
-            }
-        }
-
-        Signature verifying = Signature.getInstance(sigAlgo, getProviderName());
-        verifying.initVerify(publicKey);
-
-        // Check against public key with same type of AlgorithmParameterSpec, but different curve.
-        try {
-            verifying.setParameter(ecParameterSpec);
-            fail("InvalidAlgorithmParameterException expected.");
-        } catch (InvalidAlgorithmParameterException iape) {
-            if (!"Signature params does not match key params".equals(iape.getMessage())) {
-                throw iape;
-            }
-        }
-    }
-
-    @Test
-    public void testEngineSetParameter_validSpec() throws Exception {
-        KeyPair keyPair = generateKeyPair(256);
-        
-        String sigAlgo = "SHA256withECDSA";
-        PrivateKey privateKey = keyPair.getPrivate();
-        PublicKey publicKey = keyPair.getPublic();
-        AlgorithmParameters params = AlgorithmParameters.getInstance("EC", getProviderName());
-        params.init(new ECGenParameterSpec("secp256r1"));
-        ECParameterSpec ecParameters = params.getParameterSpec(ECParameterSpec.class);
-
-        Signature signing = Signature.getInstance(sigAlgo, getProviderName());
-        signing.initSign(privateKey);
-        // Check against private key with correct AlgorithmParameterSpec.
-        signing.setParameter(ecParameters);
-
-        Signature verifying = Signature.getInstance(sigAlgo, getProviderName());
-        verifying.initVerify(publicKey);
-        // Check against public key with correct AlgorithmParameterSpec.
-        verifying.setParameter(ecParameters);
-    }
 
     @Test
     public void testSHA1withECDSA_192() throws Exception {
