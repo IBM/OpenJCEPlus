@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -46,7 +46,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "Message authentication code (MAC)  : HmacMD5, HmacSHA1, HmacSHA224, HmacSHA256, HmacSHA384, HmacSHA512\n"
             + "                                       , HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512\n"
             + "Message digest                     : MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256, SHA3-224, SHA3-256, SHA3-384, SHA3-512\n"
-            + "Secret key factory                 : AES, ChaCha20, DESede\n"
+            + "Secret key factory                 : AES, ChaCha20, DESede, PBKDF2WithHmacSHA1, PBKDF2WithHmacSHA224, PBKDF2WithHmacSHA256, PBKDF2WithHmacSHA384, PBKDF2WithHmacSHA512\n"
             + "Secure random                      : HASHDRBG, SHA256DRBG, SHA512DRBG\n"
             + "Signature algorithms               : NONEwithDSA, SHA1withDSA, SHA224withDSA, SHA256withDSA,\n"
             + "                                       SHA3-224withDSA, SHA3-256withDSA, SHA3-384withDSA, SHA3-512withDSA,\n"
@@ -596,6 +596,39 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         aliases = new String[] {"2.16.840.1.101.3.4.1", "OID.2.16.840.1.101.3.4.1"};
         putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "AES",
                 "com.ibm.crypto.plus.provider.AESKeyFactory", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce,
+                                     "SecretKeyFactory",
+                                     "PBKDF2WithHmacSHA1",
+                                     "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA1",
+                                     aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce,
+                                     "SecretKeyFactory",
+                                     "PBKDF2WithHmacSHA224",
+                                     "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA224",
+                                     aliases));
+                                     
+        aliases = null;
+        putService(new OpenJCEPlusService(jce,
+                                     "SecretKeyFactory",
+                                     "PBKDF2WithHmacSHA256",
+                                     "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA256",
+                                     aliases));
+        aliases = null;
+        putService(new OpenJCEPlusService(jce,
+                                     "SecretKeyFactory",
+                                     "PBKDF2WithHmacSHA384",
+                                     "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA384",
+                                     aliases));
+        aliases = null;
+        putService(new OpenJCEPlusService(jce,
+                                     "SecretKeyFactory",
+                                     "PBKDF2WithHmacSHA512",
+                                     "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA512",
+                                     aliases));
 
         aliases = new String[] {"TripleDES", "3DES"};
         putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "DESede",
