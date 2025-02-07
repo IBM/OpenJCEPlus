@@ -11,7 +11,6 @@ package com.ibm.crypto.plus.provider;
 import com.ibm.crypto.plus.provider.ock.OCKContext;
 import com.ibm.crypto.plus.provider.ock.OCKException;
 import java.lang.reflect.Constructor;
-import java.security.AccessController;
 import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -26,7 +25,6 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 import sun.security.util.Debug;
 
-@SuppressWarnings({"removal", "deprecation"})
 public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
 
     // Field serialVersionUID per tag [SERIALIZATION] in DesignNotes.txt
@@ -99,7 +97,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         isPlatformSupported = isOsSupported && isArchSupported;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public OpenJCEPlusFIPS() {
         super("OpenJCEPlusFIPS", info);
         if (debug != null) {
@@ -113,22 +110,14 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
 
         final OpenJCEPlusProvider jce = this;
 
-        AccessController.doPrivileged(new java.security.PrivilegedAction() {
-            public Object run() {
-
-                // Do java OCK initialization which includes loading native code
-                // Don't do this in the static initializer because it might
-                // be necessary for an applet running in a browser to grant
-                // access rights beforehand.
-                if (!ockInitialized) {
-                    initializeContext();
-                }
-
-                registerAlgorithms(jce);
-
-                return null;
-            }
-        });
+        // Do java OCK initialization which includes loading native code
+        // Don't do this in the static initializer because it might
+        // be necessary for an applet running in a browser to grant
+        // access rights beforehand.
+        if (!ockInitialized) {
+            initializeContext();
+        }
+        registerAlgorithms(jce);
 
         if (instance == null) {
             instance = this;
