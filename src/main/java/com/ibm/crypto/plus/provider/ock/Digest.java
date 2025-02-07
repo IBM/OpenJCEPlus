@@ -8,13 +8,10 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings({"removal", "deprecation"})
 public final class Digest implements Cloneable {
 
     /* ===========================================================================
@@ -56,22 +53,18 @@ public final class Digest implements Cloneable {
 
     static {
         // Configurable number of cached contexts
-        numContexts = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
-            public Integer run() {
-                int numContexts;
-                if (isWindows) {
-                    return 0;
-                } else {
-                    try {
-                        numContexts = Integer
-                                .parseInt(System.getProperty(DIGEST_CONTEXT_CACHE_SIZE, "2048"));
-                    } catch (NumberFormatException e) {
-                        numContexts = 0;
-                    }
-                    return numContexts;
-                }
+        int tmpNumContext = 0;
+        if (isWindows) {
+            tmpNumContext = 0;
+        } else {
+            try {
+                tmpNumContext = Integer
+                        .parseInt(System.getProperty(DIGEST_CONTEXT_CACHE_SIZE, "2048"));
+            } catch (NumberFormatException e) {
+                tmpNumContext = 0;
             }
-        });
+        }
+        numContexts = tmpNumContext;
     }
 
     void getContext() throws OCKException {
