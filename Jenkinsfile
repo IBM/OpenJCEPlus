@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2024
+ * Copyright IBM Corp. 2024, 2025
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -382,18 +382,18 @@ def getSanitizedBranchName() {
  * @param platform      The platform for which OpenJCEPlus was built
  * @return              The URL to the uploaded file
  */
-def archive(platform) {
+def archive(platform, iteration) {
     
     // Create compressed file containing build.
     def ending = ".tar.gz"
-    def filename = "openjceplus-target-$platform$ending"
-    dir("openjceplus/OpenJCEPlus/target") {
+    def filename = "openjceplus-$iteration-$platform$ending"
+    dir("openjceplus/OpenJCEPlus") {
         tar archive: false, compress: true, defaultExcludes: false, dir: '', exclude: '', file: "$filename", glob: '', overwrite: false
     }
 
     // Set the specific specifications to upload build.
     def buildID = "${env.BUILD_ID}"
-    def fileLocation = "$WORKSPACE/openjceplus/OpenJCEPlus/target"
+    def fileLocation = "$WORKSPACE/openjceplus/OpenJCEPlus"
     def sanitizedBranchName = getSanitizedBranchName()
     def directory = "sys-rt-generic-local/OpenJCEPlus_builds/$sanitizedBranchName/$buildID"
 
@@ -460,6 +460,7 @@ def run(platform) {
 
     return {
         def excludeNode = []
+        def iteration = 0
         retry(3) {
             // Specific labels are selected based on platform.
             def nodeTags = "hw.arch.${node_hardware}&&sw.os.${node_software}"
@@ -498,12 +499,15 @@ def run(platform) {
                     command += getTestFlag(hardware, software)
                     runOpenJCEPlus(command, software)
                     echo "OpenJCEPlus built"
-                    archive(platform)
-                    echo "OpenJCEPlus archived"
                 } finally {
-                    cleanWs()
+                    iteration++
+                    try {
+                        archive(platform, iteration)
+                        echo "OpenJCEPlus archived"
+                    } finally {
+                        cleanWs()
+                    }
                 }
-                
             }
         }
     }
