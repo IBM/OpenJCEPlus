@@ -21,7 +21,6 @@ import sun.util.logging.PlatformLogger;
  * A utility class for debuging.
  *
  */
-@SuppressWarnings({"removal", "deprecation"})
 public class Debug {
 
     private String prefix;
@@ -29,18 +28,8 @@ public class Debug {
     private static SimpleConsoleLogger tl = null;
 
     static {
-        args = java.security.AccessController
-                .doPrivileged(new java.security.PrivilegedAction<String>() {
-                    public String run() {
-                        return System.getProperty("java.security.debug");
-                    }
-                });
-        String args2 = java.security.AccessController
-                .doPrivileged(new java.security.PrivilegedAction<String>() {
-                    public String run() {
-                        return System.getProperty("java.security.auth.debug");
-                    }
-                });
+        args = System.getProperty("java.security.debug");
+        String args2 = System.getProperty("java.security.auth.debug");
         if (args == null) {
             args = args2;
         } else {
