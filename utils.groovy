@@ -180,7 +180,9 @@ def runOpenJCEPlus(command, software) {
 
         def java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
         def gskit_home = "export GSKIT_HOME=$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
-        def environment = "export PATH=$WORKSPACE/apache-maven-3.9.10/bin:\$PATH;"
+        def mavenPath = "$WORKSPACE/apache-maven-3.9.10/bin"
+        def environment = "export PATH=${mavenPath}:\$PATH;"
+
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
         if (software == "windows") {
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
@@ -198,6 +200,8 @@ def runOpenJCEPlus(command, software) {
                """
         } else if (software == "mac") {
             java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
+        } else if (software == "aix") {
+            environment = "export PATH=/opt/IBM/xlC/16.1.0/bin:/opt/IBM/xlc/16.1.0/bin:${mavenPath}:\$PATH;"
         }
 
         if (software != "windows") {
