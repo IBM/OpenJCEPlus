@@ -185,10 +185,8 @@
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.memstress=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.multithread=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.integration=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.multithread=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.integration=ALL-UNNAMED
                       --add-opens=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
@@ -197,7 +195,6 @@
                     </systemPropertyVariables>
                     <includes>
                       <include>
-                        **/ibm/jceplus/junit/TestIntegration.java,
                         **/ibm/jceplus/junit/TestAll.java,
                         **/ibm/jceplus/junit/TestMemStressAll.java,
                         **/ibm/jceplus/junit/TestMultithread.java,
@@ -243,7 +240,6 @@
                     </argLine>
                     <includes>
                       <include>
-                        **/ibm/jceplus/junit/TestIntegration.java,
                         **/ibm/jceplus/junit/TestAll.java,
                         **/ibm/jceplus/junit/TestMemStressAll.java,
                         **/ibm/jceplus/junit/TestMultithread.java,
