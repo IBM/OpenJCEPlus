@@ -14,7 +14,6 @@ PLAT=x86
 CC=gcc
 CFLAGS= -fPIC
 LDFLAGS= -shared
-AIX_LIBPATH = /usr/lib:/lib
 
 ifeq (${PLATFORM},arm-linux64)
   PLAT=xr
@@ -23,9 +22,9 @@ ifeq (${PLATFORM},arm-linux64)
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},ppc-aix64)
   PLAT=ap
-  CC=xlc
-  CFLAGS= -qcpluscmt -q64 -qpic -DAIX -qhalt=w
-  LDFLAGS= -G -q64 -blibpath:${AIX_LIBPATH}
+  CC=ibm-clang_r
+  CFLAGS+= -m64 -DAIX -Werror
+  LDFLAGS+= -m64 -brtl
   OSINCLUDEDIR=aix
 else ifeq (${PLATFORM},ppcle-linux64)
   PLAT=xl

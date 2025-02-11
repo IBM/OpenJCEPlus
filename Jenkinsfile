@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2024
+ * Copyright IBM Corp. 2024, 2025
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -169,6 +169,7 @@ def getBinaries(hardware, software) {
 
         // Additional copy is required
         if (target.contains('aix')) {
+            echo "Doing copy here into jgsk_sdk"
             fileOperations([fileCopyOperation(includes: 'libjgsk8iccs_64.so', targetLocation: 'jgsk_sdk')])
         }
     }
@@ -297,7 +298,7 @@ def runOpenJCEPlus(command, software) {
     dir("openjceplus/OpenJCEPlus") {
         def additional_exports = ""
         if (software == "aix") {
-            additional_exports = "export LIBPATH=$WORKSPACE/openjceplus/OCK/:$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
+            additional_exports = "export LIBPATH=$WORKSPACE/openjceplus/OCK/:$WORKSPACE/openjceplus/OCK;"
         }
 
         def additional_envars = ADDITIONAL_ENVARS
@@ -312,6 +313,7 @@ def runOpenJCEPlus(command, software) {
         def gskit_home = "export GSKIT_HOME=$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
         def environment = "export PATH=$WORKSPACE/apache-maven-3.9.6/bin:\$PATH;"
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
+        echo "HERE BEFORE SHELL!!!!!!!!!!!!!!!!"
         if (software == "windows") {
             def workspace_unix_style = "$WORKSPACE".replace("\\", "/").replace("C:", "/cygdrive/c")
             environment = """export PATH=${workspace_unix_style}/apache-maven-3.9.6/bin:/cygdrive/c/Program\\ Files\\ \\(x86\\)/Windows\\ Kits/10/bin/10.0.19041.0/x64/:/cygdrive/c/Program\\ Files/Microsoft\\ Visual\\ Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/bin/Hostx64/x64/:\$PATH;\\
@@ -323,6 +325,8 @@ def runOpenJCEPlus(command, software) {
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
         } else if (software == "mac") {
             java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
+        } else if (software == "aix") {
+            environment = "export PATH=$WORKSPACE/apache-maven-3.9.6/bin:/opt/IBM/openxlC/opt/IBM/openxlC/17.1.2/bin:/opt/IBM/openxlC/opt/IBM/openxlC/17.1.2/tools:\$PATH;"
         }
         
         sh "${java_home} ${gskit_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' --batch-mode ${command}"
@@ -535,19 +539,19 @@ pipeline {
         )
         booleanParam(name: 'ppc64_aix', defaultValue: true, description: '\
             Build for ppc64_aix platform')
-        booleanParam(name: 'x86_64_linux', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_linux', defaultValue: false, description: '\
             Build for x86-64_linux platform')
-        booleanParam(name: 'ppc64le_linux', defaultValue: true, description: '\
+        booleanParam(name: 'ppc64le_linux', defaultValue: false, description: '\
             Build for ppc64le_linux platform')
-        booleanParam(name: 's390x_linux', defaultValue: true, description: '\
+        booleanParam(name: 's390x_linux', defaultValue: false, description: '\
             Build for s390x_linux platform')
-        booleanParam(name: 'x86_64_windows', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_windows', defaultValue: false, description: '\
             Build for x86-64_windows platform')
-        booleanParam(name: 'aarch64_mac', defaultValue: true, description: '\
+        booleanParam(name: 'aarch64_mac', defaultValue: false, description: '\
             Build for aarch64_mac platform')
-        booleanParam(name: 'x86_64_mac', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_mac', defaultValue: false, description: '\
             Build for x86-64_mac platform')
-        booleanParam(name: 'aarch64_linux', defaultValue: true, description: '\
+        booleanParam(name: 'aarch64_linux', defaultValue: false, description: '\
             Build for aarch64_linux platform')
         separator(name: "BuildAndTestPlatforms", sectionHeader: "Build And Test Options",
             separatorStyle: "border-width: 0",
@@ -626,7 +630,7 @@ pipeline {
         string(name: 'ADDITIONAL_NODE_LABELS', defaultValue: '', description: '\
             Additional labels for the node to be used can be defined here.<br> \
             These labels will be added to the automatically generated ones, pertaining to platform specified.')
-        string(name: 'OVERRIDE_NODE_LABELS', defaultValue: '', description: '\
+        string(name: 'OVERRIDE_NODE_LABELS', defaultValue: 'paix822.rtp.raleigh.ibm.com', description: '\
             The labels specified will override any other labels chosen and will be the only ones utilized.')
         string(name: 'ADDITIONAL_ENVARS', defaultValue: '', description: '\
             Additional environment variables that one might want to add to the existing ones.<br> \

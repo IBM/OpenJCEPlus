@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -125,6 +125,8 @@ ICC_AES_GCM_CTX* getOrfreeGCMContext(ICC_CTX* ockCtx, int keyLen) {
         gcmCtx        = NULL;
         return NULL;
     }
+#else
+    return NULL;
 #endif
 }
 
