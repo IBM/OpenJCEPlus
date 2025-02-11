@@ -9,8 +9,8 @@
 
 TOPDIR=../../..
 
-CFLAGS= -fPIC -DMAC -Werror -pedantic -Wall -fstack-protector
-LDFLAGS= -shared -m64 -DMAC
+CFLAGS= -fPIC -DMAC -Werror -std=gnu99 -pedantic -Wall -fstack-protector
+LDFLAGS= -shared -m64
 
 ifeq (${PLATFORM},x86_64-mac)
   ARCHFLAGS= -arch x86_64
