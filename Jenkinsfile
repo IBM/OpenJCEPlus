@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2024
+ * Copyright IBM Corp. 2024, 2025
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -30,6 +30,7 @@ import groovy.transform.Field;
 @Field OVERRIDE_NODE_LABELS
 @Field ADDITIONAL_ENVARS
 @Field TIMEOUT_TIME
+@Field boolean archiveComplete = false
 
 /*
  * Checks the checkboxes to figure out the platforms
@@ -386,14 +387,14 @@ def archive(platform) {
     
     // Create compressed file containing build.
     def ending = ".tar.gz"
-    def filename = "openjceplus-target-$platform$ending"
+    def filename = "openjceplus-results-$platform$ending"
     dir("openjceplus/OpenJCEPlus/target") {
         tar archive: false, compress: true, defaultExcludes: false, dir: '', exclude: '', file: "$filename", glob: '', overwrite: false
     }
 
     // Set the specific specifications to upload build.
     def buildID = "${env.BUILD_ID}"
-    def fileLocation = "$WORKSPACE/openjceplus/OpenJCEPlus/target"
+    def fileLocation = "$WORKSPACE/openjceplus/OpenJCEPlus"
     def sanitizedBranchName = getSanitizedBranchName()
     def directory = "sys-rt-generic-local/OpenJCEPlus_builds/$sanitizedBranchName/$buildID"
 
@@ -427,6 +428,8 @@ def archive(platform) {
 
     // Add it to the description for quick access.
     currentBuild.description += "<br><a href=$fileUrl>$filename</a>"
+
+    archiveComplete = true
 }
 
 /*
@@ -501,9 +504,11 @@ def run(platform) {
                     archive(platform)
                     echo "OpenJCEPlus archived"
                 } finally {
+                    if (archiveComplete == false) {
+                        archive(platform)
+                    }
                     cleanWs()
                 }
-                
             }
         }
     }
