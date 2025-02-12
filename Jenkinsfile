@@ -169,7 +169,6 @@ def getBinaries(hardware, software) {
 
         // Additional copy is required
         if (target.contains('aix')) {
-            echo "Doing copy here into jgsk_sdk"
             fileOperations([fileCopyOperation(includes: 'libjgsk8iccs_64.so', targetLocation: 'jgsk_sdk')])
         }
     }
@@ -313,7 +312,6 @@ def runOpenJCEPlus(command, software) {
         def gskit_home = "export GSKIT_HOME=$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
         def environment = "export PATH=$WORKSPACE/apache-maven-3.9.6/bin:\$PATH;"
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
-        echo "HERE BEFORE SHELL!!!!!!!!!!!!!!!!"
         if (software == "windows") {
             def workspace_unix_style = "$WORKSPACE".replace("\\", "/").replace("C:", "/cygdrive/c")
             environment = """export PATH=${workspace_unix_style}/apache-maven-3.9.6/bin:/cygdrive/c/Program\\ Files\\ \\(x86\\)/Windows\\ Kits/10/bin/10.0.19041.0/x64/:/cygdrive/c/Program\\ Files/Microsoft\\ Visual\\ Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/bin/Hostx64/x64/:\$PATH;\\
