@@ -166,11 +166,6 @@ def getBinaries(hardware, software) {
         } else {
             fileOperations([fileCopyOperation(includes: 'libjgsk8iccs_64.so', targetLocation: 'jgsk_sdk/lib64')])
         }
-
-        // Additional copy is required
-        if (target.contains('aix')) {
-            fileOperations([fileCopyOperation(includes: 'libjgsk8iccs_64.so', targetLocation: 'jgsk_sdk')])
-        }
     }
 }
 
@@ -296,16 +291,11 @@ def getTestFlag(hardware, software) {
 def runOpenJCEPlus(command, software) {
     dir("openjceplus/OpenJCEPlus") {
         def additional_exports = ""
-        if (software == "aix") {
-            additional_exports = "export LIBPATH=$WORKSPACE/openjceplus/OCK/:$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
-        }
-
         def additional_envars = ADDITIONAL_ENVARS
         if (additional_envars != "") {
             for (envar in additional_envars.split(",")) {
                 additional_exports += " export ${envar.trim()};"
             }
-            
         }
 
         def java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
