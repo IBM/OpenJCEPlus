@@ -12,12 +12,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.nio.ByteBuffer;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.ProviderException;
 import sun.security.util.Debug;
 
-@SuppressWarnings({"removal", "deprecation"})
 final class NativeInterface {
 
     // User enabled debugging
@@ -43,22 +40,16 @@ final class NativeInterface {
     private static String JVMFIPSmode = null;
 
     static {
-        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            public Void run() {
-                if (ockDynamicallyLoaded) {
-                    // Preload OCK library. We want to pre-load OCK to help
-                    // ensure we are picking up the expected version within
-                    // the JRE.
-                    //
-                    preloadOCK();
-                }
-
-                // Load native code for java-gskit
-                //
-                preloadJGskit();
-                return null;
-            }
-        });
+        if (ockDynamicallyLoaded) {
+            // Preload OCK library. We want to pre-load OCK to help
+            // ensure we are picking up the expected version within
+            // the JRE.
+            //
+            preloadOCK();
+        }
+        // Load native code for java-gskit
+        //
+        preloadJGskit();
     }
 
     public static String getOsName() {
