@@ -963,7 +963,7 @@ void handleIV(int ivLength, int keyLen, int blockSize, int J0Offset, char* iv,
         }
 
         // Appending IV.length
-        putLongtoByteArray(ivLengthOG * 8, (signed char*)&lastIV,
+        putLongtoByteArray(ivLengthOG * 8, (char*)&lastIV,
                            lastIVLen - 8);
         z_kimd_native((signed char*)&lastIV, lastIVLen, 0,
                       (signed char*)&ghashParamBlock, 65);
