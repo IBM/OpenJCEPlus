@@ -13,7 +13,7 @@ TOPDIR=../../..
 PLAT=x86
 CC=gcc
 CFLAGS= -fPIC -Werror -std=gnu99 -pedantic -Wall -fstack-protector
-LDFLAGS= -m64 -shared
+LDFLAGS= -shared
 
 ifeq (${PLATFORM},arm-linux64)
   PLAT=xr
@@ -23,15 +23,17 @@ else ifeq (${PLATFORM},ppc-aix64)
   PLAT=ap
   CC=ibm-clang_r
   CFLAGS+= -DAIX -m64
-  LDFLAGS+= -brtl
+  LDFLAGS+= -m64 -brtl
   OSINCLUDEDIR=aix
 else ifeq (${PLATFORM},ppcle-linux64)
   PLAT=xl
   CFLAGS+= -DLINUX -m64
+  LDFLAGS+= -m64
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},s390-linux64)
   PLAT=xz
   CFLAGS+= -DS390_PLATFORM -DLINUX -m64
+  LDFLAGS+= -m64
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},s390-zos64)
   CC=xlc
@@ -45,6 +47,7 @@ else ifeq (${PLATFORM},s390-zos64)
 else ifeq (${PLATFORM},x86-linux64)
   PLAT=xa
   CFLAGS+= -DLINUX -m64
+  LDFLAGS+= -m64
   OSINCLUDEDIR=linux
 endif
 
