@@ -12,29 +12,26 @@ TOPDIR=../../..
 
 PLAT=x86
 CC=gcc
-CFLAGS= -fPIC
-LDFLAGS= -shared
+CFLAGS= -fPIC -m64 -Werror -std=gnu99 -pedantic -Wall -fstack-protector
+LDFLAGS= -m64 -shared
 
 ifeq (${PLATFORM},arm-linux64)
   PLAT=xr
-  CFLAGS+= -DLINUX -Werror -std=gnu99 -pedantic -Wall -fstack-protector
-  LDFLAGS+= -DLINUX
+  CFLAGS+= -DLINUX
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},ppc-aix64)
   PLAT=ap
   CC=ibm-clang_r
-  CFLAGS+= -m64 -DAIX -Werror
-  LDFLAGS+= -m64 -brtl
+  CFLAGS+= -DAIX
+  LDFLAGS+= -brtl
   OSINCLUDEDIR=aix
 else ifeq (${PLATFORM},ppcle-linux64)
   PLAT=xl
-  CFLAGS+= -DLINUX -Werror
-  LDFLAGS+= -m64
+  CFLAGS+= -DLINUX
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},s390-linux64)
   PLAT=xz
-  LDFLAGS+= -m64
-  CFLAGS+= -DS390_PLATFORM -DLINUX -Werror
+  CFLAGS+= -DS390_PLATFORM -DLINUX
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},s390-zos64)
   CC=xlc
@@ -47,8 +44,7 @@ else ifeq (${PLATFORM},s390-zos64)
   OSINCLUDEDIR=zos
 else ifeq (${PLATFORM},x86-linux64)
   PLAT=xa
-  CFLAGS+= -DLINUX -Werror -std=gnu99 -pedantic -Wall -fstack-protector
-  LDFLAGS+= -m64
+  CFLAGS+= -DLINUX
   OSINCLUDEDIR=linux
 endif
 
