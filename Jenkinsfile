@@ -498,6 +498,7 @@ def run(platform) {
                     archive(platform)
                     echo "OpenJCEPlus archived"
                 } finally {
+                    archive(platform)
                     cleanWs()
                 }
                 
