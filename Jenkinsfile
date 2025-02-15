@@ -30,6 +30,7 @@ import groovy.transform.Field;
 @Field OVERRIDE_NODE_LABELS
 @Field ADDITIONAL_ENVARS
 @Field TIMEOUT_TIME
+@Field boolean archiveComplete = false
 
 /*
  * Checks the checkboxes to figure out the platforms
@@ -424,6 +425,8 @@ def archive(platform) {
 
     // Add it to the description for quick access.
     currentBuild.description += "<br><a href=$fileUrl>$filename</a>"
+
+    archiveComplete = true
 }
 
 /*
@@ -498,7 +501,9 @@ def run(platform) {
                     archive(platform)
                     echo "OpenJCEPlus archived"
                 } finally {
-                    archive(platform)
+                    if (archiveComplete == false) {
+                        archive(platform)
+                    }
                     cleanWs()
                 }
                 
