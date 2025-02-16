@@ -391,7 +391,7 @@ def archive(platform) {
 
     // Set the specific specifications to upload build.
     def buildID = "${env.BUILD_ID}"
-    def fileLocation = "$WORKSPACE/openjceplus/OpenJCEPlus/target"
+    def fileLocation = "$WORKSPACE/openjceplus/OpenJCEPlus"
     def sanitizedBranchName = getSanitizedBranchName()
     def directory = "sys-rt-generic-local/OpenJCEPlus_builds/$sanitizedBranchName/$buildID"
 
