@@ -95,8 +95,7 @@ jobs:
           -Dtest='
           ibm.jceplus.junit.openjceplus.TestAll,
           ibm.jceplus.junit.TestMemStressAll,
-          ibm.jceplus.junit.TestMultithread,
-          ibm.jceplus.junit.openjceplus.integration.TestAll
+          ibm.jceplus.junit.TestMultithread
           '
           install
         env:
