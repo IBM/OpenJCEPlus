@@ -59,11 +59,14 @@ public final class DHKeyFactory extends KeyFactorySpi {
         try {
             if (keySpec instanceof DHPublicKeySpec) {
                 DHPublicKeySpec dhPubKeySpec = (DHPublicKeySpec) keySpec;
+                DHUtils.checkKeySize(dhPubKeySpec.getP().bitLength(), 0, provider.isFIPS());
                 return new DHPublicKey(provider, dhPubKeySpec.getY(), dhPubKeySpec.getP(),
                         dhPubKeySpec.getG());
 
             } else if (keySpec instanceof X509EncodedKeySpec) {
-                return new DHPublicKey(provider, ((X509EncodedKeySpec) keySpec).getEncoded());
+                DHPublicKey dhPubKey = new DHPublicKey(provider, ((X509EncodedKeySpec) keySpec).getEncoded());
+                DHUtils.checkKeySize(dhPubKey.getParams().getP().bitLength(), 0, provider.isFIPS());
+                return dhPubKey;
 
             } else {
                 throw new InvalidKeySpecException("Inappropriate key specification");
@@ -90,11 +93,14 @@ public final class DHKeyFactory extends KeyFactorySpi {
         try {
             if (keySpec instanceof DHPrivateKeySpec) {
                 DHPrivateKeySpec dhPrivKeySpec = (DHPrivateKeySpec) keySpec;
+                DHUtils.checkKeySize(dhPrivKeySpec.getP().bitLength(), dhPrivKeySpec.getX().bitLength(), provider.isFIPS());
                 return new DHPrivateKey(provider, dhPrivKeySpec.getX(), dhPrivKeySpec.getP(),
                         dhPrivKeySpec.getG());
 
             } else if (keySpec instanceof PKCS8EncodedKeySpec) {
-                return new DHPrivateKey(provider, ((PKCS8EncodedKeySpec) keySpec).getEncoded());
+                DHPrivateKey dhPrivKey = new DHPrivateKey(provider, ((PKCS8EncodedKeySpec) keySpec).getEncoded());
+                DHUtils.checkKeySize(dhPrivKey.getParams().getP().bitLength(), dhPrivKey.getX().bitLength(), provider.isFIPS());
+                return dhPrivKey;
 
             } else {
                 throw new InvalidKeySpecException("Inappropriate key specification");
