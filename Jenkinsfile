@@ -166,11 +166,6 @@ def getBinaries(hardware, software) {
         } else {
             fileOperations([fileCopyOperation(includes: 'libjgsk8iccs_64.so', targetLocation: 'jgsk_sdk/lib64')])
         }
-
-        // Additional copy is required
-        if (target.contains('aix')) {
-            fileOperations([fileCopyOperation(includes: 'libjgsk8iccs_64.so', targetLocation: 'jgsk_sdk')])
-        }
     }
 }
 
@@ -323,6 +318,8 @@ def runOpenJCEPlus(command, software) {
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
         } else if (software == "mac") {
             java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
+        } else if (software == "aix") {
+            environment = "export PATH=$WORKSPACE/apache-maven-3.9.6/bin:/opt/IBM/openxlC/opt/IBM/openxlC/17.1.2/bin:/opt/IBM/openxlC/opt/IBM/openxlC/17.1.2/tools:\$PATH;"
         }
         
         sh "${java_home} ${gskit_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' --batch-mode ${command}"
@@ -539,19 +536,19 @@ pipeline {
         )
         booleanParam(name: 'ppc64_aix', defaultValue: true, description: '\
             Build for ppc64_aix platform')
-        booleanParam(name: 'x86_64_linux', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_linux', defaultValue: false, description: '\
             Build for x86-64_linux platform')
-        booleanParam(name: 'ppc64le_linux', defaultValue: true, description: '\
+        booleanParam(name: 'ppc64le_linux', defaultValue: false, description: '\
             Build for ppc64le_linux platform')
-        booleanParam(name: 's390x_linux', defaultValue: true, description: '\
+        booleanParam(name: 's390x_linux', defaultValue: false, description: '\
             Build for s390x_linux platform')
-        booleanParam(name: 'x86_64_windows', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_windows', defaultValue: false, description: '\
             Build for x86-64_windows platform')
-        booleanParam(name: 'aarch64_mac', defaultValue: true, description: '\
+        booleanParam(name: 'aarch64_mac', defaultValue: false, description: '\
             Build for aarch64_mac platform')
-        booleanParam(name: 'x86_64_mac', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_mac', defaultValue: false, description: '\
             Build for x86-64_mac platform')
-        booleanParam(name: 'aarch64_linux', defaultValue: true, description: '\
+        booleanParam(name: 'aarch64_linux', defaultValue: false, description: '\
             Build for aarch64_linux platform')
         separator(name: "BuildAndTestPlatforms", sectionHeader: "Build And Test Options",
             separatorStyle: "border-width: 0",
@@ -630,7 +627,7 @@ pipeline {
         string(name: 'ADDITIONAL_NODE_LABELS', defaultValue: '', description: '\
             Additional labels for the node to be used can be defined here.<br> \
             These labels will be added to the automatically generated ones, pertaining to platform specified.')
-        string(name: 'OVERRIDE_NODE_LABELS', defaultValue: '', description: '\
+        string(name: 'OVERRIDE_NODE_LABELS', defaultValue: 'paix822.rtp.raleigh.ibm.com', description: '\
             The labels specified will override any other labels chosen and will be the only ones utilized.')
         string(name: 'ADDITIONAL_ENVARS', defaultValue: '', description: '\
             Additional environment variables that one might want to add to the existing ones.<br> \
