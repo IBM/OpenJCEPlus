@@ -159,17 +159,17 @@ def getBinaries(hardware, software) {
         untar file: 'jgsk_crypto.tar'
         untar file: 'jgsk_crypto_sdk.tar'
 
+        def jgsk8Lib = 'libjgsk8iccs_64.so'
         if (target.contains('osx')) {
-            fileOperations([fileCopyOperation(includes: 'libjgsk8iccs.dylib', targetLocation: 'jgsk_sdk/lib64')])
+            jgsk8Lib = 'libjgsk8iccs.dylib'
         } else if (target.contains('win')) {
-            fileOperations([fileCopyOperation(includes: 'jgsk8iccs_64.dll', targetLocation: 'jgsk_sdk/lib64')])
-        } else {
-            fileOperations([fileCopyOperation(includes: 'libjgsk8iccs_64.so', targetLocation: 'jgsk_sdk/lib64')])
+            jgsk8Lib = 'jgsk8iccs_64.dll'
         }
+        fileOperations([fileCopyOperation(includes: jgsk8Lib, targetLocation: 'jgsk_sdk/lib64')])
 
         // Additional copy is required
         if (target.contains('aix')) {
-            fileOperations([fileCopyOperation(includes: 'libjgsk8iccs_64.so', targetLocation: 'jgsk_sdk')])
+            fileOperations([fileCopyOperation(includes: jgsk8Lib, targetLocation: 'jgsk_sdk')])
         }
     }
 }
@@ -271,9 +271,8 @@ def getTestFlag(hardware, software) {
     }
 
     // User requested execution of a specific test.
-    def specificTest = SPECIFIC_TEST
-    if (specificTest != "") {
-        return " -Dtest=${specificTest}"
+    if (SPECIFIC_TEST) {
+        return " -Dtest=${SPECIFIC_TEST}"
     }
 
     // Based on platform, decide whether FIPS tests should be run.
@@ -313,7 +312,10 @@ def runOpenJCEPlus(command, software) {
         def environment = "export PATH=$WORKSPACE/apache-maven-3.9.6/bin:\$PATH;"
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
         if (software == "windows") {
-            def workspace_unix_style = "$WORKSPACE".replace("\\", "/").replace("C:", "/cygdrive/c")
+            def workspace_unix_style = sh (
+                script: "cygpath -u '$WORKSPACE'",
+                returnStdout: true
+            ).trim()
             environment = """export PATH=${workspace_unix_style}/apache-maven-3.9.6/bin:/cygdrive/c/Program\\ Files\\ \\(x86\\)/Windows\\ Kits/10/bin/10.0.19041.0/x64/:/cygdrive/c/Program\\ Files/Microsoft\\ Visual\\ Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/bin/Hostx64/x64/:\$PATH;\\
                             |export INCLUDE="C:/Program Files (x86)/Windows Kits/10/include/10.0.19041.0/um/;C:/Program Files (x86)/Windows Kits/10/include/10.0.19041.0/shared/;C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/include/;C:/Program Files (x86)/Windows Kits/10/include/10.0.19041.0/ucrt/";\\
                             |export LIB="C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/lib/x64;C:/Program Files (x86)/Windows Kits/10/lib/10.0.19041.0/ucrt/x64;C:/Program Files (x86)/Windows Kits/10/lib/10.0.19041.0/um/x64";\\
