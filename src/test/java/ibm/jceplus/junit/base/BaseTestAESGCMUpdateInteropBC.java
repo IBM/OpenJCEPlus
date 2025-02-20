@@ -37,7 +37,7 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestJunit5Interop {
     //protected Method methodGCMParameterSpecSetAAD = null;
     protected int specifiedKeySize = 0;
 
-    static String[] plainTextStrArray = {"a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
+    String[] plainTextStrArray = {"a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
             "abcdefgh", "abcdefghi", "abcdefghi", "abcdefghij", "abcdefghijk", "abcdefghijkl",
             "abcdefghijklm", "abcdefghijklmn", "abcdefghijklmno", "abcdefghijklmnop",
             "abcdefghijklmnopq", "abcdefghijklmnopqr", "abcdefghijklmnopqrs",
@@ -48,7 +48,7 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestJunit5Interop {
             "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyza",
             "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789"};
 
-    static String[] plainTextStrArray1 = {
+    String[] plainTextStrArray1 = {
             //"abcdefghijklmnopqrstuvwxyz0123456789012345678901234",
             "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyza01234",
             "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa012345678901234"};
