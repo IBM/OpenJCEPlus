@@ -313,7 +313,7 @@ def runOpenJCEPlus(command, software) {
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
         if (software == "windows") {
             def workspace_unix_style = sh (
-                script: "cygpath -u $WORKSPACE",
+                script: "cygpath -u '$WORKSPACE'",
                 returnStdout: true
             ).trim()
             environment = """export PATH=${workspace_unix_style}/apache-maven-3.9.6/bin:/cygdrive/c/Program\\ Files\\ \\(x86\\)/Windows\\ Kits/10/bin/10.0.19041.0/x64/:/cygdrive/c/Program\\ Files/Microsoft\\ Visual\\ Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/bin/Hostx64/x64/:\$PATH;\\
