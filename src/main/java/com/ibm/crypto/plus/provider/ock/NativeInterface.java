@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -837,4 +837,11 @@ final class NativeInterface {
     static public native void HKDF_delete(long ockContextId, long hkdfId) throws OCKException;
 
     static public native int HKDF_size(long ockContextId, long hkdfId) throws OCKException;
+
+    // =========================================================================
+    // Password based key derivation functions ( PBKDF )
+    // =========================================================================
+
+    static public native byte[] PBKDF2_derive(long ockContextId, String hashAlgorithm, byte[] password, byte[] salt,
+            int iterations, int keyLength) throws OCKException;
 }
