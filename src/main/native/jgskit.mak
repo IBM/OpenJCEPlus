@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# Copyright IBM Corp. 2023, 2024
+# Copyright IBM Corp. 2023, 2025
 #
 # Licensed under the Apache License 2.0 (the "License").  You may not use
 # this file except in compliance with the License.  You can obtain a copy
@@ -56,7 +56,7 @@ endif
 #Setting this flag will result non key material such as handle to OCK Objects etc being logged to the trace file.
 #This flag must be disabled before building production version
 #DEBUG_FLAGS += -DDEBUG
-#DEBUG_DETAIL = -DDEBUG_RANDOM_DETAIL -DDEBUG_RAND_DETAIL -DDEBUG_DH_DETAIL -DDEBUG_DSA_DETAIL -DDEBUG_DIGEST_DETAIL -DDEBUG_EC_DETAIL -DDEBUG_EXTENDED_RANDOM_DETAIL -DDEBUG_GCM_DETAIL -DDEBUG_CCM_DETAIL -DDEBUG_HMAC_DETAIL -DDEBUG_PKEY_DETAIL -DDEBUG_CIPHER_DETAIL -DDEBUG_RSA_DETAIL -DDEBUG_SIGNATURE_DETAIL -DDEBUG_SIGNATURE_DSANONE_DETAIL -DDEBUG_SIGNATURE_RSASSL_DETAIL -DDEBUG_HKDF_DETAIL -DDEBUG_RSAPSS_DETAIL
+#DEBUG_DETAIL = -DDEBUG_RANDOM_DETAIL -DDEBUG_RAND_DETAIL -DDEBUG_DH_DETAIL -DDEBUG_DSA_DETAIL -DDEBUG_DIGEST_DETAIL -DDEBUG_EC_DETAIL -DDEBUG_EXTENDED_RANDOM_DETAIL -DDEBUG_GCM_DETAIL -DDEBUG_CCM_DETAIL -DDEBUG_HMAC_DETAIL -DDEBUG_PKEY_DETAIL -DDEBUG_CIPHER_DETAIL -DDEBUG_RSA_DETAIL -DDEBUG_SIGNATURE_DETAIL -DDEBUG_SIGNATURE_DSANONE_DETAIL -DDEBUG_SIGNATURE_RSASSL_DETAIL -DDEBUG_HKDF_DETAIL -DDEBUG_RSAPSS_DETAIL -DDEBUG_PBKDF_DETAIL
 
 #Setting this flag will result sensitive key material such as private/public key bytes/parameter bytes being logged to the trace file.
 #Please warn the customer know that it not suitable to deploy jgskit library on production system, enabling this flag.
@@ -82,6 +82,7 @@ OBJS = \
 	${HOSTOUT}/GCM.o \
 	${HOSTOUT}/HKDF.o \
 	${HOSTOUT}/HMAC.o \
+	${HOSTOUT}/PBKDF.o \
 	${HOSTOUT}/PKey.o \
 	${HOSTOUT}/Poly1305Cipher.o \
 	${HOSTOUT}/RSA.o \
