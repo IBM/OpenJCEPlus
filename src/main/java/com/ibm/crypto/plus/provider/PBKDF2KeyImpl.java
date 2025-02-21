@@ -169,6 +169,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
      * Calculates a hash code value for the object.
      * Objects that are equal will also have the same hashcode.
      */
+    @Override
     public int hashCode() {
         int retval = 0;
         for (int i = 1; i < this.key.length; i++) {
