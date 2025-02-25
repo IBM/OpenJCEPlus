@@ -67,7 +67,7 @@ public final class Digest implements Cloneable {
         numContexts = tmpNumContext;
     }
 
-    void getContext() throws OCKException {
+    synchronized void getContext() throws OCKException {
         if (needsInit) {
             synchronized (Digest.class) {
                 if (needsInit) {

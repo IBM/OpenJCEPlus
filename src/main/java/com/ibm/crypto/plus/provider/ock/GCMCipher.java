@@ -22,7 +22,7 @@ public final class GCMCipher {
     private static final String DISABLE_GCM_ACCELERATION = "com.ibm.crypto.provider.DisableGCMAcceleration";
     private static final boolean disableGCMAcceleration = Boolean.parseBoolean(System.getProperty(DISABLE_GCM_ACCELERATION));
     private static final String debPrefix = "GCMCipher";
-    private static long GCMHardwareFunctionPtr = 0;
+    private static volatile long GCMHardwareFunctionPtr = 0;
 
     static final int parameterBlockSize = 80;
     static final int TAADLOffset = 48;
