@@ -170,7 +170,7 @@ final class ECNamedCurve extends ECGenParameterSpec implements AlgorithmParamete
     // private static final Map<Integer, ECParameterSpec> lengthMap = new
     // HashMap<Integer, ECParameterSpec>();
 
-    private static Pattern SPLIT_PATTERN = Pattern.compile(",|\\[|\\]");
+    private static final Pattern SPLIT_PATTERN = Pattern.compile(",|\\[|\\]");
 
     private static BigInteger bi(String s) {
         return new BigInteger(s, 16);
@@ -443,7 +443,6 @@ final class ECNamedCurve extends ECGenParameterSpec implements AlgorithmParamete
                 "7DDE385D566332ECC0EABFA9CF7822FDF209F70024A57B1AA000C55B881F8111B2DCDE494A5F485E5BCA4BD88A2763AED1CA2B2FA8F0540678CD1E0F3AD80892",
                 "AADD9DB8DBE9C48B3FD4E6AE33C9FC07CB308DB3B3C9D20ED6639CCA70330870553E5C414CA92619418661197FAC10471DB1D381085DDADDB58796829CA90069",
                 1, false);
-        SPLIT_PATTERN = null;
     }
 
     public String getName() {
