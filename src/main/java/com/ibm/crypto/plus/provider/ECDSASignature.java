@@ -10,19 +10,24 @@ package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.ock.Signature;
 import java.security.AlgorithmParameters;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.SignatureSpi;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.ECParameterSpec;
+import sun.security.util.ECUtil;
 import sun.security.util.ObjectIdentifier;
-
 
 abstract class ECDSASignature extends SignatureSpi {
 
     private OpenJCEPlusProvider provider = null;
     private Signature signature = null;
+    private ECPrivateKey privateKey = null;
+    private ECPublicKey publicKey = null;
 
     ECDSASignature(OpenJCEPlusProvider provider, String ockDigestAlgo) {
         try {
@@ -35,10 +40,10 @@ abstract class ECDSASignature extends SignatureSpi {
 
     @Override
     protected void engineInitVerify(PublicKey publicKey) throws InvalidKeyException {
-        ECPublicKey ecPublic = (ECPublicKey) ECKeyFactory.toECKey(provider, publicKey);
+        this.publicKey = (ECPublicKey) ECKeyFactory.toECKey(provider, publicKey);
 
         try {
-            this.signature.initialize(ecPublic.getOCKKey(), false);
+            this.signature.initialize(this.publicKey.getOCKKey(), false);
         } catch (Exception e) {
             throw provider.providerException("Failure in engineInitVerify", e);
         }
@@ -46,12 +51,12 @@ abstract class ECDSASignature extends SignatureSpi {
 
     @Override
     protected void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
-        ECPrivateKey ecPrivate = (ECPrivateKey) ECKeyFactory.toECKey(provider, privateKey);
-        ECUtils.checkPrivateKey(ecPrivate);
+        this.privateKey = (ECPrivateKey) ECKeyFactory.toECKey(provider, privateKey);
+        ECUtils.checkPrivateKey(this.privateKey);
 
         if (this.provider.isFIPS()) {
             ECNamedCurve ecNamedCurve = ECParameters
-                    .getNamedCurve(ecPrivate.getParams());
+                    .getNamedCurve(this.privateKey.getParams());
             ObjectIdentifier oid = null;
 
             oid = ECNamedCurve.getOIDFromName(ecNamedCurve.getName());
@@ -64,7 +69,7 @@ abstract class ECDSASignature extends SignatureSpi {
         }
 
         try {
-            this.signature.initialize(ecPrivate.getOCKKey(), false);
+            this.signature.initialize(this.privateKey.getOCKKey(), false);
         } catch (Exception e) {
             throw provider.providerException("Failure in engineInitSign", e);
         }
@@ -109,13 +114,37 @@ abstract class ECDSASignature extends SignatureSpi {
     }
 
     @Deprecated
-    protected void engineSetParameter(String param, Object value) throws InvalidParameterException {
-        throw new InvalidParameterException("No parameter accepted");
+    @Override
+    protected void engineSetParameter(String param, Object value)
+            throws InvalidParameterException {
+        throw new UnsupportedOperationException("setParameter() not supported");
+    }
+
+    @Override
+    protected void engineSetParameter(AlgorithmParameterSpec params)
+            throws InvalidAlgorithmParameterException {
+        // Interop: some certificates include parameters in an ECDSA
+        // algorithm identifier. We only accept one matching the key.
+        if (params == null) {
+            return;
+        }
+        if (params instanceof ECParameterSpec) {
+            ECParameterSpec ecparams = (ECParameterSpec) params;
+            java.security.interfaces.ECKey key = (this.privateKey == null? this.publicKey : this.privateKey);
+            if ((key != null) && !ECUtil.equals(ecparams, key.getParams())) {
+                throw new InvalidAlgorithmParameterException(
+                        "Signature params does not match key params");
+            }
+        } else {
+            throw new InvalidAlgorithmParameterException(
+                    "Parameters must be of type ECParameterSpec");
+        }
     }
 
     @Deprecated
+    @Override
     protected Object engineGetParameter(String param) throws InvalidParameterException {
-        return null;
+        throw new UnsupportedOperationException("getParameter(String param) not supported");
     }
 
     @Override
