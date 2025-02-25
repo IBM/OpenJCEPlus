@@ -63,7 +63,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     // User enabled debugging
     private static Debug debug = Debug.getInstance(DEBUG_VALUE);
 
-    private static boolean ockInitialized = false;
+    private static volatile boolean ockInitialized = false;
     private static OCKContext ockContext;
 
     private static final boolean isPlatformSupported;

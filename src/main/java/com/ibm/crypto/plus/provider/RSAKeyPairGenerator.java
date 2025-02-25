@@ -26,8 +26,8 @@ abstract class RSAKeyPairGenerator extends KeyPairGeneratorSpi {
     private OpenJCEPlusProvider provider = null;
     private int keysize = 2048;
     private BigInteger publicExponent = RSAKeyGenParameterSpec.F4;
-    static int DEF_RSA_KEY_SIZE = 2048;
-    static int DEF_RSASSA_PSS_KEY_SIZE = 2048;
+    static final int DEF_RSA_KEY_SIZE = 2048;
+    static final int DEF_RSASSA_PSS_KEY_SIZE = 2048;
     private KeyType type = RSAUtil.KeyType.RSA;
     private AlgorithmId rsaId;
 

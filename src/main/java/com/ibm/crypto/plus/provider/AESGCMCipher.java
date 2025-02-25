@@ -768,7 +768,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
      * Constraints on Number of Invocations
      */
 
-    private byte[] generateInternalIV(boolean firstIV) throws IllegalStateException {
+    private synchronized byte[] generateInternalIV(boolean firstIV) throws IllegalStateException {
 
         byte[] generatedIV = null;
 

@@ -21,7 +21,7 @@ public final class CCMCipher {
     private static final boolean disableCCMAcceleration;
     private static final String DISABLE_CCM_ACCELERATION = "com.ibm.crypto.provider.DisableCCMAcceleration";
     private static final String debPrefix = "CCMCipher";
-    private static long CCMHardwareFunctionPtr = -1; // Disable hardware AES/CCM for System Z
+    private static volatile long CCMHardwareFunctionPtr = -1; // Disable hardware AES/CCM for System Z
 
     static final int parameterBlockSize = 80;
     static final int TAADLOffset = 48;
