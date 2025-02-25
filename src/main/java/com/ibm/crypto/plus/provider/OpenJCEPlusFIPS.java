@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -48,7 +48,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
             + "                                       HmacSHA384, HmacSHA512\n"
             + "                                                   HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512\n"
             + "Message digest                     : SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256, SHA3-224, SHA3-256, SHA3-384, SHA3-512\n"
-            + "Secret key factory                 : AES\n"
+            + "Secret key factory                 : AES, PBKDF2WithHmacSHA224, PBKDF2WithHmacSHA256, PBKDF2WithHmacSHA384, PBKDF2WithHmacSHA512\n"
             + "Secure random                      : HASHDRBG, SHA256DRBG, SHA512DRBG\n"
             + "Signature algorithms               : NONEwithDSA, SHA224withDSA, SHA256withDSA,\n"
             + "                                     NONEwithECDSA, SHA224withECDSA,\n"
@@ -510,6 +510,31 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "AES",
                 "com.ibm.crypto.plus.provider.AESKeyFactory", aliases));
 
+        aliases = null;
+        putService(new OpenJCEPlusService(jce,
+                                     "SecretKeyFactory",
+                                     "PBKDF2WithHmacSHA224",
+                                     "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA224",
+                                     aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce,
+                                     "SecretKeyFactory",
+                                     "PBKDF2WithHmacSHA256",
+                                     "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA256",
+                                     aliases));
+        aliases = null;
+        putService(new OpenJCEPlusService(jce,
+                                     "SecretKeyFactory",
+                                     "PBKDF2WithHmacSHA384",
+                                     "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA384",
+                                     aliases));
+        aliases = null;
+        putService(new OpenJCEPlusService(jce,
+                                     "SecretKeyFactory",
+                                     "PBKDF2WithHmacSHA512",
+                                     "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA512",
+                                     aliases));
 
         /* Not yet supported in FIPS mode 
          * aliases = null;
