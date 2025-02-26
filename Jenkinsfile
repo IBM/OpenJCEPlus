@@ -165,15 +165,7 @@ def getBinaries(hardware, software) {
         } else if (target.contains('win')) {
             jgsk8Lib = 'jgsk8iccs_64.dll'
         }
-<<<<<<< HEAD
         fileOperations([fileCopyOperation(includes: jgsk8Lib, targetLocation: 'jgsk_sdk/lib64')])
-
-        // Additional copy is required
-        if (target.contains('aix')) {
-            fileOperations([fileCopyOperation(includes: jgsk8Lib, targetLocation: 'jgsk_sdk')])
-        }
-=======
->>>>>>> 840d8b0 (Migrate to use OpenXL compiler for AIX platform)
     }
 }
 
