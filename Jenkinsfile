@@ -321,7 +321,7 @@ def runOpenJCEPlus(command, software) {
         } else if (software == "mac") {
             java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
         } else if (software == "aix") {
-            environment = "export PATH=$WORKSPACE/apache-maven-3.9.6/bin:/opt/IBM/openxlC/opt/IBM/openxlC/17.1.2/bin:/opt/IBM/openxlC/opt/IBM/openxlC/17.1.2/tools:\$PATH;"
+            environment = "export PATH=$WORKSPACE/apache-maven-3.9.6/bin:/opt/IBM/openxlC/opt/IBM/openxlC/17.1.3/bin:/opt/IBM/openxlC/opt/IBM/openxlC/17.1.3/tools:\$PATH;"
         }
         
         sh "${java_home} ${gskit_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' --batch-mode ${command}"
