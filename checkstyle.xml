@@ -4,10 +4,9 @@
 #
 # Copyright IBM Corp. 2023
 #
-# Licensed under the Apache License 2.0 (the "License").  You may not use
-# this file except in compliance with the License.  You can obtain a copy
-# in the file LICENSE in the source distribution.
-#
+# This code is free software; you can redistribute it and/or modify it
+# under the terms provided by IBM in the LICENSE file that accompanied
+# this code, including the "Classpath" Exception described therein.
 ###############################################################################
 -->
 <!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN" "https://checkstyle.org/dtds/configuration_1_3.dtd">
@@ -31,7 +30,7 @@
     <module name="NewlineAtEndOfFile"/>
     <module name="RegexpHeader">
         <property name="fileExtensions" value="java"/>
-        <property name="header" value="^\W.*\n^.*Copyright IBM Corp\. \d\d\d\d\n^\W.*\n^\W.*. Licensed under the Apache License 2.0 \(the &quot;License&quot;\).  You may not use\n^\W.* this file except in compliance with the License.  You can obtain a copy\n^\W.* in the file LICENSE in the source distribution.\n^\W"/>
+        <property name="header" value="^\W.*\n^.*Copyright IBM Corp\. \d\d\d\d\n^\W.*\n^\W.*. This code is free software; you can redistribute it and/or modify it\n^\W.*. under the terms provided by IBM in the LICENSE file that accompanied\n^\W.*. this code, including the &quot;Classpath&quot; Exception described therein."/>
     </module>
     <module name="FileTabCharacter"/>
 </module>
