@@ -359,6 +359,10 @@ Signature                   | SHA512withRSA              |X                |X   
 
 The following contribution guidelines should be followed:
 
+1. View this projects [LICENSE](LICENSE) file. Be sure terms and conditions are acceptable.
+
+1. View this projects [NOTICES.md](NOTICES.md) file. Be sure terms and conditions are acceptable.
+
 1. Java code should be styled according to the included [style.xml](style.xml) eclipse rules.
 
 1. C code should be styled using the clang-format tool using the included [.clang-format](.clang-format) rules.
