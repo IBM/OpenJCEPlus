@@ -41,7 +41,7 @@ public final class Digest implements Cloneable {
     final static int numShaAlgos = 5;
     private static final String DIGEST_CONTEXT_CACHE_SIZE = "com.ibm.crypto.provider.DigestContextCacheSize";
 
-    private static boolean needsInit = true;
+    private static volatile boolean needsInit = true;
 
     static private ConcurrentLinkedQueueLong contexts[];
 
