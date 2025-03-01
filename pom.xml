@@ -12,7 +12,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>OpenJCEPlus</artifactId>
-    <version>23</version>
+    <version>24</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -138,6 +138,15 @@
             </activation>
             <properties>
                 <jdk.build.target>23</jdk.build.target>
+            </properties>
+          </profile>
+          <profile>
+            <id>Profile for JDK 24 Build</id>
+            <activation>
+              <jdk>24</jdk>
+            </activation>
+            <properties>
+                <jdk.build.target>24</jdk.build.target>
             </properties>
           </profile>
           <!--
