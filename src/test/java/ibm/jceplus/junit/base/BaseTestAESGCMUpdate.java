@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.AlgorithmParameters;
@@ -82,7 +83,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         key = aesKeyGen.generateKey();
     }
 
-    static String[] plainTextStrArray = {"a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
+    String[] plainTextStrArray = {"a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
             "abcdefgh", "abcdefghi", "abcdefghi", "abcdefghij", "abcdefghijk", "abcdefghijkl",
             "abcdefghijklm", "abcdefghijklmn", "abcdefghijklmno", "abcdefghijklmnop",
             "abcdefghijklmnopq", "abcdefghijklmnopqr", "abcdefghijklmnopqrs",
@@ -93,7 +94,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyza",
             "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789"};
 
-    static String[] plainTextStrArray1 = {
+    String[] plainTextStrArray1 = {
             //"abcdefghijklmnopqrstuvwxyz0123456789012345678901234",
             "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyza01234",
             "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa012345678901234"};
@@ -182,15 +183,16 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         byte[] myAAD = "aaaaaaaaa".getBytes();
 
         GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
+
         for (int keysizeloop = 1; keysizeloop < 3; keysizeloop++) {
-            String myStr = "";
+            StringBuilder myStr = new StringBuilder();
+            SecretKey key16 = new SecretKeySpec(new byte[16 * keysizeloop], "AES"); // key is 16 zero bytes
+
             for (int i = 0; i < 118999;) {
-                myStr = myStr + "a";
+                myStr.append("a");
 
-                byte[] plainTextBytes = myStr.getBytes("UTF-8");
+                byte[] plainTextBytes = myStr.toString().getBytes(StandardCharsets.UTF_8);
 
-
-                SecretKey key16 = new SecretKeySpec(new byte[16 * keysizeloop], "AES"); // key is 16 zero bytes
                 byte[] encryptedText = dotestWithString(Cipher.ENCRYPT_MODE, key16, myAAD,
                         plainTextBytes, ivSpec);
                 byte[] decryptedText = dotestWithString(Cipher.DECRYPT_MODE, key16, myAAD,
@@ -767,14 +769,14 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
 
         GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
         for (int keysizeloop = 1; keysizeloop < 3; keysizeloop++) {
-            String myStr = "";
+            StringBuilder myStr = new StringBuilder();
             for (int i = 0; i < 250; i++) {
-                myStr = myStr + "a";
+                myStr.append("a");
             }
             for (int i = 250; i < 118999;) {
-                myStr = myStr + "a";
+                myStr.append("a");
                 int numTimes = 7;
-                byte[] plainTextBytes = myStr.getBytes("UTF-8");
+                byte[] plainTextBytes = myStr.toString().getBytes(StandardCharsets.UTF_8);
                 SecretKey key = new SecretKeySpec(new byte[16 * keysizeloop], "AES"); // key is 16 zero bytes
                 byte[] encryptedText = doTestWithMultipleDataUpdate(Cipher.ENCRYPT_MODE, key, myAAD,
                         plainTextBytes, ivSpec, numTimes);
