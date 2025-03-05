@@ -104,21 +104,21 @@ final class ECUtils {
         case 160:
             return "secp160k1";
         case 192:
-            return "secp192r1 [NIST P-192, X9.62 prime192v1]";
+            return "secp192r1";
         case 224:
-            return "secp224r1 [NIST P-224]";
+            return "secp224r1";
         case 239:
             return "X9.62 prime239v1";
         case 256:
-            return "secp256r1 [NIST P-256, X9.62 prime256v1]";
+            return "secp256r1";
         case 320:
             return "brainpoolP320r1";
         case 384:
-            return "secp384r1 [NIST P-384]";
+            return "secp384r1";
         case 512:
             return "brainpoolP512r1";
         case 521:
-            return "secp521r1 [NIST P-521]";
+            return "secp521r1";
         default:
             return null;
         }
