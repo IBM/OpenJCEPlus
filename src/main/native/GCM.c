@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -1680,26 +1680,22 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_create_1GCM_1context(
     static const char* functionName = "NativeInterface.create_GCM_context";
     ICC_CTX*           ockCtx       = (ICC_CTX*)((intptr_t)ockContextId);
     ICC_AES_GCM_CTX*   gcmCtx       = NULL;
-    int                rc           = 0;
 
     if (debug) {
         gslogFunctionEntry(functionName);
     }
-    if (debug) {
-        gslogFunctionExit(functionName);
-    }
     gcmCtx = ICC_AES_GCM_CTX_new(ockCtx);
-    rc = ICC_AES_GCM_CTX_ctrl(ockCtx, gcmCtx, ICC_AES_GCM_CTRL_TLS13, 0, NULL);
-    if (rc != ICC_OSSL_SUCCESS) {
+    if (gcmCtx == NULL) {
 #ifdef DEBUG_GCM_DETAIL
         if (debug) {
-            gslogMessage("ICC_AES_GCM_CTX_ctrl failed rc = %d\n", rc);
+            gslogMessage("ICC_AES_GCM_CTX_new failed to create a new context.");
         }
 #endif
-        if (gcmCtx != NULL) {
-            ICC_AES_GCM_CTX_free(ockCtx, gcmCtx);
-        }
-        gcmCtx = NULL;
+        throwOCKException(env, 0,
+                          "ICC_AES_GCM_CTX_new failed to create a new context.");
+    }
+    if (debug) {
+        gslogFunctionExit(functionName);
     }
     return (jlong)gcmCtx;
 }
