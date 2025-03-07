@@ -27,7 +27,7 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
     static final String DEBUG_VALUE = "jceplus";
 
     //    private static boolean verifiedSelfIntegrity = false;
-    private static boolean verifiedSelfIntegrity = true;
+    private static final boolean verifiedSelfIntegrity = true;
 
     OpenJCEPlusProvider(String name, String info) {
         super(name, PROVIDER_VER, info);
