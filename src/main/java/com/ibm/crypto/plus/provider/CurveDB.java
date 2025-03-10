@@ -17,9 +17,8 @@ import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -32,11 +31,11 @@ class CurveDB {
     private static final int PD = 5; // prime curve, mark as default
     private static final int BD = 6; // binary curve, mark as default
 
-    private static final Map<String, NamedCurve> oidMap = new LinkedHashMap<String, NamedCurve>();
-    private static final Map<String, NamedCurve> nameMap = new HashMap<String, NamedCurve>();
-    private static final Map<Integer, NamedCurve> lengthMap = new HashMap<Integer, NamedCurve>();
+    private static final Map<String, NamedCurve> oidMap = new ConcurrentHashMap<String, NamedCurve>();
+    private static final Map<String, NamedCurve> nameMap = new ConcurrentHashMap<String, NamedCurve>();
+    private static final Map<Integer, NamedCurve> lengthMap = new ConcurrentHashMap<Integer, NamedCurve>();
 
-    private static Collection<? extends NamedCurve> specCollection;
+    private static final Collection<? extends NamedCurve> specCollection;
 
     protected static final String SPLIT_PATTERN = ",|\\[|\\]";
 
