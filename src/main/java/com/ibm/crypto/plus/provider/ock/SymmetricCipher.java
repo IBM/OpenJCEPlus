@@ -12,7 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.ShortBufferException;
@@ -35,15 +35,15 @@ public final class SymmetricCipher {
     // CBC Upgrade variables
     private int mode; // Mode used by z_kmc
     private FastJNIBuffer parameters; // Fast way to pass all parameters in z_kmc call
-    private final static int PARAM_CAP = 1024 * 6; // Capacity of the FastJNIBUffer
+    private static final int PARAM_CAP = 1024 * 6; // Capacity of the FastJNIBUffer
     private long inputPointer; // Pointer to memory that has the input to be encrypted by z_kmc
     private long outputPointer; // Pointer to memory that has the output to the encrypted text by z_kmc
     private long outputOffset; // Offset, in the buffer, to where the output is stored, used to retrieve output after z_kmc call
     private long paramPointer; // Pointer to memory that has the parameters/state keeping used by z_kmc
     private static long hardwareFunctionPtr = 0;
     private boolean use_z_fast_command = false;
-    private static HashMap<OCKContext, Boolean> hardwareEnabled = new HashMap<OCKContext, Boolean>(); // Caching for hardwareFunctionPtr
-    private final static String badIdMsg = "Cipher Identifier is not valid";
+    private static final ConcurrentHashMap<OCKContext, Boolean> hardwareEnabled = new ConcurrentHashMap<>(); // Caching for hardwareFunctionPtr
+    private static final String badIdMsg = "Cipher Identifier is not valid";
     /* private final static String debPrefix = "SymCipher"; Adding Debug causes test cases to fail */
     int paramOffset;
     FastJNIBuffer parametersBuffer = null;
