@@ -780,7 +780,11 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
         if (firstIV) {
             // SecureRandom random = null;
             if (random == null) {
-                random = provider.getSecureRandom(null);
+                synchronized (AESGCMCipher.class) {
+                    if (random == null) {
+                        random = provider.getSecureRandom(null);
+                    }
+                }
             }
             generatedIVDevField = new byte[GENERATED_IV_DEVICE_FIELD_LENGTH];
             random.nextBytes(generatedIVDevField);
