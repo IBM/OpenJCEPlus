@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.ECKey;
+import com.ibm.crypto.plus.provider.base.ECKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.KeyPair;
@@ -83,7 +84,7 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
 
         if (provider.isFIPS()) {
             if (!ECNamedCurve.isFIPS(this.oid.toString())) {
-                throw provider.providerException("Curve not supported in FIPS", null);
+                throw NativeOCKAdapter.providerException("Curve not supported in FIPS", null);
             }
         }
 
@@ -108,7 +109,7 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
         try {
 
             if (this.oid != null) {
-                ecKey = ECKey.generateKeyPair(provider.getOCKContext(), this.oid.toString(),
+                ecKey = ECKey.generateKeyPair(provider.isFIPS(), this.oid.toString(),
                         cryptoRandom);
             } else if (this.ecSpec != null) {
 
@@ -116,18 +117,18 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
                 // System.out.println ("generting key pair from a custom
                 // specification encodedParameters=" +
                 // ECUtils.bytesToHex(encodedCustomCurveParameters));
-                ecKey = ECKey.generateKeyPair(provider.getOCKContext(),
+                ecKey = ECKey.generateKeyPair(provider.isFIPS(),
                         encodedCustomCurveParameters, cryptoRandom);
             } else if (this.keysize > 0 && (ecSpec == null)) {
 
-                ecKey = ECKey.generateKeyPair(provider.getOCKContext(), this.keysize, cryptoRandom);
+                ecKey = ECKey.generateKeyPair(provider.isFIPS(), this.keysize, cryptoRandom);
             }
 
             java.security.interfaces.ECPrivateKey privKey = new ECPrivateKey(provider, ecKey);
             java.security.interfaces.ECPublicKey pubKey = new ECPublicKey(provider, ecKey);
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
-            throw provider.providerException("Failure in generateKeyPair", e);
+            throw NativeOCKAdapter.providerException("Failure in generateKeyPair", e);
         }
 
     }

@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.DHKey;
+import com.ibm.crypto.plus.provider.base.DHKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.math.BigInteger;
 import java.security.AlgorithmParameterGeneratorSpi;
 import java.security.AlgorithmParameters;
@@ -250,7 +251,7 @@ public final class DHParameterGenerator extends AlgorithmParameterGeneratorSpi {
             }
 
             if (keysize > 0) {
-                byte[] encodedParams = DHKey.generateParameters(provider.getOCKContext(),
+                byte[] encodedParams = DHKey.generateParameters(provider.isFIPS(),
                         this.keysize);
                 algParams.init(encodedParams);
                 return algParams;
@@ -260,7 +261,7 @@ public final class DHParameterGenerator extends AlgorithmParameterGeneratorSpi {
             }
 
         } catch (Exception e) {
-            throw provider.providerException("Failure in generateGenerateParameters", e);
+            throw NativeOCKAdapter.providerException("Failure in generateGenerateParameters", e);
         }
     }
 

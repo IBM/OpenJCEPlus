@@ -30,7 +30,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.SignatureRSASSL;
+import com.ibm.crypto.plus.provider.base.SignatureRSASSL;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.ByteArrayOutputStream;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
@@ -67,9 +68,9 @@ public final class RSASignatureSSL_I2 extends SignatureSpi {
     public RSASignatureSSL_I2(OpenJCEPlusProvider provider) {
         try {
             this.provider = provider;
-            this.signature = SignatureRSASSL.getInstance(provider.getOCKContext());
+            this.signature = SignatureRSASSL.getInstance(provider.isFIPS());
         } catch (Exception e) {
-            throw provider.providerException("Failed to initialize RSA signature", e);
+            throw NativeOCKAdapter.providerException("Failed to initialize RSA signature", e);
         }
     }
 
@@ -97,7 +98,7 @@ public final class RSASignatureSSL_I2 extends SignatureSpi {
         try {
             this.signature.initialize(rsaPublic.getOCKKey(), false);
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineInitVerify", e);
+            throw NativeOCKAdapter.providerException("Failure in engineInitVerify", e);
         }
 
         if (data == null) {
@@ -140,7 +141,7 @@ public final class RSASignatureSSL_I2 extends SignatureSpi {
                 this.signature.initialize(((RSAPrivateKey) rsaPrivate).getOCKKey(), true);
             }
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineInitSign", e);
+            throw NativeOCKAdapter.providerException("Failure in engineInitSign", e);
         }
 
         if (data == null) {
@@ -170,7 +171,7 @@ public final class RSASignatureSSL_I2 extends SignatureSpi {
             return signature;
         } catch (Exception e) {
             SignatureException signatureException = new SignatureException("Could not sign data");
-            provider.setOCKExceptionCause(signatureException, e);
+            NativeOCKAdapter.setOCKExceptionCause(signatureException, e);
             throw signatureException;
         }
     }

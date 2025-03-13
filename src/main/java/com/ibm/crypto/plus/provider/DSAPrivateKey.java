@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.DSAKey;
+import com.ibm.crypto.plus.provider.base.DSAKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -64,11 +65,11 @@ final class DSAPrivateKey extends PKCS8Key
 
         try {
             byte[] privateKeyBytes = buildOCKPrivateKeyBytes();
-            this.dsaKey = DSAKey.createPrivateKey(provider.getOCKContext(), privateKeyBytes);
+            this.dsaKey = DSAKey.createPrivateKey(provider.isFIPS(), privateKeyBytes);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create DSA private key",
                     exception);
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }
@@ -86,11 +87,11 @@ final class DSAPrivateKey extends PKCS8Key
         try {
             parseKeyBits();
             byte[] privateKeyBytes = buildOCKPrivateKeyBytes();
-            this.dsaKey = DSAKey.createPrivateKey(provider.getOCKContext(), privateKeyBytes);
+            this.dsaKey = DSAKey.createPrivateKey(provider.isFIPS(), privateKeyBytes);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create DSA private key",
                     exception);
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }
@@ -106,7 +107,7 @@ final class DSAPrivateKey extends PKCS8Key
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create DSA private key",
                     exception);
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }

@@ -31,7 +31,7 @@ IF NOT DEFINED GSKIT_HOME (
 
 :: @call "%VCVARS_64_SCRIPT%"
 
-cd src/main/native
+cd src/main/native/ock
 
 @call nmake -nologo -f jgskit.win64.cygwin.mak clean
 @call nmake -nologo -f jgskit.win64.cygwin.mak

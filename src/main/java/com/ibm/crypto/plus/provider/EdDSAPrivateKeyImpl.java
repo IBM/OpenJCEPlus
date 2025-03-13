@@ -9,7 +9,8 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
-import com.ibm.crypto.plus.provider.ock.XECKey;
+import com.ibm.crypto.plus.provider.base.XECKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -94,19 +95,19 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
 
             if (this.privKeyMaterial == null) {
                 int keySize = CurveUtil.getCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(),
+                this.xecKey = XECKey.generateKeyPair(provider.isFIPS(),
                         this.curve.ordinal(), keySize);
             } else {
                 this.algid = CurveUtil.getAlgId(this.curve);
                 byte[] der = buildOCKPrivateKeyBytes();
                 int encodingSize = CurveUtil.getDEREncodingSize(curve);
-                this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der,
+                this.xecKey = XECKey.createPrivateKey(provider.isFIPS(), der,
                         encodingSize);
             }
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
                     "Failed to create XEC private key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
         checkLength(this.curve);
@@ -122,12 +123,12 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
 
             checkLength(this.curve);
             int encodingSize = CurveUtil.getDEREncodingSize(curve);
-            this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded,
+            this.xecKey = XECKey.createPrivateKey(provider.isFIPS(), alteredEncoded,
                     encodingSize);
 
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }

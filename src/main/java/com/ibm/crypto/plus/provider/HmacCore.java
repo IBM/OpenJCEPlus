@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.HMAC;
+import com.ibm.crypto.plus.provider.base.HMAC;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -30,9 +31,9 @@ abstract class HmacCore extends MacSpi {
 
         try {
             this.provider = provider;
-            this.hmac = HMAC.getInstance(provider.getOCKContext(), ockDigestAlgo);
+            this.hmac = HMAC.getInstance(provider.isFIPS(), ockDigestAlgo);
         } catch (Exception e) {
-            throw provider.providerException("Failure in HmacCore", e);
+            throw NativeOCKAdapter.providerException("Failure in HmacCore", e);
         }
     }
 
@@ -41,7 +42,7 @@ abstract class HmacCore extends MacSpi {
         try {
             return hmac.doFinal();
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineDoFinal", e);
+            throw NativeOCKAdapter.providerException("Failure in engineDoFinal", e);
         }
     }
 
@@ -50,7 +51,7 @@ abstract class HmacCore extends MacSpi {
         try {
             return hmac.getMacLength();
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineDoFinal", e);
+            throw NativeOCKAdapter.providerException("Failure in engineDoFinal", e);
         }
     }
 
@@ -73,7 +74,7 @@ abstract class HmacCore extends MacSpi {
         try {
             hmac.initialize(secret);
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineInit", e);
+            throw NativeOCKAdapter.providerException("Failure in engineInit", e);
         } finally {
             Arrays.fill(secret, (byte) 0x00);
         }
@@ -84,7 +85,7 @@ abstract class HmacCore extends MacSpi {
         try {
             hmac.reset();
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineDoFinal", e);
+            throw NativeOCKAdapter.providerException("Failure in engineDoFinal", e);
         }
     }
 
@@ -100,7 +101,7 @@ abstract class HmacCore extends MacSpi {
         try {
             this.hmac.update(input, offset, length);
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineUpdate", e);
+            throw NativeOCKAdapter.providerException("Failure in engineUpdate", e);
         }
     }
 

@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.DHKey;
+import com.ibm.crypto.plus.provider.base.DHKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,7 +101,7 @@ final class DHPublicKey extends X509Key
             this.dhKey = dhKey;
             parseKeyBits();
         } catch (Exception exception) {
-            throw provider.providerException("Failure in DHPublicKey", exception);
+            throw NativeOCKAdapter.providerException("Failure in DHPublicKey", exception);
         }
     }
 
@@ -119,7 +120,7 @@ final class DHPublicKey extends X509Key
             // System.out.println ("In DHPublicKey(Provider, byte[] encoded publicKeyBytes"
             // + ECUtils.bytesToHex(publicKeyBytes));
 
-            this.dhKey = DHKey.createPublicKey(provider.getOCKContext(),
+            this.dhKey = DHKey.createPublicKey(provider.isFIPS(),
                     /* publicKeyBytes */ this.encodedKey);
 
             // System.err.println("Afte OCK: " + ECUtils.bytesToHex(this.key));
@@ -127,7 +128,7 @@ final class DHPublicKey extends X509Key
         } catch (IOException ioex) {
             throw new InvalidKeyException("Invalid key format");
         } catch (Exception e) {
-            throw provider.providerException("Failure in DHPublicKey", e);
+            throw NativeOCKAdapter.providerException("Failure in DHPublicKey", e);
         }
     }
 
@@ -262,7 +263,7 @@ final class DHPublicKey extends X509Key
         try {
             return this.dhParams.engineGetParameterSpec(DHParameterSpec.class);
         } catch (InvalidParameterSpecException e) {
-            throw provider.providerException("Failure in DHPublicKey", e);
+            throw NativeOCKAdapter.providerException("Failure in DHPublicKey", e);
         }
     }
 

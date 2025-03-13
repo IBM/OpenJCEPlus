@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.DHKey;
+import com.ibm.crypto.plus.provider.base.DHKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -138,19 +139,19 @@ public final class DHKeyPairGenerator extends KeyPairGeneratorSpi {
                 AlgorithmParameters algParams = algParmGen.generateParameters();
                 this.params = algParams.getParameterSpec(DHParameterSpec.class);
 
-                dhKey = DHKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded());
+                dhKey = DHKey.generateKeyPair(provider.isFIPS(), algParams.getEncoded());
             } else {
                 AlgorithmParameters algParams = AlgorithmParameters.getInstance("DH", provider);
                 algParams.init(params);
 
-                dhKey = DHKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded());
+                dhKey = DHKey.generateKeyPair(provider.isFIPS(), algParams.getEncoded());
             }
 
             javax.crypto.interfaces.DHPrivateKey privKey = new DHPrivateKey(provider, dhKey);
             javax.crypto.interfaces.DHPublicKey pubKey = new DHPublicKey(provider, dhKey);
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
-            throw provider.providerException("Failure in generateKeyPair", e);
+            throw NativeOCKAdapter.providerException("Failure in generateKeyPair", e);
         }
     }
 }

@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.RSAKey;
+import com.ibm.crypto.plus.provider.base.RSAKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -70,10 +71,10 @@ final class RSAPrivateKey extends PKCS8Key
         }
 
         try {
-            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.privKeyMaterial);
+            this.rsaKey = RSAKey.createPrivateKey(provider.isFIPS(), this.privKeyMaterial);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }
@@ -86,17 +87,17 @@ final class RSAPrivateKey extends PKCS8Key
         } catch (IOException e) {
             InvalidKeyException ike = new InvalidKeyException(
                     "Failed to parse key bits of encoded key");
-            provider.setOCKExceptionCause(ike, e);
+            NativeOCKAdapter.setOCKExceptionCause(ike, e);
             throw ike;
         }
 
         RSAKeyFactory.checkRSAProviderKeyLengths(provider, modulus.bitLength(), null);
 
         try {
-            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.privKeyMaterial);
+            this.rsaKey = RSAKey.createPrivateKey(provider.isFIPS(), this.privKeyMaterial);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }
@@ -125,7 +126,7 @@ final class RSAPrivateKey extends PKCS8Key
             parseKeyBits();
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }

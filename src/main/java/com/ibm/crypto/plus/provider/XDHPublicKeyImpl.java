@@ -9,7 +9,8 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
-import com.ibm.crypto.plus.provider.ock.XECKey;
+import com.ibm.crypto.plus.provider.base.XECKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -90,7 +91,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
             setFieldsFromXeckey();
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }
@@ -129,10 +130,10 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
             this.u = new BigInteger(1, reverseKey); // u is the public key reversed
 
             byte[] alteredEncoded = alterEncodedPublicKey(encoded); // Alters encoded to fit GSKit, and sets params
-            this.xecKey = XECKey.createPublicKey(provider.getOCKContext(), alteredEncoded);
+            this.xecKey = XECKey.createPublicKey(provider.isFIPS(), alteredEncoded);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }
@@ -173,7 +174,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
         try {
             if (u == null) {
                 int keySize = CurveUtil.getCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), curve.ordinal(), keySize);
+                this.xecKey = XECKey.generateKeyPair(provider.isFIPS(), curve.ordinal(), keySize);
                 setFieldsFromXeckey();
             } else {
 
@@ -207,14 +208,14 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
                 byte[] der = buildICCPublicKeyBytes();
                 checkKeySize();
 
-                this.xecKey = XECKey.createPublicKey(provider.getOCKContext(), der);
+                this.xecKey = XECKey.createPublicKey(provider.isFIPS(), der);
             }
         } catch (InvalidKeyException ex) {
             throw ex;
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
                     "Failed to create XEC public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }

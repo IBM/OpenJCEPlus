@@ -9,7 +9,8 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
-import com.ibm.crypto.plus.provider.ock.RSAKey;
+import com.ibm.crypto.plus.provider.base.RSAKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -73,10 +74,10 @@ final class RSAPublicKey extends X509Key
         }
 
         try {
-            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), getKey().toByteArray());
+            this.rsaKey = RSAKey.createPublicKey(provider.isFIPS(), getKey().toByteArray());
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }
@@ -91,10 +92,10 @@ final class RSAPublicKey extends X509Key
         checkExponentRange();
 
         try {
-            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), getKey().toByteArray());
+            this.rsaKey = RSAKey.createPublicKey(provider.isFIPS(), getKey().toByteArray());
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
         try {
@@ -151,7 +152,7 @@ final class RSAPublicKey extends X509Key
             parseKeyBits();
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
 

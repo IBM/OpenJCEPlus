@@ -51,7 +51,7 @@ if [ ${PLATFORM} == "ppc-aix64" ];
   then
   make=gmake
 fi
-cd src/main/native
+cd src/main/native/ock
 
 ${make} -f jgskit.mak clean
 ${make} -f jgskit.mak

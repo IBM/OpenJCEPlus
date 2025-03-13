@@ -9,7 +9,8 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
-import com.ibm.crypto.plus.provider.ock.XECKey;
+import com.ibm.crypto.plus.provider.base.XECKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -97,11 +98,11 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             byte[] alteredEncoded = processEncodedPrivateKey(encoded); // Sets params, key, and algid, and alters encoded
             // to fit with GSKit and sets params
             int curveSize = CurveUtil.getCurveSize(curve);
-            this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded, curveSize);
+            this.xecKey = XECKey.createPrivateKey(provider.isFIPS(), alteredEncoded, curveSize);
             this.scalar = Optional.of(k);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }
@@ -143,18 +144,18 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         try {
             if (k == null) {
                 int keySize = CurveUtil.getCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.curve.ordinal(), keySize);
+                this.xecKey = XECKey.generateKeyPair(provider.isFIPS(), this.curve.ordinal(), keySize);
             } else {
                 this.algid = CurveUtil.getAlgId(this.params.getName());
                 byte[] der = buildOCKPrivateKeyBytes();
                 int encodingSize = CurveUtil.getDEREncodingSize(curve);
-                this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der, encodingSize);
+                this.xecKey = XECKey.createPrivateKey(provider.isFIPS(), der, encodingSize);
             }
             setPKCS8KeyByte(k);
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
                     "Failed to create XEC private key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
 
@@ -463,7 +464,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             setFieldsFromXeckey();
         } catch (Exception exception) {
             IOException ike = new IOException("Failed in setFieldsFromXeckey");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
 

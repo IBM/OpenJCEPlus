@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.Digest;
+import com.ibm.crypto.plus.provider.base.Digest;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.security.MessageDigestSpi;
 
 abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
@@ -19,9 +20,9 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
     MessageDigest(OpenJCEPlusProvider provider, String ockDigestAlgo) {
         try {
             this.provider = provider;
-            this.digest = Digest.getInstance(provider.getOCKContext(), ockDigestAlgo);
+            this.digest = Digest.getInstance(provider.isFIPS(), ockDigestAlgo);
         } catch (Exception e) {
-            throw provider.providerException("Failure in MessageDigest", e);
+            throw NativeOCKAdapter.providerException("Failure in MessageDigest", e);
         }
     }
 
@@ -43,7 +44,7 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
         try {
             this.digest.update(input, offset, length);
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineUpdate", e);
+            throw NativeOCKAdapter.providerException("Failure in engineUpdate", e);
         }
     }
 
@@ -52,7 +53,7 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
         try {
             return this.digest.digest();
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineDigest", e);
+            throw NativeOCKAdapter.providerException("Failure in engineDigest", e);
         }
     }
 
@@ -61,7 +62,7 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
         try {
             return this.digest.getDigestLength();
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineGetDigestLength", e);
+            throw NativeOCKAdapter.providerException("Failure in engineGetDigestLength", e);
         }
     }
 
@@ -102,7 +103,7 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
         try {
             this.digest.reset();
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineReset", e);
+            throw NativeOCKAdapter.providerException("Failure in engineReset", e);
         }
     }
 

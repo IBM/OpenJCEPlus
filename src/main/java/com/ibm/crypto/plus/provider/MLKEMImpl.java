@@ -8,8 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.OCKException;
-import com.ibm.crypto.plus.provider.ock.OJPKEM;
+import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.base.OJPKEM;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
@@ -98,8 +98,7 @@ public class MLKEMImpl implements KEMSpi {
             }
 
             try {
-                OJPKEM.KEM_encapsulate(provider.getOCKContext(),
-                        ((PQCPublicKey) publicKey).getPQCKey().getPKeyId(), encapsulation, secret);
+                OJPKEM.KEM_encapsulate(provider.isFIPS(), ((PQCPublicKey) publicKey).getPQCKey().getPKeyId(), encapsulation, secret);
             } catch (OCKException e) {
                 throw new ProviderException("OCK Exception: ", e);
             }
@@ -161,8 +160,7 @@ public class MLKEMImpl implements KEMSpi {
                 throw new NullPointerException();
             }
             try {
-                secret = OJPKEM.KEM_decapsulate(provider.getOCKContext(),
-                        ((PQCPrivateKey) this.privateKey).getPQCKey().getPKeyId(), cipherText);
+                secret = OJPKEM.KEM_decapsulate(provider.isFIPS(), ((PQCPrivateKey) this.privateKey).getPQCKey().getPKeyId(), cipherText);
 
             } catch (OCKException e) {
                 throw new DecapsulateException("Decapsulation Error: ", e);

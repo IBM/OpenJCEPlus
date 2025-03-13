@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.SignatureEdDSA;
+import com.ibm.crypto.plus.provider.base.SignatureEdDSA;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.ByteArrayOutputStream;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -33,18 +34,18 @@ abstract class EdDSASignature extends SignatureSpi {
     EdDSASignature(OpenJCEPlusProvider provider) {
         try {
             this.provider = provider;
-            this.signature = SignatureEdDSA.getInstance(provider.getOCKContext());
+            this.signature = SignatureEdDSA.getInstance(provider.isFIPS());
         } catch (Exception e) {
-            throw provider.providerException("Failed to initialize EdDSA signature", e);
+            throw NativeOCKAdapter.providerException("Failed to initialize EdDSA signature", e);
         }
     }
 
     EdDSASignature(OpenJCEPlusProvider provider, String Alg) {
         try {
             this.provider = provider;
-            this.signature = SignatureEdDSA.getInstance(provider.getOCKContext());
+            this.signature = SignatureEdDSA.getInstance(provider.isFIPS());
         } catch (Exception e) {
-            throw provider.providerException("Failed to initialize EdDSA signature", e);
+            throw NativeOCKAdapter.providerException("Failed to initialize EdDSA signature", e);
         }
         this.alg = Alg; // Added to know difference between ed25519 and ed448
     }
@@ -119,7 +120,7 @@ abstract class EdDSASignature extends SignatureSpi {
         try {
             this.signature.initialize(edDSAPrivate.getOCKKey());
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineInitSign", e);
+            throw NativeOCKAdapter.providerException("Failure in engineInitSign", e);
         }
         // Set to sign mode and reset message
         this.privateKeyInit = true;
@@ -143,7 +144,7 @@ abstract class EdDSASignature extends SignatureSpi {
         try {
             this.signature.initialize(edDSAPublic.getOCKKey());
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineInitVerify", e);
+            throw NativeOCKAdapter.providerException("Failure in engineInitVerify", e);
         }
 
         // Set to verify mode and reset message
@@ -164,7 +165,7 @@ abstract class EdDSASignature extends SignatureSpi {
             return this.signature.sign(dataBytes);
         } catch (Exception e) {
             SignatureException signatureException = new SignatureException("Could not sign data");
-            provider.setOCKExceptionCause(signatureException, e);
+            NativeOCKAdapter.setOCKExceptionCause(signatureException, e);
             throw signatureException;
         }
     }

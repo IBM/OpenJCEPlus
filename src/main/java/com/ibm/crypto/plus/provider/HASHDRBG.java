@@ -8,8 +8,9 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.BasicRandom;
-import com.ibm.crypto.plus.provider.ock.ExtendedRandom;
+import com.ibm.crypto.plus.provider.base.BasicRandom;
+import com.ibm.crypto.plus.provider.base.ExtendedRandom;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.security.SecureRandomSpi;
 
 abstract class HASHDRBG extends SecureRandomSpi {
@@ -31,11 +32,11 @@ abstract class HASHDRBG extends SecureRandomSpi {
         this.provider = provider;
         this.providerContext = provider.getProviderContext();
         this.randomAlgo = ockRandomAlgo;
-        basicRandom = BasicRandom.getInstance(provider.getOCKContext());
+        basicRandom = BasicRandom.getInstance(provider.isFIPS());
         try {
-            extendedRandom = ExtendedRandom.getInstance(provider.getOCKContext(), ockRandomAlgo);
+            extendedRandom = ExtendedRandom.getInstance(provider.isFIPS(), ockRandomAlgo);
         } catch (Exception e) {
-            throw provider.providerException("Failed to get HASHDRBG algorithm", e);
+            throw NativeOCKAdapter.providerException("Failed to get HASHDRBG algorithm", e);
         }
     }
 
@@ -44,7 +45,7 @@ abstract class HASHDRBG extends SecureRandomSpi {
         try {
             extendedRandom.setSeed(seed);
         } catch (Exception e) {
-            throw provider.providerException("Failed to set seed", e);
+            throw NativeOCKAdapter.providerException("Failed to set seed", e);
         }
     }
 
@@ -56,7 +57,7 @@ abstract class HASHDRBG extends SecureRandomSpi {
         try {
             extendedRandom.nextBytes(bytes);
         } catch (Exception e) {
-            throw provider.providerException("Failed to get next bytes", e);
+            throw NativeOCKAdapter.providerException("Failed to get next bytes", e);
         }
     }
 
@@ -65,7 +66,7 @@ abstract class HASHDRBG extends SecureRandomSpi {
         try {
             return basicRandom.generateSeed(numBytes);
         } catch (Exception e) {
-            throw provider.providerException("Failed to generate seed", e);
+            throw NativeOCKAdapter.providerException("Failed to generate seed", e);
         }
     }
 
@@ -86,12 +87,12 @@ abstract class HASHDRBG extends SecureRandomSpi {
         //System.out.println("Restoring SecureRandom for " + randomAlgo + " from provider " + provider.getName());
 
         // Recreate OCK object per tag [SERIALIZATION] in DesignNotes.txt
-        basicRandom = BasicRandom.getInstance(provider.getOCKContext());
+        basicRandom = BasicRandom.getInstance(provider.isFIPS());
         try {
             // Recreate OCK object per tag [SERIALIZATION] in DesignNotes.txt
-            extendedRandom = ExtendedRandom.getInstance(provider.getOCKContext(), randomAlgo);
+            extendedRandom = ExtendedRandom.getInstance(provider.isFIPS(), randomAlgo);
         } catch (Exception e) {
-            throw provider.providerException("Failed to get HASHDRBG algorithm", e);
+            throw NativeOCKAdapter.providerException("Failed to get HASHDRBG algorithm", e);
         }
     }
 

@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.ECKey;
+import com.ibm.crypto.plus.provider.base.ECKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
@@ -65,11 +66,11 @@ final class ECPublicKey extends X509Key
             // publicKeyBytes.length);
             // this.ecKey = ECKey.createPublicKey(IBMJCEPlus.getOCKContext(), w,
             // ecParams);
-            this.ecKey = ECKey.createPublicKey(provider.getOCKContext(), publicKeyBytes,
+            this.ecKey = ECKey.createPublicKey(provider.isFIPS(), publicKeyBytes,
                     parameterBytes);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create EC public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }
@@ -89,11 +90,11 @@ final class ECPublicKey extends X509Key
             byte[] publicKeyBytes = buildOCKPublicKeyBytes();
             byte[] parameterBytes = ECParameters.encodeECParameters(this.params);
             // System.out.println ("Calling ECKey createPublicKey");
-            this.ecKey = ECKey.createPublicKey(provider.getOCKContext(), publicKeyBytes,
+            this.ecKey = ECKey.createPublicKey(provider.isFIPS(), publicKeyBytes,
                     parameterBytes);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create EC public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }
@@ -117,7 +118,7 @@ final class ECPublicKey extends X509Key
 
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create EC public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         } finally {
             if (algidOut != null) {

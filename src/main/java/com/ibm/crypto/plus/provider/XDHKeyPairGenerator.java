@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.XECKey;
+import com.ibm.crypto.plus.provider.base.XECKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.KeyPair;
@@ -61,7 +62,7 @@ abstract class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
                 this.alg = params.getName();
             }
         } catch (InvalidAlgorithmParameterException e) {
-            throw provider.providerException("Failure in XDHKeyPairGenerator: ", e);
+            throw NativeOCKAdapter.providerException("Failure in XDHKeyPairGenerator: ", e);
         }
     }
 
@@ -126,12 +127,12 @@ abstract class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
     public KeyPair generateKeyPair() {
         try {
             int keySize = CurveUtil.getCurveSize(serviceCurve);
-            XECKey xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.serviceCurve.ordinal(), keySize);
+            XECKey xecKey = XECKey.generateKeyPair(provider.isFIPS(), this.serviceCurve.ordinal(), keySize);
             XDHPrivateKeyImpl privKey = new XDHPrivateKeyImpl(provider, xecKey);
             XDHPublicKeyImpl pubKey = new XDHPublicKeyImpl(provider, xecKey, this.serviceCurve);
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
-            throw provider.providerException("Failure in generateKeyPair", e);
+            throw NativeOCKAdapter.providerException("Failure in generateKeyPair", e);
         }
 
     }

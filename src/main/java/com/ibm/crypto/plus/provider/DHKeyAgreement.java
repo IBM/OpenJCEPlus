@@ -8,8 +8,9 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.DHKey;
-import com.ibm.crypto.plus.provider.ock.OCKException;
+import com.ibm.crypto.plus.provider.base.DHKey;
+import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -148,7 +149,7 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
             }
             synchronized (locker1) {
                 synchronized (locker2) {
-                    secret = DHKey.computeDHSecret(provider.getOCKContext(),
+                    secret = DHKey.computeDHSecret(provider.isFIPS(),
                             ockDHKeyPub.getDHKeyId(), ockDHKeyPriv.getDHKeyId());
                 }
             }
@@ -156,7 +157,7 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
             throw new IllegalStateException(ise.getMessage());
         } catch (OCKException e) {
             IllegalStateException ise = new IllegalStateException(e.getMessage());
-            provider.setOCKExceptionCause(ise, e);
+            NativeOCKAdapter.setOCKExceptionCause(ise, e);
             throw ise;
         }
 
@@ -184,7 +185,7 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
                     // ignore the leading sign byte
                     System.arraycopy(secret, 1, result, 0, expectedLen);
                 } else {
-                    throw provider.providerException("Failed to generate secret",
+                    throw NativeOCKAdapter.providerException("Failed to generate secret",
                             new OCKException("secret is out-of-range"));
                 }
             }

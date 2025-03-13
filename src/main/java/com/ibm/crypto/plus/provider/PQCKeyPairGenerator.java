@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.PQCKey;
+import com.ibm.crypto.plus.provider.base.PQCKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.KeyPair;
@@ -52,16 +53,17 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
     @Override
     public KeyPair generateKeyPair() {
         try {
-            PQCKey mlkemKey = PQCKey.generateKeyPair(provider.getOCKContext(), mlkemAlg);
+            //System.out.println("Generating KeyPair for " + mlkemAlg);
+            PQCKey mlkemKey = PQCKey.generateKeyPair(provider.isFIPS(), mlkemAlg);
             byte[] privKeyBytes = mlkemKey.getPrivateKeyBytes();
-            PQCPrivateKey privKey = new PQCPrivateKey(provider, PQCKey.createPrivateKey(provider.getOCKContext(),
-                                                        mlkemAlg, privKeyBytes));
+            PQCPrivateKey privKey = new PQCPrivateKey(provider, PQCKey.createPrivateKey(provider.isFIPS(),
+                                                               mlkemAlg, privKeyBytes));
             byte[] pubKeyBytes = mlkemKey.getPublicKeyBytes();
-            PQCPublicKey pubKey = new PQCPublicKey(provider, PQCKey.createPublicKey(provider.getOCKContext(),
-                                                        mlkemAlg, pubKeyBytes));
+            PQCPublicKey pubKey = new PQCPublicKey(provider, PQCKey.createPublicKey(provider.isFIPS(),
+                                                               mlkemAlg, pubKeyBytes));
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
-            throw provider.providerException("Failure in generateKeyPair - " +e.getCause(), e);
+            throw NativeOCKAdapter.providerException("Failure in generateKeyPair - " +e.getCause(), e);
         }
     }
 

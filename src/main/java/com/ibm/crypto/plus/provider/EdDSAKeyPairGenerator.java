@@ -9,7 +9,8 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
-import com.ibm.crypto.plus.provider.ock.XECKey;
+import com.ibm.crypto.plus.provider.base.XECKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.KeyPair;
@@ -101,14 +102,14 @@ abstract class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
     public KeyPair generateKeyPair() {
         try {
             int keySize = CurveUtil.getCurveSize(curve);
-            XECKey xecKey = XECKey.generateKeyPair(provider.getOCKContext(),
+            XECKey xecKey = XECKey.generateKeyPair(provider.isFIPS(),
                     this.curve.ordinal(), keySize);
             EdDSAPublicKeyImpl pubKey = new EdDSAPublicKeyImpl(provider, xecKey,
                     this.curve);
             EdDSAPrivateKeyImpl privKey = new EdDSAPrivateKeyImpl(provider, xecKey);
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
-            throw provider.providerException("Failure in generateKeyPair", e);
+            throw NativeOCKAdapter.providerException("Failure in generateKeyPair", e);
         }
     }
 

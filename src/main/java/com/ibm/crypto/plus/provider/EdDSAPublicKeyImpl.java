@@ -9,7 +9,8 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
-import com.ibm.crypto.plus.provider.ock.XECKey;
+import com.ibm.crypto.plus.provider.base.XECKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -75,7 +76,7 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             setFieldsFromXeckey();
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
 
@@ -114,11 +115,11 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             byte[] der = buildOCKPublicKeyBytes();
             byte[] alteredEncoded = alterEncodedPublicKey(der); // Alters encoded to fit GSKit, and sets params
 
-            this.xecKey = XECKey.createPublicKey(provider.getOCKContext(), alteredEncoded);
+            this.xecKey = XECKey.createPublicKey(provider.isFIPS(), alteredEncoded);
 
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create EdDSA public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
 
@@ -147,11 +148,11 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             this.point = new EdECPoint(xOdd, y);
 
             byte[] der = buildOCKPublicKeyBytes();
-            this.xecKey = XECKey.createPublicKey(provider.getOCKContext(), der);
+            this.xecKey = XECKey.createPublicKey(provider.isFIPS(), der);
 
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create EdDSA public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
         checkLength(this.curve);

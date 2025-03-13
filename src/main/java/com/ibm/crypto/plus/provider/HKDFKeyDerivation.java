@@ -8,8 +8,9 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.HKDF;
-import com.ibm.crypto.plus.provider.ock.OCKException;
+import com.ibm.crypto.plus.provider.base.HKDF;
+import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.ByteArrayOutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -81,12 +82,12 @@ public class HKDFKeyDerivation extends KDFSpi {
         this.digestAlgName = supportedHmac.digestAlg;
         this.hmacLen = supportedHmac.hmacLen;
         try {
-            hkdfObj = HKDF.getInstance(this.provider.getOCKContext(), this.digestAlgName);
+            hkdfObj = HKDF.getInstance(this.provider.isFIPS(), this.digestAlgName);
             if (hkdfObj.getMacLength() != this.hmacLen) {
                 throw new ProviderException("Mismatch between expected and OCK provided HMAC length");
             }
         } catch (Exception ex) {
-            throw provider.providerException("Cannot initialize hkdf", ex);
+            throw NativeOCKAdapter.providerException("Cannot initialize hkdf", ex);
         }
     }
 

@@ -8,8 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.HKDF;
-import com.ibm.crypto.plus.provider.ock.OCKException;
+import com.ibm.crypto.plus.provider.base.HKDF;
+import com.ibm.crypto.plus.provider.base.OCKException;
 import ibm.security.internal.spec.HKDFExpandParameterSpec;
 import ibm.security.internal.spec.HKDFExtractParameterSpec;
 import ibm.security.internal.spec.HKDFParameterSpec;
@@ -53,7 +53,7 @@ public class HKDFGenerator extends KeyGeneratorSpi {
         this.provider = provider;
         this.digestAlgorithm = digestAlgorithm;
         try {
-            hkdfObj = HKDF.getInstance(this.provider.getOCKContext(), this.digestAlgorithm);
+            hkdfObj = HKDF.getInstance(this.provider.isFIPS(), this.digestAlgorithm);
             hkdfLen = hkdfObj.getMacLength();
         } catch (Exception ex) {
             throw new NoSuchAlgorithmException("cannot initialize hkdf");

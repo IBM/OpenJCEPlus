@@ -21,7 +21,7 @@ if [ -z "$GSKIT_HOME" ];
   exit;
 fi
 
-cd src/main/native
+cd src/main/native/ock
 
 make -f jgskit.mac.mak clean
 make -f jgskit.mac.mak

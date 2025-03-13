@@ -8,9 +8,10 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.OCKException;
-import com.ibm.crypto.plus.provider.ock.Padding;
-import com.ibm.crypto.plus.provider.ock.Poly1305Cipher;
+import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.base.Padding;
+import com.ibm.crypto.plus.provider.base.Poly1305Cipher;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
@@ -82,24 +83,25 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             }
         } catch (BadPaddingException ock_bpe) {
             BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
+            NativeOCKAdapter.setOCKExceptionCause(bpe, ock_bpe);
             throw bpe;
         } catch (IllegalBlockSizeException ock_ibse) {
             IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
+            NativeOCKAdapter.setOCKExceptionCause(ibse, ock_ibse);
             throw ibse;
         } catch (IllegalArgumentException ock_iae) {
             IllegalArgumentException iae = new IllegalArgumentException(ock_iae.getMessage());
-            provider.setOCKExceptionCause(iae, ock_iae);
+            NativeOCKAdapter.setOCKExceptionCause(iae, ock_iae);
             throw iae;
         } catch (OCKException ockException) {
             if (!encrypting) {
                 throw new AEADBadTagException("Tag mismatch");
             } else {
-                throw provider.providerException("Failure in engineDoFinal", ockException);
+                throw NativeOCKAdapter.providerException("Failure in engineDoFinal", ockException);
             }
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineDoFinal", e);
+            resetVars();
+            throw NativeOCKAdapter.providerException("Failure in engineDoFinal", e);
         } finally {
             resetVars();
         }
@@ -121,28 +123,28 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             return retvalue;
         } catch (BadPaddingException ock_bpe) {
             BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
+            NativeOCKAdapter.setOCKExceptionCause(bpe, ock_bpe);
             throw bpe;
         } catch (IllegalBlockSizeException ock_ibse) {
             IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
+            NativeOCKAdapter.setOCKExceptionCause(ibse, ock_ibse);
             throw ibse;
         } catch (ShortBufferException ock_sbe) {
             ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
+            NativeOCKAdapter.setOCKExceptionCause(sbe, ock_sbe);
             throw sbe;
         } catch (IllegalArgumentException ock_iae) {
             IllegalArgumentException iae = new IllegalArgumentException(ock_iae.getMessage());
-            provider.setOCKExceptionCause(iae, ock_iae);
+            NativeOCKAdapter.setOCKExceptionCause(iae, ock_iae);
             throw iae;
         } catch (OCKException ockException) {
             if (!encrypting) {
                 throw new AEADBadTagException("Tag mismatch");
             } else {
-                throw provider.providerException("Failure in engineDoFinal", ockException);
+                throw NativeOCKAdapter.providerException("Failure in engineDoFinal", ockException);
             }
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineDoFinal", e);
+            throw NativeOCKAdapter.providerException("Failure in engineDoFinal", e);
         } finally {
             resetVars();
         }
@@ -179,7 +181,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
         try {
             return poly1305Cipher.getOutputSize(inputLen, encrypting, Poly1305_TAG_SIZE);
         } catch (Exception e) {
-            throw provider.providerException("Unable to get output size", e);
+            throw NativeOCKAdapter.providerException("Unable to get output size", e);
         }
     }
 
@@ -330,7 +332,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
 
         try {
             if (poly1305Cipher == null) {
-                poly1305Cipher = Poly1305Cipher.getInstance(provider.getOCKContext(),
+                poly1305Cipher = Poly1305Cipher.getInstance(provider.isFIPS(),
                         OCK_CHACHA20_POLY1305, padding);
             }
 
@@ -343,7 +345,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             this.nonceBytes = newNonceBytes;
             this.initialized = true;
         } catch (Exception e) {
-            throw provider.providerException("Failed to init cipher", e);
+            throw NativeOCKAdapter.providerException("Failed to init cipher", e);
         }
     }
 
@@ -418,7 +420,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
                 return output;
             }
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineUpdate", e);
+            throw NativeOCKAdapter.providerException("Failure in engineUpdate", e);
         }
     }
 
@@ -437,10 +439,10 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             return retvalue;
         } catch (ShortBufferException ock_sbe) {
             ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
+            NativeOCKAdapter.setOCKExceptionCause(sbe, ock_sbe);
             throw sbe;
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineDoUpdate", e);
+            throw NativeOCKAdapter.providerException("Failure in engineDoUpdate", e);
         }
     }
 
@@ -462,7 +464,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             poly1305Cipher.update(authData, 0, authData.length, null, 0);
             this.aadDone = true;
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineUpdateAAD", e);
+            throw NativeOCKAdapter.providerException("Failure in engineUpdateAAD", e);
         }
     }
 
@@ -483,7 +485,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             poly1305Cipher.update(authData, 0, authData.length, null, 0);
             this.aadDone = true;
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineUpdateAAD", e);
+            throw NativeOCKAdapter.providerException("Failure in engineUpdateAAD", e);
         }
 
     }
