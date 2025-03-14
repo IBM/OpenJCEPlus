@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -27,10 +27,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import sun.security.util.CurveDB;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
 import sun.security.util.ECKeySizeParameterSpec;
+import sun.security.util.NamedCurve;
 import sun.security.util.ObjectIdentifier;
 
 /**
@@ -138,7 +140,10 @@ public final class ECParameters extends AlgorithmParametersSpi {
             namedCurve = CurveDB.lookup(name);
         } else if (paramSpec instanceof ECKeySizeParameterSpec) {
             int keySize = ((ECKeySizeParameterSpec) paramSpec).getKeySize();
-            namedCurve = CurveDB.lookup(keySize);
+            String name = ECUtils.getCurvefromSize(keySize);
+            if (name != null) {
+                namedCurve = CurveDB.lookup(name);
+            }
         } else {
             throw new InvalidParameterSpecException(
                     "Only ECParameterSpec and ECGenParameterSpec supported");
@@ -184,8 +189,8 @@ public final class ECParameters extends AlgorithmParametersSpi {
         }
 
         if (spec.isAssignableFrom(ECGenParameterSpec.class)) {
-            // Ensure the name is the Object ID
-            String name = namedCurve.getObjectId();
+            // Ensure we get the actual curve name.
+            String name = namedCurve.getNameAndAliases()[0];
             return spec.cast(new ECGenParameterSpec(name));
         }
 
