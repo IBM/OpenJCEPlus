@@ -22,8 +22,8 @@ import java.util.Arrays;
 public final class ByteArrayOutputDelay {
     public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
-    private static int DEFAULT_BYTE_DELAY = 16;
-    public static int MAX_BYTE_DELAY = 65536; //Only used to protect against "unreasonable" memory usage
+    private static final int DEFAULT_BYTE_DELAY = 16;
+    public static final int MAX_BYTE_DELAY = 65536; //Only used to protect against "unreasonable" memory usage
 
     private int byteDelay = 0;
     private ByteArrayOutputStream byteArrayOutputStream = null;
