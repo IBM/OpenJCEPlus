@@ -51,6 +51,7 @@ public class BaseTestChaCha20 extends BaseTestCipher implements ChaCha20Constant
 
     static final byte[] NONCE_11_BYTE = "12345678123".getBytes();
     static final byte[] NONCE_12_BYTE = "123456781234".getBytes();
+    static final byte[] NONCEA_12_BYTE = "012345678123".getBytes();
     static final byte[] NONCE_13_BYTE = "1234567812345".getBytes();
 
     static final int COUNTER_0 = 0;
@@ -124,6 +125,66 @@ public class BaseTestChaCha20 extends BaseTestCipher implements ChaCha20Constant
         } catch (ShortBufferException ex) {
             assertTrue(true);
         }
+    }
+
+    @Test
+    public void testChaCha20Poly1305EncryptParamsAfterShortBufferRetry() throws Exception {
+        cp = Cipher.getInstance(CHACHA20_ALGORITHM, getProviderName());
+        ChaCha20ParameterSpec paraSpec = new ChaCha20ParameterSpec(NONCE_12_BYTE, COUNTER_0);
+
+        // Try encrypting with a short buffer.
+        try {
+            cp.init(Cipher.ENCRYPT_MODE, key, paraSpec);
+            byte[] cipherText = new byte[PLAIN_TEXT.length - 1];
+            cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, cipherText);
+            fail("Expected ShortBufferException did not occur");
+        } catch (ShortBufferException sbe) {
+            System.out.println("Expected ShortBufferException thrown: " + sbe.getMessage());
+        }
+
+        // Retry with a larger buffer. Should fail without init.
+        try {
+            byte[] largerCipherTextBuffer = new byte[PLAIN_TEXT.length + 16];
+            cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, largerCipherTextBuffer);
+            fail("Expected IllegalStateException did not occur");
+        } catch (IllegalStateException ise) {
+            System.out.println("Expected IllegalStateException thrown: " + ise.getMessage());
+        }
+
+        // Retry with a larger buffer after re-initializing.
+        paraSpec = new ChaCha20ParameterSpec(NONCEA_12_BYTE, COUNTER_0);
+        cp.init(Cipher.ENCRYPT_MODE, key, paraSpec);
+        byte[] largerCipherTextBuffer = new byte[PLAIN_TEXT.length + 16];
+        cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, largerCipherTextBuffer);
+    }
+
+    @Test
+    public void testChaCha20Poly1305EncryptNoParamsAfterShortBufferRetry() throws Exception {
+        cp = Cipher.getInstance(CHACHA20_ALGORITHM, getProviderName());
+
+        // Try encrypting with a short buffer.
+        try {
+            cp.init(Cipher.ENCRYPT_MODE, key);
+            byte[] cipherText = new byte[PLAIN_TEXT.length - 1];
+            cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, cipherText);
+            fail("Expected ShortBufferException did not occur");
+        } catch (ShortBufferException sbe) {
+            System.out.println("Expected ShortBufferException thrown: " + sbe.getMessage());
+        }
+
+        // Retry with a larger buffer. Should fail without init.
+        try {
+            byte[] largerCipherTextBuffer = new byte[PLAIN_TEXT.length + 16];
+            cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, largerCipherTextBuffer);
+            fail("Expected IllegalStateException did not occur");
+        } catch (IllegalStateException ise) {
+            System.out.println("Expected IllegalStateException thrown: " + ise.getMessage());
+        }
+
+        // Retry with a larger buffer after re-initializing.
+        cp.init(Cipher.ENCRYPT_MODE, key);
+        byte[] largerCipherTextBuffer = new byte[PLAIN_TEXT.length + 16];
+        cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, largerCipherTextBuffer);
     }
 
     @Test
