@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -14,6 +14,7 @@ import java.security.AlgorithmParametersSpi;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.DSAParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
+import sun.security.util.Debug;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
 
@@ -144,7 +145,9 @@ public final class DSAParameters extends AlgorithmParametersSpi {
      */
     @Override
     protected String engineToString() {
-        return "\n\tp: " + p.toString() + "\n\tq: " + q.toString() + "\n\tg: " + g.toString()
-                + "\n";
+        return "\n\tp: " + Debug.toHexString(p)
+            + "\n\tq: " + Debug.toHexString(q)
+            + "\n\tg: " + Debug.toHexString(g)
+            + "\n";
     }
 }
