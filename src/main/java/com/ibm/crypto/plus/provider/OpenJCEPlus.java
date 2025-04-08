@@ -947,12 +947,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
     // Get SecureRandom to use for crypto operations.
     //
     java.security.SecureRandom getSecureRandom(java.security.SecureRandom userSecureRandom) {
-        // If the user supplied a SecureRandom then use it in non-FIPS mode
-        //
-        if (userSecureRandom != null) {
-            return userSecureRandom;
-        }
-
         try {
             return java.security.SecureRandom.getInstance("SHA256DRBG", this);
         } catch (NoSuchAlgorithmException e) {
