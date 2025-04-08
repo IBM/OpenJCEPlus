@@ -312,23 +312,26 @@ def runOpenJCEPlus(command, software) {
         def environment = "export PATH=$WORKSPACE/apache-maven-3.9.9/bin:\$PATH;"
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
         if (software == "windows") {
-            def workspace_unix_style = sh (
-                script: "cygpath -u '$WORKSPACE'",
-                returnStdout: true
-            ).trim()
-            environment = """export PATH=${workspace_unix_style}/apache-maven-3.9.9/bin:/cygdrive/c/Program\\ Files\\ \\(x86\\)/Windows\\ Kits/10/bin/10.0.19041.0/x64/:/cygdrive/c/Program\\ Files/Microsoft\\ Visual\\ Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/bin/Hostx64/x64/:\$PATH;\\
-                            |export INCLUDE="C:/Program Files (x86)/Windows Kits/10/include/10.0.19041.0/um/;C:/Program Files (x86)/Windows Kits/10/include/10.0.19041.0/shared/;C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/include/;C:/Program Files (x86)/Windows Kits/10/include/10.0.19041.0/ucrt/";\\
-                            |export LIB="C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.31.31103/lib/x64;C:/Program Files (x86)/Windows Kits/10/lib/10.0.19041.0/ucrt/x64;C:/Program Files (x86)/Windows Kits/10/lib/10.0.19041.0/um/x64";\\
-                            |""".stripMargin()
-            java_home = "export JAVA_HOME=\"$WORKSPACE\\java\\jdk\";"
-            gskit_home = "export GSKIT_HOME=\"$WORKSPACE\\openjceplus\\OCK\\jgsk_sdk\";"
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
+            bat """
+               dir "c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Auxiliary\\Build\\vcvarsall.bat"
+               call "c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Auxiliary\\Build\\vcvarsall.bat" x86_amd64
+               set "JAVA_HOME=$WORKSPACE\\java\\jdk"
+               set "PATH=$WORKSPACE\\apache-maven-3.9.9\\bin;%JAVA_HOME%;%PATH%"
+               set "GSKIT_HOME=$WORKSPACE\\openjceplus\\OCK\\jgsk_sdk"
+               echo PATH: %PATH%
+               echo GSKIT_HOME: %GSKIT_HOME%
+               echo JAVA_HOME: %JAVA_HOME%
+               echo mvn -Dock.library.path=${ock_path} --batch-mode ${command}
+               $WORKSPACE\\apache-maven-3.9.9\\bin\\mvn -Dock.library.path=${ock_path} --batch-mode ${command}
+               """
         } else if (software == "mac") {
             java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
         }
-        
-        sh "${java_home} ${gskit_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' --batch-mode ${command}"
-        
+
+        if (software != "windows") {
+            sh "${java_home} ${gskit_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' --batch-mode ${command}"
+        }
     }
 }
 
@@ -474,7 +477,12 @@ def run(platform) {
                 // Timing issue with some machines.
                 // TODO: Remove this when issue https://github.ibm.com/runtimes/infrastructure/issues/7198 is resolved.
                 nodeTags += "&&!ci.role.build.release"
+                nodeTags += "&&ci.role.build"
             }
+
+            // Machines tagged as ci.role.test are expected to have
+            // software to compile, build, and test OpenJCEPlus.
+            nodeTags += "&&ci.role.test"
 
             // Exclude machines that are FIPS140-2 configured.
             nodeTags += "&&!ci.role.test.fips"
