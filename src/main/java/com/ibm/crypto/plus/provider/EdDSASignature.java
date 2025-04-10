@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -183,11 +183,9 @@ abstract class EdDSASignature extends SignatureSpi {
         if (!publicKeyInit) {
             throw new SignatureException("Missing public key");
         }
-        if (message == null) {
-            return false;
-        }
 
         try {
+            ensureMessageInit();
             byte[] messageBytes = message.toByteArray();
             message = null;
             return this.signature.verify(sigBytes, messageBytes);
