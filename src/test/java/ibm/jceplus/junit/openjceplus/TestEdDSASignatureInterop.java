@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -17,8 +17,10 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 public class TestEdDSASignatureInterop extends BaseTestEdDSASignatureInterop {
 
     @BeforeAll
-    public void beforeAll() {
+    public void beforeAll() throws Exception {
         Utils.loadProviderTestSuite();
+        Utils.loadProviderBC();
         setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
+        setInteropProviderName(Utils.PROVIDER_BC);
     }
 }
