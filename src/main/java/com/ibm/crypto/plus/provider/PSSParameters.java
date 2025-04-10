@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -740,13 +740,9 @@ public final class PSSParameters extends AlgorithmParametersSpi {
     /*
      * Returns a formatted string describing the parameters.
      */
+    @Override
     protected String engineToString() {
-        String mdName = (mgfParameterSpec == null) ? hashAlgorithm.getName()
-                : ((MGF1ParameterSpec) mgfParameterSpec).getDigestAlgorithm();
-        return "\n\thashAlgorithm: " + hashAlgorithm + "\n\tmaskGenAlgorithm: " + maskGenAlgorithm
-                + "\n\tmgf1ParameterSpec: " + mdName + "\n\tsaltLength: "
-                + Integer.toString(saltLength) + "\n\ttrailerField: "
-                + Integer.toString(trailerField) + "\n";
+        return spec.toString();
     }
 
     /**
