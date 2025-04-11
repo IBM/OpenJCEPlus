@@ -34,7 +34,7 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
     private long genCtx;
     private XECKey ockXecKeyPub = null;
     private XECKey ockXecKeyPriv = null;
-    private byte[] secret = null;
+    private byte[] secret = {};
     private String alg = null;
 
     XDHKeyAgreement(OpenJCEPlusProvider provider) {
@@ -110,20 +110,22 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
             this.secret = XECKey.computeECDHSecret(provider.getOCKContext(), genCtx,
                     ockXecKeyPub.getPKeyId(), ockXecKeyPriv.getPKeyId(), secrectBufferSize);
         } catch (OCKException e) {
+            //Validate the secret value for a small order point condition.
+            byte orValue = (byte) 0;
+            for (int i = 0; i < secret.length; i++) {
+                orValue |= secret[i];
+            }
+
+            if (orValue == (byte) 0) {
+                throw new InvalidKeyException("Point has small order.", e);
+            }
+
             throw new IllegalStateException("Failed to generate secret", e);
         } catch (Exception e) {
             throw new InvalidKeyException("Failed to generate secret", e);
         }
 
-        //Valdate the secret for Point has small order
-        byte orValue = (byte) 0;
-        for (int i = 0; i < secret.length; i++) {
-            orValue |= secret[i];
-        }
 
-        if (orValue == (byte) 0) {
-            throw new InvalidKeyException("Point has small order.");
-        }
 
         return null;
     }
