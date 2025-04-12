@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -728,51 +728,52 @@ public class BaseTestAES extends BaseTestCipher {
 
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, boolean testFinalizeOnly) throws Exception {
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText14,
-                testFinalizeOnly);
+                testFinalizeOnly, cp);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText16,
-                testFinalizeOnly);
+                testFinalizeOnly, cp);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText18,
-                testFinalizeOnly);
+                testFinalizeOnly, cp);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText63,
-                testFinalizeOnly);
+                testFinalizeOnly, cp);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText128,
-                testFinalizeOnly);
+                testFinalizeOnly, cp);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText512,
-                testFinalizeOnly);
+                testFinalizeOnly, cp);
         for (iteration = 32; iteration <= 16384; iteration += 32) {
             byte[] slice = Arrays.copyOfRange(plainText16KB, 0, iteration);
             encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, slice,
-                    testFinalizeOnly);
+                    testFinalizeOnly, cp);
         }
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText65536,
-                testFinalizeOnly);
+                testFinalizeOnly, cp);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText524288,
-                testFinalizeOnly);
+                testFinalizeOnly, cp);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText1048576,
-                testFinalizeOnly);
+                testFinalizeOnly, cp);
     }
 
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
-            AlgorithmParameters algParams, byte[] message, boolean testFinalizeOnly)
+            AlgorithmParameters algParams, byte[] message, boolean testFinalizeOnly, Cipher cp)
             throws Exception {
         if (testFinalizeOnly) {
-            encryptDecryptDoFinal(algorithm, requireLengthMultipleBlockSize, algParams, message);
+            encryptDecryptDoFinal(algorithm, requireLengthMultipleBlockSize, algParams, message, cp);
             encryptDecryptReuseObject(algorithm, requireLengthMultipleBlockSize, algParams,
-                    message);
+                    message, cp);
             encryptDecryptDoFinalCopySafe(algorithm, requireLengthMultipleBlockSize, algParams,
-                    message);
+                    message, cp);
         } else {
-            encryptDecryptDoFinal(algorithm, requireLengthMultipleBlockSize, algParams, message);
-            encryptDecryptUpdate(algorithm, requireLengthMultipleBlockSize, algParams, message);
+            encryptDecryptDoFinal(algorithm, requireLengthMultipleBlockSize, algParams, message, cp);
+            encryptDecryptUpdate(algorithm, requireLengthMultipleBlockSize, algParams, message, cp);
             encryptDecryptPartialUpdate(algorithm, requireLengthMultipleBlockSize, algParams,
-                    message);
+                    message, cp);
             encryptDecryptReuseObject(algorithm, requireLengthMultipleBlockSize, algParams,
-                    message);
+                    message, cp);
             encryptDecryptDoFinalCopySafe(algorithm, requireLengthMultipleBlockSize, algParams,
-                    message);
+                    message, cp);
             encryptDecryptUpdateCopySafe(algorithm, requireLengthMultipleBlockSize, algParams,
-                    message);
+                    message, cp);
         }
     }
 
@@ -780,10 +781,9 @@ public class BaseTestAES extends BaseTestCipher {
     // Run encrypt/decrypt test using just doFinal calls
     //
     protected void encryptDecryptDoFinal(String algorithm, boolean requireLengthMultipleBlockSize,
-            AlgorithmParameters algParams, byte[] message) throws Exception
+            AlgorithmParameters algParams, byte[] message, Cipher cp) throws Exception
 
     {
-        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -823,8 +823,7 @@ public class BaseTestAES extends BaseTestCipher {
     // Run encrypt/decrypt test using just update, empty doFinal calls
     //
     protected void encryptDecryptUpdate(String algorithm, boolean requireLengthMultipleBlockSize,
-            AlgorithmParameters algParams, byte[] message) throws Exception {
-        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
+            AlgorithmParameters algParams, byte[] message, Cipher cp) throws Exception {
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -868,9 +867,8 @@ public class BaseTestAES extends BaseTestCipher {
     // Run encrypt/decrypt test with partial update
     //
     protected void encryptDecryptPartialUpdate(String algorithm,
-            boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message)
+            boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message, Cipher cp)
             throws Exception {
-        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -915,11 +913,10 @@ public class BaseTestAES extends BaseTestCipher {
     // Run encrypt/decrypt test reusing cipher object
     //
     protected void encryptDecryptReuseObject(String algorithm,
-            boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message)
+            boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message, Cipher cp)
             throws Exception
 
     {
-        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -962,11 +959,10 @@ public class BaseTestAES extends BaseTestCipher {
     // Run encrypt/decrypt test using just doFinal calls (copy-safe)
     //
     protected void encryptDecryptDoFinalCopySafe(String algorithm,
-            boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message)
+            boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message, Cipher cp)
             throws Exception
 
     {
-        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1010,11 +1006,10 @@ public class BaseTestAES extends BaseTestCipher {
     // Run encrypt/decrypt test using just update, empty doFinal calls (copy-safe)
     //
     protected void encryptDecryptUpdateCopySafe(String algorithm,
-            boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message)
+            boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message, Cipher cp)
             throws Exception
 
     {
-        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
