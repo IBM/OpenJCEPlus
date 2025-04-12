@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -558,56 +558,58 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, boolean testFinalizeOnly, String providerA,
             String providerB) throws Exception {
+        Cipher cpA = Cipher.getInstance(algorithm, providerA);
+        Cipher cpB = Cipher.getInstance(algorithm, providerB);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText14,
-                testFinalizeOnly, providerA, providerB);
+                testFinalizeOnly, cpA, cpB);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText16,
-                testFinalizeOnly, providerA, providerB);
+                testFinalizeOnly, cpA, cpB);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText18,
-                testFinalizeOnly, providerA, providerB);
+                testFinalizeOnly, cpA, cpB);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText63,
-                testFinalizeOnly, providerA, providerB);
+                testFinalizeOnly, cpA, cpB);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText128,
-                testFinalizeOnly, providerA, providerB);
+                testFinalizeOnly, cpA, cpB);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText512,
-                testFinalizeOnly, providerA, providerB);
+                testFinalizeOnly, cpA, cpB);
         for (iteration = 32; iteration <= 16384; iteration += 32) {
             byte[] slice = Arrays.copyOfRange(plainText16KB, 0, iteration);
             encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, slice,
-                    testFinalizeOnly, providerA, providerB);
+                    testFinalizeOnly, cpA, cpB);
         }
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText65536,
-                testFinalizeOnly, providerA, providerB);
+                testFinalizeOnly, cpA, cpB);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText524288,
-                testFinalizeOnly, providerA, providerB);
+                testFinalizeOnly, cpA, cpB);
         encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText1048576,
-                testFinalizeOnly, providerA, providerB);
+                testFinalizeOnly, cpA, cpB);
 
     }
 
 
     protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message, boolean testFinalizeOnly,
-            String providerA, String providerB) throws Exception {
+            Cipher cpA, Cipher cpB) throws Exception {
         if (testFinalizeOnly) {
             encryptDecryptDoFinal(algorithm, requireLengthMultipleBlockSize, algParams, message,
-                    providerA, providerB);
+                    cpA, cpB);
             encryptDecryptReuseObject(algorithm, requireLengthMultipleBlockSize, algParams, message,
-                    providerA, providerB);
+                    cpA, cpB);
             encryptDecryptDoFinalCopySafe(algorithm, requireLengthMultipleBlockSize, algParams,
-                    message, providerA, providerB);
+                    message, cpA, cpB);
         } else {
             encryptDecryptDoFinal(algorithm, requireLengthMultipleBlockSize, algParams, message,
-                    providerA, providerB);
+                    cpA, cpB);
             encryptDecryptUpdate(algorithm, requireLengthMultipleBlockSize, algParams, message,
-                    providerA, providerB);
+                    cpA, cpB);
             encryptDecryptPartialUpdate(algorithm, requireLengthMultipleBlockSize, algParams,
-                    message, providerA, providerB);
+                    message, cpA, cpB);
             encryptDecryptReuseObject(algorithm, requireLengthMultipleBlockSize, algParams, message,
-                    providerA, providerB);
+                    cpA, cpB);
             encryptDecryptDoFinalCopySafe(algorithm, requireLengthMultipleBlockSize, algParams,
-                    message, providerA, providerB);
+                    message, cpA, cpB);
             encryptDecryptUpdateCopySafe(algorithm, requireLengthMultipleBlockSize, algParams,
-                    message, providerA, providerB);
+                    message, cpA, cpB);
         }
     }
 
@@ -615,11 +617,10 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     // Run encrypt/decrypt test using just doFinal calls
     //
     protected void encryptDecryptDoFinal(String algorithm, boolean requireLengthMultipleBlockSize,
-            AlgorithmParameters algParams, byte[] message, String providerA, String providerB)
+            AlgorithmParameters algParams, byte[] message, Cipher cpA, Cipher cpB)
             throws Exception
 
     {
-        cpA = Cipher.getInstance(algorithm, providerA);
         if (algParams == null) {
             cpA.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -639,7 +640,6 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
             // "cipherText length=" + cipherText.length + "CipherText=" +
             // BaseUtils.bytesToHex(cipherText));
             // Verify the text
-            cpB = Cipher.getInstance(algorithm, providerB);
             cpB.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText = cpB.doFinal(cipherText);
 
@@ -682,9 +682,8 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     // Run encrypt/decrypt test using just update, empty doFinal calls
     //
     protected void encryptDecryptUpdate(String algorithm, boolean requireLengthMultipleBlockSize,
-            AlgorithmParameters algParams, byte[] message, String providerA, String providerB)
+            AlgorithmParameters algParams, byte[] message, Cipher cpA, Cipher cpB)
             throws Exception {
-        cpA = Cipher.getInstance(algorithm, providerA);
         if (algParams == null) {
             cpA.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -703,7 +702,6 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
             }
 
             // Verify the text
-            cpB = Cipher.getInstance(algorithm, providerB);
             cpB.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText1 = (cipherText1 == null) ? new byte[0] : cpB.update(cipherText1);
             byte[] newPlainText2 = cpB.doFinal(cipherText2);
@@ -730,8 +728,7 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     //
     protected void encryptDecryptPartialUpdate(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message,
-            String providerA, String providerB) throws Exception {
-        cpA = Cipher.getInstance(algorithm, providerA);
+            Cipher cpA, Cipher cpB) throws Exception {
         if (algParams == null) {
             cpA.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -751,7 +748,6 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
             }
 
             // Verify the text
-            cpB = Cipher.getInstance(algorithm, providerB);
             cpB.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText1 = (cipherText1 == null) ? new byte[0] : cpB.update(cipherText1);
             byte[] newPlainText2 = cpB.doFinal(cipherText2);
@@ -778,11 +774,10 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     //
     protected void encryptDecryptReuseObject(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message,
-            String providerA, String providerB) throws Exception
+            Cipher cpA, Cipher cpB) throws Exception
 
     {
 
-        cpA = Cipher.getInstance(algorithm, providerA);
         if (algParams == null) {
             cpA.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -804,7 +799,6 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
             boolean success = Arrays.equals(cipherText2, cipherText);
             assertTrue(success, "Re-encrypted text does not match");
 
-            cpB = Cipher.getInstance(algorithm, providerB);
             // Verify the text
             cpB.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText = cpB.doFinal(cipherText);
@@ -827,10 +821,9 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     //
     protected void encryptDecryptDoFinalCopySafe(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message,
-            String providerA, String providerB) throws Exception
+            Cipher cpA, Cipher cpB) throws Exception
 
     {
-        cpA = Cipher.getInstance(algorithm, providerA);
         if (algParams == null) {
             cpA.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -855,7 +848,6 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
             assertTrue(success, "Encrypted text does not match expected result");
 
             // Verify the text
-            cpB = Cipher.getInstance(algorithm, providerB);
             cpB.init(Cipher.DECRYPT_MODE, key, params);
             resultBuffer = Arrays.copyOf(cipherText, cipherText.length);// cp.getOutputSize(cipherText.length));
             resultLen = cpB.doFinal(resultBuffer, 0, cipherText.length, resultBuffer);
@@ -875,10 +867,9 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     //
     protected void encryptDecryptUpdateCopySafe(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message,
-            String providerA, String providerB) throws Exception
+            Cipher cpA, Cipher cpB) throws Exception
 
     {
-        cpA = Cipher.getInstance(algorithm, providerA);
         if (algParams == null) {
             cpA.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -907,7 +898,6 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
             assertTrue(success,"Encrypted text does not match expected result");
 
             // Verify the text
-            cpB = Cipher.getInstance(algorithm, providerB);
             cpB.init(Cipher.DECRYPT_MODE, key, params);
             resultBuffer = Arrays.copyOf(cipherText, cpB.getOutputSize(cipherText.length));
             int plainText1Len = cpB.update(resultBuffer, 0, cipherText.length, resultBuffer);
