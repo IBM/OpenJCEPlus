@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -49,29 +49,6 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
     private boolean aadDone = false;
     //final static String debPrefix = "ChaCha20Poly1305 ";
 
-
-    // Java 8 Cipher.class documentation does not require that a cipher.init is
-    // called between successive encryption or decryption. However, it requires
-    // prior IV+ Key cannot be used. Since it is not feasible to maintain a history 
-    // of previously called IV+Key combination, this implementation checks the 
-    // previous encryption. The exception to this requirement is when
-    // an SBE was encountered, the Cipher class allows same IV and Key but with a
-    // larger buffer.
-    // Calling encryption/decryption after a sbe is allowed which allows applications
-    // to call failed operation with a larger buffer
-    // This implementation deviates from Sun's implementation.
-
-
-    private byte[] lastEncKey = null; // last encryption Key
-    private byte[] lastEncNonce = null; // last encryption Iv
-    // Keeps track if a shortBufferException was experienced in last call.
-    // Calling encryption/decryption after a sbe is allowed which allows applications
-    // to call failed operation with a larger buffer.
-    private boolean sbeInLastFinalEncrypt = false;
-    boolean generateIV = false;
-    boolean initCalledInEncSeq = true;
-    SecureRandom random;
-
     public ChaCha20Poly1305Cipher(OpenJCEPlusProvider provider) {
         if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
             throw new SecurityException("Integrity check failed for: " + provider.getName());
@@ -86,76 +63,44 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
 
         checkCipherInitialized();
 
-        // Generate IV only when Init was not called in this seq and an init was called during
-        // prior encryption without specifying params.
-        if ((!initCalledInEncSeq) && (!sbeInLastFinalEncrypt) && (generateIV) && (encrypting)) {
-            this.nonceBytes = generateRandomNonce(random).clone();
-        }
-
-        // The checks are performed only for successive encryption, since iv must not be changed
-        // between encryption and decryption.
-        // performing two successive decryption with the same IV + Key is allowed.
-        if ((!sbeInLastFinalEncrypt) && (encrypting)) {
-            boolean sameKeyIv = checkKeyAndNonce(keyBytes, nonceBytes, lastEncKey, lastEncNonce);
-            if (sameKeyIv) {
-                resetVarsAfterException();
-                throw new IllegalStateException("Cannot reuse iv for ChaCha20Poly1305 encryption");
-            }
-        }
-
-        if (!this.aadDone) {
-            this.aadDone = true;
-        }
+        this.aadDone = true;
 
         try {
             byte[] output = new byte[engineGetOutputSize(inputLen)];
             int outputLen = poly1305Cipher.doFinal(input, inputOffset, inputLen, output, 0);
-            this.initCalledInEncSeq = false;
-            this.aadDone = false;
             if (outputLen < output.length) {
                 byte[] out = Arrays.copyOfRange(output, 0, outputLen);
                 if (!encrypting) {
                     Arrays.fill(output, 0, outputLen, (byte) 0x00);
                 }
-                this.sbeInLastFinalEncrypt = false;
                 return out;
             } else if (outputLen > output.length) {
-                resetVarsAfterException();
-                throw new IllegalBlockSizeException("OUPUT LENGTH FROM OCK > ALLOCATED");
+                throw new IllegalBlockSizeException("OUTPUT LENGTH FROM OCK > ALLOCATED");
             } else {
-                sbeInLastFinalEncrypt = false;
                 return output;
             }
         } catch (BadPaddingException ock_bpe) {
-            resetVarsAfterException();
             BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
             provider.setOCKExceptionCause(bpe, ock_bpe);
             throw bpe;
         } catch (IllegalBlockSizeException ock_ibse) {
-            resetVarsAfterException();
             IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
             provider.setOCKExceptionCause(ibse, ock_ibse);
             throw ibse;
         } catch (IllegalArgumentException ock_iae) {
-            resetVarsAfterException();
             IllegalArgumentException iae = new IllegalArgumentException(ock_iae.getMessage());
             provider.setOCKExceptionCause(iae, ock_iae);
             throw iae;
         } catch (OCKException ockException) {
-            resetVarsAfterException();
             if (!encrypting) {
                 throw new AEADBadTagException("Tag mismatch");
             } else {
                 throw provider.providerException("Failure in engineDoFinal", ockException);
             }
         } catch (Exception e) {
-            resetVarsAfterException();
             throw provider.providerException("Failure in engineDoFinal", e);
         } finally {
-            if (encrypting) {
-                lastEncKey = keyBytes.clone();
-                lastEncNonce = nonceBytes.clone();
-            }
+            resetVars();
         }
     }
 
@@ -167,80 +112,38 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
 
         checkCipherInitialized();
 
-        // Generate IV only when Init was not called in this seq and an init was called during
-        // prior encryption without specifying params.
-        if ((!initCalledInEncSeq) && (!sbeInLastFinalEncrypt) && (generateIV) && (encrypting)) {
-            this.nonceBytes = generateRandomNonce(random).clone();
-        }
-
-        // The checks are performed only for successive encryption, since iv must not be changed 
-        // between encryption and decryption.
-        // performing two successive decryption with the same IV + Key is allowed.
-        if ((!initCalledInEncSeq) && (!sbeInLastFinalEncrypt) && (encrypting)) {
-            boolean sameKeyIv = checkKeyAndNonce(keyBytes, nonceBytes, lastEncKey, lastEncNonce);
-            if (sameKeyIv) {
-                resetVarsAfterException();
-                throw new IllegalStateException("Cannot reuse iv for ChaCha20Poly1305 encryption");
-            }
-        }
-
-        if (!this.aadDone) {
-            this.aadDone = true;
-        }
+        this.aadDone = true;
 
         try {
             int retvalue = poly1305Cipher.doFinal(input, inputOffset, inputLen, output,
                     outputOffset);
-            this.aadDone = false;
-            this.sbeInLastFinalEncrypt = false;
-            this.initCalledInEncSeq = false;
             return retvalue;
-
         } catch (BadPaddingException ock_bpe) {
-            resetVarsAfterException();
             BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
             provider.setOCKExceptionCause(bpe, ock_bpe);
             throw bpe;
-
         } catch (IllegalBlockSizeException ock_ibse) {
-            resetVarsAfterException();
             IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
             provider.setOCKExceptionCause(ibse, ock_ibse);
             throw ibse;
-
         } catch (ShortBufferException ock_sbe) {
-            //Do not reset the intialized variable - Applications may able to invoke this call again with a large buffer.
             ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
             provider.setOCKExceptionCause(sbe, ock_sbe);
-            sbeInLastFinalEncrypt = encrypting;
             throw sbe;
         } catch (IllegalArgumentException ock_iae) {
-            resetVarsAfterException();
             IllegalArgumentException iae = new IllegalArgumentException(ock_iae.getMessage());
             provider.setOCKExceptionCause(iae, ock_iae);
             throw iae;
-
         } catch (OCKException ockException) {
-
-            resetVarsAfterException();
             if (!encrypting) {
                 throw new AEADBadTagException("Tag mismatch");
             } else {
                 throw provider.providerException("Failure in engineDoFinal", ockException);
             }
         } catch (Exception e) {
-
-            resetVarsAfterException();
-
             throw provider.providerException("Failure in engineDoFinal", e);
         } finally {
-            // Do not reset this.initialized in final block
-            // Calling applications can decrypt or encrypt after a successful completion.
-            // Only IV need to change for Encryption
-            if (encrypting) {
-                lastEncKey = keyBytes.clone();
-                lastEncNonce = nonceBytes.clone();
-            }
+            resetVars();
         }
     }
 
@@ -320,8 +223,6 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
         //final String methodName = "engineInit";
         this.aadDone = false;
         this.initialized = false;
-        this.sbeInLastFinalEncrypt = false;
-        generateIV = (opmode == Cipher.ENCRYPT_MODE);
 
         if (opmode == Cipher.DECRYPT_MODE) {
             throw new InvalidKeyException("Parameters missing");
@@ -336,11 +237,10 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
         //final String methodName = "engineInit";
         this.aadDone = false;
         this.initialized = false;
-        this.sbeInLastFinalEncrypt = false;
+
         if (params == null) {
             engineInit(opmode, key, random);
         } else {
-            generateIV = false; //Use IV from params
             if (params instanceof IvParameterSpec) {
                 byte[] nonce = ((IvParameterSpec) params).getIV();
                 if (nonce.length != ChaCha20_NONCE_SIZE) {
@@ -362,9 +262,8 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
 
         this.initialized = false;
         this.aadDone = false;
-        this.sbeInLastFinalEncrypt = false;
-        if (params == null) {
 
+        if (params == null) {
             engineInit(opmode, key, random);
             return;
         }
@@ -373,7 +272,6 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
         if (!paramAlg.equalsIgnoreCase("ChaCha20-Poly1305")) {
             throw new InvalidAlgorithmParameterException("Invalid parameter type: " + paramAlg);
         }
-        generateIV = false; //Use IV from params
         try {
             DerValue dv = new DerValue(params.getEncoded());
             newNonce = dv.getOctetString();
@@ -382,7 +280,6 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
                         "ChaCha20-Poly1305 nonce must be " + "12 bytes in length");
             }
         } catch (IOException ioe) {
-            this.initialized = false;
             throw new InvalidAlgorithmParameterException(ioe);
         }
         internalInit(opmode, key, newNonce);
@@ -390,12 +287,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
 
     private void internalInit(int opmode, Key newKey, byte[] newNonceBytes)
             throws InvalidKeyException {
-
         //final String methodName = "internalInit ";
-        this.encrypting = (opmode == Cipher.ENCRYPT_MODE);
-        this.aadDone = false;
-        this.sbeInLastFinalEncrypt = false;
-
 
         if ((opmode == Cipher.WRAP_MODE) || (opmode == Cipher.UNWRAP_MODE)) {
             throw new UnsupportedOperationException("WRAP_MODE and UNWRAP_MODE are not supported");
@@ -429,9 +321,9 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             throw new InvalidKeyException("Key must be " + ChaCha20_KEY_SIZE + " bytes");
         }
 
-        encrypting = (opmode == Cipher.ENCRYPT_MODE);
+        this.encrypting = (opmode == Cipher.ENCRYPT_MODE);
 
-        if (encrypting) {
+        if (this.encrypting) {
             checkKeyAndNonce(newKeyBytes, newNonceBytes);
         }
 
@@ -449,10 +341,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             this.keyBytes = newKeyBytes;
             this.nonceBytes = newNonceBytes;
             this.initialized = true;
-            this.initCalledInEncSeq = this.encrypting;
         } catch (Exception e) {
-            this.initialized = false;
-            this.initCalledInEncSeq = false;
             throw provider.providerException("Failed to init cipher", e);
         }
     }
@@ -486,7 +375,6 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
         return equalFlag;
     }
 
-
     @Override
     protected void engineSetMode(String mode) throws NoSuchAlgorithmException {
         //final String methodName = "engineSetMode";
@@ -511,9 +399,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
         //final String methodName = "engineUpdate ";
         checkCipherInitialized();
 
-        if (!this.aadDone) {
-            this.aadDone = true;
-        }
+        this.aadDone = true;
 
         try {
 
@@ -542,9 +428,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
         //final String methodName = "engineUpdate ";
         checkCipherInitialized();
 
-        if (!this.aadDone) {
-            this.aadDone = true;
-        }
+        this.aadDone = true;
 
         try {
             int retvalue = poly1305Cipher.update(input, inputOffset, inputLen, output,
@@ -576,9 +460,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
         try {
             poly1305Cipher.update(authData, 0, authData.length, null, 0);
             this.aadDone = true;
-
         } catch (Exception e) {
-
             throw provider.providerException("Failure in engineUpdateAAD", e);
         }
     }
@@ -591,7 +473,6 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
         checkCipherInitialized();
 
         if (this.aadDone) {
-
             throw new IllegalStateException("AAD update already done");
         }
 
@@ -601,7 +482,6 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             poly1305Cipher.update(authData, 0, authData.length, null, 0);
             this.aadDone = true;
         } catch (Exception e) {
-
             throw provider.providerException("Failure in engineUpdateAAD", e);
         }
 
@@ -626,12 +506,10 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
         }
     }
 
-    //Reset class variables after an exception
-    private void resetVarsAfterException() {
-        this.initialized = false; // force re-initialization presumably with different nonce and key
+    // Reset class variables.
+    private void resetVars() {
+        this.initialized = (!this.encrypting); // force re-initialization only when encrypting
         this.aadDone = false;
-        this.sbeInLastFinalEncrypt = false;
-        this.initCalledInEncSeq = false;
     }
 
     private byte[] generateRandomNonce(SecureRandom random) {

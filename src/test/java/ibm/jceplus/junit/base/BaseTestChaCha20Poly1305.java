@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -110,30 +110,63 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
     }
 
     @Test
-    public void testChaCha20Poly1305EncryptAfterShortBufferRetry() throws Exception {
-        try {
-            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
-            IvParameterSpec ivParamSpec = new IvParameterSpec(NONCE_12_BYTE);
+    public void testChaCha20Poly1305EncryptParamsAfterShortBufferRetry() throws Exception {
+        cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
+        IvParameterSpec ivParamSpec = new IvParameterSpec(NONCE_12_BYTE);
 
-            // Encrypt the plain text
+        // Try encrypting with a short buffer.
+        try {
             cp.init(Cipher.ENCRYPT_MODE, key, ivParamSpec);
             byte[] cipherText = new byte[PLAIN_TEXT.length + 15];
             cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, cipherText);
             fail("Expected ShortBufferException did not occur");
-
-        } catch (ShortBufferException ex) {
-            System.out.println("Try retry with a larger buffer");
+        } catch (ShortBufferException sbe) {
+            System.out.println("Expected ShortBufferException thrown: " + sbe.getMessage());
         }
-        // try retry with a larger buffer
+
+        // Retry with a larger buffer. Should fail without init.
         try {
             byte[] largerCipherTextBuffer = new byte[PLAIN_TEXT.length + 16];
             cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, largerCipherTextBuffer);
-            assertTrue(true);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Retying with larger buffer should have worked with a larger buffer");
+            fail("Expected IllegalStateException did not occur");
+        } catch (IllegalStateException ise) {
+            System.out.println("Expected IllegalStateException thrown: " + ise.getMessage());
         }
+
+        // Retry with a larger buffer after re-initializing.
+        ivParamSpec = new IvParameterSpec(NONCEA_12_BYTE);
+        cp.init(Cipher.ENCRYPT_MODE, key, ivParamSpec);
+        byte[] largerCipherTextBuffer = new byte[PLAIN_TEXT.length + 16];
+        cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, largerCipherTextBuffer);
+    }
+
+    @Test
+    public void testChaCha20Poly1305EncryptNoParamsAfterShortBufferRetry() throws Exception {
+        cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
+
+        // Try encrypting with a short buffer.
+        try {
+            cp.init(Cipher.ENCRYPT_MODE, key);
+            byte[] cipherText = new byte[PLAIN_TEXT.length + 15];
+            cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, cipherText);
+            fail("Expected ShortBufferException did not occur");
+        } catch (ShortBufferException sbe) {
+            System.out.println("Expected ShortBufferException thrown: " + sbe.getMessage());
+        }
+
+        // Retry with a larger buffer. Should fail without init.
+        try {
+            byte[] largerCipherTextBuffer = new byte[PLAIN_TEXT.length + 16];
+            cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, largerCipherTextBuffer);
+            fail("Expected IllegalStateException did not occur");
+        } catch (IllegalStateException ise) {
+            System.out.println("Expected IllegalStateException thrown: " + ise.getMessage());
+        }
+
+        // Retry with a larger buffer after re-initializing.
+        cp.init(Cipher.ENCRYPT_MODE, key);
+        byte[] largerCipherTextBuffer = new byte[PLAIN_TEXT.length + 16];
+        cp.doFinal(PLAIN_TEXT, 0, PLAIN_TEXT.length, largerCipherTextBuffer);
     }
 
     @Test
@@ -354,9 +387,8 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             cp.doFinal(PLAIN_TEXT);
             // Update AAD must be done before cipher update, or do final...
             cp.updateAAD(CHACHA20_POLY1305_AAD, 0, CHACHA20_POLY1305_AAD.length);
+            fail("Did not get expected IllegalStateException(updateAAD)");
         } catch (Exception e) {
-            e.printStackTrace();
-            fail("got unexpected IllegalStateException(updateAAD)");
         }
 
         try {
