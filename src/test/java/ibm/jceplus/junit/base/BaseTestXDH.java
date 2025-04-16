@@ -31,6 +31,7 @@ import java.security.spec.XECPublicKeySpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestXDH extends BaseTestJunit5 {
@@ -338,10 +339,10 @@ public class BaseTestXDH extends BaseTestJunit5 {
 
         try {
             runDiffieHellmanTest(name, a_pri, b_pub, result);
-        } catch (IllegalStateException ex) {
-            return;
+            throw new RuntimeException("Expected exception not thrown on small-order point test.");
+        } catch (InvalidKeyException ex) {
+            assertEquals("Point has small order.", ex.getMessage());
         }
-        throw new RuntimeException("No exception on small-order point");
     }
 
     private void runNonCanonicalTest() throws Exception {
