@@ -437,7 +437,16 @@ public final class RSAPSSSignature extends SignatureSpi {
 
                 // No need to check other messageDigest Strings since
                 // mgfMessageDigest can only assume values of SHA-1, SHA-224, SHA-256, SHA-384, and SHA-512, or variations those.
-
+                /*
+                 * According to [PKCS#1v2.1] the mask generation function (MGF) 
+                 * if based on a hash algo is recommended to use the same hash 
+                 * function as the hash function fingerprinting the message. 
+                 * 
+                 * However the structures in [PKCS#1v2.1] allow for separate 
+                 * parameterization of the MGF and the message digest.
+                 * 
+                 * https://datatracker.ietf.org/doc/html/rfc3447#page-29
+                 */
                 if (throwException) {
                     InvalidAlgorithmParameterException ex = new InvalidAlgorithmParameterException(
                             "The message digest within the PSSParameterSpec does not match the MGF message digest.");
