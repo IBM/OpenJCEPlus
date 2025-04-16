@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -26,7 +26,7 @@ public final class DESedeKeyGenerator extends KeyGeneratorSpi {
 
     private OpenJCEPlusProvider provider = null;
     private int keysize = 168;
-    private SecureRandom cryptoRandom;
+    private SecureRandom cryptoRandom = null;
 
     /* Mask to check for parity adjustment */
     private static final byte[] PARITY_BIT_MASK = {(byte) 0x80, (byte) 0x40, (byte) 0x20,
@@ -51,14 +51,14 @@ public final class DESedeKeyGenerator extends KeyGeneratorSpi {
      */
     @Override
     protected SecretKey engineGenerateKey() {
-        if (this.cryptoRandom == null) {
-            this.cryptoRandom = provider.getSecureRandom(null);
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(null);
         }
 
         byte[] rawkey = new byte[DESedeKeySpec.DES_EDE_KEY_LEN];
         if (keysize == 168) {
             // 3 intermediate keys
-            this.cryptoRandom.nextBytes(rawkey);
+            cryptoRandom.nextBytes(rawkey);
 
             // Do parity adjustment for each intermediate key
             setParityBit(rawkey, 0);
@@ -67,7 +67,7 @@ public final class DESedeKeyGenerator extends KeyGeneratorSpi {
         } else {
             // using 2 keys is not FIPS approved
             byte[] tmpkey = new byte[16];
-            this.cryptoRandom.nextBytes(tmpkey);
+            cryptoRandom.nextBytes(tmpkey);
 
             setParityBit(tmpkey, 0);
             setParityBit(tmpkey, 8);
@@ -101,7 +101,9 @@ public final class DESedeKeyGenerator extends KeyGeneratorSpi {
         // If in FIPS mode, SecureRandom must be internal and FIPS approved.
         // For FIPS mode, user provided random generator will be ignored.
         //
-        this.cryptoRandom = provider.getSecureRandom(random);
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(random);
+        }
     }
 
     /**
