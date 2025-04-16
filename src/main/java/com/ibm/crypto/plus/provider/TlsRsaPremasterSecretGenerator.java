@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -28,7 +28,7 @@ public final class TlsRsaPremasterSecretGenerator extends KeyGeneratorSpi {
 
     private OpenJCEPlusProvider provider = null;
     private sun.security.internal.spec.TlsRsaPremasterSecretParameterSpec spec;
-    private SecureRandom random;
+    private SecureRandom cryptoRandom = null;
 
     public TlsRsaPremasterSecretGenerator(OpenJCEPlusProvider provider) {
 
@@ -49,7 +49,9 @@ public final class TlsRsaPremasterSecretGenerator extends KeyGeneratorSpi {
             throw new InvalidAlgorithmParameterException(MSG);
         }
         this.spec = (sun.security.internal.spec.TlsRsaPremasterSecretParameterSpec) params;
-        this.random = random;
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(random);
+        }
     }
 
     protected void engineInit(int keysize, SecureRandom random) {
@@ -63,15 +65,15 @@ public final class TlsRsaPremasterSecretGenerator extends KeyGeneratorSpi {
 
         byte[] b = spec.getEncodedSecret();
         if (b == null) {
-            if (random == null) {
+            if (cryptoRandom == null) {
                 // If a SecureRandom object was not provided, then use FIPS
                 // approved SecureRandom to be SP800-131a compliant.
                 //
-                random = provider.getSecureRandom(null);
+                cryptoRandom = provider.getSecureRandom(null);
             }
 
             b = new byte[48];
-            random.nextBytes(b);
+            cryptoRandom.nextBytes(b);
             b[0] = (byte) spec.getMajorVersion();
             b[1] = (byte) spec.getMinorVersion();
         }

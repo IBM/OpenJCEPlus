@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -25,7 +25,6 @@ abstract class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
 
     private static final NamedParameterSpec DEFAULT_PARAM_SPEC
         = NamedParameterSpec.ED25519;
-    private SecureRandom random = null;
     private NamedParameterSpec namedSpec;
     private CURVE curve;
     private OpenJCEPlusProvider provider = null;
