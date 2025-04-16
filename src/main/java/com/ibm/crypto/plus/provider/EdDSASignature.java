@@ -71,7 +71,12 @@ abstract class EdDSASignature extends SignatureSpi {
         // input params and operation are checked.
         // This edDSA singature is using default mode (Ed25519 or Ed448)
         // for edDSAParameterSpec (context = null, prehash = false)
-        if (params instanceof EdDSAParameterSpec) {
+        if (params instanceof EdDSAParameterSpec edParams) {
+            if (edParams.isPrehash() || !edParams.getContext().isEmpty()) {
+                throw new InvalidAlgorithmParameterException(
+                        "The EdDSA signature only supports the default mode (Ed25519 or Ed448),"
+                        + " where the EdDSAParameterSpec context is null and prehash is set to false");
+            }
             if (message != null) {
                 // Sign/Verify is in progress
                 throw new InvalidParameterException(

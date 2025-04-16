@@ -20,6 +20,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.EdDSAParameterSpec;
 import java.security.spec.EdECPoint;
 import java.security.spec.EdECPrivateKeySpec;
 import java.security.spec.EdECPublicKeySpec;
@@ -28,8 +29,11 @@ import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import java.util.HexFormat;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestEdDSASignature extends BaseTestJunit5Signature {
 
@@ -233,6 +237,16 @@ public class BaseTestEdDSASignature extends BaseTestJunit5Signature {
                         + "76b3a97625d79f1ce240e7c576750d295528286f719b413de9ada3e8eb78ed57"
                         + "3603ce30d8bb761785dc30dbc320869e1a00");
 
+        // Ed25519ctx
+        byte[] context = HexFormat.of().parseHex("666f6f");
+        runUnsupportedAlgorithmParameterSpecTest("Ed25519", new EdDSAParameterSpec(false, context));
+        // Ed25519ph
+        runUnsupportedAlgorithmParameterSpecTest("Ed25519", new EdDSAParameterSpec(true));
+        // Ed448ph
+        runUnsupportedAlgorithmParameterSpecTest("Ed448", new EdDSAParameterSpec(false, context));
+        runUnsupportedAlgorithmParameterSpecTest("Ed448", new EdDSAParameterSpec(true));
+        runUnsupportedAlgorithmParameterSpecTest("Ed448", new EdDSAParameterSpec(true, context));
+
     }
 
     private void runSignTest(String algorithm, AlgorithmParameterSpec params, String privateKey,
@@ -268,6 +282,20 @@ public class BaseTestEdDSASignature extends BaseTestJunit5Signature {
         sig.update(msgBytes);
 
         assertTrue(sig.verify(computedSig), "Signature verification failed");
+    }
+
+    private void runUnsupportedAlgorithmParameterSpecTest(String algorithm, AlgorithmParameterSpec params)
+            throws Exception {
+        try {
+            Signature sig = Signature.getInstance(algorithm, getProviderName());
+            sig.setParameter(params);
+            fail("Expected InvalidAlgorithmParameterException for unsupported signature algorithm is NOT thrown");
+        } catch (InvalidAlgorithmParameterException e) {
+            assertEquals(
+                    "The EdDSA signature only supports the default mode (Ed25519 or Ed448),"
+                            + " where the EdDSAParameterSpec context is null and prehash is set to false",
+                    e.getMessage());
+        }
     }
 
     @Test
