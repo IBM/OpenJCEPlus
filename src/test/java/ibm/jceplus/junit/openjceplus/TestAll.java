@@ -47,6 +47,7 @@ import org.junit.platform.suite.api.Suite;
     TestChaCha20Poly1305ByteBuffer.class,
     TestChaCha20Poly1305ChunkUpdate.class,
     TestDESede.class,
+    TestDeterministic.class,
     TestDH.class,
     TestDHInteropSunJCE.class,
     TestDHKeyFactory.class,

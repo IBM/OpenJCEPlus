@@ -39,7 +39,7 @@ public final class ChaCha20Cipher extends CipherSpi implements ChaCha20Constants
     private int counter = 0;
     private boolean encrypting = false;
     private boolean initialized = false;
-
+    private SecureRandom random = null;
 
     public ChaCha20Cipher(OpenJCEPlusProvider provider) {
         if (!OpenJCEPlusProvider.verifySelfIntegrity(this.getClass())) {
@@ -372,10 +372,9 @@ public final class ChaCha20Cipher extends CipherSpi implements ChaCha20Constants
     }
 
     private byte[] generateRandomNonce(SecureRandom random) {
-        SecureRandom rand = (random != null) ? random : new SecureRandom();
-        SecureRandom cryptoRandom = provider.getSecureRandom(rand);
+        this.random = (random != null) ? random : provider.getSecureRandom(random);
         byte[] generatedNonce = new byte[ChaCha20_NONCE_SIZE];
-        cryptoRandom.nextBytes(generatedNonce);
+        random.nextBytes(generatedNonce);
 
         return generatedNonce;
     }
