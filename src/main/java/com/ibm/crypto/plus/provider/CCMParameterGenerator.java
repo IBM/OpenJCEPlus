@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -23,7 +23,7 @@ public final class CCMParameterGenerator extends AlgorithmParameterGeneratorSpi
 
     private OpenJCEPlusProvider provider = null;
     private AlgorithmParameters generatedParameters;
-    private SecureRandom cryptoRandom;
+    private SecureRandom cryptoRandom = null;
 
     /**
      * Constructs a new CCMParameterGenerator instance.
@@ -40,20 +40,12 @@ public final class CCMParameterGenerator extends AlgorithmParameterGeneratorSpi
 
     @Override
     protected void engineInit(int tagLen, SecureRandom random) {
-        if (random == null) {
-            try {
-                this.cryptoRandom = SecureRandom.getInstance("SHA256DRBG");
-            } catch (Exception ex) {
-                RuntimeException rtex = new RuntimeException(
-                        "SecureRandom.getInstance(\"SHA256DRBG\") failed");
-                throw rtex;
-            }
-        } else {
-            this.cryptoRandom = random;
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(random);
         }
 
         byte[] iv = new byte[DEFAULT_AES_CCM_IV_LENGTH];
-        this.cryptoRandom.nextBytes(iv);
+        cryptoRandom.nextBytes(iv);
         CCMParameterSpec ccmParameterSpec = new CCMParameterSpec(tagLen, iv); // tagLen is the tag length specified in bits
 
         AlgorithmParameters result;
@@ -77,16 +69,8 @@ public final class CCMParameterGenerator extends AlgorithmParameterGeneratorSpi
     protected void engineInit(AlgorithmParameterSpec algParamSpec, SecureRandom random)
             throws InvalidAlgorithmParameterException {
 
-        if (random == null) {
-            try {
-                this.cryptoRandom = SecureRandom.getInstance("SHA256DRBG");
-            } catch (Exception ex) {
-                RuntimeException rtex = new RuntimeException(
-                        "SecureRandom.getInstance(\"SHA256DRBG\") failed");
-                throw rtex;
-            }
-        } else {
-            this.cryptoRandom = random;
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(random);
         }
 
         if (algParamSpec instanceof CCMParameterSpec) {

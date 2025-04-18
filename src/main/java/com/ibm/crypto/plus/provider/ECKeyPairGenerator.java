@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -23,7 +23,7 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
 
     private OpenJCEPlusProvider provider = null;
     private int keysize = 256;
-    SecureRandom random = null;
+    private SecureRandom cryptoRandom = null;
     ECParameterSpec ecSpec;
     private ObjectIdentifier oid = null;
 
@@ -36,7 +36,9 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
         this.keysize = keysize;
         this.ecSpec = null;
         this.oid = null;
-        this.random = provider.getSecureRandom(random);
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(random);
+        }
         if (provider.isFIPS()) {
             if (keysize < 224 || keysize > 521) {
                 throw new InvalidParameterException("Curve not supported in FIPS");
@@ -98,16 +100,16 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
     public KeyPair generateKeyPair() {
 
         ECKey ecKey = null;
-        // set random if initialize() method has been skipped
-        if (this.random == null) {
-            this.random = provider.getSecureRandom(this.random);
+        // set cryptoRandom if initialize() method has been skipped
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(null);
         }
 
         try {
 
             if (this.oid != null) {
                 ecKey = ECKey.generateKeyPair(provider.getOCKContext(), this.oid.toString(),
-                        random);
+                        cryptoRandom);
             } else if (this.ecSpec != null) {
 
                 byte[] encodedCustomCurveParameters = ECParameters.encodeECParameters(this.ecSpec);
@@ -115,10 +117,10 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
                 // specification encodedParameters=" +
                 // ECUtils.bytesToHex(encodedCustomCurveParameters));
                 ecKey = ECKey.generateKeyPair(provider.getOCKContext(),
-                        encodedCustomCurveParameters, random);
+                        encodedCustomCurveParameters, cryptoRandom);
             } else if (this.keysize > 0 && (ecSpec == null)) {
 
-                ecKey = ECKey.generateKeyPair(provider.getOCKContext(), this.keysize, random);
+                ecKey = ECKey.generateKeyPair(provider.getOCKContext(), this.keysize, cryptoRandom);
             }
 
             java.security.interfaces.ECPrivateKey privKey = new ECPrivateKey(provider, ecKey);

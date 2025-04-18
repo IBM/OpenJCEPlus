@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -25,7 +25,7 @@ public final class ChaCha20KeyGenerator extends KeyGeneratorSpi implements ChaCh
 
     private OpenJCEPlusProvider provider = null;
     private int keysize = ChaCha20_KEY_SIZE;
-    private SecureRandom cryptoRandom;
+    private SecureRandom cryptoRandom = null;
 
     /**
      * Empty constructor
@@ -45,12 +45,12 @@ public final class ChaCha20KeyGenerator extends KeyGeneratorSpi implements ChaCh
      */
     @Override
     protected SecretKey engineGenerateKey() {
-        if (this.cryptoRandom == null) {
-            this.cryptoRandom = provider.getSecureRandom(null);
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(null);
         }
 
         byte[] keyBytes = new byte[this.keysize];
-        this.cryptoRandom.nextBytes(keyBytes);
+        cryptoRandom.nextBytes(keyBytes);
 
         try {
             return new ChaCha20Key(keyBytes);
@@ -75,7 +75,9 @@ public final class ChaCha20KeyGenerator extends KeyGeneratorSpi implements ChaCh
         // If in FIPS mode, SecureRandom must be internal and FIPS approved.
         // For FIPS mode, user provided random generator will be ignored.
         //
-        this.cryptoRandom = provider.getSecureRandom(random);
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(random);
+        }
     }
 
     /**

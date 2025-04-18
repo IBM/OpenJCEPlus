@@ -48,7 +48,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
     private boolean initialized = false;
     private boolean aadDone = false;
     //final static String debPrefix = "ChaCha20Poly1305 ";
-    private SecureRandom random = null;
+    private SecureRandom cryptoRandom = null;
 
     public ChaCha20Poly1305Cipher(OpenJCEPlusProvider provider) {
         if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
@@ -514,9 +514,11 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
     }
 
     private byte[] generateRandomNonce(SecureRandom random) {
-        this.random = (random != null) ? random : provider.getSecureRandom(random);
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(random);
+        }
         byte[] generatedNonce = new byte[ChaCha20_NONCE_SIZE];
-        random.nextBytes(generatedNonce);
+        cryptoRandom.nextBytes(generatedNonce);
 
         return generatedNonce;
     }

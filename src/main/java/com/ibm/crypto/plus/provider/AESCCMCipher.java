@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -45,7 +45,7 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
     private BigInteger generatedIVCtrField = null;
     private byte[] generatedIVDevField = null;
     private boolean generateIV = false;
-    private static SecureRandom random = null;
+    private SecureRandom cryptoRandom = null;
 
     private byte[] IV = null;
     private byte[] newIV = null;
@@ -626,8 +626,10 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
 
     private byte[] generateInternalIV() throws IllegalStateException {
         byte[] generatedIV = new byte[DEFAULT_AES_CCM_IV_LENGTH];
-        SecureRandom secureRandom = new SecureRandom();
-        secureRandom.nextBytes(generatedIV);
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(null);
+        }
+        cryptoRandom.nextBytes(generatedIV);
         return generatedIV;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -24,7 +24,7 @@ public final class GCMParameterGenerator extends AlgorithmParameterGeneratorSpi
     private OpenJCEPlusProvider provider = null;
     private AlgorithmParameters generatedParameters;
     // private GCMParameterSpec gcmParamSpec;
-    private SecureRandom cryptoRandom;
+    private SecureRandom cryptoRandom = null;
 
     /**
      * Constructs a new GCMParameterGenerator instance.
@@ -43,12 +43,13 @@ public final class GCMParameterGenerator extends AlgorithmParameterGeneratorSpi
     protected void engineInit(int size, SecureRandom random) {
         // we don't care about a size for GCMParameters
 
-        this.cryptoRandom = provider.getSecureRandom(random);
-
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(random);
+        }
         // we'll take the random and use it as an IV
         byte[] iv = new byte[AES_BLOCK_SIZE];
 
-        this.cryptoRandom.nextBytes(iv);
+        cryptoRandom.nextBytes(iv);
 
         GCMParameterSpec ivSpec = new GCMParameterSpec(DEFAULT_TAG_LENGTH, iv);
         // this.gcmParamSpec = ivSpec;
@@ -74,8 +75,9 @@ public final class GCMParameterGenerator extends AlgorithmParameterGeneratorSpi
     protected void engineInit(AlgorithmParameterSpec algParamSpec, SecureRandom random)
             throws InvalidAlgorithmParameterException {
 
-        this.cryptoRandom = provider.getSecureRandom(random);
-
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(random);
+        }
         if (algParamSpec instanceof GCMParameterSpec) {
             AlgorithmParameters result;
             try {
