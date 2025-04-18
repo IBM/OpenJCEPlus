@@ -11,6 +11,7 @@ package ibm.jceplus.junit.base;
 
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -18,13 +19,18 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestRSAPSS extends BaseTestJunit5 {
 
@@ -305,6 +311,51 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
         } catch (Exception e) {
             e.printStackTrace();
             assertTrue(false);
+        }
+    }
+
+    /**
+     * PSSParameterSpec with different message digest and MGF1
+     * According to [PKCS#1v2.1] the mask generation function (MGF) 
+     * – if based on a hash algo is recommended to use the same hash 
+     * function as the hash function fingerprinting the message. 
+     * 
+     * However the structures in [PKCS#1v2.1] allow for separate 
+     * parameterization of the MGF and the message digest.
+     * 
+     * OpenJCEPlus uses the same message digest, this test aims to
+     * check if RSAPSSSignature will fail if different MD is used.
+     * @throws Exception
+     */
+    @ParameterizedTest
+    @CsvSource({"SHA256, SHA384",
+                "SHA256, SHA512",
+                "SHA384, SHA512",
+                "SHA512, SHA384"})
+    public void testRSASignatureDifferentMGFandMD(String mdName, String mgfSpecMD) throws Exception {
+        AlgorithmParameterSpec mgfSpec = null;
+
+        switch (mgfSpecMD) {
+            case "SHA256":
+                mgfSpec = MGF1ParameterSpec.SHA256;
+                break;
+            case "SHA384":
+                mgfSpec = MGF1ParameterSpec.SHA384;
+                break;
+            case "SHA512":
+                mgfSpec = MGF1ParameterSpec.SHA512;
+                break;
+            default:
+                mgfSpec = MGF1ParameterSpec.SHA512;
+                break;
+        }
+        PSSParameterSpec pssParameter = new PSSParameterSpec(mdName, "MGF1",
+                mgfSpec, 20, 1);
+        try {
+            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
+            fail("Expected exception not thrown");
+        } catch (InvalidAlgorithmParameterException iape) {
+            assertEquals("The message digest within the PSSParameterSpec does not match the MGF message digest.", iape.getMessage());
         }
     }
 
