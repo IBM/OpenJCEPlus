@@ -36,6 +36,7 @@ import org.junit.platform.suite.api.Suite;
     TestAESGCMUpdate.class,
     TestAESGCMWithByteBuffer.class,
     TestAliases.class,
+    TestDeterministic.class,
     TestDH.class,
     TestDHInteropSunJCE.class,
     TestDHKeyFactory.class,
