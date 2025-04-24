@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -46,7 +46,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
     private BigInteger generatedIVCtrField = null;
     private byte[] generatedIVDevField = null;
     private boolean generateIV = false;
-    private static SecureRandom random = null;
+    private SecureRandom cryptoRandom = null;
 
     private byte[] IV = null;
     private byte[] newIV = null;
@@ -778,16 +778,11 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
          */
 
         if (firstIV) {
-            // SecureRandom random = null;
-            if (random == null) {
-                synchronized (AESGCMCipher.class) {
-                    if (random == null) {
-                        random = provider.getSecureRandom(null);
-                    }
-                }
+            if (cryptoRandom == null) {
+                cryptoRandom = provider.getSecureRandom(null);
             }
             generatedIVDevField = new byte[GENERATED_IV_DEVICE_FIELD_LENGTH];
-            random.nextBytes(generatedIVDevField);
+            cryptoRandom.nextBytes(generatedIVDevField);
             generatedIVCtrField = new BigInteger(GENERATED_IV_MAX_INVOCATIONS);
         }
 

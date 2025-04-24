@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -37,6 +37,7 @@ public final class DESedeCipher extends CipherSpi implements DESConstants {
     private byte[] iv = null;
     private boolean encrypting = true;
     private boolean initialized = false;
+    private SecureRandom cryptoRandom = null;
 
     public DESedeCipher(OpenJCEPlusProvider provider) {
 
@@ -168,7 +169,9 @@ public final class DESedeCipher extends CipherSpi implements DESConstants {
             throw new InvalidKeyException("Parameters missing");
         }
 
-        SecureRandom cryptoRandom = provider.getSecureRandom(random);
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(random);
+        }
 
         byte[] generatedIv = new byte[DES_BLOCK_SIZE];
         cryptoRandom.nextBytes(generatedIv);
