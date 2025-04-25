@@ -103,7 +103,7 @@ public class BaseTestDeterministic extends BaseTestJunit5 {
         var ct2 = c.doFinal("asimpleplaintext".getBytes(StandardCharsets.UTF_8));
 
         String algorithm = s.getAlgorithm();
-        if ((algorithm.equals("RSA"))) {
+        if ((algorithm.equals("RSA") || algorithm.contains("ChaCha20"))) {
             //OpenJCEPlus ignores random generators used when initializing ciphers.
             System.out.println(
                     "OpenJCEPlus ignores random generators used within Ciphers: " + algorithm);
