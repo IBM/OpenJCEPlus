@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -41,6 +41,7 @@ public final class AESCipher extends CipherSpi implements AESConstants {
     private byte[] buffer = null;
     private boolean use_z_fast_command;
     private static int isHardwareSupport = 0;
+    private SecureRandom cryptoRandom = null;
 
     public AESCipher(OpenJCEPlusProvider provider) {
         if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
@@ -228,8 +229,9 @@ public final class AESCipher extends CipherSpi implements AESConstants {
             throw new InvalidKeyException("Parameters missing");
         }
 
-        SecureRandom cryptoRandom = provider.getSecureRandom(random);
-
+        if (cryptoRandom == null) {
+            cryptoRandom = provider.getSecureRandom(random);
+        }
         byte[] generatedIv = new byte[AES_BLOCK_SIZE];
         cryptoRandom.nextBytes(generatedIv);
 
