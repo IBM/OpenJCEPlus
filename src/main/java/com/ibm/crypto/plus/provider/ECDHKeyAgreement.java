@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -203,10 +203,12 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
         if (algorithm == null) {
             throw new NoSuchAlgorithmException("Algorithm must not be null");
         }
-        if (!(algorithm.equals("TlsPremasterSecret"))) {
-            throw new NoSuchAlgorithmException("Only supported for algorithm TlsPremasterSecret");
+        if (!(algorithm.equalsIgnoreCase("TlsPremasterSecret")
+                || algorithm.equalsIgnoreCase("Generic"))) {
+            throw new NoSuchAlgorithmException(
+                    "Unsupported secret key algorithm: " + algorithm);
         }
-        return new SecretKeySpec(engineGenerateSecret(), "TlsPremasterSecret");
+        return new SecretKeySpec(engineGenerateSecret(), algorithm);
     }
 
     @Override

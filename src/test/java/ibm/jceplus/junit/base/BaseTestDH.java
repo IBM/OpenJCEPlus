@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -17,10 +17,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
+import java.util.List;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestDH extends BaseTestJunit5 {
@@ -210,6 +212,23 @@ public class BaseTestDH extends BaseTestJunit5 {
             assertTrue(true);
         }
 
+    }
+
+    @Test
+    public void test_engineGenerateSecret() throws Exception {
+        try {
+            KeyPairGenerator g = KeyPairGenerator.getInstance("DH", getProviderName());
+            KeyPair kp1 = g.generateKeyPair();
+            KeyPair kp2 = g.generateKeyPair();
+            KeyAgreement ka = KeyAgreement.getInstance("DH", getProviderName());
+            for (String alg : List.of("TlsPremasterSecret", "Generic")) {
+                ka.init(kp1.getPrivate());
+                ka.doPhase(kp2.getPublic(), true);
+                assertEquals(ka.generateSecret(alg).getAlgorithm(), alg);
+            }
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     void compute_dh_key(String idString, AlgorithmParameterSpec algParameterSpec)
