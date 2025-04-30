@@ -13,6 +13,7 @@ import groovy.transform.Field;
 @Field boolean X86_64_LINUX
 @Field boolean PPC64LE_LINUX
 @Field boolean S390X_LINUX
+@Field boolean S390_ZOS
 @Field boolean X86_64_WINDOWS
 @Field boolean AARCH64_MAC
 @Field boolean X86_64_MAC
@@ -56,6 +57,10 @@ def getPlatforms() {
         platforms.add("s390x_linux")
     }
 
+    if (S390_ZOS == "true") {
+        platforms.add("s390_zos")
+    }
+
     if (X86_64_WINDOWS == "true") {
         platforms.add("x86-64_windows")
     }
@@ -82,6 +87,7 @@ def getPlatforms() {
  */
 def isBuildable(hardware, software) {
     return ((software == "aix")
+        || (software == "zos")
         || ((software == "linux") && ((hardware == "x86-64")
                                    || (hardware == "ppc64le")
                                    || (hardware == "s390x")
@@ -127,6 +133,8 @@ def getOCKTarget(hardware, software) {
         if (hardware == "x86-64") {
             target = "win64_x86"
         }
+    } else if (software == "zos") {
+        target = "zos"
     }
 
     return target
@@ -153,8 +161,8 @@ def getBinaries(hardware, software) {
     }
     dir("openjceplus/OCK") {
         withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'GSKIT_PASSWORD', usernameVariable: 'GSKIT_USERNAME')]) {
-            sh "curl -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_bin > jgsk_crypto.tar"
-            sh "curl -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_sdk_bin > jgsk_crypto_sdk.tar"
+            sh "curl -k -O -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_bin"
+            sh "curl -k -O -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_sdk_bin"
         }
         untar file: 'jgsk_crypto.tar'
         untar file: 'jgsk_crypto_sdk.tar'
@@ -196,26 +204,50 @@ def getJava(hardware, software) {
         def java_release_link = JAVA_RELEASE.replace("+", "%2B")
         java_link = "https://api.adoptopenjdk.net/v3/binary/version/${java_release_link}/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
     }
-    
-    dir("java") {
-        sh "curl -LJkO ${java_link}"
-        def java_file = sh (
-            script: 'ls | grep \'tar\\|zip\'',
-            returnStdout: true
-        ).trim()
 
-        if (software == "windows") {
-            unzip zipFile: "$java_file"
+    dir("java") {
+        if (software == "zos") {
+            withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'JENKINS_API_TOKEN', usernameVariable: 'JENKINS_USER')]) {
+                sh "curl -k -O -u $JENKINS_USER:$JENKINS_API_TOKEN https://na.artifactory.swg-devops.com/artifactory/hyc-rt-java-delivery-generic-local/ibm/semeru-certified/21.0/21.0.7/s390x_zos/ibm-semeru-certified-jdk_s390x_zos_21.0.7.0-20250501-033334.pax.Z"
+            }
         } else {
+            sh "curl -LJkO ${java_link}"
+        }
+        echo "here0"
+        if (software != "zos") {
+            def java_file = sh (
+                script: 'ls | grep \'tar\\|zip\\|Z\'',
+                returnStdout: true
+            ).trim()
+            echo "java_file $java_file"
+        }
+
+        echo "here1"
+        if (software == "windows") {
+            echo "here1.9"
+            unzip zipFile: "$java_file"
+        } else if (software == "zos") {
+            echo "here2"
+            sh "ls -al"
+            sh "pax -rvf ibm-semeru-certified-jdk_s390x_zos_21.0.7.0-20250501-033334.pax.Z"
+            sh "ls -al"
+            sh "rm ibm-semeru-certified-jdk_s390x_zos_21.0.7.0-20250501-033334.*"
+            sh "mv J21.0_64 jdk-21.0.0"
+        } else {
+            echo "here2.1"
             untar file: "$java_file"
         }
-        sh "rm $java_file"
 
-        def java_folder = sh (
-            script: "ls | grep \'jdk-${JAVA_VERSION}\'",
-            returnStdout: true
-        ).trim()
-        fileOperations([folderRenameOperation(destination: 'jdk', source: "$java_folder")])
+        if (software != "zos") {
+            sh "rm $java_file"
+            echo "here3"
+
+            def java_folder = sh (
+                script: "ls | grep \'jdk-${JAVA_VERSION}\'",
+                returnStdout: true
+            ).trim()
+            fileOperations([folderRenameOperation(destination: 'jdk', source: "$java_folder")])
+        }
 
         // AIX always loads the bundled version of native libraries. We delete them to
         // ensure that the one provided by the user is utilized.
@@ -225,6 +257,7 @@ def getJava(hardware, software) {
                             folderDeleteOperation('jdk/lib/C'),
                             folderDeleteOperation('jdk/lib/N')])
         }
+        echo "here4"
     }
 }
 
@@ -480,18 +513,23 @@ def run(platform) {
                 nodeTags += "&&ci.role.build"
             }
 
-            // Machines tagged as ci.role.test are expected to have
-            // software to compile, build, and test OpenJCEPlus.
-            nodeTags += "&&ci.role.test"
+            if (software == "zos") {
+                nodeTags = "sw.os.zos"
+            } else {
 
-            // Exclude machines that are FIPS140-2 configured.
-            nodeTags += "&&!ci.role.test.fips"
+                // Machines tagged as ci.role.test are expected to have
+                // software to compile, build, and test OpenJCEPlus.
+                nodeTags += "&&ci.role.test"
 
-            // Add additional labels specified by user.
-            nodeTags += (ADDITIONAL_NODE_LABELS) ? "&&" + ADDITIONAL_NODE_LABELS : ""
+                // Exclude machines that are FIPS140-2 configured.
+                nodeTags += "&&!ci.role.test.fips"
 
-            // Override labels as specified by user.
-            nodeTags = (OVERRIDE_NODE_LABELS) ?: nodeTags
+                // Add additional labels specified by user.
+                nodeTags += (ADDITIONAL_NODE_LABELS) ? "&&" + ADDITIONAL_NODE_LABELS : ""
+
+                // Override labels as specified by user.
+                nodeTags = (OVERRIDE_NODE_LABELS) ?: nodeTags
+            }
 
             echo "${nodeTags}"
 
@@ -547,22 +585,24 @@ pipeline {
                 font-style: italic;
             """
         )
-        booleanParam(name: 'ppc64_aix', defaultValue: true, description: '\
+        booleanParam(name: 'ppc64_aix', defaultValue: false, description: '\
             Build for ppc64_aix platform')
-        booleanParam(name: 'x86_64_linux', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_linux', defaultValue: false, description: '\
             Build for x86-64_linux platform')
-        booleanParam(name: 'ppc64le_linux', defaultValue: true, description: '\
+        booleanParam(name: 'ppc64le_linux', defaultValue: false, description: '\
             Build for ppc64le_linux platform')
-        booleanParam(name: 's390x_linux', defaultValue: true, description: '\
+        booleanParam(name: 's390x_linux', defaultValue: false, description: '\
             Build for s390x_linux platform')
-        booleanParam(name: 'x86_64_windows', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_windows', defaultValue: false, description: '\
             Build for x86-64_windows platform')
-        booleanParam(name: 'aarch64_mac', defaultValue: true, description: '\
+        booleanParam(name: 'aarch64_mac', defaultValue: false, description: '\
             Build for aarch64_mac platform')
-        booleanParam(name: 'x86_64_mac', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_mac', defaultValue: false, description: '\
             Build for x86-64_mac platform')
-        booleanParam(name: 'aarch64_linux', defaultValue: true, description: '\
+        booleanParam(name: 'aarch64_linux', defaultValue: false, description: '\
             Build for aarch64_linux platform')
+        booleanParam(name: 's390_zos', defaultValue: true, description: '\
+            Build for s390_zos platform')
         separator(name: "BuildAndTestPlatforms", sectionHeader: "Build And Test Options",
             separatorStyle: "border-width: 0",
             sectionHeaderStyle: """
@@ -664,6 +704,7 @@ pipeline {
                         X86_64_LINUX = "${params.x86_64_linux}"
                         PPC64LE_LINUX="${params.ppc64le_linux}"
                         S390X_LINUX="${params.s390x_linux}"
+                        S390_ZOS="${params.s390_zos}"
                         X86_64_WINDOWS="${params.x86_64_windows}"
                         AARCH64_MAC="${params.aarch64_mac}"
                         X86_64_MAC="${params.x86_64_mac}"
