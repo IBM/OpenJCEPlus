@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -37,11 +37,8 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
         if (input == null) {
             throw new IllegalArgumentException("No input buffer given");
         }
-        if (offset < 0) {
-            throw new ArrayIndexOutOfBoundsException("offset is negative");
-        }
-        if ((input.length - offset) < length) {
-            throw new IllegalArgumentException("Input buffer too short");
+        if ((offset < 0) || (length < 0) || (offset > input.length - length)) {
+            throw new ArrayIndexOutOfBoundsException("Range out of bounds for buffer of length " + input.length +" using offset: " + offset + ", input length: " + length);
         }
         try {
             this.digest.update(input, offset, length);
