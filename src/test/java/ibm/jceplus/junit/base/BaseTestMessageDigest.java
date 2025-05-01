@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2024
+ * Copyright IBM Corp. 2024, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -12,9 +12,11 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
-abstract public class BaseTestMessageDigestClone extends BaseTestJunit5 {
+abstract public class BaseTestMessageDigest extends BaseTestJunit5 {
 
     final byte[] input_1 = {(byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61,
             (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61};
@@ -82,5 +84,50 @@ abstract public class BaseTestMessageDigestClone extends BaseTestJunit5 {
         byte[] digest2 = mdCopy.digest(input_3);
 
         assertFalse(Arrays.equals(digest1, digest2), "Digest of original matches clone's digest when it shouldn't");
+    }
+
+    /**
+     * Ensure a ArrayIndexOutOfBoundsException is thrown with negative offset parameter.
+     */
+    @Test
+    public void tesNegativeOffset() throws Exception {
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
+        byte[] bytes = new byte[] {1, 1, 1, 1, 1};
+        try {
+            md.update(bytes, -1, 1);
+            fail("Expected exception not thrown.");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            assertEquals("Range out of bounds for buffer of length 5 using offset: -1, input length: 1", e.getMessage());
+        }
+    }
+
+    /**
+     * Ensure a ArrayIndexOutOfBoundsException is thrown with negative length parameter.
+     */
+    @Test
+    public void testNegativeLength() throws Exception {
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
+        byte[] bytes = new byte[] {1, 1, 1, 1, 1};
+        try {
+            md.update(bytes, 1, -1);
+            fail("Expected exception not thrown.");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            assertEquals("Range out of bounds for buffer of length 5 using offset: 1, input length: -1", e.getMessage());
+        }
+    }
+
+    /**
+     * Ensure a IllegalArgumentException is thrown when using a short buffer.
+     */
+    @Test
+    public void testShortBuffer() throws Exception {
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
+        byte[] bytes = new byte[] {1, 1, 1, 1, 1};
+        try {
+            md.update(bytes, 1, 5);
+            fail("Expected exception not thrown.");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Input buffer too short", e.getMessage());
+        }
     }
 }
