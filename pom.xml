@@ -48,6 +48,46 @@
             </properties>
           </profile>
           <profile>
+            <id>Profile for z/OS s390x</id>
+            <activation>
+              <os>
+                <name>z/OS</name>
+                <arch>s390x</arch>
+              </os>
+            </activation>
+            <properties>
+              <style.encoding>IBM1047</style.encoding>
+              <build.native.file>${basedir}/buildNative.sh</build.native.file>
+              <build.platform.value>s390-zos64</build.platform.value>
+              <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-mz-64/</build.target.jgskitlib.dir>
+            </properties>
+            <build>
+              <plugins>
+                <plugin>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>exec-maven-plugin</artifactId>
+                  <executions>
+                    <execution>
+                      <id>Execute Native Library Build Script</id>
+                      <phase>compile</phase>
+                      <goals>
+                        <goal>exec</goal>
+                      </goals>
+                      <configuration>
+                        <skip>${skip.native.compile}</skip>
+                        <environmentVariables>
+                          <PLATFORM>${build.platform.value}</PLATFORM>
+                        </environmentVariables>
+                        <executable>bash</executable>
+                        <commandlineArgs>${build.native.file}</commandlineArgs>
+                      </configuration>
+                    </execution>
+                    </executions>
+                </plugin>
+              </plugins>
+            </build>
+          </profile>
+          <profile>
             <id>Profile for linux s390x</id>
             <activation>
               <os>
@@ -227,7 +267,7 @@
             </build>
           </profile>
           <!--
-          Profile expected to be active when testing OpenJCEPlus that is contained within 
+          Profile expected to be active when testing OpenJCEPlus that is contained within
           a bundled SDK. A provider built by the project locally is not tested in this case,
           instead the one within the SDK is tested.
           -->
@@ -326,6 +366,7 @@
                 <version>3.5.0</version>
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
+                    <inputEncoding>${style.encoding}</inputEncoding>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -374,16 +415,16 @@
                     <target>${jdk.build.target}</target>
                     <compilerArgs>
                         <arg>-XDignore.symbol.file</arg>
-                        <arg>-Xlint:all</arg> 
-                        <arg>--add-exports </arg> 
+                        <arg>-Xlint:all</arg>
+                        <arg>--add-exports </arg>
                         <arg>java.base/sun.security.internal.spec=openjceplus</arg>
-                        <arg>--add-exports </arg> 
+                        <arg>--add-exports </arg>
                         <arg>java.base/sun.security.util=${test.compilation.export.target}</arg>
-                        <arg>--add-exports </arg> 
+                        <arg>--add-exports </arg>
                         <arg>java.base/sun.security.x509=${test.compilation.export.target}</arg>
-                        <arg>--add-exports </arg> 
+                        <arg>--add-exports </arg>
                         <arg>java.base/sun.security.pkcs=${test.compilation.export.target}</arg>
-                        <arg>--add-exports </arg> 
+                        <arg>--add-exports </arg>
                         <arg>java.base/sun.security.internal.interfaces=openjceplus</arg>
                         <arg>--add-exports </arg>
                         <arg>java.base/sun.util.logging=openjceplus</arg>
@@ -431,7 +472,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin> <!-- Ensure that a maven "clean" does not delete our already-built DLL. Leave 
+            <plugin> <!-- Ensure that a maven "clean" does not delete our already-built DLL. Leave
                     that to the makefiles. -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
