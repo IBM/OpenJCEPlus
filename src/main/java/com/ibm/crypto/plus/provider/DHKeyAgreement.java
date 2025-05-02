@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -201,9 +201,11 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
             throw new NoSuchAlgorithmException("null algorithm");
         }
 
-        if (!algorithm.equalsIgnoreCase("TlsPremasterSecret") && !AllowKDF.VALUE) {
+        if (!(algorithm.equalsIgnoreCase("TlsPremasterSecret")
+                || algorithm.equalsIgnoreCase("Generic"))
+            && !AllowKDF.VALUE) {
             throw new NoSuchAlgorithmException(
-                    "Unsupported secret key " + "algorithm: " + algorithm);
+                    "Unsupported secret key algorithm: " + algorithm);
         }
 
         byte[] secret = engineGenerateSecret();
@@ -229,12 +231,15 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
                 throw new InvalidKeyException("Key material is too short");
             }
             return skey;
-        } else if (algorithm.equals("TlsPremasterSecret")) {
+        } else if (algorithm.equalsIgnoreCase("TlsPremasterSecret")) {
             // remove leading zero bytes per RFC 5246 Section 8.1.2
-            return new SecretKeySpec(KeyUtil.trimZeroes(secret), "TlsPremasterSecret");
+            return new SecretKeySpec(
+                    KeyUtil.trimZeroes(secret), "TlsPremasterSecret");
+        } else if (algorithm.equalsIgnoreCase("Generic")) {
+            return new SecretKeySpec(secret, algorithm);
         } else {
             throw new NoSuchAlgorithmException(
-                    "Unsupported secret key " + "algorithm: " + algorithm);
+                    "Unsupported secret key algorithm: " + algorithm);
         }
     }
 
