@@ -94,6 +94,7 @@ import org.junit.platform.suite.api.Suite;
     TestIsAssignableFromOrder.class,
     TestMD5.class,
     TestMiniRSAPSS2.class,
+    TestOAEPOrderCheck.class,
     TestPBKDF2.class,
     TestPBKDF2Interop.class,
     TestPublicMethodsToMakeNonPublic.class,
