@@ -334,7 +334,6 @@
                         <sourceDirectory>src</sourceDirectory>
                         <sourceDirectory>src/native</sourceDirectory>
                     </sourceDirectories>
-                    <encoding>UTF-8</encoding>
                 </configuration>
                 <executions>
                     <execution>
