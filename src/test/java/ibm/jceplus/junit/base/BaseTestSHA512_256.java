@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestSHA512_256 extends BaseTestMessageDigestClone {
+public class BaseTestSHA512_256 extends BaseTestMessageDigest {
 
     // Test vectors obtained from
     // http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA512_256.pdf
