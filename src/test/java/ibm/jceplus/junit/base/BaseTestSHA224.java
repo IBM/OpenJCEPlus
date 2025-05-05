@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestSHA224 extends BaseTestMessageDigestClone {
+public class BaseTestSHA224 extends BaseTestMessageDigest {
     static final byte[] input_1 = {(byte) 0x61, (byte) 0x62, (byte) 0x63};
     static final byte[] digest_1 = {(byte) 0x23, (byte) 0x09, (byte) 0x7d, (byte) 0x22, (byte) 0x34,
             (byte) 0x05, (byte) 0xd8, (byte) 0x22, (byte) 0x86, (byte) 0x42, (byte) 0xa4,
