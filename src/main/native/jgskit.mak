@@ -37,13 +37,19 @@ else ifeq (${PLATFORM},s390-linux64)
   CFLAGS+= -DS390_PLATFORM -DLINUX -Werror
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},s390-zos64)
-  CC=xlc
+  CC=ibm-clang64
   PLAT=mz
   CFLAGS= -DS390
-  CFLAGS+= -O3 -Wc,strict,hgpr,hot
-  CFLAGS+= -Wc,XPLINK,LP64,DLL,exportall
-  LDFLAGS= -Wl,XPLINK,LP64,DLL,AMODE=64
-  ICCARCHIVE = ${GSKIT_HOME}/libjgsk8iccs_64.x
+
+  # Open XL implies strict
+  # https://www.ibm.com/docs/en/open-xl-c-cpp-zos/1.1?topic=options-qstrict
+  # HGPR options seems unnecessary for 64-bit environment
+  # HOT option not supported
+  CFLAGS+= -O3
+  CFLAGS+= -fvisibility=default
+  CFLAGS+= -fstack-protector-strong
+  LDFLAGS= -Wl,-bAMODE=64
+  ICCARCHIVE = $(GSKIT_HOME)/libjgsk8iccs_64.x
   OSINCLUDEDIR=zos
 else ifeq (${PLATFORM},x86-linux64)
   PLAT=xa
