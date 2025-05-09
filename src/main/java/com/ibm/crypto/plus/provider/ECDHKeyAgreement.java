@@ -43,6 +43,7 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
     private ECKey ockEcKeyPriv = null;
     private ECPublicKey ecPublicKey = null;
     private ECPrivateKey ecPrivateKey = null;
+    private int secretLen;
 
     public ECDHKeyAgreement(OpenJCEPlusProvider provider) {
 
@@ -108,6 +109,9 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
         if (!(init_cofactor == pub_cofactor)) {
             throw new InvalidKeyException("Incompatible parameters");
         }
+
+        int keyLenBits = ecPubKey.getParams().getCurve().getField().getFieldSize();
+        secretLen = (keyLenBits + 7) >> 3;
 
         // store the y value
         this.y = ecPubKey.getW();
@@ -220,6 +224,12 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
 
         if (sharedSecret == null) {
             throw new ShortBufferException("No buffer provided for shared secret");
+        }
+
+        if (secretLen > sharedSecret.length - offset) {
+            throw new ShortBufferException("Need " + secretLen
+                + " bytes, only " + (sharedSecret.length - offset)
+                + " available");
         }
 
         byte[] secret = engineGenerateSecret();
