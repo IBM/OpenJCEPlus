@@ -13,6 +13,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
+import java.security.ProviderException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.NamedParameterSpec;
@@ -74,7 +75,12 @@ abstract class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
     @Override
     public void initialize(int keySize, SecureRandom random) {
         CurveUtil.CURVE curve = CurveUtil.getCurveOfSize(keySize);
-        initializeImpl(new NamedParameterSpec(curve.name()));
+        try {
+            initializeImpl(new NamedParameterSpec(curve.name()));
+        } catch (InvalidAlgorithmParameterException iape) {
+            // should never happen
+            throw new ProviderException(iape);
+        }
     }
 
     /**
@@ -88,13 +94,13 @@ abstract class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
     public void initialize(AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidAlgorithmParameterException {
         NamedParameterSpec nps = null;
-        
+
         if (params instanceof NamedParameterSpec) {
             nps = (NamedParameterSpec) params;
         } else {
             throw new InvalidAlgorithmParameterException("Invalid AlgorithmParameterSpec: " + params);
         }
-        
+
         initializeImpl(nps);
     }
 
@@ -104,14 +110,14 @@ abstract class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
      * @param params
      * @throws InvalidParameterException
      */
-    private void initializeImpl(NamedParameterSpec params) {
+    private void initializeImpl(NamedParameterSpec params) throws InvalidAlgorithmParameterException {
         //Validate that the parameters match the alg specified on creation of this object
         if (this.alg != null && !params.getName().equals(this.alg)) {
             namedSpec = null;
             throw new InvalidParameterException("Parameters must be " + this.alg);
         }
 
-        serviceCurve = CurveUtil.getCurve(params.getName());
+        serviceCurve = CurveUtil.getXCurve(params);
         namedSpec = params;
     }
 

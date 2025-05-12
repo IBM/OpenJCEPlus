@@ -9,6 +9,7 @@
 package com.ibm.crypto.plus.provider;
 
 
+import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
 import com.ibm.crypto.plus.provider.ock.OCKException;
 import com.ibm.crypto.plus.provider.ock.XECKey;
 import java.security.InvalidAlgorithmParameterException;
@@ -224,8 +225,16 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
             throws InvalidKeyException, InvalidAlgorithmParameterException {
 
         // Check if parameter is a valid NamedParameterSpec instance
-        if ((params != null) && !(params instanceof NamedParameterSpec)) {
-            throw new InvalidAlgorithmParameterException("Invalid Parameters: " + params);
+        if (params != null) {
+            if (params instanceof NamedParameterSpec) {
+                NamedParameterSpec nps = (NamedParameterSpec) params;
+                CURVE curve = CurveUtil.getXCurve(nps);
+                if ((this.alg != null) && !this.alg.equalsIgnoreCase(curve.name())) {
+                    throw new InvalidAlgorithmParameterException("Invalid Parameters: " + params);
+                }
+            } else {
+                throw new InvalidAlgorithmParameterException("Invalid Parameters: " + params);
+            }
         }
 
         if (!(key instanceof XDHPrivateKeyImpl)) {
@@ -245,7 +254,8 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
         if (this.alg != null
                 && !(((NamedParameterSpec) ((XDHPrivateKeyImpl) key).getParams())
                         .getName().equals(this.alg))) {
-            throw new InvalidKeyException("Parameters must be " + this.alg);
+            throw new InvalidKeyException("Parameters must be " + this.alg + " but is " + ((NamedParameterSpec) ((XDHPrivateKeyImpl) key).getParams())
+            .getName());
         }
 
         ockXecKeyPriv = xdhPrivateKeyImpl.getOCKKey();

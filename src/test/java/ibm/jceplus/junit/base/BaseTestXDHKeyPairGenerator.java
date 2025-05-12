@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.XECPrivateKey;
@@ -15,6 +16,7 @@ import java.security.interfaces.XECPublicKey;
 import java.security.spec.NamedParameterSpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestXDHKeyPairGenerator extends BaseTestJunit5 {
 
@@ -60,6 +62,24 @@ public class BaseTestXDHKeyPairGenerator extends BaseTestJunit5 {
     @Test
     public void testXECKeyGen_FFDHE8192() throws Exception {
         doXECKeyGen(8192);
+    }
+
+    @Test
+    public void testInvalidSpec() throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("XDH", getProviderName());
+        try {
+            kpg.initialize(new NamedParameterSpec("invalid"));
+            fail("Expected InvalidAlgorithmParameterException not thrown");
+        } catch (InvalidAlgorithmParameterException iape) {
+            // expected
+        }
+
+        try {
+            kpg.initialize(new NamedParameterSpec("Ed25519"));
+            fail("Expected InvalidAlgorithmParameterException not thrown");
+        } catch (InvalidAlgorithmParameterException iape) {
+            // expected
+        }
     }
 
     public void doXECKeyGen(int keypairSize) throws Exception {
