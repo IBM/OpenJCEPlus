@@ -9,6 +9,7 @@
 package com.ibm.crypto.plus.provider;
 
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.Key;
@@ -68,7 +69,11 @@ class XDHKeyFactory extends KeyFactorySpi {
                 }
 
                 BigInteger u = publicKeySpec.getU();
-                return new XDHPublicKeyImpl(provider, params, u);
+                try {
+                    return new XDHPublicKeyImpl(provider, params, u);
+                } catch (InvalidAlgorithmParameterException iape) {
+                    throw new InvalidKeySpecException(iape);
+                }
             } else if (keySpec instanceof X509EncodedKeySpec) {
                 return new XDHPublicKeyImpl(provider, ((X509EncodedKeySpec) keySpec).getEncoded());
             } else
@@ -100,7 +105,11 @@ class XDHKeyFactory extends KeyFactorySpi {
                 }
 
                 Optional<byte[]> scalar = Optional.of(privateKeySpec.getScalar());
-                return new XDHPrivateKeyImpl(provider, params, scalar);
+                try {
+                    return new XDHPrivateKeyImpl(provider, params, scalar);
+                } catch (InvalidAlgorithmParameterException iape) {
+                    throw new InvalidKeySpecException(iape);
+                }
             } else if (keySpec instanceof PKCS8EncodedKeySpec) {
                 return new XDHPrivateKeyImpl(provider,
                         ((PKCS8EncodedKeySpec) keySpec).getEncoded());
