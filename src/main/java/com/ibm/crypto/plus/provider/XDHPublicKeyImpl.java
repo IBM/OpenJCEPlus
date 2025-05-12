@@ -13,6 +13,7 @@ import com.ibm.crypto.plus.provider.ock.XECKey;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyRep;
@@ -146,7 +147,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
      * @throws InvalidParameterException
      */
     public XDHPublicKeyImpl(OpenJCEPlusProvider provider, AlgorithmParameterSpec params,
-            BigInteger u) throws InvalidParameterException, InvalidKeyException {
+            BigInteger u) throws InvalidAlgorithmParameterException, InvalidParameterException, InvalidKeyException {
 
         if (provider == null) {
             throw new InvalidParameterException("provider must not be null");
@@ -158,7 +159,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
             throw new InvalidParameterException("Invalid Parameters: " + params);
         }
 
-        this.curve = CurveUtil.getCurve(this.params.getName());
+        this.curve = CurveUtil.getXCurve(this.params);
 
         try {
             if (CurveUtil.isFFDHE(this.curve))
