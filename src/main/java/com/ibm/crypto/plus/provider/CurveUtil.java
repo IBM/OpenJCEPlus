@@ -9,7 +9,10 @@
 package com.ibm.crypto.plus.provider;
 
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
+import java.security.ProviderException;
+import java.security.spec.NamedParameterSpec;
 import java.util.HashMap;
 import java.util.Map;
 import sun.security.util.KnownOIDs;
@@ -117,25 +120,44 @@ class CurveUtil {
     }
 
     /**
-     * Returns the curve type based on the provided curve name.
+     * Returns the Ed curve type based on the provided named parameter spec.
      *
-     * @param curveName
-     * @return curveType
-     * @throws InvalidParameterException
+     * @param   params
+     * @return  CURVE
+     * @throws  InvalidAlgorithmParameterException
      */
-    public static CURVE getCurve(String curveName)
-            throws InvalidParameterException {
+    public static CURVE getEdCurve(NamedParameterSpec params)
+            throws InvalidAlgorithmParameterException {
+        String curveName = params.getName();
         if (curveName == null)
-            throw new InvalidParameterException();
+            throw new InvalidAlgorithmParameterException("Invalid AlgorithmParameterSpec: " + params);
+        switch (curveName.toUpperCase()) {
+            case "ED25519":
+                return CURVE.Ed25519;
+            case "ED448":
+                return CURVE.Ed448;
+            default:
+                throw new InvalidAlgorithmParameterException("Invalid AlgorithmParameterSpec: " + params);
+        }
+    }
+
+    /**
+     * Returns the XEC curve type based on the provided named parameter spec.
+     *
+     * @param   params
+     * @return  CURVE
+     * @throws  InvalidAlgorithmParameterException
+     */
+    public static CURVE getXCurve(NamedParameterSpec params)
+            throws InvalidAlgorithmParameterException {
+        String curveName = params.getName();
+        if (curveName == null)
+            throw new InvalidAlgorithmParameterException("Invalid AlgorithmParameterSpec: " + params);
         switch (curveName.toUpperCase()) {
             case "X25519":
                 return CURVE.X25519;
             case "X448":
                 return CURVE.X448;
-            case "ED25519":
-                return CURVE.Ed25519;
-            case "ED448":
-                return CURVE.Ed448;
             case "FFDHE2048":
                 return CurveUtil.CURVE.FFDHE2048;
             case "FFDHE3072":
@@ -147,7 +169,7 @@ class CurveUtil {
             case "FFDHE8192":
                 return CurveUtil.CURVE.FFDHE8192;
             default:
-                throw new InvalidParameterException("Curve not supported: " + curveName);
+                throw new InvalidAlgorithmParameterException("Invalid AlgorithmParameterSpec: " + params);
         }
     }
 
@@ -159,7 +181,25 @@ class CurveUtil {
      * @throws IOException
      */
     public static AlgorithmId getAlgId(String curveName) throws IOException {
-        return getAlgId(getCurve(curveName));
+        try {
+            CURVE curve;
+            curveName = curveName.toUpperCase();
+            NamedParameterSpec spec = new NamedParameterSpec(curveName);
+            if (curveName.contains("ED")) {
+                curve = getEdCurve(spec);
+            } else if (curveName.contains("X") || curveName.contains("FFDHE")) {
+                curve = getXCurve(spec);
+            } else {
+                // Should never happen, since this is used by the key impls created
+                // from the key generators.
+                throw new ProviderException("getAldId was called with a non-supported curve: " + curveName);
+            }
+            return getAlgId(curve);
+        } catch (InvalidAlgorithmParameterException iape) {
+            // Should never happen, since this is used by the key impls created
+            // from the key generators.
+            throw new ProviderException("getAldId was called with a non-supported curve", iape);
+        }
     }
 
     /**
