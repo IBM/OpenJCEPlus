@@ -12,7 +12,9 @@
 #include <assert.h>
 #include <jcc_a.h>
 #include <icc.h>
-
+#ifdef __MVS__
+#include <unistd.h>
+#endif
 #include "Utils.h"
 #include <string.h>
 
