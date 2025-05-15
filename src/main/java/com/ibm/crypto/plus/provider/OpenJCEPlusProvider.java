@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -25,6 +25,8 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
     private static final String JAVA_VER = System.getProperty("java.specification.version");
 
     static final String DEBUG_VALUE = "jceplus";
+
+    static final boolean allowLegacyHKDF = Boolean.getBoolean("openjceplus.allowLegacyHKDF");
 
     //    private static boolean verifiedSelfIntegrity = false;
     private static final boolean verifiedSelfIntegrity = true;
