@@ -12,6 +12,7 @@ import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
 import com.ibm.crypto.plus.provider.ock.XECKey;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyRep;
@@ -85,14 +86,14 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
 
     EdDSAPublicKeyImpl(OpenJCEPlusProvider provider,
             NamedParameterSpec params, EdECPoint point)
-            throws InvalidParameterException, InvalidKeyException {
+            throws InvalidAlgorithmParameterException, InvalidParameterException, InvalidKeyException {
 
         if (provider == null)
             throw new InvalidKeyException("provider cannot be null");
         this.paramSpec = params;
         this.point = point;
 
-        this.curve = CurveUtil.getCurve(params.getName());
+        this.curve = CurveUtil.getEdCurve(params);
 
         try {
             this.algid = CurveUtil.getAlgId(this.curve);
