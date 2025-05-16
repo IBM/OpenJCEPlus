@@ -94,7 +94,7 @@ abstract class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
             throw new InvalidAlgorithmParameterException("Parameters must be " + this.alg);
         }
 
-        this.curve = CurveUtil.getCurve(this.namedSpec.getName());
+        this.curve = CurveUtil.getEdCurve(this.namedSpec);
     }
 
     @Override

@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sun.security.util.InternalPrivateKey;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestXDHKeyPairGenerator extends BaseTestJunit5 {
 
@@ -64,6 +66,24 @@ public class BaseTestXDHKeyPairGenerator extends BaseTestJunit5 {
     @Test
     public void testXECKeyGen_FFDHE8192() throws Exception {
         doXECKeyGen(8192);
+    }
+
+    @Test
+    public void testInvalidSpec() throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("XDH", getProviderName());
+        try {
+            kpg.initialize(new NamedParameterSpec("invalid"));
+            fail("Expected InvalidAlgorithmParameterException not thrown");
+        } catch (InvalidAlgorithmParameterException iape) {
+            // expected
+        }
+
+        try {
+            kpg.initialize(new NamedParameterSpec("Ed25519"));
+            fail("Expected InvalidAlgorithmParameterException not thrown");
+        } catch (InvalidAlgorithmParameterException iape) {
+            // expected
+        }
     }
 
     public void doXECKeyGen(int keypairSize) throws Exception {
@@ -112,8 +132,6 @@ public class BaseTestXDHKeyPairGenerator extends BaseTestJunit5 {
         generictestXECKeyGenCurve("FFDHE4096");
         generictestXECKeyGenCurve("FFDHE6144");
         generictestXECKeyGenCurve("FFDHE8192");
-        generictestXECKeyGenCurve("Ed25519");
-        generictestXECKeyGenCurve("Ed448");
     }
 
     protected void generictestXECKeyGenCurve(String curveName) throws Exception {
