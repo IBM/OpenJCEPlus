@@ -34,6 +34,7 @@ import javax.crypto.KeyAgreement;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestXDH extends BaseTestJunit5 {
 
@@ -105,6 +106,19 @@ public class BaseTestXDH extends BaseTestJunit5 {
             }
         } catch (Exception e) {
             throw e;
+        }
+    }
+
+    @Test
+    public void testInvalidSpec() throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("XDH", getProviderName());
+        KeyPair kp = kpg.generateKeyPair();
+        KeyAgreement ka = KeyAgreement.getInstance("XDH", getProviderName());
+        try {
+            ka.init(kp.getPrivate(), new NamedParameterSpec("invalid"));
+            fail("Expected InvalidAlgorithmParameterException not thrown");
+        } catch (InvalidAlgorithmParameterException iape) {
+            // expected
         }
     }
 
