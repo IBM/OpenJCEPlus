@@ -12,6 +12,7 @@ import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
 import com.ibm.crypto.plus.provider.ock.XECKey;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyRep;
@@ -72,12 +73,12 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
 
     EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider,
             NamedParameterSpec params, Optional<byte[]> h)
-            throws InvalidParameterException, InvalidKeyException {
+            throws InvalidAlgorithmParameterException, InvalidParameterException, InvalidKeyException {
 
         this.provider = provider;
         this.paramSpec = params;
 
-        this.curve = CurveUtil.getCurve(params.getName());
+        this.curve = CurveUtil.getEdCurve(params);
 
         try {
             this.algid = CurveUtil.getAlgId(this.curve);
