@@ -184,7 +184,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
                     BigInteger p;
                     BigInteger TWO = BigInteger.valueOf(2);
 
-                    if (this.params.getName().equals("X448")) {
+                    if (this.curve.name().equals("X448")) {
                         p = TWO.pow(448).subtract(TWO.pow(224)).subtract(BigInteger.ONE);
                     } else { //X25519
                         p = TWO.pow(255).subtract(BigInteger.valueOf(19));
