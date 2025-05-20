@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactorySpi;
@@ -55,7 +56,11 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
             if (key instanceof com.ibm.crypto.plus.provider.EdDSAPublicKeyImpl) {
                 return key;
             } else {
-                return new EdDSAPublicKeyImpl(provider, params, publicKey.getPoint());
+                try {
+                    return new EdDSAPublicKeyImpl(provider, params, publicKey.getPoint());
+                } catch (InvalidAlgorithmParameterException iape) {
+                    throw new InvalidKeyException(iape);
+                }
             }
         } else if (key instanceof EdECPrivateKey) {
             EdDSAPrivateKeyImpl privKey = null;
@@ -69,7 +74,11 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
             if (key instanceof com.ibm.crypto.plus.provider.EdDSAPrivateKeyImpl) {
                 privKey = (com.ibm.crypto.plus.provider.EdDSAPrivateKeyImpl) key;
             } else {
-                privKey = new EdDSAPrivateKeyImpl(provider, params, Optional.of(privateKeyBytes));
+                try {
+                    privKey = new EdDSAPrivateKeyImpl(provider, params, Optional.of(privateKeyBytes));
+                } catch (InvalidAlgorithmParameterException iape) {
+                    throw new InvalidKeyException(iape);
+                }
             }
             return privKey;
         } else if (key instanceof PublicKey && key.getFormat().equals("X.509")) {
@@ -131,7 +140,11 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
             EdECPublicKeySpec publicKeySpec = (EdECPublicKeySpec) keySpec;
             NamedParameterSpec params = publicKeySpec.getParams();
             checkLockedParams(params);
-            return new EdDSAPublicKeyImpl(provider, params, publicKeySpec.getPoint());
+            try {
+                return new EdDSAPublicKeyImpl(provider, params, publicKeySpec.getPoint());
+            } catch (InvalidAlgorithmParameterException iape) {
+                throw new InvalidKeySpecException(iape);
+            }
         } else {
             throw new InvalidKeySpecException(
                     "Only X509EncodedKeySpec and EdECPublicKeySpec are supported");
@@ -160,6 +173,8 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
             byte[] bytes = privateKeySpec.getBytes();
             try {
                 return new EdDSAPrivateKeyImpl(provider, params, Optional.of(bytes));
+            } catch (InvalidAlgorithmParameterException iape) {
+                throw new InvalidKeySpecException(iape);
             } finally {
                 Arrays.fill(bytes, (byte) 0);
             }
