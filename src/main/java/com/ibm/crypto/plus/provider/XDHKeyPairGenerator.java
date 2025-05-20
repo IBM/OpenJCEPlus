@@ -111,13 +111,14 @@ abstract class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
      * @throws InvalidParameterException
      */
     private void initializeImpl(NamedParameterSpec params) throws InvalidAlgorithmParameterException {
+        CurveUtil.CURVE sc = CurveUtil.getXCurve(params);
         //Validate that the parameters match the alg specified on creation of this object
         if (this.alg != null && !params.getName().equals(this.alg)) {
             namedSpec = null;
             throw new InvalidParameterException("Parameters must be " + this.alg);
         }
 
-        serviceCurve = CurveUtil.getXCurve(params);
+        serviceCurve = sc;
         namedSpec = params;
     }
 

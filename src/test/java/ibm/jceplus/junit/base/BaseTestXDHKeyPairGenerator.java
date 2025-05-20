@@ -65,7 +65,7 @@ public class BaseTestXDHKeyPairGenerator extends BaseTestJunit5 {
     }
 
     @Test
-    public void testInvalidSpec() throws Exception {
+    public void testInvalidSpecXDH() throws Exception {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("XDH", getProviderName());
         try {
             kpg.initialize(new NamedParameterSpec("invalid"));
@@ -76,6 +76,28 @@ public class BaseTestXDHKeyPairGenerator extends BaseTestJunit5 {
 
         try {
             kpg.initialize(new NamedParameterSpec("Ed25519"));
+            fail("Expected InvalidAlgorithmParameterException not thrown");
+        } catch (InvalidAlgorithmParameterException iape) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testInvalidSpecX25519() throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("X25519", getProviderName());
+        try {
+            kpg.initialize(new NamedParameterSpec("invalid"));
+            fail("Expected InvalidAlgorithmParameterException not thrown");
+        } catch (InvalidAlgorithmParameterException iape) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testInvalidSpecX448() throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("X448", getProviderName());
+        try {
+            kpg.initialize(new NamedParameterSpec("invalid"));
             fail("Expected InvalidAlgorithmParameterException not thrown");
         } catch (InvalidAlgorithmParameterException iape) {
             // expected
