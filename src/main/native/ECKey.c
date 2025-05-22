@@ -1186,7 +1186,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_XECKEY_1createPrivateKey(
 #endif
         throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical!");
     } else {
-        pBytes = (const unsigned char *)keyBytesNative;
+        pBytes = (unsigned char *)keyBytesNative;
         size   = (size_t)(*env)->GetArrayLength(env, privateKeyBytes);
 #ifdef DEBUG_EC_DATA
         if (debug) {
@@ -1195,8 +1195,8 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_XECKEY_1createPrivateKey(
             gslogMessageHex((char *)pBytes, 0, size, 0, 0, NULL);
         }
 #endif
-        ICC_d2i_PrivateKey(ockCtx, ICC_EVP_PKEY_EC, &ockEVPKey,
-                           (unsigned char **)&pBytes, (long)size);
+        ICC_d2i_PrivateKey(ockCtx, ICC_EVP_PKEY_EC, &ockEVPKey, &pBytes,
+                           (long)size);
 #ifdef DEBUG_EC_DETAIL
         if (debug) {
             gslogMessage("DETAIL_XEC ockEVPKey=%lx", (long)ockEVPKey);
@@ -1244,16 +1244,16 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_ECKEY_1createPublicKey(
     jbyteArray parameterBytes) {
     static const char *functionName = "NativeInterface.ECKEY_createPublicKey";
 
-    ICC_CTX       *ockCtx               = (ICC_CTX *)((intptr_t)ockContextId);
-    ICC_EC_KEY    *ockECKey             = NULL;
-    unsigned char *keyBytesNative       = NULL;
-    unsigned char *parameterBytesNative = NULL;
-    jboolean       isCopy               = 0;
-    jlong          ecKeyId              = 0;
-    unsigned char *pKeyBytes            = NULL;
-    unsigned char *pParamBytes          = NULL;
-    jint           size                 = 0;
-    jint           paramsize            = 0;
+    ICC_CTX             *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
+    ICC_EC_KEY          *ockECKey       = NULL;
+    unsigned char       *keyBytesNative = NULL;
+    unsigned char       *parameterBytesNative = NULL;
+    jboolean             isCopy               = 0;
+    jlong                ecKeyId              = 0;
+    const unsigned char *pKeyBytes            = NULL;
+    unsigned char       *pParamBytes          = NULL;
+    jint                 size                 = 0;
+    jint                 paramsize            = 0;
 
     if (debug) {
         gslogFunctionEntry(functionName);
