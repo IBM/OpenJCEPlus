@@ -230,7 +230,8 @@ public class BaseTestECKeyPairGenerator extends BaseTestJunit5 {
             assertTrue(true);
         }
 
-        if (getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
+        boolean isDeveloperModePlatform = BaseUtils.getIsFIPSCertifiedPlatform();
+        if (getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS") && isDeveloperModePlatform) {
             try {
                 generictestECKeyGenCurve("secp112r1");
                 assertTrue(false);
