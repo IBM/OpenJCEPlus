@@ -12,12 +12,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.nio.ByteBuffer;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.ProviderException;
 import sun.security.util.Debug;
 
-@SuppressWarnings({"removal", "deprecation"})
 final class NativeInterface {
 
     // User enabled debugging
@@ -43,22 +40,16 @@ final class NativeInterface {
     private static String JVMFIPSmode = null;
 
     static {
-        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            public Void run() {
-                if (ockDynamicallyLoaded) {
-                    // Preload OCK library. We want to pre-load OCK to help
-                    // ensure we are picking up the expected version within
-                    // the JRE.
-                    //
-                    preloadOCK();
-                }
-
-                // Load native code for java-gskit
-                //
-                preloadJGskit();
-                return null;
-            }
-        });
+        if (ockDynamicallyLoaded) {
+            // Preload OCK library. We want to pre-load OCK to help
+            // ensure we are picking up the expected version within
+            // the JRE.
+            //
+            preloadOCK();
+        }
+        // Load native code for java-gskit
+        //
+        preloadJGskit();
     }
 
     public static String getOsName() {
@@ -853,4 +844,46 @@ final class NativeInterface {
 
     static public native byte[] PBKDF2_derive(long ockContextId, String hashAlgorithm, byte[] password, byte[] salt,
             int iterations, int keyLength) throws OCKException;
+
+    // =========================================================================
+    // ML-KEY key functions
+    // =========================================================================
+
+    static public native long MLKEY_generate(long ockContextId, String cipherName)
+            throws OCKException;
+
+    static public native long MLKEY_createPrivateKey(long ockContextId, String cipherName, byte[] privateKeyBytes)
+            throws OCKException;
+
+    static public native long MLKEY_createPublicKey(long ockContextId, String cipherName, byte[] publicKeyBytes)
+            throws OCKException;
+
+    static public native byte[] MLKEY_getPrivateKeyBytes(long ockContextId, long mlkeyId)
+            throws OCKException;
+
+    static public native byte[] MLKEY_getPublicKeyBytes(long ockContextId, long mlkeyId)
+            throws OCKException;
+
+    static public native long MLKEY_createPKey(long ockContextId, long mlkeyId)
+            throws OCKException;
+
+    static public native void MLKEY_delete(long ockContextId, long mlkeyId);
+
+    // =========================================================================
+    // Key Encapsulation functions
+    // =========================================================================
+    static public native void KEM_encapsulate(long ockContextId, long ockPKeyId, byte[] wrappedKey, byte[] randomKey)
+            throws OCKException;
+
+    static public native byte[] KEM_decapsulate(long ockContextId, long ockPKeyId, byte[] wrappedKey)
+            throws OCKException;
+
+    // =========================================================================
+    // PQC Signture functions - for use with ML-DSA and ML-SLH
+    // =========================================================================
+    static public native byte[] PQC_SIGNATURE_sign(long ockContextId,  long ockPKeyId, byte[] data) 
+            throws OCKException;
+
+    static public native boolean PQC_SIGNATURE_verify(long ockContextId, long ockPKeyId, byte[] sigBytes, byte[] data) 
+            throws OCKException;
 }
