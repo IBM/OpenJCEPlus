@@ -106,13 +106,13 @@ final class RSAPrivateCrtKey extends PKCS8Key
                 this.publicExponent);
 
         try {
-            this.key = buildPrivateKeyBytes(m, pubEx, privEx, p, q, ep, eq, coef);
+            this.privKeyMaterial = buildPrivateKeyBytes(m, pubEx, privEx, p, q, ep, eq, coef);
         } catch (IOException ioe) {
             throw new InvalidKeyException("could not DER encode: " + ioe.getMessage());
         }
 
         try {
-            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.key);
+            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.privKeyMaterial);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
             provider.setOCKExceptionCause(ike, exception);
@@ -137,7 +137,7 @@ final class RSAPrivateCrtKey extends PKCS8Key
         RSAKeyFactory.checkRSAProviderKeyLengths(provider, modulus.bitLength(), publicExponent);
 
         try {
-            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.key);
+            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.privKeyMaterial);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
             provider.setOCKExceptionCause(ike, exception);
@@ -161,7 +161,7 @@ final class RSAPrivateCrtKey extends PKCS8Key
 
         try {
             this.algid = algId;
-            this.key = rsaKey.getPrivateKeyBytes();
+            this.privKeyMaterial = rsaKey.getPrivateKeyBytes();
             this.rsaKey = rsaKey;
             this.keyParams = RSAUtil.getParamSpec(algid);
             parseKeyBits();
@@ -201,7 +201,7 @@ final class RSAPrivateCrtKey extends PKCS8Key
 
     protected void parseKeyBits() throws IOException {
         try {
-            DerValue encoding = new DerValue(key);
+            DerValue encoding = new DerValue(this.privKeyMaterial);
 
             int version = encoding.getData().getInteger();
             if (version != 0) {
@@ -304,8 +304,8 @@ final class RSAPrivateCrtKey extends PKCS8Key
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            if (this.key != null) {
-                Arrays.fill(this.key, (byte) 0x00);
+            if (this.privKeyMaterial != null) {
+                Arrays.fill(this.privKeyMaterial, (byte) 0x00);
             }
             this.rsaKey = null;
             this.modulus = null;

@@ -76,10 +76,10 @@ jobs:
           tar -xvf jgsk_crypto_sdk.tar
           mkdir jgsk_sdk/lib64
           cp ${{ matrix.gskit_lib_name }} jgsk_sdk/lib64
-      - name: Setup Semeru JDK
+      - name: Setup Temurin JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '24.0.1+9'
+          java-version: '25-ea'
           distribution: 'temurin'
           architecture: 'x64'
       # Uncomment to capture all files in the runner for debugging purposes.          
