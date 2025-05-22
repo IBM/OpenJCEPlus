@@ -64,7 +64,7 @@ class XDHKeyFactory extends KeyFactorySpi {
                 }
 
                 //Validate algs match for key and keyfactory
-                if (this.alg != null && !(params.getName().equals(this.alg))) {
+                if (this.alg != null && !(params.getName().equalsIgnoreCase(this.alg))) {
                     throw new InvalidKeySpecException("Parameters must be " + this.alg);
                 }
 
@@ -100,7 +100,7 @@ class XDHKeyFactory extends KeyFactorySpi {
                 }
 
                 //Validate algs match for key and keyfactory
-                if (this.alg != null && !(params.getName().equals(this.alg))) {
+                if (this.alg != null && !(params.getName().equalsIgnoreCase(this.alg))) {
                     throw new InvalidKeySpecException("Parameters must be " + this.alg);
                 }
 
@@ -141,7 +141,7 @@ class XDHKeyFactory extends KeyFactorySpi {
 
                     //Validate algs match for key and keyfactory
                     if (this.alg != null && !(((NamedParameterSpec) params)
-                            .getName().equals(this.alg))) {
+                            .getName().equalsIgnoreCase(this.alg))) {
                         throw new InvalidKeySpecException("Parameters must be " + this.alg);
                     }
 
@@ -164,7 +164,7 @@ class XDHKeyFactory extends KeyFactorySpi {
 
                     //Validate algs match for key and keyfactory
                     if (this.alg != null && !(((NamedParameterSpec) params)
-                            .getName().equals(this.alg))) {
+                            .getName().equalsIgnoreCase(this.alg))) {
                         throw new InvalidKeySpecException("Parameters must be " + this.alg);
                     }
 
@@ -189,7 +189,7 @@ class XDHKeyFactory extends KeyFactorySpi {
                 //Validate algs match for key and keyfactory
                 if (this.alg != null
                         && !(((NamedParameterSpec) ((XECPublicKey) key)
-                                .getParams()).getName().equals(this.alg))) {
+                                .getParams()).getName().equalsIgnoreCase(this.alg))) {
                     throw new InvalidKeyException("Parameters must be " + this.alg);
                 }
 
@@ -208,7 +208,7 @@ class XDHKeyFactory extends KeyFactorySpi {
                 //Validate algs match for key and keyfactory
                 if (this.alg != null
                         && !(((NamedParameterSpec) ((XECPrivateKey) key)
-                                .getParams()).getName().equals(this.alg))) {
+                                .getParams()).getName().equalsIgnoreCase(this.alg))) {
                     throw new InvalidKeyException("Parameters must be " + this.alg);
                 }
 
