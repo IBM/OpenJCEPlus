@@ -11,6 +11,7 @@ package ibm.jceplus.junit.base;
 public class BaseTestJunit5Interop extends BaseTestJunit5 {
 
     public String interopProviderName;
+    public String interopProviderName2;
 
     /**
      * Sets the provider name to interop with.
@@ -28,5 +29,23 @@ public class BaseTestJunit5Interop extends BaseTestJunit5 {
      */
     public String getInteropProviderName() {
         return this.interopProviderName;
+    }    
+    
+    /**
+     * Sets the provider name to interop with.
+     * 
+     * @param providerName the provider name associated with this test case for use.
+     */
+    public void setInteropProviderName2(String providerName) {
+        this.interopProviderName2 = providerName;
+    }
+
+    /**
+     * Gets the provider name that is to be used for interop.
+     * 
+     * @return The provider name associated with the interop provider name.
+     */
+    public String getInteropProviderName2() {
+        return this.interopProviderName2;
     }
 }
