@@ -32,6 +32,8 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     // Field serialVersionUID per tag [SERIALIZATION] in DesignNotes.txt
     private static final long serialVersionUID = 929669768004683845L;
 
+    private static final boolean printFipsDeveloperModeWarning = Boolean.parseBoolean(System.getProperty("openjceplus.fips.devmodewarn", "true"));
+
     private static final String info = "OpenJCEPlusFIPS Provider implements the following:\n" +
 
             "Algorithm parameter                : AES, DiffieHellman, DSA, EC, GCM, OAEP, RSAPSS\n"
@@ -68,7 +70,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     private static boolean ockInitialized = false;
     private static OCKContext ockContext;
 
-    private static final boolean isPlatformSupported;
+    private static final boolean isFIPSCertifiedPlatform;
     private static final Map<String, List<String>> supportedPlatforms = new HashMap<>();
     private static final String osName;
     private static final String osArch;
@@ -96,7 +98,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
                 break;
             }
         }
-        isPlatformSupported = isOsSupported && isArchSupported;
+        isFIPSCertifiedPlatform = isOsSupported && isArchSupported;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -106,9 +108,13 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
             debug.println("New OpenJCEPlusFIPS instance");
         }
 
-        if (!isPlatformSupported) {
-            throw new UnsupportedOperationException(
-                        "OpenJCEPlusFIPS is not supported on this non FIPS " + osName + " " + osArch + " platform");
+        if (!isFIPSCertifiedPlatform) {
+            if (printFipsDeveloperModeWarning) {
+                System.out.println("WARNING: OpenJCEPlusFIPS is running in developer mode. Non production workload assumed. This environment is not certified for FIPS 140-3: " + osName + ":" + osArch);
+            }
+            if (debug != null) {
+                debug.println("WARNING: OpenJCEPlusFIPS is running in developer mode.  Non production workload assumed. This environment is not certified for FIPS 140-3: " + osName + ":" + osArch);
+            }
         }
 
         final OpenJCEPlusProvider jce = this;
@@ -810,6 +816,15 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
 
         try {
             boolean useFIPSMode = true;
+            if (!isFIPSCertifiedPlatform) {
+                if (printFipsDeveloperModeWarning) {
+                    System.out.println("WARNING: OpenJCEPlusFIPS is about to load non FIPS 140-3 library!");
+                }
+                if (debug != null) {
+                    debug.println("WARNING: OpenJCEPlusFIPS is about to load non FIPS 140-3 library!");
+                }
+                useFIPSMode = false;
+            }
 
             ockContext = OCKContext.createContext(useFIPSMode);
             ockInitialized = true;
