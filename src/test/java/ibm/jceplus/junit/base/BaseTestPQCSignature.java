@@ -31,7 +31,7 @@ public class BaseTestPQCSignature extends BaseTestJunit5Signature {
             KeyPair keyPair = generateKeyPair(Algorithm);
             doSignVerify(Algorithm, origMsg, keyPair.getPrivate(), keyPair.getPublic());
         } catch (Exception e) {
-            throw new Exception(e.getCause() +" - "+Algorithm);
+            throw new Exception(e.getCause() +" - "+Algorithm, e);
         }
     }
 

@@ -24,7 +24,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
 
     private OpenJCEPlusProvider provider = null;
     private PQCSignature signature = null;
-    private final ByteArrayOutputStream message = new ByteArrayOutputStream();;
+    private final ByteArrayOutputStream message = new ByteArrayOutputStream();
     private String alg = null;
     private boolean privateKeyInit = false;
     private boolean publicKeyInit = false;
@@ -90,7 +90,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         try {
             keyPrivate = (PQCPrivateKey) PQCKeyFactory.toPQCKey(provider, privateKey);
         } catch (Exception e) {
-            throw new InvalidKeyException("Unsupported key type: " + e.getCause());
+            throw new InvalidKeyException("Unsupported key type: ", e);
         }
 
         //Validate that the alg of the key matchs the alg specified on creation of this object
@@ -116,7 +116,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         try {
             keyPublic = (PQCPublicKey) PQCKeyFactory.toPQCKey(provider, publicKey);
         } catch (Exception e) {
-            throw new InvalidKeyException("Unsupported key type: " + e.getCause());
+            throw new InvalidKeyException("Unsupported key type: ", e);
         }
         //Validate that the alg of the key matchs the alg specified on creation of this object
         if (this.alg != null && !((keyPublic.getAlgorithm()).equals(this.alg))) {

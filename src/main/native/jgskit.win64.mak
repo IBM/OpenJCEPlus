@@ -47,7 +47,7 @@ OBJS= \
 	$(HOSTOUT)/RsaPss.obj \
 	$(HOSTOUT)/Signature.obj \
 	$(HOSTOUT)/SignatureDSANONE.obj \
-	$(HOSTOUT)/SignatureEdDSA.obj \
+    $(HOSTOUT)/SignatureEdDSA.obj \
     $(HOSTOUT)/SignaturePQC.obj \
 	$(HOSTOUT)/SignatureRSASSL.obj \
 	$(HOSTOUT)/StaticStub.obj \

@@ -52,7 +52,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
             pqcKeyPair.getPublic();
             pqcKeyPair.getPrivate();
         } catch (Exception e) {
-            throw new Exception(e.getCause() +" - "+Algorithm);
+            throw new Exception(e.getCause() +" - "+Algorithm, e);
         }
     }
 

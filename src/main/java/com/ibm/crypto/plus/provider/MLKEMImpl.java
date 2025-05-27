@@ -67,6 +67,9 @@ public class MLKEMImpl implements KEMSpi {
             throw new InvalidKeyException("unsupported key");
         }
 
+        if (spec != null) {
+            throw new InvalidAlgorithmParameterException("no spec needed");
+        }
         return new MLKEMEncapsulator(publicKey, spec, null);
     }
 
@@ -76,8 +79,7 @@ public class MLKEMImpl implements KEMSpi {
         int size = 0;
 
         /*
-         * spec - The AlgorithmParameterSpec is not used and should be null. If not null
-         * it will be ignored.
+         * spec - The AlgorithmParameterSpec is not used and should be null. 
          * secureRandom - This parameter is not used and should be null. If not null it
          * will be ignored.
          */
@@ -102,7 +104,7 @@ public class MLKEMImpl implements KEMSpi {
             try {
                 OJPKEM.KEM_encapsulate(provider.getOCKContext(),((PQCPublicKey) publicKey).getOCKKey().getPKeyId(), encapsulation, secret);
             } catch (OCKException e) {
-                throw new ProviderException("OCK Exception: " + e.getCause());
+                throw new ProviderException("OCK Exception: ", e);
             }
 
             return new KEM.Encapsulated(
@@ -122,8 +124,7 @@ public class MLKEMImpl implements KEMSpi {
     }
 
     /*
-     * spec - The AlgorithmParameterSpec is not used and should be null. If not null
-     * it will be ignored.
+     * spec - The AlgorithmParameterSpec is not used and should be null. 
      */
     @Override
     public KEMSpi.DecapsulatorSpi engineNewDecapsulator(PrivateKey privateKey,
@@ -134,12 +135,14 @@ public class MLKEMImpl implements KEMSpi {
             throw new InvalidKeyException("unsupported key");
         }
 
+        if (spec != null) {
+            throw new InvalidAlgorithmParameterException("no spec needed");
+        }
         return new MLKEMDecapsulator(privateKey, null);
     }
 
     /*
-     * spec - The AlgorithmParameterSpec is not used and should be null. If not null
-     * it will be ignored.
+     * spec - The AlgorithmParameterSpec is not used and should be null. 
      */
     class MLKEMDecapsulator implements KEMSpi.DecapsulatorSpi {
         PrivateKey privateKey;
@@ -164,7 +167,7 @@ public class MLKEMImpl implements KEMSpi {
                 secret = OJPKEM.KEM_decapsulate(provider.getOCKContext(), ((PQCPrivateKey)this.privateKey).getOCKKey().getPKeyId(), cipherText);
 
             } catch (OCKException e) {
-                throw new DecapsulateException(e.getMessage() + e.getCause());
+                throw new DecapsulateException("Decapsulation Error: ", e);
             }
 
             return new SecretKeySpec(secret, from, to - from, algorithm);

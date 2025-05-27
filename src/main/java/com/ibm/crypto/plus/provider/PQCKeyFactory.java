@@ -84,7 +84,7 @@ class PQCKeyFactory extends KeyFactorySpi {
                 throw new InvalidKeySpecException("Inappropriate key specification");
             }      
         } catch (InvalidKeyException e) {
-            throw new InvalidKeySpecException("Inappropriate key specification: " + e.getCause());
+            throw new InvalidKeySpecException("Inappropriate key specification: ", e);
         }
     }
 
@@ -119,7 +119,7 @@ class PQCKeyFactory extends KeyFactorySpi {
                 throw new InvalidKeySpecException("Inappropriate key specification");
             }
         } catch (InvalidKeyException e) {
-            throw new InvalidKeySpecException("Inappropriate key specification: " + e.getCause());
+            throw new InvalidKeySpecException("Inappropriate key specification: ", e);
         }
     }
 
@@ -150,7 +150,7 @@ class PQCKeyFactory extends KeyFactorySpi {
                 throw new InvalidKeySpecException("Inappropriate key type");
             }
         } catch (ClassNotFoundException | ClassCastException e) {
-            throw new InvalidKeySpecException("Unsupported key specification: " + e.getCause());
+            throw new InvalidKeySpecException("Unsupported key specification: ", e);
         }
     }
 
@@ -174,7 +174,7 @@ class PQCKeyFactory extends KeyFactorySpi {
                         X509EncodedKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePublic(x509KeySpec);
-            } else if (key instanceof com.ibm.crypto.plus.provider.PQCPrivateKey) {
+            } else if (key instanceof PrivateKey) {
                 // Check if key originates from this factory
                 if (key instanceof com.ibm.crypto.plus.provider.PQCPrivateKey) {
                     return key;
@@ -188,7 +188,7 @@ class PQCKeyFactory extends KeyFactorySpi {
                 throw new InvalidKeyException("Wrong algorithm type");
             }
         } catch (InvalidKeySpecException e) {
-            throw new InvalidKeyException("Cannot translate key: " + e.getCause());
+            throw new InvalidKeyException("Cannot translate key: ", e);
         }
     }
 
