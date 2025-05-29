@@ -79,7 +79,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RSAKEY_1createPrivateKey(
     unsigned char *keyBytesNative = NULL;
     jboolean       isCopy         = 0;
     jlong          rsaKeyId       = 0;
-    unsigned char *pBytes         = NULL;
+    const unsigned char *pBytes         = NULL;
     jint           size           = 0;
 
     if (debug) {
@@ -108,7 +108,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RSAKEY_1createPrivateKey(
             gslogMessage("DETAIL_RSA KeyBytesNative allocated");
         }
         //  unsigned char * pBytes = (unsigned char *)keyBytesNative;
-        pBytes = (unsigned char *)keyBytesNative;
+        pBytes = (const unsigned char *)keyBytesNative;
         //  jint size = (*env)->GetArrayLength(env, privateKeyBytes);
         size = (*env)->GetArrayLength(env, privateKeyBytes);
 #ifdef DEBUG_RSA_DATA
@@ -201,7 +201,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RSAKEY_1createPublicKey(
     unsigned char *keyBytesNative = NULL;
     jboolean       isCopy         = 0;
     jlong          rsaKeyId       = 0;
-    unsigned char *pBytes         = NULL;
+    const unsigned char *pBytes         = NULL;
     jint           size           = 0;
 
     if (debug) {
@@ -229,7 +229,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RSAKEY_1createPublicKey(
             gslogMessage("DETAIL_RSA KeyBytesNative allocated");
         }
 #endif
-        pBytes = (unsigned char *)keyBytesNative;
+        pBytes = (const unsigned char *)keyBytesNative;
         size   = (*env)->GetArrayLength(env, publicKeyBytes);
 #ifdef DEBUG_RSA_DATA
         if (debug) {
