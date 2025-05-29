@@ -40,6 +40,8 @@ public enum PQCKnownOIDs {
     private String oid;
     private String[] aliases;
 
+    private static final ConcurrentHashMap<String, PQCKnownOIDs> name2enum = new ConcurrentHashMap<>();
+
     // find the matching enum using either name or string of oid
     // return null if not found
     protected static PQCKnownOIDs findMatch(String x) {
@@ -50,13 +52,10 @@ public enum PQCKnownOIDs {
         return fnd;
     }
 
-    private static final ConcurrentHashMap<String, PQCKnownOIDs> name2enum = new ConcurrentHashMap<>();
-
     static {
         for (PQCKnownOIDs pqcoids : PQCKnownOIDs.values()) {
             register(pqcoids);
         }
-        ;
     }
 
     private static void register(PQCKnownOIDs pqcoid) {
@@ -65,14 +64,11 @@ public enum PQCKnownOIDs {
             throw new RuntimeException("ERROR: Duplicate " + pqcoid.oid +
                     " between " + pqcoidval + " and " + pqcoid);
         }
-        // only register the stdName and aliases if o.registerNames()
-        // returns true
-        if (pqcoid.registerNames()) {
-            String nameUppered = pqcoid.stdName.toUpperCase(Locale.ENGLISH);
-            if (Objects.nonNull(name2enum.put(nameUppered, pqcoid))) {
-                throw new RuntimeException("ERROR: Duplicate " +
-                        nameUppered + " exists already");
-            }
+
+        String nameUppered = pqcoid.stdName.toUpperCase(Locale.ENGLISH);
+        if (Objects.nonNull(name2enum.put(nameUppered, pqcoid))) {
+            throw new RuntimeException("ERROR: Duplicate " +
+                nameUppered + " exists already");
         }
     }
 
@@ -103,9 +99,5 @@ public enum PQCKnownOIDs {
     // return the internal aliases
     protected String[] aliases() {
         return aliases;
-    }
-
-    boolean registerNames() {
-        return true;
     }
 }

@@ -102,7 +102,7 @@ public class MLKEMImpl implements KEMSpi {
             }
 
             try {
-                OJPKEM.KEM_encapsulate(provider.getOCKContext(),((PQCPublicKey) publicKey).getOCKKey().getPKeyId(), encapsulation, secret);
+                OJPKEM.KEM_encapsulate(provider.getOCKContext(),((PQCPublicKey) publicKey).getPQCKey().getPKeyId(), encapsulation, secret);
             } catch (OCKException e) {
                 throw new ProviderException("OCK Exception: ", e);
             }
@@ -164,7 +164,7 @@ public class MLKEMImpl implements KEMSpi {
                 throw new NullPointerException();
             }
             try {
-                secret = OJPKEM.KEM_decapsulate(provider.getOCKContext(), ((PQCPrivateKey)this.privateKey).getOCKKey().getPKeyId(), cipherText);
+                secret = OJPKEM.KEM_decapsulate(provider.getOCKContext(), ((PQCPrivateKey)this.privateKey).getPQCKey().getPKeyId(), cipherText);
 
             } catch (OCKException e) {
                 throw new DecapsulateException("Decapsulation Error: ", e);

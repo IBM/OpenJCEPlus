@@ -65,7 +65,7 @@ public final class PQCPublicKey extends X509Key
 
             this.algid = new AlgorithmId(PQCAlgorithmId.getOID(name));
 
-            //ICC puts the BITSTRING on the key. Need to remove it.
+            //OCKC puts the BITSTRING on the key. Need to remove it.
             setKey(new BitArray((rawKey.length - 5)*8, rawKey, 5));
 
             this.pqcKey = pqcKey;
@@ -135,7 +135,7 @@ public final class PQCPublicKey extends X509Key
         return encodedKey;
     }
 
-    PQCKey getOCKKey() {
+    PQCKey getPQCKey() {
         return this.pqcKey;
     }
 

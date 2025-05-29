@@ -99,7 +99,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         }
 
         try {
-            this.signature.initialize(keyPrivate.getOCKKey());
+            this.signature.initialize(keyPrivate.getPQCKey());
             //this.signature.initialize(keyPrivate);
         } catch (Exception e) {
             throw provider.providerException("Failure in engineInitSign", e);
@@ -123,7 +123,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
             throw new InvalidKeyException("Key must be of algorithm " + this.alg);
         }
         try {
-            this.signature.initialize(keyPublic.getOCKKey());
+            this.signature.initialize(keyPublic.getPQCKey());
         } catch (Exception e) {
             throw provider.providerException("Failure in engineInitVerify", e);
         }

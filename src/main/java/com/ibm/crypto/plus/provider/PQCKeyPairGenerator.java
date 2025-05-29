@@ -33,6 +33,7 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
     /**
      * Initialize based on parameters.
      */
+    @Override
     public void initialize(AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidAlgorithmParameterException {
         throw new InvalidAlgorithmParameterException(
@@ -43,7 +44,7 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
         if (keysize != -1) {
             throw new InvalidParameterException("keysize not supported");
         }
-        // This functions is here for compatablity with Oracle and Spi
+        // This functions is here for compatibility with Oracle and Spi
         // However, since OCKC does not allow specification of Random
         // this function does nothing.
     }

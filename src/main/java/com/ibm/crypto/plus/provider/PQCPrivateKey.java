@@ -29,7 +29,7 @@ public final class PQCPrivateKey extends PKCS8Key {
     private OpenJCEPlusProvider provider = null;
     private final String name;
 
-    PQCKey pqcKey;
+    private PQCKey pqcKey;
 
     private transient boolean destroyed = false;
 
@@ -79,21 +79,21 @@ public final class PQCPrivateKey extends PKCS8Key {
      * @param encoded
      *                the encoded parameters.
      */
-    public PQCPrivateKey(OpenJCEPlusProvider provider, PQCKey ockKey) throws InvalidKeyException {
+    public PQCPrivateKey(OpenJCEPlusProvider provider, PQCKey pqcKey) throws InvalidKeyException {
         try {
             this.provider = provider;
-            this.pqcKey = ockKey;
+            this.pqcKey = pqcKey;
 
             //Check to determine if the key bytes have the Octet tag. if so remove it for key
-            if (OctectStringEncoded(ockKey.getPrivateKeyBytes())) {
-                byte [] tmp = ockKey.getPrivateKeyBytes();
+            if (OctectStringEncoded(pqcKey.getPrivateKeyBytes())) {
+                byte [] tmp = pqcKey.getPrivateKeyBytes();
                 this.key = Arrays.copyOfRange(tmp,4,tmp.length);
                 Arrays.fill(tmp,0,tmp.length, (byte)0x00);
             } else {
-                this.key = ockKey.getPrivateKeyBytes();
+                this.key = pqcKey.getPrivateKeyBytes();
             }
 
-            this.name = ockKey.getAlgorithm();
+            this.name = pqcKey.getAlgorithm();
             this.algid = new AlgorithmId(PQCAlgorithmId.getOID(name));
         } catch (Exception exception) {
             throw provider.providerException("Failure in PQCPrivateKey" + exception.getMessage(), exception);
@@ -171,7 +171,7 @@ public final class PQCPrivateKey extends PKCS8Key {
         return encodedKey;
     }
 
-    PQCKey getOCKKey() {
+    PQCKey getPQCKey() {
         return this.pqcKey;
     }
 
@@ -187,6 +187,7 @@ public final class PQCPrivateKey extends PKCS8Key {
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
+            Arrays.fill(this.key, 0, this.key.length, (byte)0x00);
             this.key = null;
             this.encodedKey = null;
             this.pqcKey = null;
