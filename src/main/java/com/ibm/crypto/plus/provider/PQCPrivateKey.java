@@ -171,11 +171,6 @@ public final class PQCPrivateKey extends PKCS8Key {
         return encodedKey;
     }
 
-    public byte[] getKeyBytes() {
-        checkDestroyed();
-        return key.clone();
-    }
-
     PQCKey getOCKKey() {
         return this.pqcKey;
     }

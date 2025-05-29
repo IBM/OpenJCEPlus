@@ -37,8 +37,8 @@ OBJS= \
 	$(HOSTOUT)/GCM.obj \
 	$(HOSTOUT)/HKDF.obj \
 	$(HOSTOUT)/HMAC.obj \
-	$(HOSTOUT)\KEM.obj \
-	$(HOSTOUT)\MLKey.obj \
+	$(HOSTOUT)/KEM.obj \
+	$(HOSTOUT)/MLKey.obj \
 	$(HOSTOUT)/PBKDF.obj \
 	$(HOSTOUT)/PKey.obj \
 	$(HOSTOUT)/Poly1305Cipher.obj \
@@ -48,7 +48,7 @@ OBJS= \
 	$(HOSTOUT)/Signature.obj \
 	$(HOSTOUT)/SignatureDSANONE.obj \
     $(HOSTOUT)/SignatureEdDSA.obj \
-    $(HOSTOUT)/SignaturePQC.obj \
+	$(HOSTOUT)/SignaturePQC.obj \
 	$(HOSTOUT)/SignatureRSASSL.obj \
 	$(HOSTOUT)/StaticStub.obj \
 	$(HOSTOUT)/SymmetricCipher.obj \

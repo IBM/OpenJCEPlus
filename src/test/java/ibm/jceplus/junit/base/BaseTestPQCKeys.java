@@ -8,6 +8,8 @@
 package ibm.jceplus.junit.base;
 
 import ibm.security.internal.spec.RawKeySpec;
+import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -20,6 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import sun.security.util.DerValue;
+import sun.security.x509.AlgorithmId;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -153,9 +157,75 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         PublicKey publicKey = pqcKeyFactory.generatePublic(pubSpec);
         PrivateKey privateKey = pqcKeyFactory.generatePrivate(privSpec);
 
-        assertArrayEquals(((com.ibm.crypto.plus.provider.PQCPublicKey)publicKey).getKeyBytes(), pubKey, "Public key does not match generated public key - "+Algorithm);
-        assertArrayEquals(((com.ibm.crypto.plus.provider.PQCPrivateKey)privateKey).getKeyBytes(), privKey, "Private key does not match generated public key - "+Algorithm);
+        //Need to extract just the key material from the key to do the compare
+        byte [] newPubKey = parsePub(publicKey.getEncoded());
+        byte [] newPrivKey = parsePriv(privateKey.getEncoded());
 
+        assertArrayEquals(newPubKey, pubKey, "Public key does not match generated public key - "+Algorithm);
+        assertArrayEquals(newPrivKey, privKey, "Private key does not match generated public key - "+Algorithm);
+
+    }
+    byte [] parsePub(byte[] key) throws InvalidKeyException{
+        byte [] keyMaterial = null;
+
+        try {
+            DerValue val = new DerValue(key);
+            if (val.tag != DerValue.tag_Sequence)
+                throw new InvalidKeyException("invalid key format");
+
+            AlgorithmId algid = AlgorithmId.parse(val.data.getDerValue());
+            algid.encode();
+            keyMaterial = val.data.getUnalignedBitString().toByteArray();
+            if (val.data.available() != 0)
+                throw new InvalidKeyException ("excess key data");
+
+        } catch (IOException e) {
+            throw new InvalidKeyException("Unable to decode key", e);
+        }
+        return keyMaterial;
+    }
+
+    byte [] parsePriv(byte[] key) throws InvalidKeyException {
+        byte [] keyMaterial = null;
+        try {
+            DerValue val = new DerValue(key);
+            if (val.tag != DerValue.tag_Sequence) {
+                throw new InvalidKeyException("invalid key format");
+            }
+
+            int version = val.data.getInteger();
+            if (version != 0 && version != 1) {
+                throw new InvalidKeyException("unknown version: " + version);
+            }
+            AlgorithmId algid = AlgorithmId.parse (val.data.getDerValue ());
+            algid.encode();
+
+            keyMaterial = val.data.getOctetString();
+
+            DerValue next;
+            if (val.data.available() == 0) {
+                return keyMaterial;
+            }
+            next = val.data.getDerValue();
+            if (next.isContextSpecific((byte)0)) {
+                if (val.data.available() == 0) {
+                    return keyMaterial;
+                }
+                next = val.data.getDerValue();
+            }
+
+            if (next.isContextSpecific((byte)1)) {
+                if (version == 0) {
+                    throw new InvalidKeyException("publicKey seen in v1");
+                }
+                if (val.data.available() == 0) {
+                    return keyMaterial;
+                }
+            }
+            throw new InvalidKeyException("Extra bytes");
+        } catch (IOException e) {
+            throw new InvalidKeyException("Unable to decode key", e);
+        }  
     }
 }
 

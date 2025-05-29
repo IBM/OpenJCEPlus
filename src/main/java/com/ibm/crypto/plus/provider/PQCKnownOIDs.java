@@ -42,7 +42,7 @@ public enum PQCKnownOIDs {
 
     // find the matching enum using either name or string of oid
     // return null if not found
-    public static PQCKnownOIDs findMatch(String x) {
+    protected static PQCKnownOIDs findMatch(String x) {
         x = x.toUpperCase(Locale.ENGLISH);
         x = x.replace('-','_');
 
@@ -91,17 +91,17 @@ public enum PQCKnownOIDs {
     }
 
     // returns the oid string associated with this enum
-    public String value() {
+    protected String value() {
         return oid;
     }
 
     // returns the user-friendly standard algorithm name
-    public String stdName() {
+    protected String stdName() {
         return stdName.replace('_','-' );
     }
 
     // return the internal aliases
-    public String[] aliases() {
+    protected String[] aliases() {
         return aliases;
     }
 

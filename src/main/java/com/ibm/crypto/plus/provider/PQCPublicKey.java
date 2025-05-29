@@ -135,12 +135,7 @@ public final class PQCPublicKey extends X509Key
         return encodedKey;
     }
 
-    public byte[] getKeyBytes() {
-        checkDestroyed();
-        return getKey().toByteArray();
-    }
-
-    public PQCKey getOCKKey() {
+    PQCKey getOCKKey() {
         return this.pqcKey;
     }
 
