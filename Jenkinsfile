@@ -191,7 +191,7 @@ def getJava(hardware, software) {
 
     def java_link = ""
     if (JAVA_RELEASE == "") {
-        java_link = "https://api.adoptopenjdk.net/v3/binary/latest/${JAVA_VERSION}/ga/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
+        java_link = "https://api.adoptopenjdk.net/v3/binary/latest/${JAVA_VERSION}/ga/${software}/${hardware}/jdk/hotspot/normal/adoptopenjdk?project=jdk"
     } else {
         def java_release_link = JAVA_RELEASE.replace("+", "%2B")
         java_link = "https://api.adoptopenjdk.net/v3/binary/version/${java_release_link}/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
@@ -206,6 +206,8 @@ def getJava(hardware, software) {
 
         if (software == "windows") {
             unzip zipFile: "$java_file"
+        } else if (software == "mac") {
+            sh "tar -xvf $java_file"
         } else {
             untar file: "$java_file"
         }
@@ -474,10 +476,8 @@ def run(platform) {
 
             // Some OSes have some further specific requirements.
             if (software == "aix") {
-                // Timing issue with some machines.
-                // TODO: Remove this when issue https://github.ibm.com/runtimes/infrastructure/issues/7198 is resolved.
-                nodeTags += "&&!ci.role.build.release"
-                nodeTags += "&&ci.role.build"
+                // Issue with updating the tooling. C++17.1
+                nodeTags += "&&sw.tool.c++runtime.17_1"
             }
 
             // Machines tagged as ci.role.test are expected to have
@@ -583,7 +583,7 @@ pipeline {
             Typically this will use https://github.com/IBM/OpenJCEPlus')
         string(name: 'OPENJCEPLUS_BRANCH', defaultValue: '', description: '\
             The OpenJCEPlus branch to be used. When not specified this will default to the branch scanned by this multibranch pipeline.')
-        choice(name: 'JAVA_VERSION', choices: ['23', '22', '21', '17', '11'], description: '\
+        choice(name: 'JAVA_VERSION', choices: ['24', '23', '22', '21', '17', '11'], description: '\
             Specify the Java version your branch uses to build.')
         string(name: 'JAVA_RELEASE', defaultValue: '', description: '\
             Indicate a specific Java release that you want to use to build your branch.<br> \
