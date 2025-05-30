@@ -1,7 +1,7 @@
 <!--
 ###############################################################################
 #
-# Copyright IBM Corp. 2023, 2024
+# Copyright IBM Corp. 2023, 2025
 #
 # This code is free software; you can redistribute it and/or modify it
 # under the terms provided by IBM in the LICENSE file that accompanied
@@ -296,8 +296,8 @@
                         <message>"Property ock.library.path is not set, perhaps this required property is missing from the command line?"</message>
                       </requireProperty>
                       <requireJavaVersion>
-                        <version>x = 23</version>
-                        <message>"Java 23 required to build OpenJCEPlus."</message>
+                        <version>x = 24</version>
+                        <message>"Java 24 required to build OpenJCEPlus."</message>
                       </requireJavaVersion>
                       <requireEnvironmentVariable>
                         <variableName>JAVA_HOME</variableName>
@@ -449,7 +449,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
+                <version>0.8.13</version>
                 <executions>
                     <execution>
                         <id>start-agent</id>
