@@ -537,8 +537,8 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             destroyed = true;
             if (k != null)
                 Arrays.fill(k, (byte) 0x00);
-            if (this.key != null)
-                Arrays.fill(this.key, (byte) 0x00);
+            if (this.privKeyMaterial != null)
+                Arrays.fill(this.privKeyMaterial, (byte) 0x00);
             this.xecKey = null;
             this.scalar = null;
             this.params = null;
@@ -570,9 +570,9 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
      */
     private void setPKCS8KeyByte(byte[] k) throws IOException {
         if (Integer.parseInt(provider.getJavaVersionStr()) <= 11) {
-            this.key = k;
+            this.privKeyMaterial = k;
         } else {
-            this.key = new DerValue(DerValue.tag_OctetString, k).toByteArray();
+            this.privKeyMaterial = new DerValue(DerValue.tag_OctetString, k).toByteArray();
         }
     }
 }

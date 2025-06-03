@@ -115,7 +115,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
         out.putInteger(1); // version 1
         out.putOctetString(sOctets);
         DerValue val = new DerValue(DerValue.tag_Sequence, out.toByteArray());
-        key = val.toByteArray();
+        this.privKeyMaterial = val.toByteArray();
 
         try {
             this.publicKeyBytes = null;
@@ -199,7 +199,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
             this.algid = AlgorithmId
                     .parse(new DerValue(DerValue.tag_Sequence, algidOut.toByteArray()));
 
-            this.key = convertOCKPrivateKeyBytes(ecKey.getPrivateKeyBytes());
+            this.privKeyMaterial = convertOCKPrivateKeyBytes(ecKey.getPrivateKeyBytes());
             this.ecKey = ecKey;
             parseKeyBits();
         } catch (Exception exception) {
@@ -481,10 +481,10 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
         bytes.putInteger(BigInteger.ONE);
 
         // Encode Private key
-        if (key != null) {
+        if (this.privKeyMaterial != null) {
 
             // The key value is sequence of version, octet string
-            DerInputStream in = new DerInputStream(key);
+            DerInputStream in = new DerInputStream(this.privKeyMaterial);
             DerValue derValue = in.getDerValue();
 
             // System.out.println("derValue.getTag=" + derValue.getTag());
@@ -602,7 +602,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
 
         try {
             // Begin parsing "version" and "s" out of "key"
-            DerInputStream in = new DerInputStream(key);
+            DerInputStream in = new DerInputStream(this.privKeyMaterial);
             DerValue derValue = in.getDerValue();
 
             // System.out.println("derValue.getTag=" + derValue.getTag());
@@ -661,8 +661,8 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            if (this.key != null) {
-                Arrays.fill(this.key, (byte) 0x00);
+            if (this.privKeyMaterial != null) {
+                Arrays.fill(this.privKeyMaterial, (byte) 0x00);
             }
             this.ecKey = null;
             this.s = null;

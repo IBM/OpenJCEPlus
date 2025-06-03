@@ -64,13 +64,13 @@ final class RSAPrivateKey extends PKCS8Key
         RSAKeyFactory.checkRSAProviderKeyLengths(this.provider, this.modulus.bitLength(), null);
 
         try {
-            this.key = buildPrivateKeyBytes(m, privEx);
+            this.privKeyMaterial = buildPrivateKeyBytes(m, privEx);
         } catch (IOException ioe) {
             throw new InvalidKeyException("could not DER encode: " + ioe.getMessage());
         }
 
         try {
-            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.key);
+            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.privKeyMaterial);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
             provider.setOCKExceptionCause(ike, exception);
@@ -93,7 +93,7 @@ final class RSAPrivateKey extends PKCS8Key
         RSAKeyFactory.checkRSAProviderKeyLengths(provider, modulus.bitLength(), null);
 
         try {
-            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.key);
+            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.privKeyMaterial);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
             provider.setOCKExceptionCause(ike, exception);
@@ -119,7 +119,7 @@ final class RSAPrivateKey extends PKCS8Key
 
         try {
             this.algid = algId;
-            this.key = rsaKey.getPrivateKeyBytes();
+            this.privKeyMaterial = rsaKey.getPrivateKeyBytes();
             this.rsaKey = rsaKey;
             this.keyParams = RSAUtil.getParamSpec(algId);
             parseKeyBits();
@@ -174,7 +174,7 @@ final class RSAPrivateKey extends PKCS8Key
 
     protected void parseKeyBits() throws IOException {
         try {
-            DerValue encoding = new DerValue(key);
+            DerValue encoding = new DerValue(this.privKeyMaterial);
 
             int version = encoding.getData().getInteger();
             if (version != 0) {
@@ -239,8 +239,8 @@ final class RSAPrivateKey extends PKCS8Key
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            if (this.key != null) {
-                Arrays.fill(this.key, (byte) 0x00);
+            if (this.privKeyMaterial != null) {
+                Arrays.fill(this.privKeyMaterial, (byte) 0x00);
             }
             this.rsaKey = null;
             this.modulus = null;

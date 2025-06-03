@@ -61,7 +61,7 @@ final class DSAPrivateKey extends PKCS8Key
         this.provider = provider;
         this.x = x;
 
-        key = new DerValue(DerValue.tag_Integer, x.toByteArray()).toByteArray();
+        this.privKeyMaterial = new DerValue(DerValue.tag_Integer, x.toByteArray()).toByteArray();
 
         try {
             byte[] privateKeyBytes = buildOCKPrivateKeyBytes();
@@ -100,7 +100,7 @@ final class DSAPrivateKey extends PKCS8Key
         try {
             this.provider = provider;
             this.algid = new AlgorithmId(AlgorithmId.DSA_oid, new DerValue(dsaKey.getParameters()));
-            this.key = convertOCKPrivateKeyBytes(dsaKey.getPrivateKeyBytes());
+            this.privKeyMaterial = convertOCKPrivateKeyBytes(dsaKey.getPrivateKeyBytes());
 
             this.dsaKey = dsaKey;
             parseKeyBits();
@@ -170,7 +170,7 @@ final class DSAPrivateKey extends PKCS8Key
     }
 
     protected void parseKeyBits() throws IOException {
-        DerInputStream in = new DerInputStream(key);
+        DerInputStream in = new DerInputStream(this.privKeyMaterial);
 
         try {
             x = in.getBigInteger();
@@ -228,8 +228,8 @@ final class DSAPrivateKey extends PKCS8Key
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            if (this.key != null) {
-                Arrays.fill(this.key, (byte) 0x00);
+            if (this.privKeyMaterial != null) {
+                Arrays.fill(this.privKeyMaterial, (byte) 0x00);
             }
             this.dsaKey = null;
             this.x = null;

@@ -181,49 +181,44 @@ def getBinaries(hardware, software) {
  */
 def getJava(hardware, software) {
     def extension = "tar.gz"
-    if (software == "windows") {
-        extension = "zip"
-    }
 
     if (hardware == "x86-64") {
         hardware = "x64"
     }
 
     def java_link = ""
+
     if (JAVA_RELEASE == "") {
-        if (software == "windows") {
-            java_link = "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25%2B22-ea-beta/OpenJDK-jdk_x64_windows_hotspot_25_22-ea.zip"
-        } else if ((software == "linux") && (hardware == "aarch64")) {
-            java_link = "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25%2B22-ea-beta/OpenJDK-jdk_aarch64_linux_hotspot_25_22-ea.tar.gz"
-        } else {
-            java_link = "https://api.adoptopenjdk.net/v3/binary/latest/${JAVA_VERSION}/ea/${software}/${hardware}/jdk/hotspot/normal/adoptopenjdk?project=jdk"
+            if (software == "windows") {
+                java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround060225/OpenJ9-JDKnext-x86-64_windows-20250531-000422.tar.gz"
+            } else if ((software == "linux") && (hardware == "aarch64")) {
+                java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround060225/OpenJ9-JDKnext-aarch64_linux-20250531-035208.tar.gz"
+            } else if ((software == "linux") && (hardware == "ppc64le")) {
+                java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround060225/OpenJ9-JDKnext-ppc64le_linux-20250531-032314.tar.gz"
+            } else if ((software == "linux") && (hardware == "x64")) {
+                java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround060225/OpenJ9-JDKnext-x86-64_linux-20250531-032515.tar.gz"
+            } else if ((software == "linux") && (hardware == "s390x")) {
+                java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround060225/OpenJ9-JDKnext-s390x_linux-20250531-031249.tar.gz"
+            } else if ((software == "mac") && (hardware == "aarch64")) {
+                java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround060225/OpenJ9-JDKnext-aarch64_mac-20250531-132316.tar.gz"
+            } else if ((software == "mac") && (hardware == "x64")) {
+                java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround060225/OpenJ9-JDKnext-x86-64_mac-20250531-005554.tar.gz"
+            } else if (software == "aix") {
+                java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround060225/OpenJ9-JDKnext-ppc64_aix-20250531-041857.tar.gz"
+            } else {
+                echo "No Java SDK downloaded!!!"
+            }
         }
-    } else {
-        def java_release_link = JAVA_RELEASE.replace("+", "%2B")
-        java_link = "https://api.adoptopenjdk.net/v3/binary/version/${java_release_link}/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
-    }
-    
+
     dir("java") {
-        sh "curl -LJkO ${java_link}"
+        sh "curl -u $GSKIT_USERNAME:$GSKIT_PASSWORD ${java_link} > java.tar.gz"
         def java_file = sh (
             script: 'ls | grep \'tar\\|zip\'',
             returnStdout: true
         ).trim()
 
-        if (software == "windows") {
-            unzip zipFile: "$java_file"
-        } else if (software == "mac") {
-            sh "tar -xvf $java_file"
-        } else{
-            untar file: "$java_file"
-        }
+        untar file: "$java_file"
         sh "rm $java_file"
-
-        def java_folder = sh (
-            script: "ls | grep \'jdk-${JAVA_VERSION}\'",
-            returnStdout: true
-        ).trim()
-        fileOperations([folderRenameOperation(destination: 'jdk', source: "$java_folder")])
 
         // AIX always loads the bundled version of native libraries. We delete them to
         // ensure that the one provided by the user is utilized.
@@ -334,7 +329,7 @@ def runOpenJCEPlus(command, software) {
                $WORKSPACE\\apache-maven-3.9.9\\bin\\mvn -Dock.library.path=${ock_path} --batch-mode ${command}
                """
         } else if (software == "mac") {
-            java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
+            java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
         }
 
         if (software != "windows") {
@@ -503,7 +498,9 @@ def run(platform) {
 
             node("$nodeTags") {
                 try {
-                    getJava(hardware, software)
+                    withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'GSKIT_PASSWORD', usernameVariable: 'GSKIT_USERNAME')]) {
+                        getJava(hardware, software)
+                    }
                     echo "Java fetched"
                     getBinaries(hardware, software)
                     echo "Binaries fetched"
