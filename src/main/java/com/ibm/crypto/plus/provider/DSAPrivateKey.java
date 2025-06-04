@@ -14,7 +14,6 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.interfaces.DSAParams;
 import java.security.spec.DSAParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
@@ -258,38 +257,6 @@ final class DSAPrivateKey extends PKCS8Key
         if (destroyed) {
             throw new IllegalStateException("This key is no longer valid");
         }
-    }
-
-    /**
-     * Compares two private keys. This returns false if the object with which
-     * to compare is not of type <code>Key</code>.
-     * Otherwise, we compare the private part of the key and the params to validate equivalence.
-     * We can not compare encodings because there are 2 different ones and both can be the same
-     * key.
-     *
-     * @param object the object with which to compare
-     * @return {@code true} if this key has the same encoding as the
-     *          object argument; {@code false} otherwise.
-     */
-    public boolean equals(Object object) {
-        try {
-            BigInteger i = (BigInteger) (object.getClass().getDeclaredMethod("getX")
-                    .invoke(object));
-
-            if (this == object) {
-                return true;
-            }
-            if (object instanceof Key) {
-                if (this.x.equals(i) && equals(this.getParams(), (DSAParams) (object
-                        .getClass().getDeclaredMethod("getParams").invoke(object)))) {
-                    return true;
-                }
-            }
-        } catch (Exception e1) {
-            //Should never get here
-            //System.out.println("Object = Exception - " + e1.toString());
-        }
-        return false;
     }
 
     public static boolean equals(DSAParams spec1, DSAParams spec2) {
