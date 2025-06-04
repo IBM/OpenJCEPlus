@@ -547,21 +547,21 @@ pipeline {
                 font-style: italic;
             """
         )
-        booleanParam(name: 'ppc64_aix', defaultValue: true, description: '\
+        booleanParam(name: 'ppc64_aix', defaultValue: false, description: '\
             Build for ppc64_aix platform')
-        booleanParam(name: 'x86_64_linux', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_linux', defaultValue: false, description: '\
             Build for x86-64_linux platform')
-        booleanParam(name: 'ppc64le_linux', defaultValue: true, description: '\
+        booleanParam(name: 'ppc64le_linux', defaultValue: false, description: '\
             Build for ppc64le_linux platform')
-        booleanParam(name: 's390x_linux', defaultValue: true, description: '\
+        booleanParam(name: 's390x_linux', defaultValue: false, description: '\
             Build for s390x_linux platform')
-        booleanParam(name: 'x86_64_windows', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_windows', defaultValue: false, description: '\
             Build for x86-64_windows platform')
-        booleanParam(name: 'aarch64_mac', defaultValue: true, description: '\
+        booleanParam(name: 'aarch64_mac', defaultValue: false, description: '\
             Build for aarch64_mac platform')
-        booleanParam(name: 'x86_64_mac', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_mac', defaultValue: false, description: '\
             Build for x86-64_mac platform')
-        booleanParam(name: 'aarch64_linux', defaultValue: true, description: '\
+        booleanParam(name: 'aarch64_linux', defaultValue: false, description: '\
             Build for aarch64_linux platform')
         separator(name: "BuildAndTestPlatforms", sectionHeader: "Build And Test Options",
             separatorStyle: "border-width: 0",
