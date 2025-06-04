@@ -13,6 +13,7 @@ import java.security.KeyRep;
 import java.util.Arrays;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.DESedeKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
@@ -75,11 +76,8 @@ final class DESedeKey implements SecretKey, Destroyable {
     public int hashCode() {
         checkDestroyed();
 
-        int retval = 0;
-        for (int i = 1; i < this.key.length; i++) {
-            retval += this.key[i] * i;
-        }
-        return (retval ^= "desede".hashCode());
+        SecretKeySpec keySpec = new SecretKeySpec(this.key, getAlgorithm());
+        return keySpec.hashCode();
     }
 
     @Override
