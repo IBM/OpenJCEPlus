@@ -27,7 +27,7 @@ class PQCKeyFactory extends KeyFactorySpi {
     private String algName = null;
 
     static Key toPQCKey(OpenJCEPlusProvider provider, Key key) throws InvalidKeyException {
-        return (Key) (new PQCKeyFactory(provider, key.getAlgorithm())).engineTranslateKey(key);
+        return (new PQCKeyFactory(provider, key.getAlgorithm())).engineTranslateKey(key);
     }
 
     private PQCKeyFactory(OpenJCEPlusProvider provider, String name) {
@@ -170,7 +170,7 @@ class PQCKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                X509EncodedKeySpec x509KeySpec = (X509EncodedKeySpec) engineGetKeySpec(key,
+                X509EncodedKeySpec x509KeySpec = engineGetKeySpec(key,
                         X509EncodedKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePublic(x509KeySpec);
@@ -180,7 +180,7 @@ class PQCKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                X509EncodedKeySpec x509KeySpec = (X509EncodedKeySpec) engineGetKeySpec(key,
+                X509EncodedKeySpec x509KeySpec = engineGetKeySpec(key,
                         X509EncodedKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePrivate(x509KeySpec);

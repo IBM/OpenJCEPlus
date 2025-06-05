@@ -28,10 +28,6 @@ public class MLKEMImpl implements KEMSpi {
     String alg;
 
     public MLKEMImpl(OpenJCEPlusProvider provider, String alg) {
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
-
         this.provider = provider;
         this.alg = alg;
     }
@@ -190,6 +186,11 @@ public class MLKEMImpl implements KEMSpi {
 
         public MLKEM512(OpenJCEPlusProvider provider) {
             super(provider, "ML-KEM-512");
+            
+            if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
+                throw new SecurityException("Integrity check failed for: " + provider.getName());
+            }
+
         }
     }
 
@@ -197,13 +198,22 @@ public class MLKEMImpl implements KEMSpi {
 
         public MLKEM768(OpenJCEPlusProvider provider) {
             super(provider, "ML-KEM-768");
+
+            if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
+                throw new SecurityException("Integrity check failed for: " + provider.getName());
+            }
+
         }
     }
 
     public static final class MLKEM1024 extends MLKEMImpl {
 
-        public MLKEM1024(OpenJCEPlusProvider provider) {
+        public MLKEM1024(OpenJCEPlusProvider provider) {           
             super(provider, "ML-KEM-1024");
+            
+            if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
+                throw new SecurityException("Integrity check failed for: " + provider.getName());
+            }
         }
     }    
 }

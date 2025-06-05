@@ -16,6 +16,7 @@
 #include "com_ibm_crypto_plus_provider_ock_NativeInterface.h"
 #include "Utils.h"
 #include <stdint.h>
+#include <string.h>
 
 //============================================================================
 /*
@@ -27,20 +28,15 @@ JNIEXPORT void JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_KEM_1encapsulate(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray wrappedKey, jbyteArray randomKey) {
-    static const char *functionName = "NativeInterface.KEM_encapsulate";
 
     ICC_CTX          *ockCtx           = (ICC_CTX *)((intptr_t)ockContextId);
     ICC_EVP_PKEY_CTX *evp_pk           = NULL;
     ICC_EVP_PKEY     *pa               = (ICC_EVP_PKEY *)((intptr_t)ockPKeyId);
-    jlong             mlkeyId          = 0;
     size_t            wrappedkeylen    = 0;
     size_t            genkeylen        = 0;
-    jboolean          isCopy           = 0;
     unsigned char    *wrappedKeyLocal  = NULL;
     unsigned char    *genkeylocal      = NULL;
-    unsigned char    *wrappedKeyNative = NULL;
-    unsigned char    *genKeyNative     = NULL;
-
+ 
     evp_pk = ICC_EVP_PKEY_CTX_new_from_pkey(ockCtx, NULL, pa, NULL);
     if (!evp_pk) {
         throwOCKException(env, 0, "ICC_EVP_PKEY_CTX_new_from_pkey failed");
@@ -115,13 +111,10 @@ JNIEXPORT jbyteArray JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_KEM_1decapsulate(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray wrappedKey) {
-    static const char *functionName = "NativeInterface.KEM_decapsulate";
 
     ICC_CTX                 *ockCtx    = (ICC_CTX *)((intptr_t)ockContextId);
     ICC_EVP_PKEY            *ockPKey   = (ICC_EVP_PKEY *)((intptr_t)ockPKeyId);
     ICC_EVP_PKEY_CTX        *evp_pk    = NULL;
-    ICC_EVP_PKEY            *priv      = NULL;
-    ICC_PKCS8_PRIV_KEY_INFO *p8        = NULL;
     int                      rc        = -1;
     jboolean                 isCopy    = 0;
     jbyteArray               randomKey = NULL;

@@ -22,7 +22,7 @@ import sun.security.x509.X509Key;
 
 
 @SuppressWarnings("restriction")
-public final class PQCPublicKey extends X509Key
+final class PQCPublicKey extends X509Key
         implements Destroyable {
 
 

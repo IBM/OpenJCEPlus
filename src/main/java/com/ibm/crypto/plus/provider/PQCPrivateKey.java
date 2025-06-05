@@ -22,14 +22,14 @@ import sun.security.x509.AlgorithmId;
  * A PQC private key for the NIST FIPS 203 Algorithm.
  */
 @SuppressWarnings("restriction")
-public final class PQCPrivateKey extends PKCS8Key {
+final class PQCPrivateKey extends PKCS8Key {
 
     private static final long serialVersionUID = -3168962080315231494L;
 
     private OpenJCEPlusProvider provider = null;
     private final String name;
 
-    private PQCKey pqcKey;
+    private transient PQCKey pqcKey;
 
     private transient boolean destroyed = false;
 

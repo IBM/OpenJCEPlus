@@ -10,8 +10,10 @@ package com.ibm.crypto.plus.provider;
 import sun.security.util.ObjectIdentifier;
 import sun.security.x509.AlgorithmId;
 
-@SuppressWarnings("deprecation")
-public class PQCAlgorithmId extends sun.security.x509.AlgorithmId {
+@SuppressWarnings("deprecation,restriction")
+class PQCAlgorithmId extends sun.security.x509.AlgorithmId {
+
+    private static final long serialVersionUID = 5399891734767920417L;
 
     public static final AlgorithmId ML_KEM_512_oid = new AlgorithmId(getOID("ML-KEM-512"));
     public static final AlgorithmId ML_KEM_768_oid = new AlgorithmId(getOID("ML-KEM-768"));
@@ -33,6 +35,9 @@ public class PQCAlgorithmId extends sun.security.x509.AlgorithmId {
     public static final AlgorithmId SLH_DSA_SHAKE_256s_oid = new AlgorithmId(getOID("SLH-DSA-SHAKE-256s"));
     public static final AlgorithmId SLH_DSA_SHA2_256f_oid = new AlgorithmId(getOID("SLH-DSA-SHA2-256f"));
     public static final AlgorithmId SLH_DSA_SHAKE_256f_oid = new AlgorithmId(getOID("SLH-DSA-SHAKE-256f"));
+
+    @SuppressWarnings("deprecation")
+    public PQCAlgorithmId() {}
 
     public static final ObjectIdentifier getOID(String oidString) {
         try {
