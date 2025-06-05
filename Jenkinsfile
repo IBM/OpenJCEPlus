@@ -139,7 +139,7 @@ def getOCKTarget(hardware, software) {
  */
 def getBinaries(hardware, software) {
     if (OCK_RELEASE == "") {
-        OCK_RELEASE = "20240521_8.9.6"
+        OCK_RELEASE = "20250522_8.9.11"
     }
     def target = getOCKTarget(hardware, software)
     def gskit_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/gskit8/$OCK_RELEASE/$target/jgsk_crypto.tar"
