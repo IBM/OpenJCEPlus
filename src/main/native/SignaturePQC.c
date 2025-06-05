@@ -212,7 +212,8 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PQC_1SIGNATURE_1verify(
     }
 
     if (sigBytesNative != NULL) {
-        (*env)->ReleasePrimitiveArrayCritical(env, sigBytes, sigBytesNative, JNI_ABORT);
+        (*env)->ReleasePrimitiveArrayCritical(env, sigBytes, sigBytesNative,
+                                              JNI_ABORT);
     }
     if (dataNative != NULL) {
         (*env)->ReleasePrimitiveArrayCritical(env, data, dataNative, JNI_ABORT);

@@ -49,9 +49,9 @@ public final class PQCPrivateKey extends PKCS8Key {
         //Check to determine if the key bytes already have the Octet tag. if so remove it.
         if (OctectStringEncoded(keyBytes)) {
             //Remove encoding OctetString encoding.
-            key = Arrays.copyOfRange(keyBytes, 4, keyBytes.length);
+            this.privKeyMaterial = Arrays.copyOfRange(keyBytes, 4, keyBytes.length);
         } else {            
-            key = keyBytes.clone();
+            this.privKeyMaterial = keyBytes.clone();
         }
 
         InternalCreateKey();
@@ -71,10 +71,10 @@ public final class PQCPrivateKey extends PKCS8Key {
             //Check to determine if the key bytes have the Octet tag. if so remove it for key
             if (OctectStringEncoded(pqcKey.getPrivateKeyBytes())) {
                 byte [] tmp = pqcKey.getPrivateKeyBytes();
-                this.key = Arrays.copyOfRange(tmp,4,tmp.length);
+                this.privKeyMaterial = Arrays.copyOfRange(tmp,4,tmp.length);
                 Arrays.fill(tmp,0,tmp.length, (byte)0x00);
             } else {
-                this.key = pqcKey.getPrivateKeyBytes();
+                this.privKeyMaterial = pqcKey.getPrivateKeyBytes();
             }
 
             this.name = pqcKey.getAlgorithm();
@@ -127,7 +127,7 @@ public final class PQCPrivateKey extends PKCS8Key {
             DerOutputStream bytes = new DerOutputStream();
             bytes.putOID(algid.getOID());
             tmp.write(DerValue.tag_Sequence, bytes);
-            tmp.putOctetString(key);
+            tmp.putOctetString(this.privKeyMaterial);
             DerValue out = DerValue.wrap(DerValue.tag_Sequence, tmp);
             encodedKey = out.toByteArray();
             tmp.close();
@@ -156,8 +156,8 @@ public final class PQCPrivateKey extends PKCS8Key {
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            Arrays.fill(this.key, 0, this.key.length, (byte)0x00);
-            this.key = null;
+            Arrays.fill(this.privKeyMaterial, 0, this.privKeyMaterial.length, (byte)0x00);
+            this.privKeyMaterial = null;
             this.encodedKey = null;
             this.pqcKey = null;
         }
@@ -174,7 +174,7 @@ public final class PQCPrivateKey extends PKCS8Key {
             // Currently the ICC expects the raw keys in an OctetString
             DerValue pkOct = null;
             try {
-                pkOct = new DerValue(DerValue.tag_OctetString, key);
+                pkOct = new DerValue(DerValue.tag_OctetString, this.privKeyMaterial);
      
                 this.pqcKey = PQCKey.createPrivateKey(provider.getOCKContext(), 
                                this.name, pkOct.toByteArray());

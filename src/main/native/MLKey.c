@@ -361,7 +361,6 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1createPrivateKey(
             throwOCKException(
                 env, 0, "Algorithm not found."); /* Unsupported algorithm */
         } else {
-
             ockPKey =
                 ICC_d2i_PrivateKey(ockCtx, nid, &ockPKey, &pBytes, (long)size);
 
