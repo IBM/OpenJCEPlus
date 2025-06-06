@@ -63,20 +63,20 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
         return 0;
     }
 
+    nid = ICC_OBJ_txt2nid(ockCtx, algoChars);
+    if (!nid) {
+#ifdef DEBUG_PQC_KEY_DETAIL
+        if (debug) {
+            gslogMessage("ICC_OBJ_txt2nid failed- %s", algoChars);
+        }
+#endif
+        throwOCKException(env, 0,
+                          "Key generation failed - ICC_OBJ_txt2nid");
+        return 0;
+    }
+
     evp_sp = ICC_EVP_PKEY_CTX_new_from_name(ockCtx, NULL, algoChars, NULL);
     if (!evp_sp) {
-        nid = ICC_OBJ_txt2nid(ockCtx, algoChars);
-        if (!nid) {
-#ifdef DEBUG_PQC_KEY_DETAIL
-            if (debug) {
-                gslogMessage("ICC_OBJ_txt2nid failed- %s", algoChars);
-            }
-#endif
-            throwOCKException(env, 0,
-                              "Key generation failed - ICC_OBJ_txt2nid");
-            return 0;
-        }
-
         evp_sp = ICC_EVP_PKEY_CTX_new_id(ockCtx, nid, NULL);
         if (!evp_sp) {
 #ifdef DEBUG_PQC_KEY_DETAIL
@@ -191,20 +191,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
     /* public */
     const unsigned char *cpp = pubdata;
     len = publen;
-    
-    if (!nid) {
-        nid = ICC_OBJ_txt2nid(ockCtx, algoChars);
-        if (!nid) {
-#ifdef DEBUG_PQC_KEY_DETAIL
-            if (debug) {
-                gslogMessage("ICC_OBJ_txt2nid failed- %s", algoChars);
-            }
-#endif
-            throwOCKException(env, 0,
-                              "Key generation failed - ICC_OBJ_txt2nid");
-            return 0;
-        }
-    }
+
     /* Reconstruct public key from encoding and type */
     npa = ICC_d2i_PublicKey(ockCtx, nid, &npa, &cpp, len);
 
