@@ -133,8 +133,8 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
     // Test generate keys to make sure they are good
     /* public key */
 
-    int            publen;
-    unsigned char *pubdata = NULL;
+    int                  publen;
+    unsigned char       *pubdata = NULL;
     const unsigned char *pp      = NULL;
 
     /* binary */
@@ -151,9 +151,9 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
                           "length for encoding");
     }
 
-    pubdata  = malloc(publen);
-    pp       = pubdata;
-    rv       = ICC_i2d_PublicKey(ockCtx, pa, &pp);
+    pubdata = malloc(publen);
+    pp      = pubdata;
+    rv      = ICC_i2d_PublicKey(ockCtx, pa, &pp);
 
     if (rv <= 0) {
 #ifdef DEBUG_PQC_KEY_DETAIL
@@ -309,15 +309,15 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1createPrivateKey(
     jbyteArray privateKeyBytes) {
     static const char *functionName = "NativeInterface.MLKEY_createPrivateKey";
 
-    ICC_CTX                 *ockCtx  = (ICC_CTX *)((intptr_t)ockContextId);
-    ICC_EVP_PKEY            *ockPKey = NULL;
-    unsigned char           *keyBytesNative = NULL;
-    jboolean                 isCopy         = 0;
-    jlong                    mlkeyId        = 0;
-    const unsigned char      *pBytes         = NULL;
-    const char              *algoChars      = NULL;
-    size_t                   size           = 0;
-    int                      nid            = 0;
+    ICC_CTX             *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
+    ICC_EVP_PKEY        *ockPKey        = NULL;
+    unsigned char       *keyBytesNative = NULL;
+    jboolean             isCopy         = 0;
+    jlong                mlkeyId        = 0;
+    const unsigned char *pBytes         = NULL;
+    const char          *algoChars      = NULL;
+    size_t               size           = 0;
+    int                  nid            = 0;
 
     if (privateKeyBytes == NULL) {
         throwOCKException(env, 0,
@@ -390,7 +390,6 @@ JNIEXPORT jlong JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1createPublicKey(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jstring cipherName,
     jbyteArray publicKeyBytes) {
-
     ICC_CTX       *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
     ICC_EVP_PKEY  *ockPKey        = NULL;
     unsigned char *keyBytesNative = NULL;
@@ -459,16 +458,15 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1createPublicKey(
 JNIEXPORT jbyteArray JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1getPrivateKeyBytes(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong mlkeyId) {
-
-    ICC_CTX       *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
-    ICC_EVP_PKEY  *ockKey         = (ICC_EVP_PKEY *)((intptr_t)mlkeyId);
-    jbyteArray     keyBytes       = NULL;
-    unsigned char *keyBytesNative = NULL;
-    jboolean       isCopy         = 0;
-    int            size;
-    jbyteArray     retKeyBytes = NULL;
-    unsigned char *pBytes;
-    int            rc = ICC_OSSL_SUCCESS;
+    ICC_CTX             *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
+    ICC_EVP_PKEY        *ockKey         = (ICC_EVP_PKEY *)((intptr_t)mlkeyId);
+    jbyteArray           keyBytes       = NULL;
+    unsigned char       *keyBytesNative = NULL;
+    jboolean             isCopy         = 0;
+    int                  size;
+    jbyteArray           retKeyBytes = NULL;
+    const unsigned char *pBytes;
+    int                  rc = ICC_OSSL_SUCCESS;
 
     if (NULL == ockKey) {
 #ifdef DEBUG_PQC_KEY_DETAIL
@@ -552,16 +550,15 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1getPrivateKeyBytes(
 JNIEXPORT jbyteArray JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1getPublicKeyBytes(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong mlkeyId) {
-
-    ICC_CTX       *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
-    ICC_EVP_PKEY  *ockKey         = (ICC_EVP_PKEY *)((intptr_t)mlkeyId);
-    jbyteArray     keyBytes       = NULL;
-    unsigned char *keyBytesNative = NULL;
-    jboolean       isCopy         = 0;
-    long           size           = 0;
-    unsigned char *pBytes;
-    jbyteArray     retKeyBytes = NULL;
-    int            rc          = ICC_OSSL_SUCCESS;
+    ICC_CTX             *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
+    ICC_EVP_PKEY        *ockKey         = (ICC_EVP_PKEY *)((intptr_t)mlkeyId);
+    jbyteArray           keyBytes       = NULL;
+    unsigned char       *keyBytesNative = NULL;
+    jboolean             isCopy         = 0;
+    long                 size           = 0;
+    const unsigned char *pBytes;
+    jbyteArray           retKeyBytes = NULL;
+    int                  rc          = ICC_OSSL_SUCCESS;
 
     if (ockKey == NULL) {
         return retKeyBytes;
@@ -616,7 +613,6 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1getPublicKeyBytes(
 JNIEXPORT void JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1delete(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong mlkeyId) {
-
     ICC_CTX      *ockCtx = (ICC_CTX *)((intptr_t)ockContextId);
     ICC_EVP_PKEY *ockKey = (ICC_EVP_PKEY *)((intptr_t)mlkeyId);
 
