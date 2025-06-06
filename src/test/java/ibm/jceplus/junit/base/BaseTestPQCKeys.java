@@ -19,7 +19,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HexFormat;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import sun.security.util.DerValue;
@@ -81,8 +80,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         }
         keyFactoryCreateFromStaticEncoded(Algorithm);
     }
-    @Test
-
+    
     protected KeyPair generateKeyPair(String Algorithm) throws Exception {
         pqcKeyPairGen = KeyPairGenerator.getInstance(Algorithm, getProviderName());
 
@@ -107,7 +105,6 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
  
         return keyPair;
     }
-
 
     protected void keyFactoryCreateFromEncoded(String Algorithm) throws Exception {
         
@@ -165,6 +162,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         assertArrayEquals(newPrivKey, privKey, "Private key does not match generated public key - "+Algorithm);
 
     }
+
     byte [] parsePub(byte[] key) throws InvalidKeyException{
         byte [] keyMaterial = null;
 
