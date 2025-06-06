@@ -28,11 +28,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
 
-    static final String PASSWORD = "Thequickbrownfoxjumpsoverthelazydog";
-    static byte[] randomSalt = new byte[32];
-    static SecureRandom random = new SecureRandom();
-    static PBEKeySpec pbeks = null;
-    static List<String> allowableFIPSAlgorithms = new ArrayList<String>(){{
+    final String PASSWORD = "Thequickbrownfoxjumpsoverthelazydog";
+    byte[] randomSalt = new byte[32];
+    SecureRandom random = new SecureRandom();
+    PBEKeySpec pbeks = null;
+    List<String> allowableFIPSAlgorithms = new ArrayList<String>(){{
             add("PBKDF2WithHmacSHA224");
             add("PBKDF2WithHmacSHA256");
             add("PBKDF2WithHmacSHA384");
