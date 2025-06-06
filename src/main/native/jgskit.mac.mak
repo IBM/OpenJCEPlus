@@ -45,7 +45,6 @@ OBJS = \
 	${HOSTOUT}/GCM.o \
 	${HOSTOUT}/HKDF.o \
 	${HOSTOUT}/HMAC.o \
-	$(HOSTOUT)/SymmetricCipher.o \
 	$(HOSTOUT)/KEM.o \
 	$(HOSTOUT)/MLKey.o \
 	${HOSTOUT}/PBKDF.o \
