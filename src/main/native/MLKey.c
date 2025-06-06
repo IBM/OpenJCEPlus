@@ -34,11 +34,11 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
 
     const char       *algoChars = NULL;
     ICC_CTX          *ockCtx    = (ICC_CTX *)((intptr_t)ockContextId);
-    ICC_EVP_PKEY_CTX *evp_sp;
-    jlong             mlkeyId = 0;
-    int               nid     = 0;
-    int               rv      = ICC_OSSL_SUCCESS;
-    ICC_EVP_PKEY     *pa      = NULL;
+    ICC_EVP_PKEY_CTX *evp_sp    = NULL;
+    jlong             mlkeyId   = 0;
+    int               nid       = 0;
+    int               rv        = ICC_OSSL_SUCCESS;
+    ICC_EVP_PKEY     *pa        = NULL;
 
     if (debug) {
         gslogFunctionEntry(functionName);
@@ -60,17 +60,6 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
         }
 #endif
         throwOCKException(env, 0, "GetStringUTFChars failed.");
-        return 0;
-    }
-
-    nid = ICC_OBJ_txt2nid(ockCtx, algoChars);
-    if (!nid) {
-#ifdef DEBUG_PQC_KEY_DETAIL
-        if (debug) {
-            gslogMessage("ICC_OBJ_txt2nid failed- %s", algoChars);
-        }
-#endif
-        throwOCKException(env, 0, "Key generation failed - ICC_OBJ_txt2nid");
         return 0;
     }
 
@@ -463,10 +452,10 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1getPrivateKeyBytes(
     jbyteArray           keyBytes       = NULL;
     unsigned char       *keyBytesNative = NULL;
     jboolean             isCopy         = 0;
-    int                  size;
-    jbyteArray           retKeyBytes = NULL;
-    const unsigned char *pBytes;
-    int                  rc = ICC_OSSL_SUCCESS;
+    int                  size           = 0;
+    jbyteArray           retKeyBytes    = NULL;
+    const unsigned char *pBytes         = NULL;
+    int                  rc             = ICC_OSSL_SUCCESS;
 
     if (NULL == ockKey) {
 #ifdef DEBUG_PQC_KEY_DETAIL
@@ -556,9 +545,9 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1getPublicKeyBytes(
     unsigned char       *keyBytesNative = NULL;
     jboolean             isCopy         = 0;
     long                 size           = 0;
-    const unsigned char *pBytes;
-    jbyteArray           retKeyBytes = NULL;
-    int                  rc          = ICC_OSSL_SUCCESS;
+    const unsigned char *pBytes         = NULL;
+    jbyteArray           retKeyBytes    = NULL;
+    int                  rc             = ICC_OSSL_SUCCESS;
 
     if (ockKey == NULL) {
         return retKeyBytes;
