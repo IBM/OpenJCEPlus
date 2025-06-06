@@ -189,11 +189,11 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
     pp                = NULL;
 
     /* public */
-    pp  = pubdata;
+    const unsigned char *cpp = pubdata;
     len = publen;
 
     /* Reconstruct public key from encoding and type */
-    npa = ICC_d2i_PublicKey(ockCtx, nid, &npa, &pp, len);
+    npa = ICC_d2i_PublicKey(ockCtx, nid, &npa, &cpp, len);
 
     if (!npa) {
 #ifdef DEBUG_PQC_KEY_DETAIL
@@ -232,9 +232,9 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
     npa     = NULL;
 
     /* private */
-    pp  = privData;
+    cpp  = privData;
     len = privlen;
-    npa = ICC_d2i_PrivateKey(ockCtx, nid, &npa, &pp, len);
+    npa = ICC_d2i_PrivateKey(ockCtx, nid, &npa, &cpp, len);
     if (!npa) {
         free(privData);
 #ifdef DEBUG_PQC_KEY_DETAIL
