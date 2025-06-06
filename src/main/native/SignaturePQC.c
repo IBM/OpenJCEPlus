@@ -26,10 +26,6 @@ JNIEXPORT jbyteArray JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PQC_1SIGNATURE_1sign(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray data) {
-    //  (JNIEnv *env, jclass thisObj, jlong ockContextId, jbyteArray key,
-    //  jbyteArray data) {
-
-    static const char *functionName = "NativeInterface.SIGNATURE_sign";
 
     ICC_CTX          *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
     ICC_EVP_PKEY     *ockPKey        = (ICC_EVP_PKEY *)((intptr_t)ockPKeyId);
@@ -148,7 +144,6 @@ JNIEXPORT jboolean JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PQC_1SIGNATURE_1verify(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray sigBytes, jbyteArray data) {
-    static const char *functionName = "NativeInterface.SIGNATURE_verify";
 
     ICC_CTX          *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
     ICC_EVP_PKEY     *ockPKey        = (ICC_EVP_PKEY *)((intptr_t)ockPKeyId);
