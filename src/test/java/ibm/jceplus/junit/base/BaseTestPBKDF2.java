@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * 
  */
 public class BaseTestPBKDF2 extends BaseTestJunit5Interop {
-    static List<String> allowableFIPSAlgorithms = new ArrayList<String>(){{
+    List<String> allowableFIPSAlgorithms = new ArrayList<String>(){{
             add("PBKDF2WithHmacSHA224");
             add("PBKDF2WithHmacSHA256");
             add("PBKDF2WithHmacSHA384");
