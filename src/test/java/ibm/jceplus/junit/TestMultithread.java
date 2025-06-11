@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -64,6 +64,8 @@ public class TestMultithread {
             "ibm.jceplus.junit.openjceplus.multithread.TestHmacSHA3_384",
             "ibm.jceplus.junit.openjceplus.multithread.TestHmacSHA3_512",
             "ibm.jceplus.junit.openjceplus.multithread.TestMiniRSAPSS2",
+            "ibm.jceplus.junit.openjceplus.multithread.TestPBKDF2",
+            "ibm.jceplus.junit.openjceplus.multithread.TestPBKDF2Interop",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSASignature",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSA_2048",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSAKey",
