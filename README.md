@@ -252,6 +252,12 @@ KeyFactory                  | RSAPSS                     |X                |X   
 KeyFactory                  | X25519                     |                 |X             |
 KeyFactory                  | X448                       |                 |X             |
 KeyFactory                  | XDH                        |                 |X             |
+KeyFactory                  | ML-KEM-512                 |                 |X             |
+KeyFactory                  | ML-KEM-768                 |                 |X             |
+KeyFactory                  | ML-KEM-1024                |                 |X             |
+KeyFactory                  | ML-DSA-44                  |                 |X             |
+KeyFactory                  | ML-DSA-65                  |                 |X             |
+KeyFactory                  | ML-DSA-87                  |                 |X             |
 KeyGenerator                | AES                        |X                |X             |
 KeyGenerator                | ChaCha20                   |                 |X             |
 KeyGenerator                | DESede                     |                 |X             |
@@ -289,6 +295,12 @@ KeyPairGenerator            | RSAPSS                     |X                |X   
 KeyPairGenerator            | X25519                     |                 |X             |
 KeyPairGenerator            | X448                       |                 |X             |
 KeyPairGenerator            | XDH                        |                 |X             |
+KeyPairGenerator            | ML-KEM-512                 |                 |X             |
+KeyPairGenerator            | ML-KEM-768                 |                 |X             |
+KeyPairGenerator            | ML-KEM-1024                |                 |X             |
+KeyEncapsulationMechanism   | ML-KEM-512                 |                 |X             |
+KeyEncapsulationMechanism   | ML-KEM-768                 |                 |X             |
+KeyEncapsulationMechanism   | ML-KEM-1024                |                 |X             |
 Mac                         | HmacMD5                    |                 |X             |
 Mac                         | HmacSHA1                   |                 |X             |
 Mac                         | HmacSHA224                 |X                |X             |
@@ -354,6 +366,9 @@ Signature                   | SHA384withECDSA            |X                |X   
 Signature                   | SHA384withRSA              |X                |X             |
 Signature                   | SHA512withECDSA            |X                |X             |
 Signature                   | SHA512withRSA              |X                |X             |
+Signature                   | ML-DSA-44                  |                 |X             |
+Signature                   | ML-DSA-65                  |                 |X             |
+Signature                   | ML-DSA-87                  |                 |X             |
 
 # Contributions
 
