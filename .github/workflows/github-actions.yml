@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: IBM/OpenCryptographyKitC
-          ref: 6c9c7b5df836e4831f603ad934e4765e976e597d # main branch on May 8th 2025.
+          ref: 193bb9c15c4203a0facb3e2ba4db2750e03e2481 # Branch V_8.9.11 on Jun 13th 2025.
           path: ${{ github.workspace }}/OpenCryptographyKitC
       - name: Compile Open Cryptography Kit C
         run: |
