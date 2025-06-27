@@ -95,6 +95,7 @@ import org.junit.platform.suite.api.Suite;
     TestInvalidArrayIndex.class,
     TestIsAssignableFromOrder.class,
     TestKeyEncodings.class,
+    TestKeySerialization.class,
     TestMD5.class,
     TestMiniRSAPSS2.class,
     TestPBKDF2.class,

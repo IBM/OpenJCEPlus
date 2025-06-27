@@ -12,11 +12,8 @@ import ibm.jceplus.junit.base.BaseTestPQCSignatureWithAliases;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.condition.EnabledForJreRange;
-import org.junit.jupiter.api.condition.JRE;
 
 @TestInstance(Lifecycle.PER_CLASS)
-@EnabledForJreRange(min = JRE.JAVA_17)
 public class TestPQCSignatureWithAliases extends BaseTestPQCSignatureWithAliases {
 
     @BeforeAll

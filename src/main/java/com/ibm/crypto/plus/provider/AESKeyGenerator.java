@@ -53,7 +53,7 @@ public final class AESKeyGenerator extends KeyGeneratorSpi {
         cryptoRandom.nextBytes(keyBytes);
 
         try {
-            return new AESKey(keyBytes);
+            return new AESKey(provider, keyBytes);
         } catch (InvalidKeyException e) {
             // Should never happen
             throw new ProviderException(e.getMessage());
