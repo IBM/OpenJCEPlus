@@ -641,8 +641,12 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
         } catch (InvalidParameterSpecException e) {
             throw new IOException("Invalid EC private key");
         }
-
-    }
+    }   
+     
+    protected Object writeReplace() throws java.io.ObjectStreamException {
+        checkDestroyed();
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
+    } 
 
     /**
      * Destroys this key. A call to any of its other methods after this will

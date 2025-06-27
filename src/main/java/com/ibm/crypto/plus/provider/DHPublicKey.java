@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
-import java.security.KeyRep;
 import java.security.spec.InvalidParameterSpecException;
 import javax.crypto.spec.DHParameterSpec;
 import javax.security.auth.DestroyFailedException;
@@ -402,7 +401,7 @@ final class DHPublicKey extends X509Key
      */
     private Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
-        return new KeyRep(KeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded());
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
     }
 
     public String toString() {
