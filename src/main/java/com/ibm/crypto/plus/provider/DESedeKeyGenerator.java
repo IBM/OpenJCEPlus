@@ -79,7 +79,7 @@ public final class DESedeKeyGenerator extends KeyGeneratorSpi {
         }
 
         try {
-            return new DESedeKey(rawkey);
+            return new DESedeKey(provider, rawkey);
         } catch (InvalidKeyException e) {
             // Should never happen
             throw new ProviderException(e.getMessage());

@@ -52,10 +52,10 @@ public final class DESedeKeyFactory extends SecretKeyFactorySpi {
     protected SecretKey engineGenerateSecret(KeySpec keySpec) throws InvalidKeySpecException {
         try {
             if (keySpec instanceof DESedeKeySpec) {
-                return new DESedeKey(((DESedeKeySpec) keySpec).getKey());
+                return new DESedeKey(provider, ((DESedeKeySpec) keySpec).getKey());
             }
             if (keySpec instanceof SecretKeySpec) {
-                return new DESedeKey(((SecretKeySpec) keySpec).getEncoded());
+                return new DESedeKey(provider, ((SecretKeySpec) keySpec).getEncoded());
             }
             throw new InvalidKeySpecException("Inappropriate key specification");
         } catch (InvalidKeyException e) {

@@ -19,7 +19,7 @@ import sun.security.util.DerValue;
 import sun.security.x509.AlgorithmId;
 
 /*
- * A PQC private key for the NIST FIPS 203 algorithm.
+ * A PQC private key for the NIST FIPS 203, 204, 205 Algorithm.
  */
 @SuppressWarnings("restriction")
 final class PQCPrivateKey extends PKCS8Key {
@@ -175,6 +175,12 @@ final class PQCPrivateKey extends PKCS8Key {
     PQCKey getPQCKey() {
         return this.pqcKey;
     }
+
+    @java.io.Serial
+    protected Object writeReplace() throws java.io.ObjectStreamException {
+        checkDestroyed();
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
+    } 
 
     /**
      * Destroys this key. A call to any of its other methods after this will
