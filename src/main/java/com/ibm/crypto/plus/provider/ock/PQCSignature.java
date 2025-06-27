@@ -28,7 +28,7 @@ public final class PQCSignature {
     public static PQCSignature getInstance(OCKContext ockContext)
             throws OCKException {
         if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
+            throw new IllegalArgumentException("Context is null");
         }
         return new PQCSignature(ockContext);
     }
