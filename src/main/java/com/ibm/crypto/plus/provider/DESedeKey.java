@@ -9,7 +9,6 @@
 package com.ibm.crypto.plus.provider;
 
 import java.security.InvalidKeyException;
-import java.security.KeyRep;
 import java.util.Arrays;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.DESedeKeySpec;
@@ -28,6 +27,8 @@ final class DESedeKey implements SecretKey, Destroyable {
 
     private transient boolean destroyed = false;
 
+    private OpenJCEPlusProvider provider = null;
+
     /**
      * Creates a DES-EDE key from a given key.
      *
@@ -35,7 +36,7 @@ final class DESedeKey implements SecretKey, Destroyable {
      *
      * @exception InvalidKeyException if the given key has a wrong size
      */
-    DESedeKey(byte[] key) throws InvalidKeyException {
+    DESedeKey(OpenJCEPlusProvider provider, byte[] key) throws InvalidKeyException {
         if ((key == null) || (key.length < DESedeKeySpec.DES_EDE_KEY_LEN)) {
             throw new InvalidKeyException("Wrong key size");
         }
@@ -120,7 +121,7 @@ final class DESedeKey implements SecretKey, Destroyable {
      */
     private Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
-        return new KeyRep(KeyRep.Type.SECRET, getAlgorithm(), getFormat(), getEncoded());
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.SECRET, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
     }
 
     /**
