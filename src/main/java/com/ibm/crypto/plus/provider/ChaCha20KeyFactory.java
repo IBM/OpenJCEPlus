@@ -49,7 +49,7 @@ public final class ChaCha20KeyFactory extends SecretKeyFactorySpi {
     protected SecretKey engineGenerateSecret(KeySpec keySpec) throws InvalidKeySpecException {
         try {
             if (keySpec instanceof SecretKeySpec) {
-                return new ChaCha20Key(((SecretKeySpec) keySpec).getEncoded());
+                return new ChaCha20Key(provider, ((SecretKeySpec) keySpec).getEncoded());
             }
             throw new InvalidKeySpecException("Inappropriate key specification");
         } catch (InvalidKeyException e) {

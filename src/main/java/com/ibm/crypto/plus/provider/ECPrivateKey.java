@@ -577,6 +577,22 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
         return this.ecKey;
     }
 
+    @Override
+    public PublicKey calculatePublicKey() {
+        try {
+            return new ECPublicKey(provider, ecKey);
+        } catch (InvalidKeyException exc) {
+            throw new ProviderException(
+                    "Unexpected error calculating public key", exc);
+        }
+    }
+    
+    @java.io.Serial
+    protected Object writeReplace() throws java.io.ObjectStreamException {
+        checkDestroyed();
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
+    } 
+
     /**
      * Parse the key. Called by PKCS8Key. "key" is a byte array containing the
      * Der-encoded key which resides within the parent class PKCS8Key. The

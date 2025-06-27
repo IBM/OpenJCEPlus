@@ -137,6 +137,11 @@ final class PQCPublicKey extends X509Key
         return this.pqcKey;
     }
 
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        checkDestroyed();
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
+    }
+    
     /**
      * Destroys this key. A call to any of its other methods after this will cause
      * an IllegalStateException to be thrown.
