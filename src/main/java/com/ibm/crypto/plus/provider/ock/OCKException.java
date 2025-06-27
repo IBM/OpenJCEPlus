@@ -41,6 +41,12 @@ public final class OCKException extends java.lang.Exception {
         this.code = GKR_UNSPECIFIED;
     }
 
+    public OCKException(String s, Throwable cause) {
+        super(s, cause);
+        this.code = GKR_UNSPECIFIED;
+    }
+
+
     public OCKException(int code) {
         super(errorMessage(code));
         this.code = code;
