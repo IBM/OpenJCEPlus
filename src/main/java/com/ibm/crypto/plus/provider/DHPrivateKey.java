@@ -265,6 +265,11 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
         return "DH";
     }
 
+    protected Object writeReplace() throws java.io.ObjectStreamException {
+        checkDestroyed();
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
+    } 
+    
     /**
      * Returns the encoding format of this key: "PKCS#8"
      */
