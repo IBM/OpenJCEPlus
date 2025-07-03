@@ -190,7 +190,8 @@ mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test -Dtest=TestClassname
 1. There are two ways to configure and make use of the OpenJCEPlus and OpenJCEPlus providers:
 
     - Approach 1: Modify your `java.security` file located in the `$JAVA_HOME/conf/security` directory by adding one, or both, of the following providers. The value `XX`
-below represents your desired preference order. Be sure to restart your application for the setting to take effect.
+below represents your desired preference order. Setting `XX` to 1 would install the provider as the top priority. Be sure to restart your application for the setting to
+take effect.
 
         ```console
         security.provider.XX=com.ibm.crypto.plus.provider.OpenJCEPlus
@@ -209,27 +210,44 @@ below represents your desired preference order. Be sure to restart your applicat
         import java.security.Security;
         public class ProviderInsert {
             public static void main(String[] args) {
-                // Insert the provider at the top, position 1
-                Security.insertProviderAt(new com.ibm.crypto.plus.provider.OpenJCEPlus(), 1);
+                // The value `XX` below represents your desired preference order. Setting this value to
+                // position 1 would install the provider as the top priority.
+                Security.insertProviderAt(new com.ibm.crypto.plus.provider.OpenJCEPlus(), XX);
             }
         }
         ```
 
-1. If you're using a Java runtime environment that already includes OpenJCEPlus, such as Semeru, you can skip the following step.
-However, if you're using a different Java runtime, you must explicitly specify the openjceplus.jar, the location of the OCK library, 
-and the jgskit library when running your application. Use the following options:
+1. A user may optionally choose to install a custom built OpenJCEPlus module built via mvn:
 
-    ```console
-    -Xbootclasspath/a:$ANYDIRECTORY/openjceplus.jar
-    ```
+    1. If you're using a Java runtime environment that already includes OpenJCEPlus, such as Semeru, you can optionally pick up
+    a newly built module and library:
 
-    ```console
-    '-Dock.library.path=$PROJECT_HOME/OCK/'
-    ```
+        ```console
+        --patch-module openjceplus="target/classes"
+        ```
 
-    ```console
-    -Djgskit.library.path=$ANYDIRECTORY
-    ```
+        ```console
+        '-Dock.library.path=$PROJECT_HOME/OCK/'
+        ```
+
+        ```console
+        -Djgskit.library.path=$ANYDIRECTORY
+        ```
+
+    1. If you're using a Java runtime that does not include openjceplus, you must explicitly specify the openjceplus.jar, the location of the OCK library,
+    and the jgskit library when running your application. Use the following options:
+
+        ```console
+        -Xbootclasspath/a:$ANYDIRECTORY/openjceplus.jar
+        ```
+
+        ```console
+        '-Dock.library.path=$PROJECT_HOME/OCK/'
+        ```
+
+        ```console
+        -Djgskit.library.path=$ANYDIRECTORY
+        ```
 
 # Features And Algorithms
 
