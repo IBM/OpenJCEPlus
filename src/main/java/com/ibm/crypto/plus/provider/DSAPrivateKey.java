@@ -249,6 +249,12 @@ final class DSAPrivateKey extends PKCS8Key
         }
     }
 
+    @java.io.Serial
+    protected Object writeReplace() throws java.io.ObjectStreamException {
+        checkDestroyed();
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
+    } 
+    
     /**
      * Compares two private keys. This returns false if the object with which
      * to compare is not of type <code>Key</code>.
