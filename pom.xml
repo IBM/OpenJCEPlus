@@ -176,28 +176,28 @@
                     <!-- Could add -Djava.security.auth.debug=all for debug -->
                     <argLine>
                       @{argLine}
-                      --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
-                      --add-exports=java.base/sun.security.internal.spec=openjceplus
-                      --add-exports=java.base/sun.security.util=openjceplus
-                      --add-exports=java.base/sun.security.internal.interfaces=openjceplus
-                      --add-exports=java.base/sun.security.x509=openjceplus
-                      --add-exports=java.base/sun.security.pkcs=openjceplus
-                      --add-exports=java.base/sun.security.internal.spec=ALL-UNNAMED
-                      --add-exports=java.base/sun.security.util=ALL-UNNAMED
                       --add-exports=java.base/sun.security.internal.interfaces=ALL-UNNAMED
-                      --add-exports=java.base/sun.security.x509=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.internal.interfaces=openjceplus
+                      --add-exports=java.base/sun.security.internal.spec=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.internal.spec=openjceplus
                       --add-exports=java.base/sun.security.pkcs=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.pkcs=openjceplus
+                      --add-exports=java.base/sun.security.util=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.util=openjceplus
+                      --add-exports=java.base/sun.security.x509=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.x509=openjceplus
                       --add-exports=openjceplus/ibm.jceplus.junit=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.base.memstress=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.integration=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.memstress=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.multithread=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.integration=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips=ALL-UNNAMED
-                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.multithread=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.integration=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.multithread=ALL-UNNAMED
                       --add-opens=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
+                      --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
                     <systemPropertyVariables>
@@ -246,8 +246,12 @@
                     <trimStackTrace>false</trimStackTrace>
                     <!-- Could add -Djava.security.auth.debug=all for debug -->
                     <argLine>
+                      --add-exports=java.base/sun.security.internal.interfaces=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.internal.spec=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.pkcs=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.util=ALL-UNNAMED
+                      --add-exports=java.base/sun.security.x509=ALL-UNNAMED
                       --add-exports openjceplus/com.ibm.crypto.plus.provider.ock=ALL-UNNAMED
-                      --add-exports java.base/sun.security.util=ALL-UNNAMED
                     </argLine>
                     <includes>
                       <include>
