@@ -36,19 +36,6 @@ public class RSAKeyFactory extends KeyFactorySpi {
     public final static List<Integer> ALLOWABLE_MODLEN_FIPS_SIGN = Arrays.asList(2048, 3072, 4096);
     public final static List<Integer> ALLOWABLE_MODLEN_FIPS_VERIFY = Arrays.asList(1024, 2048, 3072, 4096);
 
-    /*
-     * If the modulus length is above this value, restrict the size of the
-     * exponent to something that can be reasonably computed. We could simply
-     * hardcode the exp len to something like 64 bits, but this approach allows
-     * flexibility in case impls would like to use larger module and exponent
-     * values.
-     */
-    public final static int MAX_MODLEN_RESTRICT_EXP = 3072;
-    public final static int MAX_RESTRICTED_EXPLEN = 64;
-
-    private static final boolean restrictExpLen = Boolean.parseBoolean(
-            System.getProperty("com.ibm.crypto.provider.restrictRSAExponent", "false"));
-
     private OpenJCEPlusProvider provider;
     private KeyType type = KeyType.RSA;
 
@@ -108,14 +95,6 @@ public class RSAKeyFactory extends KeyFactorySpi {
         // modulus len isn't too big.
         if (modulusLen > maxLen) {
             throw new InvalidKeyException("RSA keys must be no longer than " + maxLen + " bits");
-        }
-
-        // If a RSAPublicKey, make sure the exponent isn't too big.
-        if (restrictExpLen && (exponent != null) && (modulusLen > MAX_MODLEN_RESTRICT_EXP)
-                && (exponent.bitLength() > MAX_RESTRICTED_EXPLEN)) {
-            throw new InvalidKeyException(
-                    "RSA exponents can be no longer than " + MAX_RESTRICTED_EXPLEN + " bits "
-                            + " if modulus is greater than " + MAX_MODLEN_RESTRICT_EXP + " bits");
         }
     }
 
