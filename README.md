@@ -184,6 +184,22 @@ export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
 mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test -Dtest=TestClassname
 ```
 
+### Run performance tests
+
+The OpenJCEPlus project includes JMH performance tests that exercise various algorithms included. They can be executed as follows:
+
+To run a single test for example the `SHA256Benchmark`:
+
+```console
+mvn -Dock.library.path=$PROJECT_HOME/OCK/jgsk_crypto clean install -DskipTests -Djmh.benchmark.skip=false -Djmh.benchmark=ibm.jceplus.jmh.SHA256Benchmark
+```
+
+To run all performance tests:
+
+```console
+mvn -Dock.library.path=$PROJECT_HOME/OCK/jgsk_crypto clean install -DskipTests -Djmh.benchmark.skip=true
+```
+
 ## OpenJCEPlus and OpenJCEPlusFIPS Provider SDK Installation
 
 1. Modify your `java.security` file located in the `$JAVA_HOME/conf/security` directory by adding one of the following providers. The value `XX`
