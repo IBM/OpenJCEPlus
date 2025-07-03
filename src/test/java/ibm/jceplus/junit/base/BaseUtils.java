@@ -9,6 +9,9 @@
 package ibm.jceplus.junit.base;
 
 import java.security.Provider;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 abstract public class BaseUtils {
 
@@ -97,5 +100,40 @@ abstract public class BaseUtils {
         return loadProvider(PROVIDER_OpenJCEPlusFIPS,
                 "com.ibm.crypto.plus.provider.OpenJCEPlusFIPS");
     }
-}
 
+
+    /**
+     * Determines if we are running on an environment where a FIPS
+     * certified library is known to exist.
+     * 
+     * @return true if running within a known FIPS envionrment, false otherwise.
+     */
+    public static boolean getIsFIPSCertifiedPlatform() {
+        Map<String, List<String>> supportedPlatforms = new HashMap<>();
+        String osName;
+        String osArch;
+
+        supportedPlatforms.put("Arch", List.of("amd64", "ppc64", "s390x"));
+        supportedPlatforms.put("OS", List.of("Linux", "AIX", "Windows"));
+
+        osName = System.getProperty("os.name");
+        osArch = System.getProperty("os.arch");;
+
+        boolean isOsSupported, isArchSupported;
+        isOsSupported = false;
+        for (String os: supportedPlatforms.get("OS")) {
+            if (osName.contains(os)) {
+                isOsSupported = true;
+                break;
+            }
+        }
+        isArchSupported = false;
+        for (String arch: supportedPlatforms.get("Arch")) {
+            if (osArch.contains(arch)) {
+                isArchSupported = true;
+                break;
+            }
+        }
+        return isOsSupported && isArchSupported;
+    }
+}

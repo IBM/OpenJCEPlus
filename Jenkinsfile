@@ -278,17 +278,9 @@ def getTestFlag(hardware, software) {
         return " -Dtest=${SPECIFIC_TEST}"
     }
 
-    // Based on platform, decide whether FIPS tests should be run.
-    if ((software == "mac") || ((software == "linux") && (hardware == "aarch64"))) {
-        echo "Only non-FIPS tests can be run in ${hardware}_${software}"
-        return " -Dtest=ibm.jceplus.junit.openjceplus.TestAll," +
-                       "ibm.jceplus.junit.TestMemStressAll," +
-                       "ibm.jceplus.junit.TestMultithread," +
-                       "ibm.jceplus.junit.openjceplus.integration.TestAll"
-    } else {
-        echo "All tests (both FIPS and non-FIPS) can be run in ${hardware}_${software}"
-        return "";
-    }
+    // Run all tests. Some platforms will naturally run in developer mode.
+    echo "All tests (both FIPS and non-FIPS) can be run in ${hardware}_${software}"
+    return "";
 }
 
 /*
