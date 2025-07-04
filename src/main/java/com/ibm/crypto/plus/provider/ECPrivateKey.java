@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.ProviderException;
 import java.security.PublicKey;
 import java.security.spec.ECParameterSpec;
@@ -679,38 +678,6 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
         if (destroyed) {
             throw new IllegalStateException("This key is no longer valid");
         }
-    }
-
-    /**
-     * Compares two private keys. This returns false if the object with which
-     * to compare is not of type <code>Key</code>.
-     * Otherwise, we compare the private part of the key and the params to validate equivalence.
-     * We can not compare encodings because there are 2 different ones and both can be the same 
-     * key.
-     *
-     * @param object the object with which to compare
-     * @return {@code true} if this key has the same encoding as the
-     *          object argument; {@code false} otherwise.
-     */
-    public boolean equals(Object object) {
-        try {
-            BigInteger i = (BigInteger) (object.getClass().getDeclaredMethod("getS")
-                    .invoke(object));
-
-            if (this == object) {
-                return true;
-            }
-            if (object instanceof Key) {
-                if (this.s.equals(i) && ECUtils.equals(this.getParams(), (ECParameterSpec) (object
-                        .getClass().getDeclaredMethod("getParams").invoke(object)))) {
-                    return true;
-                }
-            }
-        } catch (Exception e1) {
-            //Should never get here
-            //System.out.println("Object = Exception - " + e1.toString());
-        }
-        return false;
     }
 
 }

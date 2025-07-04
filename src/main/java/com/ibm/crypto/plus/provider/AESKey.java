@@ -12,6 +12,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyRep;
 import java.util.Arrays;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.DestroyFailedException;
 
 /**
@@ -72,11 +73,8 @@ final class AESKey implements SecretKey {
     public int hashCode() {
         checkDestroyed();
 
-        int retval = 0;
-        for (int i = 1; i < this.key.length; i++) {
-            retval += this.key[i] * i;
-        }
-        return (retval ^= "aes".hashCode());
+        SecretKeySpec keySpec = new SecretKeySpec(this.key, getAlgorithm());
+        return keySpec.hashCode();
     }
 
     @Override
