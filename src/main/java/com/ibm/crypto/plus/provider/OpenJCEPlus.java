@@ -568,28 +568,40 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "MAC", "HmacSHA3-512",
                 "com.ibm.crypto.plus.provider.HmacCore$HmacSHA3_512", aliases));
 
+        if (allowLegacyHKDF) {
+            /* =======================================================================
+             * HKDF Algorithms use KeyGeneratorSpi - Legacy way of using
+             * =======================================================================
+             */
+            aliases = new String[] {"kda-hkdf-with-sha-1"};
+            putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha1",
+                    "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA1", aliases));
+
+            aliases = new String[] {"kda-hkdf-with-sha-224"};
+            putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha224",
+                    "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA224", aliases));
+
+            aliases = new String[] {"kda-hkdf-with-sha-256"};
+            putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha256",
+                    "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA256", aliases));
+            aliases = new String[] {"kda-hkdf-with-sha-384"};
+            putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha384",
+                    "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA384", aliases));
+            aliases = new String[] {"kda-hkdf-with-sha-512"};
+            putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha512",
+                    "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA512", aliases));
+        }
+
         /* =======================================================================
-         * HKDF Algorithms - OIDs are not finalized -
-         *  Oracle does not go through provider. Directly calls HKDF.
+         * Key Derivation engines
          * =======================================================================
          */
-        aliases = new String[] {"kda-hkdf-with-sha-1"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha1",
-                "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA1", aliases));
-
-        aliases = new String[] {"kda-hkdf-with-sha-224"};;
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha224",
-                "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA224", aliases));
-
-        aliases = new String[] {"kda-hkdf-with-sha-256"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha256",
-                "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA256", aliases));
-        aliases = new String[] {"kda-hkdf-with-sha-384"};;
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha384",
-                "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA384", aliases));
-        aliases = new String[] {"kda-hkdf-with-sha-512"};;
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha512",
-                "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA512", aliases));
+        putService(new OpenJCEPlusService(jce, "KDF", "HKDF-SHA256",
+                "com.ibm.crypto.plus.provider.HKDFKeyDerivation$HKDFSHA256", null));
+        putService(new OpenJCEPlusService(jce, "KDF", "HKDF-SHA384",
+                "com.ibm.crypto.plus.provider.HKDFKeyDerivation$HKDFSHA384", null));
+        putService(new OpenJCEPlusService(jce, "KDF", "HKDF-SHA512",
+                "com.ibm.crypto.plus.provider.HKDFKeyDerivation$HKDFSHA512", null));
 
         /* =======================================================================
          * MessageDigest engines
