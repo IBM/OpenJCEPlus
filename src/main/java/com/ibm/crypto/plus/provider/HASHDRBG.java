@@ -40,7 +40,7 @@ abstract class HASHDRBG extends SecureRandomSpi {
     }
 
     @Override
-    protected void engineSetSeed(byte[] seed) {
+    protected synchronized void engineSetSeed(byte[] seed) {
         try {
             extendedRandom.setSeed(seed);
         } catch (Exception e) {
@@ -49,7 +49,7 @@ abstract class HASHDRBG extends SecureRandomSpi {
     }
 
     @Override
-    protected void engineNextBytes(byte[] bytes) {
+    protected synchronized void engineNextBytes(byte[] bytes) {
         if (bytes == null) {
             throw new NullPointerException("bytes is null"); // Required by JCK test NextBytes
         }

@@ -19,6 +19,7 @@ import java.security.Provider;
 import java.security.ProviderException;
 import java.security.PublicKey;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.crypto.SecretKey;
@@ -70,7 +71,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
     private static boolean ockInitialized = false;
     private static OCKContext ockContext;
-    private static Map<String, String> attrs;
+    private static Map<String, String> attrs = new HashMap<>();
 
     public OpenJCEPlus() {
         super("OpenJCEPlus", info);
@@ -740,13 +741,14 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
          * SecureRandom
          * =======================================================================
          */
+        attrs.put("ThreadSafe", "true");
         aliases = new String[] {"HASHDRBG", "SHA2DRBG"};
         putService(new OpenJCEPlusService(jce, "SecureRandom", "SHA256DRBG",
-                "com.ibm.crypto.plus.provider.HASHDRBG$SHA256DRBG", aliases));
+                "com.ibm.crypto.plus.provider.HASHDRBG$SHA256DRBG", aliases, attrs));
 
         aliases = new String[] {"SHA5DRBG"};
         putService(new OpenJCEPlusService(jce, "SecureRandom", "SHA512DRBG",
-                "com.ibm.crypto.plus.provider.HASHDRBG$SHA512DRBG", aliases));
+                "com.ibm.crypto.plus.provider.HASHDRBG$SHA512DRBG", aliases, attrs));
 
         /* =======================================================================
          * Signature engines
