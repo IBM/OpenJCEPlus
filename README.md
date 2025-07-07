@@ -36,9 +36,8 @@ Build Status:
 | linux                   | ppc64le     |
 | Windows Server 2022     | amd64       |
 | AIX                     | ppc64       |
-| Mac OS X*               | aarch64*    |
-| Mac OS X*               | amd64*      |
-* Mac OS X currently is only able to compile and run tests using the `OpenJCEPlus` provider, not `OpenJCEPlusFIPS`. The provider `OpenJCEPlusFIPS` will not load.
+| Mac OS X                | aarch64     |
+| Mac OS X                | amd64       |
 
 Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with a dependent Java Native Interface library. Keep in mind that `$PROJECT_HOME` can represent any directory on your system and will be referred to as such in the subsequent instructions. Also keep in mind that the value `$JAVA_VERSION` below must match the same version of the branch of OpenJCEPlus being built. For example if building the `java21` branch the `$JAVA_VERSION` must match the Java 21 SDK version such as `21.0.2+13`.
 
