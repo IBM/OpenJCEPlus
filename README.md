@@ -186,7 +186,7 @@ mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test -Dtest=TestClassname
 
 ## OpenJCEPlus and OpenJCEPlusFIPS Provider SDK Installation
 
-1. There are two ways to configure and make use of the OpenJCEPlus and OpenJCEPlus providers:
+1. There are two ways to configure and make use of the OpenJCEPlus and OpenJCEPlusFIPS providers:
 
     - Approach 1: Modify your `java.security` file located in the `$JAVA_HOME/conf/security` directory by adding one, or both, of the following providers. The value `XX`
 below represents your desired preference order. Setting `XX` to 1 would install the provider as the top priority. Be sure to restart your application for the setting to
