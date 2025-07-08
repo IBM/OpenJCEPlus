@@ -15,10 +15,6 @@ abstract public class Utils extends ibm.jceplus.junit.base.BaseUtils {
 
 
     public static java.security.Provider loadProviderTestSuite() {
-        if (System.getProperty("os.name").equals("z/OS")) {
-            Utils.PROVIDER_SunEC = "BC"; //jpf SunEC doesn't have the necessary EC algorithms use BouncyCastle instead "SunEC";
-        }
-
         try {
             return loadProviderOpenJCEPlus();
         } catch (Exception e) {
