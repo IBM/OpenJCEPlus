@@ -39,6 +39,7 @@ import org.junit.platform.suite.api.Suite;
     TestAESGCMUpdateInteropBC.class,
     TestAESGCMWithByteBuffer.class,
     TestAliases.class,
+    TestAttributes.class,
     TestByteArrayOutputDelay.class,
     TestChaCha20.class,
     TestChaCha20KAT.class,
