@@ -18,7 +18,6 @@ import java.security.InvalidParameterException;
 import java.security.KeyRep;
 import java.security.interfaces.EdECPrivateKey;
 import java.security.spec.NamedParameterSpec;
-import java.util.Arrays;
 import java.util.Optional;
 import sun.security.pkcs.PKCS8Key;
 import sun.security.util.DerInputStream;
@@ -33,7 +32,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
 
     private static final byte TAG_PARAMETERS_ATTRS = 0x00;
     private OpenJCEPlusProvider provider = null;
-    private transient Optional<byte[]> h;
+    private transient byte[] h;
     private transient NamedParameterSpec paramSpec;
     private CURVE curve;
     private Exception exception = null; // In case an exception happened and the API did
@@ -44,7 +43,8 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
     private void setFieldsFromXeckey() throws Exception {
         if (this.privKeyMaterial == null) {
             this.privKeyMaterial = extractPrivateKeyFromOCK(xecKey.getPrivateKeyBytes()); // Extract key from GSKit and sets params
-            this.h = Optional.of(this.privKeyMaterial);
+            DerInputStream derStream = new DerInputStream(this.privKeyMaterial);
+            this.h = derStream.getOctetString();
             this.algid = CurveUtil.getAlgId(this.curve);
         }
     }
@@ -72,7 +72,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
     }
 
     EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider,
-            NamedParameterSpec params, Optional<byte[]> h)
+            NamedParameterSpec params, byte[] h)
             throws InvalidAlgorithmParameterException, InvalidParameterException, InvalidKeyException {
 
         this.provider = provider;
@@ -84,8 +84,13 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
             this.algid = CurveUtil.getAlgId(this.curve);
 
             if (h != null) {
-                this.privKeyMaterial = h.get().clone();
-                this.h = Optional.of(this.privKeyMaterial);
+                this.h = h.clone();
+                DerValue val = new DerValue(DerValue.tag_OctetString, h);
+                try {
+                    this.privKeyMaterial = val.toByteArray();
+                } finally {
+                    val.clear();
+                }
             }
 
             if (this.privKeyMaterial == null) {
@@ -110,7 +115,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
 
     EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider, byte[] encoded)
             throws InvalidKeyException, IOException {
-
+        super(encoded);
         this.provider = provider;
         try {
             byte[] alteredEncoded = processEncodedPrivateKey(encoded); // Sets params, key, and algid, and alters encoded
@@ -130,9 +135,9 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
 
     void checkLength(CURVE curve) throws InvalidKeyException {
 
-        if (CurveUtil.getCurveSize(curve) != this.h.get().length) {
+        if (CurveUtil.getCurveSize(curve) != this.h.length) {
             throw new InvalidKeyException(
-                    "key length is " + this.h.get().length + ", key length must be "
+                    "key length is " + this.h.length + ", key length must be "
                             + CurveUtil.getCurveSize(curve));
         }
     }
@@ -176,13 +181,10 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
 
         // Read, convert, then write private key
         this.privKeyMaterial = inputValue[2].getOctetString(); // Get octet string
-        //Need to remove seq tag from key
-        this.privKeyMaterial = Arrays.copyOfRange(this.privKeyMaterial, 2, this.privKeyMaterial.length);
-        this.h = Optional.of(this.privKeyMaterial);
+        DerInputStream derStream = new DerInputStream(this.privKeyMaterial);
+        this.h = derStream.getOctetString();
 
-        DerOutputStream encodedKey = new DerOutputStream();
-        encodedKey.putOctetString(this.privKeyMaterial); // Put in another octet string
-        outStream.putOctetString(encodedKey.toByteArray());
+        outStream.putOctetString(this.privKeyMaterial);
 
         DerOutputStream asn1Key = new DerOutputStream();
         asn1Key.write(DerValue.tag_Sequence, outStream);
@@ -244,7 +246,6 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
         byte[] privData = null;
         if (inputValue.length > 2) {
             privData = inputValue[2].getOctetString();
-            privData = new DerInputStream(privData).getOctetString();
             return privData;
         }
         return null;
@@ -269,9 +270,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
         mainSeq.write(DerValue.tag_Sequence, oidSeq.toByteArray());
 
         // Adding Key
-        DerOutputStream keyOctetString = new DerOutputStream();
-        keyOctetString.putOctetString(this.privKeyMaterial);
-        mainSeq.putOctetString(keyOctetString.toByteArray());
+        mainSeq.putOctetString(this.privKeyMaterial);
 
         // Wrapping up in a sequence
         DerOutputStream outStream = new DerOutputStream();
@@ -295,7 +294,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
         } catch (Exception exception) {
             this.exception = exception;
         }
-        return this.h;
+        return Optional.of(this.h);
     }
 
     @Override
