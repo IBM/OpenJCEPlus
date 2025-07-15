@@ -11,6 +11,7 @@ package com.ibm.crypto.plus.provider;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.DestroyFailedException;
 
 /**
@@ -74,11 +75,8 @@ final class ChaCha20Key implements SecretKey, ChaCha20Constants {
     public int hashCode() {
         checkDestroyed();
 
-        int retval = 0;
-        for (int i = 1; i < this.key.length; i++) {
-            retval += this.key[i] * i;
-        }
-        return (retval ^= "ChaCha20".hashCode());
+        SecretKeySpec keySpec = new SecretKeySpec(this.key, getAlgorithm());
+        return keySpec.hashCode();
     }
 
     @Override

@@ -30,6 +30,8 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     // Field serialVersionUID per tag [SERIALIZATION] in DesignNotes.txt
     private static final long serialVersionUID = 929669768004683845L;
 
+    private static final boolean printFipsDeveloperModeWarning = Boolean.parseBoolean(System.getProperty("openjceplus.fips.devmodewarn", "true"));
+
     private static final String info = "OpenJCEPlusFIPS Provider implements the following:\n" +
 
             "Algorithm parameter                : AES, DiffieHellman, DSA, EC, GCM, OAEP, RSAPSS\n"
@@ -66,7 +68,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     private static boolean ockInitialized = false;
     private static OCKContext ockContext;
 
-    private static final boolean isPlatformSupported;
+    private static final boolean isFIPSCertifiedPlatform;
     private static final Map<String, List<String>> supportedPlatforms = new HashMap<>();
     private static final String osName;
     private static final String osArch;
@@ -94,7 +96,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
                 break;
             }
         }
-        isPlatformSupported = isOsSupported && isArchSupported;
+        isFIPSCertifiedPlatform = isOsSupported && isArchSupported;
     }
 
     public OpenJCEPlusFIPS() {
@@ -103,9 +105,13 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
             debug.println("New OpenJCEPlusFIPS instance");
         }
 
-        if (!isPlatformSupported) {
-            throw new UnsupportedOperationException(
-                        "OpenJCEPlusFIPS is not supported on this non FIPS " + osName + " " + osArch + " platform");
+        if (!isFIPSCertifiedPlatform) {
+            if (printFipsDeveloperModeWarning) {
+                System.out.println("WARNING: OpenJCEPlusFIPS is running in developer mode. Non production workload assumed. This environment is not certified for FIPS 140-3: " + osName + ":" + osArch);
+            }
+            if (debug != null) {
+                debug.println("WARNING: OpenJCEPlusFIPS is running in developer mode.  Non production workload assumed. This environment is not certified for FIPS 140-3: " + osName + ":" + osArch);
+            }
         }
 
         final OpenJCEPlusProvider jce = this;
@@ -407,27 +413,37 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "MAC", "HmacSHA3-512",
                 "com.ibm.crypto.plus.provider.HmacCore$HmacSHA3_512", aliases));
 
+        if (allowLegacyHKDF) {
+            /* =======================================================================
+             * HKDF Algorithms use KeyGeneratorSpi - Legacy way of using
+             * =======================================================================
+             */
+
+            aliases = new String[] {"kda-hkdf-with-sha-224"};
+            putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha224",
+                    "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA224", aliases));
+
+            aliases = new String[] {"kda-hkdf-with-sha-256"};
+            putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha256",
+                    "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA256", aliases));
+            aliases = new String[] {"kda-hkdf-with-sha-384"};
+            putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha384",
+                    "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA384", aliases));
+            aliases = new String[] {"kda-hkdf-with-sha-512"};
+            putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha512",
+                    "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA512", aliases));
+        }
+
         /* =======================================================================
-         * HKDF Algorithms use key generator spis - OIDs are not finalized 
-         * Oracle does not go through provider. Directly calls HKDF. Not supported till
-         * Next GSkit Crypto FIPS certification.
+         * Key Derivation engines
          * =======================================================================
          */
-
-        aliases = new String[] {"kda-hkdf-with-sha-224"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha224",
-                "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA224", aliases));
-
-        aliases = new String[] {"kda-hkdf-with-sha-256"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha256",
-                "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA256", aliases));
-        aliases = new String[] {"kda-hkdf-with-sha-384"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha384",
-                "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA384", aliases));
-        aliases = new String[] {"kda-hkdf-with-sha-512"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha512",
-                "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA512", aliases));
-
+        putService(new OpenJCEPlusService(jce, "KDF", "HKDF-SHA256",
+                "com.ibm.crypto.plus.provider.HKDFKeyDerivation$HKDFSHA256", null));
+        putService(new OpenJCEPlusService(jce, "KDF", "HKDF-SHA384",
+                "com.ibm.crypto.plus.provider.HKDFKeyDerivation$HKDFSHA384", null));
+        putService(new OpenJCEPlusService(jce, "KDF", "HKDF-SHA512",
+                "com.ibm.crypto.plus.provider.HKDFKeyDerivation$HKDFSHA512", null));
 
         /* =======================================================================
          * MessageDigest engines
@@ -538,13 +554,15 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
          * SecureRandom
          * =======================================================================
          */
+        Map<String, String> attrsSecureRandom = new HashMap<>();
+        attrsSecureRandom.put("ThreadSafe", "true");
         aliases = new String[] {"HASHDRBG", "SHA2DRBG"};
         putService(new OpenJCEPlusService(jce, "SecureRandom", "SHA256DRBG",
-                "com.ibm.crypto.plus.provider.HASHDRBG$SHA256DRBG", aliases));
+                "com.ibm.crypto.plus.provider.HASHDRBG$SHA256DRBG", aliases, attrsSecureRandom));
 
         aliases = new String[] {"SHA5DRBG"};
         putService(new OpenJCEPlusService(jce, "SecureRandom", "SHA512DRBG",
-                "com.ibm.crypto.plus.provider.HASHDRBG$SHA512DRBG", aliases));
+                "com.ibm.crypto.plus.provider.HASHDRBG$SHA512DRBG", aliases, attrsSecureRandom));
 
         /* =======================================================================
          * Signature engines
@@ -799,6 +817,15 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
 
         try {
             boolean useFIPSMode = true;
+            if (!isFIPSCertifiedPlatform) {
+                if (printFipsDeveloperModeWarning) {
+                    System.out.println("WARNING: OpenJCEPlusFIPS is about to load non FIPS 140-3 library!");
+                }
+                if (debug != null) {
+                    debug.println("WARNING: OpenJCEPlusFIPS is about to load non FIPS 140-3 library!");
+                }
+                useFIPSMode = false;
+            }
 
             ockContext = OCKContext.createContext(useFIPSMode);
             ockInitialized = true;

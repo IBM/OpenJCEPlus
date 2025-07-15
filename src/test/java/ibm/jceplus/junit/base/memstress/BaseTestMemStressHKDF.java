@@ -9,8 +9,6 @@
 package ibm.jceplus.junit.base.memstress;
 
 import ibm.jceplus.junit.base.BaseTestJunit5;
-import ibm.security.internal.spec.HKDFExpandParameterSpec;
-import ibm.security.internal.spec.HKDFExtractParameterSpec;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -23,6 +21,7 @@ import java.security.Provider;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KDF;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
@@ -70,7 +69,7 @@ public class BaseTestMemStressHKDF extends BaseTestJunit5 {
         long currentUsedMemory = 0;
         long prevUsedMemory = 0;
         for (int i = 0; i < numTimes; i++) {
-            aesHKDF(192, "kda-hkdf-with-sha256", "AES", "AES", getProviderName());
+            aesHKDF(192, "HKDF-SHA256", "AES", "AES", getProviderName());
             currentTotalMemory = rt.totalMemory();
             currentFreeMemory = rt.freeMemory();
             currentUsedMemory = currentTotalMemory - currentFreeMemory;
@@ -98,28 +97,26 @@ public class BaseTestMemStressHKDF extends BaseTestJunit5 {
         keyGen.init(aesKeySize);
         SecretKey psk = keyGen.generateKey(); // System.out.println("Generated secretKey=" + psk);
 
-        MessageDigest md = MessageDigest.getInstance(hashAlg.replace("kda-hkdf-with-", ""),
+        MessageDigest md = MessageDigest.getInstance(hashAlg.replace("HKDF-", ""),
                 getProviderName());
-        KeyGenerator hkdfExtract = KeyGenerator.getInstance(hashAlg, getProviderName());
-        byte[] zeros = new byte[md.getDigestLength()];
 
-        hkdfExtract.init(new HKDFExtractParameterSpec(psk.getEncoded(), zeros, extractAlg));
-        SecretKey earlySecret = hkdfExtract.generateKey();
-        assert (earlySecret != null);
+        byte[] zeros = new byte[md.getDigestLength()];
+        KDF hkdfExtract = KDF.getInstance(hashAlg, getProviderName());
+        javax.crypto.spec.HKDFParameterSpec extractOnly = javax.crypto.spec.HKDFParameterSpec.ofExtract().addIKM(psk).addSalt(zeros).extractOnly();
+        SecretKey earlySecret = hkdfExtract.deriveKey(extractAlg, extractOnly);
+        assertTrue(earlySecret != null);
 
         byte[] label = ("tls13 res binder").getBytes();
-
         byte[] hkdfInfo = createHkdfInfo(label, new byte[0], md.getDigestLength());
-        KeyGenerator hkdfExpand = KeyGenerator.getInstance(hashAlg, getProviderName());
-        hkdfExpand.init(new HKDFExpandParameterSpec(earlySecret, hkdfInfo,
-                (aesKeySize / 8)/* md.getDigestLength() */, expandAlg));
-        SecretKey expandSecretKey = hkdfExpand.generateKey();
-        assert (expandSecretKey != null);
+        KDF hkdfExpand = KDF.getInstance(hashAlg, getProviderName());
+        javax.crypto.spec.HKDFParameterSpec expandOnly = javax.crypto.spec.HKDFParameterSpec.expandOnly(earlySecret, hkdfInfo, (aesKeySize / 8));
+        SecretKey expandSecretKey = hkdfExpand.deriveKey(expandAlg, expandOnly);
+        assertTrue(expandSecretKey != null);
+
         String strToEncrypt = "Hello string to be encrypted";
         byte[] encryptedBytes = encrypt(expandSecretKey, strToEncrypt, "AES/ECB/PKCS5Padding");
         String plainStr = decrypt(expandSecretKey, encryptedBytes, "AES/ECB/PKCS5Padding");
         assertTrue(plainStr.equals(strToEncrypt));
-
     }
 
 
@@ -155,7 +152,6 @@ public class BaseTestMemStressHKDF extends BaseTestJunit5 {
         }
         cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
         return new String(cipher.doFinal(encryptedBytes));
-
     }
 
     private static byte[] createHkdfInfo(byte[] label, byte[] context, int length)
@@ -170,11 +166,6 @@ public class BaseTestMemStressHKDF extends BaseTestJunit5 {
             // unlikely
             throw new RuntimeException("Unexpected exception", ioe);
         }
-
         return info;
-
     }
-
-
-
 }

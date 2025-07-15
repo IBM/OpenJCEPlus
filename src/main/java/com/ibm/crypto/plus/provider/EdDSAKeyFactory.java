@@ -24,7 +24,6 @@ import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
-import java.util.Optional;
 
 public class EdDSAKeyFactory extends KeyFactorySpi {
 
@@ -75,7 +74,7 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
                 privKey = (com.ibm.crypto.plus.provider.EdDSAPrivateKeyImpl) key;
             } else {
                 try {
-                    privKey = new EdDSAPrivateKeyImpl(provider, params, Optional.of(privateKeyBytes));
+                    privKey = new EdDSAPrivateKeyImpl(provider, params, privateKeyBytes);
                 } catch (InvalidAlgorithmParameterException iape) {
                     throw new InvalidKeyException(iape);
                 }
@@ -172,7 +171,7 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
             checkLockedParams(params);
             byte[] bytes = privateKeySpec.getBytes();
             try {
-                return new EdDSAPrivateKeyImpl(provider, params, Optional.of(bytes));
+                return new EdDSAPrivateKeyImpl(provider, params, bytes);
             } catch (InvalidAlgorithmParameterException iape) {
                 throw new InvalidKeySpecException(iape);
             } finally {
