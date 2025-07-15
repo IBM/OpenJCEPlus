@@ -9,7 +9,6 @@
 package com.ibm.crypto.plus.provider;
 
 import java.security.InvalidKeyException;
-import java.security.KeyRep;
 import java.util.Arrays;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -26,6 +25,8 @@ final class ChaCha20Key implements SecretKey, ChaCha20Constants {
 
     private transient boolean destroyed = false;
 
+    private OpenJCEPlusProvider provider = null;
+
     /**
      * Create an ChaCha20 key from a given key
      *
@@ -35,7 +36,7 @@ final class ChaCha20Key implements SecretKey, ChaCha20Constants {
      * @exception InvalidKeyException
      *                if the given key has wrong size
      */
-    ChaCha20Key(byte[] key) throws InvalidKeyException {
+    ChaCha20Key(OpenJCEPlusProvider provider, byte[] key) throws InvalidKeyException {
 
         if ((key == null) || (key.length != ChaCha20_KEY_SIZE)) {
             throw new InvalidKeyException("Wrong key size");
@@ -118,7 +119,7 @@ final class ChaCha20Key implements SecretKey, ChaCha20Constants {
      */
     private Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
-        return new KeyRep(KeyRep.Type.SECRET, getAlgorithm(), getFormat(), getEncoded());
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.SECRET, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
     }
 
     /**

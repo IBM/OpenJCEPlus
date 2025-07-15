@@ -8,17 +8,14 @@
 
 package ibm.jceplus.junit.openjceplus;
 
-import ibm.jceplus.junit.base.BaseTestKEM;
+import ibm.jceplus.junit.base.BaseTestPQCKeySerialization;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 @TestInstance(Lifecycle.PER_CLASS)
-@DisabledOnOs(value = OS.MAC, architectures = "x86_64")
-public class TestPQCKEM extends BaseTestKEM {
-
+public class TestPQCKeySerialization extends BaseTestPQCKeySerialization {
+   
     @BeforeAll
     public void beforeAll() {
         Utils.loadProviderTestSuite();
