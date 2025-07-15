@@ -15,12 +15,12 @@ import com.ibm.crypto.plus.provider.ock.XECKey;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.interfaces.XECPrivateKey;
+import java.security.interfaces.XECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.NamedParameterSpec;
-import java.security.spec.XECPrivateKeySpec;
 import javax.crypto.KeyAgreementSpi;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
@@ -65,11 +65,22 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
     @Override
     protected Key engineDoPhase(Key key, boolean lastPhase)
             throws InvalidKeyException, IllegalStateException {
-        if (!(key instanceof XDHPublicKeyImpl))
-            throw new InvalidKeyException("Key is not an XDHPublicKeyImpl");
+        if (!(key instanceof XECPublicKey)) {
+            throw new InvalidKeyException("Unsupported key type");
+        }
         if (ockXecKeyPriv == null)
             throw new IllegalStateException(
                     "object is not initialized correctly (private key is not received)");
+
+        if (!(key instanceof XDHPublicKeyImpl)) {
+            try {
+                key = (XDHPublicKeyImpl) XDHKeyFactory.toXECKey(this.provider, this.alg, key);
+            } catch (ClassCastException cce) {
+                throw new InvalidKeyException("Translated key is not an instance of XDHPublicKeyImpl", cce);
+            } catch (Exception exception) {
+                throw new InvalidKeyException("Unable to translate key", exception);
+            }
+        }
 
         XDHPublicKeyImpl xdhPublicKeyImpl = (XDHPublicKeyImpl) key;
 
@@ -215,6 +226,20 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
     @Override
     protected void engineInit(Key key, AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
+        
+        if (!(key instanceof XECPrivateKey)) {
+            throw new InvalidKeyException("Unsupported key type");
+        }
+
+        if (!(key instanceof XDHPrivateKeyImpl)) {
+            try {
+                key = (XDHPrivateKeyImpl) XDHKeyFactory.toXECKey(this.provider, this.alg, key);
+            } catch (ClassCastException cce) {
+                throw new InvalidKeyException("Translated key is not an instance of XDHPrivateKeyImpl", cce);
+            } catch (Exception exception) {
+                throw new InvalidKeyException("Unable to translate key", exception);
+            }
+        }
 
         // Check if parameter is a valid NamedParameterSpec instance
         if (params != null) {
@@ -226,17 +251,6 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
                 }
             } else {
                 throw new InvalidAlgorithmParameterException("Invalid Parameters: " + params);
-            }
-        }
-
-        if (!(key instanceof XDHPrivateKeyImpl)) {
-            try {
-                KeyFactory kf = KeyFactory.getInstance(this.alg);
-                XECPrivateKeySpec spec = kf.getKeySpec(key, XECPrivateKeySpec.class);
-                key = kf.generatePrivate(spec);
-            } catch (Exception exception) {
-                // should not happen
-                throw new InvalidKeyException("KeyFactory is not working as expected");
             }
         }
 
