@@ -69,7 +69,7 @@ public class BaseTestIsAssignableFromOrder extends BaseTestJunit5 {
         // KeyFactory DH, DSA, EC, RSA, XDH
         testKeySpec("DH", 1024, DHPublicKeySpec.class, DHPrivateKeySpec.class);
         testKeySpec("DSA", 1024, DSAPublicKeySpec.class, DSAPrivateKeySpec.class);
-        testKeySpec("EC", 1024, ECPublicKeySpec.class, ECPrivateKeySpec.class);
+        testKeySpec("EC", 521, ECPublicKeySpec.class, ECPrivateKeySpec.class);
         testKeySpec("RSA", 1024, RSAPublicKeySpec.class, RSAPrivateKeySpec.class);
         testKeySpec("XDH", 255, XECPublicKeySpec.class, XECPrivateKeySpec.class);
     }
