@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -10,6 +10,7 @@ package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.RSAUtil.KeyType;
 import com.ibm.crypto.plus.provider.ock.Signature;
+import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
@@ -180,6 +181,11 @@ abstract class RSASignature extends SignatureSpi {
         if (params != null) {
             throw new InvalidAlgorithmParameterException("No parameters accepted");
         }
+    }
+
+    @Override
+    protected AlgorithmParameters engineGetParameters() {
+        return null;
     }
 
     @Override
