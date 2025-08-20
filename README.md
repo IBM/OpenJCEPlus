@@ -317,12 +317,14 @@ KeyGenerator                | kda-hkdf-with-sha384       |X                |X   
 KeyGenerator                | kda-hkdf-with-sha512       |X                |X             |              |
 KeyPairGenerator            | DSA                        |                 |X             |              |
 KeyPairGenerator            | DiffieHellman              |X                |X             |              |
-KeyPairGenerator            | EC                         |X                |X             |              |
+KeyPairGenerator            | EC                         |X                |X             |[ECKeyPairGenerator incorrect keysize](#eckeypairgenerator-incorrect-keysize)|
 KeyPairGenerator            | RSA                        |X                |X             |              |
 KeyPairGenerator            | RSAPSS                     |X                |X             |              |
 KeyPairGenerator            | X25519                     |                 |X             |              |
 KeyPairGenerator            | X448                       |                 |X             |              |
 KeyPairGenerator            | XDH                        |                 |X             |              |
+KeyWrap                     | AES/KW/NoPadding           |X                |X             |[AESKW](#AESKW)|
+KeyWrap                     | AES/KWP/NoPadding          |X                |X             |[AESKW](#AESKW)|
 Mac                         | HmacMD5                    |                 |X             |              |
 Mac                         | HmacSHA1                   |                 |X             |              |
 Mac                         | HmacSHA224                 |X                |X             |              |
@@ -387,6 +389,22 @@ Signature                   | SHA512withECDSA            |X                |X   
 Signature                   | SHA512withRSA              |X                |X             |              |
 
 ## Algorithm Notes
+
+### ECKeyPairGenerator incorrect keysize
+
+The behaviour for initializing an `ECKeyPairGenerator` with a keysize that is incorrect (i.e., doesn't correspond to the size of one of the expected curves) has changed.
+
+In previous releases, an incorrect keysize would cause a default initialization to `256`.
+
+A `ProviderException` is thrown now if the user attempts to use an `ECKeyPairGenerator` that was initialized with an incorrect keysize.
+
+**NOTE**: One can revert to the previous behaviour using the `-Dopenjceplus.ec.allowIncorrectKeysizes=true` command line argument.
+
+### AESKW
+AES Key Wrap based on NIST SP800-38F.
+
+Code does not allow the specification of an IV. However, it will return the default ICV as defined in the NIST SP800-38F. 
+
 
 # Contributions
 
