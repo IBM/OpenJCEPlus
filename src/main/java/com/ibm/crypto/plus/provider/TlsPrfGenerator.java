@@ -150,7 +150,7 @@ abstract class TlsPrfGenerator extends KeyGeneratorSpi {
                     ? doTLS12PRF(provider, secret, labelBytes, spec.getSeed(), n,
                             spec.getPRFHashAlg(), spec.getPRFHashLength(), spec.getPRFBlockSize())
                     : doTLS10PRF(provider, secret, labelBytes, spec.getSeed(), n));
-            SecretKey sKey = new SecretKeySpec(prfBytes, "TlsPrf");
+            SecretKey sKey = new SecretKeySpec(prfBytes, spec.getKeyAlg());
             // fill intermediate arrays with 0x00 - FIPS requirement to reset
             // arrays that
             // got filled with random bytes from random.
