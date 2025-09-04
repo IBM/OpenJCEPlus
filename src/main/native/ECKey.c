@@ -89,8 +89,8 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_ECKEY_1generate__JI(
             curveidx = 4;
             break;
         default:
-            curveidx = 2;
-            break;
+            throwOCKException(env, 0, "Incorrect key size");
+            return (jlong)0;
     }
 #ifdef DEBUG_EC_DETAIL
     if (debug) {
