@@ -215,6 +215,50 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "Cipher", "AES",
                 "com.ibm.crypto.plus.provider.AESCipher", aliases));
 
+        aliases = new String[] {"AESWrap"};
+        putService(new OpenJCEPlusService(jce, "Cipher", "AES/KW/NoPadding",
+                "com.ibm.crypto.plus.provider.AESKeyWrapCipher$KW", aliases));
+        
+        aliases = new String[] {"AESWrapPad"};
+        putService(new OpenJCEPlusService(jce, "Cipher", "AES/KWP/NoPadding",
+                "com.ibm.crypto.plus.provider.AESKeyWrapCipher$KWP", aliases));
+
+        aliases = new String[] {"AESWrap_128",
+                                "2.16.840.1.101.3.4.1.5",
+                                "OID.2.16.840.1.101.3.4.1.5"};
+        putService(new OpenJCEPlusService(jce, "Cipher", "AES_128/KW/NoPadding",
+                "com.ibm.crypto.plus.provider.AESKeyWrapCipher$KW_128", aliases));
+
+        aliases = new String[] {"AESWrapPad_128",
+                                "2.16.840.1.101.3.4.1.8",
+                                "OID.2.16.840.1.101.3.4.1.8"};
+        putService(new OpenJCEPlusService(jce, "Cipher", "AES_128/KWP/NoPadding",
+                "com.ibm.crypto.plus.provider.AESKeyWrapCipher$KWP_128", aliases));
+                
+        aliases = new String[] {"AESWrap_192",
+                                "2.16.840.1.101.3.4.1.25",
+                                "OID.2.16.840.1.101.3.4.1.25"};
+        putService(new OpenJCEPlusService(jce, "Cipher", "AES_192/KW/NoPadding",
+                "com.ibm.crypto.plus.provider.AESKeyWrapCipher$KW_192", aliases));
+                
+        aliases = new String[] {"AESWrapPad_192",
+                                "2.16.840.1.101.3.4.1.28",
+                                "OID.2.16.840.1.101.3.4.1.28"};
+        putService(new OpenJCEPlusService(jce, "Cipher", "AES_192/KWP/NoPadding",
+                "com.ibm.crypto.plus.provider.AESKeyWrapCipher$KWP_192", aliases));
+
+        aliases = new String[] {"AESWrap_256",
+                                "2.16.840.1.101.3.4.1.45",
+                                "OID.2.16.840.1.101.3.4.1.45"};
+        putService(new OpenJCEPlusService(jce, "Cipher", "AES_256/KW/NoPadding",
+                "com.ibm.crypto.plus.provider.AESKeyWrapCipher$KW_256", aliases));
+
+        aliases = new String[] {"AESWrapPad_256",
+                                "2.16.840.1.101.3.4.1.48",
+                                "OID.2.16.840.1.101.3.4.1.48"};                
+        putService(new OpenJCEPlusService(jce, "Cipher", "AES_256/KWP/NoPadding",
+                "com.ibm.crypto.plus.provider.AESKeyWrapCipher$KWP_256", aliases));
+
         aliases = new String[] {"TripleDES", "3DES"};
         putService(new OpenJCEPlusService(jce, "Cipher", "DESede",
                 "com.ibm.crypto.plus.provider.DESedeCipher", aliases));
