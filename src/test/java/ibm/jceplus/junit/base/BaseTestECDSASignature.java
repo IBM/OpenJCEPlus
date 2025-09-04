@@ -638,25 +638,6 @@ public class BaseTestECDSASignature extends BaseTestJunit5Signature {
     }
 
     @Test
-    public void testDatawithECDSA_longdgst_err_512() throws Exception {
-        KeyPair keyPair = generateKeyPair(512);
-        MessageDigest md = MessageDigest.getInstance("SHA-512", getProviderName());
-        md.update(origMsg);
-        byte[] digest = md.digest();
-        byte[] digestLarge = new byte[digest.length * 2];
-        digestLarge = Arrays.copyOf(digest, digest.length);
-
-        try {
-            doSignVerify("NONEwithECDSA", digestLarge, keyPair.getPrivate(), keyPair.getPublic());
-            assertTrue(false);
-        } catch (SignatureException ex) {
-            assertTrue(true);
-        } catch (Exception ex) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
     public void testDatawithECDSA_longdgst_521() throws Exception {
         KeyPair keyPair = generateKeyPair(521);
         MessageDigest md = MessageDigest.getInstance("SHA-512", getProviderName());

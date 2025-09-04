@@ -82,8 +82,8 @@ public class BaseTestMemStressECKeyFactory extends BaseTestJunit5 {
             // creating the object of KeyPairGenerator
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
 
-            // initializing with 1024
-            kpg.initialize(1024);
+            // initializing with 521
+            kpg.initialize(521);
 
             // getting key pairs
             // using generateKeyPair() method
@@ -118,8 +118,8 @@ public class BaseTestMemStressECKeyFactory extends BaseTestJunit5 {
             // creating the object of KeyPairGenerator
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
 
-            // initializing with 1024
-            kpg.initialize(1024);
+            // initializing with 521
+            kpg.initialize(521);
 
             // getting key pairs
             // using generateKeyPair() method
