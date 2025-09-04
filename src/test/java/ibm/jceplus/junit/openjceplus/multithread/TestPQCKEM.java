@@ -6,16 +6,13 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.openjceplus;
+package ibm.jceplus.junit.openjceplus.multithread;
 
-import ibm.jceplus.junit.base.BaseTestPQCSignature;
+import ibm.jceplus.junit.base.BaseTestKEM;
+import ibm.jceplus.junit.openjceplus.Utils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-<<<<<<< HEAD
-
-@TestInstance(Lifecycle.PER_CLASS)
-=======
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
@@ -24,8 +21,7 @@ import org.junit.jupiter.api.condition.OS;
 @TestInstance(Lifecycle.PER_CLASS)
 @DisabledOnOs(value = OS.MAC, architectures = "x86_64")
 @EnabledForJreRange(min = JRE.JAVA_17)
->>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
-public class TestPQCSignatures extends BaseTestPQCSignature {
+public class TestPQCKEM extends BaseTestKEM {
 
     @BeforeAll
     public void beforeAll() {

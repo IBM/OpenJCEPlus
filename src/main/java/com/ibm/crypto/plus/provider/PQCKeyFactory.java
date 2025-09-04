@@ -27,7 +27,11 @@ class PQCKeyFactory extends KeyFactorySpi {
     private String algName = null;
 
     static Key toPQCKey(OpenJCEPlusProvider provider, Key key) throws InvalidKeyException {
+<<<<<<< HEAD
         return (Key) (new PQCKeyFactory(provider, key.getAlgorithm())).engineTranslateKey(key);
+=======
+        return (new PQCKeyFactory(provider, key.getAlgorithm())).engineTranslateKey(key);
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     }
 
     private PQCKeyFactory(OpenJCEPlusProvider provider, String name) {
@@ -35,6 +39,7 @@ class PQCKeyFactory extends KeyFactorySpi {
         this.algName = name;
     }
 
+<<<<<<< HEAD
     /**
      * Check the strength of an key to make sure it is not
      * too short or long.
@@ -53,6 +58,8 @@ class PQCKeyFactory extends KeyFactorySpi {
         }
     }
 
+=======
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     @Override
     protected PrivateKey engineGeneratePrivate(KeySpec keySpec) throws InvalidKeySpecException {
         try {
@@ -64,8 +71,13 @@ class PQCKeyFactory extends KeyFactorySpi {
             } else if (keySpec instanceof RawKeySpec) {
                 RawKeySpec rks = RawKeySpec.class.cast(keySpec);
                 byte[] bytes = rks.getKeyArr();
+<<<<<<< HEAD
                 if (checkEncoded(bytes)) {
                     throw new InvalidKeySpecException("Key does not match Spec indicated");   
+=======
+                if (checkEncoded(bytes, false)) {
+                    throw new InvalidKeySpecException("Key spec does not match Spec indicated");   
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
                 }
                 try {
                     return new PQCPrivateKey(provider, bytes, algName);
@@ -84,7 +96,11 @@ class PQCKeyFactory extends KeyFactorySpi {
                 throw new InvalidKeySpecException("Inappropriate key specification");
             }      
         } catch (InvalidKeyException e) {
+<<<<<<< HEAD
             throw new InvalidKeySpecException("Inappropriate key specification: " + e.getMessage());
+=======
+            throw new InvalidKeySpecException("Inappropriate key specification: ", e);
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         }
     }
 
@@ -98,8 +114,13 @@ class PQCKeyFactory extends KeyFactorySpi {
                 return generated;
             } else if (keySpec instanceof RawKeySpec) {
                 RawKeySpec rks = RawKeySpec.class.cast(keySpec);
+<<<<<<< HEAD
                 byte[] bytes = rks.getKeyArr();                
                 if (checkEncoded(bytes)) {
+=======
+                byte[] bytes = rks.getKeyArr(); 
+                if (checkEncoded(bytes, true)) {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
                     throw new InvalidKeySpecException("Key does not match Spec indicated");   
                 }
                 try {
@@ -119,7 +140,11 @@ class PQCKeyFactory extends KeyFactorySpi {
                 throw new InvalidKeySpecException("Inappropriate key specification");
             }
         } catch (InvalidKeyException e) {
+<<<<<<< HEAD
             throw new InvalidKeySpecException("Inappropriate key specification: " + e.getMessage());
+=======
+            throw new InvalidKeySpecException("Inappropriate key specification: ", e);
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         }
     }
 
@@ -150,7 +175,11 @@ class PQCKeyFactory extends KeyFactorySpi {
                 throw new InvalidKeySpecException("Inappropriate key type");
             }
         } catch (ClassNotFoundException | ClassCastException e) {
+<<<<<<< HEAD
             throw new InvalidKeySpecException("Unsupported key specification: " + e.getMessage());
+=======
+            throw new InvalidKeySpecException("Unsupported key specification: ", e);
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         }
     }
 
@@ -170,17 +199,29 @@ class PQCKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
+<<<<<<< HEAD
                 X509EncodedKeySpec x509KeySpec = (X509EncodedKeySpec) engineGetKeySpec(key,
                         X509EncodedKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePublic(x509KeySpec);
             } else if (key instanceof com.ibm.crypto.plus.provider.PQCPrivateKey) {
+=======
+                X509EncodedKeySpec x509KeySpec = engineGetKeySpec(key,
+                        X509EncodedKeySpec.class);
+                // Create key from spec, and return it
+                return engineGeneratePublic(x509KeySpec);
+            } else if (key instanceof PrivateKey) {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
                 // Check if key originates from this factory
                 if (key instanceof com.ibm.crypto.plus.provider.PQCPrivateKey) {
                     return key;
                 }
                 // Convert key to spec
+<<<<<<< HEAD
                 X509EncodedKeySpec x509KeySpec = (X509EncodedKeySpec) engineGetKeySpec(key,
+=======
+                X509EncodedKeySpec x509KeySpec = engineGetKeySpec(key,
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
                         X509EncodedKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePrivate(x509KeySpec);
@@ -188,7 +229,11 @@ class PQCKeyFactory extends KeyFactorySpi {
                 throw new InvalidKeyException("Wrong algorithm type");
             }
         } catch (InvalidKeySpecException e) {
+<<<<<<< HEAD
             throw new InvalidKeyException("Cannot translate key: " + e.getMessage());
+=======
+            throw new InvalidKeyException("Cannot translate key: ", e);
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         }
     }
 
@@ -196,8 +241,12 @@ class PQCKeyFactory extends KeyFactorySpi {
     private void checkKeyAlgo(Key key) throws InvalidKeyException {
         String keyAlg = key.getAlgorithm();
         if (keyAlg == null) {
+<<<<<<< HEAD
             // Thread.dumpStack();
             throw new InvalidKeyException("Expected a " + this.algName + " key, but got null");
+=======
+            throw new InvalidKeyException("Algorithm associate with key is null.");
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         } else if (! (key.getAlgorithm().equalsIgnoreCase(this.algName) || 
             (PQCKnownOIDs.findMatch(key.getAlgorithm()).stdName().equalsIgnoreCase(this.algName)))) {
             throw new InvalidKeyException("Expected a " + this.algName + " key, but got " + keyAlg);
@@ -205,10 +254,17 @@ class PQCKeyFactory extends KeyFactorySpi {
 
     }
 
+<<<<<<< HEAD
     private boolean checkEncoded(byte [] key) {
         try {
             //Check and see if this is an encoded OctetString
             if (key[0] == 0x04) {
+=======
+    private boolean checkEncoded(byte [] key, boolean pub) {
+        try {
+            //Check and see if this is an encoded OctetString
+            if ( (!pub && key[0] == 0x04) || (pub && key[0] == 0x03)) {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
                 //This might be encoded
                 StringBuilder sb = new StringBuilder();
                 for (int i = 2; i < 4; i++) {

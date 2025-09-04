@@ -40,9 +40,17 @@ public enum PQCKnownOIDs {
     private String oid;
     private String[] aliases;
 
+<<<<<<< HEAD
     // find the matching enum using either name or string of oid
     // return null if not found
     public static PQCKnownOIDs findMatch(String x) {
+=======
+    private static final ConcurrentHashMap<String, PQCKnownOIDs> name2enum = new ConcurrentHashMap<>();
+
+    // find the matching enum using either name or string of oid
+    // return null if not found
+    protected static PQCKnownOIDs findMatch(String x) {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         x = x.toUpperCase(Locale.ENGLISH);
         x = x.replace('-','_');
 
@@ -50,13 +58,19 @@ public enum PQCKnownOIDs {
         return fnd;
     }
 
+<<<<<<< HEAD
     private static final ConcurrentHashMap<String, PQCKnownOIDs> name2enum = new ConcurrentHashMap<>();
 
+=======
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     static {
         for (PQCKnownOIDs pqcoids : PQCKnownOIDs.values()) {
             register(pqcoids);
         }
+<<<<<<< HEAD
         ;
+=======
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     }
 
     private static void register(PQCKnownOIDs pqcoid) {
@@ -65,6 +79,7 @@ public enum PQCKnownOIDs {
             throw new RuntimeException("ERROR: Duplicate " + pqcoid.oid +
                     " between " + pqcoidval + " and " + pqcoid);
         }
+<<<<<<< HEAD
         // only register the stdName and aliases if o.registerNames()
         // returns true
         if (pqcoid.registerNames()) {
@@ -73,6 +88,13 @@ public enum PQCKnownOIDs {
                 throw new RuntimeException("ERROR: Duplicate " +
                         nameUppered + " exists already");
             }
+=======
+
+        String nameUppered = pqcoid.stdName.toUpperCase(Locale.ENGLISH);
+        if (Objects.nonNull(name2enum.put(nameUppered, pqcoid))) {
+            throw new RuntimeException("ERROR: Duplicate " +
+                nameUppered + " exists already");
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         }
     }
 
@@ -91,16 +113,25 @@ public enum PQCKnownOIDs {
     }
 
     // returns the oid string associated with this enum
+<<<<<<< HEAD
     public String value() {
+=======
+    protected String value() {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         return oid;
     }
 
     // returns the user-friendly standard algorithm name
+<<<<<<< HEAD
     public String stdName() {
+=======
+    protected String stdName() {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         return stdName.replace('_','-' );
     }
 
     // return the internal aliases
+<<<<<<< HEAD
     public String[] aliases() {
         return aliases;
     }
@@ -108,4 +139,9 @@ public enum PQCKnownOIDs {
     boolean registerNames() {
         return true;
     }
+=======
+    protected String[] aliases() {
+        return aliases;
+    }
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
 }

@@ -8,7 +8,11 @@
 
 package com.ibm.crypto.plus.provider;
 
+<<<<<<< HEAD
 import com.ibm.crypto.plus.provider.ock.OCKPQCKey;
+=======
+import com.ibm.crypto.plus.provider.ock.PQCKey;
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import javax.security.auth.DestroyFailedException;
@@ -22,7 +26,11 @@ import sun.security.x509.X509Key;
 
 
 @SuppressWarnings("restriction")
+<<<<<<< HEAD
 public final class PQCPublicKey extends X509Key
+=======
+final class PQCPublicKey extends X509Key
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         implements Destroyable {
 
 
@@ -33,7 +41,11 @@ public final class PQCPublicKey extends X509Key
     private String name;
 
     private transient boolean destroyed = false;
+<<<<<<< HEAD
     private transient OCKPQCKey pqcKey = null; // Transient per tag [SERIALIZATION] in DesignNotes.txt
+=======
+    private transient PQCKey pqcKey = null; // Transient per tag [SERIALIZATION] in DesignNotes.txt
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
 
     public PQCPublicKey(OpenJCEPlusProvider provider, byte[] rawKey, String algName)
             throws InvalidKeyException {
@@ -49,7 +61,11 @@ public final class PQCPublicKey extends X509Key
             byte [] b = tmp.toByteArray();
             tmp.close();
 
+<<<<<<< HEAD
             this.pqcKey = OCKPQCKey.createPublicKey(provider.getOCKContext(), algName, b);
+=======
+            this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), algName, b);
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create public key");
             provider.setOCKExceptionCause(ike, exception);
@@ -57,7 +73,11 @@ public final class PQCPublicKey extends X509Key
         }
     }
 
+<<<<<<< HEAD
     public PQCPublicKey(OpenJCEPlusProvider provider, OCKPQCKey pqcKey) {
+=======
+    public PQCPublicKey(OpenJCEPlusProvider provider, PQCKey pqcKey) {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         try {
             this.provider = provider;
             byte[] rawKey = pqcKey.getPublicKeyBytes();
@@ -65,7 +85,11 @@ public final class PQCPublicKey extends X509Key
 
             this.algid = new AlgorithmId(PQCAlgorithmId.getOID(name));
 
+<<<<<<< HEAD
             //ICC puts the BITSTRING on the key. Need to remove it.
+=======
+            //OCKC puts the BITSTRING on the key. Need to remove it.
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
             setKey(new BitArray((rawKey.length - 5)*8, rawKey, 5));
 
             this.pqcKey = pqcKey;
@@ -86,7 +110,11 @@ public final class PQCPublicKey extends X509Key
             byte [] b = tmp.toByteArray();
             tmp.close();
             
+<<<<<<< HEAD
             this.pqcKey = OCKPQCKey.createPublicKey(provider.getOCKContext(), name, b);
+=======
+            this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), name, b);
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
                       
         } catch (Exception e) {
             throw provider.providerException("Failure in PublicKey -"+e.getMessage(), e);
@@ -135,12 +163,16 @@ public final class PQCPublicKey extends X509Key
         return encodedKey;
     }
 
+<<<<<<< HEAD
     public byte[] getKeyBytes() {
         checkDestroyed();
         return getKey().toByteArray();
     }
 
     public OCKPQCKey getOCKKey() {
+=======
+    PQCKey getPQCKey() {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         return this.pqcKey;
     }
 

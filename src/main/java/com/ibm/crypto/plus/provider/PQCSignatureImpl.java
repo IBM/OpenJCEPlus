@@ -24,7 +24,11 @@ abstract class PQCSignatureImpl extends SignatureSpi {
 
     private OpenJCEPlusProvider provider = null;
     private PQCSignature signature = null;
+<<<<<<< HEAD
     private final ByteArrayOutputStream message = new ByteArrayOutputStream();;
+=======
+    private final ByteArrayOutputStream message = new ByteArrayOutputStream();
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     private String alg = null;
     private boolean privateKeyInit = false;
     private boolean publicKeyInit = false;
@@ -78,28 +82,43 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         return null;
     }
 
+<<<<<<< HEAD
     private void ensureMessageInit() throws SignatureException {
         if (this.signature == null) {
             throw new SignatureException("Not initialized");
         }
     }
 
+=======
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     @Override
     protected void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
         PQCPrivateKey keyPrivate = null;
         try {
             keyPrivate = (PQCPrivateKey) PQCKeyFactory.toPQCKey(provider, privateKey);
         } catch (Exception e) {
+<<<<<<< HEAD
             throw new InvalidKeyException("Unsupported key type: " + e.getMessage());
         }
 
         //Validate that the alg of the key matchs the alg specified on creation of this object
         if (this.alg != null && !((keyPrivate.getAlgorithm()).equals(this.alg))) {
+=======
+            throw new InvalidKeyException("Unsupported key type: ", e);
+        }
+
+        //Validate that the alg of the key matchs the alg specified on creation of this object
+        if (this.alg != null && !((keyPrivate.getAlgorithm()).equalsIgnoreCase(this.alg))) {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
             throw new InvalidKeyException("Key must be of algorithm " + this.alg);
         }
 
         try {
+<<<<<<< HEAD
             this.signature.initialize(keyPrivate.getOCKKey());
+=======
+            this.signature.initialize(keyPrivate.getPQCKey());
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
             //this.signature.initialize(keyPrivate);
         } catch (Exception e) {
             throw provider.providerException("Failure in engineInitSign", e);
@@ -116,6 +135,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         try {
             keyPublic = (PQCPublicKey) PQCKeyFactory.toPQCKey(provider, publicKey);
         } catch (Exception e) {
+<<<<<<< HEAD
             throw new InvalidKeyException("Unsupported key type: " + e.getMessage());
         }
         //Validate that the alg of the key matchs the alg specified on creation of this object
@@ -124,6 +144,16 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         }
         try {
             this.signature.initialize(keyPublic.getOCKKey());
+=======
+            throw new InvalidKeyException("Unsupported key type: ", e);
+        }
+        //Validate that the alg of the key matchs the alg specified on creation of this object
+        if (this.alg != null && !((keyPublic.getAlgorithm()).equalsIgnoreCase(this.alg))) {
+            throw new InvalidKeyException("Key must be of algorithm " + this.alg);
+        }
+        try {
+            this.signature.initialize(keyPublic.getPQCKey());
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         } catch (Exception e) {
             throw provider.providerException("Failure in engineInitVerify", e);
         }
@@ -139,7 +169,11 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         if (!privateKeyInit) {
             throw new SignatureException("Missing private key");
         }
+<<<<<<< HEAD
         ensureMessageInit();
+=======
+
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         try {
             byte[] dataBytes = message.toByteArray();
             message.reset();
@@ -160,7 +194,10 @@ abstract class PQCSignatureImpl extends SignatureSpi {
 
     @Override
     protected void engineUpdate(byte[] b, int off, int len) throws SignatureException {
+<<<<<<< HEAD
         ensureMessageInit();
+=======
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         // update can be called several times, as this is required by JCK 569 to maintain interop with Sun
         message.write(b, off, len);
     }

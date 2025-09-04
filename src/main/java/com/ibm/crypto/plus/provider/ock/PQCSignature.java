@@ -16,7 +16,11 @@ import java.security.InvalidKeyException;
  * of update operation.
  * 
  * Since, Java supports the idea of update as part of it's Signature framework
+<<<<<<< HEAD
  * We will just save the data in a buffer if an update operation is preformed and 
+=======
+ * We will just save the data in a buffer if an update operation is performed and 
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
  * do the doFinal as one large buffer.
  */
 public final class PQCSignature {
@@ -47,8 +51,11 @@ public final class PQCSignature {
             throw new IllegalArgumentException("key is null");
         }
 
+<<<<<<< HEAD
         // Do necessary clean up before doing this. Just in case the object is reused.
 
+=======
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         this.key = key;
         this.initialized = true;
         //OCKDebug.Msg (debPrefix, methodName,  "this.key=" + key);
@@ -68,8 +75,17 @@ public final class PQCSignature {
 
         byte[] signature = null;
 
+<<<<<<< HEAD
         signature = NativeInterface.PQC_SIGNATURE_sign(this.ockContext.getId(),
         this.key.getPKeyId(), data);
+=======
+        if (data == null || data.length == 0) {
+            throw new OCKException("No data to sign.");
+        }
+
+        signature = NativeInterface.PQC_SIGNATURE_sign(this.ockContext.getId(),
+                this.key.getPKeyId(), data);
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
 
         //OCKDebug.Msg (debPrefix, "sign",  "signature :" + signature);
         return signature;

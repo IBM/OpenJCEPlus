@@ -8,7 +8,11 @@
 
 package com.ibm.crypto.plus.provider;
 
+<<<<<<< HEAD
 import com.ibm.crypto.plus.provider.ock.OCKPQCKey;
+=======
+import com.ibm.crypto.plus.provider.ock.PQCKey;
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.KeyPair;
@@ -33,6 +37,10 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
     /**
      * Initialize based on parameters.
      */
+<<<<<<< HEAD
+=======
+    @Override
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     public void initialize(AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidAlgorithmParameterException {
         throw new InvalidAlgorithmParameterException(
@@ -43,7 +51,11 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
         if (keysize != -1) {
             throw new InvalidParameterException("keysize not supported");
         }
+<<<<<<< HEAD
         // This functions is here for compatablity with Oracle and Spi
+=======
+        // This functions is here for compatibility with Oracle and Spi
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         // However, since OCKC does not allow specification of Random
         // this function does nothing.
     }
@@ -52,6 +64,7 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
     public KeyPair generateKeyPair() {
         try {
             //System.out.println("Generating KeyPair for " + mlkemAlg);
+<<<<<<< HEAD
             OCKPQCKey mlkemKey = OCKPQCKey.generateKeyPair(provider.getOCKContext(), mlkemAlg);
             byte [] privKeyBytes = mlkemKey.getPrivateKeyBytes();
             PQCPrivateKey privKey = new PQCPrivateKey(provider, OCKPQCKey.createPrivateKey(provider.getOCKContext(), 
@@ -62,6 +75,18 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
             throw provider.providerException("Failure in generateKeyPair - " +e.getMessage(), e);
+=======
+            PQCKey mlkemKey = PQCKey.generateKeyPair(provider.getOCKContext(), mlkemAlg);
+            byte [] privKeyBytes = mlkemKey.getPrivateKeyBytes();
+            PQCPrivateKey privKey = new PQCPrivateKey(provider, PQCKey.createPrivateKey(provider.getOCKContext(), 
+                                                               mlkemAlg, privKeyBytes));
+            byte [] pubKeyBytes = mlkemKey.getPublicKeyBytes();
+            PQCPublicKey pubKey = new PQCPublicKey(provider, PQCKey.createPublicKey(provider.getOCKContext(), 
+                                                               mlkemAlg, pubKeyBytes));        
+            return new KeyPair(pubKey, privKey);
+        } catch (Exception e) {
+            throw provider.providerException("Failure in generateKeyPair - " +e.getCause(), e);
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         }
     }
 

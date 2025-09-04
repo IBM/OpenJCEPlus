@@ -102,7 +102,11 @@ public class BaseTestPQCSignatureWithAliases extends BaseTestJunit5Signature {
 
     public void testPQCSignature(String Algorithm, byte[] dataToBeSigned) throws Exception {
 
+<<<<<<< HEAD
         if (getProviderName().equals("IBMJCEPlusFIPS")) {
+=======
+        if (getProviderName().equals("OpenJCEPlusFIPS")) {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
             //FIPS does not support plain keys
             System.out.println("FIPS does not support plain keys.  Returning to caller.");
             return;
@@ -159,6 +163,7 @@ public class BaseTestPQCSignatureWithAliases extends BaseTestJunit5Signature {
         }
     }
 
+<<<<<<< HEAD
 
     /** * Converts a byte array to hex string */
     public static String toHexString(byte[] block) {
@@ -192,5 +197,7 @@ public class BaseTestPQCSignatureWithAliases extends BaseTestJunit5Signature {
         return byteArray;
     }
 
+=======
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
 }
 

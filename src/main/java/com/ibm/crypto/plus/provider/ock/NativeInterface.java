@@ -864,9 +864,12 @@ final class NativeInterface {
     static public native byte[] MLKEY_getPublicKeyBytes(long ockContextId, long mlkeyId)
             throws OCKException;
 
+<<<<<<< HEAD
     static public native long MLKEY_createPKey(long ockContextId, long mlkeyId)
             throws OCKException;
 
+=======
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     static public native void MLKEY_delete(long ockContextId, long mlkeyId);
 
     // =========================================================================

@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright IBM Corp. 2025
+=======
+ * Copyright IBM Corp. 2023, 2024
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -36,17 +40,29 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     byte[] origMsg = "this is the original message to be signed".getBytes();
 
     @Test
+<<<<<<< HEAD
     public void testPQCKeyGenKEM_PlusToInterop() throws Exception {
         String pqcAlgorithm = "ML-KEM-512";
         boolean same;
+=======
+    public void testPQCKeyGenMLDSA_PlusToInterop() throws Exception {
+        String pqcAlgorithm = "ML-DSA-65";
+        boolean same = false;
+
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //This is not in the FIPS provider yet.
             return;
         }
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
         keyFactoryPlus = KeyFactory.getInstance(pqcAlgorithm, getProviderName());
+<<<<<<< HEAD
         keyPairGenInterop = KeyPairGenerator.getInstance(pqcAlgorithm, getInteropProviderName());
         keyFactoryInterop = KeyFactory.getInstance(pqcAlgorithm, getInteropProviderName());
+=======
+        keyPairGenInterop = KeyPairGenerator.getInstance(pqcAlgorithm, getInteropProviderName2());
+        keyFactoryInterop = KeyFactory.getInstance(pqcAlgorithm, getInteropProviderName2());
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
 
         KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
         PublicKey publicKeyPlus = keyPairPlus.getPublic();
@@ -57,12 +73,19 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         PKCS8EncodedKeySpec privateKeySpecPlus = new PKCS8EncodedKeySpec(privateKeyBytesPlus);
         EncodedKeySpec publicKeySpecPlus = new X509EncodedKeySpec(publicKeyBytesPlus);
         PublicKey publicKeyInterop = keyFactoryInterop.generatePublic(publicKeySpecPlus);
+<<<<<<< HEAD
         //Oracle currently has an extra Octet String for the Key. So Skip trying to create the private key
         if (!(getInteropProviderName().equals(Utils.PROVIDER_SunJCE))) {
+=======
+        //BC is using a different encoding today for thier ML-DSA private keys.
+        // So we can not compare these today.
+        if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
             PrivateKey privateKeyInterop = keyFactoryInterop.generatePrivate(privateKeySpecPlus);
             same = Arrays.equals(privateKeyBytesPlus, privateKeyInterop.getEncoded());
             assertTrue(same);
         }
+<<<<<<< HEAD
       
         // The original and new keys are the same
         same = Arrays.equals(publicKeyBytesPlus, publicKeyInterop.getEncoded());
@@ -164,12 +187,21 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         
 
         // The original and new keys are the same
+=======
+        
+        // The original and new keys are the same
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         same = Arrays.equals(publicKeyBytesPlus, publicKeyInterop.getEncoded());
         assertTrue(same);
     } 
     @Test
     public void testPQCKeyGenMLDSA_Interop() throws Exception {        
         String pqcAlgorithm = "ML-DSA-65";
+<<<<<<< HEAD
+=======
+        boolean same = false;
+
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //This is not in the FIPS provider yet.
             return;
@@ -190,9 +222,19 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         PublicKey publicKeyPlus = keyFactoryPlus.generatePublic(publicKeySpecInterop);
         PrivateKey privateKeyPlus = keyFactoryPlus.generatePrivate(privateKeySpecInterop);
 
+<<<<<<< HEAD
         // The original and new keys are the same
         boolean same = Arrays.equals(privateKeyBytesInterop, privateKeyPlus.getEncoded());
         assertTrue(same);
+=======
+        //BC is using a different encoding today for thier ML-DSA private keys.
+        // So we can not compare these today.
+        if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
+            same = Arrays.equals(privateKeyBytesInterop, privateKeyPlus.getEncoded());
+            assertTrue(same);
+        }  
+
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         same = Arrays.equals(publicKeyBytesInterop, publicKeyPlus.getEncoded());
         assertTrue(same);
 
@@ -200,7 +242,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @Test
     public void testPQCKeyGenMLDSA_PlusToInteropRAW() throws Exception {
         String pqcAlgorithm = "ML-DSA-65";
+<<<<<<< HEAD
         boolean same;
+=======
+        boolean same = false;
+
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         if (getProviderName().equals("OpenJCEPlusFIPS") || 
             getInteropProviderName().equals(Utils.PROVIDER_BC)) {
             //This is not in the FIPS provider yet and Bouncy Castle does not support this test.
@@ -213,6 +260,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
         KeyPair keyPairInterop = generateKeyPair(keyPairGenInterop);
         PublicKey publicKeyInterop = keyPairInterop.getPublic();
+<<<<<<< HEAD
         //PrivateKey privateKeyInterop = keyPairInterop.getPrivate();
         byte[] publicKeyBytesInterop = publicKeyInterop.getEncoded();
         //byte[] privateKeyBytesInterop = privateKeyInterop.getEncoded();
@@ -226,6 +274,23 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         //same = Arrays.equals(privateKeyBytesInterop, priv.getEncoded());
         //assertTrue(same);
     
+=======
+        PrivateKey privateKeyInterop = keyPairInterop.getPrivate();
+        byte[] publicKeyBytesInterop = publicKeyInterop.getEncoded();
+        byte[] privateKeyBytesInterop = privateKeyInterop.getEncoded();
+
+        EncodedKeySpec eksInterop = keyFactoryInterop.getKeySpec(publicKeyInterop, EncodedKeySpec.class);
+        PublicKey pub = keyFactoryPlus.generatePublic(eksInterop); 
+        EncodedKeySpec eksPrivInterop = keyFactoryInterop.getKeySpec(privateKeyInterop, EncodedKeySpec.class);
+        PrivateKey priv = keyFactoryPlus.generatePrivate(eksPrivInterop);
+        
+        //BC is using a different encoding today for thier ML-DSA private keys.
+        // So we can not compare these today.
+        if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
+            same = Arrays.equals(privateKeyBytesInterop, priv.getEncoded());
+            assertTrue(same);
+        }
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         
         // The original and new keys are the same
         same = Arrays.equals(publicKeyBytesInterop, pub.getEncoded());
@@ -282,6 +347,77 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     }
     @ParameterizedTest
     @CsvSource({"ML-DSA-44","ML-DSA-65","ML-DSA-87"})
+<<<<<<< HEAD
+=======
+    public void testSignInteropKeysPlusSignVerify(String algorithm) {
+        try {
+            if (getProviderName().equals("OpenJCEPlusFIPS") || 
+                getInteropProviderName().equals(Utils.PROVIDER_BC)) {
+                //This is not in the FIPS provider yet.
+                return;
+            }
+            keyPairGenInterop = KeyPairGenerator.getInstance(algorithm, getInteropProviderName2());
+            KeyPair keyPairInterop = generateKeyPair(keyPairGenInterop);
+
+            PublicKey publicKeyInterop = keyPairInterop.getPublic();
+            PrivateKey privateKeyInterop = keyPairInterop.getPrivate();
+            PKCS8EncodedKeySpec privateKeySpecInterop = new PKCS8EncodedKeySpec(privateKeyInterop.getEncoded());
+            EncodedKeySpec publicKeySpecInterop = new X509EncodedKeySpec(publicKeyInterop.getEncoded());
+            KeyFactory keyFactoryPlus = KeyFactory.getInstance(algorithm, getProviderName());
+            PrivateKey privPlus = keyFactoryPlus.generatePrivate(privateKeySpecInterop);
+            PublicKey pubPlus = keyFactoryPlus.generatePublic(publicKeySpecInterop);
+
+            Signature signingInterop = Signature.getInstance(algorithm, getProviderName());
+            signingInterop.initSign(privPlus);
+            signingInterop.update(origMsg);
+            byte[] signedBytesInterop = signingInterop.sign();
+
+            Signature verifyingPlus = Signature.getInstance(algorithm, getProviderName());
+            verifyingPlus.initVerify(pubPlus);
+            verifyingPlus.update(origMsg);
+            assertTrue(verifyingPlus.verify(signedBytesInterop), "Signature verification failed");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            assertTrue(false, "SignInteropAndVerifyPlus failed");
+        }
+    }
+    @ParameterizedTest
+    @CsvSource({"ML-DSA-44","ML-DSA-65","ML-DSA-87"})
+    public void testSignPlusKeysInteropSignVerify(String algorithm) {
+        try {
+            if (getProviderName().equals("OpenJCEPlusFIPS") || 
+                getInteropProviderName().equals(Utils.PROVIDER_BC)) {
+                //This is not in the FIPS provider yet.
+                return;
+            }
+            keyPairGenPlus = KeyPairGenerator.getInstance(algorithm, getProviderName());
+            KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
+
+            PublicKey publicKeyPlus = keyPairPlus.getPublic();
+            PrivateKey privateKeyPlus = keyPairPlus.getPrivate();
+            PKCS8EncodedKeySpec privateKeySpecPlus = new PKCS8EncodedKeySpec(privateKeyPlus.getEncoded());
+            EncodedKeySpec publicKeySpecPlus = new X509EncodedKeySpec(publicKeyPlus.getEncoded());
+            KeyFactory keyFactoryInterop = KeyFactory.getInstance(algorithm, getInteropProviderName2());
+            PrivateKey privInterop = keyFactoryInterop.generatePrivate(privateKeySpecPlus);
+            PublicKey pubInterop = keyFactoryInterop.generatePublic(publicKeySpecPlus);
+
+            Signature signingInterop = Signature.getInstance(algorithm, getInteropProviderName2());
+            signingInterop.initSign(privInterop);
+            signingInterop.update(origMsg);
+            byte[] signedBytesInterop = signingInterop.sign();
+
+            Signature verifyingPlus = Signature.getInstance(algorithm, getInteropProviderName2());
+            verifyingPlus.initVerify(pubInterop);
+            verifyingPlus.update(origMsg);
+            assertTrue(verifyingPlus.verify(signedBytesInterop), "Signature verification failed");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            assertTrue(false, "SignInteropAndVerifyPlus failed");
+        }
+    }
+    @ParameterizedTest
+    @CsvSource({"ML-DSA-44","ML-DSA-65","ML-DSA-87"})
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     public void testSignPlusAndVerifyInterop(String algorithm) {
         try {
             if (getProviderName().equals("OpenJCEPlusFIPS")) {
@@ -315,6 +451,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             assertTrue(false, "SignPlusAndVerifyInterop failed");
         }
     }
+<<<<<<< HEAD
     
     /*
      * for printing binary.
@@ -329,5 +466,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         }
         return buf.toString();
     }
+=======
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
 }
 

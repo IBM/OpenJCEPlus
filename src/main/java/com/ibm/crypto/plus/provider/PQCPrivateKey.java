@@ -8,7 +8,11 @@
 
 package com.ibm.crypto.plus.provider;
 
+<<<<<<< HEAD
 import com.ibm.crypto.plus.provider.ock.OCKPQCKey;
+=======
+import com.ibm.crypto.plus.provider.ock.PQCKey;
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
@@ -22,14 +26,22 @@ import sun.security.x509.AlgorithmId;
  * A PQC private key for the NIST FIPS 203 Algorithm.
  */
 @SuppressWarnings("restriction")
+<<<<<<< HEAD
 public final class PQCPrivateKey extends PKCS8Key {
+=======
+final class PQCPrivateKey extends PKCS8Key {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
 
     private static final long serialVersionUID = -3168962080315231494L;
 
     private OpenJCEPlusProvider provider = null;
     private final String name;
 
+<<<<<<< HEAD
     OCKPQCKey pqcKey;
+=======
+    private transient PQCKey pqcKey;
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
 
     private transient boolean destroyed = false;
 
@@ -45,12 +57,20 @@ public final class PQCPrivateKey extends PKCS8Key {
         this.algid = new AlgorithmId(PQCAlgorithmId.getOID(algName));
         this.name = algName;
         this.provider = provider;
+<<<<<<< HEAD
         
         //Check to determine if the key bytes already have the Octet tag. if so remove it.
+=======
+        byte [] key = null;
+        DerValue pkOct = null;
+        
+        //Check to determine if the key bytes already have the Octet tag.
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         if (OctectStringEncoded(keyBytes)) {
             //Remove encoding OctetString encoding.
             key = Arrays.copyOfRange(keyBytes, 4, keyBytes.length);
         } else {            
+<<<<<<< HEAD
             key = keyBytes.clone();
         }
 
@@ -71,6 +91,25 @@ public final class PQCPrivateKey extends PKCS8Key {
             throw ike;
         }
 
+=======
+            key = keyBytes;
+        }
+
+        // Currently the ICC expects the raw keys in an OctetString
+        try {  
+            try {
+                pkOct = new DerValue(DerValue.tag_OctetString, key);
+     
+                this.pqcKey = PQCKey.createPrivateKey(provider.getOCKContext(), 
+                                   this.name, pkOct.toByteArray());
+                this.key = pkOct.toByteArray();
+            } finally {
+                pkOct.clear();
+            }
+        } catch (Exception e) {
+            throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
+        }   
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     }
 
     /**
@@ -79,6 +118,7 @@ public final class PQCPrivateKey extends PKCS8Key {
      * @param encoded
      *                the encoded parameters.
      */
+<<<<<<< HEAD
     public PQCPrivateKey(OpenJCEPlusProvider provider, OCKPQCKey ockKey) throws InvalidKeyException {
         try {
             this.provider = provider;
@@ -94,6 +134,28 @@ public final class PQCPrivateKey extends PKCS8Key {
             }
 
             this.name = ockKey.getAlgorithm();
+=======
+    public PQCPrivateKey(OpenJCEPlusProvider provider, PQCKey pqcKey) throws InvalidKeyException {
+        try {
+            this.provider = provider;
+            this.pqcKey = pqcKey;
+
+            //Check to determine if the key bytes have the Octet tag.
+            if (OctectStringEncoded(pqcKey.getPrivateKeyBytes())) {
+                this.key = pqcKey.getPrivateKeyBytes();
+            } else {
+                DerValue pkOct = null;
+                try {
+                    pkOct = new DerValue(DerValue.tag_OctetString, pqcKey.getPrivateKeyBytes());
+
+                    this.key = pkOct.toByteArray();
+                } finally {
+                    pkOct.clear();
+                }
+            }
+
+            this.name = pqcKey.getAlgorithm();
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
             this.algid = new AlgorithmId(PQCAlgorithmId.getOID(name));
         } catch (Exception exception) {
             throw provider.providerException("Failure in PQCPrivateKey" + exception.getMessage(), exception);
@@ -111,6 +173,7 @@ public final class PQCPrivateKey extends PKCS8Key {
         this.provider = provider;
 
         this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
+<<<<<<< HEAD
         try {
             // Currently the ICC expects the raw keys in an OctetString
             DerValue pkOct = null;
@@ -128,6 +191,27 @@ public final class PQCPrivateKey extends PKCS8Key {
             provider.setOCKExceptionCause(ike, exception);
             throw ike;
         }
+=======
+
+        try {
+            //Check to determine if the key bytes have the Octet tag.
+            if (!(OctectStringEncoded(this.key))) {
+                DerValue pkOct = null;
+                try {
+                    pkOct = new DerValue(DerValue.tag_OctetString, this.key);
+
+                    this.key = pkOct.toByteArray();
+                } finally {
+                    pkOct.clear();
+                }
+            }
+
+            this.pqcKey = PQCKey.createPrivateKey(provider.getOCKContext(), 
+                                   this.name, this.key);
+        } catch (Exception e) {
+            throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
+        }   
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     }
 
     @Override
@@ -158,7 +242,11 @@ public final class PQCPrivateKey extends PKCS8Key {
             DerOutputStream bytes = new DerOutputStream();
             bytes.putOID(algid.getOID());
             tmp.write(DerValue.tag_Sequence, bytes);
+<<<<<<< HEAD
             tmp.putOctetString(key);
+=======
+            tmp.putOctetString(this.key);
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
             DerValue out = DerValue.wrap(DerValue.tag_Sequence, tmp);
             encodedKey = out.toByteArray();
             tmp.close();
@@ -171,12 +259,16 @@ public final class PQCPrivateKey extends PKCS8Key {
         return encodedKey;
     }
 
+<<<<<<< HEAD
     public byte[] getKeyBytes() {
         checkDestroyed();
         return key.clone();
     }
 
     OCKPQCKey getOCKKey() {
+=======
+    PQCKey getPQCKey() {
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
         return this.pqcKey;
     }
 
@@ -192,6 +284,10 @@ public final class PQCPrivateKey extends PKCS8Key {
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
+<<<<<<< HEAD
+=======
+            Arrays.fill(this.key, 0, this.key.length, (byte)0x00);
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
             this.key = null;
             this.encodedKey = null;
             this.pqcKey = null;
@@ -209,6 +305,10 @@ public final class PQCPrivateKey extends PKCS8Key {
             throw new IllegalStateException("This key is no longer valid");
         }
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 307ca5d8a73e66a1dd890e1c2c14208a5c82f210
     private boolean OctectStringEncoded(byte [] key) {
         try {
             //Check and see if this is an encoded OctetString

@@ -139,7 +139,7 @@ def getOCKTarget(hardware, software) {
  */
 def getBinaries(hardware, software) {
     if (OCK_RELEASE == "") {
-        OCK_RELEASE = "20240521_8.9.6"
+        OCK_RELEASE = "20250522_8.9.11"
     }
     def target = getOCKTarget(hardware, software)
     def gskit_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/gskit8/$OCK_RELEASE/$target/jgsk_crypto.tar"
@@ -232,8 +232,8 @@ def getJava(hardware, software) {
  * Get the Maven tool and extract it.
  */
 def getMaven() {
-    sh "curl -kLO https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz"
-    untar file: "apache-maven-3.9.9-bin.tar.gz"
+    sh "curl -kLO https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.10/apache-maven-3.9.10-bin.tar.gz"
+    untar file: "apache-maven-3.9.10-bin.tar.gz"
 }
 
 /*
@@ -275,17 +275,9 @@ def getTestFlag(hardware, software) {
         return " -Dtest=${SPECIFIC_TEST}"
     }
 
-    // Based on platform, decide whether FIPS tests should be run.
-    if ((software == "mac") || ((software == "linux") && (hardware == "aarch64"))) {
-        echo "Only non-FIPS tests can be run in ${hardware}_${software}"
-        return " -Dtest=ibm.jceplus.junit.openjceplus.TestAll," +
-                       "ibm.jceplus.junit.TestMemStressAll," +
-                       "ibm.jceplus.junit.TestMultithread," +
-                       "ibm.jceplus.junit.openjceplus.integration.TestAll"
-    } else {
-        echo "All tests (both FIPS and non-FIPS) can be run in ${hardware}_${software}"
-        return "";
-    }
+    // Run all tests. Some platforms will naturally run in developer mode.
+    echo "All tests (both FIPS and non-FIPS) can be run in ${hardware}_${software}"
+    return "";
 }
 
 /*
@@ -309,7 +301,7 @@ def runOpenJCEPlus(command, software) {
 
         def java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
         def gskit_home = "export GSKIT_HOME=$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
-        def environment = "export PATH=$WORKSPACE/apache-maven-3.9.9/bin:\$PATH;"
+        def environment = "export PATH=$WORKSPACE/apache-maven-3.9.10/bin:\$PATH;"
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
         if (software == "windows") {
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
@@ -317,13 +309,13 @@ def runOpenJCEPlus(command, software) {
                dir "c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Auxiliary\\Build\\vcvarsall.bat"
                call "c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Auxiliary\\Build\\vcvarsall.bat" x86_amd64
                set "JAVA_HOME=$WORKSPACE\\java\\jdk"
-               set "PATH=$WORKSPACE\\apache-maven-3.9.9\\bin;%JAVA_HOME%;%PATH%"
+               set "PATH=$WORKSPACE\\apache-maven-3.9.10\\bin;%JAVA_HOME%;%PATH%"
                set "GSKIT_HOME=$WORKSPACE\\openjceplus\\OCK\\jgsk_sdk"
                echo PATH: %PATH%
                echo GSKIT_HOME: %GSKIT_HOME%
                echo JAVA_HOME: %JAVA_HOME%
                echo mvn -Dock.library.path=${ock_path} --batch-mode ${command}
-               $WORKSPACE\\apache-maven-3.9.9\\bin\\mvn -Dock.library.path=${ock_path} --batch-mode ${command}
+               $WORKSPACE\\apache-maven-3.9.10\\bin\\mvn -Dock.library.path=${ock_path} --batch-mode ${command}
                """
         } else if (software == "mac") {
             java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
@@ -547,21 +539,21 @@ pipeline {
                 font-style: italic;
             """
         )
-        booleanParam(name: 'ppc64_aix', defaultValue: true, description: '\
+        booleanParam(name: 'ppc64_aix', defaultValue: false, description: '\
             Build for ppc64_aix platform')
-        booleanParam(name: 'x86_64_linux', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_linux', defaultValue: false, description: '\
             Build for x86-64_linux platform')
-        booleanParam(name: 'ppc64le_linux', defaultValue: true, description: '\
+        booleanParam(name: 'ppc64le_linux', defaultValue: false, description: '\
             Build for ppc64le_linux platform')
-        booleanParam(name: 's390x_linux', defaultValue: true, description: '\
+        booleanParam(name: 's390x_linux', defaultValue: false, description: '\
             Build for s390x_linux platform')
-        booleanParam(name: 'x86_64_windows', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_windows', defaultValue: false, description: '\
             Build for x86-64_windows platform')
-        booleanParam(name: 'aarch64_mac', defaultValue: true, description: '\
+        booleanParam(name: 'aarch64_mac', defaultValue: false, description: '\
             Build for aarch64_mac platform')
-        booleanParam(name: 'x86_64_mac', defaultValue: true, description: '\
+        booleanParam(name: 'x86_64_mac', defaultValue: false, description: '\
             Build for x86-64_mac platform')
-        booleanParam(name: 'aarch64_linux', defaultValue: true, description: '\
+        booleanParam(name: 'aarch64_linux', defaultValue: false, description: '\
             Build for aarch64_linux platform')
         separator(name: "BuildAndTestPlatforms", sectionHeader: "Build And Test Options",
             separatorStyle: "border-width: 0",
