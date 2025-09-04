@@ -15,6 +15,9 @@ import java.util.Arrays;
 
 public final class ECKey implements AsymmetricKey {
 
+    private static final String ALLOW_INCORRECT_KEYSIZES = "openjceplus.ec.allowIncorrectKeysizes";
+    private static final boolean allowIncorrectKeysizes = Boolean.parseBoolean(System.getProperty(ALLOW_INCORRECT_KEYSIZES, "false"));
+
     // The following is a special byte[] instance to indicate that the
     // private/public key bytes are available but not yet obtained.
     //
@@ -113,7 +116,18 @@ public final class ECKey implements AsymmetricKey {
             throw new IllegalArgumentException("The key length parameter is invalid");
         }
 
-        long ecKeyId = NativeInterface.ECKEY_generate(ockContext.getId(), size);
+        long ecKeyId;
+        try {
+            ecKeyId = NativeInterface.ECKEY_generate(ockContext.getId(), size);
+        } catch (OCKException oe){
+            if (oe.getMessage().contains("Incorrect key size") && allowIncorrectKeysizes) {
+                // If the flag is set and an incorrect key size was provided, default to 256.
+                ecKeyId = NativeInterface.ECKEY_generate(ockContext.getId(), 256);
+            } else {
+                throw oe;
+            }
+        }
+        
         if (!validId(ecKeyId)) {
             throw new OCKException(badIdMsg);
         }

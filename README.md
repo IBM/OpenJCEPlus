@@ -329,7 +329,7 @@ KeyGenerator                | kda-hkdf-with-sha384       |X                |X   
 KeyGenerator                | kda-hkdf-with-sha512       |X                |X             |              |
 KeyPairGenerator            | DSA                        |                 |X             |              |
 KeyPairGenerator            | DiffieHellman              |X                |X             |              |
-KeyPairGenerator            | EC                         |X                |X             |              |
+KeyPairGenerator            | EC                         |X                |X             |[ECKeyPairGenerator incorrect keysize](#eckeypairgenerator-incorrect-keysize)|
 KeyPairGenerator            | Ed25519                    |                 |X             |              |
 KeyPairGenerator            | Ed448                      |                 |X             |              |
 KeyPairGenerator            | EdDSA                      |                 |X             |              |
@@ -431,6 +431,16 @@ OpenJCEPlus provider enhances the security of Java applications by providing an 
 No keytool or certificate support was added other than what is already in a given Java runtime environment.
 
 The `ML-DSA` algorithm is supported in all OpenJCEPlus environments listed in section [How to Build `OpenJCEPlus` and Java Native Interface Library](#how-to-build-openjceplus-and-java-native-interface-library) except for MacOS on x86.
+
+### ECKeyPairGenerator incorrect keysize
+
+The behaviour for initializing an `ECKeyPairGenerator` with a keysize that is incorrect (i.e., doesn't correspond to the size of one of the expected curves) has changed.
+
+In previous releases, an incorrect keysize would cause a default initialization to `256`.
+
+A `ProviderException` is thrown now if the user attempts to use an `ECKeyPairGenerator` that was initialized with an incorrect keysize.
+
+**NOTE**: One can revert to the previous behaviour using the `-Dopenjceplus.ec.allowIncorrectKeysizes=true` command line argument.
 
 # Contributions
 
