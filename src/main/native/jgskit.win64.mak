@@ -26,6 +26,7 @@ OPENJCEPLUS_HEADER_FILES ?= $(TOPDIR)/src/main/native
 JAVACLASSDIR = $(TOPDIR)/target/classes
 
 OBJS= \
+	$(HOSTOUT)/AESKeyWrap.obj \
 	$(HOSTOUT)/BasicRandom.obj \
 	$(HOSTOUT)/BuildDate.obj \
 	$(HOSTOUT)/CCM.obj \
