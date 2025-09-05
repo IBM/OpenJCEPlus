@@ -9,6 +9,7 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.ock.Signature;
+import java.io.EOFException;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -98,7 +99,7 @@ abstract class DSASignature extends SignatureSpi {
             return this.signature.verify(sigBytes);
         } catch (Exception e) {
             if (e.getMessage().equals("nested asn1 error")) {
-                throw new SignatureException(e);
+                throw new SignatureException(new EOFException(e.getMessage()));
             }
             // return false rather than throwing exception
             return false;
