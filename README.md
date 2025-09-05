@@ -329,7 +329,7 @@ KeyGenerator                | kda-hkdf-with-sha384       |X                |X   
 KeyGenerator                | kda-hkdf-with-sha512       |X                |X             |              |
 KeyPairGenerator            | DSA                        |                 |X             |              |
 KeyPairGenerator            | DiffieHellman              |X                |X             |              |
-KeyPairGenerator            | EC                         |X                |X             |              |
+KeyPairGenerator            | EC                         |X                |X             |[ECKeyPairGenerator incorrect keysize](#eckeypairgenerator-incorrect-keysize)|
 KeyPairGenerator            | Ed25519                    |                 |X             |              |
 KeyPairGenerator            | Ed448                      |                 |X             |              |
 KeyPairGenerator            | EdDSA                      |                 |X             |              |
@@ -448,7 +448,6 @@ A `ProviderException` is thrown now if the user attempts to use an `ECKeyPairGen
 AES Key Wrap based on NIST SP800-38F.
 
 Code does not allow the specification of an IV. However, it will return the default ICV as defined in the NIST SP800-38F. 
-
 
 # Contributions
 
