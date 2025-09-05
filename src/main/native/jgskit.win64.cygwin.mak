@@ -25,6 +25,7 @@ HOSTOUT = $(BUILDTOP)\host64
 JAVACLASSDIR = $(TOPDIR)\target\classes
 
 OBJS= \
+	AESKeyWrap.obj \
 	BasicRandom.obj \
 	BuildDate.obj \
 	CCM.obj \
