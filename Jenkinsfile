@@ -646,7 +646,7 @@ pipeline {
             Overall build timeout (HOURS)')
     }
 
-    agent any
+    agent none
     stages {
         stage('Build And Test OpenJCEPlus') {
             steps {
