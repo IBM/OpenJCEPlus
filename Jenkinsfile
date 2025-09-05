@@ -33,6 +33,66 @@ import groovy.transform.Field;
 @Field externalLibrary
 
 /*
+ * Clone the branch from the repo specified to
+ * get the appropriate OpenJCEPlus code to build.
+ */
+def cloneOpenJCEPlus() {
+    dir("openjceplus/OpenJCEPlus") {
+        if ((OPENJCEPLUS_REPO == "") && (OPENJCEPLUS_BRANCH == "")) {
+            echo "Clone using default branch and repository."
+            checkout scm
+        } else {
+            echo "Clone using ${OPENJCEPLUS_BRANCH} from ${OPENJCEPLUS_REPO}"
+            git branch: "${OPENJCEPLUS_BRANCH}", url: "${OPENJCEPLUS_REPO}"
+        }
+    }
+}
+
+/*
+ * Checks the checkboxes to figure out the platforms
+ * selected to build OpenJCEPlus on.
+ *
+ * @return      The platforms to build OpenJCEPlus on
+ */
+def getPlatforms() {
+    def platforms = []
+
+    if (PPC64_AIX == "true") {
+        platforms.add("ppc64_aix")
+    }
+
+    if (X86_64_LINUX == "true") {
+        platforms.add("x86-64_linux")
+    }
+
+    if (PPC64LE_LINUX == "true") {
+        platforms.add("ppc64le_linux")
+    }
+
+    if (S390X_LINUX == "true") {
+        platforms.add("s390x_linux")
+    }
+
+    if (X86_64_WINDOWS == "true") {
+        platforms.add("x86-64_windows")
+    }
+
+    if (AARCH64_MAC == "true") {
+        platforms.add("aarch64_mac")
+    }
+
+    if (X86_64_MAC == "true") {
+        platforms.add("x86-64_mac")
+    }
+
+    if (AARCH64_LINUX == "true") {
+        platforms.add("aarch64_linux")
+    }
+
+    return platforms
+}
+
+/*
  * Get the appropriate test flag.
  *
  * The user might have requested that test are not
@@ -126,13 +186,6 @@ def run(platform) {
     def hardware = platformArray[0]
     def software = platformArray[1]
 
-    def isBuildable = externalLibrary.isBuildable(hardware, software)
-    if (!isBuildable) {
-        return {
-            echo "OpenJCEPlus is not supported on $hardware and $software"
-        }
-    }
-
     def node_hardware = hardware
     if (hardware.contains('x86')) {
         node_hardware = "x86"
@@ -174,7 +227,19 @@ def run(platform) {
             echo "${nodeTags}"
 
             node("$nodeTags") {
+                cloneOpenJCEPlus()
+                echo "OpenJCEPlus cloned"
+                dir("openjceplus/OpenJCEPlus") {
+                    externalLibrary = load("./utils.groovy")
+                }
                 try {
+                    def isBuildable = externalLibrary.isBuildable(hardware, software)
+                    if (!isBuildable) {
+                        return {
+                            echo "OpenJCEPlus is not supported on $hardware and $software"
+                        }
+                    }
+
                     withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'GSKIT_PASSWORD', usernameVariable: 'GSKIT_USERNAME')]) {
                         externalLibrary.getJava(hardware, software)
                     }
@@ -183,8 +248,6 @@ def run(platform) {
                     echo "Binaries fetched"
                     externalLibrary.getMaven()
                     echo "Maven fetched"
-                    externalLibrary.cloneOpenJCEPlus()
-                    echo "OpenJCEPlus cloned"
                     def command = "install"
                     command += getTestFlag(hardware, software)
                     externalLibrary.runOpenJCEPlus(command, software)
@@ -363,10 +426,9 @@ pipeline {
                         TIMEOUT_TIME="${params.TIMEOUT_TIME}"
 
                         timeout(time: "${TIMEOUT_TIME}".toInteger(), unit: 'HOURS') {
-                            externalLibrary = load("./utils.groovy")
 
                             // Figure out the platforms to build on.
-                            def platforms = externalLibrary.getPlatforms()
+                            def platforms = getPlatforms()
                             assert !((platforms.size() > 1) && (OCK_FULL_URL != "")) : "Cannot specify full OCK URL and multiple platforms."
                              
                              // Check whether the build has to be run multiple times in parallel.

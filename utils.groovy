@@ -1,48 +1,4 @@
 /*
- * Checks the checkboxes to figure out the platforms
- * selected to build OpenJCEPlus on.
- *
- * @return      The platforms to build OpenJCEPlus on
- */
-def getPlatforms() {
-    def platforms = []
-
-    if (PPC64_AIX == "true") {
-        platforms.add("ppc64_aix")
-    }
-
-    if (X86_64_LINUX == "true") {
-        platforms.add("x86-64_linux")
-    }
-
-    if (PPC64LE_LINUX == "true") {
-        platforms.add("ppc64le_linux")
-    }
-
-    if (S390X_LINUX == "true") {
-        platforms.add("s390x_linux")
-    }
-
-    if (X86_64_WINDOWS == "true") {
-        platforms.add("x86-64_windows")
-    }
-
-    if (AARCH64_MAC == "true") {
-        platforms.add("aarch64_mac")
-    }
-
-    if (X86_64_MAC == "true") {
-        platforms.add("x86-64_mac")
-    }
-
-    if (AARCH64_LINUX == "true") {
-        platforms.add("aarch64_linux")
-    }
-
-    return platforms
-}
-
-/*
  * Checks whether OpenJCEPlus is buildable on this platform.
  *
  * @return  Whether OpenJCEPlus is buildable on the platform
@@ -204,22 +160,6 @@ def getJava(hardware, software) {
 def getMaven() {
     sh "curl -kLO https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.10/apache-maven-3.9.10-bin.tar.gz"
     untar file: "apache-maven-3.9.10-bin.tar.gz"
-}
-
-/*
- * Clone the branch from the repo specified to
- * get the appropriate OpenJCEPlus code to build.
- */
-def cloneOpenJCEPlus() {
-    dir("openjceplus/OpenJCEPlus") {
-        if ((OPENJCEPLUS_REPO == "") && (OPENJCEPLUS_BRANCH == "")) {
-            echo "Clone using default branch and repository."
-            checkout scm
-        } else {
-            echo "Clone using ${OPENJCEPLUS_BRANCH} from ${OPENJCEPLUS_REPO}"
-            git branch: "${OPENJCEPLUS_BRANCH}", url: "${OPENJCEPLUS_REPO}"
-        }
-    }
 }
 
 /*
