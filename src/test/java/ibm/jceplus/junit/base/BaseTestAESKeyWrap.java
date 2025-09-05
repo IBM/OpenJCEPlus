@@ -68,8 +68,8 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
     }
 
     @ParameterizedTest
-    @CsvSource({"AESWrap", "AESWrap_128", "AESWrap_129",
-        "AESWRAP_256"})
+    @CsvSource({"AESWrap", "AESWrap_128", "AESWrap_192",
+        "AESWrap_256"})
     public void testAESWrapInterop(String alg) throws Exception {
         SecretKey kek            = null;
         SecretKey keyToBeWrapped = null;
