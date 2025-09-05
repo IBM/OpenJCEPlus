@@ -34,6 +34,16 @@ public class BaseTestECKeyPairGenerator extends BaseTestJunit5 {
     }
 
     @Test
+    public void testECKeyGen_IncorrectSize() throws Exception {
+        try {
+            doECKeyGen(255);
+            throw new RuntimeException("Expected excepton for incorrect key size not thrown");
+        } catch (ProviderException pe) {
+            // expected
+        }
+    }
+
+    @Test
     public void testECKeyGen_192() throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS no longer supports P-192 key gen
