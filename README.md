@@ -341,6 +341,8 @@ KeyPairGenerator            | RSAPSS                     |X                |X   
 KeyPairGenerator            | X25519                     |                 |X             |              |
 KeyPairGenerator            | X448                       |                 |X             |              |
 KeyPairGenerator            | XDH                        |                 |X             |              |
+KeyWrap                     | AES/KW/NoPadding           |X                |X             |[AESKW](#AESKW)|
+KeyWrap                     | AES/KWP/NoPadding          |X                |X             |[AESKW](#AESKW)|
 Mac                         | HmacMD5                    |                 |X             |              |
 Mac                         | HmacSHA1                   |                 |X             |              |
 Mac                         | HmacSHA224                 |X                |X             |              |
@@ -441,6 +443,12 @@ In previous releases, an incorrect keysize would cause a default initialization 
 A `ProviderException` is thrown now if the user attempts to use an `ECKeyPairGenerator` that was initialized with an incorrect keysize.
 
 **NOTE**: One can revert to the previous behaviour using the `-Dopenjceplus.ec.allowIncorrectKeysizes=true` command line argument.
+
+### AESKW
+AES Key Wrap based on NIST SP800-38F.
+
+Code does not allow the specification of an IV. However, it will return the default ICV as defined in the NIST SP800-38F. 
+
 
 # Contributions
 
