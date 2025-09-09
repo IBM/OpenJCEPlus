@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -26,6 +26,7 @@ import org.junit.platform.suite.api.Suite;
     TestMemStressECKeyPair.class,
     TestMemStressHKDF.class,
     TestMemStressHmacSHA256.class,
+    TestMemStressMLKEM.class,
     TestMemStressRSAPSS2.class,
     TestMemStressRSASignature.class,
     TestMemStressSHA256.class,
