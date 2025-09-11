@@ -13,10 +13,10 @@ import java.util.Arrays;
 public final class AESKeyWrap {
 
     private OCKContext ockContext;
-    private byte [] key = null;
+    private byte[] key = null;
     private boolean padding = false;
 
-    public AESKeyWrap(OCKContext ockContext, byte [] key, boolean padding)
+    public AESKeyWrap(OCKContext ockContext, byte[] key, boolean padding)
             throws OCKException {
         if (ockContext == null || key == null) {
             throw new OCKException("Invalid input data");
@@ -26,12 +26,12 @@ public final class AESKeyWrap {
         this.padding = padding;
     }
 
-    public byte [] wrap(byte [] data, int start, int length) throws OCKException {
+    public byte[] wrap(byte[] data, int start, int length) throws OCKException {
         if (data == null || start < 0 || data.length < start || data.length < (length + start)) {
             throw new OCKException("Invalid input data");
         }
-        byte [] output = null;
-        byte [] inData = Arrays.copyOfRange(data, start, length);
+        byte[] output = null;
+        byte[] inData = Arrays.copyOfRange(data, start, length);
         
         int type = 1; //wrap
         if (padding) {
@@ -49,12 +49,12 @@ public final class AESKeyWrap {
         return output;    
     }
 
-    public byte [] unwrap(byte [] data, int start, int length) throws OCKException {
+    public byte[] unwrap(byte[] data, int start, int length) throws OCKException {
         if (data == null || start < 0 || length < start || data.length < (length - start)) {
             throw new OCKException("Invalid input data");
         }
-        byte [] output = null;
-        byte [] inData = Arrays.copyOfRange(data, start, length);
+        byte[] output = null;
+        byte[] inData = Arrays.copyOfRange(data, start, length);
         int type = 0;
 
         if (padding) {

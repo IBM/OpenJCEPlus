@@ -376,7 +376,7 @@ final class NativeInterface {
     static public native void CIPHER_delete(long ockContextId, long ockCipherId)
             throws OCKException;
             
-    static public native byte[] CIPHER_KeyWraporUnwrap(long ockContextId, byte[] key, byte [] KEK, int type)
+    static public native byte[] CIPHER_KeyWraporUnwrap(long ockContextId, byte[] key, byte[] KEK, int type)
             throws OCKException;
 
     static public native int z_kmc_native(byte[] input, int inputOffset, byte[] output,
