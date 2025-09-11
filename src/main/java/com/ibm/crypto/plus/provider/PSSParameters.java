@@ -715,7 +715,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
                                                             this.maskGenAlgorithm.getName(),
                                                             this.mgfParameterSpec,
                                                             this.saltLength,
-                                                            this.trailerField)) ;
+                                                            this.trailerField));
         } else {
             throw new InvalidParameterSpecException("Inappropriate parameter Specification");
         }
