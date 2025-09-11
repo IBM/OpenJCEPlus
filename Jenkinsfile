@@ -299,7 +299,7 @@ def runOpenJCEPlus(command, software) {
 
         def java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
         def gskit_home = "export GSKIT_HOME=$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
-        def environment = "export PATH=$WORKSPACE/apache-maven-3.9.10/bin:\$PATH;"
+        def environment = "export PATH=/opt/IBM/openxlC/17.1.3/bin:/opt/IBM/openxlC/17.1.3/bin:$WORKSPACE/apache-maven-3.9.10/bin:\$PATH;"
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
         if (software == "windows") {
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
@@ -465,7 +465,7 @@ def run(platform) {
             // Some OSes have some further specific requirements.
             if (software == "aix") {
                 // Issue with updating the tooling. C++17.1
-                nodeTags += "&&sw.tool.c++runtime.17_1"
+                nodeTags += "&&sw.tool.c++runtime.17_1&&ci.role.build"
             }
 
             // Machines tagged as ci.role.test are expected to have
@@ -630,7 +630,7 @@ pipeline {
         string(name: 'ADDITIONAL_NODE_LABELS', defaultValue: '', description: '\
             Additional labels for the node to be used can be defined here.<br> \
             These labels will be added to the automatically generated ones, pertaining to platform specified.')
-        string(name: 'OVERRIDE_NODE_LABELS', defaultValue: 'paix822.rtp.raleigh.ibm.com', description: '\
+        string(name: 'OVERRIDE_NODE_LABELS', defaultValue: 'sw.tool.c++runtime.17_1&&ci.role.build', description: '\
             The labels specified will override any other labels chosen and will be the only ones utilized.')
         string(name: 'ADDITIONAL_ENVARS', defaultValue: '', description: '\
             Additional environment variables that one might want to add to the existing ones.<br> \
