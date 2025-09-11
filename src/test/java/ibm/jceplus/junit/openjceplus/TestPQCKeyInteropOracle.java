@@ -12,13 +12,10 @@ import ibm.jceplus.junit.base.BaseTestPQCKeyInterop;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
-import org.junit.jupiter.api.condition.OS;
 
 @TestInstance(Lifecycle.PER_CLASS)
-@DisabledOnOs(value = OS.MAC, architectures = "x86_64")
 @EnabledForJreRange(min = JRE.JAVA_24)
 public class TestPQCKeyInteropOracle extends BaseTestPQCKeyInterop {
 
