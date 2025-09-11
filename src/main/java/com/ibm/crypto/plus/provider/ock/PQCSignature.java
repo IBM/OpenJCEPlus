@@ -52,7 +52,7 @@ public final class PQCSignature {
         //OCKDebug.Msg (debPrefix, methodName,  "this.key=" + key);
     }
 
-    public synchronized byte[] sign(byte [] data) throws OCKException {
+    public synchronized byte[] sign(byte[] data) throws OCKException {
 
         if (!this.initialized) {
             throw new IllegalStateException("Signature not initialized");
