@@ -11,12 +11,12 @@ TOPDIR=../../..
 
 PLAT=x86
 CC=gcc
-CFLAGS= -fPIC -Werror -std=gnu99 -pedantic -Wall -fstack-protector
+CFLAGS= -fPIC -std=gnu99 -pedantic -Wall -fstack-protector
 LDFLAGS= -shared
 
 ifeq (${PLATFORM},arm-linux64)
   PLAT=xr
-  CFLAGS+= -DLINUX
+  CFLAGS+= -DLINUX -Werror
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},ppc-aix64)
   PLAT=ap
@@ -26,18 +26,18 @@ else ifeq (${PLATFORM},ppc-aix64)
   OSINCLUDEDIR=aix
 else ifeq (${PLATFORM},ppcle-linux64)
   PLAT=xl
-  CFLAGS+= -DLINUX -m64
+  CFLAGS+= -DLINUX -m64 -Werror
   LDFLAGS+= -m64
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},s390-linux64)
   PLAT=xz
-  CFLAGS+= -DS390_PLATFORM -DLINUX -m64
+  CFLAGS+= -DS390_PLATFORM -DLINUX -m64 -Werror
   LDFLAGS+= -m64
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},s390-zos64)
   CC=ibm-clang64
   PLAT=mz
-  CFLAGS= -DS390
+  CFLAGS= -DS390 -Werror
 
   # Open XL implies strict
   # https://www.ibm.com/docs/en/open-xl-c-cpp-zos/1.1?topic=options-qstrict
