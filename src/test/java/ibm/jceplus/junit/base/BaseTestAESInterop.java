@@ -291,7 +291,7 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
         byte[] fullBlock = "0123456789ABCDEF".getBytes();
         byte[] incompleteBlock = "0123456789ABCDEF012".getBytes();
         byte[] multipleFullBlocks = "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF".getBytes();
-        String[] algorithms = { /* "AES/CFB8/PKCS5Padding"*, */ "AES/CFB8/NoPadding",
+        String[] algorithms = {/* "AES/CFB8/PKCS5Padding"*, */ "AES/CFB8/NoPadding",
                 "AES/CBC/PKCS5Padding", "AES/CBC/NoPadding"};
 
         for (int i = 0; i < algorithms.length; i++) {
@@ -360,7 +360,7 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
         byte[] fullBlock = "0123456789ABCDEF".getBytes();
         byte[] incompleteBlock = "0123456789ABCDEF012".getBytes();
         byte[] multipleFullBlocks = "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF".getBytes();
-        String[] algorithms = { /* "AES/CFB8/PKCS5Padding", */ "AES/CFB8/NoPadding",
+        String[] algorithms = {/* "AES/CFB8/PKCS5Padding", */ "AES/CFB8/NoPadding",
                 "AES/CBC/PKCS5Padding", "AES/CBC/NoPadding"};
         for (int i = 0; i < algorithms.length; i++) {
             doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithms[i], fullBlock,
@@ -432,7 +432,7 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
         byte[] fullBlock = "0123456789ABCDEF".getBytes();
         byte[] incompleteBlock = "0123456789ABCDEF012".getBytes();
         byte[] multipleFullBlocks = "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF".getBytes();
-        String[] algorithms = { /* "AES/CFB8/PKCS5Padding", */ "AES/CFB8/NoPadding",
+        String[] algorithms = {/* "AES/CFB8/PKCS5Padding", */ "AES/CFB8/NoPadding",
                 "AES/CBC/PKCS5Padding", "AES/CBC/NoPadding"};
         for (int i = 0; i < algorithms.length; i++) {
             doTestAESWithUpdateEncryptionAndDecryption(algorithms[i], fullBlock, "OpenJCEPlus",
