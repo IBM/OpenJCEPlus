@@ -144,8 +144,8 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
             default:
                 return;
         }
-        byte [] privKey = HexFormat.of().parseHex(privBytes);
-        byte [] pubKey = HexFormat.of().parseHex(pubBytes);
+        byte[] privKey = HexFormat.of().parseHex(privBytes);
+        byte[] pubKey = HexFormat.of().parseHex(pubBytes);
 
         pqcKeyFactory = KeyFactory.getInstance(Algorithm, getProviderName());
         
@@ -156,16 +156,16 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         PrivateKey privateKey = pqcKeyFactory.generatePrivate(privSpec);
 
         //Need to extract just the key material from the key to do the compare
-        byte [] newPubKey = parsePub(publicKey.getEncoded());
-        byte [] newPrivKey = parsePriv(privateKey.getEncoded());
+        byte[] newPubKey = parsePub(publicKey.getEncoded());
+        byte[] newPrivKey = parsePriv(privateKey.getEncoded());
 
         assertArrayEquals(newPubKey, pubKey, "Public key does not match generated public key - "+Algorithm);
         assertArrayEquals(newPrivKey, privKey, "Private key does not match generated public key - "+Algorithm);
 
     }
 
-    byte [] parsePub(byte[] key) throws InvalidKeyException{
-        byte [] keyMaterial = null;
+    byte[] parsePub(byte[] key) throws InvalidKeyException{
+        byte[] keyMaterial = null;
 
         try {
             DerValue val = new DerValue(key);
@@ -184,8 +184,8 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         return keyMaterial;
     }
 
-    byte [] parsePriv(byte[] key) throws InvalidKeyException {
-        byte [] keyMaterial = null;
+    byte[] parsePriv(byte[] key) throws InvalidKeyException {
+        byte[] keyMaterial = null;
         try {
             DerValue val = new DerValue(key);
             if (val.tag != DerValue.tag_Sequence) {
@@ -199,7 +199,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
             AlgorithmId algid = AlgorithmId.parse (val.data.getDerValue ());
             algid.encode();
 
-            byte [] tmp = val.data.getOctetString();
+            byte[] tmp = val.data.getOctetString();
 
             DerValue next;
             if (val.data.available() == 0) {

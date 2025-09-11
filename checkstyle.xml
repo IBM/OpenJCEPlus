@@ -11,26 +11,28 @@
 -->
 <!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN" "https://checkstyle.org/dtds/configuration_1_3.dtd">
 <module name="Checker">
-    <module name="TreeWalker">
-        <property name="fileExtensions" value="java"/>
-        <module name="UnusedImports"/>
-        <module name="AvoidStarImport"/>
-        <module name="RedundantImport"/>
-        <module name="StringLiteralEquality"/>
-        <module name="GenericWhitespace"/>
-        <module name="Indentation">
-            <property name="caseIndent" value="4"/>
-            <property name="arrayInitIndent" value="8"/>
-        </module>
-        <module name="UnusedLocalVariable"/>
-        <module name="EmptyBlock"/>
-        <module name="ImportOrder"/>
-        <module name="StringLiteralEquality"/>
-    </module>
+    <module name="FileTabCharacter"/>
     <module name="NewlineAtEndOfFile"/>
     <module name="RegexpHeader">
         <property name="fileExtensions" value="java"/>
         <property name="header" value="^\W.*\n^.*Copyright IBM Corp\. \d\d\d\d\n^\W.*\n^\W.*. This code is free software; you can redistribute it and/or modify it\n^\W.*. under the terms provided by IBM in the LICENSE file that accompanied\n^\W.*. this code, including the &quot;Classpath&quot; Exception described therein."/>
     </module>
-    <module name="FileTabCharacter"/>
+    <module name="TreeWalker">
+        <property name="fileExtensions" value="java"/>
+        <module name="AvoidStarImport"/>
+        <module name="EmptyBlock"/>
+        <module name="GenericWhitespace"/>
+        <module name="ImportOrder"/>
+        <module name="Indentation">
+            <property name="arrayInitIndent" value="8"/>
+            <property name="caseIndent" value="4"/>
+        </module>
+        <module name="NoWhitespaceAfter"/>
+        <module name="NoWhitespaceBefore"/>
+        <module name="RedundantImport"/>
+        <module name="StringLiteralEquality"/>
+        <module name="StringLiteralEquality"/>
+        <module name="UnusedImports"/>
+        <module name="UnusedLocalVariable"/>
+    </module>
 </module>

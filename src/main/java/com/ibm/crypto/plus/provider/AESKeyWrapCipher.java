@@ -40,11 +40,11 @@ abstract class AESKeyWrapCipher extends CipherSpi {
     private int bufSize = 0;
     private int opmode = 0;
     private boolean setPadding = false;
-    static final byte[] ICV1 = { 
+    static final byte[] ICV1 = {
         (byte) 0xA6, (byte) 0xA6, (byte) 0xA6, (byte) 0xA6,
         (byte) 0xA6, (byte) 0xA6, (byte) 0xA6, (byte) 0xA6
     };
-    static final byte[] ICV2 = { 
+    static final byte[] ICV2 = {
         (byte) 0xA6, (byte) 0x59, (byte) 0x59, (byte) 0xA6
     };
 
@@ -159,7 +159,7 @@ abstract class AESKeyWrapCipher extends CipherSpi {
 
     @Override
     protected byte[] engineGetIV() {
-        byte [] iv = ICV2;
+        byte[] iv = ICV2;
         if (!setPadding) {
             iv = ICV1;
         }

@@ -46,7 +46,7 @@ final class PQCPublicKey extends X509Key
             // OCKC needs the key with a BitArray encoding to process it as raw.
             DerOutputStream tmp = new DerOutputStream();
             tmp.putUnalignedBitString(getKey());
-            byte [] b = tmp.toByteArray();
+            byte[] b = tmp.toByteArray();
             tmp.close();
 
             this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), algName, b);
@@ -83,7 +83,7 @@ final class PQCPublicKey extends X509Key
             name = this.algid.toString();
             DerOutputStream tmp = new DerOutputStream();
             tmp.putUnalignedBitString(getKey());
-            byte [] b = tmp.toByteArray();
+            byte[] b = tmp.toByteArray();
             tmp.close();
             
             this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), name, b);
@@ -114,7 +114,7 @@ final class PQCPublicKey extends X509Key
     @Override
     public byte[] getEncoded() {
         checkDestroyed();
-        byte [] encodedKey = null;
+        byte[] encodedKey = null;
         try {
 
             DerOutputStream out = new DerOutputStream();

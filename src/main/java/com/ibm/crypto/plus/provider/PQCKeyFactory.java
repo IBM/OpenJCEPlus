@@ -179,14 +179,14 @@ class PQCKeyFactory extends KeyFactorySpi {
         String keyAlg = key.getAlgorithm();
         if (keyAlg == null) {
             throw new InvalidKeyException("Algorithm associate with key is null.");
-        } else if (! (key.getAlgorithm().equalsIgnoreCase(this.algName) || 
+        } else if (!(key.getAlgorithm().equalsIgnoreCase(this.algName) || 
             (PQCKnownOIDs.findMatch(key.getAlgorithm()).stdName().equalsIgnoreCase(this.algName)))) {
             throw new InvalidKeyException("Expected a " + this.algName + " key, but got " + keyAlg);
         }
 
     }
 
-    private boolean checkEncoded(byte [] key, boolean pub) {
+    private boolean checkEncoded(byte[] key, boolean pub) {
         try {
             //Check and see if this is an encoded OctetString
             if ( (!pub && key[0] == 0x04) || (pub && key[0] == 0x03)) {
