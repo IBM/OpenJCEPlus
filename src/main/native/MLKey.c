@@ -252,7 +252,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
 #ifdef DEBUG_PQC_KEY_DETAIL
         if (debug) {
             gslogMessage(
-                "warning - public key encode/decode missmatch\n For Alg = %s\n",
+                "warning - public key encode/decode mismatch\n For Alg = %s\n",
                 algoChars);
         }
 #endif
@@ -263,7 +263,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
         if (pa) {
             ICC_EVP_PKEY_free(ockCtx, pa);
         }
-        throwOCKException(env, 0, "public key encode/decode missmatch");
+        throwOCKException(env, 0, "public key encode/decode mismatch");
         return mlkeyId;
     }
 
@@ -305,7 +305,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
             free(privData);
 #ifdef DEBUG_PQC_KEY_DETAIL
             if (debug) {
-                gslogMessage("warning - key size missmatch %d != %d\n",
+                gslogMessage("warning - key size mismatch %d != %d\n",
                              (int)keylen, (int)kl);
             }
 #endif        
@@ -315,14 +315,14 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
             if (pa) {
                 ICC_EVP_PKEY_free(ockCtx, pa);
             }
-            throwOCKException(env, 0, "key size missmatch on private key");
+            throwOCKException(env, 0, "key size mismatch on private key");
             return mlkeyId;
         }
         if (1 != ICC_EVP_PKEY_cmp(ockCtx, pa, npa)) {
             free(privData);
 #ifdef DEBUG_PQC_KEY_DETAIL
             if (debug) {
-                gslogMessage("warning - private key encode/decode missmatch\n");
+                gslogMessage("warning - private key encode/decode mismatch\n");
             }
 #endif
             if (evp_sp) {
@@ -331,7 +331,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
             if (pa) {
                 ICC_EVP_PKEY_free(ockCtx, pa);
             }
-            throwOCKException(env, 0, "private key encode/decode missmatch");
+            throwOCKException(env, 0, "private key encode/decode mismatch");
             return mlkeyId;
         }
     }
