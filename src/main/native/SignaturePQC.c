@@ -19,7 +19,7 @@
 
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
- * Method:    SIGNATURE_sign
+ * Method:    PQC_SIGNATURE_sign
  * Signature: (JJ[B)[B
  */
 JNIEXPORT jbyteArray JNICALL
@@ -62,12 +62,12 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PQC_1SIGNATURE_1sign(
         return retSigBytes;
     }
 
-    /* Get the lenght of the signature to allocate */
+    /* Get the length of the signature to allocate */
     datalen = (*env)->GetArrayLength(env, data);
 
     if (datalen == 0) {
         throwOCKException(
-            env, 0, "Signature sign failed. Lenght of data to sign is 0.");
+            env, 0, "Signature sign failed. Length of data to sign is 0.");
         return retSigBytes;
     }
 
@@ -138,7 +138,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PQC_1SIGNATURE_1sign(
 
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
- * Method:    SIGNATURE_verify
+ * Method:    PQC_SIGNATURE_verify
  * Signature: (JJ[B[B)Z
  */
 JNIEXPORT jboolean JNICALL

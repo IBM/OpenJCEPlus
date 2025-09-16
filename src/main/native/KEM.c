@@ -110,7 +110,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_KEM_1encapsulate(
 //============================================================================
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
- * Method:    MLKEY_decapsulate
+ * Method:    KEM_decapsulate
  * Signature: (JJ[B)[B
  */
 JNIEXPORT jbyteArray JNICALL
@@ -164,7 +164,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_KEM_1decapsulate(
         (*env)->ReleasePrimitiveArrayCritical(env, wrappedKey, wrappedKeyNative,
                                               JNI_ABORT);
         throwOCKException(env, 0,
-                          "ICC_EVP_PKEY_deccapsulate to get lenghts failed");
+                          "ICC_EVP_PKEY_decapsulate to get lengths failed");
         return retRndKeyBytes;
     }
 
@@ -180,7 +180,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_KEM_1decapsulate(
             free(genkeylocal);
             (*env)->ReleasePrimitiveArrayCritical(env, wrappedKey,
                                                   wrappedKeyNative, JNI_ABORT);
-            throwOCKException(env, 0, "ICC_EVP_PKEY_deccapsulate failed");
+            throwOCKException(env, 0, "ICC_EVP_PKEY_decapsulate failed");
             return retRndKeyBytes;
         }
 
