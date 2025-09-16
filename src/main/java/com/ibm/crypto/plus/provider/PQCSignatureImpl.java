@@ -137,7 +137,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         try {
             byte[] dataBytes = message.toByteArray();
             message.reset();
-            byte [] sign = this.signature.sign(dataBytes);
+            byte[] sign = this.signature.sign(dataBytes);
             return sign;
         } catch (Exception e) {
             SignatureException signatureException = new SignatureException("Could not sign data");

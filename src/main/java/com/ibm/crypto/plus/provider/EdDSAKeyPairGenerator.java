@@ -118,8 +118,6 @@ abstract class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
         }
     }
 
-    ;
-
     public static final class Ed448 extends EdDSAKeyPairGenerator {
         public Ed448(OpenJCEPlusProvider provider) {
             super(provider, "Ed448");
@@ -131,6 +129,4 @@ abstract class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
             super(provider);
         }
     }
-
-    ;
 }
