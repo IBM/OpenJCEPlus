@@ -8,7 +8,7 @@
 
 package ibm.jceplus.junit.openjceplus;
 
-import ibm.jceplus.junit.base.BaseTestPQCKEMMultiThread ;
+import ibm.jceplus.junit.base.BaseTestPQCKEMMultiThread;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
