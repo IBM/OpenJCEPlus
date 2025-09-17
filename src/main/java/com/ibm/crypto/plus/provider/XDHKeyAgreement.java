@@ -268,21 +268,15 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
         }
     }
 
-    ;
-
     public static final class X448 extends XDHKeyAgreement {
         public X448(OpenJCEPlusProvider provider) {
             super(provider, "X448");
         }
     }
 
-    ;
-
     public static final class XDH extends XDHKeyAgreement {
         public XDH(OpenJCEPlusProvider provider) {
             super(provider);
         }
     }
-
-    ;
 }
