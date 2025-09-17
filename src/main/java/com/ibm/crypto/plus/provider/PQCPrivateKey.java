@@ -45,7 +45,7 @@ final class PQCPrivateKey extends PKCS8Key {
         this.algid = new AlgorithmId(PQCAlgorithmId.getOID(algName));
         this.name = algName;
         this.provider = provider;
-        byte [] key = null;
+        byte[] key = null;
         DerValue pkOct = null;
         
         //Check to determine if the key bytes already have the Octet tag.
@@ -156,7 +156,7 @@ final class PQCPrivateKey extends PKCS8Key {
         *        ...
         *      }
         */
-        byte [] encodedKey = null;
+        byte[] encodedKey = null;
         try {
             int V1 = 0;
             DerOutputStream tmp = new DerOutputStream();
@@ -212,7 +212,7 @@ final class PQCPrivateKey extends PKCS8Key {
         }
     }
 
-    private boolean OctectStringEncoded(byte [] key) {
+    private boolean OctectStringEncoded(byte[] key) {
         try {
             //Check and see if this is an encoded OctetString
             if (key[0] == 0x04) {
