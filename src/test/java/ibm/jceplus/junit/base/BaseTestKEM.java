@@ -194,7 +194,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
             assertTrue(false, "testKEMError failed - Unexpected Exception" + ex.getMessage());
         }
     }
-   @ParameterizedTest
+    @ParameterizedTest
     @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
     public void testKEMSmallerSecret(String Algorithm) throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
