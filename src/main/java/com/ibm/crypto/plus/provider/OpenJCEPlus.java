@@ -30,8 +30,16 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
     private static final String info = "OpenJCEPlus Provider implements the following:\n"
             + "Algorithm parameter                : AES, ChaCha20, ChaCha20-Poly1305, DESede, DiffieHellman, DSA, EC, XEC, GCM, CCM, OAEP, RSAPSS\n"
+            + "                                       PBEWithHmacSHA1AndAES_128, PBEWithHmacSHA1AndAES_256, PBEWithHmacSHA224AndAES_128, PBEWithHmacSHA224AndAES_256\n"
+            + "                                       PBEWithHmacSHA256AndAES_128, PBEWithHmacSHA256AndAES_256, PBEWithHmacSHA384AndAES_128, PBEWithHmacSHA384AndAES_256\n"
+            + "                                       PBEWithHmacSHA512AndAES_128, PBEWithHmacSHA512AndAES_256, PBEWithHmacSHA512/224AndAES_128, PBEWithHmacSHA512/224AndAES_256\n"
+            + "                                       PBEWithHmacSHA512/256AndAES_128, PBEWithHmacSHA512/256AndAES_256\n"                                     
             + "Algorithm parameter generator      :  DiffieHellman, DSA, EC, XEC, GCM, CCM\n"
             + "Cipher algorithms                  : AES, ChaCha20, ChaCha20-Poly1305, DESede, RSA\n"
+            + "                                       PBEWithHmacSHA1AndAES_128, PBEWithHmacSHA1AndAES_256, PBEWithHmacSHA224AndAES_128, PBEWithHmacSHA224AndAES_256\n"
+            + "                                       PBEWithHmacSHA256AndAES_128, PBEWithHmacSHA256AndAES_256, PBEWithHmacSHA384AndAES_128, PBEWithHmacSHA384AndAES_256\n"
+            + "                                       PBEWithHmacSHA512AndAES_128, PBEWithHmacSHA512AndAES_256, PBEWithHmacSHA512/224AndAES_128, PBEWithHmacSHA512/224AndAES_256\n"
+            + "                                       PBEWithHmacSHA512/256AndAES_128, PBEWithHmacSHA512/256AndAES_256\n"            
             + "Key agreement algorithms           : DiffieHellman, ECDH, XDH\n"
             + "Key Encapsulation Mechanisms       : ML-KEM-512, ML-KEM-768, ML-KEM-1024\n"
             + "Key factory                        : DiffieHellman, DSA, EC, XEC,  RSA, RSAPSS, ML-KEM-512, ML-KEM-768, ML-KEM-1024\n"
@@ -48,6 +56,10 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "Message digest                     : MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256, SHA3-224, SHA3-256, SHA3-384, SHA3-512\n"
             + "Secret key factory                 : AES, ChaCha20, DESede, PBKDF2WithHmacSHA1, PBKDF2WithHmacSHA224, PBKDF2WithHmacSHA256, PBKDF2WithHmacSHA384, PBKDF2WithHmacSHA512\n"
             + "                                       PBKDF2WithHmacSHA512/224, PBKDF2WithHmacSHA512/256\n"
+            + "                                       PBEWithHmacSHA1AndAES_128, PBEWithHmacSHA1AndAES_256, PBEWithHmacSHA224AndAES_128, PBEWithHmacSHA224AndAES_256\n"
+            + "                                       PBEWithHmacSHA256AndAES_128, PBEWithHmacSHA256AndAES_256, PBEWithHmacSHA384AndAES_128, PBEWithHmacSHA384AndAES_256\n"
+            + "                                       PBEWithHmacSHA512AndAES_128, PBEWithHmacSHA512AndAES_256, PBEWithHmacSHA512/224AndAES_128, PBEWithHmacSHA512/224AndAES_256\n"
+            + "                                       PBEWithHmacSHA512/256AndAES_128, PBEWithHmacSHA512/256AndAES_256\n"              
             + "Secure random                      : HASHDRBG, SHA256DRBG, SHA512DRBG\n"
             + "Signature algorithms               : NONEwithDSA, SHA1withDSA, SHA224withDSA, SHA256withDSA,\n"
             + "                                       SHA3-224withDSA, SHA3-256withDSA, SHA3-384withDSA, SHA3-512withDSA,\n"
@@ -143,7 +155,63 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         aliases = null;
         putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "OAEP",
                 "com.ibm.crypto.plus.provider.OAEPParameters", aliases));
+        
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA1AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA1AndAES_128", aliases));
 
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA1AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA1AndAES_256", aliases));
+        
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA224AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA224AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA224AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA224AndAES_256", aliases));
+        
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA256AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA256AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA256AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA256AndAES_256", aliases));
+        
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA384AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA384AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA384AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA384AndAES_256", aliases));
+        
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA512AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA512AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA512AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA512AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA512/224AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA512_224AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA512/224AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA512_224AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA512/256AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA512_256AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "PBEWithHmacSHA512/256AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA512_256AndAES_256", aliases));
+        
         /*aliases = null;
         putService(new OpenJCEPlusService(jce,
         "AlgorithmParameters",
@@ -257,6 +325,62 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         aliases = null;
         putService(new OpenJCEPlusService(jce, "Cipher", "ChaCha20-Poly1305",
                 "com.ibm.crypto.plus.provider.ChaCha20Poly1305Cipher", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA1AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA1AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA1AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA1AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA224AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA224AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA224AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA224AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA256AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA256AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA256AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA256AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA384AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA384AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA384AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA384AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA512AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA512AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA512AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA512AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA512/224AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA512_224AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA512/224AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA512_224AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA512/256AndAES_128",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA512_256AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "Cipher", "PBEWithHmacSHA512/256AndAES_256",
+                "com.ibm.crypto.plus.provider.PBES2Core$HmacSHA512_256AndAES_256", aliases));
 
         /* =======================================================================
          * Key agreement
@@ -786,6 +910,62 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "ChaCha20",
                 "com.ibm.crypto.plus.provider.ChaCha20KeyFactory", aliases));
 
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA1AndAES_128",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA1AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA1AndAES_256",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA1AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA224AndAES_128",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA224AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA224AndAES_256",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA224AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA256AndAES_128",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA256AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA256AndAES_256",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA256AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA384AndAES_128",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA384AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA384AndAES_256",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA384AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA512AndAES_128",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA512AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA512AndAES_256",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA512AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA512/224AndAES_128",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA512_224AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA512/224AndAES_256",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA512_224AndAES_256", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA512/256AndAES_128",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA512_256AndAES_128", aliases));
+
+        aliases = null;
+        putService(new OpenJCEPlusService(jce, "SecretKeyFactory", "PBEWithHmacSHA512/256AndAES_256",
+                "com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA512_256AndAES_256", aliases));
+        
         /* =======================================================================
          * SecureRandom
          * =======================================================================
