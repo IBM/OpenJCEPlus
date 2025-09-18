@@ -110,8 +110,14 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
 
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512",
+        "PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
+        "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
+        "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256"})
     public void SerializationPBKDF2tKeyTest (String algorithm) throws Exception {
+        if (algorithm.startsWith("PBE") && this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS"))
+            return;
+
         SecretKey key = null;
         PBEKeySpec pbeks = new PBEKeySpec("ABCDEFGHIJ".toCharArray(), new byte[32], 10000, 512);
  
