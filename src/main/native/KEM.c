@@ -82,7 +82,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_KEM_1encapsulate(
                 free(wrappedKeyLocal);
             }
             if (genkeylocal != NULL) {
-                free(wrappedKeyLocal);
+                free(genkeylocal);
             }
             ICC_EVP_PKEY_CTX_free(ockCtx, evp_pk);
             throwOCKException(env, 0, "ICC_EVP_PKEY_encapsulate failed");
@@ -98,6 +98,12 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_KEM_1encapsulate(
         bytes = (*env)->GetByteArrayElements(env, randomKey, NULL);
         memcpy(bytes, genkeylocal, genkeylen);
         (*env)->ReleaseByteArrayElements(env, randomKey, bytes, 0);
+        if (wrappedKeyLocal != NULL) {
+            free(wrappedKeyLocal);
+        }
+        if (genkeylocal != NULL) {
+            free(genkeylocal);
+        }
     }
 }
 
@@ -203,6 +209,10 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_KEM_1decapsulate(
     if (wrappedKeyNative != NULL) {
         (*env)->ReleasePrimitiveArrayCritical(env, wrappedKey, wrappedKeyNative,
                                               JNI_ABORT);
+    }
+
+    if (genkeylocal != NULL) {
+        free(genkeylocal);
     }
 
     ICC_EVP_PKEY_CTX_free(ockCtx, evp_pk);
