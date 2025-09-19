@@ -19,7 +19,6 @@ import javax.crypto.SecretKey;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestKEM extends BaseTestJunit5 {
@@ -31,10 +30,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
     @ParameterizedTest
     @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
     public void testKEM(String Algorithm) throws Exception {
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            //FIPS does not support PQC keys currently
-            return;
-        }
+
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
@@ -55,10 +51,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
     @ParameterizedTest
     @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
     public void testKEMEmptyNoToFrom(String Algorithm) throws Exception {
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            //FIPS does not support PQC keys currently
-            return;
-        }
+
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
@@ -81,10 +74,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
     public void testKEMError(String Algorithm) throws Exception {
         KEM.Encapsulated enc = null;
 
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            //FIPS does not support PQC keys currently
-            return;
-        }
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
@@ -92,115 +81,81 @@ public class BaseTestKEM extends BaseTestJunit5 {
         pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
-        try {
-            enc = encr.encapsulate(0,33,"AES");
-            assertTrue(false, "testKEMError failed -Encapsulated length too long worked.");
-        } catch (IndexOutOfBoundsException iob) {
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertTrue(false, "testKEMError failed - Unexpected Exception" + ex.getMessage());
-        }
-   
-        try {
-            enc = encr.encapsulate(-1,32,"AES");
-            assertTrue(false, "testKEMError failed -Encapsulated negative start point worked.");
-        } catch (IndexOutOfBoundsException iob) {
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertTrue(false, "testKEMError failed - Unexpected Exception" + ex.getMessage());
-        }
-
-        try {
-            enc = encr.encapsulate(20,15,"AES");
-            assertTrue(false, "testKEMError failed -Encapsulated start point after to worked.");
-        } catch (IndexOutOfBoundsException iob) {
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertTrue(false, "testKEMError failed - Unexpected Exception" + ex.getMessage());
-        }
-
-        try {
-            enc = encr.encapsulate(32,32,"AES");
-            assertTrue(false, "testKEMError failed -Encapsulated start point 32 worked.");
-        } catch (IndexOutOfBoundsException iob) {
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertTrue(false, "testKEMError failed - Unexpected Exception" + ex.getMessage());
+        for (int i =0; i < 4; i++) {
+            int from = 0;
+            int to = 0;
+            switch (i) {
+                case 0:
+                    from = 0;
+                    to = 33;
+                    break;
+                case 1:
+                    from = -1;
+                    to = 32;
+                    break;
+                case 2:
+                    from = 20;
+                    to = 15;
+                    break;
+                case 3:
+                    from = 32;
+                    to = 32;
+                    break;
+            }
+            try {
+                enc = encr.encapsulate(from,to,"AES");
+                fail("testKEMError failed -Encapsulated length too long worked.");
+            } catch (IndexOutOfBoundsException iob) {
+            }
         }
 
         try {
             enc = encr.encapsulate(0,32,null);
-            assertTrue(false, "testKEMError failed -Encapsulated null alg worked.");
+            fail("testKEMError failed -Encapsulated null alg worked.");
         } catch (NullPointerException iob) {
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertTrue(false, "testKEMError failed - Unexpected Exception" + ex.getMessage());
         }
 
         enc = encr.encapsulate(0,32,"AES");
        
         KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
-        try {
-            decr.decapsulate(enc.encapsulation(),0,33,"AES");
-            assertTrue(false, "testKEMError failed -Decapsulate length too long worked.");
-        } catch (IndexOutOfBoundsException iob) {
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertTrue(false, "testKEMError failed - Unexpected Exception" + ex.getMessage());
-        }
-
-        try {
-            decr.decapsulate(enc.encapsulation(),-1,32,"AES");
-            assertTrue(false, "testKEMError failed -Decapsulate negative start point worked.");
-        } catch (IndexOutOfBoundsException iob) {
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertTrue(false, "testKEMError failed - Unexpected Exception" + ex.getMessage());
-        }   
-
-        try {
-            decr.decapsulate(enc.encapsulation(),20,15,"AES");
-            assertTrue(false, "testKEMError failed -Decapsulate start point after to worked.");
-        } catch (IndexOutOfBoundsException iob) {
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertTrue(false, "testKEMError failed - Unexpected Exception" + ex.getMessage());
-        }     
-        try {
-            decr.decapsulate(enc.encapsulation(),32,32,"AES");
-            assertTrue(false, "testKEMError failed -Decapsulate start point 32 worked.");
-        } catch (IndexOutOfBoundsException iob) {
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertTrue(false, "testKEMError failed - Unexpected Exception" + ex.getMessage());
+        for (int i =0; i < 4; i++) {
+            int from = 0;
+            int to = 0;
+            switch (i) {
+                case 0:
+                    from = 0;
+                    to = 33;
+                    break;
+                case 1:
+                    from = -1;
+                    to = 32;
+                    break;
+                case 2:
+                    from = 20;
+                    to = 15;
+                    break;
+                case 3:
+                    from = 32;
+                    to = 32;
+                    break;
+            }
+            try {
+                decr.decapsulate(enc.encapsulation(),from,to,"AES");
+                fail("testKEMError failed -Decapsulate length too long worked.");
+            } catch (IndexOutOfBoundsException iob) {
+            }
         }
 
         try {
             decr.decapsulate(enc.encapsulation(),0,32,null);
-            assertTrue(false, "testKEMError failed -Decapsulate alg null worked.");
+            fail("testKEMError failed -Decapsulate alg null worked.");
         } catch (NullPointerException iob) {
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertTrue(false, "testKEMError failed - Unexpected Exception" + ex.getMessage());
         }
     }
     @ParameterizedTest
     @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
     public void testKEMSmallerSecret(String Algorithm) throws Exception {
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            //FIPS does not support PQC keys currently
-            return;
-        }
+
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);

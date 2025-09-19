@@ -26,7 +26,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class MLKEMImpl implements KEMSpi {
     OpenJCEPlusProvider provider;
     String alg;
-    static int SecretSize = 32;
+    static int SECRETSIZE  = 32;
     public MLKEMImpl(OpenJCEPlusProvider provider, String alg) {
         this.provider = provider;
         this.alg = alg;
@@ -72,7 +72,7 @@ public class MLKEMImpl implements KEMSpi {
     class MLKEMEncapsulator implements KEMSpi.EncapsulatorSpi {
 
         PublicKey publicKey;
-        int size = SecretSize;
+        int size = SECRETSIZE;
 
         /*
          * spec - The AlgorithmParameterSpec is not used and should be null. 
@@ -88,19 +88,18 @@ public class MLKEMImpl implements KEMSpi {
         public KEM.Encapsulated engineEncapsulate(int from, int to, String algorithm) {
             int encapLen = getEncapsulationLength();
             byte[] encapsulation = new byte[encapLen];
-            byte[] secret = new byte[SecretSize];
+            byte[] secret = new byte[SECRETSIZE];
 
-            if (from < 0 || to > SecretSize || ((to - from) < 0) || (from > to) || (from >= SecretSize)){
+            if (from < 0 || to > SECRETSIZE || ((to - from) < 0) || (from >= SECRETSIZE)){
                 throw new IndexOutOfBoundsException();
             }
             if (algorithm == null) {
                 throw new NullPointerException();
             }
- 
+
             try {
                 OJPKEM.KEM_encapsulate(provider.getOCKContext(),((PQCPublicKey) publicKey).getPQCKey().getPKeyId(), encapsulation, secret);
             } catch (OCKException e) {
-                System.out.println("Encapsulate error -" + e.getMessage());
                 throw new ProviderException("OCK Exception: ", e);
             }
 
@@ -143,7 +142,7 @@ public class MLKEMImpl implements KEMSpi {
      */
     class MLKEMDecapsulator implements KEMSpi.DecapsulatorSpi {
         PrivateKey privateKey;
-        int size = SecretSize;
+        int size = SECRETSIZE;
 
         MLKEMDecapsulator(PrivateKey privateKey, AlgorithmParameterSpec spec) {
             this.privateKey = privateKey;
@@ -154,7 +153,7 @@ public class MLKEMImpl implements KEMSpi {
                 throws DecapsulateException {
             byte[] secret;
 
-            if (from < 0 || to > SecretSize || ((to - from) < 0) || (from > to) || (from >= SecretSize)){
+            if (from < 0 || to > SECRETSIZE || ((to - from) < 0) || (from >= SECRETSIZE)){
                 throw new IndexOutOfBoundsException();
             }
             if (algorithm == null || cipherText == null) {
