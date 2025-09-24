@@ -36,13 +36,13 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "Algorithm parameter generator      :  DiffieHellman, DSA, EC, XEC, GCM, CCM\n"
             + "Cipher algorithms                  : AES, ChaCha20, ChaCha20-Poly1305, DESede, RSA\n"
             + "Key agreement algorithms           : DiffieHellman, ECDH, XDH\n"
-            + "Key Encapsulation Mechanisms       : ML-KEM-512, ML-KEM-768, ML-KEM-1024\\n"
+            + "Key Encapsulation Mechanisms       : ML-KEM-512, ML-KEM-768, ML-KEM-1024\n"
             + "Key factory                        : DiffieHellman, DSA, EC, XEC,  RSA, RSAPSS\n"
             + "Key generator                      : AES, ChaCha20, DESede, HmacMD5, HmacSHA1, HmacSHA224,\n"
             + "                                       HmacMD5, HmacSHA1, HmacSHA224, HmacSHA256, HmacSHA384, HmacSHA512,\n"
-            + "                                       HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512, "
-            + "                                       kda-hkdf-witH-sha1, kda-hkdf-with-sha224, "
-            + "                                       kda-hkdf-with-sha256, kda-hkdf-with-sha384, "
+            + "                                       HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512,\n"
+            + "                                       kda-hkdf-witH-sha1, kda-hkdf-with-sha224,\n"
+            + "                                       kda-hkdf-with-sha256, kda-hkdf-with-sha384,\n"
             + "                                       kda-hkdf-with-sha512\n"
             + "Key pair generator                 : DiffieHellman, DSA, EC, XEC, RSA, ML-DSA-44, ML-DSA-65, ML-DSA-87,\n"
             + "                                       ML-KEM-512, ML-KEM-768, ML-KEM-1024\n"
@@ -59,7 +59,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "                                       NONEwithRSA, SHA1withRSA, SHA224withRSA,\n"
             + "                                       SHA256withRSA, SHA384withRSA, SHA512withRSA, RSAPSS, Ed25519, Ed448,\n"
             + "                                       SHA3-224withRSA, SHA3-256withRSA, SHA3-384withRSA, SHA3-512withRSA,\n"
-            + "                                       ML_DSA_44, ML_DSA_65, ML_DSA_87\n"; 
+            + "                                       ML_DSA_44, ML_DSA_65, ML_DSA_87\n";
 
 
     private static final String OID_PKCS3 = "1.2.840.113549.1.3.1";
