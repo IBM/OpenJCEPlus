@@ -15,7 +15,6 @@ import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
-import java.security.KeyRep;
 import java.security.interfaces.EdECPrivateKey;
 import java.security.spec.NamedParameterSpec;
 import java.util.Optional;
@@ -329,8 +328,9 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
         return "EdDSA";
     }
 
+    @java.io.Serial
     protected Object writeReplace() throws java.io.ObjectStreamException {
-        return new KeyRep(KeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded());
-    }
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
+    } 
 }
 
