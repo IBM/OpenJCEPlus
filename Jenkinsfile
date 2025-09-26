@@ -166,11 +166,6 @@ def getBinaries(hardware, software) {
             jgsk8Lib = 'jgsk8iccs_64.dll'
         }
         fileOperations([fileCopyOperation(includes: jgsk8Lib, targetLocation: 'jgsk_sdk/lib64')])
-
-        // Additional copy is required
-        if (target.contains('aix')) {
-            fileOperations([fileCopyOperation(includes: jgsk8Lib, targetLocation: 'jgsk_sdk')])
-        }
     }
 }
 
@@ -304,7 +299,7 @@ def runOpenJCEPlus(command, software) {
 
         def java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
         def gskit_home = "export GSKIT_HOME=$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
-        def environment = "export PATH=$WORKSPACE/apache-maven-3.9.10/bin:\$PATH;"
+        def environment = "export PATH=/opt/IBM/xlC/16.1.0/bin:/opt/IBM/xlc/16.1.0/bin:$WORKSPACE/apache-maven-3.9.10/bin:\$PATH;"
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
         if (software == "windows") {
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
@@ -470,7 +465,7 @@ def run(platform) {
             // Some OSes have some further specific requirements.
             if (software == "aix") {
                 // Issue with updating the tooling. C++17.1
-                nodeTags += "&&sw.tool.c++runtime.17_1"
+                nodeTags += "&&sw.tool.c++runtime.16_1&&ci.role.build"
             }
 
             // Machines tagged as ci.role.test are expected to have

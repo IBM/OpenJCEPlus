@@ -11,35 +11,33 @@ TOPDIR=../../..
 
 PLAT=x86
 CC=gcc
-CFLAGS= -fPIC
+CFLAGS= -fPIC -std=gnu99 -pedantic -Wall -fstack-protector
 LDFLAGS= -shared
-AIX_LIBPATH = /usr/lib:/lib
 
 ifeq (${PLATFORM},arm-linux64)
   PLAT=xr
-  CFLAGS+= -DLINUX -Werror -std=gnu99 -pedantic -Wall -fstack-protector
-  LDFLAGS+= -DLINUX
+  CFLAGS+= -DLINUX -Werror
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},ppc-aix64)
   PLAT=ap
-  CC=xlc
-  CFLAGS= -qcpluscmt -q64 -qpic -DAIX -qhalt=w
-  LDFLAGS= -G -q64 -blibpath:${AIX_LIBPATH}
+  CC=xlclang
+  CFLAGS+= -DAIX -m64
+  LDFLAGS+= -m64 -brtl
   OSINCLUDEDIR=aix
 else ifeq (${PLATFORM},ppcle-linux64)
   PLAT=xl
-  CFLAGS+= -DLINUX -Werror
+  CFLAGS+= -DLINUX -m64 -Werror
   LDFLAGS+= -m64
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},s390-linux64)
   PLAT=xz
+  CFLAGS+= -DS390_PLATFORM -DLINUX -m64 -Werror
   LDFLAGS+= -m64
-  CFLAGS+= -DS390_PLATFORM -DLINUX -Werror
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},s390-zos64)
   CC=ibm-clang64
   PLAT=mz
-  CFLAGS= -DS390
+  CFLAGS= -DS390 -Werror
 
   # Open XL implies strict
   # https://www.ibm.com/docs/en/open-xl-c-cpp-zos/1.1?topic=options-qstrict
@@ -53,7 +51,7 @@ else ifeq (${PLATFORM},s390-zos64)
   OSINCLUDEDIR=zos
 else ifeq (${PLATFORM},x86-linux64)
   PLAT=xa
-  CFLAGS+= -DLINUX -Werror -std=gnu99 -pedantic -Wall -fstack-protector
+  CFLAGS+= -DLINUX -m64
   LDFLAGS+= -m64
   OSINCLUDEDIR=linux
 endif
