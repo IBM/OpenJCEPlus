@@ -55,10 +55,10 @@ public class BaseTestMemStressMLKEM extends BaseTestJunit5 {
     //
     //
     @ParameterizedTest
-    @ValueSource(strings = { "ML-KEM-512", "ML_KEM_512", "MLKEM512",
-        "2.16.840.1.101.3.4.4.1", "ML-KEM-768", "ML_KEM_768",
-        "MLKEM768", "2.16.840.1.101.3.4.4.2", "ML-KEM-1024",
-        "ML_KEM_1024", "MLKEM1024", "2.16.840.1.101.3.4.4.3" })
+    @ValueSource(strings = {"ML-KEM", "ML-KEM-512", "ML_KEM_512", "MLKEM512",
+        "OID.2.16.840.1.101.3.4.4.1", "2.16.840.1.101.3.4.4.1", "ML-KEM-768", "ML_KEM_768",
+        "MLKEM768", "OID.2.16.840.1.101.3.4.4.2", "2.16.840.1.101.3.4.4.2", "ML-KEM-1024",
+        "ML_KEM_1024", "MLKEM1024", "OID.2.16.840.1.101.3.4.4.3", "2.16.840.1.101.3.4.4.3" })
     public void testMLKEM(String algorithmName) throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
             // This is not in the FIPS provider yet.
