@@ -427,7 +427,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             PublicKey publicKeyInterop = keyFactoryPlus.generatePublic(publicKeySpecPlus);
 
             KEM.Encapsulator encr = kemInterop.newEncapsulator(publicKeyInterop);
-            KEM.Encapsulated enc = encr.encapsulate(0,31,"AES");
+            KEM.Encapsulated enc = encr.encapsulate(0,32,"AES");
             if (enc == null){
                 System.out.println("enc = null");
                 assertTrue(false, "KEMPlusCreatesInteropGet failed no enc.");
@@ -435,7 +435,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             SecretKey keyE = enc.key();
            
             KEM.Decapsulator decr = kemInterop.newDecapsulator(privateKeyInterop);
-            SecretKey keyD = decr.decapsulate(enc.encapsulation(),0,31,"AES");
+            SecretKey keyD = decr.decapsulate(enc.encapsulation(),0,32,"AES");
 
             assertTrue(Arrays.equals(keyE.getEncoded(), keyD.getEncoded()), "Secrets do NOT match");
         } catch (Exception ex) {
@@ -469,7 +469,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             PublicKey publicKeyPlus = keyFactoryPlus.generatePublic(publicKeySpecInterop);
 
             KEM.Encapsulator encr = kemPlus.newEncapsulator(publicKeyPlus);
-            KEM.Encapsulated enc = encr.encapsulate(0,31,"AES");
+            KEM.Encapsulated enc = encr.encapsulate(0,32,"AES");
             if (enc == null){
                 System.out.println("enc = null");
                 assertTrue(false, "KEMPlusCreatesInteropGet failed no enc.");
@@ -477,7 +477,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             SecretKey keyE = enc.key();
            
             KEM.Decapsulator decr = kemPlus.newDecapsulator(privateKeyPlus);
-            SecretKey keyD = decr.decapsulate(enc.encapsulation(),0,31,"AES");
+            SecretKey keyD = decr.decapsulate(enc.encapsulation(),0,32,"AES");
 
             assertTrue(Arrays.equals(keyE.getEncoded(), keyD.getEncoded()), "Secrets do NOT match");
         } catch (Exception ex) {
@@ -509,7 +509,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             PublicKey publicKeyInterop = keyFactoryInterop.generatePublic(publicKeySpecInterop);
 
             KEM.Encapsulator encr = kemInterop.newEncapsulator(publicKeyInterop);
-            KEM.Encapsulated enc = encr.encapsulate(0,31,"AES");
+            KEM.Encapsulated enc = encr.encapsulate(0,32,"AES");
             if (enc == null){
                 System.out.println("enc = null");
                 assertTrue(false, "KEMPlusCreatesInteropGet failed no enc.");
@@ -517,7 +517,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             SecretKey keyE = enc.key();
            
             KEM.Decapsulator decr = kemPlus.newDecapsulator(privateKeyPlus);
-            SecretKey keyD = decr.decapsulate(enc.encapsulation(),0,31,"AES");
+            SecretKey keyD = decr.decapsulate(enc.encapsulation(),0,32,"AES");
 
             assertTrue(Arrays.equals(keyE.getEncoded(), keyD.getEncoded()), "Secrets do NOT match");
         } catch (Exception ex) {
@@ -548,13 +548,13 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             KeyFactory keyFactoryPlus = KeyFactory.getInstance(Algorithm, getProviderName());
             PublicKey publicKeyPlus = keyFactoryPlus.generatePublic(publicKeySpecInterop);
             KEM.Encapsulator encr = kemPlus.newEncapsulator(publicKeyPlus);
-            KEM.Encapsulated enc = encr.encapsulate(0,31,"AES");
+            KEM.Encapsulated enc = encr.encapsulate(0,32,"AES");
 
             SecretKey keyE = enc.key();
 
             KEM.Decapsulator decr = kemInterop.newDecapsulator(privateKeyInterop);
 
-            SecretKey keyD = decr.decapsulate(enc.encapsulation(),0,31,"AES");
+            SecretKey keyD = decr.decapsulate(enc.encapsulation(),0,32,"AES");
          
             assertTrue(Arrays.equals(keyE.getEncoded(), keyD.getEncoded()), "Secrets do NOT match");
         } catch (Exception ex) {
