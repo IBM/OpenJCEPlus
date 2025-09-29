@@ -43,7 +43,7 @@ final class PQCPrivateKey extends PKCS8Key {
             throws InvalidKeyException {
    
         this.algid = new AlgorithmId(PQCAlgorithmId.getOID(algName));
-        this.name = algName;
+        this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
         this.provider = provider;
         byte[] key = null;
         DerValue pkOct = null;
@@ -97,7 +97,7 @@ final class PQCPrivateKey extends PKCS8Key {
                 }
             }
 
-            this.name = pqcKey.getAlgorithm();
+            this.name = PQCKnownOIDs.findMatch(pqcKey.getAlgorithm()).stdName();
             this.algid = new AlgorithmId(PQCAlgorithmId.getOID(name));
         } catch (Exception exception) {
             throw provider.providerException("Failure in PQCPrivateKey" + exception.getMessage(), exception);
