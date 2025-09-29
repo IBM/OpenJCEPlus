@@ -174,4 +174,16 @@ abstract class PBKDF2Core extends SecretKeyFactorySpi {
             super(provider, "HmacSHA512");
         }
     }
+
+    public static final class HmacSHA512_224 extends PBKDF2Core {
+        public HmacSHA512_224(OpenJCEPlusProvider provider) {
+            super(provider, "HmacSHA512/224");
+        }
+    }
+
+    public static final class HmacSHA512_256 extends PBKDF2Core {
+        public HmacSHA512_256(OpenJCEPlusProvider provider) {
+            super(provider, "HmacSHA512/256");
+        }
+    }
 }
