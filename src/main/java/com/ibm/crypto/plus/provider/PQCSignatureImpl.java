@@ -114,7 +114,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         }
         //Validate that the alg of the key matchs the alg specified on creation of this object
         if (this.alg != null && !((keyPublic.getAlgorithm()).equalsIgnoreCase(this.alg))) {
-            throw new InvalidKeyException("Key must be of algorithm " + this.alg);
+            throw new InvalidKeyException("Expected algorithm " + this.alg + ", but got " + keyPublic.getAlgorithm());
         }
         try {
             this.signature.initialize(keyPublic.getPQCKey());
