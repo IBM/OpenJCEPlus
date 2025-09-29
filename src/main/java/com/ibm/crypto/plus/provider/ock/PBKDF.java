@@ -29,13 +29,16 @@ public final class PBKDF {
     public static byte[] PBKDF2derive(OCKContext ockContext, String algorithmName,
             final byte[] password, byte[] salt, int iterations, int keyLength) throws OCKException {
 
-        if ((!algorithmName.equalsIgnoreCase("HmacSHA512"))
+        if ((!algorithmName.equalsIgnoreCase("HmacSHA512/224"))
+                && (!algorithmName.equalsIgnoreCase("HmacSHA512/256"))
+                && (!algorithmName.equalsIgnoreCase("HmacSHA512"))
                 && (!algorithmName.equalsIgnoreCase("HmacSHA384"))
                 && (!algorithmName.equalsIgnoreCase("HmacSHA256"))
                 && (!algorithmName.equalsIgnoreCase("HmacSHA224"))
                 && (!algorithmName.equalsIgnoreCase("HmacSHA1"))) {
             throw new OCKException("Algorithm name not recognized: " + algorithmName);
         }
+        algorithmName = algorithmName.replace("/", "-");
         String algorithmHashName = algorithmName.substring(4).toUpperCase();
 
         if (keyLength <= 0) {

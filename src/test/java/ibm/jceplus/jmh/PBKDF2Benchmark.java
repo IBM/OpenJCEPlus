@@ -36,6 +36,8 @@ public class PBKDF2Benchmark extends JMHBase {
     private SecretKeyFactory pbkdf2Sha1Factory;
     private SecretKeyFactory pbkdf2Sha256Factory;
     private SecretKeyFactory pbkdf2Sha512Factory;
+    private SecretKeyFactory pbkdf2Sha512_224Factory;
+    private SecretKeyFactory pbkdf2Sha512_256Factory;
     private char[] password;
     private byte[] salt = new byte[16];
     private SecureRandom random = new SecureRandom();
@@ -50,6 +52,8 @@ public class PBKDF2Benchmark extends JMHBase {
         pbkdf2Sha1Factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1", provider);
         pbkdf2Sha256Factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256", provider);
         pbkdf2Sha512Factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512", provider);
+        pbkdf2Sha512_224Factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512/224", provider);
+        pbkdf2Sha512_256Factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512/256", provider);
         password = "lazydogjumpedoverthemoon".toCharArray();
         random.nextBytes(salt);
     }
@@ -87,6 +91,30 @@ public class PBKDF2Benchmark extends JMHBase {
     @Benchmark
     public byte[] pbkdf2Sha512300000Iter() throws InvalidKeySpecException {
         return pbkdf2Sha512Factory.generateSecret(new PBEKeySpec(password, salt, 300000, 256))
+                .getEncoded();
+    }
+
+    @Benchmark
+    public byte[] pbkdf2Sha512_2241000Iter() throws InvalidKeySpecException {
+        return pbkdf2Sha512_224Factory.generateSecret(new PBEKeySpec(password, salt, 1000, 256))
+                .getEncoded();
+    }
+
+    @Benchmark
+    public byte[] pbkdf2Sha512_224300000Iter() throws InvalidKeySpecException {
+        return pbkdf2Sha512_224Factory.generateSecret(new PBEKeySpec(password, salt, 300000, 256))
+                .getEncoded();
+    }
+
+    @Benchmark
+    public byte[] pbkdf2Sha512_2561000Iter() throws InvalidKeySpecException {
+        return pbkdf2Sha512_256Factory.generateSecret(new PBEKeySpec(password, salt, 1000, 256))
+                .getEncoded();
+    }
+
+    @Benchmark
+    public byte[] pbkdf2Sha512_256300000Iter() throws InvalidKeySpecException {
+        return pbkdf2Sha512_256Factory.generateSecret(new PBEKeySpec(password, salt, 300000, 256))
                 .getEncoded();
     }
 
