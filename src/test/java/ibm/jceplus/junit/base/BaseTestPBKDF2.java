@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests associated with PBKDF2 algorithms.
@@ -86,7 +87,7 @@ public class BaseTestPBKDF2 extends BaseTestJunit5Interop {
 
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testAlgorithmExistence(String algorithm) throws Exception {
         try {
             SecretKeyFactory.getInstance(algorithm, this.getProviderName());
@@ -102,16 +103,27 @@ public class BaseTestPBKDF2 extends BaseTestJunit5Interop {
 
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testSmallSalt(String algorithm) throws Exception {
         
         PBEKeySpec pbeks = new PBEKeySpec("ABCDEFGHIJ".toCharArray(), "SmallSalt".getBytes(), 10000, 512);
         if (this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            try {
-                SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
-                skf.generateSecret(pbeks);
-            } catch(InvalidKeySpecException e) {
-                assertEquals("Salt must be 128 bits or higher when using the OpenJCEPlusFIPS provider.", e.getMessage());
+            if (isSupportedByOpenJCEPlusFIPS(algorithm)) {
+                try {
+                    SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
+                    skf.generateSecret(pbeks);
+                    fail("Expected an exception due to salt < 128 for OpenJCEPlusFIPS provider for algorithm: " + algorithm + ", but none was thrown.");
+                } catch(InvalidKeySpecException e) {
+                    assertEquals("Salt must be 128 bits or higher when using the OpenJCEPlusFIPS provider.", e.getMessage());
+                }
+            } else {
+                try {
+                    SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
+                    skf.generateSecret(pbeks);
+                    fail("Expected NoSuchAlgorithmException for non FIPS certified algorithm: " + algorithm + ", but none was thrown.");
+                } catch(NoSuchAlgorithmException e) {
+                    assertEquals("no such algorithm: " + algorithm + " for provider OpenJCEPlusFIPS", e.getMessage());
+                }
             }
         } else {
             SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
@@ -121,15 +133,26 @@ public class BaseTestPBKDF2 extends BaseTestJunit5Interop {
 
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testSmallIterationCount(String algorithm) throws Exception {
         PBEKeySpec pbeks = new PBEKeySpec("ABCDEFGHIJ".toCharArray(), new byte[32], 999, 512);
         if (this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            try {
-                SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
-                skf.generateSecret(pbeks);
-            } catch(InvalidKeySpecException e) {
-                assertEquals("Iteration count must be 1000 or higher when using the OpenJCEPlusFIPS provider.", e.getMessage());
+            if (isSupportedByOpenJCEPlusFIPS(algorithm)) {
+                try {
+                    SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
+                    skf.generateSecret(pbeks);
+                    fail("Expected an exception due to iteration count < 1000 for OpenJCEPlusFIPS provider for algorithm: " + algorithm + ", but none was thrown.");
+                } catch(InvalidKeySpecException e) {
+                    assertEquals("Iteration count must be 1000 or higher when using the OpenJCEPlusFIPS provider.", e.getMessage());
+                }
+            } else {
+                try {
+                    SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
+                    skf.generateSecret(pbeks);
+                    fail("Expected NoSuchAlgorithmException for non FIPS certified algorithm: " + algorithm + ", but none was thrown.");
+                } catch(NoSuchAlgorithmException e) {
+                    assertEquals("no such algorithm: " + algorithm + " for provider OpenJCEPlusFIPS", e.getMessage());
+                }
             }
         } else {
             SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
@@ -139,15 +162,26 @@ public class BaseTestPBKDF2 extends BaseTestJunit5Interop {
 
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testSmallKeyLength(String algorithm) throws Exception {
         PBEKeySpec pbeks = new PBEKeySpec("ABCDEFGHIJ".toCharArray(), new byte[32], 8000, 111);
         if (this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            try {
-                SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
-                skf.generateSecret(pbeks);
-            } catch(InvalidKeySpecException e) {
-                assertEquals("Key length must be 112 bits or higher when using the OpenJCEPlusFIPS provider.", e.getMessage());
+            if (isSupportedByOpenJCEPlusFIPS(algorithm)) {
+                try {
+                    SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
+                    skf.generateSecret(pbeks);
+                    fail("Expected an exception due to key length < 112 for OpenJCEPlusFIPS provider for algorithm: " + algorithm + ", but none was thrown.");
+                } catch(InvalidKeySpecException e) {
+                    assertEquals("Key length must be 112 bits or higher when using the OpenJCEPlusFIPS provider.", e.getMessage());
+                }
+            } else {
+                try {
+                    SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
+                    skf.generateSecret(pbeks);
+                    fail("Expected NoSuchAlgorithmException for non FIPS certified algorithm: " + algorithm + ", but none was thrown.");
+                } catch(NoSuchAlgorithmException e) {
+                    assertEquals("no such algorithm: " + algorithm + " for provider OpenJCEPlusFIPS", e.getMessage());
+                }
             }
         } else {
             SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
@@ -157,15 +191,26 @@ public class BaseTestPBKDF2 extends BaseTestJunit5Interop {
 
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+        "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testShortPassword(String algorithm) throws Exception {
         PBEKeySpec pbeks = new PBEKeySpec("ABCDEFGHI".toCharArray(), new byte[32], 1000, 112);
         if (this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            try {
-                SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
-                skf.generateSecret(pbeks);
-            } catch(InvalidKeySpecException e) {
-                assertEquals("Password must be 10 characters or higher when using the OpenJCEPlusFIPS provider.", e.getMessage());
+            if (isSupportedByOpenJCEPlusFIPS(algorithm)) {
+                try {
+                    SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
+                    skf.generateSecret(pbeks);
+                    fail("Expected an exception due to password length < 10 for OpenJCEPlusFIPS provider for algorithm: " + algorithm + ", but none was thrown.");
+                } catch(InvalidKeySpecException e) {
+                    assertEquals("Password must be 10 characters or higher when using the OpenJCEPlusFIPS provider.", e.getMessage());
+                }
+            } else {
+                try {
+                    SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
+                    skf.generateSecret(pbeks);
+                    fail("Expected NoSuchAlgorithmException for non FIPS certified algorithm: " + algorithm + ", but none was thrown.");
+                } catch(NoSuchAlgorithmException e) {
+                    assertEquals("no such algorithm: " + algorithm + " for provider OpenJCEPlusFIPS", e.getMessage());
+                }
             }
         } else {
             SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
