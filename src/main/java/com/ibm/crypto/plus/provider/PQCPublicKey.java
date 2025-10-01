@@ -39,7 +39,7 @@ final class PQCPublicKey extends X509Key
             throws InvalidKeyException {
         this.algid = new AlgorithmId(PQCAlgorithmId.getOID(algName));
         this.provider = provider;
-        this.name = algName;
+        this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
 
         setKey(new BitArray(rawKey.length * 8, rawKey));
         try {
@@ -61,9 +61,9 @@ final class PQCPublicKey extends X509Key
         try {
             this.provider = provider;
             byte[] rawKey = pqcKey.getPublicKeyBytes();
-            this.name = pqcKey.getAlgorithm();
+            this.algid = new AlgorithmId(PQCAlgorithmId.getOID(pqcKey.getAlgorithm()));
 
-            this.algid = new AlgorithmId(PQCAlgorithmId.getOID(name));
+            this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
 
             //OCKC puts the BITSTRING on the key. Need to remove it.
             setKey(new BitArray((rawKey.length - 5)*8, rawKey, 5));
@@ -80,7 +80,7 @@ final class PQCPublicKey extends X509Key
         try {
             decode(encoded);
 
-            name = this.algid.toString();
+            this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
             DerOutputStream tmp = new DerOutputStream();
             tmp.putUnalignedBitString(getKey());
             byte[] b = tmp.toByteArray();
