@@ -776,7 +776,7 @@ public class BaseTestChaCha20 extends BaseTestCipher implements ChaCha20Constant
             // Verify the text
             cp = Cipher.getInstance(CHACHA20_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
-            resultBuffer = Arrays.copyOf(cipherText, cipherText.length);//cp.getOutputSize(cipherText.length));
+            resultBuffer = Arrays.copyOf(cipherText, cipherText.length); //cp.getOutputSize(cipherText.length));
             resultLen = cp.doFinal(resultBuffer, 0, cipherText.length, resultBuffer);
             byte[] newPlainText = Arrays.copyOf(resultBuffer, resultLen);
 

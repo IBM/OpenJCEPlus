@@ -18,8 +18,8 @@ public class BaseTestAttributes extends BaseTestJunit5 {
     @Test
     public void testServices() throws Exception {
         Provider p = Security.getProvider(getProviderName());
-        for(Provider.Service s : p.getServices()) {
-            if(s.getType().equals("SecureRandom")) {
+        for (Provider.Service s : p.getServices()) {
+            if (s.getType().equals("SecureRandom")) {
                 testSecureRandom(SecureRandom.getInstance(s.getAlgorithm(), p));
             }
         }
@@ -30,6 +30,6 @@ public class BaseTestAttributes extends BaseTestJunit5 {
         String attr = sr.getProvider().getProperty("SecureRandom."
                 + sr.getAlgorithm() + " ThreadSafe");
         
-        assertTrue("true".equals(attr), "Not ThreadSafe" + attr);        
+        assertTrue("true".equals(attr), "Not ThreadSafe" + attr);
     }
 }

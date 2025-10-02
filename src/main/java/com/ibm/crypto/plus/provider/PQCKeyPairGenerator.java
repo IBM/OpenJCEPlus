@@ -44,22 +44,21 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
         if (keysize != -1) {
             throw new InvalidParameterException("keysize not supported");
         }
-        // This functions is here for compatibility with Oracle and Spi
-        // However, since OCKC does not allow specification of Random
+        // This function is here for compatibility with Oracle and Spi.
+        // However, since OCKC does not allow specification of Random,
         // this function does nothing.
     }
 
     @Override
     public KeyPair generateKeyPair() {
         try {
-            //System.out.println("Generating KeyPair for " + mlkemAlg);
             PQCKey mlkemKey = PQCKey.generateKeyPair(provider.getOCKContext(), mlkemAlg);
             byte[] privKeyBytes = mlkemKey.getPrivateKeyBytes();
-            PQCPrivateKey privKey = new PQCPrivateKey(provider, PQCKey.createPrivateKey(provider.getOCKContext(), 
-                                                               mlkemAlg, privKeyBytes));
+            PQCPrivateKey privKey = new PQCPrivateKey(provider, PQCKey.createPrivateKey(provider.getOCKContext(),
+                                                        mlkemAlg, privKeyBytes));
             byte[] pubKeyBytes = mlkemKey.getPublicKeyBytes();
-            PQCPublicKey pubKey = new PQCPublicKey(provider, PQCKey.createPublicKey(provider.getOCKContext(), 
-                                                               mlkemAlg, pubKeyBytes));        
+            PQCPublicKey pubKey = new PQCPublicKey(provider, PQCKey.createPublicKey(provider.getOCKContext(),
+                                                        mlkemAlg, pubKeyBytes));
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
             throw provider.providerException("Failure in generateKeyPair - " +e.getCause(), e);
