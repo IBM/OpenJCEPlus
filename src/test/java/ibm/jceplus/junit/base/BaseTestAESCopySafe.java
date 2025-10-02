@@ -64,7 +64,7 @@ public class BaseTestAESCopySafe extends BaseTestJunit5 {
     private void doTest(Cipher c, int inputOffset, int outputOffset, MODE mode, boolean isUpdate)
             throws Exception {
         byte[] clearText = new byte[INPUT_LENGTH];
-        Arrays.fill(clearText, 0, INPUT_LENGTH, (byte)0x01);
+        Arrays.fill(clearText, 0, INPUT_LENGTH, (byte) 0x01);
         System.arraycopy(clearText, 0, workingBuffer, 0, INPUT_LENGTH);
 
         // Get baseline encrypted value. This baseline will be used through the rest of the 
@@ -120,7 +120,7 @@ public class BaseTestAESCopySafe extends BaseTestJunit5 {
         }
         initCipher(c, mode, false);
 
-        Arrays.fill(workingBuffer, 0, INPUT_LENGTH, (byte)0x00);
+        Arrays.fill(workingBuffer, 0, INPUT_LENGTH, (byte) 0x00);
         System.arraycopy(cipherText, 0, workingBuffer, inputOffset, cipherText.length);
 
         if (DEBUG) {
@@ -145,7 +145,7 @@ public class BaseTestAESCopySafe extends BaseTestJunit5 {
         }
 
         // Zero the working buffer just for ease of debug.
-        Arrays.fill(clearText, 0, INPUT_LENGTH, (byte)0x00);
+        Arrays.fill(clearText, 0, INPUT_LENGTH, (byte) 0x00);
     }
 
     private void initCipher(Cipher c, MODE mode, boolean isEncrypt)
