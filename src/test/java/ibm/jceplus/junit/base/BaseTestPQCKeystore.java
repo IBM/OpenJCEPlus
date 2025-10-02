@@ -79,8 +79,8 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
 
             System.out.println("Keystore created successfully at: " + ksFile.getAbsolutePath());
 
-            PrivateKey tmp = (PrivateKey)ks.getKey(algname, password.toCharArray());
-            X509Certificate tmpC = (X509Certificate)ks.getCertificate(algname);
+            PrivateKey tmp = (PrivateKey) ks.getKey(algname, password.toCharArray());
+            X509Certificate tmpC = (X509Certificate) ks.getCertificate(algname);
             PublicKey tmpPub = tmpC.getPublicKey();
 
             if (tmp == null || tmpPub == null) {
@@ -117,8 +117,7 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
                         c.get(Calendar.YEAR) + " which is greater than 9999");
             }
 
-            CertificateValidity interval =
-                                   new CertificateValidity(firstDate,lastDate);
+            CertificateValidity interval = new CertificateValidity(firstDate, lastDate);
 
             X509CertInfo info = new X509CertInfo();
             // Add all mandatory attributes

@@ -136,7 +136,7 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
             cp.init(Cipher.WRAP_MODE, kek);
             byte[] cipherText = cp.wrap(keyToBeWrapped);
 
-            if (cipherText[2] == (byte)0xFF) {
+            if (cipherText[2] == (byte) 0xFF) {
                 cipherText[2] = (byte) 0x01;
             } else {
                 cipherText[2] = (byte) 0xFF;
@@ -425,7 +425,7 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
     public void testNullKey(String alg) throws Exception {
         try {
             Cipher cp = Cipher.getInstance(alg, getProviderName());
-            cp.init(Cipher.WRAP_MODE, (Key)null);
+            cp.init(Cipher.WRAP_MODE, (Key) null);
 
             fail("testNullKey did not fail as expected.");
         } catch (InvalidKeyException ike) {
