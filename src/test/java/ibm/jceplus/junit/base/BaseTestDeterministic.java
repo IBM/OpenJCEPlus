@@ -248,7 +248,7 @@ public class BaseTestDeterministic extends BaseTestJunit5 {
             case "EdDSA", "Ed25519", "XDH", "X25519" -> 255;
             case "Ed448", "X448" -> 448;
             case "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024" -> 0;
-            case "ML-DSA-44","ML-DSA-65","ML-DSA-87" -> 0;
+            case "ML-DSA-44", "ML-DSA-65", "ML-DSA-87" -> 0;
             default -> throw new UnsupportedOperationException(alg);
         };
         if (size != 0) {

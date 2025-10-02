@@ -524,32 +524,32 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
 
         // SHA512-224
         aliases = new String[] {"SHA512/224", "OID.2.16.840.1.101.3.4.2.5",
-                "2.16.840.1.101.3.4.2.5",};
+                "2.16.840.1.101.3.4.2.5", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA-512/224",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA512_224", aliases));
 
         // SHA512-256
 
         aliases = new String[] {"SHA512/256", "OID.2.16.840.1.101.3.4.2.6",
-                "2.16.840.1.101.3.4.2.6",};
+                "2.16.840.1.101.3.4.2.6", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA-512/256",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA512_256", aliases));
 
         //SHA3 Hashes
         aliases = new String[] {"SHA3-224", "OID.2.16.840.1.101.3.4.2.7",
-                "2.16.840.1.101.3.4.2.7",};
+                "2.16.840.1.101.3.4.2.7", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA3-224",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA3_224", aliases));
         aliases = new String[] {"SHA3-256", "OID.2.16.840.1.101.3.4.2.8",
-                "2.16.840.1.101.3.4.2.8",};
+                "2.16.840.1.101.3.4.2.8", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA3-256",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA3_256", aliases));
         aliases = new String[] {"SHA3-384", "OID.2.16.840.1.101.3.4.2.9",
-                "2.16.840.1.101.3.4.2.9",};
+                "2.16.840.1.101.3.4.2.9", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA3-384",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA3_384", aliases));
         aliases = new String[] {"SHA3-512", "OID.2.16.840.1.101.3.4.2.10",
-                "2.16.840.1.101.3.4.2.10",};
+                "2.16.840.1.101.3.4.2.10", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA3-512",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA3_512", aliases));
         /* =======================================================================

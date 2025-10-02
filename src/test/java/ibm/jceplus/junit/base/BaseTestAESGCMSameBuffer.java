@@ -263,7 +263,7 @@ public class BaseTestAESGCMSameBuffer extends BaseTestJunit5 {
         buffer.flip();
         ByteBuffer outBB = ByteBuffer.allocateDirect(cipher.getOutputSize(dataLength));
 
-        cipher.doFinal(textBB, outBB);// get cipher text in outBB
+        cipher.doFinal(textBB, outBB); // get cipher text in outBB
         outBB.flip();
 
         // restore positions

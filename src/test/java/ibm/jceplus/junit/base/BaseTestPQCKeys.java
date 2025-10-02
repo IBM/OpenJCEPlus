@@ -42,9 +42,9 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
     }
 
     @ParameterizedTest
-    @CsvSource({"MLKEM512", "ML_KEM_768",
-        "ML-KEM-1024", "ML_KEM_512", "ML_KEM_768", "ML_KEM_1024",
-        "ML_DSA_44","ML_DSA_65","ML-DSA-87"})
+    @CsvSource({"MLKEM512", "ML_KEM_768", "ML-KEM-1024",
+                "ML_KEM_512", "ML_KEM_768", "ML_KEM_1024",
+                "ML_DSA_44", "ML_DSA_65", "ML-DSA-87"})
     public void testPQCKeyGen(String Algorithm) throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support PQC keys currently
@@ -61,9 +61,8 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML-KEM-768",
-        "ML-KEM-1024",
-        "ML_DSA_44","ML_DSA_65","ML-DSA-87"})
+    @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024",
+                "ML_DSA_44", "ML_DSA_65", "ML-DSA-87"})
     public void testPQCKeyFactoryCreateFromEncoded(String Algorithm) throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support PQC keys currently
@@ -72,8 +71,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         keyFactoryCreateFromEncoded(Algorithm);
     }
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44","ML-DSA-65", "ML-KEM-512"})
-
+    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-KEM-512"})
     public void testPQCKeyFactoryCreateFromStaticEncoded(String Algorithm) throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
             //FIPS does not support PQC keys currently
@@ -208,7 +206,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
                 return keyMaterial;
             }
             next = val.data.getDerValue();
-            if (next.isContextSpecific((byte)0)) {
+            if (next.isContextSpecific((byte) 0)) {
                 if (val.data.available() == 0) {
                     keyMaterial =  Arrays.copyOfRange(tmp, 4, tmp.length);
                     return keyMaterial;
@@ -216,7 +214,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
                 next = val.data.getDerValue();
             }
 
-            if (next.isContextSpecific((byte)1)) {
+            if (next.isContextSpecific((byte) 1)) {
                 if (version == 0) {
                     throw new InvalidKeyException("publicKey seen in v1");
                 }
