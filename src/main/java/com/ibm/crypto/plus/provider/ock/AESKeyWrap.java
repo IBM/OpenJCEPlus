@@ -20,7 +20,7 @@ public final class AESKeyWrap {
             throws OCKException {
         if (ockContext == null || key == null) {
             throw new OCKException("Invalid input data");
-        }        
+        }
         this.ockContext = ockContext;
         this.key = key;
         this.padding = padding;
@@ -44,9 +44,9 @@ public final class AESKeyWrap {
             throw new OCKException("Failed to wrap data" + e.getMessage());
         }  finally {
             //Clear inData
-            Arrays.fill(inData, (byte)0);  
-        }   
-        return output;    
+            Arrays.fill(inData, (byte) 0);
+        }
+        return output;
     }
 
     public byte[] unwrap(byte[] data, int start, int length) throws OCKException {
@@ -67,10 +67,9 @@ public final class AESKeyWrap {
             throw new OCKException("Failed to unwrap data"+ e.getMessage());
         }  finally {
             //Clear inData
-            Arrays.fill(inData, (byte)0);  
-        }       
-        return output;    
+            Arrays.fill(inData, (byte) 0);
+        }
+        return output;
     }
-
 
 }

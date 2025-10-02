@@ -35,7 +35,7 @@ final class PQCPublicKey extends X509Key
     private transient boolean destroyed = false;
     private transient PQCKey pqcKey = null; // Transient per tag [SERIALIZATION] in DesignNotes.txt
 
-    public PQCPublicKey(OpenJCEPlusProvider provider, byte[] rawKey, String algName)
+    PQCPublicKey(OpenJCEPlusProvider provider, byte[] rawKey, String algName)
             throws InvalidKeyException {
         this.algid = new AlgorithmId(PQCAlgorithmId.getOID(algName));
         this.provider = provider;
@@ -57,7 +57,7 @@ final class PQCPublicKey extends X509Key
         }
     }
 
-    public PQCPublicKey(OpenJCEPlusProvider provider, PQCKey pqcKey) {
+    PQCPublicKey(OpenJCEPlusProvider provider, PQCKey pqcKey) {
         try {
             this.provider = provider;
             byte[] rawKey = pqcKey.getPublicKeyBytes();
@@ -74,7 +74,7 @@ final class PQCPublicKey extends X509Key
         }
     }
 
-    public PQCPublicKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
+    PQCPublicKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
         this.provider = provider;
 
         try {
@@ -87,7 +87,6 @@ final class PQCPublicKey extends X509Key
             tmp.close();
             
             this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), name, b);
-                      
         } catch (Exception e) {
             throw provider.providerException("Failure in PublicKey -"+e.getMessage(), e);
         }
@@ -129,7 +128,6 @@ final class PQCPublicKey extends X509Key
             tmp.close();
             bytes.close();
         } catch (IOException ex) {
-            //System.out.println("Exception creating encoding - "+ex.getMessage());
             return encodedKey;
         }
         return encodedKey;
