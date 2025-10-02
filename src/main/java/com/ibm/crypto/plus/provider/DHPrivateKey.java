@@ -110,7 +110,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
             try (DerOutputStream id = new DerOutputStream()) {
                 id.putOID(ObjectIdentifier.of(KnownOIDs.DiffieHellman));
                 id.putDerValue(new DerValue(dhKey.getParameters()));
-                DerValue value = new DerValue(DerValue.tag_Sequence,id.toByteArray());
+                DerValue value = new DerValue(DerValue.tag_Sequence, id.toByteArray());
                 this.algid = AlgorithmId.parse(value);
             };
 
