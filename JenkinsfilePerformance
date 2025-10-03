@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2024, 2025
+ * Copyright IBM Corp. 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -23,9 +23,8 @@ import groovy.transform.Field;
 @Field JAVA_RELEASE
 @Field OCK_RELEASE
 @Field OCK_FULL_URL
-@Field EXECUTE_TESTS
-@Field SPECIFIC_TEST
 @Field PARALLEL_ITERATIONS
+@Field BENCHMARK
 @Field ADDITIONAL_NODE_LABELS
 @Field OVERRIDE_NODE_LABELS
 @Field ADDITIONAL_ENVARS
@@ -93,34 +92,6 @@ def getPlatforms() {
 }
 
 /*
- * Get the appropriate test flag.
- *
- * The user might have requested that test are not
- * run or asked for a specific test to
- * be executed.
- *
- * Even if that's not the case, in some
- * platforms the OpenJCEPlusFIPS provider is not
- * available and thus the FIPS-related tests should
- * not be executed.
- */
-def getTestFlag(hardware, software) {
-    // User requested that tests not be executed.
-    if (EXECUTE_TESTS == "false") {
-        return " -DskipTests"
-    }
-
-    // User requested execution of a specific test.
-    if (SPECIFIC_TEST) {
-        return " -Dtest=${SPECIFIC_TEST}"
-    }
-
-    // Run all tests. Some platforms will naturally run in developer mode.
-    echo "All tests (both FIPS and non-FIPS) can be run in ${hardware}_${software}"
-    return "";
-}
-
-/*
  * Creates the upload specification and triggers the process
  * of uploading the compressed file to Artifactory.
  *
@@ -131,7 +102,7 @@ def archive(platform, iteration) {
     
     // Create compressed file containing build.
     def ending = ".tar.gz"
-    def filename = "openjceplus-$iteration-$platform$ending"
+    def filename = "openjceplus-performance-$iteration-$platform$ending"
     dir("openjceplus/OpenJCEPlus") {
         tar archive: false, compress: true, defaultExcludes: false, dir: '', exclude: '', file: "$filename", glob: '', overwrite: false
     }
@@ -199,7 +170,7 @@ def run(platform) {
     return {
         def excludeNode = []
         def iteration = 0
-        retry(3) {
+        retry(0) {
             // Specific labels are selected based on platform.
             def nodeTags = "hw.arch.${node_hardware}&&sw.os.${node_software}"
             // Nodes where a failed attempt was made are excluded.
@@ -207,18 +178,19 @@ def run(platform) {
 
             // Some OSes have some further specific requirements.
             if (software == "aix") {
-                // Timing issue with some machines.
-                // TODO: Remove this when issue https://github.ibm.com/runtimes/infrastructure/issues/7198 is resolved.
-                nodeTags += "&&!ci.role.build.release"
-                nodeTags += "&&ci.role.build"
+                // For now only one default AIX performance machine.
+                nodeTags += "&&wp25-005-aix73tl03sp01-1.cc9.pok.ibm.com"
+            } else if ((hardware == "ppc64le") && (software == "linux")) {
+                // For now only one ppcle64 linux performance machine.
+                nodeTags += "&&wp25-005-rhel96-5.cc9.pok.ibm.com"
+            } else if ((hardware == "x86-64") && (software == "linux")) {
+                // For now only one x86 linux performance machine.
+                nodeTags += "&&ub-cascadelake-2s32c-01.rtp.raleigh.ibm.com"
+            } else {
+                nodeTags += "&&ci.role.test"
+                // Exclude machines that are FIPS140-2 configured.
+                nodeTags += "&&!ci.role.test.fips"
             }
-
-            // Machines tagged as ci.role.test are expected to have
-            // software to compile, build, and test OpenJCEPlus.
-            nodeTags += "&&ci.role.test"
-
-            // Exclude machines that are FIPS140-2 configured.
-            nodeTags += "&&!ci.role.test.fips"
 
             // Add additional labels specified by user.
             nodeTags += (ADDITIONAL_NODE_LABELS) ? "&&" + ADDITIONAL_NODE_LABELS : ""
@@ -235,14 +207,20 @@ def run(platform) {
                     externalLibrary = load("./utils.groovy")
                 }
                 try {
+                    def isBuildable = externalLibrary.isBuildable(hardware, software)
+                    if (!isBuildable) {
+                        return {
+                            echo "OpenJCEPlus is not supported on $hardware and $software"
+                        }
+                    }
+
                     externalLibrary.getJava(hardware, software)
                     echo "Java fetched"
                     externalLibrary.getBinaries(hardware, software)
                     echo "Binaries fetched"
                     externalLibrary.getMaven()
                     echo "Maven fetched"
-                    def command = "install"
-                    command += getTestFlag(hardware, software)
+                    def command = "clean install -DskipTests -Djmh.benchmark.skip=false -Djmh.benchmark=" + BENCHMARK
                     externalLibrary.runOpenJCEPlus(command, software)
                     echo "OpenJCEPlus built"
                 } finally {
@@ -284,11 +262,11 @@ pipeline {
             """
         )
         booleanParam(name: 'ppc64_aix', defaultValue: false, description: '\
-            Build for ppc64_aix platform')
+            Build for ppc64_aix platform ( Real hardware available )')
         booleanParam(name: 'x86_64_linux', defaultValue: false, description: '\
-            Build for x86-64_linux platform')
+            Build for x86-64_linux platform ( Real hardware available )')
         booleanParam(name: 'ppc64le_linux', defaultValue: false, description: '\
-            Build for ppc64le_linux platform')
+            Build for ppc64le_linux platform ( Real hardware available )')
         booleanParam(name: 's390x_linux', defaultValue: false, description: '\
             Build for s390x_linux platform')
         booleanParam(name: 'x86_64_windows', defaultValue: false, description: '\
@@ -351,13 +329,38 @@ pipeline {
                 font-style: italic;
             """
         )
-        booleanParam(name: 'EXECUTE_TESTS', defaultValue: true, description:'\
-            Execute tests during the build')
-        string(name: 'SPECIFIC_TEST', defaultValue: '', description: '\
-            Set this to only execute a specific test, instead of the whole test suite.<br> \
-            Keep in mind that EXECUTE_TESTS has to be set too for this to work.')
         string(name: 'PARALLEL_ITERATIONS', defaultValue: '', description: '\
             Number of iterations to run all stages for each of the specified platforms. The iterations will run in parallel.')
+        choice(name: 'BENCHMARK', choices: ['ibm.jceplus.jmh.RunAll', \
+                                            'ibm.jceplus.jmh.AESCipherBenchmark', \
+                                            'ibm.jceplus.jmh.AESKeyGeneratorBenchmark', \
+                                            'ibm.jceplus.jmh.AESWrapBenchmark', \
+                                            'ibm.jceplus.jmh.ChaCha20CipherBenchmark', \
+                                            'ibm.jceplus.jmh.ChaCha20KeyGeneratorBenchmark', \
+                                            'ibm.jceplus.jmh.ChaCha20Poly1305CipherBenchmark', \
+                                            'ibm.jceplus.jmh.DESedeCipherBenchmark', \
+                                            'ibm.jceplus.jmh.DESedeKeyGeneratorBenchmark', \
+                                            'ibm.jceplus.jmh.DHKeyExchangeBenchmark', \
+                                            'ibm.jceplus.jmh.DHKeyGeneratorBenchmark', \
+                                            'ibm.jceplus.jmh.DSAKeyGeneratorBenchmark', \
+                                            'ibm.jceplus.jmh.DSASignatureBenchmark', \
+                                            'ibm.jceplus.jmh.ECDHKeyExchangeBenchmark', \
+                                            'ibm.jceplus.jmh.ECKeyGeneratorBenchmark', \
+                                            'ibm.jceplus.jmh.EdKeyGeneratorBenchmark', \
+                                            'ibm.jceplus.jmh.HmacBenchmark', \
+                                            'ibm.jceplus.jmh.HMACKeyGeneratorBenchmark', \
+                                            'ibm.jceplus.jmh.MessageDigestBenchmark', \
+                                            'ibm.jceplus.jmh.MessageDigestInstanceBenchmark', \
+                                            'ibm.jceplus.jmh.MLDSABenchmark', \
+                                            'ibm.jceplus.jmh.PBKDF2Benchmark', \
+                                            'ibm.jceplus.jmh.RandomBenchmark', \
+                                            'ibm.jceplus.jmh.RSAKeyGeneratorBenchmark', \
+                                            'ibm.jceplus.jmh.RSASignatureBenchmark', \
+                                            'ibm.jceplus.jmh.X448KeyExchangeBenchmark', \
+                                            'ibm.jceplus.jmh.X25519KeyExchangeBenchmark', \
+                                            'ibm.jceplus.jmh.XDHKeyExchangeBenchmark', \
+                                            'ibm.jceplus.jmh.XDHKeyGeneratorBenchmark'], description: '\
+            Specify the performance benchmark you would like to run.')
         separator(name: "ExtendedOptions", sectionHeader: "Extended Options",
             separatorStyle: "border-width: 0",
             sectionHeaderStyle: """
@@ -383,13 +386,13 @@ pipeline {
             Specify them in comma-separated pairs of name and value (e.g. ENVAR1=value1, ENVAR2=value2, ...).<br><br> \
             Beware of what you add as it might be overriding existing environment variables.<br> \
             NOTE: those will be added to all selected platforms.')
-        string(name: 'TIMEOUT_TIME', defaultValue: '6', description: '\
+        string(name: 'TIMEOUT_TIME', defaultValue: '48', description: '\
             Overall build timeout (HOURS)')
     }
 
     agent none
     stages {
-        stage('Build And Test OpenJCEPlus') {
+        stage('Build And Performance Test') {
             steps {
                 timestamps {
                     script {
@@ -410,9 +413,8 @@ pipeline {
                         JAVA_RELEASE="${params.JAVA_RELEASE}"
                         OCK_RELEASE="${params.OCK_RELEASE}"
                         OCK_FULL_URL="${params.OCK_FULL_URL}"
-                        EXECUTE_TESTS="${params.EXECUTE_TESTS}"
-                        SPECIFIC_TEST="${params.SPECIFIC_TEST}"
                         PARALLEL_ITERATIONS="${params.PARALLEL_ITERATIONS}"
+                        BENCHMARK="${params.BENCHMARK}"
                         ADDITIONAL_NODE_LABELS="${params.ADDITIONAL_NODE_LABELS}"
                         OVERRIDE_NODE_LABELS="${params.OVERRIDE_NODE_LABELS}"
                         ADDITIONAL_ENVARS="${params.ADDITIONAL_ENVARS}"
