@@ -6,6 +6,7 @@
   - [Run All Tests](#run-all-tests)
   - [Run Single Test](#run-single-test)
 - [OpenJCEPlus and OpenJCEPlusFIPS Provider SDK Installation](#openjceplus-and-openjceplusfips-provider-sdk-installation)
+- [Configuration Options](#configuration-options)
 - [Features and Algorithms](#features-and-algorithms)
 - [Contributions](#contributions)
 
@@ -263,6 +264,13 @@ take effect.
         ```console
         -Djgskit.library.path=$ANYDIRECTORY
         ```
+## Configuration Options
+
+The following properties can be used to configure application behavior at runtime.
+
+| Property | Use Case |
+|----------|----------|
+| `-Dopenjceplus.cleaners.num=<number_cleaner_threads>` | The cleaner is used for cleaning up native memory no longer in use by OpenJCEPlus and OpenJCEPlusFIPS providers. This option sets the number of cleaner threads to improve cleaning efficiency, particularly useful when encountering `Out Of Memory` (OOM) errors. Default value is `2`. |
 
 # Features And Algorithms
 
@@ -465,7 +473,6 @@ A `ProviderException` is thrown now if the user attempts to use an `ECKeyPairGen
 AES Key Wrap based on NIST SP800-38F.
 
 Code does not allow the specification of an IV. However, it will return the default ICV as defined in the NIST SP800-38F. 
-
 
 # Contributions
 
