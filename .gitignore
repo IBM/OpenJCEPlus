@@ -46,3 +46,6 @@
 # Allow tracked changes for configuration file used by the
 # clang-format tool for formatting C code.
 !.clang-format
+
+# Igore JMH lock file
+jmh.lock
