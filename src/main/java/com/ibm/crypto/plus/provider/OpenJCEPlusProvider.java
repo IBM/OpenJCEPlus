@@ -9,7 +9,10 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.ock.OCKContext;
+import java.lang.ref.Cleaner;
 import java.security.ProviderException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // Internal interface for OpenJCEPlus and OpenJCEPlus implementation classes.
 // Implemented as an abstract class rather than an interface so that 
@@ -31,6 +34,47 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
     //    private static boolean verifiedSelfIntegrity = false;
     private static final boolean verifiedSelfIntegrity = true;
 
+    private static final Cleaner[] cleaners;
+
+    private static final int DEFAULT_NUM_CLEANERS = 2;
+
+    private static final int CUSTOM_NUM_CLEANERS;
+
+    private static AtomicInteger count = new AtomicInteger(0);
+
+    static {
+        int tempNumCleaners = DEFAULT_NUM_CLEANERS;
+        String newNumCleaners = System.getProperty("numCleaners");
+
+        if (newNumCleaners != null){
+            try {
+                int parsedValue = Integer.parseInt(newNumCleaners);
+
+                if (parsedValue >= 1){ // should set a max?
+                    tempNumCleaners = parsedValue;
+                }
+                else {
+                    // change this
+                    System.out.println("Warning: Max memory must be set to a double between 0 and 1, default 0.6.");
+                }
+            }
+            catch (NumberFormatException e) {
+                // change this
+                System.out.println("Warning: Max memory must be set to a double.");
+            }
+        }
+        CUSTOM_NUM_CLEANERS = tempNumCleaners;
+    }
+
+    static {
+        cleaners = new Cleaner[CUSTOM_NUM_CLEANERS];
+        
+        for (int i = 0; i < CUSTOM_NUM_CLEANERS; i++) {
+            final Cleaner cleaner = Cleaner.create(new CleanerThreadFactory());
+            cleaners[i] = cleaner;
+        }
+    }
+
     OpenJCEPlusProvider(String name, String info) {
         super(name, PROVIDER_VER, info);
     }
@@ -45,6 +89,11 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
 
     private static final synchronized boolean doSelfVerification(Object c) {
         return true;
+    }
+
+    public static void registerCleanable(Object owner, Runnable cleanAction) {
+        Cleaner cleaner = cleaners[count.getAndIncrement() % CUSTOM_NUM_CLEANERS];
+        cleaner.register(owner, cleanAction);
     }
 
     // Get OCK context for crypto operations
@@ -79,4 +128,15 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
     abstract ProviderException providerException(String message, Throwable ockException);
 
     abstract void setOCKExceptionCause(Exception exception, Throwable ockException);
+
+    private static class CleanerThreadFactory implements ThreadFactory {
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(r);
+            thread.setPriority(Thread.MAX_PRIORITY);
+            return thread;
+        }
+
+    }
 }
