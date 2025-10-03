@@ -35,7 +35,7 @@ abstract class RSASignature extends SignatureSpi {
         try {
             this.provider = provider;
             this.ockDigestAlgo = ockDigestAlgo;
-            this.signature = Signature.getInstance(provider.getOCKContext(), ockDigestAlgo);
+            this.signature = Signature.getInstance(provider.getOCKContext(), ockDigestAlgo, provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to initialize RSA signature", e);
         }
