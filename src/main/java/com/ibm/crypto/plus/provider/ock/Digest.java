@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -178,6 +179,20 @@ public final class Digest implements Cloneable {
 
     private long digestId = 0;
 
+    private OpenJCEPlusProvider provider;
+
+    public static Digest getInstance(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
+        if (ockContext == null) {
+            throw new IllegalArgumentException("context is null");
+        }
+
+        if (digestAlgo == null || digestAlgo.isEmpty()) {
+            throw new IllegalArgumentException("digestAlgo is null/empty");
+        }
+
+        return new Digest(ockContext, digestAlgo, provider);
+    }
+
     public static Digest getInstance(OCKContext ockContext, String digestAlgo) throws OCKException {
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
@@ -187,15 +202,21 @@ public final class Digest implements Cloneable {
             throw new IllegalArgumentException("digestAlgo is null/empty");
         }
 
-        return new Digest(ockContext, digestAlgo);
+        return new Digest(ockContext, digestAlgo, null);
     }
 
-    private Digest(OCKContext ockContext, String digestAlgo) throws OCKException {
+    private Digest(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "Digest(String)";
         this.ockContext = ockContext;
         this.digestAlgo = digestAlgo;
+        this.provider = provider;
         getContext();
         //OCKDebug.Msg(debPrefix, methodName,  "digestAlgo :" + digestAlgo);
+
+        if (provider != null) {
+            this.provider.registerCleanable(this, cleanOCKResources(digestId, algIndx,
+                contextFromQueue, needsReinit, ockContext));
+        }
     }
 
     private Digest() {
@@ -317,18 +338,6 @@ public final class Digest implements Cloneable {
         }
     }
 
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        //final String methodName = "finalize";
-
-        try {
-            //OCKDebug.Msg(debPrefix, methodName,  "digestId =" + this.digestId);
-            releaseContext();
-        } finally {
-            super.finalize();
-        }
-    }
-
     /* At some point we may enhance this function to do other validations */
     protected static boolean validId(long id) {
         //final String methodName = "validId";
@@ -351,6 +360,7 @@ public final class Digest implements Cloneable {
         copy.needsReinit = this.needsReinit;
         copy.ockContext = this.ockContext;
         copy.contextFromQueue = false;
+        copy.provider = this.provider;
 
         // Allocate a new context for the digestId and copy all state information from our
         // original context into the copy. 
@@ -367,6 +377,38 @@ public final class Digest implements Cloneable {
                                       .collect(Collectors.joining("\n"));
             throw new CloneNotSupportedException(stackTrace);
         }
+
+        this.provider.registerCleanable(copy, cleanOCKResources(copy.digestId, copy.algIndx,
+            copy.contextFromQueue, copy.needsReinit, copy.ockContext));
         return copy;
+    }
+
+    private Runnable cleanOCKResources(long digestId, int algIndx, boolean contextFromQueue,
+            boolean needsReinit, OCKContext ockContext) {
+        return () -> {
+            try {
+                if (digestId == 0) {
+                    throw new OCKException("Digest Identifier is not valid");
+                }
+                // not SHA* algorithm
+                if (algIndx == -2) {
+                    if (validId(digestId)) {
+                        NativeInterface.DIGEST_delete(ockContext.getId(), digestId);
+                    }
+                } else {
+                    if (contextFromQueue) {
+                        // reset now to make sure all contexts in the queue are ready to use
+                        if (needsReinit) {
+                            NativeInterface.DIGEST_reset(ockContext.getId(), digestId);
+                        }
+                        Digest.contexts[algIndx].add(digestId);
+                    } else {
+                        NativeInterface.DIGEST_delete(ockContext.getId(), digestId);
+                    }
+                }
+            } catch (OCKException e) {
+                e.printStackTrace();
+            }
+        };
     }
 }
