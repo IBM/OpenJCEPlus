@@ -26,6 +26,7 @@ import javax.crypto.KeyAgreementSpi;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
+import sun.security.util.ObjectIdentifier;
 
 public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
                                                               // AlgorithmStatus
@@ -44,6 +45,7 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
     private ECPublicKey ecPublicKey = null;
     private ECPrivateKey ecPrivateKey = null;
     private int secretLen;
+    private static boolean enableP192Curve = Boolean.parseBoolean(System.getProperty("com.ibm.crypto.plus.provider.enableP192","false"));
 
     public ECDHKeyAgreement(OpenJCEPlusProvider provider) {
 
@@ -167,6 +169,37 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
     protected byte[] engineGenerateSecret() throws IllegalStateException {
         if (generateSecret == false) {
             throw new IllegalStateException("Wrong state");
+        }
+
+        if (provider.isFIPS() && enableP192Curve) {
+            ECNamedCurve ecPubKeyNamedCurve = ECParameters.getNamedCurve(this.ecPublicKey.getParams());
+            ECNamedCurve ecPriKeyNamedCurve = ECParameters.getNamedCurve(this.ecPrivateKey.getParams());
+            ObjectIdentifier oidPubKey = null;
+            ObjectIdentifier oidPriKey = null;
+            oidPubKey = ECNamedCurve.getOIDFromName(ecPubKeyNamedCurve.getName());
+            oidPriKey = ECNamedCurve.getOIDFromName(ecPriKeyNamedCurve.getName());
+
+            // P-192 not allowed for ECDH shared secret computation.
+            if (!ECNamedCurve.isFIPS(oidPubKey.toString())) {
+                throw new IllegalStateException(ecPubKeyNamedCurve.getName() + " curve is not supported in FIPS");
+            }
+
+            if (!ECNamedCurve.isFIPS(oidPriKey.toString())) {
+                throw new IllegalStateException(ecPriKeyNamedCurve.getName() + " curve is not supported in FIPS");
+            }
+
+            if ((oidPubKey.toString()).equals("1.2.840.10045.3.1.1") // secp192r1
+                || (oidPubKey.toString()).equals("1.3.132.0.28") // secp128r1
+                || (oidPubKey.toString()).equals("1.3.132.0.29") // secp128r2
+                || (oidPubKey.toString()).equals("1.3.132.0.30") // secp160r2
+                || (oidPubKey.toString()).equals("1.3.132.0.31") // secp192k1
+                || (oidPubKey.toString()).equals("1.3.132.0.6") // secp112r1
+                || (oidPubKey.toString()).equals("1.3.132.0.7") // secp112r2
+                || (oidPubKey.toString()).equals("1.3.132.0.8") // secp160r1
+                || (oidPubKey.toString()).equals("1.3.132.0.9") // secp160k1
+            ) {
+                throw new IllegalStateException(ecPriKeyNamedCurve.getName() + " curve is not supported in FIPS");
+            }
         }
 
         // Reset the key agreement here (in case anything goes wrong)
