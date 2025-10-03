@@ -28,7 +28,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
     protected KeyFactory pqcKeyFactory;
 
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     public void testKEM(String Algorithm) throws Exception {
 
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
@@ -38,18 +38,18 @@ public class BaseTestKEM extends BaseTestJunit5 {
         pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
-        KEM.Encapsulated enc = encr.encapsulate(0,32,"AES");
+        KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
 
         SecretKey keyE = enc.key();
        
         KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
-        SecretKey keyD = decr.decapsulate(enc.encapsulation(),0,32,"AES");
+        SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 32, "AES");
         
-        assertArrayEquals(keyE.getEncoded(),keyD.getEncoded(),"Secrets do NOT match");
+        assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     public void testKEMEmptyNoToFrom(String Algorithm) throws Exception {
 
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
@@ -66,11 +66,11 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
         SecretKey keyD = decr.decapsulate(enc.encapsulation());
         
-        assertArrayEquals(keyE.getEncoded(),keyD.getEncoded(),"Secrets do NOT match");
+        assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     public void testKEMError(String Algorithm) throws Exception {
         KEM.Encapsulated enc = null;
 
@@ -103,19 +103,19 @@ public class BaseTestKEM extends BaseTestJunit5 {
                     break;
             }
             try {
-                enc = encr.encapsulate(from,to,"AES");
+                enc = encr.encapsulate(from, to, "AES");
                 fail("testKEMError failed -Encapsulated length's test failed.");
             } catch (IndexOutOfBoundsException iob) {
             }
         }
 
         try {
-            enc = encr.encapsulate(0,32,null);
+            enc = encr.encapsulate(0, 32, null);
             fail("testKEMError failed -Encapsulated null alg worked.");
         } catch (NullPointerException iob) {
         }
 
-        enc = encr.encapsulate(0,32,"AES");
+        enc = encr.encapsulate(0, 32, "AES");
        
         KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
         for (int i =0; i < 4; i++) {
@@ -140,20 +140,20 @@ public class BaseTestKEM extends BaseTestJunit5 {
                     break;
             }
             try {
-                decr.decapsulate(enc.encapsulation(),from,to,"AES");
+                decr.decapsulate(enc.encapsulation(), from, to, "AES");
                 fail("testKEMError failed -Decapsulate length's test failed.");
             } catch (IndexOutOfBoundsException iob) {
             }
         }
 
         try {
-            decr.decapsulate(enc.encapsulation(),0,32,null);
+            decr.decapsulate(enc.encapsulation(), 0, 32, null);
             fail("testKEMError failed -Decapsulate alg null worked.");
         } catch (NullPointerException iob) {
         }
     }
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     public void testKEMSmallerSecret(String Algorithm) throws Exception {
 
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
@@ -163,14 +163,14 @@ public class BaseTestKEM extends BaseTestJunit5 {
         pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
-        KEM.Encapsulated enc = encr.encapsulate(0,16,"AES");
+        KEM.Encapsulated enc = encr.encapsulate(0, 16, "AES");
 
         SecretKey keyE = enc.key();
-       
+
         KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
-        SecretKey keyD = decr.decapsulate(enc.encapsulation(),0,16,"AES");
+        SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 16, "AES");
         
-        assertArrayEquals(keyE.getEncoded(),keyD.getEncoded(),"Secrets do NOT match");
+        assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
     }
 
     protected KeyPair generateKeyPair(String Algorithm) throws Exception {
@@ -197,7 +197,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     protected void keyFactoryCreateFromEncoded(String Algorithm) throws Exception {
 
         pqcKeyFactory = KeyFactory.getInstance(Algorithm, getProviderName());
@@ -211,9 +211,10 @@ public class BaseTestKEM extends BaseTestJunit5 {
         PrivateKey priv =  pqcKeyFactory.generatePrivate(pkcs8Spec);
 
 
-        assertArrayEquals(pub.getEncoded(),pqcKeyPair.getPublic().getEncoded(),"Public key does not match generated public key");
-        assertArrayEquals(priv.getEncoded(),pqcKeyPair.getPrivate().getEncoded(),"Private key does not match generated public key");
-
+        assertArrayEquals(pub.getEncoded(), pqcKeyPair.getPublic().getEncoded(),
+                    "Public key does not match generated public key");
+        assertArrayEquals(priv.getEncoded(), pqcKeyPair.getPrivate().getEncoded(),
+                    "Private key does not match generated public key");
     }
 }
 

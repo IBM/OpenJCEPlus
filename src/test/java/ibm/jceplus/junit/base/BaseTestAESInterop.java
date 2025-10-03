@@ -849,7 +849,7 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
 
             // Verify the text
             cpB.init(Cipher.DECRYPT_MODE, key, params);
-            resultBuffer = Arrays.copyOf(cipherText, cipherText.length);// cp.getOutputSize(cipherText.length));
+            resultBuffer = Arrays.copyOf(cipherText, cipherText.length); // cp.getOutputSize(cipherText.length));
             resultLen = cpB.doFinal(resultBuffer, 0, cipherText.length, resultBuffer);
             byte[] newPlainText = Arrays.copyOf(resultBuffer, resultLen);
 
@@ -895,7 +895,7 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
             }
 
             boolean success = Arrays.equals(cipherText, cipherText0);
-            assertTrue(success,"Encrypted text does not match expected result");
+            assertTrue(success, "Encrypted text does not match expected result");
 
             // Verify the text
             cpB.init(Cipher.DECRYPT_MODE, key, params);

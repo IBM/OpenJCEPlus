@@ -34,5 +34,6 @@
         <module name="StringLiteralEquality"/>
         <module name="UnusedImports"/>
         <module name="UnusedLocalVariable"/>
+        <module name="WhitespaceAfter"/>
     </module>
 </module>
