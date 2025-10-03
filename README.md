@@ -27,14 +27,14 @@ Build Status:
 
 ## How to Build `OpenJCEPlus` and Java Native Interface Library
 
-`OpenJCEPlus` and `OpenJCEPlusFIPS` providers are currently supported on the following architectures and operating system combinations as reported by `mvn --version` in the values `OS name` and `arch`:
-| OS name                 | arch        |
+`OpenJCEPlus` and `OpenJCEPlusFIPS` providers are currently supported on the following architectures and operating system combinations as reported by `mvn --version` in the values `OS name` and `arch` or `family` in the case of windows:
+| OS name ( or family )   | arch        |
 | ----------------------- | ----------- |
 | linux                   | aarch64     |
 | linux                   | amd64       |
 | linux                   | s390x       |
 | linux                   | ppc64le     |
-| Windows Server 2022     | amd64       |
+| Windows (family)        | amd64       |
 | AIX                     | ppc64       |
 | Mac OS X                | aarch64     |
 | Mac OS X                | amd64       |
