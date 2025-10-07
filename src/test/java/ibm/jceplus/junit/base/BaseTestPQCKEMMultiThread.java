@@ -36,7 +36,7 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
      * newDecapsulator methods on the same KEM object at the same time.
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     protected void testParallelEncapsulator(String algo) throws Exception {
         KeyPair kp = keyPair.gen(algo);
         kem = KEM.getInstance(algo, getProviderName());
@@ -54,7 +54,8 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
             KEM.Decapsulator decT = kem.newDecapsulator(kp.getPrivate());
             for (Future<KEM.Encapsulator> future : futures) {
                 KEM.Encapsulated enc = future.get().encapsulate();
-                assertArrayEquals(decT.decapsulate(enc.encapsulation()).getEncoded(),enc.key().getEncoded(),"Secrets do NOT match");
+                assertArrayEquals(decT.decapsulate(enc.encapsulation()).getEncoded(), enc.key().getEncoded(),
+                                    "Secrets do NOT match");
             }
         } finally {
             if (executor != null) {
@@ -71,7 +72,7 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
      * Encapsulator or Decapsulator object at the same time.
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     protected void testParallelEncapsulate(String algo) throws Exception {
         KeyPair kp = keyPair.gen(algo);
         kem = KEM.getInstance(algo, getProviderName());
@@ -87,7 +88,8 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
             }
             KEM.Decapsulator decT = kem.newDecapsulator(kp.getPrivate());
             for (Future<KEM.Encapsulated> future : futures) {
-                assertArrayEquals(decT.decapsulate(future.get().encapsulation()).getEncoded(),future.get().key().getEncoded(),"Secrets do NOT match");
+                assertArrayEquals(decT.decapsulate(future.get().encapsulation()).getEncoded(),
+                        future.get().key().getEncoded(), "Secrets do NOT match");
             }
         } finally {
             if (executor != null) {
@@ -104,7 +106,7 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
      * Encapsulator or Decapsulator object at the same time.
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     protected void testParallelDecapsulator(String algo) throws Exception {
         KeyPair kp = keyPair.gen(algo);
         kem = KEM.getInstance(algo, getProviderName());
@@ -120,7 +122,8 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
 
             KEM.Encapsulated enc = kem.newEncapsulator(kp.getPublic()).encapsulate();
             for (Future<KEM.Decapsulator> decT : futures) {
-                assertArrayEquals(decT.get().decapsulate(enc.encapsulation()).getEncoded(),enc.key().getEncoded(),"Secrets do NOT match");
+                assertArrayEquals(decT.get().decapsulate(enc.encapsulation()).getEncoded(),
+                        enc.key().getEncoded(), "Secrets do NOT match");
             }
         } finally {
             if (executor != null) {
@@ -137,7 +140,7 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
      * Encapsulator or Decapsulator object at the same time.
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512","ML_KEM_768","ML_KEM_1024"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     protected void testParallelDecapsulate(String algo) throws Exception {
         KeyPair kp = keyPair.gen(algo);
         kem = KEM.getInstance(algo, getProviderName());
@@ -155,7 +158,7 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
                 futures.add(cs.submit(task));
             }
             for (Future<SecretKey> future : futures) {
-                assertArrayEquals(future.get().getEncoded(), enc.key().getEncoded(),"Secrets do NOT match");
+                assertArrayEquals(future.get().getEncoded(), enc.key().getEncoded(), "Secrets do NOT match");
             }
         } finally {
             if (executor != null) {

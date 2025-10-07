@@ -679,32 +679,32 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
         // SHA512-224
         aliases = new String[] {"SHA512/224", "OID.2.16.840.1.101.3.4.2.5",
-                "2.16.840.1.101.3.4.2.5",};
+                "2.16.840.1.101.3.4.2.5", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA-512/224",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA512_224", aliases));
 
         // SHA512-256
         aliases = new String[] {"SHA512/256", "OID.2.16.840.1.101.3.4.2.6",
-                "2.16.840.1.101.3.4.2.6",};
+                "2.16.840.1.101.3.4.2.6", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA-512/256",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA512_256", aliases));
 
         //SHA3 Hashes
 
         aliases = new String[] {"SHA3-224", "OID.2.16.840.1.101.3.4.2.7",
-                "2.16.840.1.101.3.4.2.7",};
+                "2.16.840.1.101.3.4.2.7", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA3-224",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA3_224", aliases));
         aliases = new String[] {"SHA3-256", "OID.2.16.840.1.101.3.4.2.8",
-                "2.16.840.1.101.3.4.2.8",};
+                "2.16.840.1.101.3.4.2.8", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA3-256",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA3_256", aliases));
         aliases = new String[] {"SHA3-384", "OID.2.16.840.1.101.3.4.2.9",
-                "2.16.840.1.101.3.4.2.9",};
+                "2.16.840.1.101.3.4.2.9", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA3-384",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA3_384", aliases));
         aliases = new String[] {"SHA3-512", "OID.2.16.840.1.101.3.4.2.10",
-                "2.16.840.1.101.3.4.2.10",};
+                "2.16.840.1.101.3.4.2.10", };
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA3-512",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA3_512", aliases));
 
@@ -939,22 +939,22 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
                 "com.ibm.crypto.plus.provider.RSASignature$SHA512withRSA", aliases));
 
         aliases = new String[] {"OID.2.16.840.1.101.3.4.3.13", "2.16.840.1.101.3.4.3.13",
-                "SHA3-224/RSA", "SHA3-224withRSA",};
+                "SHA3-224/RSA", "SHA3-224withRSA", };
         putService(new OpenJCEPlusService(jce, "Signature", "SHA3-224withRSA",
                 "com.ibm.crypto.plus.provider.RSASignature$SHA3_224withRSA", aliases));
 
         aliases = new String[] {"OID.2.16.840.1.101.3.4.3.14", "2.16.840.1.101.3.4.3.14",
-                "SHA3-256/RSA", "SHA3-256withRSA",};
+                "SHA3-256/RSA", "SHA3-256withRSA", };
         putService(new OpenJCEPlusService(jce, "Signature", "SHA3-256withRSA",
                 "com.ibm.crypto.plus.provider.RSASignature$SHA3_256withRSA", aliases));
 
         aliases = new String[] {"OID.2.16.840.1.101.3.4.3.15", "2.16.840.1.101.3.4.3.15",
-                "SHA3-384/RSA", "SHA3-384withRSA",};
+                "SHA3-384/RSA", "SHA3-384withRSA", };
         putService(new OpenJCEPlusService(jce, "Signature", "SHA3-384withRSA",
                 "com.ibm.crypto.plus.provider.RSASignature$SHA3_384withRSA", aliases));
 
         aliases = new String[] {"OID.2.16.840.1.101.3.4.3.16", "2.16.840.1.101.3.4.3.16",
-                "SHA3-512/RSA", "SHA3-512withRSA",};
+                "SHA3-512/RSA", "SHA3-512withRSA", };
         putService(new OpenJCEPlusService(jce, "Signature", "SHA3-512withRSA",
                 "com.ibm.crypto.plus.provider.RSASignature$SHA3_512withRSA", aliases));
 

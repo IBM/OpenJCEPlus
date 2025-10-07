@@ -46,7 +46,7 @@ public enum PQCKnownOIDs {
     // return null if not found
     protected static PQCKnownOIDs findMatch(String x) {
         x = x.toUpperCase(Locale.ENGLISH);
-        x = x.replace('-','_');
+        x = x.replace('-', '_');
 
         PQCKnownOIDs fnd = name2enum.get(x);
         return fnd;
@@ -93,7 +93,7 @@ public enum PQCKnownOIDs {
 
     // returns the user-friendly standard algorithm name
     protected String stdName() {
-        return stdName.replace('_','-' );
+        return stdName.replace('_', '-' );
     }
 
     // return the internal aliases
