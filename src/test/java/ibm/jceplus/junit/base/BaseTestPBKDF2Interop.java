@@ -50,7 +50,7 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      */
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testGetAlgorithm(String algorithm) throws Exception {
 
         if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
@@ -74,7 +74,7 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      */
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testGetEncoding(String algorithm) throws Exception {
 
         if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
@@ -98,7 +98,7 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      */
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testTranslate(String algorithm) throws Exception {
 
         if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
@@ -130,7 +130,7 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      */
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testKeySpec(String algorithm) throws Exception {
 
         if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
@@ -161,7 +161,7 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      */
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testHashCode(String algorithm) throws Exception {
 
         if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
@@ -183,7 +183,7 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      */
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testEquality(String algorithm) throws Exception {
 
         if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
@@ -210,7 +210,7 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      */
     @ParameterizedTest
     @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512"})
+            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testGetFormat(String algorithm) throws Exception {
 
         if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
