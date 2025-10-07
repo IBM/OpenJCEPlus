@@ -54,7 +54,7 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
 
         key = aesKeyGen.generateKey();
 
-        byte[] iv = new byte[16];// com.ibm.crypto.plus.provider.AESConstants.AES_BLOCK_SIZE];
+        byte[] iv = new byte[16]; // com.ibm.crypto.plus.provider.AESConstants.AES_BLOCK_SIZE];
         SecureRandom rnd = new java.security.SecureRandom();
         rnd.nextBytes(iv);
 
