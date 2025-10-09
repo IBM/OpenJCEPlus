@@ -159,11 +159,14 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     }
  
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testSignInteropAndVerifyPlus(String algorithm) {
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void testSignInteropAndVerifyPlus(String algorithm) throws Exception {
         try {
             if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 //This is not in the FIPS provider yet.
+                return;
+            }
+            if (algorithm.equalsIgnoreCase("ML-DSA") && getInteropProviderName2().equalsIgnoreCase("BC")) {
                 return;
             }
             keyPairGenInterop = KeyPairGenerator.getInstance(algorithm, getInteropProviderName2());
@@ -189,11 +192,11 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             assertTrue(verifyingPlus.verify(signedBytesInterop), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "SignInteropAndVerifyPlus failed");
+            throw ex;
         }
     }
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignInteropKeysPlusSignVerify(String algorithm) {
         try {
             if (getProviderName().equals("OpenJCEPlusFIPS") || 
@@ -226,8 +229,9 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             assertTrue(false, "SignInteropAndVerifyPlus failed");
         }
     }
+
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignPlusKeysInteropSignVerify(String algorithm) {
         try {
             if (getProviderName().equals("OpenJCEPlusFIPS") || 
@@ -261,7 +265,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         }
     }
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignPlusAndVerifyInterop(String algorithm) {
         try {
             if (getProviderName().equals("OpenJCEPlusFIPS")) {

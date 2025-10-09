@@ -349,6 +349,9 @@ KeyPairGenerator            | EC                         |X                |X   
 KeyPairGenerator            | Ed25519                    |                 |X             |              |
 KeyPairGenerator            | Ed448                      |                 |X             |              |
 KeyPairGenerator            | EdDSA                      |                 |X             |              |
+KeyPairGenerator            | ML-DSA-44                  |                 |X             |              |
+KeyPairGenerator            | ML-DSA-65                  |                 |X             |              |
+KeyPairGenerator            | ML-DSA-87                  |                 |X             |              |
 KeyPairGenerator            | ML-KEM-512                 |                 |X             |[ML-KEM](#ml-kem)|
 KeyPairGenerator            | ML-KEM-768                 |                 |X             |[ML-KEM](#ml-kem)|
 KeyPairGenerator            | ML-KEM-1024                |                 |X             |[ML-KEM](#ml-kem)|
