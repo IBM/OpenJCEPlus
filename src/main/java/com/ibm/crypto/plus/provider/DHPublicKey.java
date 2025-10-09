@@ -184,7 +184,6 @@ final class DHPublicKey extends X509Key
                 throw new IOException("Extra parameter data");
             }
 
-
             /*
              * Parse the key
              */

@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.security.AlgorithmParameterGenerator;
@@ -256,7 +257,6 @@ public class BaseTestDH extends BaseTestJunit5 {
 
         KeyPair keyPairA = kpgA.generateKeyPair();
 
-
         // set up
         KeyAgreement keyAgreeA = null;
         try {
@@ -295,7 +295,6 @@ public class BaseTestDH extends BaseTestJunit5 {
         }
 
         KeyPair keyPairB = kpgB.generateKeyPair();
-
 
         KeyAgreement keyAgreeB = null;
         try {
@@ -336,7 +335,6 @@ public class BaseTestDH extends BaseTestJunit5 {
         // Generate the key bytes
         byte[] sharedSecretA = keyAgreeA.generateSecret();
         byte[] sharedSecretB = keyAgreeB.generateSecret();
-
 
         boolean assertFlag = Arrays.equals(sharedSecretA, sharedSecretB);
         if (!assertFlag) {

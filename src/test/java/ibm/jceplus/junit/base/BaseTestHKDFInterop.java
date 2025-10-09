@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.io.UnsupportedEncodingException;
@@ -191,8 +192,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
         String plainStr = decrypt(calcOkm, encryptedBytes, "AES/ECB/PKCS5Padding",
                 getInteropProviderName());
         assertTrue(plainStr.equals(strToEncrypt));
-
-
     }
 
     @Test
@@ -214,8 +213,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
                 getInteropProviderName());
         String plainStr = decrypt(calcOkm, encryptedBytes, "AES/ECB/PKCS5Padding");
         assertTrue(plainStr.equals(strToEncrypt));
-
-
     }
 
     private byte[] encrypt(SecretKey secretKey, String strToEncrypt, String cipherAlgorithm)
@@ -304,7 +301,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
             String providerA, String providerB) throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, InvalidKeyException {
 
-
         KeyPairGenerator kpgA = null;
         try {
             kpgA = KeyPairGenerator.getInstance("EC", providerA);
@@ -324,7 +320,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
         }
 
         KeyPair keyPairA = kpgA.generateKeyPair();
-
 
         // set up
         KeyAgreement keyAgreeA = null;

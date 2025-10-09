@@ -67,7 +67,6 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
         PublicKey publicKeyBC = rsaKeyFactoryBC.generatePublic(publicKeySpecPlus);
         PrivateKey privateKeyBC = rsaKeyFactoryBC.generatePrivate(privateKeySpecPlus);
 
-
         // The original and new keys are the same
         //boolean same = privateKeyPlus.equals(privateKeyBC);
         boolean same = Arrays.equals(privateKeyBytesPlus, privateKeyBC.getEncoded());
@@ -199,8 +198,6 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
         RSAPrivateKey rsaPrivPlus = (RSAPrivateKey) rsaKeyFactoryPlus
                 .generatePrivate(pkcs8SpecPlus);
 
-
-
         if (!Arrays.equals(rsaPubPlus.getEncoded(), rsaKeyPairPlus.getPublic().getEncoded())) {
             fail("RSA public key does not match generated public key");
         }
@@ -208,8 +205,6 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
         if (!Arrays.equals(rsaPrivPlus.getEncoded(), rsaKeyPairPlus.getPrivate().getEncoded())) {
             fail("RSA private key does not match generated public key");
         }
-
-
 
         //KeyPair rsaKeyPairInterOp = generateKeyPair(rsaKeyPairGenInterOp, size);
 
@@ -244,8 +239,6 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
         RSAPublicKey rsaPubBC = (RSAPublicKey) rsaKeyFactoryBC.generatePublic(x509SpecBC);
         RSAPrivateKey rsaPrivBC = (RSAPrivateKey) rsaKeyFactoryBC.generatePrivate(pkcs8SpecBC);
 
-
-
         if (!Arrays.equals(rsaPubBC.getEncoded(), rsaKeyPairBC.getPublic().getEncoded())) {
             fail("RSA public key does not match generated public key");
         }
@@ -254,13 +247,10 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
             fail("RSA private key does not match generated public key");
         }
 
-
-
         //KeyPair rsaKeyPairInterOp = generateKeyPair(rsaKeyPairGenInterOp, size);
 
         //X509EncodedKeySpec  x509Spec = new X509EncodedKeySpec(rsaPubInterOp.getEncoded());
         //PKCS8EncodedKeySpec pkcs8Spec = new PKCS8EncodedKeySpec(rsaPrivInterOp.getEncoded());
-
 
         RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyFactoryPlus.generatePublic(x509SpecBC);
         RSAPrivateKey rsaPrivPlus = (RSAPrivateKey) rsaKeyFactoryPlus.generatePrivate(pkcs8SpecBC);
@@ -470,8 +460,6 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
             ex.printStackTrace();
             assertTrue(false, "SignAndVerify failed");
         }
-
-
     }
 
     @Test
@@ -514,7 +502,6 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
     public void testEncryptPlusDecryptBC() {
 
         try {
-
 
             byte[] msgBytes = ("This is a short msg".getBytes());
             //            public and Private key;" + 
