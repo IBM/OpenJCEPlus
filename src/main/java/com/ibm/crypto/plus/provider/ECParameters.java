@@ -117,8 +117,6 @@ public final class ECParameters extends AlgorithmParametersSpi {
             throws InvalidParameterSpecException {
 
         internalInit(paramSpec);
-
-
     }
 
     protected void internalInit(AlgorithmParameterSpec paramSpec)
@@ -152,8 +150,6 @@ public final class ECParameters extends AlgorithmParametersSpi {
         if (namedCurve == null) {
             throw new InvalidParameterSpecException("Not a supported curve: " + paramSpec);
         }
-
-
     }
 
 
@@ -172,8 +168,6 @@ public final class ECParameters extends AlgorithmParametersSpi {
         }
 
         throw new IOException("Only named ECParameters supported");
-
-
     }
 
     protected void engineInit(byte[] params, String decodingMethod) throws IOException {
@@ -193,7 +187,6 @@ public final class ECParameters extends AlgorithmParametersSpi {
             String name = namedCurve.getNameAndAliases()[0];
             return spec.cast(new ECGenParameterSpec(name));
         }
-
 
         throw new InvalidParameterSpecException(
                 "Only ECParameterSpec and ECGenParameterSpec supported");

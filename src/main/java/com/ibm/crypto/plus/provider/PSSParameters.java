@@ -371,7 +371,6 @@ public final class PSSParameters extends AlgorithmParametersSpi {
                 throw new IOException("Not a TAG0 encoding");
             }
 
-
             DerInputStream data1 = encodedHashAlg.getData();
             DerValue derValue1 = data1.getDerValue();
             //System.out.println("derValue1=" + derValue1);
@@ -409,11 +408,9 @@ public final class PSSParameters extends AlgorithmParametersSpi {
                 throw new IOException("Not a TAG2 encoding");
             }
 
-
             DerInputStream data = encodedSaltLength.getData();
 
             int saltLength = data.getInteger();
-
 
             //System.out.println("saltLength= "
             //        + saltLength);
@@ -440,11 +437,9 @@ public final class PSSParameters extends AlgorithmParametersSpi {
                 throw new IOException("Not a TAG3 encoding for trailerField");
             }
 
-
             DerInputStream data = encodedTrailerField.getData();
 
             int trailerField = data.getInteger();
-
 
             //System.out.println("trailerField= "
             //        + trailerField);
@@ -611,8 +606,6 @@ public final class PSSParameters extends AlgorithmParametersSpi {
 
                 }
             }
-
-
 
             PSSParameterSpec pssParameterSpec = new PSSParameterSpec(hashAlgorithm.getName(),
                     maskGenAlgorithm.getName(), mgfParameterSpec, saltLength, trailerField);

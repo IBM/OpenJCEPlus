@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.security.AlgorithmParameters;
@@ -368,6 +369,7 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
             assumeTrue(false);
         }
     }
+
     @Test
     public void testInvalidMode() throws Exception {
         try {

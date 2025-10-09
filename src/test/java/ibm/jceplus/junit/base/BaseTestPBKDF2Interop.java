@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.security.SecureRandom;
@@ -44,6 +45,7 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
         random.nextBytes(randomSalt);
         this.pbeks = new PBEKeySpec(PASSWORD.toCharArray(), randomSalt, 5000, 112);
     }
+
     /**
      * Test used to perform interoperability tests using a KeyFactory for
      * the method `getAlgorithm()`.

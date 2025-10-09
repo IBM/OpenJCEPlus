@@ -37,6 +37,7 @@ public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
         random.nextBytes(randomSalt);
         this.pbeks = new PBEKeySpec(PASSWORD.toCharArray());
     }
+
     /**
      * Test used to perform interoperability tests using a KeyFactory for
      * the method `getAlgorithm()`.

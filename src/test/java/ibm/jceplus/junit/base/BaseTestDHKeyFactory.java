@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.math.BigInteger;
@@ -63,7 +64,6 @@ public class BaseTestDHKeyFactory extends BaseTestJunit5Interop {
 
         test_dh_short_secret2ndmethod(getInteropProviderName(), getInteropProviderName());
 
-
     }
 
     @Test
@@ -85,12 +85,9 @@ public class BaseTestDHKeyFactory extends BaseTestJunit5Interop {
     void test_dh_short_secret2ndmethod(String providerNameX, String providerNameY)
             throws Exception {
 
-
-
         byte[] aPrivKeyEnc = new BigInteger(
                 "308202260201003082011706092a864886f70d010301308201080282010100c3933e51dbd4823e5b3e730a06922a41fadd0ad1b6dcbdc8f8b39541b2232fc89896002640e47552f708836f0abfb78d988e37fa802f7b9ce5a04930fbcf8b17d59e9db8560ebc71ef70e32f214572df581722dfd9d41a81ca8770fb561b4ddfce913f73a2f243832a176efb8a234e467c918b3da0879097cd995eb85fdb160290dc8550b09ff0782f7388e3d478afae17f171a3ebba2bb3e93b8b73d37b2cdc06cb93e36d1937f266b2de197dee63b00146d760ad9309dc89e5cdc1a5e2bc0021b755987ffab5fdd352bb856a01eb0bcf13afb4852c0ff50986923d77bbdb7c7b5b46af735d2e7966a848b114ae73f675ddc9c07835621ad839f525a38fea5b02010504820104028201004f18d73f8bc2930b10a43a871ca82e60bcdaefb433a496e13edb02d7bc68f569d398ac477336effe55733788ccb4d10c1f5782637a8367773b5c4c131f30eddd30e55ddcec21e049af9ca42bde4d671728a8f501efa345c6bd3b6d7d694b7f626728a3dec899a427c9abc87e38219184079202d9c258c7075ac24b047b33edcc590d88cc1989b0b2e1f78da68b01facec7941f32bdd857996250ab28a65caa30638110a85a0d8b5a641ecce62de2b82c119f63771319723a501de5b5ba0aafda34232e74e0cec500f886ca5e3687dd54dbda3de01359d8b35d9d54f47eb8b9b18f8f835326d2d02ce18c2f5b4332c152ea09efe51e5cb050212a38aad4504f20",
                 16).toByteArray();
-
 
         byte[] aPubKeyEnc = new BigInteger(
                 "308202253082011706092a864886f70d010301308201080282010100c3933e51dbd4823e5b3e730a06922a41fadd0ad1b6dcbdc8f8b39541b2232fc89896002640e47552f708836f0abfb78d988e37fa802f7b9ce5a04930fbcf8b17d59e9db8560ebc71ef70e32f214572df581722dfd9d41a81ca8770fb561b4ddfce913f73a2f243832a176efb8a234e467c918b3da0879097cd995eb85fdb160290dc8550b09ff0782f7388e3d478afae17f171a3ebba2bb3e93b8b73d37b2cdc06cb93e36d1937f266b2de197dee63b00146d760ad9309dc89e5cdc1a5e2bc0021b755987ffab5fdd352bb856a01eb0bcf13afb4852c0ff50986923d77bbdb7c7b5b46af735d2e7966a848b114ae73f675ddc9c07835621ad839f525a38fea5b02010503820106000282010100c0ee5d8f78eefcb0fd99dba96a80d03ed76bdc973ac7fb76123019a412f1d4558c6d5a6e617edfd2fb7e641ecc24ed8d310639885d82bd89a2b66571a4ffecd8edb433442ccf22e1af2aa26c7db81dfdb855bef6a25c6f67027b1ab08b2c9f30be1c2bfc54ef8d4da5a0facee44ca4a96da5be835de94f15b4d6f95c4b2e7989cba0212c8006ffb8b41446ce2bf3d7aa59a907c38544989cc7931b2aabb86de697c0230b94eee372c666459cefd60804be45be131a0c5ebe0a0256a50e19e4432e318563713336dc3985c54ca0a564b97b728a6284ae439b3199833950a11cdaaf965aba6114c9cb60db6ea75a1e74f2ee38739c824dd1db8a0e32ba64eac855",
@@ -129,13 +126,10 @@ public class BaseTestDHKeyFactory extends BaseTestJunit5Interop {
         KeyAgreement bKeyAgree = KeyAgreement.getInstance("DH", providerNameY);
         bKeyAgree.init(bPrivKey);
 
-
-
         /*
          * B uses A's public key for the first (and only) phase of B's version of the DH
          * protocol.
          */
-
         bKeyAgree.doPhase(aPubKey, true);
 
         /*
@@ -162,13 +156,9 @@ public class BaseTestDHKeyFactory extends BaseTestJunit5Interop {
             throw new Exception("Shared secrets differ");
         }
         System.out.println("Shared secrets are the same");
-
-        //
-
     }
 
     void test_dh_short_secret(String providerNameX, String providerNameY) throws Exception {
-
 
         // A encodes A's public key, and sends it over to B.
         byte[] aPrivKeyEnc = new BigInteger(
@@ -183,7 +173,6 @@ public class BaseTestDHKeyFactory extends BaseTestJunit5Interop {
         byte[] bPubKeyEnc = new BigInteger(
                 "308202283082011b06092a864886f70d0103013082010c0282010100d931d5890af0a4998888a74a4304d4ea4c20ab1b76f9531e5b3147e17f535f9f559a9bc8925bb4bc2968c415937ebae78cedb8a6af5617212d174f72fac275b375c31bdeb246aa04fdde6fb232ce867720faafdc01232e747596f5b5bd3b1de5724364a0c231d9010498df65790452e094b0dcd7064a31471fdacaa99ad54fab9c8696f65d0ce25e48b0cf19fa431588d4e9212cca0c040758f1b07730441adfdb4a219da5ffd77da61c35bb305549ce79b9abfc2e0864fcb6de8a91880b660437e410a2502119502d39f45666e3498e89e3f9f2a73b1d2f31c25de940120594f852ce586e9fc5b7784bcbd9bb6083ad79d218540cbb751983a2ec82b4e9c12b020102020204000382010500028201006af3f9d5c20dc5ecee9b2f394799074b6d445949f968c62e42f0e0970ccca78f1ca5cc087aa4d37f92ccc0e7cf11bd8da0d84c8be61b39a6c9941a402a324e239ddfb45bc88e3300a79ad2c4d8e09152d9b079e47f50932c6db8faf6b03cac40e79e1e5a050b8418f62b33e1829b9ebb9508dff34fc83055cf4ee49c331e001191ad6e5306975afa256603542c2d37ad6f506deaf794ea7fba0d7c11a2c253be2b45fddec064f8fa5f30f99c164a857598b5c43297623f8b8c7c5fabbf3b22ac0cf64aecf66d9fea299574ff372c0fcf3feaf6dc043d7b7e92069e7b51545004c99a6ff9d7cb993fba3186e053069821fe26131d45679f1e0f670f168fb46f83",
                 16).toByteArray();
-
 
         KeyFactory aKeyFac = KeyFactory.getInstance("DH", providerNameX);
         X509EncodedKeySpec x509KeySpecForB = new X509EncodedKeySpec(bPubKeyEnc);
@@ -264,7 +253,6 @@ public class BaseTestDHKeyFactory extends BaseTestJunit5Interop {
         // A encodes A's public key, and sends it over to B.
         byte[] aPubKeyEnc = aKpair.getPublic().getEncoded();
 
-
         /*
          * Let's turn over to B. B has received A's public key in encoded format. B
          * instantiates a DH public key from the encoded key material.
@@ -273,7 +261,6 @@ public class BaseTestDHKeyFactory extends BaseTestJunit5Interop {
         X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(aPubKeyEnc);
 
         PublicKey aPubKey = bKeyFac.generatePublic(x509KeySpec);
-
 
         /*
          * B gets the DH parameters associated with A's public key.B must use the same
@@ -292,7 +279,6 @@ public class BaseTestDHKeyFactory extends BaseTestJunit5Interop {
 
         // B encodes public key, and sends it over to A.
         byte[] bPubKeyEnc = bKpair.getPublic().getEncoded();
-
 
         /*
          * A uses B's public key for the first (and only) phase of A's version of the DH
