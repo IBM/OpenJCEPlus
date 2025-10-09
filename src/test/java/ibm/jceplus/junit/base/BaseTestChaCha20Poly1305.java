@@ -932,7 +932,7 @@ public class BaseTestChaCha20Poly1305 extends BaseTestCipher implements ChaCha20
             // Verify the text
             cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
             cp.init(Cipher.DECRYPT_MODE, key, paramSpec);
-            resultBuffer = Arrays.copyOf(cipherText, cipherText.length);//cp.getOutputSize(cipherText.length));
+            resultBuffer = Arrays.copyOf(cipherText, cipherText.length); //cp.getOutputSize(cipherText.length));
             resultLen = cp.doFinal(resultBuffer, 0, cipherText.length, resultBuffer);
             byte[] newPlainText = Arrays.copyOf(resultBuffer, resultLen);
 

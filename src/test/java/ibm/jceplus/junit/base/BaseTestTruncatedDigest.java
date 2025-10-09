@@ -115,7 +115,7 @@ public class BaseTestTruncatedDigest extends BaseTestJunit5Signature {
      */
     public void testRSASignatureSHA512_256() throws Exception {
         PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512/256", "MGF1",
-                MGF1ParameterSpec.SHA512_256,20, 1);
+                MGF1ParameterSpec.SHA512_256, 20, 1);
         try {
             dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
         } catch (Exception e) {

@@ -50,7 +50,7 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
     KeyPair kp = null;
 
     @BeforeAll
-    public void setUp() {
+    public void setUp() throws Exception {
         try {
             ksFile = new File(ksName);
             os = new FileOutputStream(ksFile);
@@ -58,12 +58,12 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
             ks.load(null, password.toCharArray());
         } catch (Exception e) {
             System.out.println("Error setting up test: "+e.getMessage());
+            throw e;
         }
-
     }
     @ParameterizedTest
     @CsvSource({"ML-DSA-87"})
-    public void KeystoreTest(String algname) {
+    public void KeystoreTest(String algname) throws Exception {
         try {
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(algname, getProviderName());
             kp = keyPairGen.generateKeyPair(); 
@@ -79,8 +79,8 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
 
             System.out.println("Keystore created successfully at: " + ksFile.getAbsolutePath());
 
-            PrivateKey tmp = (PrivateKey)ks.getKey(algname, password.toCharArray());
-            X509Certificate tmpC = (X509Certificate)ks.getCertificate(algname);
+            PrivateKey tmp = (PrivateKey) ks.getKey(algname, password.toCharArray());
+            X509Certificate tmpC = (X509Certificate) ks.getCertificate(algname);
             PublicKey tmpPub = tmpC.getPublicKey();
 
             if (tmp == null || tmpPub == null) {
@@ -93,7 +93,7 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
             if (ksFile.exists()){
                 ksFile.delete();
             }
-            fail("Got Exception in KeystoreTest");
+            throw e;
         }
         ksFile.delete();
     }
@@ -117,8 +117,7 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
                         c.get(Calendar.YEAR) + " which is greater than 9999");
             }
 
-            CertificateValidity interval =
-                                   new CertificateValidity(firstDate,lastDate);
+            CertificateValidity interval = new CertificateValidity(firstDate, lastDate);
 
             X509CertInfo info = new X509CertInfo();
             // Add all mandatory attributes

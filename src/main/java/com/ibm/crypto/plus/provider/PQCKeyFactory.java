@@ -55,8 +55,8 @@ class PQCKeyFactory extends KeyFactorySpi {
                     Arrays.fill(bytes, (byte) 0);
                 }
             } else if (keySpec instanceof EncodedKeySpec
-                && ((EncodedKeySpec)keySpec).getFormat().equalsIgnoreCase("RAW")) {
-                byte[] bytes = ((EncodedKeySpec)keySpec).getEncoded();
+                && ((EncodedKeySpec) keySpec).getFormat().equalsIgnoreCase("RAW")) {
+                byte[] bytes = ((EncodedKeySpec) keySpec).getEncoded();
                 try {
                     return new PQCPrivateKey(provider, bytes, algName);
                 } finally {
@@ -90,8 +90,8 @@ class PQCKeyFactory extends KeyFactorySpi {
                     Arrays.fill(bytes, (byte) 0);
                 }
             } else if (keySpec instanceof EncodedKeySpec
-                    && ((EncodedKeySpec)keySpec).getFormat().equalsIgnoreCase("RAW")) {
-                byte[] bytes = ((EncodedKeySpec)keySpec).getEncoded();
+                    && ((EncodedKeySpec) keySpec).getFormat().equalsIgnoreCase("RAW")) {
+                byte[] bytes = ((EncodedKeySpec) keySpec).getEncoded();
                 try {
                     return new PQCPublicKey(provider, bytes, algName);
                 } finally {
@@ -196,16 +196,16 @@ class PQCKeyFactory extends KeyFactorySpi {
                     sb.append(String.format("%02X", key[i]));
                 }
                 String s =sb.toString();
-                int b =  Integer.parseInt(s,16);
+                int b =  Integer.parseInt(s, 16);
                 if (b == (key.length - 4)) {
                     //This is an encoding
                     return true;
                 }
             } 
             return false;
-        } catch (Exception e) {              
+        } catch (Exception e) {
             return false;
-        }    
+        }
     }
 
     public static final class MLKEM512 extends PQCKeyFactory {

@@ -20,7 +20,7 @@ public class BaseTestSHA224 extends BaseTestMessageDigest {
             (byte) 0x05, (byte) 0xd8, (byte) 0x22, (byte) 0x86, (byte) 0x42, (byte) 0xa4,
             (byte) 0x77, (byte) 0xbd, (byte) 0xa2, (byte) 0x55, (byte) 0xb3, (byte) 0x2a,
             (byte) 0xad, (byte) 0xbc, (byte) 0xe4, (byte) 0xbd, (byte) 0xa0, (byte) 0xb3,
-            (byte) 0xf7, (byte) 0xe3, (byte) 0x6c, (byte) 0x9d, (byte) 0xa7,};
+            (byte) 0xf7, (byte) 0xe3, (byte) 0x6c, (byte) 0x9d, (byte) 0xa7, };
 
     static final byte[] input_2 = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
             .getBytes(StandardCharsets.UTF_8);
@@ -28,7 +28,7 @@ public class BaseTestSHA224 extends BaseTestMessageDigest {
             (byte) 0x27, (byte) 0x76, (byte) 0xcc, (byte) 0x5d, (byte) 0xba, (byte) 0x5d,
             (byte) 0xa1, (byte) 0xfd, (byte) 0x89, (byte) 0x01, (byte) 0x50, (byte) 0xb0,
             (byte) 0xc6, (byte) 0x45, (byte) 0x5c, (byte) 0xb4, (byte) 0xf5, (byte) 0x8b,
-            (byte) 0x19, (byte) 0x52, (byte) 0x52, (byte) 0x25, (byte) 0x25,};
+            (byte) 0x19, (byte) 0x52, (byte) 0x52, (byte) 0x25, (byte) 0x25, };
 
     @BeforeAll
     public void setUp() {

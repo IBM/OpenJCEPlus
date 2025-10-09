@@ -85,7 +85,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTestJunit5 {
             }
         }
 
-        byte[] iv = new byte[16];// com.ibm.crypto.plus.provider.AESConstants.AES_BLOCK_SIZE];
+        byte[] iv = new byte[16]; // com.ibm.crypto.plus.provider.AESConstants.AES_BLOCK_SIZE];
         SecureRandom rnd = new java.security.SecureRandom();
         rnd.nextBytes(iv);
     }

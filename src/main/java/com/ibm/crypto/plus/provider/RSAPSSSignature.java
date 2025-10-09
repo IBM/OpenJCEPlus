@@ -44,7 +44,7 @@ public final class RSAPSSSignature extends SignatureSpi {
     private SignatureRSAPSS signature = null;
 
     // PSS parameters
-    PSSParameterSpec pssParameterSpec = null;//PSSParameterSpec.DEFAULT;
+    PSSParameterSpec pssParameterSpec = null; //PSSParameterSpec.DEFAULT;
 
     private static final Hashtable<String, Integer> DIGEST_LENGTHS = new Hashtable<String, Integer>();
     static {

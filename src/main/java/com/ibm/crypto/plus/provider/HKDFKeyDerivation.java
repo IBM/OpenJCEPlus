@@ -38,7 +38,7 @@ public class HKDFKeyDerivation extends KDFSpi {
     private final String digestAlgName;
 
     private enum SupportedHmac {
-        SHA256("HmacSHA256", "SHA256",32),
+        SHA256("HmacSHA256", "SHA256", 32),
         SHA384("HmacSHA384", "SHA384", 48),
         SHA512("HmacSHA512", "SHA512", 64);
 

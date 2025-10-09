@@ -349,6 +349,9 @@ KeyPairGenerator            | EC                         |X                |X   
 KeyPairGenerator            | Ed25519                    |                 |X             |              |
 KeyPairGenerator            | Ed448                      |                 |X             |              |
 KeyPairGenerator            | EdDSA                      |                 |X             |              |
+KeyPairGenerator            | ML-DSA-44                  |                 |X             |              |
+KeyPairGenerator            | ML-DSA-65                  |                 |X             |              |
+KeyPairGenerator            | ML-DSA-87                  |                 |X             |              |
 KeyPairGenerator            | ML-KEM-512                 |                 |X             |[ML-KEM](#ml-kem)|
 KeyPairGenerator            | ML-KEM-768                 |                 |X             |[ML-KEM](#ml-kem)|
 KeyPairGenerator            | ML-KEM-1024                |                 |X             |[ML-KEM](#ml-kem)|
@@ -389,6 +392,8 @@ SecretKeyFactory            | PBKDF2WithHmacSHA224       |X                |X   
 SecretKeyFactory            | PBKDF2WithHmacSHA256       |X                |X             |              |
 SecretKeyFactory            | PBKDF2WithHmacSHA384       |X                |X             |              |
 SecretKeyFactory            | PBKDF2WithHmacSHA512       |X                |X             |              |
+SecretKeyFactory            | PBKDF2WithHmacSHA512/224   |                 |X             |              |
+SecretKeyFactory            | PBKDF2WithHmacSHA512/256   |                 |X             |              |
 SecureRandom                | SHA256DRBG                 |X                |X             |              |
 SecureRandom                | SHA512DRBG                 |X                |X             |              |
 Signature                   | Ed25519                    |                 |X             |              |

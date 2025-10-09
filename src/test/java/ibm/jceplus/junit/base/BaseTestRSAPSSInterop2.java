@@ -3236,7 +3236,7 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println("testRSAPSS(): PSSParameterSpec.saltLen          = 20");
                     if (printJunitTrace)
-                        System.out.println("testRSAPSS(): PSSParameterSpec.trailerField     = 1");// 200");
+                        System.out.println("testRSAPSS(): PSSParameterSpec.trailerField     = 1"); // 200");
 
                     PSSParameterSpec pssParameterSpec = new PSSParameterSpec("SHA384", // mdName
                             "MGF1", // mgfName
@@ -3378,7 +3378,7 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                             "MGF1", // mgfName
                             MGF1ParameterSpec.SHA512, // MGFParameterSpec
                             20, // saltLen
-                            1);// Oracle supports only 1//1023 );                    trailerField
+                            1); // Oracle supports only 1//1023 );                    trailerField
 
                     boolean result = doSignature(dataToBeSigned, rsaKeyPair,
                             signingProvidersSignatureAlgorithmName,

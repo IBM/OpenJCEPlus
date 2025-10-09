@@ -89,7 +89,7 @@ public final class PQCSignature {
         boolean verified = false;
 
         verified = NativeInterface.PQC_SIGNATURE_verify(this.ockContext.getId(),
-                                                        this.key.getPKeyId(),sigBytes, data);
+                                                        this.key.getPKeyId(), sigBytes, data);
 
         return verified;
     }
