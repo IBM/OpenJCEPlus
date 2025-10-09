@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BaseTestXDHMultiParty extends BaseTestJunit5 {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
+
     @Test
     public void testXDHMulti_x25519() throws Exception {
 

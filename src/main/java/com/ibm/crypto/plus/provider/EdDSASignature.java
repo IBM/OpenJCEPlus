@@ -214,6 +214,7 @@ abstract class EdDSASignature extends SignatureSpi {
             super(provider, "Ed448");
         }
     }
+
     // nested static class for the Ed448 implementation
     public static final class EdDSA extends EdDSASignature {
         public EdDSA(OpenJCEPlusProvider provider) {
