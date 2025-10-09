@@ -19,7 +19,7 @@ import sun.security.util.DerValue;
 import sun.security.x509.AlgorithmId;
 
 /*
- * A PQC private key for the NIST FIPS 203 Algorithm.
+ * A PQC private key for the NIST FIPS 203 algorithm.
  */
 @SuppressWarnings("restriction")
 final class PQCPrivateKey extends PKCS8Key {
@@ -34,14 +34,13 @@ final class PQCPrivateKey extends PKCS8Key {
     private transient boolean destroyed = false;
 
     /**
-     * Create a MLKEM private key from the parameters and key data.
+     * Create a PQC private key from the key data and the algorithm name.
      *
-     * @param keyBytes
-     *                the private key bytes used to decapsulate a secret key
+     * @param keyBytes  the private key bytes
+     * @param algName   the name of the algorithm used
      */
-    public PQCPrivateKey(OpenJCEPlusProvider provider, byte[] keyBytes, String algName)
+    PQCPrivateKey(OpenJCEPlusProvider provider, byte[] keyBytes, String algName)
             throws InvalidKeyException {
-   
         this.algid = new AlgorithmId(PQCAlgorithmId.getOID(algName));
         this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
         this.provider = provider;
@@ -60,7 +59,6 @@ final class PQCPrivateKey extends PKCS8Key {
         try {  
             try {
                 pkOct = new DerValue(DerValue.tag_OctetString, key);
-     
                 this.pqcKey = PQCKey.createPrivateKey(provider.getOCKContext(), 
                                    this.name, pkOct.toByteArray());
                 this.key = pkOct.toByteArray();
@@ -69,16 +67,15 @@ final class PQCPrivateKey extends PKCS8Key {
             }
         } catch (Exception e) {
             throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
-        }   
+        }
     }
 
     /**
-     * Create a ML_KEM private key from it's DER encoding (PKCS#8)
+     * Create a PQC private key from an existing PQCKey.
      *
-     * @param encoded
-     *                the encoded parameters.
+     * @param pqcKey the PQCKey to be used to create the private key
      */
-    public PQCPrivateKey(OpenJCEPlusProvider provider, PQCKey pqcKey) throws InvalidKeyException {
+    PQCPrivateKey(OpenJCEPlusProvider provider, PQCKey pqcKey) throws InvalidKeyException {
         try {
             this.provider = provider;
             this.pqcKey = pqcKey;
@@ -105,12 +102,11 @@ final class PQCPrivateKey extends PKCS8Key {
     }
 
     /**
-     * Create a private key from it's DER encoding (PKCS#8)
+     * Create a private key from it's DER encoding (PKCS#8).
      *
-     * @param encoded
-     *                the encoded parameters.
+     * @param encoded   the encoded PKCS#8 key
      */
-    public PQCPrivateKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
+    PQCPrivateKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
         super(encoded);
         this.provider = provider;
 
@@ -132,7 +128,7 @@ final class PQCPrivateKey extends PKCS8Key {
                                    this.name, this.key);
         } catch (Exception e) {
             throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
-        }   
+        }
     }
 
     @Override
@@ -192,7 +188,7 @@ final class PQCPrivateKey extends PKCS8Key {
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            Arrays.fill(this.key, 0, this.key.length, (byte)0x00);
+            Arrays.fill(this.key, 0, this.key.length, (byte) 0x00);
             this.key = null;
             this.encodedKey = null;
             this.pqcKey = null;
@@ -221,16 +217,16 @@ final class PQCPrivateKey extends PKCS8Key {
                     sb.append(String.format("%02X", key[i]));
                 }
                 String s =sb.toString();
-                int b =  Integer.parseInt(s,16);
+                int b =  Integer.parseInt(s, 16);
                 if (b == (key.length - 4)) {
                     //This is an encoding
                     return true;
                 }
             } 
             return false;
-        } catch (Exception e) {              
+        } catch (Exception e) {
             return false;
-        }    
+        }
     }
 
 }

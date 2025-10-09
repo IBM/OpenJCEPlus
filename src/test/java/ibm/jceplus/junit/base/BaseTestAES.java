@@ -989,7 +989,7 @@ public class BaseTestAES extends BaseTestCipher {
 
             // Verify the text
             cp.init(Cipher.DECRYPT_MODE, key, params);
-            resultBuffer = Arrays.copyOf(cipherText, cipherText.length);//cp.getOutputSize(cipherText.length));
+            resultBuffer = Arrays.copyOf(cipherText, cipherText.length); //cp.getOutputSize(cipherText.length));
             resultLen = cp.doFinal(resultBuffer, 0, cipherText.length, resultBuffer);
             byte[] newPlainText = Arrays.copyOf(resultBuffer, resultLen);
 
