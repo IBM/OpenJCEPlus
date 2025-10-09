@@ -64,9 +64,7 @@ public class BaseTestMemStressRSAKeyPair extends BaseTestJunit5 {
         }
     }
 
-
     void generateKeyPair(int size) throws Exception {
-
 
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
         kpg.initialize(size);

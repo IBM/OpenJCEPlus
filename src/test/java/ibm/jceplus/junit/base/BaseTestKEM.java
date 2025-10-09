@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.security.KeyFactory;
@@ -152,6 +153,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
         } catch (NullPointerException iob) {
         }
     }
+
     @ParameterizedTest
     @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     public void testKEMSmallerSecret(String Algorithm) throws Exception {
@@ -209,7 +211,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
 
         PublicKey pub =  pqcKeyFactory.generatePublic(x509Spec);
         PrivateKey priv =  pqcKeyFactory.generatePrivate(pkcs8Spec);
-
 
         assertArrayEquals(pub.getEncoded(), pqcKeyPair.getPublic().getEncoded(),
                     "Public key does not match generated public key");

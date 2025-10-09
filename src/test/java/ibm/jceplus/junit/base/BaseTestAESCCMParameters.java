@@ -242,7 +242,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             Assertions.fail();
         }
 
-
         AlgorithmParameters ccmParameters1 = null;
         try {
             ccmParameters1 = AlgorithmParameters.getInstance("CCM", getProviderName()); // This is an instance of CCMParameters.
@@ -254,14 +253,12 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             Assertions.fail();
         }
 
-
         if (ccmParameters1 == null) {
             System.out.println("testAESCCMParameters():  ERROR:  ccmParameters1 is null.  ");
             RuntimeException rtex = new RuntimeException();
             rtex.printStackTrace(System.out);
             Assertions.fail();
         }
-
 
         if (!(ccmParameters1.getAlgorithm().equals("CCM"))) {
             System.out.println(
@@ -270,7 +267,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             rtex.printStackTrace(System.out);
             Assertions.fail();
         }
-
 
         if (!(ccmParameters1.getProvider().getName().equals(getProviderName()))) {
             System.out.println(
@@ -334,7 +330,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             Assertions.fail();
         }
 
-
         AlgorithmParameters ccmParameters2 = null;
         byte[] ccmParameters2Encoded = null;
         try {
@@ -347,7 +342,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             ex.printStackTrace(System.out);
             Assertions.fail();
         }
-
 
         if (!(ccmParameters2.getAlgorithm().equals("CCM"))) {
             System.out.println(
@@ -382,7 +376,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             Assertions.fail();
         }
 
-
         if (!(ccmParameters3.getAlgorithm().equals("CCM"))) {
             System.out.println(
                     "testAESCCMParameters():  ERROR:  ccmParameters3.getAlgorithm() did not return the string \"CCM\".  ");
@@ -400,7 +393,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
         }
 
         String ccmParameters3String = ccmParameters3.toString();
-
 
         if (!(ccmParameters1String.equals(ccmParameters2String))) {
             System.out.println(
@@ -459,7 +451,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             Assertions.fail();
         }
 
-
         AlgorithmParameterGenerator ccmParameterGenerator = null;
         try {
             ccmParameterGenerator = AlgorithmParameterGenerator.getInstance("CCM", getProviderName());
@@ -470,7 +461,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             Assertions.fail();
         }
 
-
         if (ccmParameterGenerator == null) {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  The CCMParameterGenerator is null.  ");
@@ -479,7 +469,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             Assertions.fail();
         }
 
-
         if (!(ccmParameterGenerator.getAlgorithm().equals("CCM"))) {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  CCMParameterGenerator.getAlgorithm() did not return \"CCM\".  ");
@@ -487,7 +476,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             rtex.printStackTrace(System.out);
             Assertions.fail();
         }
-
 
         if (!(ccmParameterGenerator.getProvider().getName().equals(getProviderName()))) {
             System.out.println(
@@ -510,7 +498,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             Assertions.fail();
         }
 
-
         AlgorithmParameters algorithmParameters = null;
         try {
             algorithmParameters = ccmParameterGenerator.generateParameters();
@@ -529,7 +516,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             Assertions.fail();
         }
 
-
         if (!(algorithmParameters.getClass().getName()
                 .equals("java.security.AlgorithmParameters"))) {
             System.out.println(
@@ -539,7 +525,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             Assertions.fail();
         }
 
-
         if (!(algorithmParameters.getProvider().getName().equals(getProviderName()))) {
             System.out.println(
                     "testAESCCMParameterGenerator():  ERROR:  algorithmParameters.getProvider().getName() did not return the string \"OpenJCEPlus\".  ");
@@ -547,7 +532,6 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             rtex.printStackTrace(System.out);
             Assertions.fail();
         }
-
 
         if (!(algorithmParameters.getAlgorithm().equals("CCM"))) {
             System.out.println(

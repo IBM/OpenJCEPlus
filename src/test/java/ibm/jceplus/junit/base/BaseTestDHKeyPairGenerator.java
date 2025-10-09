@@ -342,7 +342,6 @@ public class BaseTestDHKeyPairGenerator extends BaseTestJunit5 {
         assert (dhpu.getParams().getP().compareTo(dhpr.getParams().getP()) == 0);
         assert (dhpu.getParams().getG().compareTo(dhpr.getParams().getG()) == 0);
 
-
         BigInteger p = dhpu.getParams().getP();
         BigInteger left = BigInteger.ONE;
         BigInteger right = p.subtract(BigInteger.ONE);

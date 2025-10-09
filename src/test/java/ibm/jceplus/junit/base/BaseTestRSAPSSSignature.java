@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import ibm.jceplus.junit.base.certificateutils.CertAndKeyGen;
@@ -196,7 +197,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
         publicKeyInfo = SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo(
                 new RSAKeyParameters(false, rsaPublicKey.getModulus(), rsaPublicKey.getPublicExponent()));
-        
 
         X509v1CertificateBuilder builder = new X509v1CertificateBuilder(issuer, BigInteger.ONE, validityBeginDate, validityEndDate,
                 issuer, publicKeyInfo);
@@ -1339,7 +1339,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
                             .contains("certificate does not verify with supplied key"));
                 }
 
-
                 break;
 
             case PARAMS_SALT40:
@@ -1392,7 +1391,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
 
         if (printJunitTrace)
             System.out.println(new File(".").getAbsolutePath());
-
 
         String defaultParamsClientFileName = "src/test/java/ibm/jceplus/certs3rdparty/defaultParams/pssClientCert.pem";
         String defaultParamsRootFileName = "src/test/java/ibm/jceplus/certs3rdparty/defaultParams/pssRootCert.pem";
@@ -1471,7 +1469,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
 
         certEmptyParamsRoot.verify(certEmptyParamsRoot.getPublicKey());
 
-
         BufferedInputStream bisEmptyParamsClient = null;
         File fileEmptyParamsClient = new File(emptyParamsClientFileName);
         try {
@@ -1529,7 +1526,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         assertTrue(algParams_ibm.toString().contains("mgf1ParameterSpec: SHA-1"));
         assertTrue(algParams_ibm.toString().contains("saltLength: 20"));
         assertTrue(algParams_ibm.toString().contains("trailerField: 1"));
-
 
         PSSParameterSpec pssParameterSpec = new PSSParameterSpec("SHA2", "MGF1",
                 MGF1ParameterSpec.SHA256, 400, 1);
