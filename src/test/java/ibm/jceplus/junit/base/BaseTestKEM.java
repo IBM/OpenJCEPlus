@@ -28,7 +28,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
     protected KeyFactory pqcKeyFactory;
 
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     public void testKEM(String Algorithm) throws Exception {
 
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
@@ -49,7 +49,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     public void testKEMEmptyNoToFrom(String Algorithm) throws Exception {
 
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
@@ -70,7 +70,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     public void testKEMError(String Algorithm) throws Exception {
         KEM.Encapsulated enc = null;
 
@@ -153,7 +153,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
         }
     }
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     public void testKEMSmallerSecret(String Algorithm) throws Exception {
 
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
@@ -197,7 +197,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     protected void keyFactoryCreateFromEncoded(String Algorithm) throws Exception {
 
         pqcKeyFactory = KeyFactory.getInstance(Algorithm, getProviderName());
