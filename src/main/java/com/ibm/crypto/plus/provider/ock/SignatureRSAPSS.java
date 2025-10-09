@@ -18,7 +18,7 @@ public final class SignatureRSAPSS {
 
     public enum InitOp {
         INITSIGN, INITVERIFY
-    };
+    }
 
     private OpenJCEPlusProvider provider;
     private OCKContext ockContext = null;
@@ -237,7 +237,6 @@ public final class SignatureRSAPSS {
     }
 
     public synchronized boolean verifyFinal(byte[] sigBytes) throws OCKException {
-
 
         // create key length function and check sigbytes against key length?
         if (!this.initialized) {

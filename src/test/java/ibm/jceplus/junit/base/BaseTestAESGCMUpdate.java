@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.io.BufferedInputStream;
@@ -125,7 +126,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
     public void testNoDataUpdate1(String dataStr, SecretKey skey) throws Exception {
         for (int keysizeloop = 1; keysizeloop < 3; keysizeloop++) {
 
-
             SecretKey key = new SecretKeySpec(new byte[16 * keysizeloop], "AES"); // key is 16 zero bytes
 
             for (int i = 0; i < plainTextStrArray.length; i++) {
@@ -133,10 +133,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
                 String s = doDecryptNoDataUpdate(doEncryptNoDataUpdate(plainTextStrArray[i], key),
                         key);
                 assertTrue(s.equals(plainTextStrArray[i]));
-
             }
-
-
         }
     }
 
@@ -219,7 +216,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
 
                 byte[] plainTextBytes = plainTextStrArray[i].getBytes("UTF-8");
 
-
                 SecretKey key = new SecretKeySpec(new byte[16 * keysizeloop], "AES"); // key is 16 or 32 bit zero bytes
                 byte[] encryptedText = dotestWithString(Cipher.ENCRYPT_MODE, key, myAAD,
                         plainTextBytes, ivSpec);
@@ -278,10 +274,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
                     assertTrue(false);
                 }
             }
-
         }
-
-
     }
 
     private byte[] dotestCaseShortBuffer(int mode, SecretKey sKey, byte[] AAD, byte[] dataText,
@@ -308,8 +301,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             System.err.println("Unexpected exception ");
             assertTrue(false);
             return (byte[]) null;
-
-
         }
     }
 
@@ -344,10 +335,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
                     assertTrue(false);
                 }
             }
-
         }
-
-
     }
 
     private byte[] dotestCaseCallAfterShortBuffer(int mode, SecretKey sKey, byte[] AAD,
@@ -380,8 +368,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             System.err.println("Unexpected exception " + ex.getMessage());
             assertTrue(false);
             return (byte[]) null;
-
-
         }
     }
 
@@ -427,14 +413,8 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
                 ex.printStackTrace();
                 assertTrue(false);
             }
-
-
         }
-
-
-
     }
-
 
 
     private byte[] doCallUpdateAfterFinal(int mode, SecretKey sKey, byte[] AAD, byte[] dataText,
@@ -448,12 +428,9 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         byte[] part31_a = new byte[ci.getOutputSize(dataText.length)];
         byte[] part31_b = new byte[ci.getOutputSize(dataText.length)];
 
-
-
         //System.out.println( "=====testCaseShortBuffer plainText.length  " + plainText.length + " parts31.length " +  part31.length);
 
         len = ci.update(dataText, 0, dataText.length - offset, part31_a, 0);
-
 
         byte[] part32_a = ci.doFinal(dataText, dataText.length - offset, offset);
         byte[] outputText_a = new byte[len + part32_a.length];
@@ -517,7 +494,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         DataInputStream inputStreamEncrypted = null;
         FileInputStream fisEncrypted = null;
 
-
         FileOutputStream fosDecrypted = null;
         DataOutputStream outStreamDecrypted = null;
         FileInputStream fisPlainVerify = null;
@@ -525,7 +501,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
 
         FileInputStream fisDecryptedVerify = null;
         DataInputStream inputStreamDecryptedVerify = null;
-
 
         try {
             fosPlain = new FileOutputStream(fileNamePlain);
@@ -558,7 +533,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             outStreamEncrypted.close();
             inputStreamPlain.close();
 
-
             Cipher cipherD = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
             cipherD.init(Cipher.DECRYPT_MODE, sKey, ivSpec);
             cipherD.updateAAD(AAD);
@@ -566,8 +540,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             //Read the encryted text and decrypt it and write it out to a decrypedFile
             fisEncrypted = new FileInputStream(fileNameEncrypted);
             inputStreamEncrypted = new DataInputStream(new BufferedInputStream(fisEncrypted));
-
-
 
             fosDecrypted = new FileOutputStream(fileNameDecrypted);
             outStreamDecrypted = new DataOutputStream(new BufferedOutputStream(fosDecrypted));
@@ -593,8 +565,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             inputStreamDecryptedVerify = new DataInputStream(
                     new BufferedInputStream(fisDecryptedVerify));
 
-
-
             String resultPlain = inputStreamPlainVerify.readUTF();
             String resultDecryped = inputStreamDecryptedVerify.readUTF();
 
@@ -615,18 +585,13 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             inputStreamEncrypted.close();
             outStreamDecrypted.close();
 
-
             inputStreamDecryptedVerify.close();
             inputStreamPlainVerify.close();
-
-
 
             Files.deleteIfExists(Paths.get(fileNamePlain));
             Files.deleteIfExists(Paths.get(fileNameEncrypted));
             Files.deleteIfExists(Paths.get(fileNameDecrypted));
         }
-
-
     }
 
     @Test
@@ -666,7 +631,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         secondCipher.updateAAD(AAD);
         byte[] destText = new byte[secondCipher.getOutputSize(dataText.length)];
         //System.out.println ("===== doTestWithOneUpdate destText length " + destText.length);
-
 
         int length = dataText.length / 2;
         // next, generate cipher text again at the same buffer of plain text
@@ -741,8 +705,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         byte[] copyOfOutput = new byte[outputText.length];
         System.arraycopy(copyOfInput, 0, copyOfOutput, 0, outputText.length);
 
-
-
         // check if two resutls are equal
         boolean result = java.util.Arrays.equals(copyOfOutput, outputText);
 
@@ -789,9 +751,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
 
-
         GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
-
 
         for (int j = 0; j < plainTextStrArray1.length; j++) {
             int numTimes = (j == 0) ? 2 : 5;
@@ -824,7 +784,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         secondCipher.updateAAD(AAD);
         byte[] destText = new byte[outputText.length];
 
-
         int blocklength = 32;
         int total_offset = 0;
 
@@ -854,7 +813,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
                     "==========doTestWithMultipleDataUpdate  Two results not equal, mode:" + mode);
             assertTrue(false);
         }
-
 
         return destText;
     }
@@ -913,7 +871,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
 
         GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
 
-
         for (int j = plainTextStrArray.length - 2; j < plainTextStrArray.length; j++) {
 
             byte[] plainTextBytes = plainTextStrArray[j].getBytes("UTF-8");
@@ -948,7 +905,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
 
         //System.out.println ("=======part72 length=" + part72.length + " parts72=" + bytesToHex(part72));
 
-
         byte[] outputText7 = new byte[len + part72.length];
         System.arraycopy(part71, 0, outputText7, 0, len);
         System.arraycopy(part72, 0, outputText7, len, part72.length);
@@ -964,7 +920,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         byte[] myAAD = "12345678".getBytes();
 
         GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
-
 
         for (int j = plainTextStrArray.length - 2; j < plainTextStrArray.length; j++) {
 
@@ -1007,7 +962,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             byte[] part72 = ci.doFinal(dataText, dataText.length - offset, offset);
 
             //System.out.println ("=======part72 length=" + part72.length + " parts72=" + bytesToHex(part72));
-
 
             byte[] outputText7 = new byte[len + part72.length];
             System.arraycopy(part71, 0, outputText7, 0, len);
@@ -1187,10 +1141,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             assert (true);
         } catch (Exception e) {
             fail("Unexpected exception " + e.getClass() + ": [" + e.getMessage() + "] was thrown");
-
         }
-
-
     }
 
     @Test

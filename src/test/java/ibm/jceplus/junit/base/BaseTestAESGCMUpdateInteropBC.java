@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.lang.reflect.Method;
@@ -102,7 +103,6 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestJunit5Interop {
         secondCipher.updateAAD(AAD);
         byte[] destText = new byte[secondCipher.getOutputSize(dataText.length)];
 
-
         int length = dataText.length / 2;
         // next, generate cipher text again at the same buffer of plain text
         int off = secondCipher.update(dataText, 0, length, destText, 0);
@@ -167,8 +167,6 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestJunit5Interop {
         byte[] copyOfOutput = new byte[outputText.length];
         System.arraycopy(copyOfInput, 0, copyOfOutput, 0, outputText.length);
 
-
-
         // check if two resutls are equal
         boolean result = java.util.Arrays.equals(copyOfOutput, outputText);
 
@@ -187,9 +185,7 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestJunit5Interop {
         byte[] iv = new byte[GCM_IV_LENGTH];
         (new SecureRandom()).nextBytes(iv);
 
-
         GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
-
 
         for (int j = 0; j < plainTextStrArray1.length; j++) {
             int numTimes = (j == 0) ? 2 : 5;
@@ -217,7 +213,6 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestJunit5Interop {
         secondCipher.updateAAD(AAD);
         byte[] destText = new byte[outputText.length];
 
-
         int blocklength = 32;
         int total_offset = 0;
 
@@ -239,8 +234,6 @@ public class BaseTestAESGCMUpdateInteropBC extends BaseTestJunit5Interop {
                     "==========doTestWithMultipleDataUpdate  Two results not equal, mode:" + mode);
             assertTrue(false);
         }
-
-
         return destText;
     }
 

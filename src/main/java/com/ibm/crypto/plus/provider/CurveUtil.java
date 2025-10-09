@@ -24,12 +24,16 @@ class CurveUtil {
         X25519, X448, FFDHE2048, FFDHE3072, FFDHE4096, FFDHE6144, FFDHE8192, Ed25519, Ed448
     }
 
-    private static final Map<CURVE, Integer> curveSizes = new HashMap<CURVE, Integer>(); // key sizes of curves in bytes
-    private static final Map<CURVE, Integer> DEREncodingSizes = new HashMap<CURVE, Integer>(); // key sizes of der encoded private key values.
-    private static final Map<Integer, CURVE> sizesToCurves = new HashMap<Integer, CURVE>(); // maps the total key size (I think?)
-                                                                                          // to algorithm (used in constructor)
-    static {
+    // key sizes of curves in bytes
+    private static final Map<CURVE, Integer> curveSizes = new HashMap<CURVE, Integer>();
 
+    // key sizes of der encoded private key values.
+    private static final Map<CURVE, Integer> DEREncodingSizes = new HashMap<CURVE, Integer>();
+
+    // maps the total key size (I think?) to algorithm (used in constructor)
+    private static final Map<Integer, CURVE> sizesToCurves = new HashMap<Integer, CURVE>();
+
+    static {
         curveSizes.put(CURVE.X25519, 32);
         curveSizes.put(CURVE.X448, 56);
         curveSizes.put(CURVE.FFDHE2048, 256);
