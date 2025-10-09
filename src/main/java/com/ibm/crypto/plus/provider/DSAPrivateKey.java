@@ -106,7 +106,7 @@ final class DSAPrivateKey extends PKCS8Key
             try (DerOutputStream id = new DerOutputStream()) {
                 id.putOID(AlgorithmId.DSA_oid);
                 id.putDerValue(new DerValue(dsaKey.getParameters()));
-                DerValue value = new DerValue(DerValue.tag_Sequence,id.toByteArray());
+                DerValue value = new DerValue(DerValue.tag_Sequence, id.toByteArray());
                 this.algid = AlgorithmId.parse(value);
             }
 
