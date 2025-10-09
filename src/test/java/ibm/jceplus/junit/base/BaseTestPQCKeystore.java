@@ -50,7 +50,7 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
     KeyPair kp = null;
 
     @BeforeAll
-    public void setUp() {
+    public void setUp() throws Exception {
         try {
             ksFile = new File(ksName);
             os = new FileOutputStream(ksFile);
@@ -58,12 +58,12 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
             ks.load(null, password.toCharArray());
         } catch (Exception e) {
             System.out.println("Error setting up test: "+e.getMessage());
+            throw e;
         }
-
     }
     @ParameterizedTest
     @CsvSource({"ML-DSA-87"})
-    public void KeystoreTest(String algname) {
+    public void KeystoreTest(String algname) throws Exception {
         try {
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(algname, getProviderName());
             kp = keyPairGen.generateKeyPair(); 
@@ -93,7 +93,7 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
             if (ksFile.exists()){
                 ksFile.delete();
             }
-            fail("Got Exception in KeystoreTest");
+            throw e;
         }
         ksFile.delete();
     }

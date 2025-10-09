@@ -23,7 +23,7 @@ public class BaseTestPQCSignature extends BaseTestJunit5Signature {
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
     @ParameterizedTest
-    @CsvSource({"ML_DSA_44", "ML-DSA-65", "ML_DSA_87"})
+    @CsvSource({"ML-DSA", "ML_DSA_44", "ML-DSA-65", "ML_DSA_87"})
     public void testPQCKeySignature(String Algorithm) throws Exception {
 
         KeyPair keyPair = generateKeyPair(Algorithm);
@@ -31,7 +31,7 @@ public class BaseTestPQCSignature extends BaseTestJunit5Signature {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML_DSA_44", "ML-DSA-65", "ML_DSA_87"})
+    @CsvSource({"ML-DSA", "ML_DSA_44", "ML-DSA-65", "ML_DSA_87"})
     public void testPQCKeySignatureEncodings(String Algorithm) throws Exception {
 
         KeyPair keyPair = generateKeyPair(Algorithm);
