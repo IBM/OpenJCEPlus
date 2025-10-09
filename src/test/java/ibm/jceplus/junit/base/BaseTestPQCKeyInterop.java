@@ -159,7 +159,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     }
  
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44","ML-DSA-65","ML-DSA-87"})
+    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignInteropAndVerifyPlus(String algorithm) {
         try {
             if (getProviderName().equals("OpenJCEPlusFIPS")) {
@@ -193,7 +193,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         }
     }
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44","ML-DSA-65","ML-DSA-87"})
+    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignInteropKeysPlusSignVerify(String algorithm) {
         try {
             if (getProviderName().equals("OpenJCEPlusFIPS") || 
@@ -227,7 +227,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         }
     }
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44","ML-DSA-65","ML-DSA-87"})
+    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignPlusKeysInteropSignVerify(String algorithm) {
         try {
             if (getProviderName().equals("OpenJCEPlusFIPS") || 
@@ -261,7 +261,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         }
     }
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44","ML-DSA-65","ML-DSA-87"})
+    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignPlusAndVerifyInterop(String algorithm) {
         try {
             if (getProviderName().equals("OpenJCEPlusFIPS")) {
