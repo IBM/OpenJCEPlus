@@ -48,6 +48,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "                                       , HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512\n"
             + "Message digest                     : MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256, SHA3-224, SHA3-256, SHA3-384, SHA3-512\n"
             + "Secret key factory                 : AES, ChaCha20, DESede, PBKDF2WithHmacSHA1, PBKDF2WithHmacSHA224, PBKDF2WithHmacSHA256, PBKDF2WithHmacSHA384, PBKDF2WithHmacSHA512\n"
+            + "                                       PBKDF2WithHmacSHA512/224, PBKDF2WithHmacSHA512/256\n"
             + "Secure random                      : HASHDRBG, SHA256DRBG, SHA512DRBG\n"
             + "Signature algorithms               : NONEwithDSA, SHA1withDSA, SHA224withDSA, SHA256withDSA,\n"
             + "                                       SHA3-224withDSA, SHA3-256withDSA, SHA3-384withDSA, SHA3-512withDSA,\n"
@@ -649,6 +650,20 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
                                      "SecretKeyFactory",
                                      "PBKDF2WithHmacSHA512",
                                      "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA512",
+                                     aliases));
+        
+        aliases = null;
+        putService(new OpenJCEPlusService(jce,
+                                     "SecretKeyFactory",
+                                     "PBKDF2WithHmacSHA512/224",
+                                     "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA512_224",
+                                     aliases));
+        
+        aliases = null;
+        putService(new OpenJCEPlusService(jce,
+                                     "SecretKeyFactory",
+                                     "PBKDF2WithHmacSHA512/256",
+                                     "com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA512_256",
                                      aliases));
 
         aliases = new String[] {"TripleDES", "3DES"};

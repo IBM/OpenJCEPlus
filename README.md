@@ -371,6 +371,8 @@ SecretKeyFactory            | PBKDF2WithHmacSHA224       |X                |X   
 SecretKeyFactory            | PBKDF2WithHmacSHA256       |X                |X             |              |
 SecretKeyFactory            | PBKDF2WithHmacSHA384       |X                |X             |              |
 SecretKeyFactory            | PBKDF2WithHmacSHA512       |X                |X             |              |
+SecretKeyFactory            | PBKDF2WithHmacSHA512/224   |                 |X             |              |
+SecretKeyFactory            | PBKDF2WithHmacSHA512/256   |                 |X             |              |
 SecureRandom                | SHA256DRBG                 |X                |X             |              |
 SecureRandom                | SHA512DRBG                 |X                |X             |              |
 Signature                   | NONEwithDSA                |X                |X             |              |
