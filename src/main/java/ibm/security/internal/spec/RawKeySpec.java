@@ -12,7 +12,7 @@ import java.security.spec.KeySpec;
 import java.util.Arrays;
 
 /**
- * This is here for easier compatability with OpenJDK 21 and above.
+ * This is here for easier compatibility with OpenJDK 21 and above.
  * 
  * This is a KeySpec that is used to specify a key by its byte array implementation. Since the
  * new PQC algs the bytes are defined as byte arrays.
@@ -35,7 +35,7 @@ public class RawKeySpec implements KeySpec {
 
     protected void finalize() throws Throwable {
         if (keyBytes != null) {
-            Arrays.fill(keyBytes,0,keyBytes.length, (byte)0);
+            Arrays.fill(keyBytes, 0, keyBytes.length, (byte) 0);
         }
     }
 }

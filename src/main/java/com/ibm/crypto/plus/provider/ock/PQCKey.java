@@ -26,16 +26,16 @@ public final class PQCKey implements AsymmetricKey {
 
     public static PQCKey generateKeyPair(OCKContext ockContext, String algName)
             throws OCKException {
-        long keyId = 0;        
+        long keyId = 0;
         // final String methodName = "generateKeyPair ";
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
         }
         try {
-            String NoDashAlg = algName.replace('-','_');
+            String NoDashAlg = algName.replace('-', '_');
             keyId = NativeInterface.MLKEY_generate(ockContext.getId(), NoDashAlg);
 
-            if (keyId == 0) {   
+            if (keyId == 0) {
                 throw new OCKException("OCKPQCKey.generateKeyPair: MLKEY_generate failed");
             }    
         } catch (Exception e) {
@@ -55,7 +55,7 @@ public final class PQCKey implements AsymmetricKey {
             throw new IllegalArgumentException("key bytes is null");
         }
         long keyId = 0;
-        String NoDashAlg = algName.replace('-','_');
+        String NoDashAlg = algName.replace('-', '_');
         keyId = NativeInterface.MLKEY_createPrivateKey(ockContext.getId(), NoDashAlg,
                 privateKeyBytes);
 
@@ -73,7 +73,7 @@ public final class PQCKey implements AsymmetricKey {
             throw new IllegalArgumentException("key bytes is null");
         }
         long keyId = 0;
-        String NoDashAlg = algName.replace('-','_');
+        String NoDashAlg = algName.replace('-', '_');
         keyId = NativeInterface.MLKEY_createPublicKey(ockContext.getId(), NoDashAlg,
             publicKeyBytes);
 

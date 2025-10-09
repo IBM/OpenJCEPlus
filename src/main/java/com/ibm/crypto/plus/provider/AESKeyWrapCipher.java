@@ -76,7 +76,7 @@ abstract class AESKeyWrapCipher extends CipherSpi {
             byte[] temp = new byte[newSize];
             if (buffer != null && bufSize > 0) {
                 System.arraycopy(buffer, 0, temp, 0, bufSize);
-                Arrays.fill(buffer, (byte)0x00);
+                Arrays.fill(buffer, (byte) 0x00);
             }
             buffer = temp;
         }
@@ -117,7 +117,7 @@ abstract class AESKeyWrapCipher extends CipherSpi {
             throw new ProviderException("Operation doFinal failed", ocke);
         }
         this.bufSize = 0;
-        Arrays.fill(buffer, (byte)0x00);
+        Arrays.fill(buffer, (byte) 0x00);
         this.buffer = null;
         return out;
     }
@@ -147,7 +147,7 @@ abstract class AESKeyWrapCipher extends CipherSpi {
 
         } finally {
             if (out != null) {
-                Arrays.fill(out, (byte)0);
+                Arrays.fill(out, (byte) 0x00);
             }
         }
     }

@@ -72,7 +72,7 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
 
                     "8da4e775a563c18f715f802a063c5a31" + "b8a11f5c5ee1879ec3454e5f3c738d2d"
                             + "9d201395faa4b61a96c8",
-                    "42"},};
+                    "42"}, };
 
     @Test
     public void testJcePlustoBC() throws InvalidAlgorithmParameterException,

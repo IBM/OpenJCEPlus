@@ -67,7 +67,6 @@ abstract class PQCSignatureImpl extends SignatureSpi {
             throws InvalidAlgorithmParameterException {
         if (params == null) {
             return;
- 
         } else {
             throw new InvalidAlgorithmParameterException("Algorithm does not support parameters.");
         }
@@ -87,18 +86,17 @@ abstract class PQCSignatureImpl extends SignatureSpi {
             throw new InvalidKeyException("Unsupported key type: ", e);
         }
 
-        //Validate that the alg of the key matchs the alg specified on creation of this object
+        // Validate that the alg of the key matches the alg specified on creation of this object.
         if (this.alg != null && !((keyPrivate.getAlgorithm()).equalsIgnoreCase(this.alg))) {
             throw new InvalidKeyException("Key must be of algorithm " + this.alg);
         }
 
         try {
             this.signature.initialize(keyPrivate.getPQCKey());
-            //this.signature.initialize(keyPrivate);
         } catch (Exception e) {
             throw provider.providerException("Failure in engineInitSign", e);
         }
-        // Set to sign mode and reset message
+        // Set to sign mode and reset message.
         this.privateKeyInit = true;
         this.publicKeyInit = false;
         this.message.reset();
@@ -112,7 +110,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         } catch (Exception e) {
             throw new InvalidKeyException("Unsupported key type: ", e);
         }
-        //Validate that the alg of the key matchs the alg specified on creation of this object
+        // Validate that the alg of the key matches the alg specified on creation of this object.
         if (this.alg != null && !((keyPublic.getAlgorithm()).equalsIgnoreCase(this.alg))) {
             throw new InvalidKeyException("Expected algorithm " + this.alg + ", but got " + keyPublic.getAlgorithm());
         }
@@ -122,7 +120,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
             throw provider.providerException("Failure in engineInitVerify", e);
         }
 
-        // Set to verify mode and reset message
+        // Set to verify mode and reset message.
         this.privateKeyInit = false;
         this.publicKeyInit = true;
         this.message.reset();
@@ -154,7 +152,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
 
     @Override
     protected void engineUpdate(byte[] b, int off, int len) throws SignatureException {
-        // update can be called several times, as this is required by JCK 569 to maintain interop with Sun
+        // Update can be called several times, as this is required by JCK 569 to maintain interop with Sun.
         message.write(b, off, len);
     }
 
@@ -172,7 +170,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
             message.reset();
             return this.signature.verify(sigBytes, messageBytes);
         } catch (Exception e) {
-            // return false rather than throwing exception
+            // Return false rather than throwing exception.
             return false;
         }
     }
