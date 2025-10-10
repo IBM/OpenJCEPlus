@@ -5,11 +5,10 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -26,37 +25,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * typically OpenJCEPlus or OpenJCEPlusFIPS and another provider for
  * PBE supported algorithms.
  */
-public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
+public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
 
     final String PASSWORD = "Thequickbrownfoxjumpsoverthelazydog";
     byte[] randomSalt = new byte[32];
     SecureRandom random = new SecureRandom();
     PBEKeySpec pbeks = null;
-    List<String> allowableFIPSAlgorithms = new ArrayList<String>(){{
-            add("PBKDF2WithHmacSHA224");
-            add("PBKDF2WithHmacSHA256");
-            add("PBKDF2WithHmacSHA384");
-            add("PBKDF2WithHmacSHA512");
-        }};
 
     @BeforeAll
     public void setUp() {
         random.nextBytes(randomSalt);
-        this.pbeks = new PBEKeySpec(PASSWORD.toCharArray(), randomSalt, 5000, 112);
+        this.pbeks = new PBEKeySpec(PASSWORD.toCharArray());
     }
     /**
      * Test used to perform interoperability tests using a KeyFactory for
      * the method `getAlgorithm()`.
      */
     @ParameterizedTest
-    @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
+    @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
+        "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
+        "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
     public void testGetAlgorithm(String algorithm) throws Exception {
-
-        if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
-                && this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            return;
-        }
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
         SecretKeyFactory skfInterop = SecretKeyFactory.getInstance(algorithm,
@@ -73,14 +63,11 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      * the method `getEncoded()`.
      */
     @ParameterizedTest
-    @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
+    @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
+        "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
+        "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
     public void testGetEncoding(String algorithm) throws Exception {
-
-        if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
-                && this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            return;
-        }
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
         SecretKeyFactory skfInterop = SecretKeyFactory.getInstance(algorithm,
@@ -97,14 +84,11 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      * the method `translateKey()`.
      */
     @ParameterizedTest
-    @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
+    @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
+        "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
+        "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
     public void testTranslate(String algorithm) throws Exception {
-
-        if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
-                && this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            return;
-        }
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
         SecretKeyFactory skfInterop = SecretKeyFactory.getInstance(algorithm,
@@ -129,14 +113,11 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      * the method `getKeySpec()`.
      */
     @ParameterizedTest
-    @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
+    @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
+        "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
+        "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
     public void testKeySpec(String algorithm) throws Exception {
-
-        if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
-                && this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            return;
-        }
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
         SecretKeyFactory skfInterop = SecretKeyFactory.getInstance(algorithm,
@@ -160,21 +141,18 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      * the method `hashCode()`.
      */
     @ParameterizedTest
-    @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
+    @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
+        "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
+        "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
     public void testHashCode(String algorithm) throws Exception {
-
-        if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
-                && this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            return;
-        }
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
         SecretKeyFactory skfInterop = SecretKeyFactory.getInstance(algorithm,
                 this.getInteropProviderName());
         SecretKey sk1 = skf.generateSecret(pbeks);
         SecretKey skInterop = skfInterop.generateSecret(pbeks);
-        assertEquals(sk1.hashCode(), skInterop.hashCode(), "Hash codes do not match.");
+        assertEquals(sk1.hashCode(), skInterop.hashCode(), "Hash codes do not match." + algorithm);
     }
 
     /**
@@ -182,24 +160,21 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      * the method `equals()`.
      */
     @ParameterizedTest
-    @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
+    @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
+        "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
+        "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
     public void testEquality(String algorithm) throws Exception {
-
-        if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
-                && this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            return;
-        }
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
         SecretKeyFactory skfInterop = SecretKeyFactory.getInstance(algorithm,
                 this.getInteropProviderName());
         SecretKey sk1 = skf.generateSecret(pbeks);
         SecretKey skInterop = skfInterop.generateSecret(pbeks);
-        assertTrue(sk1.equals(skInterop), "Keys are not equal between different providers.");
+        assertTrue(sk1.equals(skInterop), "Keys are not equal between different providers." + algorithm);
         assertTrue(sk1.equals(sk1), "Keys are not equal when key is exactly the same.");
-        PBEKeySpec pbeksDifferent = new PBEKeySpec("DifferentPW".toCharArray(), randomSalt,
-                5000, 112);
+
+        PBEKeySpec pbeksDifferent = new PBEKeySpec("DifferentPW".toCharArray());
         SecretKey skDifferent = skf.generateSecret(pbeksDifferent);
         assertFalse(sk1.equals(skDifferent), "Keys are not expected to be equal.");
     }
@@ -209,14 +184,11 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
      * by a providers KeyFactory for the method `getFormat()`.
      */
     @ParameterizedTest
-    @CsvSource({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
-            "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
+    @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
+        "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
+        "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
     public void testGetFormat(String algorithm) throws Exception {
-
-        if ((!isSupportedByOpenJCEPlusFIPS(algorithm))
-                && this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            return;
-        }
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
         SecretKeyFactory skfInterop = SecretKeyFactory.getInstance(algorithm,
@@ -224,21 +196,5 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
         SecretKey sk1 = skf.generateSecret(pbeks);
         SecretKey skInterop = skfInterop.generateSecret(pbeks);
         assertEquals(sk1.getFormat(), skInterop.getFormat(), "Format does not match.");
-
-    }
-
-    /**
-     * Method to help determine if the OpenJCEPlusFIPS provider supports an algorithm.
-     * 
-     * @param algorithm
-     * @return
-     */
-    private boolean isSupportedByOpenJCEPlusFIPS(String algorithm) {
-        for (String allowed : allowableFIPSAlgorithms) {
-            if (allowed.equalsIgnoreCase(algorithm)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
