@@ -36,7 +36,7 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
      * newDecapsulator methods on the same KEM object at the same time.
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     protected void testParallelEncapsulator(String algo) throws Exception {
         KeyPair kp = keyPair.gen(algo);
         kem = KEM.getInstance(algo, getProviderName());
@@ -72,7 +72,7 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
      * Encapsulator or Decapsulator object at the same time.
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     protected void testParallelEncapsulate(String algo) throws Exception {
         KeyPair kp = keyPair.gen(algo);
         kem = KEM.getInstance(algo, getProviderName());
@@ -106,7 +106,7 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
      * Encapsulator or Decapsulator object at the same time.
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     protected void testParallelDecapsulator(String algo) throws Exception {
         KeyPair kp = keyPair.gen(algo);
         kem = KEM.getInstance(algo, getProviderName());
@@ -140,7 +140,7 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
      * Encapsulator or Decapsulator object at the same time.
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     protected void testParallelDecapsulate(String algo) throws Exception {
         KeyPair kp = keyPair.gen(algo);
         kem = KEM.getInstance(algo, getProviderName());

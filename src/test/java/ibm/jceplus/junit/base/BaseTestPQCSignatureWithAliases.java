@@ -21,12 +21,12 @@ public class BaseTestPQCSignatureWithAliases extends BaseTestJunit5Signature {
     boolean doSignatureTest = false;   // If false, generate key pairs only.  Do not execute the signature portion of the test case.
 
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512",   "ML_KEM_512",  "MLKEM512",  "2.16.840.1.101.3.4.4.1",
-        "ML-KEM-768",   "ML_KEM_768",  "MLKEM768",  "2.16.840.1.101.3.4.4.2",
-        "ML-KEM-1024",  "ML_KEM_1024", "MLKEM1024", "2.16.840.1.101.3.4.4.3",
-        "ML-DSA-44",  "ML_DSA_44", "MLDSA44", "2.16.840.1.101.3.4.3.17",
-        "ML-DSA-65",  "ML_DSA_65", "MLDSA65", "2.16.840.1.101.3.4.3.18",
-        "ML-DSA-87",  "ML_DSA_87", "MLDSA87", "2.16.840.1.101.3.4.3.19"})
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_512", "MLKEM512", "OID.2.16.840.1.101.3.4.4.1", "2.16.840.1.101.3.4.4.1",
+        "ML-KEM-768", "ML_KEM_768", "MLKEM768", "OID.2.16.840.1.101.3.4.4.2", "2.16.840.1.101.3.4.4.2",
+        "ML-KEM-1024", "ML_KEM_1024", "MLKEM1024", "OID.2.16.840.1.101.3.4.4.3", "2.16.840.1.101.3.4.4.3",
+        "ML-DSA", "ML-DSA-44", "ML_DSA_44", "MLDSA44", "OID.2.16.840.1.101.3.4.3.17", "2.16.840.1.101.3.4.3.17",
+        "ML-DSA-65", "ML_DSA_65", "MLDSA65", "OID.2.16.840.1.101.3.4.3.18", "2.16.840.1.101.3.4.3.18",
+        "ML-DSA-87", "ML_DSA_87", "MLDSA87", "OID.2.16.840.1.101.3.4.3.19", "2.16.840.1.101.3.4.3.19"})
     public void testPQCKeys(String pqcKeyType) {
 
         int numberOfTestsExecuted = 0;
