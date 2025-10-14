@@ -618,9 +618,7 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     //
     protected void encryptDecryptDoFinal(String algorithm, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message, Cipher cpA, Cipher cpB)
-            throws Exception
-
-    {
+            throws Exception {
         if (algParams == null) {
             cpA.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -774,9 +772,7 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     //
     protected void encryptDecryptReuseObject(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message,
-            Cipher cpA, Cipher cpB) throws Exception
-
-    {
+            Cipher cpA, Cipher cpB) throws Exception {
 
         if (algParams == null) {
             cpA.init(Cipher.ENCRYPT_MODE, key);
@@ -821,9 +817,7 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     //
     protected void encryptDecryptDoFinalCopySafe(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message,
-            Cipher cpA, Cipher cpB) throws Exception
-
-    {
+            Cipher cpA, Cipher cpB) throws Exception {
         if (algParams == null) {
             cpA.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -867,9 +861,7 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     //
     protected void encryptDecryptUpdateCopySafe(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message,
-            Cipher cpA, Cipher cpB) throws Exception
-
-    {
+            Cipher cpA, Cipher cpB) throws Exception {
         if (algParams == null) {
             cpA.init(Cipher.ENCRYPT_MODE, key);
         } else {

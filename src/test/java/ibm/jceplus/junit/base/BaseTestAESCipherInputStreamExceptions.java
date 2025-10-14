@@ -249,7 +249,7 @@ public class BaseTestAESCipherInputStreamExceptions extends BaseTestJunit5 {
             fail("IOException expected.");
         } catch (IOException e) {
             // We expect a IOException.
-        };
+        }
     }
 
     /**

@@ -1051,8 +1051,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
                         // GCMCipher.do_GCM_UpdForUpdateDecrypt=" + outLen);
 
                         // outLen = cipher.decrypt(buffer, 0, len, output, outputOffset);
-                    } // decrypting
-                    else {
+                    } else { // decrypting
                         // OCKDebug.Msg(debPrefix, methodName, "Encrypting");
                         // OCKDebug.Msg(debPrefix, methodName, "FirstUpdate generateIV");
 
@@ -1093,8 +1092,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
                                     tagLenInBytes, buffer, 0, buffered, output, outputOffset,
                                     authData, provider);
                             // outLen = cipher.decrypt(buffer, 0, buffered, output, outputOffset);
-                        } // decrypting
-                        else {
+                        } else { // decrypting
                             outLen = GCMCipher.do_GCM_UpdForUpdateEncrypt(ockContext, Key.getValue(), IV,
                                     tagLenInBytes, buffer, 0, buffered, output, outputOffset,
                                     authData, provider);
