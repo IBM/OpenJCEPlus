@@ -138,8 +138,7 @@ final class PBEKey implements SecretKey {
      */
     @java.io.Serial
     private void readObject(java.io.ObjectInputStream s)
-         throws IOException, ClassNotFoundException
-    {
+         throws IOException, ClassNotFoundException {
         s.defaultReadObject();
         if (key == null) {
             throw new InvalidObjectException(
