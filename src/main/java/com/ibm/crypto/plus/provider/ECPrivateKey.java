@@ -576,16 +576,6 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
     ECKey getOCKKey() {
         return this.ecKey;
     }
-
-    @Override
-    public PublicKey calculatePublicKey() {
-        try {
-            return new ECPublicKey(provider, ecKey);
-        } catch (InvalidKeyException exc) {
-            throw new ProviderException(
-                    "Unexpected error calculating public key", exc);
-        }
-    }
     
     @java.io.Serial
     protected Object writeReplace() throws java.io.ObjectStreamException {
