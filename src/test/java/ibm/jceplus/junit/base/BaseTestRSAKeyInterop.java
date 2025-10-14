@@ -446,9 +446,7 @@ public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
             verifyingJCE.initVerify(rsaPubJCE);
             verifyingJCE.update(origMsg);
             assertTrue(verifyingJCE.verify(signedBytesPlus), "Signature verification");
-        }
-
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             assertTrue(false, "SignAndVerify failed");
         }

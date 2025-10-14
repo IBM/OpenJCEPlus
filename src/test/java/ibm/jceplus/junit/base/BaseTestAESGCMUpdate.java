@@ -271,9 +271,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
                     //System.out.println ("decryptedText = " + decryptedText);
 
                     assertTrue(Arrays.equals(decryptedText, plainTextBytes));
-                }
-
-                catch (ShortBufferException sxe) {
+                } catch (ShortBufferException sxe) {
                     assertTrue(true);
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -409,12 +407,9 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             } catch (IllegalStateException ex) {
                 //ex.printStackTrace();
                 assertTrue(true);
-            }
-
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 assertTrue(false);
-
             }
 
             try {

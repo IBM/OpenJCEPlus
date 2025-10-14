@@ -112,7 +112,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
                 id.putDerValue(new DerValue(dhKey.getParameters()));
                 DerValue value = new DerValue(DerValue.tag_Sequence, id.toByteArray());
                 this.algid = AlgorithmId.parse(value);
-            };
+            }
 
             convertOCKPrivateKeyBytes(dhKey.getPrivateKeyBytes());
             this.dhKey = dhKey;

@@ -381,17 +381,13 @@ public final class RSAPSSSignature extends SignatureSpi {
                             || mgfMessageDigest.equalsIgnoreCase("SHA")) {
                         throwException = false;
                     }
-                }
-
-                else if (messageDigest.equalsIgnoreCase("SHA224")
+                } else if (messageDigest.equalsIgnoreCase("SHA224")
                         || messageDigest.equalsIgnoreCase("SHA-224")) {
                     if (mgfMessageDigest.equalsIgnoreCase("SHA224")
                             || mgfMessageDigest.equalsIgnoreCase("SHA-224")) {
                         throwException = false;
                     }
-                }
-
-                else if (messageDigest.equalsIgnoreCase("SHA256")
+                } else if (messageDigest.equalsIgnoreCase("SHA256")
                         || messageDigest.equalsIgnoreCase("SHA-256")
                         || messageDigest.equalsIgnoreCase("SHA2")) {
                     if (mgfMessageDigest.equalsIgnoreCase("SHA256")
@@ -399,9 +395,7 @@ public final class RSAPSSSignature extends SignatureSpi {
                             || mgfMessageDigest.equalsIgnoreCase("SHA2")) {
                         throwException = false;
                     }
-                }
-
-                else if (messageDigest.equalsIgnoreCase("SHA384")
+                } else if (messageDigest.equalsIgnoreCase("SHA384")
                         || messageDigest.equalsIgnoreCase("SHA-384")
                         || messageDigest.equalsIgnoreCase("SHA3")) {
                     if (mgfMessageDigest.equalsIgnoreCase("SHA384")
@@ -409,9 +403,7 @@ public final class RSAPSSSignature extends SignatureSpi {
                             || mgfMessageDigest.equalsIgnoreCase("SHA3")) {
                         throwException = false;
                     }
-                }
-
-                else if (messageDigest.equalsIgnoreCase("SHA512")
+                } else if (messageDigest.equalsIgnoreCase("SHA512")
                         || messageDigest.equalsIgnoreCase("SHA-512")
                         || messageDigest.equalsIgnoreCase("SHA5")) {
                     if (mgfMessageDigest.equalsIgnoreCase("SHA512")
@@ -419,9 +411,7 @@ public final class RSAPSSSignature extends SignatureSpi {
                             || mgfMessageDigest.equalsIgnoreCase("SHA5")) {
                         throwException = false;
                     }
-                }
-
-                else if (messageDigest.equalsIgnoreCase("SHA512/224")
+                } else if (messageDigest.equalsIgnoreCase("SHA512/224")
                         || messageDigest.equalsIgnoreCase("SHA-512/224")) {
                     if (mgfMessageDigest.equalsIgnoreCase("SHA512/224")
                             || mgfMessageDigest.equalsIgnoreCase("SHA-512/224")) {
