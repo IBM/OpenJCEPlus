@@ -138,9 +138,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                 "================  BEGINNING OF testRSAPSS()  ================================");
 
         int ii = 0;
-        for (; ii < 1; ii++) // For each RSA key size
-        {
-
+        for (; ii < 1; ii++) { // For each RSA key size
             if (signingProviderName.equalsIgnoreCase("OpenJCEPlus")) {
                 if (ii == 0) {
                     rsaKeyPair = rsaKeyPair_OpenJCEPlus[0]; // RSA keylength 3072 
@@ -163,17 +161,14 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
 
 
-            for (int jj = 0; jj < 3; jj++) // For each dataToBeSigned string (differing lengths)
-            {
-
+            for (int jj = 0; jj < 3; jj++) { // For each dataToBeSigned string (differing lengths)
                 if (jj == 0) {
                     dataToBeSigned = dataToBeSignedShort;
                 } else if (jj == 1) {
                     dataToBeSigned = dataToBeSignedMedium;
                 } else if (jj == 2) {
                     dataToBeSigned = dataToBeSignedLong;
-                } else // added to make the compiler happy
-                {
+                } else { // added to make the compiler happy
                     dataToBeSigned = dataToBeSignedLong;
                 }
 
@@ -2203,8 +2198,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         "BaseTestRSAPSS2.java:  doSignature():  NOT PERFORMING KEY TRANSLATION.  signingProviderName = verifyingProviderName");
                 // then no key translation is necessary
                 translatedPublicKey = (RSAPublicKey) (rsaKeyPair.getPublic());
-            } else // else translate the RSA public key for the verifying provider
-            {
+            } else { // else translate the RSA public key for the verifying provider
                 System.out.println(
                         "BaseTestRSAPSS2.java:  doSignature():  PERFORMING KEY TRANSLATION.  signingProviderName != verifyingProviderName");
                 KeyFactory myKeyFactory = KeyFactory.getInstance("RSA", verifyingProviderName);

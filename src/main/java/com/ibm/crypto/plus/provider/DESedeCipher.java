@@ -265,9 +265,7 @@ public final class DESedeCipher extends CipherSpi implements DESConstants {
                                                                          * modeUpperCase.equals("CFB")
                                                                          */) {
             this.mode = modeUpperCase;
-        } /*
-             * else if (modeUpperCase.equals("CFB64")) { this.mode = "CFB"; }
-             */ else {
+        } else {
             throw new NoSuchAlgorithmException("Cipher mode: " + mode + " not found");
         }
     }
