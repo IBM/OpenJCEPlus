@@ -248,6 +248,12 @@ final class DSAPrivateKey extends PKCS8Key
         }
     }
 
+    @java.io.Serial
+    protected Object writeReplace() throws java.io.ObjectStreamException {
+        checkDestroyed();
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
+    } 
+    
     public static boolean equals(DSAParams spec1, DSAParams spec2) {
         if (spec1 == spec2) {
             return true;
