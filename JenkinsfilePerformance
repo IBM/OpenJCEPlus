@@ -349,6 +349,7 @@ pipeline {
                                             'ibm.jceplus.jmh.DSASignatureBenchmark', \
                                             'ibm.jceplus.jmh.ECDHKeyExchangeBenchmark', \
                                             'ibm.jceplus.jmh.ECKeyGeneratorBenchmark', \
+                                            'ibm.jceplus.jmh.ECSignatureBenchmark', \
                                             'ibm.jceplus.jmh.EdKeyGeneratorBenchmark', \
                                             'ibm.jceplus.jmh.HmacBenchmark', \
                                             'ibm.jceplus.jmh.HMACKeyGeneratorBenchmark', \
