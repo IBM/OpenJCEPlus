@@ -141,6 +141,7 @@ import org.junit.platform.suite.api.Suite;
     TestXDH.class,
     TestXDHInterop.class,
     TestXDHInteropBC.class,
+    TestXDHKeyAgreementInterop.class,
     TestXDHKeyImport.class,
     TestXDHKeyPairGenerator.class,
     TestXDHMultiParty.class
