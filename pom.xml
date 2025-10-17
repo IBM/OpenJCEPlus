@@ -119,10 +119,10 @@
             </properties>
           </profile>
           <profile>
-            <id>Profile for Windows Server 2022 amd64</id>
+            <id>Profile for Windows amd64</id>
             <activation>
               <os>
-                <name>Windows Server 2022</name>
+                <family>Windows</family>
                 <arch>amd64</arch>
               </os>
             </activation>
