@@ -245,7 +245,7 @@ def upload_artifactory(uploadSpec) {
  */
 def getSanitizedBranchName() {
     SANITIZED_BRANCH_NAME=sh(
-        script: "echo $env.GIT_BRANCH | tr -c '[:alpha:][:digit:][.]' '-' | tr -d '\r\n' | sed 's/.\$//'",
+        script: "echo $env.BRANCH_NAME | tr -c '[:alpha:][:digit:][.]' '-' | tr -d '\r\n' | sed 's/.\$//'",
         returnStdout: true
     ).trim()
     return SANITIZED_BRANCH_NAME
