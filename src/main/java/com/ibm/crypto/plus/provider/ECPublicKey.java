@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
-import java.security.KeyRep;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.InvalidParameterSpecException;
@@ -191,7 +190,7 @@ final class ECPublicKey extends X509Key
      */
     private Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
-        return new KeyRep(KeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded());
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
     }
 
     /*
