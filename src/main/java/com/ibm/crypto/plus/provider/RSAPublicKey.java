@@ -13,7 +13,6 @@ import com.ibm.crypto.plus.provider.ock.RSAKey;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
-import java.security.KeyRep;
 import java.security.ProviderException;
 import java.security.spec.AlgorithmParameterSpec;
 import javax.security.auth.DestroyFailedException;
@@ -244,7 +243,7 @@ final class RSAPublicKey extends X509Key
      */
     private Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
-        return new KeyRep(KeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded());
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
     }
 
     /**

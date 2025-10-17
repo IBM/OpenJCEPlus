@@ -15,7 +15,6 @@ import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
-import java.security.KeyRep;
 import java.security.interfaces.EdECPublicKey;
 import java.security.spec.EdECPoint;
 import java.security.spec.NamedParameterSpec;
@@ -311,7 +310,7 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
     }
 
     protected Object writeReplace() throws java.io.ObjectStreamException {
-        return new KeyRep(KeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded());
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
     }
 
     /**

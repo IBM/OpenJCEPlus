@@ -9,7 +9,6 @@
 package com.ibm.crypto.plus.provider;
 
 import java.security.InvalidKeyException;
-import java.security.KeyRep;
 import java.util.Arrays;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -26,6 +25,8 @@ final class AESKey implements SecretKey {
 
     private transient boolean destroyed = false;
 
+    private OpenJCEPlusProvider provider = null;
+
     /**
      * Create an AES key from a given key
      *
@@ -35,12 +36,13 @@ final class AESKey implements SecretKey {
      * @exception InvalidKeyException
      *                if the given key has wrong size
      */
-    AESKey(byte[] key) throws InvalidKeyException {
+    AESKey(OpenJCEPlusProvider provider, byte[] key) throws InvalidKeyException {
         if ((key == null) || !AESUtils.isKeySizeValid(key.length)) {
             throw new InvalidKeyException("Wrong key size");
         }
 
         this.key = new byte[key.length];
+        this.provider = provider;
         System.arraycopy(key, 0, this.key, 0, key.length);
     }
 
@@ -117,7 +119,7 @@ final class AESKey implements SecretKey {
      */
     private Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
-        return new KeyRep(KeyRep.Type.SECRET, getAlgorithm(), getFormat(), getEncoded());
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.SECRET, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
     }
 
     /**
