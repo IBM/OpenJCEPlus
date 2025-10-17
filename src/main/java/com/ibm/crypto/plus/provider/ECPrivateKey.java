@@ -576,6 +576,12 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
     ECKey getOCKKey() {
         return this.ecKey;
     }
+    
+    @java.io.Serial
+    protected Object writeReplace() throws java.io.ObjectStreamException {
+        checkDestroyed();
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
+    } 
 
     /**
      * Parse the key. Called by PKCS8Key. "key" is a byte array containing the
