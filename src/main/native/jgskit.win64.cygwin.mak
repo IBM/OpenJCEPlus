@@ -11,6 +11,7 @@ TOPDIR = $(MAKEDIR)\..\..\..
 
 PLAT = win
 CFLAGS= -nologo -DWINDOWS
+CC = cl
 
 #DEBUG_DETAIL = -DDEBUG_RANDOM_DETAIL -DDEBUG_RAND_DETAIL -DDEBUG_DH_DETAIL -DDEBUG_DSA_DETAIL -DDEBUG_DIGEST_DETAIL -DDEBUG_EC_DETAIL  -DDEBUG_EXTENDED_RANDOM_DETAIL -DDEBUG_GCM_DETAIL -DDEBUG_CCM_DETAIL -DDEBUG_HMAC_DETAIL -DDEBUG_PKEY_DETAIL -DDEBUG_CIPHER_DETAIL -DDEBUG_RSA_DETAIL -DDEBUG_SIGNATURE_DETAIL -DDEBUG_SIGNATURE_DSANONE_DETAIL -DDEBUG_SIGNATURE_RSASSL_DETAIL -DDEBUG_HKDF_DETAIL -DDEBUG_RSAPSS_DETAIL -DDEBUG_SIGNATURE_EDDSA_DETAIL -DDEBUG_PBKDF_DETAIL -DDEBUG_PQC_KEY_DETAIL
 
@@ -59,7 +60,7 @@ TARGET = libjgskit_64.dll
 JGSKIT_RC_SRC = jgskit_resource.rc
 JGSKIT_RC_OBJ = jgskit_resource.res
 
-all : copy
+all : displaycompiler copy
 
 copy : $(TARGET)
 	-@mkdir -p $(HOSTOUT) 2>nul
@@ -74,7 +75,7 @@ $(JGSKIT_RC_OBJ) : $(JGSKIT_RC_SRC)
 	rc $(BUILD_CFLAGS) -Fo$@ $(JGSKIT_RC_SRC)
 
 .c.obj :
-	cl \
+	$(CC) \
 		$(DEBUG_FLAGS) \
 		$(CFLAGS) \
 		-c \
@@ -82,6 +83,11 @@ $(JGSKIT_RC_OBJ) : $(JGSKIT_RC_SRC)
 		-I"$(JAVA_HOME)/include" \
 		-I"$(JAVA_HOME)/include/win32" \
 		$*.c
+
+displaycompiler :
+	@echo "Compiler version: " && $(CC)
+	@echo "Building with $(CC) compiler..."
+	@echo "-------------------------------------"
 
 # Force BuildDate to be recompiled every time
 #
@@ -108,4 +114,4 @@ clean :
 	-@del $(HOSTOUT)\*.dll
 	-@del $(HOSTOUT)\*.res
 
-.PHONY : all clean copy headers
+.PHONY : all clean copy headers displaycompiler

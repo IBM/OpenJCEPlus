@@ -11,6 +11,7 @@ TOPDIR = $(MAKEDIR)../../..
 
 PLAT = win
 CFLAGS= -nologo -DWINDOWS
+CC = cl
 
 #DEBUG_DETAIL = -DDEBUG_RANDOM_DETAIL -DDEBUG_RAND_DETAIL -DDEBUG_DH_DETAIL -DDEBUG_DSA_DETAIL -DDEBUG_DIGEST_DETAIL -DDEBUG_EC_DETAIL  -DDEBUG_EXTENDED_RANDOM_DETAIL -DDEBUG_GCM_DETAIL -DDEBUG_CCM_DETAIL -DDEBUG_HMAC_DETAIL -DDEBUG_PKEY_DETAIL -DDEBUG_CIPHER_DETAIL -DDEBUG_RSA_DETAIL -DDEBUG_SIGNATURE_DETAIL -DDEBUG_SIGNATURE_DSANONE_DETAIL -DDEBUG_SIGNATURE_RSASSL_DETAIL -DDEBUG_HKDF_DETAIL -DDEBUG_RSAPSS_DETAIL -DDEBUG_SIGNATURE_EDDSA_DETAIL -DDEBUG_PBKDF_DETAIL -DDEBUG_PQC_KEY_DETAIL
 
@@ -60,7 +61,7 @@ TARGET = $(HOSTOUT)/libjgskit_64.dll
 JGSKIT_RC_SRC = jgskit_resource.rc
 JGSKIT_RC_OBJ = $(HOSTOUT)/jgskit_resource.res
 
-all : $(TARGET)
+all : displaycompiler $(TARGET)
 
 $(TARGET) : $(OBJS) $(JGSKIT_RC_OBJ)
 	link -dll -out:$@ $(OBJS) $(JGSKIT_RC_OBJ) -LIBPATH:"$(GSKIT_HOME)/lib" jgsk8iccs_64.lib
@@ -70,7 +71,7 @@ $(JGSKIT_RC_OBJ) : $(JGSKIT_RC_SRC)
 
 $(HOSTOUT)/%.obj : %.c
 	-@mkdir -p $(HOSTOUT) 2>nul
-	cl \
+	$(CC) \
 		$(DEBUG_FLAGS) \
 		$(CFLAGS) \
 		-c \
@@ -80,6 +81,11 @@ $(HOSTOUT)/%.obj : %.c
 		-I"$(OPENJCEPLUS_HEADER_FILES)" \
 		-Fo$@ \
 		$<
+
+displaycompiler :
+	@echo "Compiler version: " && $(CC)
+	@echo "Building with $(CC) compiler..."
+	@echo "-------------------------------------"
 
 # Force BuildDate to be recompiled every time
 #
