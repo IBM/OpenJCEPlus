@@ -28,7 +28,7 @@ abstract class DSASignature extends SignatureSpi {
     DSASignature(OpenJCEPlusProvider provider, String ockDigestAlgo) {
         try {
             this.provider = provider;
-            this.signature = Signature.getInstance(provider.getOCKContext(), ockDigestAlgo);
+            this.signature = Signature.getInstance(provider.getOCKContext(), ockDigestAlgo, provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to initialize DSA signature", e);
         }
