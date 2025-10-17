@@ -245,6 +245,9 @@ def run(platform) {
  * and uploaded into Artifactory, for personal use or use by other pipelines.
  */
 pipeline {
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '100'))
+    }
     parameters {
         separator(name: "TargetPlatforms", sectionHeader: "Target Platforms",
             separatorStyle: "border-width: 0",
