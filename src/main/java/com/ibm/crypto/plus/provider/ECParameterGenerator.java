@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.ECKey;
+import com.ibm.crypto.plus.provider.base.ECKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.security.AlgorithmParameterGeneratorSpi;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -58,7 +59,7 @@ public final class ECParameterGenerator extends AlgorithmParameterGeneratorSpi {
 
             if (keysize > 0) {
                 algParams = AlgorithmParameters.getInstance("EC", provider);
-                byte[] encodedParams = ECKey.generateParameters(provider.getOCKContext(),
+                byte[] encodedParams = ECKey.generateParameters(provider.isFIPS(),
                         this.keysize);
                 algParams.init(encodedParams);
                 return algParams;
@@ -66,7 +67,7 @@ public final class ECParameterGenerator extends AlgorithmParameterGeneratorSpi {
                 if (algParamSpec instanceof ECGenParameterSpec) {
                     algParams = AlgorithmParameters.getInstance("EC", provider);
                     String curveName = ((ECGenParameterSpec) algParamSpec).getName();
-                    byte[] encodedParams = ECKey.generateParameters(provider.getOCKContext(),
+                    byte[] encodedParams = ECKey.generateParameters(provider.isFIPS(),
                             curveName);
                     algParams.init(encodedParams);
                     return algParams;
@@ -75,7 +76,7 @@ public final class ECParameterGenerator extends AlgorithmParameterGeneratorSpi {
             }
 
         } catch (Exception e) {
-            throw provider.providerException("Failure in generateGenerateParameters", e);
+            throw NativeOCKAdapter.providerException("Failure in generateGenerateParameters", e);
         }
         return algParams;
     }

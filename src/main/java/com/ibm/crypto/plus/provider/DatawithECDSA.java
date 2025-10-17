@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.ECKey;
+import com.ibm.crypto.plus.provider.base.ECKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -96,7 +97,7 @@ public final class DatawithECDSA extends SignatureSpi {
                                 + maxDigestLength);
             }
 
-            byte[] signature = ECKey.signDatawithECDSA(provider.getOCKContext(), this.data,
+            byte[] signature = ECKey.signDatawithECDSA(provider.isFIPS(), this.data,
                     this.dataSize, this.ecKey);
 
             // System.out.println ("signature " + data.length + " dataSize =" +
@@ -128,7 +129,7 @@ public final class DatawithECDSA extends SignatureSpi {
         } catch (Exception e) {
             SignatureException signatureException = new SignatureException("Could not sign data",
                     e);
-            provider.setOCKExceptionCause(signatureException, e);
+            NativeOCKAdapter.setOCKExceptionCause(signatureException, e);
             throw signatureException;
         }
     }
@@ -161,7 +162,7 @@ public final class DatawithECDSA extends SignatureSpi {
     @Override
     protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
         try {
-            return ECKey.verifyDatawithECDSA(provider.getOCKContext(), this.data, this.dataSize,
+            return ECKey.verifyDatawithECDSA(provider.isFIPS(), this.data, this.dataSize,
                     sigBytes, sigBytes.length, this.ecKey);
         } catch (Exception e) {
             // return false rather than throwing exception

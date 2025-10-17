@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.PQCKey;
+import com.ibm.crypto.plus.provider.base.PQCKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import javax.security.auth.DestroyFailedException;
@@ -49,10 +50,10 @@ final class PQCPublicKey extends X509Key
             byte[] b = tmp.toByteArray();
             tmp.close();
 
-            this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), algName, b);
+            this.pqcKey = PQCKey.createPublicKey(provider.isFIPS(), algName, b);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create public key");
-            provider.setOCKExceptionCause(ike, exception);
+            NativeOCKAdapter.setOCKExceptionCause(ike, exception);
             throw ike;
         }
     }
@@ -70,7 +71,7 @@ final class PQCPublicKey extends X509Key
 
             this.pqcKey = pqcKey;
         } catch (Exception exception) {
-            throw provider.providerException("Failure in PublicKey + "+ exception.getMessage(), exception);
+            throw NativeOCKAdapter.providerException("Failure in PublicKey + "+ exception.getMessage(), exception);
         }
     }
 
@@ -86,9 +87,10 @@ final class PQCPublicKey extends X509Key
             byte[] b = tmp.toByteArray();
             tmp.close();
             
-            this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), name, b);
+            this.pqcKey = PQCKey.createPublicKey(provider.isFIPS(), name, b);
+                      
         } catch (Exception e) {
-            throw provider.providerException("Failure in PublicKey -"+e.getMessage(), e);
+            throw NativeOCKAdapter.providerException("Failure in PublicKey -"+e.getMessage(), e);
         }
     }
 

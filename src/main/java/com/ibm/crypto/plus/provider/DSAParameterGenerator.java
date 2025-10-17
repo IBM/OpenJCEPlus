@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.DSAKey;
+import com.ibm.crypto.plus.provider.base.DSAKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.math.BigInteger;
 import java.security.AlgorithmParameterGeneratorSpi;
 import java.security.AlgorithmParameters;
@@ -138,7 +139,7 @@ public final class DSAParameterGenerator extends AlgorithmParameterGeneratorSpi 
             }
 
             if (keysize > 0) {
-                byte[] encodedParams = DSAKey.generateParameters(provider.getOCKContext(),
+                byte[] encodedParams = DSAKey.generateParameters(provider.isFIPS(),
                         this.keysize);
                 algParams.init(encodedParams);
             } else {
@@ -146,7 +147,7 @@ public final class DSAParameterGenerator extends AlgorithmParameterGeneratorSpi 
             }
             return algParams;
         } catch (Exception e) {
-            throw provider.providerException("Failure in generateGenerateParameters", e);
+            throw NativeOCKAdapter.providerException("Failure in generateGenerateParameters", e);
         }
     }
 

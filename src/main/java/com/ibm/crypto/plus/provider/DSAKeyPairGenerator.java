@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.DSAKey;
+import com.ibm.crypto.plus.provider.base.DSAKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -145,19 +146,19 @@ public final class DSAKeyPairGenerator extends KeyPairGenerator
                 AlgorithmParameters algParams = algParmGen.generateParameters();
                 this.params = algParams.getParameterSpec(DSAParameterSpec.class);
 
-                dsaKey = DSAKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded());
+                dsaKey = DSAKey.generateKeyPair(provider.isFIPS(), algParams.getEncoded());
             } else {
                 AlgorithmParameters algParams = AlgorithmParameters.getInstance("DSA", provider);
                 algParams.init(params);
 
-                dsaKey = DSAKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded());
+                dsaKey = DSAKey.generateKeyPair(provider.isFIPS(), algParams.getEncoded());
             }
 
             java.security.interfaces.DSAPrivateKey privKey = new DSAPrivateKey(provider, dsaKey);
             java.security.interfaces.DSAPublicKey pubKey = new DSAPublicKey(provider, dsaKey);
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
-            throw provider.providerException("Failure in generateKeyPair", e);
+            throw NativeOCKAdapter.providerException("Failure in generateKeyPair", e);
         }
     }
 }

@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.Signature;
+import com.ibm.crypto.plus.provider.base.Signature;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.EOFException;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -28,9 +29,9 @@ abstract class DSASignature extends SignatureSpi {
     DSASignature(OpenJCEPlusProvider provider, String ockDigestAlgo) {
         try {
             this.provider = provider;
-            this.signature = Signature.getInstance(provider.getOCKContext(), ockDigestAlgo);
+            this.signature = Signature.getInstance(provider.isFIPS(), ockDigestAlgo);
         } catch (Exception e) {
-            throw provider.providerException("Failed to initialize DSA signature", e);
+            throw NativeOCKAdapter.providerException("Failed to initialize DSA signature", e);
         }
     }
 
@@ -44,7 +45,7 @@ abstract class DSASignature extends SignatureSpi {
         try {
             this.signature.initialize(dsaPublic.getOCKKey(), false);
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineInitVerify", e);
+            throw NativeOCKAdapter.providerException("Failure in engineInitVerify", e);
         }
     }
 
@@ -56,12 +57,12 @@ abstract class DSASignature extends SignatureSpi {
         DSAPrivateKey dsaPrivate = (DSAPrivateKey) DSAKeyFactory.toDSAKey(provider, privateKey);
 
         if (provider.isFIPS()) {
-            throw provider.providerException("DSA signing not supported in FIPS", null);
+            throw NativeOCKAdapter.providerException("DSA signing not supported in FIPS", null);
         }
         try {
             this.signature.initialize(dsaPrivate.getOCKKey(), false);
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineInitSign", e);
+            throw NativeOCKAdapter.providerException("Failure in engineInitSign", e);
         }
     }
 
@@ -77,7 +78,7 @@ abstract class DSASignature extends SignatureSpi {
             this.signature.update(b, off, len);
         } catch (Exception e) {
             SignatureException se = new SignatureException("Failure in engineUpdate");
-            provider.setOCKExceptionCause(se, e);
+            NativeOCKAdapter.setOCKExceptionCause(se, e);
             throw se;
         }
     }
@@ -88,7 +89,7 @@ abstract class DSASignature extends SignatureSpi {
             return this.signature.sign();
         } catch (Exception e) {
             SignatureException signatureException = new SignatureException("Could not sign data");
-            provider.setOCKExceptionCause(signatureException, e);
+            NativeOCKAdapter.setOCKExceptionCause(signatureException, e);
             throw signatureException;
         }
     }

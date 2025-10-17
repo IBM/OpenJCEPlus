@@ -8,8 +8,9 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.DHKey;
-import com.ibm.crypto.plus.provider.ock.OCKException;
+import com.ibm.crypto.plus.provider.base.DHKey;
+import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,7 +93,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
         try {
             this.key = new DerValue(DerValue.tag_Integer, this.x.toByteArray()).toByteArray();
             this.encodedKey = getEncoded();
-            this.dhKey = DHKey.createPrivateKey(provider.getOCKContext(), encodedKey);
+            this.dhKey = DHKey.createPrivateKey(provider.isFIPS(), encodedKey);
         } catch (OCKException e) {
             throw new InvalidKeyException("Failure in DHPrivateKey");
         }
@@ -108,7 +109,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
 
             this.dhKey = dhKey;
         } catch (Exception exception) {
-            throw provider.providerException("Failure in DHPrivateKey", exception);
+            throw NativeOCKAdapter.providerException("Failure in DHPrivateKey", exception);
         }
     }
 
@@ -120,7 +121,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
             convertOCKPrivateKeyBytes(encoded);
 
             buildOCKPrivateKeyBytes();
-            this.dhKey = DHKey.createPrivateKey(provider.getOCKContext(),
+            this.dhKey = DHKey.createPrivateKey(provider.isFIPS(),
                     encoded /*privateKeyBytes*/);
         } catch (Exception e) {
             throw new InvalidKeyException("Failure in DHPrivateKey");
@@ -348,7 +349,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
         try {
             return this.dhParams.engineGetParameterSpec(DHParameterSpec.class);
         } catch (InvalidParameterSpecException e) {
-            throw provider.providerException("Failure in DHPrivateKey", e);
+            throw NativeOCKAdapter.providerException("Failure in DHPrivateKey", e);
         }
     }
 

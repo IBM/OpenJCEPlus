@@ -8,8 +8,9 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.ECKey;
-import com.ibm.crypto.plus.provider.ock.OCKException;
+import com.ibm.crypto.plus.provider.base.ECKey;
+import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -186,14 +187,14 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
             }
             synchronized (locker1) {
                 synchronized (locker2) {
-                    secret = ECKey.computeECDHSecret(provider.getOCKContext(),
+                    secret = ECKey.computeECDHSecret(provider.isFIPS(),
                             ockEcKeyPub.getEcKeyId(), ockEcKeyPriv.getEcKeyId());
                 }
             }
         } catch (OCKException e) {
             throw new IllegalStateException(e.getMessage());
         } catch (Exception e) {
-            throw provider.providerException("Failed to generate secret", e);
+            throw NativeOCKAdapter.providerException("Failed to generate secret", e);
         }
         // );
 

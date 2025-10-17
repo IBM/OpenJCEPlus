@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.PQCKey;
+import com.ibm.crypto.plus.provider.base.PQCKey;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
@@ -59,8 +60,9 @@ final class PQCPrivateKey extends PKCS8Key {
         try {  
             try {
                 pkOct = new DerValue(DerValue.tag_OctetString, key);
-                this.pqcKey = PQCKey.createPrivateKey(provider.getOCKContext(), 
-                                this.name, pkOct.toByteArray());
+
+                this.pqcKey = PQCKey.createPrivateKey(provider.isFIPS(),
+                                   this.name, pkOct.toByteArray());
                 this.privKeyMaterial = pkOct.toByteArray();
             } finally {
                 pkOct.clear();
@@ -97,7 +99,7 @@ final class PQCPrivateKey extends PKCS8Key {
             this.name = PQCKnownOIDs.findMatch(pqcKey.getAlgorithm()).stdName();
             this.algid = new AlgorithmId(PQCAlgorithmId.getOID(name));
         } catch (Exception exception) {
-            throw provider.providerException("Failure in PQCPrivateKey" + exception.getMessage(), exception);
+            throw NativeOCKAdapter.providerException("Failure in PQCPrivateKey" + exception.getMessage(), exception);
         }
     }
 
@@ -124,8 +126,8 @@ final class PQCPrivateKey extends PKCS8Key {
             }
         }
         try {
-            this.pqcKey = PQCKey.createPrivateKey(provider.getOCKContext(), 
-                                this.name, this.privKeyMaterial);
+            this.pqcKey = PQCKey.createPrivateKey(provider.isFIPS(), 
+                                   this.name, this.privKeyMaterial);
         } catch (Exception e) {
             throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
         }

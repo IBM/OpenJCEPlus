@@ -8,7 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.SignatureDSANONE;
+import com.ibm.crypto.plus.provider.base.SignatureDSANONE;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapter;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.PrivateKey;
@@ -26,9 +27,9 @@ public final class DSASignatureNONE extends SignatureSpi {
     public DSASignatureNONE(OpenJCEPlusProvider provider) {
         try {
             this.provider = provider;
-            this.signature = SignatureDSANONE.getInstance(provider.getOCKContext());
+            this.signature = SignatureDSANONE.getInstance(provider.isFIPS());
         } catch (Exception e) {
-            throw provider.providerException("Failed to initialize DSA signature", e);
+            throw NativeOCKAdapter.providerException("Failed to initialize DSA signature", e);
         }
     }
 
@@ -39,7 +40,7 @@ public final class DSASignatureNONE extends SignatureSpi {
         try {
             this.signature.initialize(dsaPublic.getOCKKey());
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineInitVerify", e);
+            throw NativeOCKAdapter.providerException("Failure in engineInitVerify", e);
         }
 
         this.ofs = 0;
@@ -52,7 +53,7 @@ public final class DSASignatureNONE extends SignatureSpi {
         try {
             this.signature.initialize(dsaPrivate.getOCKKey());
         } catch (Exception e) {
-            throw provider.providerException("Failure in engineInitSign", e);
+            throw NativeOCKAdapter.providerException("Failure in engineInitSign", e);
         }
 
         this.ofs = 0;
@@ -90,7 +91,7 @@ public final class DSASignatureNONE extends SignatureSpi {
             return signature;
         } catch (Exception e) {
             SignatureException signatureException = new SignatureException("Could not sign data");
-            provider.setOCKExceptionCause(signatureException, e);
+            NativeOCKAdapter.setOCKExceptionCause(signatureException, e);
             throw signatureException;
         }
     }

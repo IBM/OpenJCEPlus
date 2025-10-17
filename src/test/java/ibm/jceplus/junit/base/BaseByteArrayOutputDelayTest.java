@@ -7,7 +7,7 @@
  */
 package ibm.jceplus.junit.base;
 
-import com.ibm.crypto.plus.provider.ock.ByteArrayOutputDelay;
+import com.ibm.crypto.plus.provider.base.ByteArrayOutputDelay;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
