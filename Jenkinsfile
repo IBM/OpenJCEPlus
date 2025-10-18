@@ -140,7 +140,7 @@ def archive(platform, iteration) {
     def buildID = "${env.BUILD_ID}"
     def fileLocation = "$WORKSPACE/openjceplus/OpenJCEPlus"
     def sanitizedBranchName = externalLibrary.getSanitizedBranchName()
-    def directory = "sys-rt-generic-local/OpenJCEPlus_builds/$sanitizedBranchName/$buildID"
+    def directory = "sys-rt-generic-local/OpenJCEPlus_builds/buildtest/$sanitizedBranchName/$buildID"
 
     // The OpenJCEPlus repo to be used
     def repo = "NULL"
