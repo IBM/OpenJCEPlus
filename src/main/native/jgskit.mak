@@ -11,35 +11,33 @@ TOPDIR=../../..
 
 PLAT=x86
 CC=gcc
-CFLAGS= -fPIC
+CFLAGS= -fPIC -Werror -std=gnu99 -pedantic -Wall -fstack-protector
 LDFLAGS= -shared
-AIX_LIBPATH = /usr/lib:/lib
 
 ifeq (${PLATFORM},arm-linux64)
   PLAT=xr
-  CFLAGS+= -DLINUX -Werror -std=gnu99 -pedantic -Wall -fstack-protector
-  LDFLAGS+= -DLINUX
+  CFLAGS+= -DLINUX
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},ppc-aix64)
   PLAT=ap
-  CC=xlc
-  CFLAGS= -qcpluscmt -q64 -qpic -DAIX -qhalt=w
-  LDFLAGS= -G -q64 -blibpath:${AIX_LIBPATH}
+  CC=xlclang
+  CFLAGS+= -DAIX -m64
+  LDFLAGS+= -brtl -m64
   OSINCLUDEDIR=aix
 else ifeq (${PLATFORM},ppcle-linux64)
   PLAT=xl
-  CFLAGS+= -DLINUX -Werror
+  CFLAGS+= -DLINUX -m64
   LDFLAGS+= -m64
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},s390-linux64)
   PLAT=xz
+  CFLAGS+= -DS390_PLATFORM -DLINUX -m64
   LDFLAGS+= -m64
-  CFLAGS+= -DS390_PLATFORM -DLINUX -Werror
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},s390-zos64)
   CC=ibm-clang64
   PLAT=mz
-  CFLAGS= -DS390
+  CFLAGS= -DS390 -m64
 
   # Open XL implies strict
   # https://www.ibm.com/docs/en/open-xl-c-cpp-zos/1.1?topic=options-qstrict
@@ -53,7 +51,7 @@ else ifeq (${PLATFORM},s390-zos64)
   OSINCLUDEDIR=zos
 else ifeq (${PLATFORM},x86-linux64)
   PLAT=xa
-  CFLAGS+= -DLINUX -Werror -std=gnu99 -pedantic -Wall -fstack-protector
+  CFLAGS+= -DLINUX -m64
   LDFLAGS+= -m64
   OSINCLUDEDIR=linux
 endif
@@ -109,7 +107,7 @@ TARGET = ${HOSTOUT}/libjgskit.so
 
 GSK8ICCS64=jgsk8iccs_64
 
-all : ${TARGET}
+all : displaycompiler ${TARGET}
 
 ifneq (,$(filter s390-zos64,${PLATFORM}))
   TARGET_LIBS := ${ICCARCHIVE}
@@ -132,6 +130,11 @@ ${HOSTOUT}/%.o : %.c
 		-I${OPENJCEPLUS_HEADER_FILES} \
 		-o $@ \
 		$<
+
+displaycompiler :
+	@echo "Compiler version: " && ${CC} --version
+	@echo "Building with ${CC} compiler..."
+	@echo "-------------------------------------"
 
 # Force BuildDate to be compiled every time.
 #
@@ -161,4 +164,4 @@ clean :
 	rm -f com_ibm_crypto_plus_provider_ock_FastJNIBuffer.h
 	rm -f com_ibm_crypto_plus_provider_ock_NativeInterface.h
 
-.PHONY : all headers clean FORCE
+.PHONY : all headers clean FORCE displaycompiler
