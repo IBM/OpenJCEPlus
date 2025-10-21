@@ -50,11 +50,6 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
     }
 
     public DHKeyAgreement(OpenJCEPlusProvider provider) {
-
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
-
         this.provider = provider;
     }
 

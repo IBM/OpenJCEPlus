@@ -31,10 +31,6 @@ public final class AESKeyGenerator extends KeyGeneratorSpi {
      * Empty constructor
      */
     public AESKeyGenerator(OpenJCEPlusProvider provider) {
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
-
         this.provider = provider;
     }
 
