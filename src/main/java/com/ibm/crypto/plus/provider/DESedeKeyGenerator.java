@@ -36,11 +36,6 @@ public final class DESedeKeyGenerator extends KeyGeneratorSpi {
      * Empty constructor
      */
     public DESedeKeyGenerator(OpenJCEPlusProvider provider) {
-
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
-
         this.provider = provider;
     }
 
