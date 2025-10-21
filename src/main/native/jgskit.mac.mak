@@ -9,8 +9,9 @@
 
 TOPDIR=../../..
 
-CFLAGS= -fPIC -DMAC -Werror -pedantic -Wall -fstack-protector
-LDFLAGS= -shared -m64 -DMAC
+CFLAGS= -fPIC -DMAC -Werror -std=gnu99 -pedantic -Wall -fstack-protector -m64
+LDFLAGS= -shared -m64
+CC = gcc
 
 ifeq (${PLATFORM},x86_64-mac)
   ARCHFLAGS= -arch x86_64
@@ -62,14 +63,14 @@ OBJS = \
 
 TARGET = ${HOSTOUT}/libjgskit.dylib
 
-all : ${TARGET}
+all : displaycompiler ${TARGET}
 
 ${TARGET} : ${OBJS}
-	gcc ${LDFLAGS} ${ARCHFLAGS} -o ${TARGET} ${OBJS} -L ${GSKIT_HOME}/lib64 -l jgsk8iccs
+	${CC} ${LDFLAGS} ${ARCHFLAGS} -o ${TARGET} ${OBJS} -L ${GSKIT_HOME}/lib64 -l jgsk8iccs
 
 ${HOSTOUT}/%.o : %.c
 	test -d ${@D} || mkdir -p ${@D} 2>/dev/null
-	gcc \
+	${CC} \
 		${ARCHFLAGS} \
 		${CFLAGS} \
 		${DEBUG_FLAGS} \
@@ -80,6 +81,12 @@ ${HOSTOUT}/%.o : %.c
 		-I${OPENJCEPLUS_HEADER_FILES} \
 		-o $@ \
 		$<
+
+displaycompiler :
+	@echo "-------------------------------------"
+	@echo "Compiler version: " && ${CC} --version
+	@echo "Building with ${CC} compiler..."
+	@echo "-------------------------------------"
 
 # Force BuildDate to be compiled every time.
 #
@@ -109,4 +116,4 @@ clean :
 	rm -f com_ibm_crypto_plus_provider_ock_FastJNIBuffer.h
 	rm -f com_ibm_crypto_plus_provider_ock_NativeInterface.h
 
-.PHONY : all headers clean FORCE
+.PHONY : all headers clean FORCE displaycompiler
