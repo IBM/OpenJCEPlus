@@ -49,9 +49,6 @@ abstract class AESKeyWrapCipher extends CipherSpi {
     };
 
     public AESKeyWrapCipher(OpenJCEPlusProvider provider, boolean padding, int keySize) {
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
         this.provider = provider;
         this.setKeySize = keySize;
         this.setPadding = padding;
