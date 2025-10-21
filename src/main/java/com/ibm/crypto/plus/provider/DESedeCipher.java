@@ -40,11 +40,6 @@ public final class DESedeCipher extends CipherSpi implements DESConstants {
     private SecureRandom cryptoRandom = null;
 
     public DESedeCipher(OpenJCEPlusProvider provider) {
-
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
-
         this.provider = provider;
     }
 
