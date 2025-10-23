@@ -94,5 +94,9 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
 
     abstract ProviderException providerException(String message, Throwable ockException);
 
-    abstract void setOCKExceptionCause(Exception exception, Throwable ockException);
+    void setOCKExceptionCause(Exception exception, Throwable ockException) {
+        if ((debug != null) && (exception != null) && (exception.getCause() == null)) {
+            exception.initCause(ockException);
+        }
+    }
 }
