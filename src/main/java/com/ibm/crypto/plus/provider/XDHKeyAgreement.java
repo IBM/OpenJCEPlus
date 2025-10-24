@@ -39,18 +39,10 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
     private String alg = null;
 
     XDHKeyAgreement(OpenJCEPlusProvider provider) {
-
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this))
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-
         this.provider = provider;
     }
 
     XDHKeyAgreement(OpenJCEPlusProvider provider, String Alg) {
-
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this))
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-
         this.provider = provider;
         this.alg = Alg;
     }

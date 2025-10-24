@@ -99,11 +99,6 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
 
 
     public AESCCMCipher(OpenJCEPlusProvider provider) {
-
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
-
         this.provider = provider;
         try {
             ockContext = provider.getOCKContext();

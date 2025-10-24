@@ -42,9 +42,6 @@ public final class ChaCha20Cipher extends CipherSpi implements ChaCha20Constants
     private SecureRandom cryptoRandom = null;
 
     public ChaCha20Cipher(OpenJCEPlusProvider provider) {
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this.getClass())) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
         this.provider = provider;
     }
 

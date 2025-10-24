@@ -137,10 +137,6 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
     private byte[] lastEncIv = null;
 
     public AESGCMCipher(OpenJCEPlusProvider provider) {
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
-
         this.provider = provider;
         try {
             ockContext = provider.getOCKContext();
