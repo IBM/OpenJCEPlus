@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.security.InvalidKeyException;
 
 public final class Signature {
@@ -20,19 +21,19 @@ public final class Signature {
     private final String badIdMsg = "Digest Identifier or PKey Identifier is not valid";
     private final static String debPrefix = "SIGNATURE";
 
-    public static Signature getInstance(OCKContext ockContext, String digestAlgo)
+    public static Signature getInstance(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider)
             throws OCKException {
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
         }
-        return new Signature(ockContext, digestAlgo);
+        return new Signature(ockContext, digestAlgo, provider);
     }
 
 
-    private Signature(OCKContext ockContext, String digestAlgo) throws OCKException {
+    private Signature(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "Signature(String)";
         this.ockContext = ockContext;
-        this.digest = Digest.getInstance(ockContext, digestAlgo);
+        this.digest = Digest.getInstance(ockContext, digestAlgo, provider);
         //OCKDebug.Msg (debPrefix, methodName, "digestAlgo :" + digestAlgo);
     }
 

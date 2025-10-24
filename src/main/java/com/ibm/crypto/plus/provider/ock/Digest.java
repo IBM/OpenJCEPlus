@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,7 +27,7 @@ public final class Digest implements Cloneable {
     // -2   : Not a SHA* digest algorithm
     private int algIndx = -1;
 
-    private boolean needsReinit = false;
+    private BoolWrapper needsReinit = new BoolWrapper(false);
 
     private boolean contextFromQueue = false;
 
@@ -130,44 +131,28 @@ public final class Digest implements Cloneable {
                 this.contextFromQueue = true;
             }
         }
-        this.needsReinit = false;
-    }
-
-    void releaseContext() throws OCKException {
-
-        if (this.digestId == 0) {
-            return;
-        }
-
-        // not SHA* algorithm
-        if (this.algIndx == -2) {
-            if (validId(this.digestId)) {
-                NativeInterface.DIGEST_delete(this.ockContext.getId(),
-                        this.digestId);
-                this.digestId = 0;
-            }
-        } else {
-            if (this.contextFromQueue) {
-                // reset now to make sure all contexts in the queue are ready to use
-                this.reset();
-                contexts[this.algIndx].add(this.digestId);
-                this.digestId = 0;
-                this.contextFromQueue = false;
-            } else {
-                // delete context
-                if (validId(this.digestId)) {
-                    NativeInterface.DIGEST_delete(this.ockContext.getId(),
-                            this.digestId);
-                    this.digestId = 0;
-                }
-            }
-        }
-        this.digestId = 0;
+        this.needsReinit.setValue(false);
     }
 
     /* end digest caching mechanism
      * ===========================================================================
      */
+
+    /* This wrapper is used to pass a primitive variable as a parameter by reference instead of by value to the cleaner. */
+    public class BoolWrapper {
+        boolean value;
+        public BoolWrapper(boolean value) {
+            this.value = value;
+        }
+
+        public boolean getValue(){
+            return this.value;
+        }
+
+        public void setValue(boolean value) {
+            this.value = value;
+        }
+    }
 
     private OCKContext ockContext = null;
     private int digestLength = 0;
@@ -178,7 +163,9 @@ public final class Digest implements Cloneable {
 
     private long digestId = 0;
 
-    public static Digest getInstance(OCKContext ockContext, String digestAlgo) throws OCKException {
+    private OpenJCEPlusProvider provider;
+
+    public static Digest getInstance(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
         }
@@ -187,15 +174,23 @@ public final class Digest implements Cloneable {
             throw new IllegalArgumentException("digestAlgo is null/empty");
         }
 
-        return new Digest(ockContext, digestAlgo);
+        return new Digest(ockContext, digestAlgo, provider);
     }
 
-    private Digest(OCKContext ockContext, String digestAlgo) throws OCKException {
+    private Digest(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "Digest(String)";
         this.ockContext = ockContext;
         this.digestAlgo = digestAlgo;
+        this.provider = provider;
         getContext();
         //OCKDebug.Msg(debPrefix, methodName,  "digestAlgo :" + digestAlgo);
+
+        if (provider == null) {
+            throw new IllegalArgumentException("Provider cannot be null.");
+        }
+        
+        this.provider.registerCleanable(this, cleanOCKResources(digestId, algIndx,
+            contextFromQueue, needsReinit, ockContext));
     }
 
     private Digest() {
@@ -238,7 +233,7 @@ public final class Digest implements Cloneable {
         if (errorCode < 0) {
             throwOCKException(errorCode);
         }
-        this.needsReinit = true;
+        this.needsReinit.setValue(true);
     }
 
     public synchronized byte[] digest() throws OCKException {
@@ -260,7 +255,7 @@ public final class Digest implements Cloneable {
         if (errorCode < 0) {
             throwOCKException(errorCode);
         }
-        this.needsReinit = false;
+        this.needsReinit.setValue(false);
 
         return digestBytes;
     }
@@ -292,10 +287,10 @@ public final class Digest implements Cloneable {
         if (!validId(this.digestId)) {
             throw new OCKException(badIdMsg);
         }
-        if (this.needsReinit) {
+        if (this.needsReinit.getValue()) {
             NativeInterface.DIGEST_reset(this.ockContext.getId(), this.digestId);
         }
-        this.needsReinit = false;
+        this.needsReinit.setValue(false);
     }
 
     private synchronized void obtainDigestLength() throws OCKException {
@@ -314,18 +309,6 @@ public final class Digest implements Cloneable {
                 this.digestLength = NativeInterface.DIGEST_size(this.ockContext.getId(),
                         this.digestId);
             }
-        }
-    }
-
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        //final String methodName = "finalize";
-
-        try {
-            //OCKDebug.Msg(debPrefix, methodName,  "digestId =" + this.digestId);
-            releaseContext();
-        } finally {
-            super.finalize();
         }
     }
 
@@ -348,9 +331,10 @@ public final class Digest implements Cloneable {
         copy.digestLength = this.digestLength;
         copy.algIndx = this.algIndx;
         copy.digestAlgo = new String(this.digestAlgo);
-        copy.needsReinit = this.needsReinit;
+        copy.needsReinit.setValue(this.needsReinit.getValue());
         copy.ockContext = this.ockContext;
         copy.contextFromQueue = false;
+        copy.provider = this.provider;
 
         // Allocate a new context for the digestId and copy all state information from our
         // original context into the copy. 
@@ -367,6 +351,41 @@ public final class Digest implements Cloneable {
                                       .collect(Collectors.joining("\n"));
             throw new CloneNotSupportedException(stackTrace);
         }
+
+        this.provider.registerCleanable(copy, cleanOCKResources(copy.digestId, copy.algIndx,
+            copy.contextFromQueue, copy.needsReinit, copy.ockContext));
         return copy;
+    }
+
+    private Runnable cleanOCKResources(long digestId, int algIndx, boolean contextFromQueue,
+            BoolWrapper needsReinit, OCKContext ockContext) {
+        return () -> {
+            try {
+                if (digestId == 0) {
+                    throw new OCKException("Digest Identifier is not valid");
+                }
+                // not SHA* algorithm
+                if (algIndx == -2) {
+                    if (validId(digestId)) {
+                        NativeInterface.DIGEST_delete(ockContext.getId(), digestId);
+                    }
+                } else {
+                    if (contextFromQueue) {
+                        // reset now to make sure all contexts in the queue are ready to use
+                        if (needsReinit.getValue()) {
+                            NativeInterface.DIGEST_reset(ockContext.getId(), digestId);
+                        }
+                        Digest.contexts[algIndx].add(digestId);
+                    } else {
+                        NativeInterface.DIGEST_delete(ockContext.getId(), digestId);
+                    }
+                }
+            } catch (OCKException e) {
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 }
