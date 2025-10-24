@@ -46,11 +46,6 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
     private int secretLen;
 
     public ECDHKeyAgreement(OpenJCEPlusProvider provider) {
-
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
-
         // System.out.println ("In ECDHKeyAgreement");
         this.provider = provider;
     }

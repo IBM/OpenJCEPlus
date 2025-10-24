@@ -44,9 +44,6 @@ public final class AESCipher extends CipherSpi implements AESConstants {
     private SecureRandom cryptoRandom = null;
 
     public AESCipher(OpenJCEPlusProvider provider) {
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
         buffer = new byte[engineGetBlockSize() * 3];
         this.provider = provider;
     }

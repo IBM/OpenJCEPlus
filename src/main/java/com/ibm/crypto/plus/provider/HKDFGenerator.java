@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -45,10 +45,6 @@ public class HKDFGenerator extends KeyGeneratorSpi {
     public HKDFGenerator(OpenJCEPlusProvider provider, String digestAlgorithm)
             throws NoSuchAlgorithmException {
         Objects.requireNonNull(digestAlgorithm, "Must provide underlying HKDF Digest algorithm.");
-
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this.getClass())) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
 
         this.provider = provider;
         this.digestAlgorithm = digestAlgorithm;

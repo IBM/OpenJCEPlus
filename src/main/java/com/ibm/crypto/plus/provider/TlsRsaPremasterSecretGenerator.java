@@ -31,11 +31,6 @@ public final class TlsRsaPremasterSecretGenerator extends KeyGeneratorSpi {
     private SecureRandom cryptoRandom = null;
 
     public TlsRsaPremasterSecretGenerator(OpenJCEPlusProvider provider) {
-
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
-
         this.provider = provider;
     }
 
