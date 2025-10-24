@@ -28,23 +28,8 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
 
     static final boolean allowLegacyHKDF = Boolean.getBoolean("openjceplus.allowLegacyHKDF");
 
-    //    private static boolean verifiedSelfIntegrity = false;
-    private static final boolean verifiedSelfIntegrity = true;
-
     OpenJCEPlusProvider(String name, String info) {
         super(name, PROVIDER_VER, info);
-    }
-
-    static final boolean verifySelfIntegrity(Object c) {
-        if (verifiedSelfIntegrity) {
-            return true;
-        }
-
-        return doSelfVerification(c);
-    }
-
-    private static final synchronized boolean doSelfVerification(Object c) {
-        return true;
     }
 
     // Get OCK context for crypto operations
