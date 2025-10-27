@@ -21,8 +21,11 @@ import sun.security.util.ObjectIdentifier;
 
 public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
 
+    private static final String EC_LEGACY_DEFAULT_KEYSIZE = "openjceplus.ec.legacy.defaultKeysize";
+    private static final boolean legacyECdefault = Boolean.parseBoolean(System.getProperty(EC_LEGACY_DEFAULT_KEYSIZE));
+
     private OpenJCEPlusProvider provider = null;
-    private int keysize = 256;
+    private int keysize = legacyECdefault? 256 : 384;
     private SecureRandom cryptoRandom = null;
     ECParameterSpec ecSpec;
     private ObjectIdentifier oid = null;
