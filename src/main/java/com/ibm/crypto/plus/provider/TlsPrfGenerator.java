@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -109,11 +109,6 @@ abstract class TlsPrfGenerator extends KeyGeneratorSpi {
     private TlsPrfParameterSpec spec;
 
     TlsPrfGenerator(OpenJCEPlusProvider provider) {
-
-        if (!OpenJCEPlusProvider.verifySelfIntegrity(this)) {
-            throw new SecurityException("Integrity check failed for: " + provider.getName());
-        }
-
         this.provider = provider;
     }
 
