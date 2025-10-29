@@ -49,7 +49,7 @@ public final class ChaCha20KeyGenerator extends KeyGeneratorSpi implements ChaCh
         cryptoRandom.nextBytes(keyBytes);
 
         try {
-            return new ChaCha20Key(keyBytes);
+            return new ChaCha20Key(provider, keyBytes);
         } catch (InvalidKeyException e) {
             // Should never happen
             throw new ProviderException(e.getMessage());
