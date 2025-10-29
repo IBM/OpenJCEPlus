@@ -17,7 +17,6 @@ import java.io.ObjectStreamException;
 import java.lang.ref.Reference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.security.KeyRep;
 import java.security.MessageDigest;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
@@ -42,6 +41,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
     @java.io.Serial
     private static final long serialVersionUID = -2234868909660948157L;
 
+    private OpenJCEPlusProvider provider = null;
     private char[] passwd;
     private byte[] salt;
     private final int iterCount;
@@ -68,6 +68,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
      */
     PBKDF2KeyImpl(OpenJCEPlusProvider provider, PBEKeySpec keySpec, String prfAlgo)
             throws InvalidKeySpecException {
+        this.provider = provider;
         this.passwd = keySpec.getPassword();
         // Convert the password from char[] to byte[]
         byte[] passwdBytes = getPasswordBytes(this.passwd);
@@ -218,7 +219,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
     @java.io.Serial
     private Object writeReplace() throws ObjectStreamException {
         try {
-            return new KeyRep(KeyRep.Type.SECRET, getAlgorithm(), getFormat(), key);
+            return new JCEPlusKeyRep(JCEPlusKeyRep.Type.SECRET, getAlgorithm(), getFormat(), key, provider.getName());
         } finally {
             // prevent this from being cleaned for the above block
             Reference.reachabilityFence(this);

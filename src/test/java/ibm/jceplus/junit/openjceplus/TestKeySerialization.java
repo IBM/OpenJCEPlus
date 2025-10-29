@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,20 +8,17 @@
 
 package ibm.jceplus.junit.openjceplus;
 
-import ibm.jceplus.junit.base.BaseTestPQCKeyInterop;
+import ibm.jceplus.junit.base.BaseTestKeySerialization;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
-public class TestPQCKeyInteropBC extends BaseTestPQCKeyInterop {
-
+public class TestKeySerialization extends BaseTestKeySerialization {
+   
     @BeforeAll
-    public void beforeAll() throws Exception {
+    public void beforeAll() {
         Utils.loadProviderTestSuite();
-        Utils.loadProviderBC();
         setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
-        setInteropProviderName(Utils.PROVIDER_BC);
-        setInteropProviderName2(Utils.PROVIDER_BC);
     }
 }
