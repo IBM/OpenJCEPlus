@@ -16,7 +16,6 @@ import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
-import java.security.KeyRep;
 import java.security.interfaces.XECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
@@ -490,6 +489,6 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
     }
 
     protected Object writeReplace() throws java.io.ObjectStreamException {
-        return new KeyRep(KeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded());
+        return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
     }
 }

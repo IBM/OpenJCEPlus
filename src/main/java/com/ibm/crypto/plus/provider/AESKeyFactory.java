@@ -46,7 +46,7 @@ public final class AESKeyFactory extends SecretKeyFactorySpi {
     protected SecretKey engineGenerateSecret(KeySpec keySpec) throws InvalidKeySpecException {
         try {
             if (keySpec instanceof SecretKeySpec) {
-                return new AESKey(((SecretKeySpec) keySpec).getEncoded());
+                return new AESKey(provider, ((SecretKeySpec) keySpec).getEncoded());
             }
             throw new InvalidKeySpecException("Inappropriate key specification");
         } catch (InvalidKeyException e) {

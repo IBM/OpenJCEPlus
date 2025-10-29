@@ -204,7 +204,7 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
         byte[] secret = engineGenerateSecret();
         if (algorithm.equalsIgnoreCase("DESede") || algorithm.equalsIgnoreCase("TripleDES")) {
             // Triple DES
-            return new DESedeKey(secret);
+            return new DESedeKey(provider, secret);
         } else if (algorithm.equalsIgnoreCase("AES")) {
             // AES
             int keysize = secret.length;
