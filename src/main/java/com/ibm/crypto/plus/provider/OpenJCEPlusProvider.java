@@ -54,6 +54,12 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
         }
     }
 
+    /**
+     * Any primitive instance variable whose value is changed after calling registerCleanable()
+     * in the constructor must be changed to the PrimitiveWrapper type if the variable is passed
+     * as a parameter to the Runnable cleaning method. This is to ensure the variable is passed by
+     * reference instead of by value.
+     */
     public void registerCleanable(Object owner, Runnable cleanAction) {
         Cleaner cleaner = cleaners[Math.abs(count.getAndIncrement() % numCleaners)];
         cleaner.register(owner, cleanAction);
