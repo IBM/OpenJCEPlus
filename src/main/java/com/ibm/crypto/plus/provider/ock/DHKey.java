@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.Arrays;
 
 public final class DHKey implements AsymmetricKey {
@@ -17,6 +18,7 @@ public final class DHKey implements AsymmetricKey {
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
 
+    private OpenJCEPlusProvider provider;
     private OCKContext ockContext;
     private long dhKeyId = 0;
     private long pkeyId = 0;
@@ -28,7 +30,7 @@ public final class DHKey implements AsymmetricKey {
     private static final String badIdMsg1 = "Public or Private Key Identifier is not valid";
     private static final String debPrefix = "DHKey";
 
-    public static DHKey generateKeyPair(OCKContext ockContext, byte[] parameters)
+    public static DHKey generateKeyPair(OCKContext ockContext, byte[] parameters, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "generateKeyPair(byte[]) ";
         if (ockContext == null) {
@@ -39,12 +41,15 @@ public final class DHKey implements AsymmetricKey {
             throw new IllegalArgumentException("DH parameters are null/empty");
         }
 
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
         long dhKeyId = NativeInterface.DHKEY_generate(ockContext.getId(), parameters);
         return new DHKey(ockContext, dhKeyId, parameters.clone(), unobtainedKeyBytes,
-                unobtainedKeyBytes);
+                unobtainedKeyBytes, provider);
     }
 
-    public static DHKey generateKeyPair(OCKContext ockContext, int numBits) throws OCKException {
+    public static DHKey generateKeyPair(OCKContext ockContext, int numBits, OpenJCEPlusProvider provider) throws OCKException {
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
         }
@@ -53,8 +58,11 @@ public final class DHKey implements AsymmetricKey {
             throw new IllegalArgumentException("key length is invalid");
         }
 
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
         long dhKeyId = NativeInterface.DHKEY_generate(ockContext.getId(), numBits);
-        return new DHKey(ockContext, dhKeyId, null, unobtainedKeyBytes, unobtainedKeyBytes);
+        return new DHKey(ockContext, dhKeyId, null, unobtainedKeyBytes, unobtainedKeyBytes, provider);
     }
 
     public static byte[] generateParameters(OCKContext ockContext, int numBits) {
@@ -68,7 +76,7 @@ public final class DHKey implements AsymmetricKey {
         return NativeInterface.DHKEY_generateParameters(ockContext.getId(), numBits);
     }
 
-    public static DHKey createPrivateKey(OCKContext ockContext, byte[] privateKeyBytes)
+    public static DHKey createPrivateKey(OCKContext ockContext, byte[] privateKeyBytes, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "DHKey createPrivateKey (byte[]) ";
         if (ockContext == null) {
@@ -78,11 +86,15 @@ public final class DHKey implements AsymmetricKey {
         if (privateKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
         }
+
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
         long dhKeyId = NativeInterface.DHKEY_createPrivateKey(ockContext.getId(), privateKeyBytes);
-        return new DHKey(ockContext, dhKeyId, null, privateKeyBytes.clone(), null);
+        return new DHKey(ockContext, dhKeyId, null, privateKeyBytes.clone(), null, provider);
     }
 
-    public static DHKey createPublicKey(OCKContext ockContext, byte[] publicKeyBytes)
+    public static DHKey createPublicKey(OCKContext ockContext, byte[] publicKeyBytes, OpenJCEPlusProvider provider)
             throws OCKException {
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
@@ -91,18 +103,25 @@ public final class DHKey implements AsymmetricKey {
         if (publicKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
         }
+
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
         long dhKeyId = NativeInterface.DHKEY_createPublicKey(ockContext.getId(), publicKeyBytes);
-        return new DHKey(ockContext, dhKeyId, null, null, publicKeyBytes.clone());
+        return new DHKey(ockContext, dhKeyId, null, null, publicKeyBytes.clone(), provider);
     }
 
     private DHKey(OCKContext ockContext, long dhKeyId, byte[] parameters, byte[] privateKeyBytes,
-            byte[] publicKeyBytes) {
+            byte[] publicKeyBytes, OpenJCEPlusProvider provider) {
         this.ockContext = ockContext;
         this.dhKeyId = dhKeyId;
         this.pkeyId = 0;
         this.parameters = parameters;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
+        this.provider = provider;
+
+        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, dhKeyId, pkeyId, ockContext));
     }
 
     @Override
@@ -227,32 +246,32 @@ public final class DHKey implements AsymmetricKey {
         }
     }
 
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        //final String methodName = "finalize";
-        try {
-            if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
-                Arrays.fill(privateKeyBytes, (byte) 0x00);
-            }
-
-            if (dhKeyId != 0) {
-                NativeInterface.DHKEY_delete(ockContext.getId(), dhKeyId);
-                dhKeyId = 0;
-            }
-
-            if (pkeyId != 0) {
-                NativeInterface.PKEY_delete(ockContext.getId(), pkeyId);
-                pkeyId = 0;
-            }
-        } finally {
-            super.finalize();
-        }
-    }
-
     /* At some point we may enhance this function to do other validations */
     protected static boolean validId(long id) {
         //final String methodName = "validId";
         // OCKDebug.Msg (debPrefix, methodName, "Id :" + id);
         return (id != 0L);
     }
+
+    private Runnable cleanOCKResources(byte[] privateKeyBytes, long dhKeyId, long pkeyId, OCKContext ockContext) {
+        return () -> {
+            if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
+                Arrays.fill(privateKeyBytes, (byte) 0x00);
+            }
+            try {
+                if (dhKeyId != 0) {
+                    NativeInterface.DHKEY_delete(ockContext.getId(), dhKeyId);
+                }
+                if (pkeyId != 0) {
+                    NativeInterface.PKEY_delete(ockContext.getId(), pkeyId);
+                }
+            } catch (OCKException e) {
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
 }

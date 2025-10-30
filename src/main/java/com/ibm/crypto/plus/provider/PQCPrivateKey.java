@@ -60,7 +60,7 @@ final class PQCPrivateKey extends PKCS8Key {
             try {
                 pkOct = new DerValue(DerValue.tag_OctetString, key);
                 this.pqcKey = PQCKey.createPrivateKey(provider.getOCKContext(), 
-                                this.name, pkOct.toByteArray());
+                                this.name, pkOct.toByteArray(), provider);
                 this.privKeyMaterial = pkOct.toByteArray();
             } finally {
                 pkOct.clear();
@@ -125,7 +125,7 @@ final class PQCPrivateKey extends PKCS8Key {
         }
         try {
             this.pqcKey = PQCKey.createPrivateKey(provider.getOCKContext(), 
-                                this.name, this.privKeyMaterial);
+                                this.name, this.privKeyMaterial, provider);
         } catch (Exception e) {
             throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
         }

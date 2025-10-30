@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -97,7 +97,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             byte[] alteredEncoded = processEncodedPrivateKey(encoded); // Sets params, key, and algid, and alters encoded
             // to fit with GSKit and sets params
             int curveSize = CurveUtil.getCurveSize(curve);
-            this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded, curveSize);
+            this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded, curveSize, provider);
             this.scalar = Optional.of(k);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");
@@ -143,12 +143,12 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         try {
             if (k == null) {
                 int keySize = CurveUtil.getCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.curve.ordinal(), keySize);
+                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.curve.ordinal(), keySize, provider);
             } else {
                 this.algid = CurveUtil.getAlgId(this.params.getName());
                 byte[] der = buildOCKPrivateKeyBytes();
                 int encodingSize = CurveUtil.getDEREncodingSize(curve);
-                this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der, encodingSize);
+                this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der, encodingSize, provider);
             }
             setPKCS8KeyByte(k);
         } catch (Exception exception) {

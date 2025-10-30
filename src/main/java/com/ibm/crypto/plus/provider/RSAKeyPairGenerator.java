@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -117,7 +117,7 @@ abstract class RSAKeyPairGenerator extends KeyPairGeneratorSpi {
     public KeyPair generateKeyPair() {
         try {
             RSAKey rsaKey = RSAKey.generateKeyPair(provider.getOCKContext(), this.keysize,
-                    this.publicExponent);
+                    this.publicExponent, provider);
             java.security.interfaces.RSAPrivateKey privKey = new RSAPrivateCrtKey(rsaId, provider, rsaKey);
             java.security.interfaces.RSAPublicKey pubKey = new RSAPublicKey(rsaId, provider, rsaKey);
             return new KeyPair(pubKey, privKey);
