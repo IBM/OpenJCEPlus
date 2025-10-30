@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -126,7 +126,7 @@ final class DHPublicKey extends X509Key
             // + ECUtils.bytesToHex(publicKeyBytes));
 
             this.dhKey = DHKey.createPublicKey(provider.getOCKContext(),
-                    /* publicKeyBytes */ this.encodedKey);
+                    /* publicKeyBytes */ this.encodedKey, provider);
 
             // System.err.println("Afte OCK: " + ECUtils.bytesToHex(this.key));
 
