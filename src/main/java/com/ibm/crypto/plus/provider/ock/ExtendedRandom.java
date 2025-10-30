@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,12 +8,15 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+
 public final class ExtendedRandom {
 
+    OpenJCEPlusProvider provider;
     OCKContext ockContext;
-    long ockPRNGContextId;
+    final long ockPRNGContextId;
 
-    public static ExtendedRandom getInstance(OCKContext ockContext, String algName)
+    public static ExtendedRandom getInstance(OCKContext ockContext, String algName, OpenJCEPlusProvider provider)
             throws OCKException {
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
@@ -23,12 +26,19 @@ public final class ExtendedRandom {
             throw new IllegalArgumentException("algName is null/empty");
         }
 
-        return new ExtendedRandom(ockContext, algName);
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
+        return new ExtendedRandom(ockContext, algName, provider);
     }
 
-    private ExtendedRandom(OCKContext ockContext, String algName) throws OCKException {
+    private ExtendedRandom(OCKContext ockContext, String algName, OpenJCEPlusProvider provider) throws OCKException {
         this.ockContext = ockContext;
         this.ockPRNGContextId = NativeInterface.EXTRAND_create(ockContext.getId(), algName);
+        this.provider = provider;
+
+        this.provider.registerCleanable(this, cleanOCKResources(ockPRNGContextId, ockContext));
     }
 
     public synchronized void nextBytes(byte[] bytes) throws OCKException {
@@ -51,15 +61,18 @@ public final class ExtendedRandom {
         }
     }
 
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            if (ockPRNGContextId != 0) {
-                NativeInterface.EXTRAND_delete(ockContext.getId(), ockPRNGContextId);
-                ockPRNGContextId = 0;
+    private Runnable cleanOCKResources(long ockPRNGContextId, OCKContext ockContext) {
+        return() -> {
+            try {
+                if (ockPRNGContextId != 0) {
+                    NativeInterface.EXTRAND_delete(ockContext.getId(), ockPRNGContextId);
+                }
+            } catch (Exception e) {
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
-        } finally {
-            super.finalize();
-        }
+        };
     }
 }

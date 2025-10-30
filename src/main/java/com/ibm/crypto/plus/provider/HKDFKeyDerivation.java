@@ -76,7 +76,7 @@ public class HKDFKeyDerivation extends KDFSpi {
         this.digestAlgName = supportedHmac.digestAlg;
         this.hmacLen = supportedHmac.hmacLen;
         try {
-            hkdfObj = HKDF.getInstance(this.provider.getOCKContext(), this.digestAlgName);
+            hkdfObj = HKDF.getInstance(this.provider.getOCKContext(), this.digestAlgName, provider);
             if (hkdfObj.getMacLength() != this.hmacLen) {
                 throw new ProviderException("Mismatch between expected and OCK provided HMAC length");
             }

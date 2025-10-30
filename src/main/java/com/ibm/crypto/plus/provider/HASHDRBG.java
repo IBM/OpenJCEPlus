@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -33,7 +33,7 @@ abstract class HASHDRBG extends SecureRandomSpi {
         this.randomAlgo = ockRandomAlgo;
         basicRandom = BasicRandom.getInstance(provider.getOCKContext());
         try {
-            extendedRandom = ExtendedRandom.getInstance(provider.getOCKContext(), ockRandomAlgo);
+            extendedRandom = ExtendedRandom.getInstance(provider.getOCKContext(), ockRandomAlgo, provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to get HASHDRBG algorithm", e);
         }
@@ -89,7 +89,7 @@ abstract class HASHDRBG extends SecureRandomSpi {
         basicRandom = BasicRandom.getInstance(provider.getOCKContext());
         try {
             // Recreate OCK object per tag [SERIALIZATION] in DesignNotes.txt
-            extendedRandom = ExtendedRandom.getInstance(provider.getOCKContext(), randomAlgo);
+            extendedRandom = ExtendedRandom.getInstance(provider.getOCKContext(), randomAlgo, provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to get HASHDRBG algorithm", e);
         }
