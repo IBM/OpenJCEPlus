@@ -20,7 +20,7 @@ ifeq (${PLATFORM},arm-linux64)
   OSINCLUDEDIR=linux
 else ifeq (${PLATFORM},ppc-aix64)
   PLAT=ap
-  CC=xlclang
+  CC=ibm-clang_r
   CFLAGS+= -DAIX -m64
   LDFLAGS+= -brtl -m64
   OSINCLUDEDIR=aix

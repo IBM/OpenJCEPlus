@@ -203,7 +203,7 @@ def runOpenJCEPlus(command, software) {
         } else if (software == "mac") {
             java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
         } else if (software == "aix") {
-            environment = "export PATH=/opt/IBM/xlC/16.1.0/bin:/opt/IBM/xlc/16.1.0/bin:${mavenPath}:\$PATH;"
+            environment = "export PATH=/opt/IBM/openxlC/17.1.3/bin:/opt/IBM/openxlC/17.1.3/tools:/opt/IBM/openxlC/17.1.3/compat/llvm:${mavenPath}:\$PATH;"
         }
 
         if (software != "windows") {
