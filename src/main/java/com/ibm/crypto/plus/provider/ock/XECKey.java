@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.Arrays;
 
 public final class XECKey implements AsymmetricKey {
@@ -15,8 +16,9 @@ public final class XECKey implements AsymmetricKey {
     // private/public key bytes are available but not yet obtained.
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
+    private OpenJCEPlusProvider provider;
     private OCKContext ockContext;
-    private long xecKeyId;
+    private final long xecKeyId;
     private byte[] privateKeyBytes;
     private byte[] publicKeyBytes;
     private static final String badIdMsg = "XEC Key Identifier is not valid";
@@ -31,16 +33,19 @@ public final class XECKey implements AsymmetricKey {
     };
 
     private XECKey(OCKContext ockContext, long xecKeyId, byte[] privateKeyBytes,
-            byte[] publicKeyBytes) {
+            byte[] publicKeyBytes, OpenJCEPlusProvider provider) {
         //final String methodName = "XECKey(long, byte[], byte[]) ";
         this.ockContext = ockContext;
         this.xecKeyId = xecKeyId;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
+        this.provider = provider;
+
+        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, xecKeyId, ockContext));
     }
 
 
-    public static XECKey generateKeyPair(OCKContext ockContext, int curveNum, int pub_size)
+    public static XECKey generateKeyPair(OCKContext ockContext, int curveNum, int pub_size, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "generateKeyPair(NamedParameterSpec.CURVE) ";
         if (ockContext == null)
@@ -52,11 +57,15 @@ public final class XECKey implements AsymmetricKey {
                 buffer.pointer());
         if (!validId(xecKeyId))
             throw new OCKException(badIdMsg);
+            
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
 
         byte[] publicKeyBytes = new byte[pub_size];
         buffer.get(0, publicKeyBytes, 0, pub_size);
 
-        return new XECKey(ockContext, xecKeyId, unobtainedKeyBytes, publicKeyBytes);
+        return new XECKey(ockContext, xecKeyId, unobtainedKeyBytes, publicKeyBytes, provider);
     }
 
     public static byte[] computeECDHSecret(OCKContext ockContext, long genCtx, long pubId,
@@ -111,31 +120,15 @@ public final class XECKey implements AsymmetricKey {
         return (publicKeyBytes == null) ? null : publicKeyBytes.clone();
     }
 
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        //final String methodName = "finalize ";
-        //OCKDebug.Msg(debPrefix, methodName,  "ecKeyId :" + ecKeyId + " pkeyId=" + pkeyId);
-        try {
-            if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
-                Arrays.fill(privateKeyBytes, (byte) 0x00);
-            }
-
-            if (xecKeyId != 0) {
-                NativeInterface.XECKEY_delete(ockContext.getId(), xecKeyId);
-                xecKeyId = 0;
-            }
-        } finally {
-            super.finalize();
-        }
-    }
-
     public synchronized static XECKey createPrivateKey(OCKContext ockContext,
-            byte[] privateKeyBytes, int priv_size) throws OCKException {
+            byte[] privateKeyBytes, int priv_size, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "createPrivateKey";
         if (ockContext == null)
             throw new IllegalArgumentException("context is null");
         if (privateKeyBytes == null)
             throw new IllegalArgumentException("key bytes is null");
+        if (provider == null) 
+            throw new IllegalArgumentException("provider is null");
 
         FastJNIBuffer buffer = XECKey.buffer.get();
 
@@ -148,19 +141,22 @@ public final class XECKey implements AsymmetricKey {
         byte[] publicKeyBytes = new byte[priv_size];
         buffer.get(0, publicKeyBytes, 0, priv_size);
 
-        return new XECKey(ockContext, xecKeyId, privateKeyBytes.clone(), publicKeyBytes);
+        return new XECKey(ockContext, xecKeyId, privateKeyBytes.clone(), publicKeyBytes, provider);
     }
 
-    public static XECKey createPublicKey(OCKContext ockContext, byte[] publicKeyBytes)
+    public static XECKey createPublicKey(OCKContext ockContext, byte[] publicKeyBytes, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "createPublicKey";
         if (ockContext == null)
             throw new IllegalArgumentException("context is null");
         if (publicKeyBytes == null)
             throw new IllegalArgumentException("key bytes is null");
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
 
         long xecKeyId = NativeInterface.XECKEY_createPublicKey(ockContext.getId(), publicKeyBytes);
-        return new XECKey(ockContext, xecKeyId, null, publicKeyBytes.clone());
+        return new XECKey(ockContext, xecKeyId, null, publicKeyBytes.clone(), provider);
     }
 
     public String getAlgorithm() {
@@ -170,5 +166,23 @@ public final class XECKey implements AsymmetricKey {
     @Override
     public long getPKeyId() throws OCKException {
         return xecKeyId;
+    }
+
+    private Runnable cleanOCKResources(byte[] privateKeyBytes, long xecKeyId, OCKContext ockContext) {
+        return() -> {
+            try {
+                if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
+                    Arrays.fill(privateKeyBytes, (byte) 0x00);
+                }
+                if (xecKeyId != 0) {
+                    NativeInterface.XECKEY_delete(ockContext.getId(), xecKeyId);
+                }
+            } catch (OCKException e){
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 }

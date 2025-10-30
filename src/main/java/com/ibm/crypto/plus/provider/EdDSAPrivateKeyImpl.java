@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -95,13 +95,13 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
             if (this.privKeyMaterial == null) {
                 int keySize = CurveUtil.getCurveSize(curve);
                 this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(),
-                        this.curve.ordinal(), keySize);
+                        this.curve.ordinal(), keySize, provider);
             } else {
                 this.algid = CurveUtil.getAlgId(this.curve);
                 byte[] der = buildOCKPrivateKeyBytes();
                 int encodingSize = CurveUtil.getDEREncodingSize(curve);
                 this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der,
-                        encodingSize);
+                        encodingSize, provider);
             }
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
@@ -123,7 +123,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
             checkLength(this.curve);
             int encodingSize = CurveUtil.getDEREncodingSize(curve);
             this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded,
-                    encodingSize);
+                    encodingSize, provider);
 
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");

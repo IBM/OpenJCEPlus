@@ -45,6 +45,10 @@ final class PBEKey implements SecretKey {
             passwd = new char[0];
         }
 
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
         for (char c : passwd) {
             if (Character.isISOControl(c))
                 throw new InvalidKeySpecException("Invalid Password.");
@@ -54,6 +58,8 @@ final class PBEKey implements SecretKey {
         Arrays.fill(passwd, '\0');
         type = keytype;
         this.provider = provider;
+
+        this.provider.registerCleanable(this, cleanOCKResources(this.key));
     }
 
     public byte[] getEncoded() {
@@ -174,11 +180,19 @@ final class PBEKey implements SecretKey {
         }
     }
 
-    protected void finalize() throws Throwable {
-        try {
-            destroy();
-        } finally {
-            super.finalize();
-        }
+
+    private Runnable cleanOCKResources(byte[] key) {
+        return() -> {
+            try {
+                if (key != null) {
+                    Arrays.fill(key, (byte) 0x00);
+                }
+            } catch (Exception e){
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 }
