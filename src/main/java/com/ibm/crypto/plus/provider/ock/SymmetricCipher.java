@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -19,8 +20,9 @@ import javax.crypto.ShortBufferException;
 
 public final class SymmetricCipher {
 
+    private OpenJCEPlusProvider provider;
     private OCKContext ockContext;
-    private long ockCipherId;
+    private final long ockCipherId;
     private boolean isInitialized = false;
     private boolean encrypting = true;
     private Padding padding = null;
@@ -41,7 +43,7 @@ public final class SymmetricCipher {
     private long outputOffset; // Offset, in the buffer, to where the output is stored, used to retrieve output after z_kmc call
     private long paramPointer; // Pointer to memory that has the parameters/state keeping used by z_kmc
     private static long hardwareFunctionPtr = 0;
-    private boolean use_z_fast_command = false;
+    private final boolean use_z_fast_command;
     private static final ConcurrentHashMap<OCKContext, Boolean> hardwareEnabled = new ConcurrentHashMap<>(); // Caching for hardwareFunctionPtr
     private static final String badIdMsg = "Cipher Identifier is not valid";
     /* private final static String debPrefix = "SymCipher"; Adding Debug causes test cases to fail */
@@ -53,33 +55,33 @@ public final class SymmetricCipher {
     //final String debPrefix = "SymmetricCipher";
 
 
-    public static SymmetricCipher getInstanceChaCha20(OCKContext ockContext, Padding padding)
+    public static SymmetricCipher getInstanceChaCha20(OCKContext ockContext, Padding padding, OpenJCEPlusProvider provider)
             throws OCKException {
         String algName = "chacha20";
-        return getInstance(ockContext, algName, padding);
+        return getInstance(ockContext, algName, padding, provider);
     }
 
     public static SymmetricCipher getInstanceChaCha20Poly1305(OCKContext ockContext,
-            Padding padding) throws OCKException {
+            Padding padding, OpenJCEPlusProvider provider) throws OCKException {
         String algName = "chacha20-poly1305";
-        return getInstance(ockContext, algName, padding);
+        return getInstance(ockContext, algName, padding, provider);
     }
 
     public static SymmetricCipher getInstanceAES(OCKContext ockContext, String mode,
-            Padding padding, int numKeyBytes) throws OCKException {
+            Padding padding, int numKeyBytes, OpenJCEPlusProvider provider) throws OCKException {
         String algName = "AES-" + Integer.toString(numKeyBytes * 8) + "-" + mode.toUpperCase();
-        return getInstance(ockContext, algName, padding);
+        return getInstance(ockContext, algName, padding, provider);
     }
 
     public static SymmetricCipher getInstanceDESede(OCKContext ockContext, String mode,
-            Padding padding) throws OCKException {
+            Padding padding, OpenJCEPlusProvider provider) throws OCKException {
         String modeUpperCase = mode.toUpperCase();
         String algName = modeUpperCase.equals("ECB") ? "DES-EDE3" : "DES-EDE3-" + modeUpperCase;
-        return getInstance(ockContext, algName, padding);
+        return getInstance(ockContext, algName, padding, provider);
     }
 
     private static SymmetricCipher getInstance(OCKContext ockContext, String cipherName,
-            Padding padding) throws OCKException {
+            Padding padding, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "getInstance";
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
@@ -92,9 +94,13 @@ public final class SymmetricCipher {
         if (padding == null) {
             throw new IllegalArgumentException("padding is null");
         }
+
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
         //OCKDebug.Msg(debPrefix, methodName, "cipherName :" + cipherName);
 
-        return new SymmetricCipher(ockContext, cipherName, padding);
+        return new SymmetricCipher(ockContext, cipherName, padding, provider);
     }
 
     static void throwOCKException(int errorCode) throws BadPaddingException, OCKException {
@@ -114,9 +120,10 @@ public final class SymmetricCipher {
         }
     }
 
-    private SymmetricCipher(OCKContext ockContext, String cipherName, Padding padding)
+    private SymmetricCipher(OCKContext ockContext, String cipherName, Padding padding, OpenJCEPlusProvider provider)
             throws OCKException {
         // Check whether used algorithm is CBC and whether hardware supports
+        this.provider = provider;
         boolean isHardwareSupport = false;
         if (hardwareEnabled.containsKey(ockContext))
             isHardwareSupport = hardwareEnabled.get(ockContext);
@@ -132,7 +139,11 @@ public final class SymmetricCipher {
         this.padding = padding;
         if (!use_z_fast_command) {
             this.ockCipherId = NativeInterface.CIPHER_create(ockContext.getId(), cipherName);
+        } else {
+            this.ockCipherId = 0L;
         }
+
+        this.provider.registerCleanable(this, cleanOCKResources(use_z_fast_command, ockCipherId, reinitKey, ockContext));
     }
 
     public synchronized void initCipherEncrypt(byte[] key, byte[] iv) throws OCKException {
@@ -587,27 +598,6 @@ public final class SymmetricCipher {
         return outLen;
     }
 
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        //final String methodName = "finalize";
-        try {
-            //OCKDebug.Msg(debPrefix, methodName, "ockCipherId :" + ockCipherId);
-            if (!use_z_fast_command) {
-                if (ockCipherId != 0) {
-                    NativeInterface.CIPHER_delete(ockContext.getId(), ockCipherId);
-                    ockCipherId = 0;
-                }
-            }
-        } finally {
-            if (reinitKey != null) {
-                Arrays.fill(reinitKey, (byte) 0x00);
-                reinitKey = null;
-            }
-
-            super.finalize();
-        }
-    }
-
     /* At some point we may enhance this function to do other validations */
     protected static boolean validId(long id) {
         //final String methodName = "validId";
@@ -686,5 +676,25 @@ public final class SymmetricCipher {
                 return ch - 'A' + 10;
             }
         }
+    }
+
+    private Runnable cleanOCKResources(boolean use_z_fast_command, long ockCipherId, byte[] reinitKey, OCKContext ockContext){
+        return() -> {
+            try {
+                if (!use_z_fast_command) {
+                    if (ockCipherId != 0) {
+                        NativeInterface.CIPHER_delete(ockContext.getId(), ockCipherId);
+                    }
+                }
+                if (reinitKey != null) {
+                    Arrays.fill(reinitKey, (byte) 0x00);
+                }
+            } catch (Exception e) {
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 }
