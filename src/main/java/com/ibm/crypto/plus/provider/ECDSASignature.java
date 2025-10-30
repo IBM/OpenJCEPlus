@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -32,7 +32,7 @@ abstract class ECDSASignature extends SignatureSpi {
     ECDSASignature(OpenJCEPlusProvider provider, String ockDigestAlgo) {
         try {
             this.provider = provider;
-            this.signature = Signature.getInstance(provider.getOCKContext(), ockDigestAlgo);
+            this.signature = Signature.getInstance(provider.getOCKContext(), ockDigestAlgo, provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to initialize ECDSA signature", e);
         }
