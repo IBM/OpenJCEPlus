@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -64,7 +64,7 @@ final class DSAPrivateKey extends PKCS8Key
 
         try {
             byte[] privateKeyBytes = buildOCKPrivateKeyBytes();
-            this.dsaKey = DSAKey.createPrivateKey(provider.getOCKContext(), privateKeyBytes);
+            this.dsaKey = DSAKey.createPrivateKey(provider.getOCKContext(), privateKeyBytes, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create DSA private key",
                     exception);
@@ -86,7 +86,7 @@ final class DSAPrivateKey extends PKCS8Key
         try {
             parseKeyBits();
             byte[] privateKeyBytes = buildOCKPrivateKeyBytes();
-            this.dsaKey = DSAKey.createPrivateKey(provider.getOCKContext(), privateKeyBytes);
+            this.dsaKey = DSAKey.createPrivateKey(provider.getOCKContext(), privateKeyBytes, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create DSA private key",
                     exception);

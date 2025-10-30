@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -66,7 +66,7 @@ final class ECPublicKey extends X509Key
             // this.ecKey = ECKey.createPublicKey(IBMJCEPlus.getOCKContext(), w,
             // ecParams);
             this.ecKey = ECKey.createPublicKey(provider.getOCKContext(), publicKeyBytes,
-                    parameterBytes);
+                    parameterBytes, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create EC public key");
             provider.setOCKExceptionCause(ike, exception);
@@ -90,7 +90,7 @@ final class ECPublicKey extends X509Key
             byte[] parameterBytes = ECParameters.encodeECParameters(this.params);
             // System.out.println ("Calling ECKey createPublicKey");
             this.ecKey = ECKey.createPublicKey(provider.getOCKContext(), publicKeyBytes,
-                    parameterBytes);
+                    parameterBytes, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create EC public key");
             provider.setOCKExceptionCause(ike, exception);
