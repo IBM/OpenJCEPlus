@@ -131,6 +131,8 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
                 Arrays.fill(passwd, '\0');
             }
         }
+
+        this.provider.registerCleanable(this, cleanOCKResources(this.key, this.passwd, this.salt));
     }
 
     public byte[] getEncoded() {
@@ -242,25 +244,24 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
         throw new InvalidObjectException("PBKDF2KeyImpl keys are not directly deserializable");
     }
 
-    /**
-     * Cleans all sensitive information associated with this instance.
-     */
-    protected void finalize() throws Throwable {
-        try {
-            if (this.key != null) {
-                java.util.Arrays.fill(this.key, (byte) 0x00);
-                this.key = null;
+    private Runnable cleanOCKResources(byte[] key, char[] passwd, byte[] salt){
+        return() -> {
+            try {
+                if (key != null) {
+                    java.util.Arrays.fill(key, (byte) 0x00);
+                }
+                if (passwd != null) {
+                    java.util.Arrays.fill(passwd, '0');
+                }
+                if (salt != null) {
+                    java.util.Arrays.fill(salt, (byte) 0x00);
+                }
+            } catch (Exception e){
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
-            if (this.passwd != null) {
-                java.util.Arrays.fill(this.passwd, '0');
-                this.passwd = null;
-            }
-            if (this.salt != null) {
-                java.util.Arrays.fill(this.salt, (byte) 0x00);
-                this.salt = null;
-            }
-        } finally {
-            super.finalize();
-        }
+        };
     }
 }
