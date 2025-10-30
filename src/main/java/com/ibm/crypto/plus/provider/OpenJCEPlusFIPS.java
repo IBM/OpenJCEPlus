@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.crypto.SecretKey;
-import sun.security.util.Debug;
 
 @SuppressWarnings({"removal", "deprecation"})
 public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
@@ -63,9 +62,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     // Instance of this provider, so we don't have to call the provider list
     // to find ourselves or run the risk of not being in the list.
     private static volatile OpenJCEPlusFIPS instance;
-
-    // User enabled debugging
-    private static Debug debug = Debug.getInstance(DEBUG_VALUE);
 
     private static boolean ockInitialized = false;
     private static OCKContext ockContext;
