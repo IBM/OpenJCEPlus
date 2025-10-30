@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -84,7 +84,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
             byte[] privateKeyBytes = createEncodedPrivateKeyWithParams();
             byte[] paramBytes = ECParameters.encodeECParameters(this.params);
             this.ecKey = ECKey.createPrivateKey(provider.getOCKContext(), privateKeyBytes,
-                    paramBytes);
+                    paramBytes, provider);
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create EC private key", exception);
         }
@@ -118,7 +118,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
             byte[] privateKeyBytes = createEncodedPrivateKeyWithParams();
             byte[] paramBytes = ECParameters.encodeECParameters(params);
             this.ecKey = ECKey.createPrivateKey(provider.getOCKContext(), privateKeyBytes,
-                    paramBytes);
+                    paramBytes, provider);
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create EC private key", exception);
         }

@@ -112,7 +112,7 @@ final class RSAPrivateCrtKey extends PKCS8Key
         }
 
         try {
-            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.key);
+            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.key, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
             provider.setOCKExceptionCause(ike, exception);
@@ -137,7 +137,7 @@ final class RSAPrivateCrtKey extends PKCS8Key
         RSAKeyFactory.checkRSAProviderKeyLengths(provider, modulus.bitLength(), publicExponent);
 
         try {
-            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.key);
+            this.rsaKey = RSAKey.createPrivateKey(provider.getOCKContext(), this.key, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
             provider.setOCKExceptionCause(ike, exception);

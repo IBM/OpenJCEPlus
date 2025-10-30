@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -40,10 +40,15 @@ final class AESKey implements SecretKey {
         if ((key == null) || !AESUtils.isKeySizeValid(key.length)) {
             throw new InvalidKeyException("Wrong key size");
         }
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
 
         this.key = new byte[key.length];
         this.provider = provider;
         System.arraycopy(key, 0, this.key, 0, key.length);
+
+        this.provider.registerCleanable(this, cleanOCKResources(this.key));
     }
 
     @Override
@@ -151,21 +156,18 @@ final class AESKey implements SecretKey {
         }
     }
 
-    /**
-     * This function zeroizes the key so that it isn't in memory when GC is
-     * done.
-     */
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            synchronized (this) {
-                if (this.key != null) {
-                    Arrays.fill(this.key, (byte) 0x00);
-                    this.key = null;
+    private Runnable cleanOCKResources(byte[] key) {
+        return() -> {
+            try {
+                if (key != null) {
+                    Arrays.fill(key, (byte) 0x00);
+                }
+            } catch (Exception e){
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
-        } finally {
-            super.finalize();
-        }
+        };
     }
 }

@@ -52,13 +52,13 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
     @Override
     public KeyPair generateKeyPair() {
         try {
-            PQCKey mlkemKey = PQCKey.generateKeyPair(provider.getOCKContext(), mlkemAlg);
+            PQCKey mlkemKey = PQCKey.generateKeyPair(provider.getOCKContext(), mlkemAlg, provider);
             byte[] privKeyBytes = mlkemKey.getPrivateKeyBytes();
             PQCPrivateKey privKey = new PQCPrivateKey(provider, PQCKey.createPrivateKey(provider.getOCKContext(),
-                                                        mlkemAlg, privKeyBytes));
+                                                        mlkemAlg, privKeyBytes, provider));
             byte[] pubKeyBytes = mlkemKey.getPublicKeyBytes();
             PQCPublicKey pubKey = new PQCPublicKey(provider, PQCKey.createPublicKey(provider.getOCKContext(),
-                                                        mlkemAlg, pubKeyBytes));
+                                                        mlkemAlg, pubKeyBytes, provider));
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
             throw provider.providerException("Failure in generateKeyPair - " +e.getCause(), e);
