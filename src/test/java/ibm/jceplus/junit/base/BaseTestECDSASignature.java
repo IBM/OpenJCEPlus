@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -27,8 +27,11 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPrivateKeySpec;
+import java.security.spec.EncodedKeySpec;
 import java.security.spec.MGF1ParameterSpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.PSSParameterSpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -840,6 +843,22 @@ public class BaseTestECDSASignature extends BaseTestJunit5Signature {
             System.out.println("Expected exception <java.security.InvalidKeyException> for " +
                                 "ECDSA/SHA256withECDSA/" + curveName + "is caught.");
         }
+    }
+
+    @Test
+    public void testECDSA_ImportedKeys() throws Exception {
+        // Generate keypair.
+        KeyPair keyPair = generateKeyPair("secp256r1");
+
+        // Export encoding and re-import.
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", getProviderName());
+        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(keyPair.getPrivate().getEncoded());
+        PrivateKey importPrivKey = keyFactory.generatePrivate(privateKeySpec);
+        EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(keyPair.getPublic().getEncoded());
+        PublicKey importPubKey = keyFactory.generatePublic(publicKeySpec);
+
+        // Perform signature operation.
+        doSignVerify("SHA256withECDSA", origMsg, importPrivKey, importPubKey);
     }
 
     private void doTestPositiveSigBytes(String keyAlg, String sigAlg, String providerName)
