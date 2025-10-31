@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -66,7 +66,7 @@ final class DSAPublicKey extends X509Key
 
         try {
             byte[] publicKeyBytes = buildOCKPublicKeyBytes();
-            this.dsaKey = DSAKey.createPublicKey(provider.getOCKContext(), publicKeyBytes);
+            this.dsaKey = DSAKey.createPublicKey(provider.getOCKContext(), publicKeyBytes, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create DSA public key");
             provider.setOCKExceptionCause(ike, exception);
@@ -87,7 +87,7 @@ final class DSAPublicKey extends X509Key
 
         try {
             byte[] publicKeyBytes = buildOCKPublicKeyBytes();
-            this.dsaKey = DSAKey.createPublicKey(provider.getOCKContext(), publicKeyBytes);
+            this.dsaKey = DSAKey.createPublicKey(provider.getOCKContext(), publicKeyBytes, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create DSA public key");
             provider.setOCKExceptionCause(ike, exception);

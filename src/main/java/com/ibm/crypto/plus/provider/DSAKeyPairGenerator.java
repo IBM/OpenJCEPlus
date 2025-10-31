@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -145,12 +145,12 @@ public final class DSAKeyPairGenerator extends KeyPairGenerator
                 AlgorithmParameters algParams = algParmGen.generateParameters();
                 this.params = algParams.getParameterSpec(DSAParameterSpec.class);
 
-                dsaKey = DSAKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded());
+                dsaKey = DSAKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded(), provider);
             } else {
                 AlgorithmParameters algParams = AlgorithmParameters.getInstance("DSA", provider);
                 algParams.init(params);
 
-                dsaKey = DSAKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded());
+                dsaKey = DSAKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded(), provider);
             }
 
             java.security.interfaces.DSAPrivateKey privKey = new DSAPrivateKey(provider, dsaKey);

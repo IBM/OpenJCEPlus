@@ -112,7 +112,7 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
 
             if (this.oid != null) {
                 ecKey = ECKey.generateKeyPair(provider.getOCKContext(), this.oid.toString(),
-                        cryptoRandom);
+                        cryptoRandom, provider);
             } else if (this.ecSpec != null) {
 
                 byte[] encodedCustomCurveParameters = ECParameters.encodeECParameters(this.ecSpec);
@@ -120,10 +120,10 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
                 // specification encodedParameters=" +
                 // ECUtils.bytesToHex(encodedCustomCurveParameters));
                 ecKey = ECKey.generateKeyPair(provider.getOCKContext(),
-                        encodedCustomCurveParameters, cryptoRandom);
+                        encodedCustomCurveParameters, cryptoRandom, provider);
             } else if (this.keysize > 0 && (ecSpec == null)) {
 
-                ecKey = ECKey.generateKeyPair(provider.getOCKContext(), this.keysize, cryptoRandom);
+                ecKey = ECKey.generateKeyPair(provider.getOCKContext(), this.keysize, cryptoRandom, provider);
             }
 
             java.security.interfaces.ECPrivateKey privKey = new ECPrivateKey(provider, ecKey);

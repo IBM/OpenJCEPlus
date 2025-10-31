@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -73,7 +73,7 @@ final class RSAPublicKey extends X509Key
         }
 
         try {
-            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), getKey().toByteArray());
+            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), getKey().toByteArray(), provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA public key");
             provider.setOCKExceptionCause(ike, exception);
@@ -91,7 +91,7 @@ final class RSAPublicKey extends X509Key
         checkExponentRange();
 
         try {
-            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), getKey().toByteArray());
+            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), getKey().toByteArray(), provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA public key");
             provider.setOCKExceptionCause(ike, exception);

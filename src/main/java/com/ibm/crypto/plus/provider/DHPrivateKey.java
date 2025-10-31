@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -92,7 +92,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
         try {
             this.key = new DerValue(DerValue.tag_Integer, this.x.toByteArray()).toByteArray();
             this.encodedKey = getEncoded();
-            this.dhKey = DHKey.createPrivateKey(provider.getOCKContext(), encodedKey);
+            this.dhKey = DHKey.createPrivateKey(provider.getOCKContext(), encodedKey, provider);
         } catch (OCKException e) {
             throw new InvalidKeyException("Failure in DHPrivateKey");
         }
@@ -121,7 +121,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
 
             buildOCKPrivateKeyBytes();
             this.dhKey = DHKey.createPrivateKey(provider.getOCKContext(),
-                    encoded /*privateKeyBytes*/);
+                    encoded /*privateKeyBytes*/, provider);
         } catch (Exception e) {
             throw new InvalidKeyException("Failure in DHPrivateKey");
         }
