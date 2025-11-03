@@ -20,6 +20,7 @@ import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestECKeyPairGenerator extends BaseTestJunit5 {
@@ -66,6 +67,19 @@ public class BaseTestECKeyPairGenerator extends BaseTestJunit5 {
     @Test
     public void testECKeyGen_521() throws Exception {
         doECKeyGen(521);
+    }
+
+    @Test
+    public void testECKeyGen_default() throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC", getProviderName());
+        KeyPair kp = kpg.generateKeyPair();
+        ECParameterSpec publicKeyParams = ((ECPublicKey) kp.getPublic()).getParams();
+        // The order of the curve's base point determines the key size
+        assertEquals(256, publicKeyParams.getOrder().bitLength(), "Default keysize is not as expected.");
+    
+        ECParameterSpec privateKeyParams = ((ECPrivateKey) kp.getPrivate()).getParams();
+        // The order of the curve's base point determines the key size
+        assertEquals(256, privateKeyParams.getOrder().bitLength(), "Default keysize is not as expected.");
     }
 
     public void doECKeyGen(int keypairSize) throws Exception {
