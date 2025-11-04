@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -9,10 +9,16 @@
 package ibm.jceplus.junit.base;
 
 import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Signature;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -215,6 +221,39 @@ public class BaseTestECDSASignatureInterop extends BaseTestSignatureInterop {
             doTestPositiveSigBytes("DSA", "SHA256withDSA", this.getProviderName());
             doTestPositiveSigBytes("DSA", "SHA256withDSA", this.getProviderName());
         }
+    }
+
+    @Test
+    public void testSHA256withECDSA_256_ImportedKeys() throws Exception {
+        // Create keypair from one provider.
+        KeyPairGenerator ecKeyPairGen = KeyPairGenerator.getInstance("EC", getProviderName());
+        ecKeyPairGen.initialize(256);
+        KeyPair keyPair = ecKeyPairGen.generateKeyPair();
+
+        // Export encoding and re-import from another provider.
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", getInteropProviderName());
+        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(keyPair.getPrivate().getEncoded());
+        PrivateKey importPrivKey = keyFactory.generatePrivate(privateKeySpec);
+        EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(keyPair.getPublic().getEncoded());
+        PublicKey importPubKey = keyFactory.generatePublic(publicKeySpec);
+
+        // Perform signature operations.
+        doSignVerify("SHA256withECDSA", origMsg, importPrivKey, importPubKey);
+
+        // Create keypair from one provider.
+        ecKeyPairGen = KeyPairGenerator.getInstance("EC", getInteropProviderName());
+        ecKeyPairGen.initialize(256);
+        keyPair = ecKeyPairGen.generateKeyPair();
+
+        // Export encoding and re-import from another provider.
+        keyFactory = KeyFactory.getInstance("EC", getProviderName());
+        privateKeySpec = new PKCS8EncodedKeySpec(keyPair.getPrivate().getEncoded());
+        importPrivKey = keyFactory.generatePrivate(privateKeySpec);
+        publicKeySpec = new X509EncodedKeySpec(keyPair.getPublic().getEncoded());
+        importPubKey = keyFactory.generatePublic(publicKeySpec);
+
+        // Perform signature operations.
+        doSignVerify("SHA256withECDSA", origMsg, importPrivKey, importPubKey);
     }
 
 
