@@ -29,6 +29,7 @@ import groovy.transform.Field;
 @Field ADDITIONAL_NODE_LABELS
 @Field OVERRIDE_NODE_LABELS
 @Field ADDITIONAL_ENVARS
+@Field ADDITIONAL_CMD_ARGS
 @Field TIMEOUT_TIME
 @Field externalLibrary
 
@@ -384,6 +385,10 @@ pipeline {
             Specify them in comma-separated pairs of name and value (e.g. ENVAR1=value1, ENVAR2=value2, ...).<br><br> \
             Beware of what you add as it might be overriding existing environment variables.<br> \
             NOTE: those will be added to all selected platforms.')
+        string(name: 'ADDITIONAL_CMD_ARGS', defaultValue: '', description: '\
+            Additional command line arguments that one might want to add to the mvn command.<br> \
+            The contents of this will directly be appended to the mvn command, so write exactly as \
+            you would if running this manually in a command line (e.g., -Dflag1=true -Dflag2=false ...).')
         string(name: 'TIMEOUT_TIME', defaultValue: '6', description: '\
             Overall build timeout (HOURS)')
     }
@@ -417,6 +422,7 @@ pipeline {
                         ADDITIONAL_NODE_LABELS="${params.ADDITIONAL_NODE_LABELS}"
                         OVERRIDE_NODE_LABELS="${params.OVERRIDE_NODE_LABELS}"
                         ADDITIONAL_ENVARS="${params.ADDITIONAL_ENVARS}"
+                        ADDITIONAL_CMD_ARGS="${params.ADDITIONAL_CMD_ARGS}"
                         TIMEOUT_TIME="${params.TIMEOUT_TIME}"
 
                         timeout(time: "${TIMEOUT_TIME}".toInteger(), unit: 'HOURS') {
