@@ -12,10 +12,13 @@ import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.ECField;
 import java.security.spec.ECFieldFp;
@@ -23,11 +26,15 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
+import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidParameterSpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -378,6 +385,45 @@ public class BaseTestECDH extends BaseTestJunit5 {
         byte[] sharedSecretB = keyAgreeB.generateSecret();
         System.out.println(methodName + " sharedSecretB = " + BaseUtils.bytesToHex(sharedSecretB));
         assertTrue(Arrays.equals(sharedSecretA, sharedSecretB));
+    }
+
+    @Test
+    public void testECDH_ImportKeys() throws Exception {
+        // Create first pair of keys.
+        KeyPairGenerator kpgA = KeyPairGenerator.getInstance("EC", getProviderName());
+        KeyPair keyPairA = kpgA.generateKeyPair();
+
+        // Export encoding and re-import.
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", getProviderName());
+        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(keyPairA.getPrivate().getEncoded());
+        PrivateKey importPrivKeyA = keyFactory.generatePrivate(privateKeySpec);
+        EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(keyPairA.getPublic().getEncoded());
+        PublicKey importPubKeyA = keyFactory.generatePublic(publicKeySpec);
+
+         // Create second pair of keys.
+        KeyPairGenerator kpgB = KeyPairGenerator.getInstance("EC", getProviderName());
+        KeyPair keyPairB = kpgB.generateKeyPair();
+
+        // Export encoding and re-import.
+        privateKeySpec = new PKCS8EncodedKeySpec(keyPairB.getPrivate().getEncoded());
+        PrivateKey importPrivKeyB = keyFactory.generatePrivate(privateKeySpec);
+        publicKeySpec = new X509EncodedKeySpec(keyPairB.getPublic().getEncoded());
+        PublicKey importPubKeyB = keyFactory.generatePublic(publicKeySpec);
+
+        KeyAgreement keyAgreeA = KeyAgreement.getInstance("ECDH", getProviderName());
+        keyAgreeA.init(importPrivKeyA);
+        
+        KeyAgreement keyAgreeB = KeyAgreement.getInstance("ECDH", getProviderName());
+        keyAgreeB.init(importPrivKeyB);
+        
+        keyAgreeA.doPhase(importPubKeyB, true);
+        keyAgreeB.doPhase(importPubKeyA, true);
+
+        // Generate the key bytes
+        byte[] sharedSecretA = keyAgreeA.generateSecret();
+        byte[] sharedSecretB = keyAgreeB.generateSecret();
+
+        assertArrayEquals(sharedSecretA, sharedSecretB, "Shared secrets don't match.");
     }
 
 }
