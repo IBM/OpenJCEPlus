@@ -41,6 +41,7 @@ final class DESedeKey implements SecretKey, Destroyable {
             throw new InvalidKeyException("Wrong key size");
         }
 
+        this.provider = provider;
         this.key = new byte[DESedeKeySpec.DES_EDE_KEY_LEN];
         System.arraycopy(key, 0, this.key, 0, DESedeKeySpec.DES_EDE_KEY_LEN);
         DESedeKeyGenerator.setParityBit(key, 0);
