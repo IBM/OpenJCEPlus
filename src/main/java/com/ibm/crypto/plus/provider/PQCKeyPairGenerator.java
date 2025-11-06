@@ -15,11 +15,12 @@ import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.NamedParameterSpec;
 
 abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
 
     private OpenJCEPlusProvider provider = null;
-    private String mlkemAlg;
+    private String pqcAlg;
 
     public PQCKeyPairGenerator(OpenJCEPlusProvider provider) {
         this.provider = provider;
@@ -27,7 +28,7 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
 
     public PQCKeyPairGenerator(OpenJCEPlusProvider provider, String algName) {
         this.provider = provider;
-        this.mlkemAlg = algName;
+        this.pqcAlg = algName;
     }
 
     /**
@@ -36,8 +37,35 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
     @Override
     public void initialize(AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidAlgorithmParameterException {
-        throw new InvalidAlgorithmParameterException(
-                "Params not needed.");
+        if (params instanceof NamedParameterSpec spec) {
+            String name = spec.getName();
+            if (pqcAlg.equals("ML-KEM")) {
+                if (name.equalsIgnoreCase("ML-KEM-512") || 
+                    name.equalsIgnoreCase("ML-KEM-768") ||
+                    name.equalsIgnoreCase("ML-KEM-1024")) {
+                    pqcAlg = name;
+                } else {        
+                    throw new InvalidAlgorithmParameterException(
+                        "Unsupported parameter set name: " + name);
+                }
+            } else if (pqcAlg.equals("ML-DSA")) {
+                if (name.equalsIgnoreCase("ML-DSA-44") || 
+                    name.equalsIgnoreCase("ML-DSA-65") ||
+                    name.equalsIgnoreCase("ML-DSA-87")) {
+                    pqcAlg = name;
+                } else {        
+                    throw new InvalidAlgorithmParameterException(
+                        "Unsupported parameter set name: " + name);
+                }
+            } else if (!pqcAlg.equalsIgnoreCase(name)) {
+                throw new InvalidAlgorithmParameterException(
+                    "Algorithm in AlgorithmParameterSpec: " +spec.getName() + 
+                    " must match the Algorithnm for this KeyPairGenerator: " + pqcAlg);
+            }
+        } else {
+            throw new InvalidAlgorithmParameterException(
+                    "Unsupported AlgorithmParameterSpec: " + params);
+        }
     }
     @Override
     public void initialize(int keysize, SecureRandom random) {
@@ -52,13 +80,26 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
     @Override
     public KeyPair generateKeyPair() {
         try {
-            PQCKey mlkemKey = PQCKey.generateKeyPair(provider.getOCKContext(), mlkemAlg, provider);
+            // Set default if necessary
+            switch (pqcAlg) {
+                case "ML-KEM":
+                    pqcAlg = "ML-KEM-768";
+                    break;
+                case "ML-DSA":
+                    pqcAlg = "ML-DSA-65";
+                    break;
+                default:
+                    //We have the alg already
+                    break;
+            }
+
+            PQCKey mlkemKey = PQCKey.generateKeyPair(provider.getOCKContext(), pqcAlg, provider);
             byte[] privKeyBytes = mlkemKey.getPrivateKeyBytes();
             PQCPrivateKey privKey = new PQCPrivateKey(provider, PQCKey.createPrivateKey(provider.getOCKContext(),
-                                                        mlkemAlg, privKeyBytes, provider));
+                                                        pqcAlg, privKeyBytes, provider));
             byte[] pubKeyBytes = mlkemKey.getPublicKeyBytes();
             PQCPublicKey pubKey = new PQCPublicKey(provider, PQCKey.createPublicKey(provider.getOCKContext(),
-                                                        mlkemAlg, pubKeyBytes, provider));
+                                                        pqcAlg, pubKeyBytes, provider));
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
             throw provider.providerException("Failure in generateKeyPair - " +e.getCause(), e);
@@ -79,6 +120,13 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
         }
     }
 
+    public static final class MLKEM extends PQCKeyPairGenerator {
+
+        public MLKEM(OpenJCEPlusProvider provider) {
+            super(provider, "ML-KEM");
+        }
+    }
+
     public static final class MLKEM1024 extends PQCKeyPairGenerator {
 
         public MLKEM1024(OpenJCEPlusProvider provider) {
@@ -89,6 +137,12 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
 
         public MLDSA44(OpenJCEPlusProvider provider) {
             super(provider, "ML-DSA-44");
+        }
+    }
+    public static final class MLDSA extends PQCKeyPairGenerator {
+
+        public MLDSA(OpenJCEPlusProvider provider) {
+            super(provider, "ML-DSA");
         }
     }
     public static final class MLDSA65 extends PQCKeyPairGenerator {
