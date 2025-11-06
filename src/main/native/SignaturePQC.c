@@ -119,6 +119,10 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PQC_1SIGNATURE_1sign(
         }
     }
 
+    if (skc != NULL) {
+        ICC_EVP_PKEY_CTX_free(ockCtx, skc);
+        skc = NULL;
+    }
     if (sigBytesLocal != NULL) {
         free(sigBytesLocal);
         sigBytesLocal = NULL;
