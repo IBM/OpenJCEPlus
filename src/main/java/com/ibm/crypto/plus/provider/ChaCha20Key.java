@@ -42,6 +42,7 @@ final class ChaCha20Key implements SecretKey, ChaCha20Constants {
             throw new InvalidKeyException("Wrong key size");
         }
 
+        this.provider = provider;
         this.key = new byte[key.length];
         System.arraycopy(key, 0, this.key, 0, key.length);
     }
