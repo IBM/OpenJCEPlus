@@ -934,12 +934,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         return providerException;
     }
 
-    void setOCKExceptionCause(Exception exception, Throwable ockException) {
-        if (debug != null) {
-            exception.initCause(ockException);
-        }
-    }
-
     // Get the date from the ImplementationVersion in the manifest file
     private static String getDebugDate(String className) {
         String versionDate = "Unknown";
