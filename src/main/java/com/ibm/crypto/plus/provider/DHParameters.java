@@ -24,8 +24,6 @@ import sun.security.util.DerValue;
 public final class DHParameters extends AlgorithmParametersSpi implements java.io.Serializable {
     private static final long serialVersionUID = 7137508373627164657L;
 
-    private OpenJCEPlusProvider provider;
-
     // The prime (p)
     private BigInteger p;
 
@@ -35,9 +33,7 @@ public final class DHParameters extends AlgorithmParametersSpi implements java.i
     // The private-value length (l)
     private int l;
 
-    public DHParameters(OpenJCEPlusProvider provider) {
-        this.provider = provider;
-    }
+    public DHParameters() {}
 
     @Override
     protected void engineInit(AlgorithmParameterSpec paramSpec)
@@ -143,7 +139,7 @@ public final class DHParameters extends AlgorithmParametersSpi implements java.i
 
     @Override
     protected String engineToString() {
-        StringBuffer strbuf = new StringBuffer(provider.getName() + " Diffie-Hellman Parameters:\n"
+        StringBuffer strbuf = new StringBuffer("OpenJCEPlusProvider Diffie-Hellman Parameters:\n"
                 + "p:\n" + this.p.toString() + "\n" + "g:\n" + this.g.toString());
         if (this.l != 0)
             strbuf.append("\nl:\n" + "    " + this.l);
