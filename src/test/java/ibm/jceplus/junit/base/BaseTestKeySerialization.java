@@ -23,6 +23,7 @@ import javax.crypto.KEM;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.ChaCha20ParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -77,12 +78,20 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
     }
 
     @ParameterizedTest
-    @CsvSource({"AES, 256, AES/CBC/PKCS5Padding", "AES, 256, AES/GCM/NoPadding"})
+    @CsvSource({
+        "AES, 256, AES/CBC/PKCS5Padding",
+        "AES, 256, AES/GCM/NoPadding",
+        "DESede, 168, DESede/CBC/PKCS5Padding",
+        "ChaCha20, 256, ChaCha20/None/NoPadding"})
     public void SerializationSecretKeyTest (String algorithm, int size, String cipherName) throws Exception {
         KeyGenerator keyGen = null;
         SecretKey key = null;
         Cipher cp = null;
 
+        //DESede and ChaCha20 not supported by FIPS provider.
+        if ("OpenJCEPlusFIPS".equalsIgnoreCase(getProviderName()) && (algorithm.equalsIgnoreCase("DESede") || algorithm.equalsIgnoreCase("ChaCha20"))) {
+            return;
+        }
         
         keyGen = KeyGenerator.getInstance(algorithm, getProviderName());
         keyGen.init(size);
@@ -93,7 +102,6 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
         serializeKey(key, keyFile);
         SecretKey deserializedKey = (SecretKey) deserializeKey(keyFile);
 
-
         assertArrayEquals(key.getEncoded(), 
             deserializedKey.getEncoded(),
             "Key deserialized key does not match original");
@@ -101,10 +109,17 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
         cp = Cipher.getInstance(cipherName, getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, key);
         byte[] cipherText = cp.doFinal(plainText);
-        AlgorithmParameters params = cp.getParameters();
-
-        // Verify the text
-        cp.init(Cipher.DECRYPT_MODE, deserializedKey, params);
+        
+        // ChaCha20 requires special handling since it uses ChaCha20ParameterSpec instead of AlgorithmParameters
+        if (algorithm.equalsIgnoreCase("ChaCha20")) {
+            byte[] nonce = cp.getIV();
+            ChaCha20ParameterSpec paramSpec = new ChaCha20ParameterSpec(nonce, 1);
+            cp.init(Cipher.DECRYPT_MODE, deserializedKey, paramSpec);
+        } else {
+            AlgorithmParameters params = cp.getParameters();
+            cp.init(Cipher.DECRYPT_MODE, deserializedKey, params);
+        }
+        
         byte[] newPlainText = cp.doFinal(cipherText, 0, cipherText.length);
         assertArrayEquals(plainText, newPlainText, "Secret keys are different");
     }
