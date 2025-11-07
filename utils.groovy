@@ -183,6 +183,8 @@ def runOpenJCEPlus(command, software) {
         def mavenPath = "$WORKSPACE/apache-maven-3.9.10/bin"
         def environment = "export PATH=${mavenPath}:\$PATH;"
 
+        def additional_cmd_args = ADDITIONAL_CMD_ARGS
+
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
         if (software == "windows") {
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
@@ -196,7 +198,7 @@ def runOpenJCEPlus(command, software) {
                echo GSKIT_HOME: %GSKIT_HOME%
                echo JAVA_HOME: %JAVA_HOME%
                echo mvn -Dock.library.path=${ock_path} --batch-mode ${command}
-               $WORKSPACE\\apache-maven-3.9.10\\bin\\mvn -Dock.library.path=${ock_path} --batch-mode ${command}
+               $WORKSPACE\\apache-maven-3.9.10\\bin\\mvn -Dock.library.path=${ock_path} ${additional_cmd_args} --batch-mode ${command}
                """
         } else if (software == "mac") {
             java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
@@ -205,7 +207,7 @@ def runOpenJCEPlus(command, software) {
         }
 
         if (software != "windows") {
-            sh "${java_home} ${gskit_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' --batch-mode ${command}"
+            sh "${java_home} ${gskit_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' ${additional_cmd_args} --batch-mode ${command}"
         }
     }
 }
