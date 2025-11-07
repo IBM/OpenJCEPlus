@@ -49,7 +49,7 @@ final class PQCPublicKey extends X509Key
             byte[] b = tmp.toByteArray();
             tmp.close();
 
-            this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), algName, b);
+            this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), algName, b, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create public key");
             provider.setOCKExceptionCause(ike, exception);
@@ -86,7 +86,7 @@ final class PQCPublicKey extends X509Key
             byte[] b = tmp.toByteArray();
             tmp.close();
             
-            this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), name, b);
+            this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), name, b, provider);
         } catch (Exception e) {
             throw provider.providerException("Failure in PublicKey -"+e.getMessage(), e);
         }

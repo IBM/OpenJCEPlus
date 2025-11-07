@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.PrimitiveWrapper;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.security.spec.ECParameterSpec;
@@ -23,9 +25,10 @@ public final class ECKey implements AsymmetricKey {
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
 
+    private OpenJCEPlusProvider provider;
     private OCKContext ockContext;
-    private long ecKeyId = 0;
-    private long pkeyId = 0;
+    private final long ecKeyId;
+    private PrimitiveWrapper.Long pkeyId = new PrimitiveWrapper.Long(0);
     private static final String badIdMsg = "EC Key Identifier is not valid";
 
     // Public Key
@@ -66,25 +69,29 @@ public final class ECKey implements AsymmetricKey {
     private static final String debPrefix = "ECKey";
 
     private ECKey(OCKContext ockContext, long ecKeyId, byte[] parameterBytes,
-            byte[] privateKeyBytes, byte[] publicKeyBytes) {
+            byte[] privateKeyBytes, byte[] publicKeyBytes, OpenJCEPlusProvider provider) {
         //final String methodName = "ECKey(long, byte[], byte[], byte[]) ";
         this.ockContext = ockContext;
         this.ecKeyId = ecKeyId;
-        this.pkeyId = 0;
+        this.pkeyId.setValue(0);
         this.parameterBytes = parameterBytes;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
+        this.provider = provider;
         //OCKDebug.Msg (debPrefix, methodName, "privateKeyBytes :", privateKeyBytes); 
         //OCKDebug.Msg (debPrefix, methodName, "publicKeyBytes :", publicKeyBytes);  
         //OCKDebug.Msg (debPrefix, methodName, "parameterBytes :", parameterBytes);
+
+        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, ecKeyId, pkeyId, ockContext));
     }
 
     /* Custom Curve */
     private ECKey(OCKContext ockContext, long ecKeyId, ECParameterSpec ecSpec, BigInteger s,
-            BigInteger pubKeyAffineX, BigInteger pubKeyAffineY) {
+            BigInteger pubKeyAffineX, BigInteger pubKeyAffineY, OpenJCEPlusProvider provider) {
         this.ockContext = ockContext;
         this.ecKeyId = ecKeyId;
-        this.pkeyId = 0;
+        this.pkeyId.setValue(0);
+        this.provider = provider;
 
         this.ecSpec = ecSpec;
         // this.isNamedCurve = false;
@@ -95,6 +102,7 @@ public final class ECKey implements AsymmetricKey {
         // this.pubKeyAffineX = pubKeyAffineX;
         // this.pubKeyAffineY = pubKeyAffineY;
 
+        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, ecKeyId, pkeyId, ockContext));
     }
 
     // Note that the caller of this method must ensure the pointer ecKeyId is not used
@@ -105,7 +113,7 @@ public final class ECKey implements AsymmetricKey {
     }
 
 
-    public static ECKey generateKeyPair(OCKContext ockContext, int size, SecureRandom random)
+    public static ECKey generateKeyPair(OCKContext ockContext, int size, SecureRandom random, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "generateKeyPair ";
         if (ockContext == null) {
@@ -114,6 +122,10 @@ public final class ECKey implements AsymmetricKey {
 
         if (size < 0) {
             throw new IllegalArgumentException("The key length parameter is invalid");
+        }
+
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
         }
 
         long ecKeyId;
@@ -135,11 +147,11 @@ public final class ECKey implements AsymmetricKey {
         byte[] parameterBytes = getParametersBytes(ockContext, ecKeyId);
         //OCKDebug.Msg (debPrefix, methodName,  "size=" + size + " ecKeyId=" + ecKeyId + " parameterBytes :",  parameterBytes);
         return new ECKey(ockContext, ecKeyId, parameterBytes, unobtainedKeyBytes,
-                unobtainedKeyBytes);
+                unobtainedKeyBytes, provider);
     }
 
 
-    public static ECKey generateKeyPair(OCKContext ockContext, String soid, SecureRandom random)
+    public static ECKey generateKeyPair(OCKContext ockContext, String soid, SecureRandom random, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "generateKeyPair(String, SecureRandom) ";
         if (ockContext == null) {
@@ -150,6 +162,10 @@ public final class ECKey implements AsymmetricKey {
             throw new IllegalArgumentException("The String Object Identifier parameter is invalid");
         }
 
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
         long ecKeyId = NativeInterface.ECKEY_generate(ockContext.getId(), soid);
         if (!validId(ecKeyId)) {
             throw new OCKException(badIdMsg);
@@ -157,12 +173,12 @@ public final class ECKey implements AsymmetricKey {
         byte[] parameterBytes = getParametersBytes(ockContext, ecKeyId);
         //OCKDebug.Msg (debPrefix, methodName, "soid :" + soid + " ecKeyId :" + ecKeyId + "parameterBytes :",  parameterBytes);
         return new ECKey(ockContext, ecKeyId, parameterBytes, unobtainedKeyBytes,
-                unobtainedKeyBytes);
+                unobtainedKeyBytes, provider);
 
     }
 
     public static ECKey generateKeyPair(OCKContext ockContext, byte[] parameterBytes,
-            SecureRandom random) throws OCKException {
+            SecureRandom random, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "generateKeyPair(byte[], SecureRandom) ";
         if (ockContext == null) {
             throw new IllegalArgumentException("The context parameter is null");
@@ -172,11 +188,15 @@ public final class ECKey implements AsymmetricKey {
             throw new IllegalArgumentException("The parameter bytes is null");
         }
 
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
         //OCKDebug.Msg (debPrefix, methodName, "paramBytes.length :" + parameterBytes.length,  parameterBytes);
         long ecKeyId = NativeInterface.ECKEY_generate(ockContext.getId(), parameterBytes);
         //OCKDebug.Msg (debPrefix, methodName, "ecKeyId :" + ecKeyId);
         return new ECKey(ockContext, ecKeyId, parameterBytes, unobtainedKeyBytes,
-                unobtainedKeyBytes);
+                unobtainedKeyBytes, provider);
     }
 
     public static byte[] generateParameters(OCKContext ockContext, int size) throws OCKException {
@@ -222,11 +242,11 @@ public final class ECKey implements AsymmetricKey {
 
     @Override
     public long getPKeyId() throws OCKException {
-        if (pkeyId == 0) {
+        if (pkeyId.getValue() == 0) {
             obtainPKeyId();
         }
 
-        return pkeyId;
+        return pkeyId.getValue();
     }
 
     public byte[] getParameters() throws OCKException {
@@ -268,11 +288,11 @@ public final class ECKey implements AsymmetricKey {
         // to getPKeyId at the same time, we only want to call the native
         // code one time.
         //
-        if (pkeyId == 0) {
+        if (pkeyId.getValue() == 0) {
             if (!validId(ecKeyId)) {
                 throw new OCKException(badIdMsg);
             }
-            this.pkeyId = NativeInterface.ECKEY_createPKey(ockContext.getId(), ecKeyId);
+            this.pkeyId.setValue(NativeInterface.ECKEY_createPKey(ockContext.getId(), ecKeyId));
         }
     }
 
@@ -318,33 +338,10 @@ public final class ECKey implements AsymmetricKey {
         }
     }
 
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        //final String methodName = "finalize ";
-        //OCKDebug.Msg(debPrefix, methodName,  "ecKeyId :" + ecKeyId + " pkeyId=" + pkeyId);
-        try {
-            if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
-                Arrays.fill(privateKeyBytes, (byte) 0x00);
-            }
-
-            if (ecKeyId != 0) {
-                NativeInterface.ECKEY_delete(ockContext.getId(), ecKeyId);
-                ecKeyId = 0;
-            }
-
-            if (pkeyId != 0) {
-                NativeInterface.PKEY_delete(ockContext.getId(), pkeyId);
-                pkeyId = 0;
-            }
-        } finally {
-            super.finalize();
-        }
-    }
-
     // The underlying native function used in this method does not use any native pointer
     // that is shared across threads. Hence, it does not require any locks
     public static ECKey createPrivateKey(OCKContext ockContext, byte[] privateKeyBytes,
-            byte[] paramBytes) throws OCKException {
+            byte[] paramBytes, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "createPrivateKey";
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
@@ -352,6 +349,10 @@ public final class ECKey implements AsymmetricKey {
 
         if (privateKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
+        }
+
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
         }
 
         //OCKDebug.Msg (debPrefix, methodName,  "privateKeyBytes :", privateKeyBytes );
@@ -364,7 +365,7 @@ public final class ECKey implements AsymmetricKey {
                 ecKeyId);
 
         //OCKDebug.Msg (debPrefix, methodName, "publicKeyBytes :", publicKeyBytes);
-        return new ECKey(ockContext, ecKeyId, paramBytes, privateKeyBytes.clone(), publicKeyBytes);
+        return new ECKey(ockContext, ecKeyId, paramBytes, privateKeyBytes.clone(), publicKeyBytes, provider);
     }
 
     // There is a lock on ecPrivateKey to ensure that the underlying native pointer is not concurrently
@@ -453,7 +454,7 @@ public final class ECKey implements AsymmetricKey {
     }
 
     public static ECKey createPublicKey(OCKContext ockContext, byte[] publicKeyBytes,
-            byte[] parameterBytes) throws OCKException {
+            byte[] parameterBytes, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "createPublicKey";
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
@@ -462,12 +463,17 @@ public final class ECKey implements AsymmetricKey {
         if (publicKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
         }
+
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+        
         //OCKDebug.Msg (debPrefix, methodName,  "publicKeyBytes :",  publicKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName,  "parameterBytes :", parameterBytes);
         long ecKeyId = NativeInterface.ECKEY_createPublicKey(ockContext.getId(), publicKeyBytes,
                 parameterBytes);
         //OCKDebug.Msg (debPrefix, methodName,  "ecKeyId :" + ecKeyId);
-        return new ECKey(ockContext, ecKeyId, null, null, publicKeyBytes.clone());
+        return new ECKey(ockContext, ecKeyId, null, null, publicKeyBytes.clone(), provider);
     }
 
     // There is a double lock on pubEcKeyId and privEcKeyId to ensure that the underlying native
@@ -502,4 +508,26 @@ public final class ECKey implements AsymmetricKey {
         return (id != 0L);
     }
 
+    private Runnable cleanOCKResources(byte[] privateKeyBytes, long ecKeyId, PrimitiveWrapper.Long pkeyId, OCKContext ockContext) {
+        return() -> {
+            try {
+                if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
+                    Arrays.fill(privateKeyBytes, (byte) 0x00);
+                }
+                if (ecKeyId != 0) {
+                    NativeInterface.ECKEY_delete(ockContext.getId(), ecKeyId);
+                }
+
+                if (pkeyId.getValue() != 0) {
+                    NativeInterface.PKEY_delete(ockContext.getId(), pkeyId.getValue());
+                }
+            } catch (Exception e) {
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
+
+    }
 }
