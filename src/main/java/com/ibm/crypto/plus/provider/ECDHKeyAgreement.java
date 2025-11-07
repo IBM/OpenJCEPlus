@@ -26,6 +26,7 @@ import javax.crypto.KeyAgreementSpi;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
+import sun.security.util.ObjectIdentifier;
 
 public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
                                                               // AlgorithmStatus
@@ -44,6 +45,7 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
     private ECPublicKey ecPublicKey = null;
     private ECPrivateKey ecPrivateKey = null;
     private int secretLen;
+    private static boolean disableSmallCurve = Boolean.parseBoolean(System.getProperty("openjceplus.disableSmallerECKeySizeForSharedKeyComputing", "true"));
 
     public ECDHKeyAgreement(OpenJCEPlusProvider provider) {
         // System.out.println ("In ECDHKeyAgreement");
@@ -162,6 +164,29 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
     protected byte[] engineGenerateSecret() throws IllegalStateException {
         if (generateSecret == false) {
             throw new IllegalStateException("Wrong state");
+        }
+
+        if (provider.isFIPS() && disableSmallCurve) {
+            ECNamedCurve ecPubKeyNamedCurve = ECParameters.getNamedCurve(this.ecPublicKey.getParams());
+            ECNamedCurve ecPriKeyNamedCurve = ECParameters.getNamedCurve(this.ecPrivateKey.getParams());
+            if (ecPubKeyNamedCurve == null || ecPriKeyNamedCurve == null) {
+                throw new IllegalStateException("Curve name is not recognized or not supported");
+            }
+            ObjectIdentifier oidPubKey = ECNamedCurve.getOIDFromName(ecPubKeyNamedCurve.getName());
+            ObjectIdentifier oidPriKey = ECNamedCurve.getOIDFromName(ecPriKeyNamedCurve.getName());
+
+            // check if curve is FIPS allowance and if it is allowed for ECDH shared secret computation
+            if (!((oidPubKey.toString()).equals("1.2.840.10045.3.1.7") // secp256r1 [NIST P-256, X9.62 prime256v1]
+                || (oidPubKey.toString()).equals("1.3.132.0.33") // secp224r1 [NIST P-224]
+                || (oidPubKey.toString()).equals("1.3.132.0.34") // secp384r1 [NIST P-384]
+                || (oidPubKey.toString()).equals("1.3.132.0.35")) ||
+                !((oidPriKey.toString()).equals("1.2.840.10045.3.1.7") // secp256r1 [NIST P-256, X9.62 prime256v1]
+                || (oidPriKey.toString()).equals("1.3.132.0.33") // secp224r1 [NIST P-224]
+                || (oidPriKey.toString()).equals("1.3.132.0.34") // secp384r1 [NIST P-384]
+                || (oidPriKey.toString()).equals("1.3.132.0.35")) // secp521r1 [NIST P-521]
+            ) {
+                throw new IllegalStateException(ecPubKeyNamedCurve.getName() + " curve is not supported in FIPS for calculating the shared secret");
+            }
         }
 
         // Reset the key agreement here (in case anything goes wrong)
