@@ -25,6 +25,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KDF;
+import javax.crypto.KDFParameters;
 import javax.crypto.KeyAgreement;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
@@ -34,6 +35,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestHKDF extends BaseTestJunit5 {
 
@@ -202,6 +204,31 @@ public class BaseTestHKDF extends BaseTestJunit5 {
         String plainStr = decrypt(calcOkm, encryptedBytes, "AES/ECB/PKCS5Padding");
         assertTrue(plainStr.equals(strToEncrypt));
     }
+
+
+    @Test
+    public void testConstructorParameters() throws NoSuchAlgorithmException, NoSuchProviderException {
+        try {
+            KDF.getInstance("HKDF-SHA256", new MyKDFParameters());
+            fail("Expected InvalidAlgorithmParameterException not thrown.");
+        } catch (InvalidAlgorithmParameterException iape) {
+            String expectedMessage = "The KDFParameters supplied could not be used in combination with the "
+                    + "supplied algorithm for the selected Provider";
+            assertTrue(expectedMessage.equals(iape.getMessage()), "Exception doesn't have expected message");
+        }
+
+        try {
+            KDF.getInstance("HKDF-SHA256", new MyKDFParameters2(), getProviderName());
+            fail("Expected InvalidAlgorithmParameterException not thrown.");
+        } catch (InvalidAlgorithmParameterException iape) {
+            String expectedMessage = "HmacSHA256 does not support parameters";
+            assertTrue(expectedMessage.equals(iape.getMessage()), "Exception doesn't have expected message");
+        }
+    }
+    
+    private static class MyKDFParameters implements KDFParameters {}
+
+    private static class MyKDFParameters2 implements KDFParameters {}
 
     private void aesHKDF(int aesKeySize, String hashAlg, String extractAlg, String expandAlg,
             String providerName) throws NoSuchAlgorithmException, NoSuchProviderException,

@@ -10,19 +10,11 @@ package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.ock.OCKContext;
 import com.ibm.crypto.plus.provider.ock.OCKException;
-import java.lang.reflect.Constructor;
-import java.security.InvalidParameterException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.ProviderException;
-import java.security.PublicKey;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import javax.crypto.SecretKey;
 
 public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
@@ -1178,115 +1170,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
         putService(new OpenJCEPlusService(jce, "Signature", "ML-DSA-87",
                "com.ibm.crypto.plus.provider.PQCSignatureImpl$MLDSA87", aliases));
-    }
-
-    private static class OpenJCEPlusService extends Service {
-
-        OpenJCEPlusService(Provider provider, String type, String algorithm, String className,
-                String[] aliases) {
-            this(provider, type, algorithm, className, aliases, null);
-        }
-
-        OpenJCEPlusService(Provider provider, String type, String algorithm, String className,
-                String[] aliases, Map<String, String> attributes) {
-            super(provider, type, algorithm, className, toList(aliases), attributes);
-
-            if (debug != null) {
-                debug.println("Constructing OpenJCEPlusService: " + provider + ", " + type
-                            + ", " + algorithm + ", " + className);
-            }
-        }
-
-        private static List<String> toList(String[] aliases) {
-            return (aliases == null) ? null : Arrays.asList(aliases);
-        }
-
-        @Override
-        public Object newInstance(Object constructorParameter) throws NoSuchAlgorithmException {
-            Provider provider = getProvider();
-            String className = getClassName();
-            try {
-                Class<?> cls = Class.forName(className);
-
-                // Call the constructor that takes an OpenJCEPlusProvider if
-                // available
-                //
-                try {
-                    Class<?>[] parameters = new Class<?>[1];
-                    parameters[0] = Class
-                            .forName("com.ibm.crypto.plus.provider.OpenJCEPlusProvider");
-                    Constructor<?> constr = cls.getConstructor(parameters);
-
-                    return constr.newInstance(new Object[] {provider});
-                } catch (java.lang.NoSuchMethodException e) {
-                }
-            } catch (Exception clex) {
-                throw new NoSuchAlgorithmException(clex);
-            }
-
-            return super.newInstance(constructorParameter);
-        }
-
-        @Override
-        public boolean supportsParameter(Object parameter) {
-
-            if (parameter == null) {
-                return false;
-            }
-            if (parameter instanceof Key == false) {
-                throw new InvalidParameterException("Parameter must be a Key");
-            }
-            Key key = (Key) parameter;
-
-            if (key instanceof SecretKey) {
-
-                String keyType = ((SecretKey) key).getFormat();
-                if (keyType == null) {
-                    // this happens when encoding is not supported
-                    return true;
-                }
-                if (keyType.equalsIgnoreCase("RAW") || keyType.equalsIgnoreCase("PKCS5_DERIVED_KEY")
-                        || keyType.equalsIgnoreCase("PKCS5_KEY")) {
-                    return true;
-                } else {
-                    return false;
-                }
-
-            } else if (key instanceof PrivateKey) {
-                String keyType = ((PrivateKey) key).getFormat();
-                if (keyType == null) {
-                    // this happens when encoding is not supported
-                    return true;
-                }
-                if (keyType.equalsIgnoreCase("PKCS#8")) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else if (key instanceof PublicKey) {
-                String keyType = ((PublicKey) key).getFormat();
-                if (keyType == null) {
-                    // this happens when encoding is not supported
-                    return true;
-                }
-                if (keyType.equalsIgnoreCase("X.509")) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-
-            return false;
-        }
-
-        @Override
-        public String toString() {
-
-            return (super.toString() + "\n" + "provider = " + this.getProvider().getName() + "\n"
-                    + "algorithm = " + this.getAlgorithm());
-
-        }
-
     }
 
     // Return the instance of this class or create one if needed.
