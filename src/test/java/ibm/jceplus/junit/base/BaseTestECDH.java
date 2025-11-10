@@ -42,13 +42,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class BaseTestECDH extends BaseTestJunit5 {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
-    static ECGenParameterSpec algParameterSpec_192k1, algParameterSpec_256r1;
+    static ECGenParameterSpec algParameterSpec_192r1, algParameterSpec_256r1;
 
     static KeyPairGenerator kpgA = null;
     static KeyPairGenerator kpgB = null;
 
-    static KeyPair keyPairA_192k1, keyPairA_256r1;
-    static KeyPair keyPairB_192k1, keyPairB_256r1;
+    static KeyPair keyPairA_192r1, keyPairA_256r1;
+    static KeyPair keyPairB_192r1, keyPairB_256r1;
 
     private boolean isMulti = false;
 
@@ -68,21 +68,21 @@ public class BaseTestECDH extends BaseTestJunit5 {
         try {
 
             //String provider_name = "OpenJCEPlus";
-            String curveName_192k1 = "secp192k1";
+            String curveName_192r1 = "secp192r1";
             String curveName_256r1 = "secp256r1";
 
-            algParameterSpec_192k1 = new ECGenParameterSpec(curveName_192k1);
+            algParameterSpec_192r1 = new ECGenParameterSpec(curveName_192r1);
             algParameterSpec_256r1 = new ECGenParameterSpec(curveName_256r1);
 
             kpgA = KeyPairGenerator.getInstance("EC", provider_name);
-            kpgA.initialize(algParameterSpec_192k1);
-            keyPairA_192k1 = kpgA.generateKeyPair();
+            kpgA.initialize(algParameterSpec_192r1);
+            keyPairA_192r1 = kpgA.generateKeyPair();
             kpgA.initialize(algParameterSpec_256r1);
             keyPairA_256r1 = kpgA.generateKeyPair();
 
             kpgB = KeyPairGenerator.getInstance("EC", provider_name);
-            kpgB.initialize(algParameterSpec_192k1);
-            keyPairB_192k1 = kpgB.generateKeyPair();
+            kpgB.initialize(algParameterSpec_192r1);
+            keyPairB_192r1 = kpgB.generateKeyPair();
             kpgB.initialize(algParameterSpec_256r1);
             keyPairB_256r1 = kpgB.generateKeyPair();
 
@@ -110,15 +110,15 @@ public class BaseTestECDH extends BaseTestJunit5 {
      * @throws Exception
      */
     @Test
-    public void testECDH_secp192k1() throws Exception {
+    public void testECDH_secp192r1() throws Exception {
 
-        String curveName = "secp192k1";
+        String curveName = "secp192r1";
 
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
 
         compute_ecdh_key(curveName, ecgn);
         if (isMulti)
-            compute_ecdh_key_with_global_key(curveName, algParameterSpec_192k1);
+            compute_ecdh_key_with_global_key(curveName, algParameterSpec_192r1);
 
     }
 
@@ -140,27 +140,34 @@ public class BaseTestECDH extends BaseTestJunit5 {
 
         String methodId = "ECDHECParamSpec";
 
-        // These values were copied from ECNamedCurve.java in IBMJCEFIPS
-        String sfield_p256 = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F";
-        String sa_p256 = "0000000000000000000000000000000000000000000000000000000000000000";
-        String sb_p256 = "0000000000000000000000000000000000000000000000000000000000000007";
-        String sx_p256 = "79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798";
-        String sy_p256 = "483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8";
-        String sorder_p256 = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141";
+        // secp256r1 / prime256v1 (NIST P-256)
+        String sfield_p256r1  = "FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF";
+        String sa_p256r1      = "FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC";
+        String sb_p256r1      = "5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B";
+        String sx_p256r1      = "6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296";
+        String sy_p256r1      = "4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5";
+        String sorder_p256r1  = "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551";
 
-        BigInteger p = new BigInteger(sfield_p256, 16);
+        BigInteger p = new BigInteger(sfield_p256r1, 16);
         ECField field = new ECFieldFp(p);
 
-        EllipticCurve curve = new EllipticCurve(field, new BigInteger(sa_p256, 16),
-                new BigInteger(sb_p256, 16));
-        ECPoint g = new ECPoint(new BigInteger(sx_p256, 16), new BigInteger(sy_p256, 16));
-        BigInteger order = new BigInteger(sorder_p256, 16);
+        EllipticCurve curve = new EllipticCurve(
+                field,
+                new BigInteger(sa_p256r1, 16),
+                new BigInteger(sb_p256r1, 16)
+        );
 
+        ECPoint g = new ECPoint(
+                new BigInteger(sx_p256r1, 16),
+                new BigInteger(sy_p256r1, 16)
+        );
+
+        BigInteger order = new BigInteger(sorder_p256r1, 16);
         int cofactor = 1;
+
         ECParameterSpec ecParamSpec = new ECParameterSpec(curve, g, order, cofactor);
 
         compute_ecdh_key(methodId, ecParamSpec);
-
     }
 
     void compute_ecdh_key(String idString, AlgorithmParameterSpec algParameterSpec)
@@ -269,14 +276,24 @@ public class BaseTestECDH extends BaseTestJunit5 {
             throw e;
         }
 
-        // Generate the key bytes
-        byte[] sharedSecretA = keyAgreeA.generateSecret();
-        byte[] sharedSecretB = keyAgreeB.generateSecret();
-        //        System.out.println(methodName + " sharedSecretA = " + BaseUtils.bytesToHex(sharedSecretA));
-        //        System.out.println(methodName + " sharedSecretB = " + BaseUtils.bytesToHex(sharedSecretB));
-
-        assertTrue(Arrays.equals(sharedSecretA, sharedSecretB));
-
+        try {
+            // Generate the key bytes
+            byte[] sharedSecretA = keyAgreeA.generateSecret();
+            byte[] sharedSecretB = keyAgreeB.generateSecret();
+            assertTrue(Arrays.equals(sharedSecretA, sharedSecretB));
+        } catch (IllegalStateException ise) {
+            if (getProviderName().equals(("OpenJCEPlusFIPS"))) {
+                if (idString.equals("secp192r1")) {
+                    assertTrue(ise.getMessage().equals("NIST P-192 curve is not supported in FIPS for calculating the shared secret"));
+                } else {
+                    ise.printStackTrace();
+                    throw ise;
+                }
+            } else {
+                ise.printStackTrace();
+                throw ise;
+            }
+        }
     }
 
     /*
@@ -314,9 +331,9 @@ public class BaseTestECDH extends BaseTestJunit5 {
         final String methodName = "compute_ecdh_key_with_global_key" + "_" + idString;
         KeyPair keyPairA = null, keyPairB = null;
         switch (idString) {
-            case "secp192k1":
-                keyPairA = keyPairA_192k1;
-                keyPairB = keyPairB_192k1;
+            case "secp192r1":
+                keyPairA = keyPairA_192r1;
+                keyPairB = keyPairB_192r1;
                 break;
 
             case "secp256r1":
@@ -380,11 +397,25 @@ public class BaseTestECDH extends BaseTestJunit5 {
             throw e;
         }
 
-        // Generate the key bytes
-        byte[] sharedSecretA = keyAgreeA.generateSecret();
-        byte[] sharedSecretB = keyAgreeB.generateSecret();
-        System.out.println(methodName + " sharedSecretB = " + BaseUtils.bytesToHex(sharedSecretB));
-        assertTrue(Arrays.equals(sharedSecretA, sharedSecretB));
+        try {
+            // Generate the key bytes
+            byte[] sharedSecretA = keyAgreeA.generateSecret();
+            byte[] sharedSecretB = keyAgreeB.generateSecret();
+            System.out.println(methodName + " sharedSecretB = " + BaseUtils.bytesToHex(sharedSecretB));
+            assertTrue(Arrays.equals(sharedSecretA, sharedSecretB));
+        } catch (IllegalStateException ise) {
+            if (getProviderName().equals(("OpenJCEPlusFIPS"))) {
+                if (idString.equals("secp192r1")) {
+                    assertTrue(ise.getMessage().equals("NIST P-192 curve is not supported in FIPS for calculating the shared secret"));
+                } else {
+                    ise.printStackTrace();
+                    throw ise;
+                }
+            } else {
+                ise.printStackTrace();
+                throw ise;
+            }
+        }
     }
 
     @Test
