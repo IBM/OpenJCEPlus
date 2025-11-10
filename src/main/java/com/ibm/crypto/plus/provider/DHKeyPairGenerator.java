@@ -133,12 +133,12 @@ public final class DHKeyPairGenerator extends KeyPairGeneratorSpi {
                 AlgorithmParameters algParams = algParmGen.generateParameters();
                 this.params = algParams.getParameterSpec(DHParameterSpec.class);
 
-                dhKey = DHKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded());
+                dhKey = DHKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded(), provider);
             } else {
                 AlgorithmParameters algParams = AlgorithmParameters.getInstance("DH", provider);
                 algParams.init(params);
 
-                dhKey = DHKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded());
+                dhKey = DHKey.generateKeyPair(provider.getOCKContext(), algParams.getEncoded(), provider);
             }
 
             javax.crypto.interfaces.DHPrivateKey privKey = new DHPrivateKey(provider, dhKey);

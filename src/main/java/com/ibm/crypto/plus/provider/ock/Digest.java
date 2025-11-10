@@ -9,6 +9,7 @@
 package com.ibm.crypto.plus.provider.ock;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.PrimitiveWrapper;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -30,7 +31,7 @@ public final class Digest implements Cloneable {
     // -2   : Not a SHA* digest algorithm
     private int algIndx = -1;
 
-    private BoolWrapper needsReinit = new BoolWrapper(false);
+    private PrimitiveWrapper.Bool needsReinit = new PrimitiveWrapper.Bool(false);
 
     private boolean contextFromQueue = false;
 
@@ -144,22 +145,6 @@ public final class Digest implements Cloneable {
     /* end digest caching mechanism
      * ===========================================================================
      */
-
-    /* This wrapper is used to pass a primitive variable as a parameter by reference instead of by value to the cleaner. */
-    public class BoolWrapper {
-        boolean value;
-        public BoolWrapper(boolean value) {
-            this.value = value;
-        }
-
-        public boolean getValue(){
-            return this.value;
-        }
-
-        public void setValue(boolean value) {
-            this.value = value;
-        }
-    }
 
     private OCKContext ockContext = null;
     private int digestLength = 0;
@@ -365,7 +350,7 @@ public final class Digest implements Cloneable {
     }
 
     private Runnable cleanOCKResources(long digestId, int algIndx, boolean contextFromQueue,
-            BoolWrapper needsReinit, OCKContext ockContext) {
+            PrimitiveWrapper.Bool needsReinit, OCKContext ockContext) {
         return () -> {
             try {
                 if (digestId == 0) {
