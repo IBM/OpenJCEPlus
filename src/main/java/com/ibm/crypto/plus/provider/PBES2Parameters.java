@@ -79,7 +79,7 @@ import sun.security.util.ObjectIdentifier;
 abstract class PBES2Parameters extends AlgorithmParametersSpi {
 
     private static final ObjectIdentifier pkcs5PBKDF2_OID =
-            ObjectIdentifier.of(KnownOIDs.PBKDF2WithHmacSHA1);
+            ObjectIdentifier.of(KnownOIDs.findMatch("PBKDF2WithHmacSHA1"));
     private static final ObjectIdentifier pkcs5PBES2_OID =
             ObjectIdentifier.of(KnownOIDs.PBES2);
     private static final ObjectIdentifier aes128CBC_OID =
