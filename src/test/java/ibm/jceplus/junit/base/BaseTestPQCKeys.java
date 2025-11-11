@@ -9,12 +9,16 @@ package ibm.jceplus.junit.base;
 
 import ibm.security.internal.spec.RawKeySpec;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
@@ -79,7 +83,54 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         }
         keyFactoryCreateFromStaticEncoded(Algorithm);
     }
-    
+
+    @ParameterizedTest
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-KEM", "ML-KEM-512"})
+    public void generatePublicWithInvalidKeySpec(String algorithm) throws Exception {
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
+
+        byte[] encodedKey = generateKeyPair(algorithm).getPrivate().getEncoded();
+
+        //Pass private key bytes to x509 spec as invalid key bytes
+        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(encodedKey);
+        try {
+            keyFactory.generatePublic(publicKeySpec);
+            fail("Expected InvalidKeySpecException not thrown");
+        } catch (InvalidKeySpecException e) {
+            // this is expected
+        }
+
+    }
+    @ParameterizedTest
+    @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
+    public void genWithAlgParameterSpecMLKEM(String algParamSpecName) throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-KEM", getProviderName());        
+        AlgorithmParameterSpec param = new NamedParameterSpec(algParamSpecName);
+        kpg.initialize(param);
+        kpg.generateKeyPair();
+    }
+    @ParameterizedTest
+    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void genWithAlgParameterSpecMLDSA(String algParamSpecName) throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-DSA", getProviderName());        
+        AlgorithmParameterSpec param = new NamedParameterSpec(algParamSpecName);
+        kpg.initialize(param);
+        kpg.generateKeyPair();
+    }
+    @ParameterizedTest
+    @CsvSource({"ML-DSA-65", "ML-DSA-87"})
+    public void genWithAlgParameterSpecMLDSAFaiure(String algParamSpecName) throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-DSA-44", getProviderName());        
+        AlgorithmParameterSpec param = new NamedParameterSpec(algParamSpecName);
+        try {
+            kpg.initialize(param);
+            fail("Expected InvalidKeySpecException not thrown");
+        } catch (InvalidAlgorithmParameterException e) {
+            // Expected
+        }
+
+    }
+
     protected KeyPair generateKeyPair(String Algorithm) throws Exception {
         pqcKeyPairGen = KeyPairGenerator.getInstance(Algorithm, getProviderName());
 

@@ -645,12 +645,22 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
          * PQC key pair generators
          * =======================================================================
          */
+        aliases = null;
+
+        putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "ML-KEM",
+               "com.ibm.crypto.plus.provider.PQCKeyPairGenerator$MLKEM", aliases));
+
+        aliases = null;
+
+        putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "ML-DSA",
+               "com.ibm.crypto.plus.provider.PQCKeyPairGenerator$MLDSA", aliases));
+
         aliases = new String[] {"ML_KEM_512", "MLKEM512", "OID.2.16.840.1.101.3.4.4.1", "2.16.840.1.101.3.4.4.1"};
 
         putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "ML-KEM-512",
                   "com.ibm.crypto.plus.provider.PQCKeyPairGenerator$MLKEM512", aliases));
 
-        aliases = new String[] {"ML-KEM", "ML_KEM_768", "MLKEM768", "OID.2.16.840.1.101.3.4.4.2", "2.16.840.1.101.3.4.4.2"};
+        aliases = new String[] {"ML_KEM_768", "MLKEM768", "OID.2.16.840.1.101.3.4.4.2", "2.16.840.1.101.3.4.4.2"};
 
         putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "ML-KEM-768",
                "com.ibm.crypto.plus.provider.PQCKeyPairGenerator$MLKEM768", aliases));
@@ -665,7 +675,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "ML-DSA-44",
                "com.ibm.crypto.plus.provider.PQCKeyPairGenerator$MLDSA44", aliases));
 
-        aliases = new String[] {"ML-DSA", "ML_DSA_65", "MLDSA65", "OID.2.16.840.1.101.3.4.3.18", "2.16.840.1.101.3.4.3.18"};
+        aliases = new String[] {"ML_DSA_65", "MLDSA65", "OID.2.16.840.1.101.3.4.3.18", "2.16.840.1.101.3.4.3.18"};
 
         putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "ML-DSA-65",
                "com.ibm.crypto.plus.provider.PQCKeyPairGenerator$MLDSA65", aliases));
