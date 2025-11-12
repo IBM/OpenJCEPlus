@@ -88,7 +88,7 @@ final class PQCPublicKey extends X509Key
             
             this.pqcKey = PQCKey.createPublicKey(provider.getOCKContext(), name, b, provider);
         } catch (Exception e) {
-            throw provider.providerException("Failure in PublicKey -"+e.getMessage(), e);
+            throw new InvalidKeyException("Failure in PublicKey -" + e.getMessage(), e);
         }
     }
 
