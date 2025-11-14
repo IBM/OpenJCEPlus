@@ -28,7 +28,7 @@ void com_ibm_crypto_plus_provider_initialize(void) {
 #if DEBUG
         /*if( getenv("JICC.debug") != NULL ) {*/
         debug = 1;  // FIXME;
-        /*}*/
+                    /*}*/
 #endif
         initialized = 1;
     }
