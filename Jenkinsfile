@@ -209,15 +209,16 @@ def run(platform) {
             // Some OSes have some further specific requirements.
             if (software == "aix") {
                 // Java 25 requires C++17.1 runtime. Otherwise crashes occur.
-                nodeTags += "&&sw.tool.c++runtime.17_1"
+                nodeTags = "hw.arch.${node_hardware}&&sw.os.aix.7_2&&sw.tool.c++runtime.17_1&&ci.role.build"
+            } else {
+
+                // Machines tagged as ci.role.test are expected to have
+                // software to compile, build, and test OpenJCEPlus.
+                nodeTags += "&&ci.role.test"
+
+                // Exclude machines that are FIPS140-2 configured.
+                nodeTags += "&&!ci.role.test.fips"
             }
-
-            // Machines tagged as ci.role.test are expected to have
-            // software to compile, build, and test OpenJCEPlus.
-            nodeTags += "&&ci.role.test"
-
-            // Exclude machines that are FIPS140-2 configured.
-            nodeTags += "&&!ci.role.test.fips"
 
             // Add additional labels specified by user.
             nodeTags += (ADDITIONAL_NODE_LABELS) ? "&&" + ADDITIONAL_NODE_LABELS : ""
