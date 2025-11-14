@@ -28,15 +28,14 @@ JNIEXPORT void JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_KEM_1encapsulate(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray wrappedKey, jbyteArray randomKey) {
+    ICC_CTX          *ockCtx          = (ICC_CTX *)((intptr_t)ockContextId);
+    ICC_EVP_PKEY_CTX *evp_pk          = NULL;
+    ICC_EVP_PKEY     *pa              = (ICC_EVP_PKEY *)((intptr_t)ockPKeyId);
+    size_t            wrappedkeylen   = 0;
+    size_t            genkeylen       = 0;
+    unsigned char    *wrappedKeyLocal = NULL;
+    unsigned char    *genkeylocal     = NULL;
 
-    ICC_CTX          *ockCtx           = (ICC_CTX *)((intptr_t)ockContextId);
-    ICC_EVP_PKEY_CTX *evp_pk           = NULL;
-    ICC_EVP_PKEY     *pa               = (ICC_EVP_PKEY *)((intptr_t)ockPKeyId);
-    size_t            wrappedkeylen    = 0;
-    size_t            genkeylen        = 0;
-    unsigned char    *wrappedKeyLocal  = NULL;
-    unsigned char    *genkeylocal      = NULL;
- 
     evp_pk = ICC_EVP_PKEY_CTX_new_from_pkey(ockCtx, NULL, pa, NULL);
     if (!evp_pk) {
         throwOCKException(env, 0, "ICC_EVP_PKEY_CTX_new_from_pkey failed");
@@ -117,19 +116,18 @@ JNIEXPORT jbyteArray JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_KEM_1decapsulate(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray wrappedKey) {
-
-    ICC_CTX                 *ockCtx    = (ICC_CTX *)((intptr_t)ockContextId);
-    ICC_EVP_PKEY            *ockPKey   = (ICC_EVP_PKEY *)((intptr_t)ockPKeyId);
-    ICC_EVP_PKEY_CTX        *evp_pk    = NULL;
-    int                      rc        = -1;
-    jboolean                 isCopy    = 0;
-    jbyteArray               randomKey = NULL;
-    jbyteArray               retRndKeyBytes   = NULL;
-    size_t                   wrappedkeylen    = 0;
-    size_t                   genkeylen        = 0;
-    unsigned char           *wrappedKeyNative = NULL;
-    unsigned char           *genkeylocal      = NULL;
-    unsigned char           *genKeyNative     = NULL;
+    ICC_CTX          *ockCtx           = (ICC_CTX *)((intptr_t)ockContextId);
+    ICC_EVP_PKEY     *ockPKey          = (ICC_EVP_PKEY *)((intptr_t)ockPKeyId);
+    ICC_EVP_PKEY_CTX *evp_pk           = NULL;
+    int               rc               = -1;
+    jboolean          isCopy           = 0;
+    jbyteArray        randomKey        = NULL;
+    jbyteArray        retRndKeyBytes   = NULL;
+    size_t            wrappedkeylen    = 0;
+    size_t            genkeylen        = 0;
+    unsigned char    *wrappedKeyNative = NULL;
+    unsigned char    *genkeylocal      = NULL;
+    unsigned char    *genKeyNative     = NULL;
 
     evp_pk = ICC_EVP_PKEY_CTX_new(ockCtx, ockPKey, NULL);
     if (!evp_pk) {

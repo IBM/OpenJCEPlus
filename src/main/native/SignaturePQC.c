@@ -26,7 +26,6 @@ JNIEXPORT jbyteArray JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PQC_1SIGNATURE_1sign(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray data) {
-
     ICC_CTX          *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
     ICC_EVP_PKEY     *ockPKey        = (ICC_EVP_PKEY *)((intptr_t)ockPKeyId);
     ICC_EVP_PKEY_CTX *skc            = NULL;
@@ -149,7 +148,6 @@ JNIEXPORT jboolean JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PQC_1SIGNATURE_1verify(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray sigBytes, jbyteArray data) {
-
     ICC_CTX          *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
     ICC_EVP_PKEY     *ockPKey        = (ICC_EVP_PKEY *)((intptr_t)ockPKeyId);
     ICC_EVP_PKEY_CTX *evp_pk         = NULL;
@@ -179,7 +177,8 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PQC_1SIGNATURE_1verify(
             env, data, &isCopy));
 
         if (dataNative == NULL) {
-            (*env)->ReleasePrimitiveArrayCritical(env, data, dataNative, JNI_ABORT);
+            (*env)->ReleasePrimitiveArrayCritical(env, data, dataNative,
+                                                  JNI_ABORT);
             throwOCKException(env, 0, "GetPrimitiveArrayCritical failed");
             return verified;
         }
