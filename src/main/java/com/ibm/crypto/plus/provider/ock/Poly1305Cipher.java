@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.Poly1305Constants;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -17,8 +18,9 @@ import javax.crypto.ShortBufferException;
 
 public final class Poly1305Cipher implements Poly1305Constants {
 
+    private OpenJCEPlusProvider provider;
     private OCKContext ockContext;
-    private long ockCipherId;
+    private final long ockCipherId;
     private boolean isInitialized = false;
     private boolean encrypting = true;
     private Padding padding = null;
@@ -34,7 +36,7 @@ public final class Poly1305Cipher implements Poly1305Constants {
     private final static String badIdMsg = "Cipher Identifier is not valid";
 
     public static Poly1305Cipher getInstance(OCKContext ockContext, String cipherName,
-            Padding padding) throws OCKException {
+            Padding padding, OpenJCEPlusProvider provider) throws OCKException {
 
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
@@ -48,14 +50,21 @@ public final class Poly1305Cipher implements Poly1305Constants {
             throw new IllegalArgumentException("padding is null");
         }
 
-        return new Poly1305Cipher(ockContext, cipherName, padding);
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
+        return new Poly1305Cipher(ockContext, cipherName, padding, provider);
     }
 
-    private Poly1305Cipher(OCKContext ockContext, String cipherName, Padding padding)
+    private Poly1305Cipher(OCKContext ockContext, String cipherName, Padding padding, OpenJCEPlusProvider provider)
             throws OCKException {
         this.ockContext = ockContext;
         this.ockCipherId = NativeInterface.POLY1305CIPHER_create(ockContext.getId(), cipherName);
         this.padding = padding;
+        this.provider = provider;
+
+        this.provider.registerCleanable(this, cleanOCKResources(ockCipherId, reinitKey, ockContext));
     }
 
     public synchronized void initCipherEncrypt(byte[] key, byte[] iv) throws OCKException {
@@ -374,23 +383,6 @@ public final class Poly1305Cipher implements Poly1305Constants {
         return outLen;
     }
 
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            if (ockCipherId != 0) {
-                NativeInterface.POLY1305CIPHER_delete(ockContext.getId(), ockCipherId);
-                ockCipherId = 0;
-            }
-        } finally {
-            if (reinitKey != null) {
-                Arrays.fill(reinitKey, (byte) 0x00);
-                reinitKey = null;
-            }
-
-            super.finalize();
-        }
-    }
-
     /* At some point we may enhance this function to do other validations */
     private static boolean validId(long id) {
         return (id != 0L);
@@ -409,5 +401,24 @@ public final class Poly1305Cipher implements Poly1305Constants {
             baos.write(input, inputOffset, inputLen);
         }
         return baos.toByteArray();
+    }
+
+    private Runnable cleanOCKResources(long ockCipherId, byte[] reinitKey, OCKContext ockContext) {
+        return() -> {
+            try {
+                if (ockCipherId != 0) {
+                    NativeInterface.POLY1305CIPHER_delete(ockContext.getId(), ockCipherId);
+                }
+
+                if (reinitKey != null) {
+                    Arrays.fill(reinitKey, (byte) 0x00);
+                }
+            } catch (Exception e) {
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            } 
+        };
     }
 }

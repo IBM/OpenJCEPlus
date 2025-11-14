@@ -240,7 +240,7 @@ public final class DESedeCipher extends CipherSpi implements DESConstants {
         try {
             if (symmetricCipher == null) {
                 symmetricCipher = SymmetricCipher.getInstanceDESede(provider.getOCKContext(), mode,
-                        padding);
+                        padding, provider);
             }
 
             if (isEncrypt) {

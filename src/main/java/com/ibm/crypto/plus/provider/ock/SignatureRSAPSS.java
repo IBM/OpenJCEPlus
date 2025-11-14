@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.PrimitiveWrapper;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
@@ -18,8 +20,9 @@ public final class SignatureRSAPSS {
         INITSIGN, INITVERIFY
     };
 
+    private OpenJCEPlusProvider provider;
     private OCKContext ockContext = null;
-    private long rsaPssId = 0;
+    private PrimitiveWrapper.Long rsaPssId = new PrimitiveWrapper.Long(0);
     private AsymmetricKey key = null;
     private boolean initialized = false;
     private boolean convert = false;
@@ -33,16 +36,20 @@ public final class SignatureRSAPSS {
 
 
     public static SignatureRSAPSS getInstance(OCKContext ockContext, String digestAlgo, int saltlen,
-            int trailerField, String mgfAlgo, String mgf1SpecAlgo) throws OCKException {
+            int trailerField, String mgfAlgo, String mgf1SpecAlgo, OpenJCEPlusProvider provider) throws OCKException {
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
         }
+
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
         return new SignatureRSAPSS(ockContext, digestAlgo, saltlen, trailerField, mgfAlgo,
-                mgf1SpecAlgo);
+                mgf1SpecAlgo, provider);
     }
 
     private SignatureRSAPSS(OCKContext ockContext, String digestAlgo, int saltlen, int trailerField,
-            String mgfAlgo, String mgf1SpecAlgo) throws OCKException {
+            String mgfAlgo, String mgf1SpecAlgo, OpenJCEPlusProvider provider) throws OCKException {
 
         this.ockContext = ockContext;
         this.saltlen = saltlen;
@@ -50,15 +57,18 @@ public final class SignatureRSAPSS {
         this.mgfAlgo = mgfAlgo;
         this.mgf1SpecAlgo = mgf1SpecAlgo;
         this.digestAlgo = digestAlgo;
+        this.provider = provider;
+
+        this.provider.registerCleanable(this, cleanOCKResources(rsaPssId, ockContext));
     }
 
     public synchronized void setParameter(String digestAlgo, int saltlen, int trailerField,
             String mgfAlgo, String mgf1SpecAlgo) throws InvalidAlgorithmParameterException {
 
         try {
-            if (rsaPssId != 0) { // release existing context before allocating a new one
-                NativeInterface.RSAPSS_releaseContext(ockContext.getId(), rsaPssId);
-                rsaPssId = 0;
+            if (rsaPssId.getValue() != 0) { // release existing context before allocating a new one
+                NativeInterface.RSAPSS_releaseContext(ockContext.getId(), rsaPssId.getValue());
+                rsaPssId.setValue(0);;
             }
         } catch (OCKException e) {
             throw new InvalidParameterException("Unable to set the digestAlgoOCK: releaseContext");
@@ -148,15 +158,15 @@ public final class SignatureRSAPSS {
 
         int ret = 0;
         try {
-            this.rsaPssId = NativeInterface.RSAPSS_createContext(ockContext.getId(), digestAlgoOCK,
-                    mgf1SpecAlgoOCK);
+            this.rsaPssId.setValue(NativeInterface.RSAPSS_createContext(ockContext.getId(), digestAlgoOCK,
+                    mgf1SpecAlgoOCK));
             // If already initialized, re-init with new context and parameters
-            if (this.initialized && this.rsaPssId != 0) {
+            if (this.initialized && this.rsaPssId.getValue() != 0) {
                 if (this.initOp == InitOp.INITSIGN) {
-                    NativeInterface.RSAPSS_signInit(this.ockContext.getId(), rsaPssId,
+                    NativeInterface.RSAPSS_signInit(this.ockContext.getId(), rsaPssId.getValue(),
                             this.key.getPKeyId(), this.saltlen, this.convert);
                 } else {
-                    NativeInterface.RSAPSS_verifyInit(this.ockContext.getId(), rsaPssId,
+                    NativeInterface.RSAPSS_verifyInit(this.ockContext.getId(), rsaPssId.getValue(),
                             this.key.getPKeyId(), this.saltlen);
                 }
             }
@@ -164,12 +174,12 @@ public final class SignatureRSAPSS {
             ret = 1;
         }
 
-        return (this.rsaPssId != 0 && ret == 0) ? 0 : 1;
+        return (this.rsaPssId.getValue() != 0 && ret == 0) ? 0 : 1;
     }
 
     public synchronized void update(byte[] input, int offset, int length) throws OCKException {
 
-        NativeInterface.RSAPSS_digestUpdate(this.ockContext.getId(), this.rsaPssId, input, offset,
+        NativeInterface.RSAPSS_digestUpdate(this.ockContext.getId(), this.rsaPssId.getValue(), input, offset,
                 length);
 
     }
@@ -180,7 +190,7 @@ public final class SignatureRSAPSS {
             throw new IllegalArgumentException("key is null");
         }
         this.initialized = false; // Set false to verify successful init.
-        if (rsaPssId == 0) { // if context wasn't created by setParameters, create it now
+        if (rsaPssId.getValue() == 0) { // if context wasn't created by setParameters, create it now
             if (0 != configureParameter(digestAlgo, saltlen, trailerField, mgfAlgo, mgf1SpecAlgo)) {
                 throw new InvalidParameterException(
                         "Unable to set the digestAlgoOCK: configureParameters");
@@ -189,12 +199,12 @@ public final class SignatureRSAPSS {
         this.key = key;
         this.initOp = initOp;
         this.convert = convert;
-        if (rsaPssId != 0) {
+        if (rsaPssId.getValue() != 0) {
             if (initOp == InitOp.INITSIGN) {
-                NativeInterface.RSAPSS_signInit(this.ockContext.getId(), rsaPssId,
+                NativeInterface.RSAPSS_signInit(this.ockContext.getId(), rsaPssId.getValue(),
                         this.key.getPKeyId(), this.saltlen, convert);
             } else {
-                NativeInterface.RSAPSS_verifyInit(this.ockContext.getId(), rsaPssId,
+                NativeInterface.RSAPSS_verifyInit(this.ockContext.getId(), rsaPssId.getValue(),
                         this.key.getPKeyId(), this.saltlen);
             }
         } else {
@@ -208,17 +218,17 @@ public final class SignatureRSAPSS {
         if (!this.initialized) {
             throw new IllegalStateException("SignatureRSAPSS not initialized");
         }
-        if (rsaPssId != 0) {
+        if (rsaPssId.getValue() != 0) {
             byte[] signature = null;
             try {
                 signature = new byte[NativeInterface.RSAPSS_getSigLen(this.ockContext.getId(),
-                        this.rsaPssId)];
-                NativeInterface.RSAPSS_signFinal(this.ockContext.getId(), this.rsaPssId, signature,
+                        this.rsaPssId.getValue())];
+                NativeInterface.RSAPSS_signFinal(this.ockContext.getId(), this.rsaPssId.getValue(), signature,
                         signature.length);
                 return signature;
             } catch (OCKException e) {
                 // Try to reset if OCKException is thrown
-                NativeInterface.RSAPSS_resetDigest(this.ockContext.getId(), this.rsaPssId);
+                NativeInterface.RSAPSS_resetDigest(this.ockContext.getId(), this.rsaPssId.getValue());
                 throw e;
             }
         } else {
@@ -237,14 +247,14 @@ public final class SignatureRSAPSS {
         if (sigBytes == null) {
             throw new IllegalArgumentException("invalid signature");
         }
-        if (rsaPssId != 0) {
+        if (rsaPssId.getValue() != 0) {
             boolean verified = false;
             try {
                 verified = NativeInterface.RSAPSS_verifyFinal(this.ockContext.getId(),
-                        this.rsaPssId, sigBytes, sigBytes.length);
+                        this.rsaPssId.getValue(), sigBytes, sigBytes.length);
             } catch (OCKException e) {
                 // Try to reset if OCKException is thrown
-                NativeInterface.RSAPSS_resetDigest(this.ockContext.getId(), this.rsaPssId);
+                NativeInterface.RSAPSS_resetDigest(this.ockContext.getId(), this.rsaPssId.getValue());
                 throw e;
             }
             return verified;
@@ -253,19 +263,18 @@ public final class SignatureRSAPSS {
         }
     }
 
-    //
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        //final String methodName = "finalize";
-
-        try {
-            if (rsaPssId != 0) {
-                NativeInterface.RSAPSS_releaseContext(ockContext.getId(), rsaPssId);
-                rsaPssId = 0;
-            }
-        } finally {
-            super.finalize();
-        }
+    private Runnable cleanOCKResources(PrimitiveWrapper.Long rsaPssId, OCKContext ockContext) {
+        return() -> {
+            try {
+                if (rsaPssId.getValue() != 0) {
+                    NativeInterface.RSAPSS_releaseContext(ockContext.getId(), rsaPssId.getValue());
+                }
+            } catch (Exception e) {
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            } 
+        };
     }
-
 }

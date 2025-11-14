@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -109,7 +110,7 @@ public final class GCMCipher {
     // except ICC_CTX which is thread safe
     public static int doGCMFinal_Decrypt(OCKContext ockContext, byte[] key, byte[] iv, int tagLen,
             byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset,
-            byte[] aad) throws OCKException, IllegalStateException, ShortBufferException,
+            byte[] aad, OpenJCEPlusProvider provider) throws OCKException, IllegalStateException, ShortBufferException,
             IllegalBlockSizeException, BadPaddingException, AEADBadTagException {
         //final String methodName="doGCMFinal_Decrypt ";
         int rc = 0;
@@ -148,6 +149,10 @@ public final class GCMCipher {
             throw new IllegalArgumentException("Output range is invalid");
         }
 
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
         // if Encrypting, the output buffer size should be cipherSize + TAG
         // if Decrypting, the output buffer size should be cipherSize - TAG
         int len = getOutputSizeLegacy(inputLen, false /*isEncrypt*/, tagLen);
@@ -181,7 +186,7 @@ public final class GCMCipher {
 
         int aadLen = authenticationData.length;
 
-        long gcmCtx = getGCMContext(false, key.length, ockContext);
+        long gcmCtx = getGCMContext(false, key.length, ockContext, provider);
 
         if (GCMHardwareFunctionPtr == 0)
             GCMHardwareFunctionPtr = NativeInterface
@@ -230,7 +235,7 @@ public final class GCMCipher {
     // except ICC_CTX which is thread safe
     public static int doGCMFinal_Encrypt(OCKContext ockContext, byte[] key, byte[] iv, int tagLen,
             byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset,
-            byte[] aad) throws OCKException, IllegalStateException, ShortBufferException,
+            byte[] aad, OpenJCEPlusProvider provider) throws OCKException, IllegalStateException, ShortBufferException,
             IllegalBlockSizeException, BadPaddingException {
 
         //final String methodName = "doGCMFinal_Encrypt ";
@@ -266,6 +271,10 @@ public final class GCMCipher {
 
         if ((output == null) || (outputOffset < 0) || (outputOffset > outputBufLen)) {
             throw new IllegalArgumentException("Output range is invalid");
+        }
+
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
         }
 
         // if Encrypting, the output buffer size should be cipherSize + TAG
@@ -306,7 +315,7 @@ public final class GCMCipher {
 
         int aadLen = authenticationData.length;
 
-        long gcmCtx = getGCMContext(true, key.length, ockContext);
+        long gcmCtx = getGCMContext(true, key.length, ockContext, provider);
 
         if (GCMHardwareFunctionPtr == 0)
             GCMHardwareFunctionPtr = NativeInterface
@@ -358,7 +367,7 @@ public final class GCMCipher {
 
     public static int do_GCM_FinalForUpdateDecrypt(OCKContext ockContext, byte[] key, byte[] iv,
             int tagLen, byte[] input, int inputOffset, int inputLen, byte[] output,
-            int outputOffset, byte[] aad)
+            int outputOffset, byte[] aad, OpenJCEPlusProvider provider)
             throws OCKException, IllegalStateException, ShortBufferException,
             IllegalBlockSizeException, BadPaddingException, AEADBadTagException {
         //final String methodName="do_GCM_FinalForUpdateDecrypt ";
@@ -398,6 +407,10 @@ public final class GCMCipher {
             throw new IllegalArgumentException("Output range is invalid");
         }
 
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
         // if Encrypting, the output buffer size should be cipherSize + TAG
         // if Decrypting, the output buffer size should be cipherSize - TAG
         int len = getOutputSize(inputLen, false /*isEncrypt*/, tagLen, true);
@@ -413,7 +426,7 @@ public final class GCMCipher {
 
         int aadLen = authenticationData.length;
 
-        long gcmCtx = getGCMContext(false, key.length, ockContext);
+        long gcmCtx = getGCMContext(false, key.length, ockContext, provider);
         //OCKDebug.Msg(debPrefix,methodName, "gcmCtx = " + gcmCtx );
 
         //OCKDebug.Msg (debPrefix, methodName, "key.length :" + key.length + " iv.length :" + iv.length + " inputOffset :" + inputOffset);
@@ -438,7 +451,7 @@ public final class GCMCipher {
 
     public static int do_GCM_InitForUpdateDecrypt(OCKContext ockContext, byte[] key, byte[] iv,
             int tagLen, byte[] input, int inputOffset, int inputLen, byte[] output,
-            int outputOffset, byte[] aad)
+            int outputOffset, byte[] aad, OpenJCEPlusProvider provider)
             throws OCKException, IllegalStateException, ShortBufferException,
             IllegalBlockSizeException, BadPaddingException, AEADBadTagException {
         //final String methodName="do_GCM_InitForUpdateDecrypt ";
@@ -474,6 +487,10 @@ public final class GCMCipher {
             throw new IllegalArgumentException("Output range is invalid");
         }
 
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
         // if Encrypting, the output buffer size should be cipherSize + TAG
         // if Decrypting, the output buffer size should be cipherSize - TAG
         int len = 0;
@@ -484,7 +501,7 @@ public final class GCMCipher {
 
         int aadLen = authenticationData.length;
 
-        long gcmCtx = getGCMContext(false, key.length, ockContext);
+        long gcmCtx = getGCMContext(false, key.length, ockContext, provider);
         //OCKDebug.Msg(debPrefix,methodName, "gcmCtx = " + gcmCtx );
 
         //To-Do - replace false with actual logic
@@ -507,7 +524,7 @@ public final class GCMCipher {
 
     public static /*synchronized*/ int do_GCM_UpdForUpdateDecrypt(OCKContext ockContext, byte[] key,
             byte[] iv, int tagLen, byte[] input, int inputOffset, int inputLen, byte[] output,
-            int outputOffset, byte[] aad)
+            int outputOffset, byte[] aad, OpenJCEPlusProvider provider)
             throws OCKException, IllegalStateException, ShortBufferException,
             IllegalBlockSizeException, BadPaddingException, AEADBadTagException {
         //final String methodName="do_GCM_UpdForUpdateDecrypt ";
@@ -548,6 +565,10 @@ public final class GCMCipher {
             throw new IllegalArgumentException("Output range is invalid");
         }
 
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
         // if Encrypting, the output buffer size should be cipherSize + TAG
         // if Decrypting, the output buffer size should be cipherSize - TAG
         int len = getOutputSize(inputLen, false /*isEncrypt*/, tagLen, false);
@@ -558,7 +579,7 @@ public final class GCMCipher {
 
         //int aadLen = authenticationData.length;
 
-        long gcmCtx = getGCMContext(false, key.length, ockContext);
+        long gcmCtx = getGCMContext(false, key.length, ockContext, provider);
 
         //OCKDebug.Msg(debPrefix,methodName, "gcmCtx = " + gcmCtx );
 
@@ -581,7 +602,7 @@ public final class GCMCipher {
 
     public static int do_GCM_FinalForUpdateEncrypt(OCKContext ockContext, byte[] key, byte[] iv,
             int tagLen, byte[] input, int inputOffset, int inputLen, byte[] output,
-            int outputOffset, byte[] aad) throws OCKException, IllegalStateException,
+            int outputOffset, byte[] aad, OpenJCEPlusProvider provider) throws OCKException, IllegalStateException,
             ShortBufferException, IllegalBlockSizeException, BadPaddingException {
 
         //final String methodName = "do_GCM_FinalForUpdateEncrypt ";
@@ -616,6 +637,10 @@ public final class GCMCipher {
 
         if ((output == null) || (outputOffset < 0) || (outputOffset > outputBufLen)) {
             throw new IllegalArgumentException("Output range is invalid");
+        }
+
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
         }
 
         // if Encrypting, the output buffer size should be cipherSize + TAG
@@ -658,7 +683,7 @@ public final class GCMCipher {
 
         int aadLen = authenticationData.length;
 
-        long gcmCtx = getGCMContext(true, key.length, ockContext);
+        long gcmCtx = getGCMContext(true, key.length, ockContext, provider);
         //OCKDebug.Msg (debPrefix, methodName, "gcmCtx :" + String.valueOf(gcmCtx));
 
 
@@ -690,7 +715,7 @@ public final class GCMCipher {
     // except ICC_CTX which is thread safe
     public static int do_GCM_UpdForUpdateEncrypt(OCKContext ockContext, byte[] key, byte[] iv,
             int tagLen, byte[] input, int inputOffset, int inputLen, byte[] output,
-            int outputOffset, byte[] aad) throws OCKException, IllegalStateException,
+            int outputOffset, byte[] aad, OpenJCEPlusProvider provider) throws OCKException, IllegalStateException,
             ShortBufferException, IllegalBlockSizeException, BadPaddingException {
 
         //final String methodName = "do_GCM_UpdForUpdateEncrypt ";
@@ -727,6 +752,10 @@ public final class GCMCipher {
             throw new IllegalArgumentException("Output range is invalid");
         }
 
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
         // if Encrypting, the output buffer size should be cipherSize + TAG
         // if Decrypting, the output buffer size should be cipherSize - TAG
         int len = getOutputSize(inputLen, true /* isEncrypt */, tagLen, false);
@@ -751,7 +780,7 @@ public final class GCMCipher {
 
         // int aadLen = authenticationData.length;
 
-        long gcmCtx = getGCMContext(true, key.length, ockContext);
+        long gcmCtx = getGCMContext(true, key.length, ockContext, provider);
         //OCKDebug.Msg(debPrefix, methodName, " gcmCtx " + gcmCtx);
         //To-Do and implement actual logic
 
@@ -777,7 +806,7 @@ public final class GCMCipher {
     // except ICC_CTX which is thread safe
     public static int do_GCM_InitForUpdateEncrypt(OCKContext ockContext, byte[] key, byte[] iv,
             int tagLen, byte[] input, int inputOffset, int inputLen, byte[] output,
-            int outputOffset, byte[] aad) throws OCKException, IllegalStateException,
+            int outputOffset, byte[] aad, OpenJCEPlusProvider provider) throws OCKException, IllegalStateException,
             ShortBufferException, IllegalBlockSizeException, BadPaddingException {
 
         //final String methodName = "do_GCM_InitForUpdateEncrypt ";
@@ -803,6 +832,9 @@ public final class GCMCipher {
             throw new IllegalArgumentException("IV is the wrong size");
         }
 
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
 
         // if Encrypting, the output buffer size should be cipherSize + TAG
         // if Decrypting, the output buffer size should be cipherSize - TAG
@@ -828,7 +860,7 @@ public final class GCMCipher {
 
         int aadLen = authenticationData.length;
 
-        long gcmCtx = getGCMContext(true, key.length, ockContext);
+        long gcmCtx = getGCMContext(true, key.length, ockContext, provider);
         //OCKDebug.Msg(debPrefix, methodName, " gcmCtx " + gcmCtx);
 
         //OCKDebug.Msg (debPrefix, methodName, "key.length :" + key.length + " iv.length :" + iv.length + " inputOffset :" + inputOffset);
@@ -850,7 +882,7 @@ public final class GCMCipher {
     }
 
 
-    private static long getGCMContext(boolean encrypting, int keyLength, OCKContext ockContext)
+    private static long getGCMContext(boolean encrypting, int keyLength, OCKContext ockContext, OpenJCEPlusProvider provider)
             throws OCKException {
         //// if it is indicated that Java based TLS storage of GCM contexts should be used
         //// we fetch the TLS copy of the gcm context. if uninitialized, create a new one
@@ -880,7 +912,7 @@ public final class GCMCipher {
             }
             gcmCtx = gcmCtxBuffer.get();
             if (gcmCtx == null) {
-                gcmCtx = new GCMContextPointer(ockContext.getId());
+                gcmCtx = new GCMContextPointer(ockContext.getId(), provider);
                 gcmCtxBuffer.set(gcmCtx);
             }
             return gcmCtx.getCtx();
@@ -1022,28 +1054,35 @@ public final class GCMCipher {
     }
 
     static class GCMContextPointer {
-        long gcmCtx = 0;
+        OpenJCEPlusProvider provider;
+        final long gcmCtx;
         long ockContext = 0;
 
-        GCMContextPointer(long ockContext) throws OCKException {
+        GCMContextPointer(long ockContext, OpenJCEPlusProvider provider) throws OCKException {
             this.gcmCtx = NativeInterface.create_GCM_context(ockContext);
             this.ockContext = ockContext;
-        }
+            this.provider = provider;
 
-        @Override
-        protected synchronized void finalize() throws Throwable {
-            try {
-                if (gcmCtx != 0) {
-                    NativeInterface.free_GCM_ctx(ockContext, gcmCtx);
-                    gcmCtx = 0;
-                }
-            } finally {
-                super.finalize();
-            }
+            this.provider.registerCleanable(this, cleanOCKResources(gcmCtx, ockContext));
         }
 
         long getCtx() {
             return gcmCtx;
+        }
+
+        private Runnable cleanOCKResources(long gcmCtx, long ockContext){
+            return() -> {
+                try {
+                    if (gcmCtx != 0) {
+                        NativeInterface.free_GCM_ctx(ockContext, gcmCtx);
+                    }
+                } catch (Exception e) {
+                    if (OpenJCEPlusProvider.getDebug() != null) {
+                        OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            };
         }
     }
 
@@ -1065,4 +1104,5 @@ public final class GCMCipher {
 
         return supported;
     }
+
 }
