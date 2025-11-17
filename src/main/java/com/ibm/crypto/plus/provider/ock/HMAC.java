@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,24 +8,30 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.Arrays;
 
 public final class HMAC {
 
+    private OpenJCEPlusProvider provider;
     private OCKContext ockContext = null;
-    private long hmacId = 0;
+    private final long hmacId;
     private boolean needsReinit = false;
     private byte[] reinitKey = null;
     private int macLength = 0;
     private final String badIdMsg = "HMAC Identifier is not valid";
     private static final String debPrefix = "HAMC";
 
-    public static HMAC getInstance(OCKContext ockContext, String digestAlgo) throws OCKException {
+    public static HMAC getInstance(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
         }
 
-        return new HMAC(ockContext, digestAlgo);
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
+        return new HMAC(ockContext, digestAlgo, provider);
     }
 
     static void throwOCKException(int errorCode) throws OCKException {
@@ -41,11 +47,14 @@ public final class HMAC {
         }
     }
 
-    private HMAC(OCKContext ockContext, String digestAlgo) throws OCKException {
+    private HMAC(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "HMAC (String)";
         this.ockContext = ockContext;
         this.hmacId = NativeInterface.HMAC_create(ockContext.getId(), digestAlgo);
+        this.provider = provider;
         //OCKDebug.Msg (debPrefix, methodName,  "this.hmacId :" + this.hmacId + " digestAlgo :" + digestAlgo);
+
+        this.provider.registerCleanable(this, cleanOCKResources(hmacId, reinitKey, ockContext));
     }
 
     public synchronized void initialize(byte[] key) throws OCKException {
@@ -144,29 +153,29 @@ public final class HMAC {
         }
     }
 
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        //final String methodName = "finalize ";
-        //OCKDebug.Msg (debPrefix, methodName,  "hamcId :" + hmacId + " reinitKey :" + reinitKey);
-        try {
-            if (hmacId != 0) {
-                NativeInterface.HMAC_delete(ockContext.getId(), hmacId);
-                hmacId = 0;
-            }
-        } finally {
-            if (reinitKey != null) {
-                Arrays.fill(reinitKey, (byte) 0x00);
-                reinitKey = null;
-            }
-
-            super.finalize();
-        }
-    }
-
     /* At some point we may enhance this function to do other validations */
     protected static boolean validId(long id) {
         //final String methodName = "validId ";
         //OCKDebug.Msg (debPrefix, methodName,  "id :" + id);
         return (id != 0L);
+    }
+
+    private Runnable cleanOCKResources(long hmacId, byte[] reinitKey, OCKContext ockContext) {
+        return() -> {
+            try {
+                if (hmacId != 0) {
+                    NativeInterface.HMAC_delete(ockContext.getId(), hmacId);
+                }
+
+                if (reinitKey != null) {
+                    Arrays.fill(reinitKey, (byte) 0x00);
+                }
+            } catch (Exception e) {
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 }

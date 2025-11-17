@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,12 +8,14 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.Arrays;
 
 public final class HKDF {
 
+    private OpenJCEPlusProvider provider;
     private OCKContext ockContext = null;
-    private long hkdfId = 0;
+    private final long hkdfId;
     String debPrefix = "";
 
 
@@ -24,18 +26,25 @@ public final class HKDF {
     private final String badIdMsg = "HKDF Identifier is not valid";
 
 
-    public static HKDF getInstance(OCKContext ockContext, String digestAlgo) throws OCKException {
+    public static HKDF getInstance(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         if (ockContext == null) {
             throw new IllegalArgumentException("context is null");
         }
-        return new HKDF(ockContext, digestAlgo);
+
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+        return new HKDF(ockContext, digestAlgo, provider);
     }
 
-    private HKDF(OCKContext ockContext, String digestAlgo) throws OCKException {
+    private HKDF(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "HKDF (ockContext, String)";
         this.ockContext = ockContext;
         this.hkdfId = NativeInterface.HKDF_create(ockContext.getId(), digestAlgo);
+        this.provider = provider;
         //OCKDebug.Msg (debPrefix, methodName,  "this.hkdfId :" + this.hkdfId );
+
+        this.provider.registerCleanable(this, cleanOCKResources(hkdfId, reinitKey, ockContext));
     }
 
 
@@ -104,29 +113,29 @@ public final class HKDF {
         }
     }
 
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        //final String methodName = "finalize ";
-        //OCKDebug.Msg (debPrefix, methodName,  "hkdfId :" + hkdfId + " hmacId : " + hmacId );
-        try {
-            if (hkdfId != 0) {
-                NativeInterface.HKDF_delete(ockContext.getId(), hkdfId);
-                hkdfId = 0;
-            }
-        } finally {
-            if (reinitKey != null) {
-                Arrays.fill(reinitKey, (byte) 0x00);
-                reinitKey = null;
-            }
-
-            super.finalize();
-        }
-    }
-
     /* At some point we may enhance this function to do other validations */
     protected static boolean validId(long id) {
         //final String methodName = "validId ";
         //OCKDebug.Msg (debPrefix, methodName,  "id :" + id);
         return (id != 0L);
+    }
+
+    private Runnable cleanOCKResources(long hkdfId, byte[] reinitKey, OCKContext ockContext) {
+        return() -> {
+            try {
+                if (hkdfId != 0) {
+                    NativeInterface.HKDF_delete(ockContext.getId(), hkdfId);
+                }
+
+                if (reinitKey != null) {
+                    Arrays.fill(reinitKey, (byte) 0x00);
+                }
+            } catch (Exception e) {
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 }

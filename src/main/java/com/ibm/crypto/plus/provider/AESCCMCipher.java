@@ -106,6 +106,8 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
             throw provider.providerException("Failed to initialize cipher context", e);
         }
         buffer = new byte[AES_BLOCK_SIZE * 2];
+
+        this.provider.registerCleanable(this, cleanOCKResources(Key, ockContext));
     }
 
 
@@ -732,25 +734,6 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
         return (encrypting) ? Cipher.ENCRYPT_MODE : Cipher.DECRYPT_MODE;
     }
 
-
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        //final String methodName = "finalize";
-        // OCKDebug.Msg (debPrefix, methodName, "finalize called");
-        try {
-            if (ockContext != null) {
-                CCMCipher.doCCM_cleanup(ockContext);
-            }
-            if (Key != null) {
-                Arrays.fill(Key, (byte) 0x00);
-                Key = null;
-            }
-        } finally {
-            super.finalize();
-        }
-    }
-
-
     private void checkReinit() {
         if (requireReinit) {
             throw new IllegalStateException(
@@ -788,6 +771,24 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
     protected int engineUpdate(ByteBuffer input, ByteBuffer output) throws ShortBufferException {
         throw new ProviderException(
                 "engineUpdate is not supported for AESCCM.  Only engineDoFinal is supported.");
+    }
+
+    private Runnable cleanOCKResources(byte[] Key, OCKContext ockContext) {
+        return() -> {
+            try {
+                if (ockContext != null) {
+                    CCMCipher.doCCM_cleanup(ockContext);
+                }
+                if (Key != null) {
+                    Arrays.fill(Key, (byte) 0x00);
+                }
+            } catch (Exception e) {
+                if (OpenJCEPlusProvider.getDebug() != null) {
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 
 } // End of class
