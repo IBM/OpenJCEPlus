@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2025
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -95,7 +95,7 @@ public final class RSAPSSSignature extends SignatureSpi {
             this.signature = SignatureRSAPSS.getInstance(provider.getOCKContext(),
                     pssParameterSpec.getDigestAlgorithm(), pssParameterSpec.getSaltLength(),
                     pssParameterSpec.getTrailerField(), pssParameterSpec.getMGFAlgorithm(),
-                    mgf1ParamSpec.getDigestAlgorithm());
+                    mgf1ParamSpec.getDigestAlgorithm(), provider);
             engineSetParameter(pssParameterSpec);
         } catch (InvalidAlgorithmParameterException e) {
             throw new ProviderException(e);
@@ -166,7 +166,7 @@ public final class RSAPSSSignature extends SignatureSpi {
                     .getMGFParameters();
             this.signature = SignatureRSAPSS.getInstance(provider.getOCKContext(), ockDigestAlgo,
                     pssParameterSpec.getSaltLength(), pssParameterSpec.getTrailerField(),
-                    pssParameterSpec.getMGFAlgorithm(), mgf1ParamSpec.getDigestAlgorithm());
+                    pssParameterSpec.getMGFAlgorithm(), mgf1ParamSpec.getDigestAlgorithm(), provider);
             //System.out.println("In get Instance " + this.signature);
             engineSetParameter(pssParameterSpec);
 
