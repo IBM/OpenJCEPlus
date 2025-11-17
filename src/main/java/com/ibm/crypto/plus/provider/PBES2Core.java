@@ -141,13 +141,6 @@ abstract class PBES2Core extends CipherSpi {
         } catch (InvalidKeySpecException ikse) {
             throw new InvalidKeyException("Cannot construct PBE key", ikse);
         } finally {
-            if (s != null) {
-                try {
-                    s.finalize();
-                } catch (Throwable e) {
-                   //some error happened
-                }
-            }
             pbeSpec.clearPassword();
         }
 
