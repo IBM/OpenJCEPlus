@@ -48,4 +48,19 @@ public final class PrimitiveWrapper {
             this.value = value;
         }
     }
+
+    public static class ByteArray {
+        byte[] value;
+        public ByteArray(byte[] value) {
+            this.value = value;
+        }
+
+        public byte[] getValue(){
+            return this.value;
+        }
+
+        public void setValue(byte[] value) {
+            this.value = value;
+        }
+    }
 }
