@@ -145,8 +145,7 @@ void handleIV_CCM(int ivLength, int keyLen, int blockSize, int J0Offset,
         }
 
         // Appending IV.length
-        putLongtoByteArray_CCM(ivLengthOG * 8, (char*)&lastIV,
-                               lastIVLen - 8);
+        putLongtoByteArray_CCM(ivLengthOG * 8, (char*)&lastIV, lastIVLen - 8);
         z_kimd_native_CCM((signed char*)&lastIV, lastIVLen, 0,
                           (signed char*)&ghashParamBlock, 65);
 
