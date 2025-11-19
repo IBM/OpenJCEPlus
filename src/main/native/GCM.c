@@ -963,8 +963,7 @@ void handleIV(int ivLength, int keyLen, int blockSize, int J0Offset, char* iv,
         }
 
         // Appending IV.length
-        putLongtoByteArray(ivLengthOG * 8, (char*)&lastIV,
-                           lastIVLen - 8);
+        putLongtoByteArray(ivLengthOG * 8, (char*)&lastIV, lastIVLen - 8);
         z_kimd_native((signed char*)&lastIV, lastIVLen, 0,
                       (signed char*)&ghashParamBlock, 65);
 
@@ -1693,8 +1692,8 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_create_1GCM_1context(
             gslogMessage("ICC_AES_GCM_CTX_new failed to create a new context.");
         }
 #endif
-        throwOCKException(env, 0,
-                          "ICC_AES_GCM_CTX_new failed to create a new context.");
+        throwOCKException(
+            env, 0, "ICC_AES_GCM_CTX_new failed to create a new context.");
     }
     if (debug) {
         gslogFunctionExit(functionName);
