@@ -45,7 +45,8 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_CIPHER_1KeyWraporUnwrap(
         env, input, &isCopy));
 
     if (NULL == inputNative) {
-        throwOCKException(env, 0, "Input is NULL from GetPrimitiveArrayCritical!");
+        throwOCKException(env, 0,
+                          "Input is NULL from GetPrimitiveArrayCritical!");
         return retOutBytes;
     }
 
@@ -55,7 +56,8 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_CIPHER_1KeyWraporUnwrap(
     if (NULL == KEKNative) {
         (*env)->ReleasePrimitiveArrayCritical(env, input, inputNative,
                                               JNI_ABORT);
-        throwOCKException(env, 0, "KEK is NULL from GetPrimitiveArrayCritical!");
+        throwOCKException(env, 0,
+                          "KEK is NULL from GetPrimitiveArrayCritical!");
         return retOutBytes;
     }
 
@@ -82,8 +84,9 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_CIPHER_1KeyWraporUnwrap(
                     (unsigned char *)((*env)->GetPrimitiveArrayCritical(
                         env, outBytes, &isCopy));
                 if (outBytesNative == NULL) {
-                    throwOCKException(env, 0,
-                                      "Output is NULL from GetPrimitiveArrayCritical");
+                    throwOCKException(
+                        env, 0,
+                        "Output is NULL from GetPrimitiveArrayCritical");
                 } else {
                     memcpy(outBytesNative, outputLocal, outputlen);
                     retOutBytes = outBytes;

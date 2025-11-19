@@ -70,8 +70,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
             gslogMessage("ICC_OBJ_txt2nid failed- %s", algoChars);
         }
 #endif
-        throwOCKException(env, 0,
-                          "Key generation failed - ICC_OBJ_txt2nid");
+        throwOCKException(env, 0, "Key generation failed - ICC_OBJ_txt2nid");
         (*env)->ReleaseStringUTFChars(env, cipherName, algoChars);
         return 0;
     }
@@ -142,7 +141,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
         throwOCKException(env, 0,
                           "ICC_i2d_PublicKey failure. Unable to get public key "
                           "length for encoding");
-        
+
         if (evp_sp) {
             ICC_EVP_PKEY_CTX_free(ockCtx, evp_sp);
         }
@@ -150,7 +149,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
             ICC_EVP_PKEY_free(ockCtx, pa);
         }
         (*env)->ReleaseStringUTFChars(env, cipherName, algoChars);
-        
+
         return mlkeyId;
     }
 
@@ -218,7 +217,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
 
     /* public */
     const unsigned char *cpp = pubdata;
-    len = publen;
+    len                      = publen;
 
     /* Reconstruct public key from encoding and type */
     npa = ICC_d2i_PublicKey(ockCtx, nid, &npa, &cpp, len);
@@ -276,7 +275,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
     npa     = NULL;
 
     /* private */
-    cpp  = privData;
+    cpp = privData;
     len = privlen;
     npa = ICC_d2i_PrivateKey(ockCtx, nid, &npa, &cpp, len);
     if (!npa) {
@@ -308,7 +307,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1generate(
                 gslogMessage("warning - key size mismatch %d != %d\n",
                              (int)keylen, (int)kl);
             }
-#endif        
+#endif
             if (evp_sp) {
                 ICC_EVP_PKEY_CTX_free(ockCtx, evp_sp);
             }
@@ -492,7 +491,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1createPublicKey(
     }
 
     (*env)->ReleaseStringUTFChars(env, cipherName, algoChars);
-    
+
     if (keyBytesNative != NULL) {
         (*env)->ReleasePrimitiveArrayCritical(env, publicKeyBytes,
                                               keyBytesNative, JNI_ABORT);
