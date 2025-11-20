@@ -466,9 +466,7 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
             verifyingBC.initVerify(rsaPubBC);
             verifyingBC.update(origMsg);
             assertTrue(verifyingBC.verify(signedBytesPlus), "Signature verification");
-        }
-
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             assertTrue(false, "SignAndVerify failed");
         }

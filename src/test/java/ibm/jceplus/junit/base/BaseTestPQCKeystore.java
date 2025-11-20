@@ -100,8 +100,7 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
 
     public X509Certificate getSelfCertificate (String sigAlg)
         throws CertificateException, InvalidKeyException, SignatureException,
-            NoSuchAlgorithmException, NoSuchProviderException
-    {
+            NoSuchAlgorithmException, NoSuchProviderException {
         X509CertImpl    cert;
         Date            lastDate;
         SecureRandom    prng;

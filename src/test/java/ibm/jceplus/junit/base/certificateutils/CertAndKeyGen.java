@@ -770,9 +770,7 @@ public final class CertAndKeyGen {
     public X509Certificate dogetSelfCertificate(X500Name myname, Date firstDate, long validity,
             CertificateExtensions ext)
             throws CertificateException, InvalidKeyException, SignatureException,
-            NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException
-
-    {
+            NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         X509CertImpl cert;
         Date lastDate;
 

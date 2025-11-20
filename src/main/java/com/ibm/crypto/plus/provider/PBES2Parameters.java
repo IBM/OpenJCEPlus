@@ -181,8 +181,7 @@ abstract class PBES2Parameters extends AlgorithmParametersSpi {
     }
 
     protected void engineInit(AlgorithmParameterSpec paramSpec)
-        throws InvalidParameterSpecException
-    {
+        throws InvalidParameterSpecException {
         if (!(paramSpec instanceof PBEParameterSpec)) {
             throw new InvalidParameterSpecException ("Inappropriate parameter specification");
         }
@@ -192,8 +191,7 @@ abstract class PBES2Parameters extends AlgorithmParametersSpi {
     }
 
     protected void engineInit(byte[] encoded)
-        throws IOException
-    {
+        throws IOException {
         DerValue pBES2_params = new DerValue(encoded);
         if (pBES2_params.tag != DerValue.tag_Sequence) {
             throw new IOException("PBE parameter parsing error: "
@@ -307,15 +305,13 @@ abstract class PBES2Parameters extends AlgorithmParametersSpi {
     }
 
     protected void engineInit(byte[] encoded, String decodingMethod)
-        throws IOException
-    {
+        throws IOException {
         engineInit(encoded);
     }
 
     protected <T extends AlgorithmParameterSpec>
             T engineGetParameterSpec(Class<T> paramSpec)
-        throws InvalidParameterSpecException
-    {
+        throws InvalidParameterSpecException {
         if (paramSpec.isAssignableFrom(PBEParameterSpec.class)) {
             return paramSpec.cast(
                 new PBEParameterSpec(this.salt, this.iCount, this.cipherParam));
@@ -368,8 +364,7 @@ abstract class PBES2Parameters extends AlgorithmParametersSpi {
     }
 
     protected byte[] engineGetEncoded(String encodingMethod)
-        throws IOException
-    {
+        throws IOException {
         return engineGetEncoded();
     }
 
