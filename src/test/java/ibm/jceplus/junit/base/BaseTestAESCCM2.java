@@ -202,8 +202,7 @@ public class BaseTestAESCCM2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println(toHexString(cipherText));
                 }
-            } else // else cipherText == null
-            {
+            } else { // else cipherText == null
                 if (printJunitTrace)
                     System.out.println(
                             "BaseTestAESCCM2.java:  testAESCCM():  ERROR:  The encrypted text is NULL.    Iteration counter = "
@@ -387,9 +386,7 @@ public class BaseTestAESCCM2 extends BaseTestJunit5 {
                 // All the encryption was performed on Cipher.doFinal( )
                 cipherText = new byte[cipherText2.length];
                 System.arraycopy(cipherText2, 0, cipherText, 0, cipherText2.length);
-            }
-
-            else if (whichMethod == 1) {
+            } else if (whichMethod == 1) {
                 if (printJunitTrace)
                     System.out.println("BaseTestAESCCM2.java:  encrypt():  METHOD CHOSEN = 1");
 
@@ -410,9 +407,7 @@ public class BaseTestAESCCM2 extends BaseTestJunit5 {
                 // All the encryption was performed on Cipher.doFinal( )
                 cipherText = new byte[cipherText2.length];
                 System.arraycopy(cipherText2, 0, cipherText, 0, cipherText2.length);
-            }
-
-            else if (whichMethod == 2) {
+            } else if (whichMethod == 2) {
                 if (printJunitTrace)
                     System.out.println("BaseTestAESCCM2.java:  encrypt():  METHOD CHOSEN = 2");
                 int outputSizeNeeded = cipher.getOutputSize(plaintext.length);
@@ -451,9 +446,7 @@ public class BaseTestAESCCM2 extends BaseTestJunit5 {
                 // All the encryption was performed on Cipher.doFinal( )
                 cipherText = new byte[cipherText2.length];
                 System.arraycopy(cipherText2, 0, cipherText, 0, cipherText2.length);
-            }
-
-            else if (whichMethod == 3) {
+            } else if (whichMethod == 3) {
                 if (printJunitTrace)
                     System.out.println("BaseTestAESCCM2.java:  encrypt():  METHOD CHOSEN = 3");
                 int outputSizeNeeded = cipher.getOutputSize(plaintext.length);
@@ -493,9 +486,7 @@ public class BaseTestAESCCM2 extends BaseTestJunit5 {
                 // All the encryption was performed on Cipher.doFinal( )
                 cipherText = new byte[cipherText2.length];
                 System.arraycopy(cipherText2, 0, cipherText, 0, cipherText2.length);
-            }
-
-            else if (whichMethod == 4) {
+            } else if (whichMethod == 4) {
                 if (printJunitTrace)
                     System.out.println("BaseTestAESCCM2.java:  encrypt():  METHOD CHOSEN = 4");
 
@@ -661,9 +652,7 @@ public class BaseTestAESCCM2 extends BaseTestJunit5 {
                 // All the decryption was performed on Cipher.doFinal( )
                 decryptedText = new byte[decryptedText2.length];
                 System.arraycopy(decryptedText2, 0, decryptedText, 0, decryptedText2.length);
-            }
-
-            else if (whichMethod == 1) {
+            } else if (whichMethod == 1) {
                 if (printJunitTrace)
                     System.out.println("BaseTestAESCCM2.java:  decrypt():  METHOD CHOSEN = 1");
 
@@ -686,9 +675,7 @@ public class BaseTestAESCCM2 extends BaseTestJunit5 {
                 decryptedText = new byte[decryptedText2.length];
                 System.arraycopy(decryptedText2, 0, decryptedText, 0, decryptedText2.length);
 
-            }
-
-            else if (whichMethod == 2) {
+            } else if (whichMethod == 2) {
                 if (printJunitTrace)
                     System.out.println("BaseTestAESCCM2.java:  decrypt():  METHOD CHOSEN = 2");
                 int outputSizeNeeded = cipher.getOutputSize(cipherText.length);
@@ -727,9 +714,7 @@ public class BaseTestAESCCM2 extends BaseTestJunit5 {
                 // All the decryption was performed on Cipher.doFinal( )
                 decryptedText = new byte[decryptedText2.length];
                 System.arraycopy(decryptedText2, 0, decryptedText, 0, decryptedText2.length);
-            }
-
-            else if (whichMethod == 3) {
+            } else if (whichMethod == 3) {
                 if (printJunitTrace)
                     System.out.println("BaseTestAESCCM2.java:  decrypt():  METHOD CHOSEN = 3");
                 int outputSizeNeeded = cipher.getOutputSize(cipherText.length);
@@ -768,9 +753,7 @@ public class BaseTestAESCCM2 extends BaseTestJunit5 {
                 // All the decryption was performed on Cipher.doFinal( )
                 decryptedText = new byte[decryptedText2.length];
                 System.arraycopy(decryptedText2, 0, decryptedText, 0, decryptedText2.length);
-            }
-
-            else if (whichMethod == 4) {
+            } else if (whichMethod == 4) {
                 if (printJunitTrace)
                     System.out.println("BaseTestAESCCM2.java:  decrypt():  METHOD CHOSEN = 4");
                 int outputSizeNeeded = cipher.getOutputSize(cipherText.length);

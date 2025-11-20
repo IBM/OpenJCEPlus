@@ -111,8 +111,7 @@ public final class CCMParameters extends AlgorithmParametersSpi
                 if (value.getData().available() != 0) {
                     throw new IOException("CCM parameter parsing error:  Extra data is present.");
                 }
-            } else // else no tag length present
-            {
+            } else { // else no tag length present
                 throw new InvalidParameterException(
                         "CCM parameters parsing error:  No tag length is present.");
             }

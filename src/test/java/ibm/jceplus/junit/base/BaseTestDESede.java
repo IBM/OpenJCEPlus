@@ -1088,9 +1088,7 @@ public class BaseTestDESede extends BaseTestCipher {
     }
 
     protected void encryptDecryptDoFinal(String algorithm, boolean requireLengthMultipleBlockSize,
-            AlgorithmParameters algParams, byte[] message) throws Exception
-
-    {
+            AlgorithmParameters algParams, byte[] message) throws Exception {
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
         }
@@ -1244,9 +1242,7 @@ public class BaseTestDESede extends BaseTestCipher {
     //
     protected void encryptDecryptReuseObject(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message)
-            throws Exception
-
-    {
+            throws Exception {
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
         }
@@ -1300,9 +1296,7 @@ public class BaseTestDESede extends BaseTestCipher {
     //
     protected void encryptDecryptDoFinalCopySafe(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message)
-            throws Exception
-
-    {
+            throws Exception {
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
         }
@@ -1355,9 +1349,7 @@ public class BaseTestDESede extends BaseTestCipher {
     //
     protected void encryptDecryptUpdateCopySafe(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message)
-            throws Exception
-
-    {
+            throws Exception {
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
         }

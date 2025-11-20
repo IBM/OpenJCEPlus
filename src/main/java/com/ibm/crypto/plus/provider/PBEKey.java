@@ -140,8 +140,7 @@ final class PBEKey implements SecretKey {
      * @throws ClassNotFoundException if a serialized class cannot be loaded
      */
     private void readObject(java.io.ObjectInputStream s)
-         throws IOException, ClassNotFoundException
-    {
+         throws IOException, ClassNotFoundException {
         s.defaultReadObject();
         if (key == null) {
             throw new InvalidObjectException(
