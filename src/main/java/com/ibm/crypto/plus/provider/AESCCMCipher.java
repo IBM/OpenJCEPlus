@@ -233,8 +233,7 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
                 throw new ShortBufferException(
                         "The output buffer is too small to hold the encryption result.");
             }
-        } else // decrypting
-        {
+        } else { // decrypting
             if ((output.length - outputOffset) < (input.length - tagLenInBytes)) {
                 throw new ShortBufferException(
                         "The output buffer is too small to hold the decryption result.");
@@ -276,8 +275,7 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
 
             } else { // else decrypting
 
-                if ((input == null) || (input.length == 0)) // If this doFinal( ) carries no data to be encrypted
-                {
+                if ((input == null) || (input.length == 0)) { // If this doFinal( ) carries no data to be encrypted
                     return 0;
                 }
 
@@ -715,8 +713,7 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
         if (this.authData == null) {
             this.authData = new byte[src.remaining()];
             src.get(this.authData, 0, this.authData.length);
-        } else // else this.authData != null
-        {
+        } else { // else this.authData != null
             byte[] tempAuthData = new byte[this.authData.length + src.remaining()];
             System.arraycopy(this.authData, 0, tempAuthData, 0, this.authData.length);
             src.get(tempAuthData, this.authData.length, src.remaining());

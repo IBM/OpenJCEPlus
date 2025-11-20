@@ -268,9 +268,7 @@ public class BaseTestDH extends BaseTestJunit5 {
             throw e;
         }
 
-        try
-
-        {
+        try {
             kpgB.initialize(algParameterSpec);
         } catch (InvalidAlgorithmParameterException e) {
             e.printStackTrace();

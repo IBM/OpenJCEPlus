@@ -77,20 +77,19 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
             if (whichEncryptionProvider == 0) {
                 encryptionProvider = getProviderName();
                 decryptionProvider = getInteropProviderName();
-            } else // else whichEncryptionProvider == 1
-            {
+            } else { // else whichEncryptionProvider == 1
                 encryptionProvider = getInteropProviderName();
                 decryptionProvider = getProviderName();
             }
 
-            if (printJunitTrace)
+            if (printJunitTrace) {
                 System.out.println(
                         "BaseTestInteropBC.java:  testAESCCM():  The encryption provider is:  "
                                 + encryptionProvider);
-            if (printJunitTrace)
                 System.out.println(
                         "BaseTestInteropBC.java:  testAESCCM():  The decryption provider is:  "
                                 + decryptionProvider);
+            }
 
 
             // Select which plainText string to encrypt/decrypt.
@@ -226,8 +225,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     if (printJunitTrace)
                         System.out.println(toHexString(cipherText));
                 }
-            } else // else cipherText == null
-            {
+            } else { // else cipherText == null
                 if (printJunitTrace)
                     System.out.println(
                             "BaseTestInteropBC.java:  testAESCCM():   ERROR:  The encrypted text is NULL.    Iteration counter = "
@@ -386,9 +384,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     // All the encryption was performed on Cipher.doFinal( )
                     cipherText = new byte[cipherText2.length];
                     System.arraycopy(cipherText2, 0, cipherText, 0, cipherText2.length);
-                }
-
-                else if (whichMethod == 1) {
+                } else if (whichMethod == 1) {
                     if (printJunitTrace)
                         System.out
                                 .println("BaseTestInteropBC.java:  encrypt():  METHOD CHOSEN = 1");
@@ -398,9 +394,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     // All the encryption was performed on Cipher.doFinal( )
                     cipherText = new byte[cipherText2.length];
                     System.arraycopy(cipherText2, 0, cipherText, 0, cipherText2.length);
-                }
-
-                else if (whichMethod == 2) {
+                } else if (whichMethod == 2) {
                     if (printJunitTrace)
                         System.out
                                 .println("BaseTestInteropBC.java:  encrypt():  METHOD CHOSEN = 2");
@@ -427,9 +421,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     // All the encryption was performed on Cipher.doFinal( )
                     cipherText = new byte[cipherText2.length];
                     System.arraycopy(cipherText2, 0, cipherText, 0, cipherText2.length);
-                }
-
-                else if (whichMethod == 3) {
+                } else if (whichMethod == 3) {
                     if (printJunitTrace)
                         System.out
                                 .println("BaseTestInteropBC.java:  encrypt():  METHOD CHOSEN = 3");
@@ -456,9 +448,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     // All the encryption was performed on Cipher.doFinal( )
                     cipherText = new byte[cipherText2.length];
                     System.arraycopy(cipherText2, 0, cipherText, 0, cipherText2.length);
-                }
-
-                else if (whichMethod == 4) {
+                } else if (whichMethod == 4) {
                     if (printJunitTrace)
                         System.out
                                 .println("BaseTestInteropBC.java:  encrypt():  METHOD CHOSEN = 4");
@@ -516,15 +506,14 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
 
             return cipherText;
 
-        } else // else if the encryption provider is "BC".
-        {
+        } else { // else if the encryption provider is "BC".
             // AES/CCM for BouncyCastle is a proprietary cipher implementation that
             // is dissimilar to cipher implementations developed by Oracle or IBM.
 
-            if (printJunitTrace)
+            if (printJunitTrace) {
                 System.out.println("\nThe plain text to be encoded is:");
-            if (printJunitTrace)
                 System.out.println(toHexString(plaintext));
+            }
 
             org.bouncycastle.crypto.MultiBlockCipher engine = org.bouncycastle.crypto.engines.AESEngine.newInstance();
             org.bouncycastle.crypto.params.AEADParameters params = new org.bouncycastle.crypto.params.AEADParameters(
@@ -640,9 +629,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     // All the decryption was performed on Cipher.doFinal( )
                     decryptedText = new byte[decryptedText2.length];
                     System.arraycopy(decryptedText2, 0, decryptedText, 0, decryptedText2.length);
-                }
-
-                else if (whichMethod == 1) {
+                } else if (whichMethod == 1) {
                     if (printJunitTrace)
                         System.out
                                 .println("BaseTestInteropBC.java:  decrypt():  METHOD CHOSEN = 1");
@@ -654,9 +641,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     // All the decryption was performed on Cipher.doFinal( )
                     decryptedText = new byte[decryptedText2.length];
                     System.arraycopy(decryptedText2, 0, decryptedText, 0, decryptedText2.length);
-                }
-
-                else if (whichMethod == 2) {
+                } else if (whichMethod == 2) {
                     if (printJunitTrace)
                         System.out
                                 .println("BaseTestInteropBC.java:  decrypt():  METHOD CHOSEN = 2");
@@ -683,12 +668,10 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     // All the decryption was performed on Cipher.doFinal( )
                     decryptedText = new byte[decryptedText2.length];
                     System.arraycopy(decryptedText2, 0, decryptedText, 0, decryptedText2.length);
-                }
-
-                else if (whichMethod == 3) {
-                    if (printJunitTrace)
-                        System.out
-                                .println("BaseTestInteropBC.java:  decrypt():  METHOD CHOSEN = 3");
+                } else if (whichMethod == 3) {
+                    if (printJunitTrace) {
+                        System.out.println("BaseTestInteropBC.java:  decrypt():  METHOD CHOSEN = 3");
+                    }
                     int outputSizeNeeded = cipher.getOutputSize(cipherText.length);
                     if (printJunitTrace)
                         System.out.println(
@@ -712,9 +695,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     // All the decryption was performed on Cipher.doFinal( )
                     decryptedText = new byte[decryptedText2.length];
                     System.arraycopy(decryptedText2, 0, decryptedText, 0, decryptedText2.length);
-                }
-
-                else if (whichMethod == 4) {
+                } else if (whichMethod == 4) {
                     if (printJunitTrace)
                         System.out
                                 .println("BaseTestInteropBC.java:  decrypt():  METHOD CHOSEN = 4");
@@ -774,8 +755,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
 
             return new String(decryptedText);
 
-        } else // else if the decryption provider is "BC".
-        {
+        } else { // else if the decryption provider is "BC".
             // AES/CCM for BouncyCastle is a proprietary cipher implementation that
             // is dissimilar to cipher implementations developed by Oracle or IBM.
 

@@ -227,9 +227,7 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
         //   testRSAPSS(ibm.jceplus.junit.openjceplus.TestRSAPSSInterop2)java.security.InvalidKeyException: java.security.SignatureException: Key is too short, need min 70 
 
         //OpenJCEPlusFIPS and SunRsaSign does not support 512
-        for (int ii = 1; ii <= 5; ii++) // For each RSA key size
-        {
-
+        for (int ii = 1; ii <= 5; ii++) { // For each RSA key size
             if (signingProviderName.equalsIgnoreCase("OpenJCEPlus")) {
                 if (ii == 0) {
                     rsaKeyPair = rsaKeyPair_OpenJCEPlus[0]; // RSA keylength 512
@@ -332,17 +330,14 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
 
 
 
-            for (int jj = 0; jj < 3; jj++) // For each dataToBeSigned string (differing lengths)
-            {
-
+            for (int jj = 0; jj < 3; jj++) { // For each dataToBeSigned string (differing lengths)
                 if (jj == 0) {
                     dataToBeSigned = dataToBeSignedShort;
                 } else if (jj == 1) {
                     dataToBeSigned = dataToBeSignedMedium;
                 } else if (jj == 2) {
                     dataToBeSigned = dataToBeSignedLong;
-                } else // added to make the compiler happy
-                {
+                } else { // added to make the compiler happy
                     dataToBeSigned = dataToBeSignedLong;
                 }
 
@@ -784,15 +779,13 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     // For all key sizes and data lengths
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
                 } catch (InvalidKeyException ex) {
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         if (ex.getMessage().indexOf("Key is too short") != -1) {
                             if (printJunitTrace)
                                 System.out.println("testRSAPSS(): TEST RESULT #"
@@ -806,8 +799,7 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                                         + ex.getMessage());
                             Assertions.fail();
                         }
-                    } else // else key size > 512
-                    {
+                    } else { // else key size > 512
                         if (printJunitTrace)
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
@@ -919,15 +911,13 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     // For all key sizes and data lengths
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
                 } catch (InvalidKeyException ex) {
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         if (ex.getMessage().indexOf("Key is too short") != -1) {
                             if (printJunitTrace)
                                 System.out.println("testRSAPSS(): TEST RESULT #"
@@ -941,8 +931,7 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                                         + ex.getMessage());
                             Assertions.fail();
                         }
-                    } else // else key size > 512
-                    {
+                    } else { // else key size > 512
                         if (printJunitTrace)
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
@@ -2376,15 +2365,13 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     // For all key sizes and data lengths
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
                 } catch (InvalidKeyException ex) {
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         if (ex.getMessage().indexOf("Key is too short") != -1) {
                             if (printJunitTrace)
                                 System.out.println("testRSAPSS(): TEST RESULT #"
@@ -2398,8 +2385,7 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                                         + ex.getMessage());
                             Assertions.fail();
                         }
-                    } else // else key size > 512
-                    {
+                    } else { // else key size > 512
                         if (printJunitTrace)
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
@@ -2511,15 +2497,13 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     // For all key sizes and data lengths
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
                 } catch (InvalidKeyException ex) {
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         if (ex.getMessage().indexOf("Key is too short") != -1) {
                             if (printJunitTrace)
                                 System.out.println("testRSAPSS(): TEST RESULT #"
@@ -2533,8 +2517,7 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                                         + ex.getMessage());
                             Assertions.fail();
                         }
-                    } else // else key size > 512
-                    {
+                    } else { // else key size > 512
                         if (printJunitTrace)
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
@@ -2646,15 +2629,13 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     // For all key sizes and data lengths
-                    if (ii <= 1) //if key size <= 1024
-                    {
+                    if (ii <= 1) { //if key size <= 1024
                         fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
                 } catch (InvalidKeyException ex) {
-                    if (ii <= 1) //if key size <= 1024
-                    {
+                    if (ii <= 1) { //if key size <= 1024
                         if (ex.getMessage().indexOf("Key is too short") != -1) {
                             if (printJunitTrace)
                                 System.out.println("testRSAPSS(): TEST RESULT #"
@@ -2668,12 +2649,12 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                                         + ex.getMessage());
                             Assertions.fail();
                         }
-                    } else // else key size > 1024
-                    {
-                        if (printJunitTrace)
+                    } else { // else key size > 1024
+                        if (printJunitTrace) {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
+                        }
                         Assertions.fail();
                     }
                 }
@@ -2780,15 +2761,13 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     // For all key sizes and data lengths
-                    if (ii <= 2) //if key size <= 2048
-                    {
+                    if (ii <= 2) { //if key size <= 2048
                         fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
                 } catch (InvalidKeyException ex) {
-                    if (ii <= 2) //if key size <= 2048
-                    {
+                    if (ii <= 2) { //if key size <= 2048
                         if (ex.getMessage().indexOf("Key is too short") != -1) {
                             if (printJunitTrace)
                                 System.out.println("testRSAPSS(): TEST RESULT #"
@@ -2802,12 +2781,12 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                                         + ex.getMessage());
                             Assertions.fail();
                         }
-                    } else // else key size > 2048
-                    {
-                        if (printJunitTrace)
+                    } else { // else key size > 2048
+                        if (printJunitTrace) {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
+                        }
                         Assertions.fail();
                     }
                 }
@@ -3255,15 +3234,13 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     // For all key sizes and data lengths
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
                 } catch (InvalidKeyException ex) {
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         if (ex.getMessage().indexOf("Key is too short") != -1) {
                             if (printJunitTrace)
                                 System.out.println("testRSAPSS(): TEST RESULT #"
@@ -3277,12 +3254,12 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                                         + ex.getMessage());
                             Assertions.fail();
                         }
-                    } else // else key size > 512
-                    {
-                        if (printJunitTrace)
+                    } else { // else key size > 512
+                        if (printJunitTrace) {
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
                                     + ex.getMessage());
+                        }
                         Assertions.fail();
                     }
                 }
@@ -3391,15 +3368,13 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     // For all key sizes and data lengths
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " => Instead, this test should have produced an InvalidKeyException");
                     }
 
                 } catch (InvalidKeyException ex) {
-                    if (ii <= 0) //if key size <= 512
-                    {
+                    if (ii <= 0) { //if key size <= 512
                         if (ex.getMessage().indexOf("Key is too short") != -1) {
                             if (printJunitTrace)
                                 System.out.println("testRSAPSS(): TEST RESULT #"
@@ -3413,8 +3388,7 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                                         + ex.getMessage());
                             Assertions.fail();
                         }
-                    } else // else key size > 512
-                    {
+                    } else { // else key size > 512
                         if (printJunitTrace)
                             System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                     + " => An unexpected exception was thrown with message = "
@@ -3485,13 +3459,13 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
 
             // If signingProviderName == verifyingProviderName, then do not perform key translation.
             if (signingProviderName.equalsIgnoreCase(verifyingProviderName)) {
-                if (printJunitTrace)
+                if (printJunitTrace) {
                     System.out.println(
                             "BaseTestRSAPSSInterop2.java:  doSignature():  NOT PERFORMING KEY TRANSLATION.  signingProviderName = verifyingProviderName");
+                }
                 // then no key translation is necessary
                 translatedPublicKey = (RSAPublicKey) (rsaKeyPair.getPublic());
-            } else // else translate the RSA public key for the verifying provider
-            {
+            } else { // else translate the RSA public key for the verifying provider
                 if (printJunitTrace)
                     System.out.println(
                             "BaseTestRSAPSSInterop2.java:  doSignature():  PERFORMING KEY TRANSLATION.  signingProviderName != verifyingProviderName");
