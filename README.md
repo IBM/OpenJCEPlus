@@ -370,10 +370,6 @@ KeyGenerator                | SunTls12KeyMaterial             |X                
 KeyGenerator                | SunTls12MasterSecret            |X                |X             |              |
 KeyGenerator                | SunTls12Prf                     |X                |X             |              |
 KeyGenerator                | SunTls12RsaPremasterSecret      |X                |X             |              |
-KeyGenerator                | SunTlsKeyMaterial               |X                |X             |              |
-KeyGenerator                | SunTlsMasterSecret              |X                |X             |              |
-KeyGenerator                | SunTlsPrf                       |X                |X             |              |
-KeyGenerator                | SunTlsRsaPremasterSecret        |X                |X             |              |
 KeyGenerator                | kda-hkdf-with-sha1              |                 |X             |              |
 KeyGenerator                | kda-hkdf-with-sha224            |X                |X             |              |
 KeyGenerator                | kda-hkdf-with-sha256            |X                |X             |              |
