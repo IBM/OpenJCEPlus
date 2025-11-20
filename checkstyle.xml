@@ -27,9 +27,11 @@
             <property name="arrayInitIndent" value="8"/>
             <property name="caseIndent" value="4"/>
         </module>
+        <module name="LeftCurly"/>
         <module name="NoWhitespaceAfter"/>
         <module name="NoWhitespaceBefore"/>
         <module name="RedundantImport"/>
+        <module name="RightCurly"/>
         <module name="StringLiteralEquality"/>
         <module name="StringLiteralEquality"/>
         <module name="UnusedImports"/>

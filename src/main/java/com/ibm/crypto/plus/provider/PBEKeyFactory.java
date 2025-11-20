@@ -133,8 +133,7 @@ abstract class PBEKeyFactory extends SecretKeyFactorySpi {
      * is inappropriate for this key factory to produce a public key.
      */
     protected SecretKey engineGenerateSecret(KeySpec keySpec)
-        throws InvalidKeySpecException
-    {
+        throws InvalidKeySpecException {
         if (!(keySpec instanceof PBEKeySpec)) {
             throw new InvalidKeySpecException("Invalid key spec");
         }
@@ -194,8 +193,7 @@ abstract class PBEKeyFactory extends SecretKeyFactorySpi {
      * this key factory.
      */
     protected SecretKey engineTranslateKey(SecretKey key)
-        throws InvalidKeyException
-    {
+        throws InvalidKeyException {
         try {
             if ((key != null) && (key.getFormat() != null) && (key.getFormat().equalsIgnoreCase("RAW"))) {
 

@@ -781,9 +781,7 @@ public class BaseTestAES extends BaseTestCipher {
     // Run encrypt/decrypt test using just doFinal calls
     //
     protected void encryptDecryptDoFinal(String algorithm, boolean requireLengthMultipleBlockSize,
-            AlgorithmParameters algParams, byte[] message, Cipher cp) throws Exception
-
-    {
+            AlgorithmParameters algParams, byte[] message, Cipher cp) throws Exception {
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -914,9 +912,7 @@ public class BaseTestAES extends BaseTestCipher {
     //
     protected void encryptDecryptReuseObject(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message, Cipher cp)
-            throws Exception
-
-    {
+            throws Exception {
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -960,9 +956,7 @@ public class BaseTestAES extends BaseTestCipher {
     //
     protected void encryptDecryptDoFinalCopySafe(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message, Cipher cp)
-            throws Exception
-
-    {
+            throws Exception {
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -1007,9 +1001,7 @@ public class BaseTestAES extends BaseTestCipher {
     //
     protected void encryptDecryptUpdateCopySafe(String algorithm,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message, Cipher cp)
-            throws Exception
-
-    {
+            throws Exception {
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
