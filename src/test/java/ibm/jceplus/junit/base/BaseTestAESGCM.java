@@ -865,9 +865,7 @@ public class BaseTestAESGCM extends BaseTestJunit5 {
     // Run encrypt/decrypt test using just doFinal calls
     //
     protected void encryptDecryptDoFinal(String algorithm, boolean requireLengthMultipleBlockSize,
-            AlgorithmParameters algParams, byte[] message) throws Exception
-
-    {
+            AlgorithmParameters algParams, byte[] message) throws Exception {
         Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (algParams == null) {
             cp.init(Cipher.ENCRYPT_MODE, key);

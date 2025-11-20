@@ -196,9 +196,7 @@ public class BaseTestECDHInterop extends BaseTestJunit5Interop {
             throw e;
         }
 
-        try
-
-        {
+        try {
             kpgB.initialize(algParameterSpec);
         } catch (InvalidAlgorithmParameterException e) {
             e.printStackTrace();
