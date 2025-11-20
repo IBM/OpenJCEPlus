@@ -68,10 +68,7 @@ public class BaseTestSHA512_256 extends BaseTestMessageDigest {
                 j = j + 1;
             }
             msg = msg + String.valueOf(i);
-
         }
-
-
     }
 
     @Test

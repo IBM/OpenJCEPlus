@@ -349,8 +349,6 @@ public class RSAKeyFactory extends KeyFactorySpi {
         } else if (!key.getAlgorithm().equalsIgnoreCase(expectedAlg)) {
             throw new InvalidKeyException("Expected a " + expectedAlg + " key, but got " + keyAlg);
         }
-
-
     }
 
     public static final class Legacy extends RSAKeyFactory {

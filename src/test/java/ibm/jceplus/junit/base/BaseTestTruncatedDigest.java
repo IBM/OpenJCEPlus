@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.security.AlgorithmParameters;
@@ -77,7 +78,6 @@ public class BaseTestTruncatedDigest extends BaseTestJunit5Signature {
      */
     @Test
     public void testRSASignatureSHA512_224() throws Exception {
-
 
         PSSParameterSpec pssParameter = new PSSParameterSpec("SHA-512", "MGF1",
                 MGF1ParameterSpec.SHA512, 64, 1);

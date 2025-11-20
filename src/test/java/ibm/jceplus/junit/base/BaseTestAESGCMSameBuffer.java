@@ -293,7 +293,6 @@ public class BaseTestAESGCMSameBuffer extends BaseTestJunit5 {
     private void runGCMWithSameBuffer(int mode, ByteBuffer buffer, int txtOffset, int length,
             AlgorithmParameters params) throws Exception {
 
-
         // allocate a separate buffer
         Cipher cipher = createCipher(mode, params);
         ByteBuffer outBB = ByteBuffer.allocateDirect(cipher.getOutputSize(length));

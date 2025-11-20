@@ -295,6 +295,7 @@ abstract class PBES2Core extends CipherSpi {
             super("HmacSHA512/224", "AES", 32, provider);
         }
     }
+
     public static final class HmacSHA512_256AndAES_256 extends PBES2Core {
         public HmacSHA512_256AndAES_256(OpenJCEPlusProvider provider)
             throws NoSuchAlgorithmException, NoSuchPaddingException {
