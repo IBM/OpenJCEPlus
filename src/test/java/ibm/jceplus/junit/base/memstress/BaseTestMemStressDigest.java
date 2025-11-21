@@ -58,7 +58,6 @@ public class BaseTestMemStressDigest extends BaseTestJunit5 {
                 System.out.println(i);
             }
 
-
             currentTotalMemory = rt.totalMemory();
             currentFreeMemory = rt.freeMemory();
             currentUsedMemory = currentTotalMemory - currentFreeMemory;

@@ -65,7 +65,6 @@ public class BaseTestMemStressAESGCM extends BaseTestJunit5 {
         long currentUsedMemory = 0;
         long prevUsedMemory = 0;
 
-
         for (int i = 0; i < numTimes; i++) {
             encryptDecrypt(cp);
             currentTotalMemory = rt.totalMemory();
@@ -140,8 +139,6 @@ public class BaseTestMemStressAESGCM extends BaseTestJunit5 {
             // Verify the text
             cp.init(Cipher.DECRYPT_MODE, key, params);
             byte[] newPlainText = cp.doFinal(cipherText);
-
-
 
             // Verify the text again
             cp.init(Cipher.DECRYPT_MODE, key, params);

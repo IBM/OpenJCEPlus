@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base.memstress;
 
 import ibm.jceplus.junit.base.BaseTestJunit5;
@@ -80,7 +81,6 @@ public class BaseTestMemStressDSAKeyPair extends BaseTestJunit5 {
     }
 
     KeyPair generateKeyPair(int size) throws Exception {
-
 
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
         kpg.initialize(size);

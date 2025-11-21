@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.io.IOException;
@@ -197,7 +198,6 @@ public class BaseTestHKDF extends BaseTestJunit5 {
         javax.crypto.spec.HKDFParameterSpec derive = javax.crypto.spec.HKDFParameterSpec.ofExtract().addIKM(sharedSecret).thenExpand(null, (256 / 8));
         KDF hkdfDerive = KDF.getInstance("HKDF-SHA512", getProviderName());
         SecretKey calcOkm = hkdfDerive.deriveKey("AES", derive);
-        
 
         String strToEncrypt = "Hello string to be encrypted";
         byte[] encryptedBytes = encrypt(calcOkm, strToEncrypt, "AES/ECB/PKCS5Padding");

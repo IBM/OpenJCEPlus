@@ -50,7 +50,7 @@ public class HKDFKeyDerivation extends KDFSpi {
             this.digestAlg = digestAlg;
             this.hmacLen = hmacLen;
         }
-    };
+    }
 
     /**
      * The sole constructor.

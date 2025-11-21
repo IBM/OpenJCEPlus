@@ -129,8 +129,6 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
             throw new InvalidKeyException("Failed to generate secret", e);
         }
 
-
-
         return null;
     }
 

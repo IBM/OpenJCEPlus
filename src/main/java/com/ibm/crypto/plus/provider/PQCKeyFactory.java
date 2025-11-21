@@ -228,90 +228,106 @@ class PQCKeyFactory extends KeyFactorySpi {
             super(provider, "ML-KEM-1024");
         }
     }
+
     public static final class MLDSA44 extends PQCKeyFactory {
 
         public MLDSA44(OpenJCEPlusProvider provider) {
             super(provider, "ML-DSA-44");
         }
     }
+
     public static final class MLDSA65 extends PQCKeyFactory {
 
         public MLDSA65(OpenJCEPlusProvider provider) {
             super(provider, "ML-DSA-65");
         }
     }
+
     public static final class MLDSA87 extends PQCKeyFactory {
 
         public MLDSA87(OpenJCEPlusProvider provider) {
             super(provider, "ML-DSA-87");
         }
     }
+
     public static final class SLHDSASHA2128s extends PQCKeyFactory {
 
         public SLHDSASHA2128s(OpenJCEPlusProvider provider) {
             super(provider, "SLH-DSA-SHA2-128s");
         }
     }
+
     public static final class SLHDSASHAKE128s extends PQCKeyFactory {
 
         public SLHDSASHAKE128s(OpenJCEPlusProvider provider) {
             super(provider, "SLH-DSA-SHAKE-128s");
         }
     }
+
     public static final class SLHDSASHA2128f extends PQCKeyFactory {
 
         public SLHDSASHA2128f(OpenJCEPlusProvider provider) {
             super(provider, "SLH-DSA-SHA2-128f");
         }
     }
+
     public static final class SLHDSASHAKE128f extends PQCKeyFactory {
 
         public SLHDSASHAKE128f(OpenJCEPlusProvider provider) {
             super(provider, "SLH-DSA-SHAKE-128f");
         }
     }
+
     public static final class SLHDSASHA2192s extends PQCKeyFactory {
 
         public SLHDSASHA2192s(OpenJCEPlusProvider provider) {
             super(provider, "SLH-DSA-SHA2-192s");
         }
     }
+
     public static final class SLHDSASHAKE192s extends PQCKeyFactory {
 
         public SLHDSASHAKE192s(OpenJCEPlusProvider provider) {
             super(provider, "SLH-DSA-SHAKE-192s");
         }
     }
+
     public static final class SLHDSASHA2192f extends PQCKeyFactory {
 
         public SLHDSASHA2192f(OpenJCEPlusProvider provider) {
             super(provider, "SLH-DSA-SHA2-192f");
         }
     }
+
     public static final class SLHDSASHAKE192f extends PQCKeyFactory {
 
         public SLHDSASHAKE192f(OpenJCEPlusProvider provider) {
             super(provider, "SLH-DSA-SHAKE-192f");
         }
     }
+
     public static final class SLHDSASHA2256s extends PQCKeyFactory {
 
         public SLHDSASHA2256s(OpenJCEPlusProvider provider) {
             super(provider, "SLH-DSA-SHA2-256s");
         }
     }
+
     public static final class SLHDSASHAKE256s extends PQCKeyFactory {
 
         public SLHDSASHAKE256s(OpenJCEPlusProvider provider) {
+
             super(provider, "SLH-DSA-SHAKE-256s");
         }
     }
+
     public static final class SLHDSASHA2256f extends PQCKeyFactory {
 
         public SLHDSASHA2256f(OpenJCEPlusProvider provider) {
             super(provider, "SLH-DSA-SHA2-256f");
         }
     }
+
     public static final class SLHDSASHAKE256f extends PQCKeyFactory {
 
         public SLHDSASHAKE256f(OpenJCEPlusProvider provider) {

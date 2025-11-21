@@ -118,7 +118,6 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
             if (!(CurveUtil.isEd(this.curve)))
                 reverseByteArray(reverseKey);
 
-
             //Clear extra bits
             int bMod8 = (reverseKey.length * 8) % 8;
             if (bMod8 != 0) {
@@ -168,7 +167,6 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
         }
 
         this.provider = provider;
-
 
         try {
             if (u == null) {

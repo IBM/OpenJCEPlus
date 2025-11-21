@@ -43,8 +43,6 @@ public class HKDFExpandParameterSpec implements AlgorithmParameterSpec {
             throw new IllegalArgumentException("Psuedo Random Key material cannot be null");
         }
         this.setHKDF(prk, info, okmLength, keyAlgorithm);
-
-
     }
 
     public HKDFExpandParameterSpec(SecretKey prk, byte[] info, long okmLength,
@@ -71,8 +69,6 @@ public class HKDFExpandParameterSpec implements AlgorithmParameterSpec {
             throw new IllegalArgumentException(
                     "Specified algorithm is not a valid key algorithm parameter");
         }
-
-
 
         if (info == null) {
             this.info = new byte[0];
