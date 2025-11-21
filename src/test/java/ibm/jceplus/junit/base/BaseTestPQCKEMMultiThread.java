@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.security.KeyPair;
@@ -173,6 +174,7 @@ public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
 
         K gen(A a);
     }
+
     private final GenKeyPair<String, KeyPair> keyPair = (algo) -> {
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance(algo, getProviderName());

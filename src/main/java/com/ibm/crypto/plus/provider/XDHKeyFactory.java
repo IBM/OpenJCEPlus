@@ -234,17 +234,17 @@ class XDHKeyFactory extends KeyFactorySpi {
         public X25519(OpenJCEPlusProvider provider) {
             super(provider, "X25519");
         }
-    };
+    }
 
     public static final class X448 extends XDHKeyFactory {
         public X448(OpenJCEPlusProvider provider) {
             super(provider, "X448");
         }
-    };
+    }
 
     public static final class XDH extends XDHKeyFactory {
         public XDH(OpenJCEPlusProvider provider) {
             super(provider);
         }
-    };
+    }
 }

@@ -161,7 +161,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "DSA",
                 "com.ibm.crypto.plus.provider.DSAParameters", aliases));
 
-
         aliases = new String[] {"EllipticCurve", "OID.1.2.840.10045.2.1", "1.2.840.10045.2.1"};
         putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "EC",
                 "com.ibm.crypto.plus.provider.ECParameters", aliases));
@@ -397,7 +396,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "DiffieHellman",
                 "com.ibm.crypto.plus.provider.DHKeyPairGenerator", aliases));
 
-
         aliases = new String[] {"OID.1.2.840.10045.2.1", "1.2.840.10045.2.1", "EllipticCurve"};
         putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "EC",
                 "com.ibm.crypto.plus.provider.ECKeyPairGenerator", aliases));
@@ -478,7 +476,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "KeyGenerator", "kda-hkdf-with-sha512",
                 "com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA512", aliases));
 
-
         /* =======================================================================
          * MessageDigest engines
          * =======================================================================
@@ -509,7 +506,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
                 "SHA-5", "SHA512"};
         putService(new OpenJCEPlusService(jce, "MessageDigest", "SHA-512",
                 "com.ibm.crypto.plus.provider.MessageDigest$SHA512", aliases));
-
 
         // SHA512-224
         aliases = new String[] {"SHA512/224", "OID.2.16.840.1.101.3.4.2.5",
@@ -583,7 +579,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         "com.ibm.crypto.plus.provider.ChaCha20KeyFactory",
         aliases));*/
 
-
         /* =======================================================================
          * SecureRandom
          * =======================================================================
@@ -616,10 +611,8 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
 
         aliases = new String[] {"ECDSAforSSL"};
 
-
         putService(new OpenJCEPlusService(jce, "Signature", "NONEwithECDSA",
                 "com.ibm.crypto.plus.provider.DatawithECDSA", aliases));
-
 
         aliases = new String[] {"ECDSAforSSL"};
         putService(new OpenJCEPlusService(jce, "Signature", "NONEwithECDSA",
@@ -635,7 +628,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
                 "SHA-256/DSA"};
         putService(new OpenJCEPlusService(jce, "Signature", "SHA256withDSA",
                 "com.ibm.crypto.plus.provider.DSASignature$SHA256withDSA", aliases));
-
 
         aliases = new String[] {"OID.1.2.840.10045.4.3.1", "1.2.840.10045.4.3.1", "SHA224/ECDSA",
                 "SHA-224/ECDSA"};
@@ -656,7 +648,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
                 "SHA5/ECDSA", "SHA-512/ECDSA"};
         putService(new OpenJCEPlusService(jce, "Signature", "SHA512withECDSA",
                 "com.ibm.crypto.plus.provider.ECDSASignature$SHA512withECDSA", aliases));
-
 
         aliases = new String[] {"OID.1.2.840.113549.1.1.5", "1.2.840.113549.1.1.5",
                 "OID.1.3.14.3.2.29", "1.3.14.3.2.29", "OID.1.3.14.3.2.26", "1.3.14.3.2.26",

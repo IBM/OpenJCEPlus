@@ -27,6 +27,7 @@ public class MLKEMImpl implements KEMSpi {
     OpenJCEPlusProvider provider;
     String alg;
     static int SECRETSIZE  = 32;
+
     public MLKEMImpl(OpenJCEPlusProvider provider, String alg) {
         this.provider = provider;
         this.alg = alg;
@@ -184,6 +185,7 @@ public class MLKEMImpl implements KEMSpi {
         }
 
     }
+
     public static final class MLKEM512 extends MLKEMImpl {
 
         public MLKEM512(OpenJCEPlusProvider provider) {

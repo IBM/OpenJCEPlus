@@ -110,7 +110,6 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             encodedPoint[encodedPoint.length - 1] |= msb;
             setKey(new BitArray(encodedPoint.length * 8, encodedPoint));
 
-
             byte[] der = buildOCKPublicKeyBytes();
             byte[] alteredEncoded = alterEncodedPublicKey(der); // Alters encoded to fit GSKit, and sets params
 
@@ -133,7 +132,6 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
         this.provider = provider;
 
         decode(encoded);
-
 
         try {
             // construct the EdECPoint representation

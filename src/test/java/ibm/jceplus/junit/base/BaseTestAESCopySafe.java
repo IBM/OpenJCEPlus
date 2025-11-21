@@ -32,7 +32,7 @@ public class BaseTestAESCopySafe extends BaseTestJunit5 {
 
     private int[] OFFSETS = {0, 7, 8, 16, 32};
 
-    enum MODE { CBC, GCM };
+    enum MODE { CBC, GCM }
 
     protected int specifiedKeySize = 128;
 

@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.security.AlgorithmParameterGenerator;
@@ -161,7 +162,6 @@ public class BaseTestKeyEncodings extends BaseTestJunit5 {
             System.out.println("EC Private Key Encoding (" + curveName + "): " + BaseUtils.bytesToHex(privateKeyEncoded));
             assertNotNull(publicKeyEncoded);
             assertNotNull(privateKeyEncoded);
-
 
             // Validate algorithm and format.
             assertEquals("EC", ecPublicKey.getAlgorithm());

@@ -201,7 +201,6 @@ public class BaseTestChaCha20KAT extends BaseTestCipher {
 
         System.out.println();
 
-
         int[] chopLengths = {1, 2, 3, 7, 11, 1024};
         System.out.println("----- AEAD Chop Tests -----");
         for (TestData test : aeadTestList) {

@@ -74,9 +74,7 @@ public class BaseTestMemStressDSAKeyFactory extends BaseTestJunit5 {
         }
     }
 
-
     void keyFactoryPublicTest(int size) throws Exception {
-
 
         try {
 

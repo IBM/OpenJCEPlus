@@ -73,6 +73,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         same = Arrays.equals(publicKeyBytesPlus, publicKeyInterop.getEncoded());
         assertTrue(same);
     } 
+
     @Test
     public void testPQCKeyGenKEM_Interop() throws Exception {
         String pqcAlgorithm = "ML-KEM-512";
@@ -109,6 +110,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         assertTrue(same);
 
     }
+
     @Test
     public void testPQCKeyGenKEM_PlusToInteropRAW() throws Exception {
         String pqcAlgorithm = "ML-KEM-512";
@@ -141,6 +143,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         same = Arrays.equals(publicKeyBytesInterop, pub.getEncoded());
         assertTrue(same);
     }
+
     @Test
     public void testPQCKeyGenMLDSA_PlusToInterop() throws Exception {
         String pqcAlgorithm = "ML-DSA-65";
@@ -176,6 +179,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         same = Arrays.equals(publicKeyBytesPlus, publicKeyInterop.getEncoded());
         assertTrue(same);
     } 
+
     @Test
     public void testPQCKeyGenMLDSA_Interop() throws Exception {        
         String pqcAlgorithm = "ML-DSA-65";
@@ -210,8 +214,8 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
         same = Arrays.equals(publicKeyBytesInterop, publicKeyPlus.getEncoded());
         assertTrue(same);
-
     }
+
     @Test
     public void testPQCKeyGenMLDSA_PlusToInteropRAW() throws Exception {
         String pqcAlgorithm = "ML-DSA-65";
@@ -301,6 +305,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             throw ex;
         }
     }
+
     @ParameterizedTest
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignInteropKeysPlusSignVerify(String algorithm) {
@@ -370,6 +375,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             assertTrue(false, "SignInteropAndVerifyPlus failed");
         }
     }
+
     @ParameterizedTest
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignPlusAndVerifyInterop(String algorithm) {

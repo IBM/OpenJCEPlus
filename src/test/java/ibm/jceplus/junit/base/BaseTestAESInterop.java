@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.nio.ByteBuffer;
@@ -495,13 +496,11 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
                 actualEncryptedLength = cipherFrom1stUpdate.length + cipherFromDoFinal.length;
             }
 
-
             if (expectedEncryptedFinalLength != actualEncryptedLength) {
                 fail("Failure: algortihm " + algorithm + " encrypted text length = "
                         + actualEncryptedLength + " Excepted encryption length="
                         + expectedEncryptedFinalLength + " did not match");
             }
-
 
             // Verify the text
             //            params = cpA.getParameters();
