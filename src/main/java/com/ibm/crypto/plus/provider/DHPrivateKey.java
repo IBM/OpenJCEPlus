@@ -79,7 +79,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
         this.x = x;
 
         if (dhp == null) {
-            this.dhParams = new DHParameters(provider);
+            this.dhParams = new DHParameters();
             try {
                 this.dhParams.engineInit(new DHParameterSpec(p, g, l));
             } catch (InvalidParameterSpecException e) {
@@ -196,7 +196,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
             this.key = val.getData().getOctetString();
             parseKeyBits();
 
-            dhParams = new DHParameters(provider);
+            dhParams = new DHParameters();
             dhParams.engineInit((l == -1) ? new DHParameterSpec(p, g, x.bitLength())
                     : new DHParameterSpec(p, g, l));
 
