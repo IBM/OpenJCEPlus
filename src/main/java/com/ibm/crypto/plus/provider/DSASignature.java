@@ -151,6 +151,7 @@ abstract class DSASignature extends SignatureSpi {
             super(provider, "SHA256"); // OCK digest name
         }
     }
+
     // nested static class for the SHA3_224withDSA implementation
     public static final class SHA3_224withDSA extends DSASignature {
         public SHA3_224withDSA(OpenJCEPlusProvider provider) {
@@ -164,6 +165,7 @@ abstract class DSASignature extends SignatureSpi {
             super(provider, "SHA3-256"); // OCK digest name
         }
     }
+
     // nested static class for the SHA3_384withDSA implementation
     public static final class SHA3_384withDSA extends DSASignature {
         public SHA3_384withDSA(OpenJCEPlusProvider provider) {

@@ -177,18 +177,21 @@ public class HKDFGenerator extends KeyGeneratorSpi {
             super(provider, "SHA224"); // OCK digest name
         }
     }
+
     // nested static class for the HKDF with SHA1 digest
     public static final class HKDFwithSHA256 extends HKDFGenerator {
         public HKDFwithSHA256(OpenJCEPlusProvider provider) throws NoSuchAlgorithmException {
             super(provider, "SHA256"); // OCK digest name
         }
     }
+
     // nested static class for the HKDF with SHA1 digest
     public static final class HKDFwithSHA384 extends HKDFGenerator {
         public HKDFwithSHA384(OpenJCEPlusProvider provider) throws NoSuchAlgorithmException {
             super(provider, "SHA384"); // OCK digest name
         }
     }
+
     // nested static class for the HKDF with SHA1 digest
     public static final class HKDFwithSHA512 extends HKDFGenerator {
         public HKDFwithSHA512(OpenJCEPlusProvider provider) throws NoSuchAlgorithmException {

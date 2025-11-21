@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -90,7 +91,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                 "BaseTestRSAPSS2.java:  setup():  Following the call to setUp(), verifyingProviderName = "
                         + verifyingProviderName);
 
-
         //================================================================
 
         if (signingProviderName.equalsIgnoreCase("OpenJCEPlus")) {
@@ -102,7 +102,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
         //================================================================
 
-
         if (signingProviderName.equalsIgnoreCase("SunRsaSign")) {
             // KeyPairs for SunRsaSign
             rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "SunRsaSign");
@@ -112,7 +111,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
         }
 
         //================================================================
-
 
         if (signingProviderName.equalsIgnoreCase("OpenJCEPlusFIPS")) {
             rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlusFIPS");
@@ -132,7 +130,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
 
         KeyPair rsaKeyPair = null;
         byte[] dataToBeSigned;
-
 
         System.out.println(
                 "================  BEGINNING OF testRSAPSS()  ================================");
@@ -159,9 +156,8 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                 }
             }
 
-
-
             for (int jj = 0; jj < 3; jj++) { // For each dataToBeSigned string (differing lengths)
+
                 if (jj == 0) {
                     dataToBeSigned = dataToBeSignedShort;
                 } else if (jj == 1) {
@@ -172,9 +168,7 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                     dataToBeSigned = dataToBeSignedLong;
                 }
 
-
                 //======================= BEGINNING OF TESTS WITH MATCHING mdName AND MGF1ParameterSpec    ======================================
-
 
                 System.out.println(
                         "====================================================================================");
@@ -241,11 +235,9 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                                 verifyingProvidersSignatureAlgorithmName, signingProviderName,
                                 verifyingProviderName, pssParameterSpec);
 
-
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                         assertTrue(result, "signature is invalid!!");
-
 
                     } catch (Exception ex) {
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
@@ -256,7 +248,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                 }
 
                 //======================================================================================================
-
 
                 System.out.println(
                         "====================================================================================");
@@ -390,7 +381,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
                     assertTrue(result, "signature is invalid!!");
@@ -464,7 +454,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
                 } catch (InvalidKeyException ex) {
@@ -473,7 +462,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             + ex.getMessage());
                     Assertions.fail();
                 }
-
 
                 //======================================================================================================
 
@@ -537,7 +525,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
                     // For all key sizes and data lengths
@@ -549,12 +536,9 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                     Assertions.fail();
                 }
 
-
                 //======================================================================================================
-
                 //======================= END OF TESTS WITH MATCHING mdName AND MGF1ParameterSpec           ======================================
                 //======================= BEGINNING OF TESTS WITH MIS-MATCHING mdName AND MGF1ParameterSpec ======================================
-
 
                 System.out.println(
                         "====================================================================================");
@@ -615,7 +599,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             signingProvidersSignatureAlgorithmName,
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
-
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
@@ -695,7 +678,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             signingProvidersSignatureAlgorithmName,
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
-
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
@@ -777,7 +759,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
                     fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
@@ -857,7 +838,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             signingProvidersSignatureAlgorithmName,
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
-
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
@@ -939,7 +919,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
                     fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
@@ -959,14 +938,9 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                 }
 
                 //======================================================================================================
-
-
                 //======================= END OF TESTS WITH MIS-MATCHING mdName AND MGF1ParameterSpec             ======================================
                 //======================= BEGINNING OF TESTS WITH MIS-MATCHING mdName (MD5) AND MGF1ParameterSpec ======================================
-
-
                 // NOTE:  ORACLE DOES NOT SUPPORT mdName = MD5
-
 
                 System.out.println(
                         "====================================================================================");
@@ -1026,8 +1000,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             signingProvidersSignatureAlgorithmName,
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
-
-
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
@@ -1187,7 +1159,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
                     fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
@@ -1205,7 +1176,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                         Assertions.fail();
                     }
                 }
-
 
                 //======================================================================================================
 
@@ -1267,7 +1237,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             signingProvidersSignatureAlgorithmName,
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
-
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
@@ -1348,7 +1317,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
                     fail("       testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
@@ -1368,10 +1336,8 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                 }
 
                 //======================================================================================================
-
                 //======================= END OF TESTS WITH MIS-MATCHING mdName (MD5) AND MGF1ParameterSpec ======================================
                 //======================= BEGINNING OF TESTS WITH VARIOUS saltLen VALUES                    ======================================
-
 
                 System.out.println(
                         "====================================================================================");
@@ -1437,7 +1403,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                                 signingProvidersSignatureAlgorithmName,
                                 verifyingProvidersSignatureAlgorithmName, signingProviderName,
                                 verifyingProviderName, pssParameterSpec);
-
 
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
@@ -1513,7 +1478,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
                 } catch (InvalidKeyException ex) {
@@ -1522,7 +1486,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             + ex.getMessage());
                     Assertions.fail();
                 }
-
 
                 //======================================================================================================
 
@@ -1586,7 +1549,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
                 } catch (InvalidKeyException ex) {
@@ -1595,7 +1557,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             + ex.getMessage());
                     Assertions.fail();
                 }
-
 
                 //======================================================================================================
 
@@ -1658,7 +1619,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             signingProvidersSignatureAlgorithmName,
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
-
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
@@ -1732,7 +1692,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
 
@@ -1745,13 +1704,9 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                 }
 
                 //======================================================================================================
-
                 //======================= END OF TESTS WITH VARIOUS saltLen VALUES                ======================================
                 //======================= BEGINNNING OF TESTS WITH VARIOUS trailerField VALUES    ======================================
-
-
                 // NOTE:  ORACLE SUPPORTS ONLY A trailerField VALUE OF "1".
-
 
                 System.out.println(
                         "====================================================================================");
@@ -1812,7 +1767,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             signingProvidersSignatureAlgorithmName,
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
-
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
@@ -1889,7 +1843,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
                     assertTrue(result, "signature is invalid!!");
@@ -1964,7 +1917,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             signingProvidersSignatureAlgorithmName,
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
-
 
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
@@ -2041,8 +1993,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             verifyingProvidersSignatureAlgorithmName, signingProviderName,
                             verifyingProviderName, pssParameterSpec);
 
-
-
                     System.out.println(
                             "testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1) + " = " + result);
 
@@ -2054,7 +2004,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                             + ex.getMessage());
                     Assertions.fail();
                 }
-
 
                 //======================================================================================================
 
@@ -2125,8 +2074,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                                 verifyingProvidersSignatureAlgorithmName, signingProviderName,
                                 verifyingProviderName, pssParameterSpec);
 
-
-
                         System.out.println("testRSAPSS(): TEST RESULT #" + (testCaseNumber - 1)
                                 + " = " + result);
                     } catch (InvalidAlgorithmParameterException ex) {
@@ -2137,14 +2084,11 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
                                 + ex.getMessage());
                         Assertions.fail();
                     }
-
                 }
-
 
                 //=======================  END TESTS WITH VARIOUS trailerField VALUES    ======================================
 
                 //======================================================================================================
-
 
             } // end loop for each dataToBeSigned length
         } // end loop for each RSA key size
@@ -2210,7 +2154,6 @@ public class BaseTestMiniRSAPSS2 extends BaseTestJunit5 {
             System.out.println(rsaKeyPair.getPublic().toString());
             System.out.println("doSignature():  The translated RSA public key is:");
             System.out.println(translatedPublicKey.toString());
-
 
             //=======================================================
 

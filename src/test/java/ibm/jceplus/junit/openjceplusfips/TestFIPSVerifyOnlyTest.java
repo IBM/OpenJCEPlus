@@ -73,7 +73,6 @@ public class TestFIPSVerifyOnlyTest extends BaseTestJunit5 {
                 (byte) 0x03, (byte) 0xDD, (byte) 0x71, (byte) 0x9A, (byte) 0xBD, (byte) 0xC5,
                 (byte) 0x2B, (byte) 0xB1, (byte) 0x8E};
 
-
         try {
             KeyFactory.getInstance(keyAlg, keygenProv);
             kf2 = KeyFactory.getInstance(keyAlg, testProv);

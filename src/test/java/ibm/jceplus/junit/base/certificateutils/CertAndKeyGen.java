@@ -355,7 +355,6 @@ public final class CertAndKeyGen {
             throws CertificateException, InvalidKeyException, SignatureException,
             NoSuchAlgorithmException, NoSuchProviderException {
 
-
         X500Signer issuer;
         X509CertImpl cert;
         Date firstDate, lastDate;
@@ -378,7 +377,6 @@ public final class CertAndKeyGen {
             // Add all mandatory attributes
             // Note here that V1 = 0, V2 = 1, V3 = 2
             info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
-
 
             info.set(X509CertInfo.SERIAL_NUMBER,
                     new CertificateSerialNumber((int) (firstDate.getTime() / 1000)));

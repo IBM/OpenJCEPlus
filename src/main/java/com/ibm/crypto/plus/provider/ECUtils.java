@@ -137,6 +137,7 @@ final class ECUtils {
 
         return prv;
     }
+
     public static String getCurvefromSize(int keySize) {
         switch (keySize) {
             case 112:

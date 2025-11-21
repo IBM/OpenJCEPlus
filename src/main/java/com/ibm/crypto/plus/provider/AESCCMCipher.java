@@ -684,7 +684,6 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
                     "AAD must be supplied before encryption/decryption starts");
         }
 
-
         if (this.authData == null) {
             this.authData = new byte[len];
             System.arraycopy(src, offset, authData, 0, len);

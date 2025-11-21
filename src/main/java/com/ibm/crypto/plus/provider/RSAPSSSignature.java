@@ -47,6 +47,7 @@ public final class RSAPSSSignature extends SignatureSpi {
     PSSParameterSpec pssParameterSpec = null; //PSSParameterSpec.DEFAULT;
 
     private static final Hashtable<String, Integer> DIGEST_LENGTHS = new Hashtable<String, Integer>();
+
     static {
         DIGEST_LENGTHS.put("SHA-1", 20);
         DIGEST_LENGTHS.put("SHA", 20);
@@ -201,8 +202,6 @@ public final class RSAPSSSignature extends SignatureSpi {
         } catch (SignatureException se) {
             throw new InvalidKeyException("Key has incorrect length " + se.getMessage());
         }
-
-
 
         if (rsaPrivate == privateKey) {
             // If we are using the user-supplied key, then make a clone of the
@@ -444,7 +443,6 @@ public final class RSAPSSSignature extends SignatureSpi {
                 }
             }
         }
-
 
         this.signature.setParameter(pssParameterSpec.getDigestAlgorithm(),
                 pssParameterSpec.getSaltLength(), pssParameterSpec.getTrailerField(),

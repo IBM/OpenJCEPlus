@@ -7,6 +7,7 @@
  */
 
 package ibm.jceplus.junit.openjceplus;
+
 import ibm.jceplus.junit.base.BaseTestTruncatedDigest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;

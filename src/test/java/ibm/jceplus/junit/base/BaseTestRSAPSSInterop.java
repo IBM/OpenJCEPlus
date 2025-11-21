@@ -7,6 +7,7 @@
  */
 
 // A test program to test all DSA classes
+
 package ibm.jceplus.junit.base;
 
 import java.security.AlgorithmParameters;
@@ -120,7 +121,6 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
         try {
             for (int i = 1024; i < 4096;) {
 
-
                 KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
                 keyGen.initialize(i, new java.security.SecureRandom());
                 KeyPair keyPair = keyGen.genKeyPair();
@@ -138,8 +138,6 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
                 dotestSignature(content, JCEPlus_ALG, JCEPlus_ALG, keyPair, null, getProviderName(),
                         getProviderName());
 
-
-
                 /* Sign and Verify with 2 providers with PSSParameterSpec.DEFAULT*/
 
                 dotestSignature(content3, JCEPlus_ALG, SunJCE_ALG, keyPair, null, getProviderName(),
@@ -150,7 +148,6 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
                         getProviderName(), getInteropProviderName());
                 dotestSignature(content, JCEPlus_ALG, SunJCE_ALG, keyPair, null, getProviderName(),
                         getInteropProviderName());
-
 
                 /* Use Specified salt size - Generarte Signature with JCEPlus and Verify with JCE */
                 dotestSignatureProviderAToProviderB(content, JCEPlus_ALG, SunJCE_ALG, keyPair, 20,
@@ -168,7 +165,6 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
                         getInteropProviderName(), getProviderName());
                 dotestSignatureProviderAToProviderB(content, SunJCE_ALG, JCEPlus_ALG, keyPair, 40,
                         getInteropProviderName(), getProviderName());
-
 
                 /* Use Specified salt size - Generarte Signature with JCEPlus and Verify with BC */
                 dotestSignatureProviderAToProviderB(content, JCEPlus_ALG, BC_ALG, keyPair, 20,
@@ -468,14 +464,10 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
             algParams.getParameterSpec(PSSParameterSpec.class);
         }
 
-
-
         sig.initSign(keyPair.getPrivate());
         sig.update(content);
         byte[] sigBytes = sig.sign();
         //System.out.println("Signature from providerA=" + sigBytes.length + " " +  toHex(sigBytes));
-
-
 
         // Verify the signature
         Signature sig1 = null;
@@ -605,8 +597,6 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
                     MGF1ParameterSpec.SHA1, saltSize, 1);
         }
 
-
-
         // Signature sig = Signature.getInstance(algorithm, JCE_PROVIDER);
         Signature sig = Signature.getInstance(algorithmA, providerA);
         try {
@@ -616,7 +606,6 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
             e1.printStackTrace();
         }
         AlgorithmParameters algParams = sig.getParameters();
-
 
         try {
             algParams.getParameterSpec(PSSParameterSpec.class);
