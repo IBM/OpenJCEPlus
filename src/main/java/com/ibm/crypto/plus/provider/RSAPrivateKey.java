@@ -56,7 +56,6 @@ final class RSAPrivateKey extends PKCS8Key
         this.privateExponent = privEx;
         this.keyParams = RSAUtil.getParamSpec(this.algid);
 
-
         if (this.modulus == null || this.privateExponent == null) {
             throw new InvalidKeyException("RSA Key parameters cannot be null");
         }

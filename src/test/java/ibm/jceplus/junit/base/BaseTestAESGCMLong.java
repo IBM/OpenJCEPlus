@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.lang.reflect.Method;
@@ -50,13 +51,11 @@ public class BaseTestAESGCMLong extends BaseTestJunit5 {
 
         for (int keysizeloop = 1; keysizeloop < 3; keysizeloop++) {
 
-
             byte[] iv = new byte[GCM_IV_LENGTH];
             (new SecureRandom()).nextBytes(iv);
             byte[] myAAD = "aaaaaaaaa".getBytes();
 
             GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
-
 
             SecretKey key = new SecretKeySpec(new byte[16 * keysizeloop], "AES");
             byte[] encryptedBytes1 = doTestWithMultipleDataUpdateEncrypt(Cipher.ENCRYPT_MODE, key,
@@ -98,13 +97,11 @@ public class BaseTestAESGCMLong extends BaseTestJunit5 {
 
         for (int keysizeloop = 1; keysizeloop < 3; keysizeloop++) {
 
-
             byte[] iv = new byte[GCM_IV_LENGTH];
             (new SecureRandom()).nextBytes(iv);
             byte[] myAAD = "aaaaaaaaa".getBytes();
 
             GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
-
 
             SecretKey key = new SecretKeySpec(new byte[16 * keysizeloop], "AES");
             byte[] encryptedBytes1 = doTestWithMultipleDataUpdateEncrypt(Cipher.ENCRYPT_MODE, key,

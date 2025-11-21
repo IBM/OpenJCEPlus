@@ -237,7 +237,6 @@ public final class Digest implements Cloneable {
         }
         //OCKDebug.Msg (debPrefix, methodName, "digestId :" + this.digestId);
 
-
         // push data from the buffer that haven't got updated yet
         int digestLength = getDigestLength();
         byte[] digestBytes = new byte[digestLength];

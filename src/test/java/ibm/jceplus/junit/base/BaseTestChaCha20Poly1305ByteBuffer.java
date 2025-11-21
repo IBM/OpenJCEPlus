@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.nio.ByteBuffer;
@@ -68,7 +69,6 @@ public class BaseTestChaCha20Poly1305ByteBuffer extends BaseTestJunit5 {
         random.nextBytes(keyBytes);
         byte[] dataChunk = new byte[dataSize];
         random.nextBytes(dataChunk);
-
 
         // re-use key bytes as IV as the real test is buffer calculation
 

@@ -39,8 +39,6 @@ public class HKDFExtractParameterSpec implements AlgorithmParameterSpec {
             throw new IllegalArgumentException("Input key material cannot be null");
         }
         this.setHKDF(inKeyMaterial, salt, keyAlgorithm);
-
-
     }
 
     public HKDFExtractParameterSpec(SecretKey inKey, byte[] salt, String keyAlgorithm) {
