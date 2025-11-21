@@ -55,7 +55,7 @@ final class DHPublicKey extends X509Key
             int l) throws InvalidKeyException {
         this.provider = provider;
         this.y = y;
-        dhParams = new DHParameters(provider);
+        dhParams = new DHParameters();
         try {
             dhParams.engineInit(new DHParameterSpec(p, g, l));
             byte[] keyArray = new DerValue(DerValue.tag_Integer, this.y.toByteArray()).toByteArray();
@@ -198,7 +198,7 @@ final class DHPublicKey extends X509Key
                 throw new InvalidKeyException("Excess key data");
             }
 
-            dhParams = new DHParameters(provider);
+            dhParams = new DHParameters();
             dhParams.engineInit((l == -1) ? new DHParameterSpec(p, g, y.bitLength())
                     : new DHParameterSpec(p, g, l));
 
