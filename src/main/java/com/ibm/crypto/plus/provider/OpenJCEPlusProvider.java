@@ -10,8 +10,21 @@ package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.ock.OCKContext;
 import java.lang.ref.Cleaner;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.security.InvalidParameterException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.ProviderException;
+import java.security.PublicKey;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.crypto.KDFParameters;
+import javax.crypto.SecretKey;
 import sun.security.util.Debug;
 
 // Internal interface for OpenJCEPlus and OpenJCEPlus implementation classes.
@@ -106,5 +119,169 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
         if ((debug != null) && (exception != null) && (exception.getCause() == null)) {
             exception.initCause(ockException);
         }
+    }
+
+    protected static class OpenJCEPlusService extends Service {
+        private static Class<?> openjceplusClass;
+
+        OpenJCEPlusService(Provider provider, String type, String algorithm, String className,
+                String[] aliases) {
+            this(provider, type, algorithm, className, aliases, null);
+        }
+
+        OpenJCEPlusService(Provider provider, String type, String algorithm, String className,
+                String[] aliases, Map<String, String> attributes) {
+            super(provider, type, algorithm, className, toList(aliases), attributes);
+
+            if (debug != null) {
+                debug.println("Constructing OpenJCEPlusService: " + provider + ", " + type
+                            + ", " + algorithm + ", " + className);
+            }
+        }
+
+        private static List<String> toList(String[] aliases) {
+            return (aliases == null) ? null : Arrays.asList(aliases);
+        }
+
+        private Class<?> getParameterClass(String type) {
+            if ("KDF".equalsIgnoreCase(type)) {
+                return KDFParameters.class;
+            }
+            
+            return null;
+        }
+
+        @Override
+        public Object newInstance(Object constructorParameter) throws NoSuchAlgorithmException {
+            Provider provider = getProvider();
+            String className = getClassName();
+            String type = getType();
+            String algorithm = getAlgorithm();
+
+            // AlgorithmParameters instances don't need the provider as a parameter,
+            // so the superclass constructor can be used.
+            if ("AlgorithmParameters".equalsIgnoreCase(type)) {
+                return super.newInstance(constructorParameter);
+            }
+
+            Class<?> cls;
+            try {
+                cls = Class.forName(className);
+            } catch (ClassNotFoundException e) {
+                throw new NoSuchAlgorithmException("class configured for " + type + " (provider: "
+                        + provider.getName() + ") cannot be found.", e);
+            }
+
+            // Call the constructor that takes an OpenJCEPlusProvider if
+            // available
+            //
+            try {
+                Class<?>[] parameters;
+                Class<?> ctrParamClz = null;
+                if (constructorParameter != null) {
+                    ctrParamClz = getParameterClass(type);
+                }
+                if (ctrParamClz != null) {
+                    parameters = new Class<?>[2];
+                    
+                    Class<?> argClass = constructorParameter.getClass();
+                    if (!ctrParamClz.isAssignableFrom(argClass)) {
+                        throw new InvalidParameterException("constructorParameter must be "
+                            + "instanceof " + ctrParamClz.getName().replace('$', '.')
+                            + " for type " + type);
+                    }
+
+                    parameters[1] = ctrParamClz;
+                } else {
+                    parameters = new Class<?>[1];
+                }
+                if (openjceplusClass == null) {
+                    openjceplusClass = Class
+                            .forName("com.ibm.crypto.plus.provider.OpenJCEPlusProvider");
+                }
+                parameters[0] = openjceplusClass;
+                Constructor<?> constr = cls.getConstructor(parameters);
+
+                Object[] ctrParams;
+                if ((constructorParameter != null) && (ctrParamClz != null)) {
+                    ctrParams = new Object[2];
+                    ctrParams[1] = constructorParameter;
+                } else {
+                    ctrParams = new Object[1];
+                }
+                ctrParams[0] = provider;
+
+                return constr.newInstance(ctrParams);
+            } catch (InvocationTargetException e) {
+                throw new NoSuchAlgorithmException("Error constructing implementation (algorithm: "
+                    + algorithm + ", provider: " + provider.getName()
+                    + ", class: " + className + ")", e.getCause());
+            } catch (Exception e) {
+                throw new NoSuchAlgorithmException("Error constructing implementation (algorithm: "
+                    + algorithm + ", provider: " + provider.getName()
+                    + ", class: " + className + ")", e);
+            }
+        }
+
+        @Override
+        public boolean supportsParameter(Object parameter) {
+
+            if (parameter == null) {
+                return false;
+            }
+            if (parameter instanceof Key == false) {
+                throw new InvalidParameterException("Parameter must be a Key");
+            }
+            Key key = (Key) parameter;
+
+            if (key instanceof SecretKey) {
+
+                String keyType = ((SecretKey) key).getFormat();
+                if (keyType == null) {
+                    // this happens when encoding is not supported
+                    return true;
+                }
+                if (keyType.equalsIgnoreCase("RAW") || keyType.equalsIgnoreCase("PKCS5_DERIVED_KEY")
+                        || keyType.equalsIgnoreCase("PKCS5_KEY")) {
+                    return true;
+                } else {
+                    return false;
+                }
+
+            } else if (key instanceof PrivateKey) {
+                String keyType = ((PrivateKey) key).getFormat();
+                if (keyType == null) {
+                    // this happens when encoding is not supported
+                    return true;
+                }
+                if (keyType.equalsIgnoreCase("PKCS#8")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (key instanceof PublicKey) {
+                String keyType = ((PublicKey) key).getFormat();
+                if (keyType == null) {
+                    // this happens when encoding is not supported
+                    return true;
+                }
+                if (keyType.equalsIgnoreCase("X.509")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        public String toString() {
+
+            return (super.toString() + "\n" + "provider = " + this.getProvider().getName() + "\n"
+                    + "algorithm = " + this.getAlgorithm());
+
+        }
+
     }
 }
