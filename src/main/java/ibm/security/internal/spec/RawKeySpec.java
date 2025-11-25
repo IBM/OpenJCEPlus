@@ -25,7 +25,8 @@ public class RawKeySpec implements KeySpec {
     /**
      * @param key contains the key as a byte array
      */
-
+    
+    @SuppressWarnings("this-escape")
     public RawKeySpec(byte[] key) {
         keyBytes = key.clone();
         cleaner.register(this, cleanOCKResources(keyBytes));
