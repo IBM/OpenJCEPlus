@@ -21,6 +21,7 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.DSAParameterSpec;
+import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.util.Arrays;
 import java.util.Objects;
@@ -194,8 +195,8 @@ public class BaseTestDeterministic extends BaseTestJunit5 {
         var sk = generateKeyPair(keyAlg, keyProvider, 0).getPrivate();
         var sig = Signature.getInstance(s.getAlgorithm(), s.getProvider());
         try {
-            if (keyAlg.equals("RSASSA-PSS")) {
-                sig.setParameter(PSSParameterSpec.DEFAULT);
+            if (keyAlg.equals("RSAPSS")) {
+                sig.setParameter(new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1));
             }
             sig.initSign(sk, new SeededSecureRandom(SEED));
             sig.update(new byte[20]);
