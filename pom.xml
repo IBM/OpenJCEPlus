@@ -420,6 +420,7 @@
                     <compilerArgs>
                         <arg>-XDignore.symbol.file</arg>
                         <arg>-Xlint:all</arg> 
+                        <arg>-Xlint:-processing</arg>
                         <arg>--add-exports </arg> 
                         <arg>java.base/sun.security.internal.spec=openjceplus</arg>
                         <arg>--add-exports </arg> 
