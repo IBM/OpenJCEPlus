@@ -301,6 +301,11 @@ AlgorithmParameters         | EC                              |X                
 AlgorithmParameters         | GCM                             |X                |X             |              |
 AlgorithmParameters         | OAEP                            |X                |X             |              |
 AlgorithmParameters         | RSAPSS                          |X                |X             |              |
+AlgorithmParameters         | PBEWithSHA1AndDESede            |                 |X             |              |
+AlgorithmParameters         | PBEWithSHA1AndRC2_40            |                 |X             |              |
+AlgorithmParameters         | PBEWithSHA1AndRC2_128           |                 |X             |              |
+AlgorithmParameters         | PBEWithSHA1AndRC4_40            |                 |X             |              |
+AlgorithmParameters         | PBEWithSHA1AndRC4_128           |                 |X             |              |
 AlgorithmParameters         | PBEWithHmacSHA1AndAES_128       |                 |X             |              |
 AlgorithmParameters         | PBEWithHmacSHA1AndAES_256       |                 |X             |              |
 AlgorithmParameters         | PBEWithHmacSHA224AndAES_128     |                 |X             |              |
@@ -322,6 +327,11 @@ Cipher                      | ChaCha20                        |                 
 Cipher                      | ChaCha20-Poly1305               |                 |X             |              |
 Cipher                      | DESede                          |                 |X             |              |
 Cipher                      | RSA                             |X                |X             |              |
+Cipher                      | PBEWithSHA1AndDESede            |                 |X             |              |
+Cipher                      | PBEWithSHA1AndRC2_40            |                 |X             |              |
+Cipher                      | PBEWithSHA1AndRC2_128           |                 |X             |              |
+Cipher                      | PBEWithSHA1AndRC4_40            |                 |X             |              |
+Cipher                      | PBEWithSHA1AndRC4_128           |                 |X             |              |
 Cipher                      | PBEWithHmacSHA1AndAES_128       |                 |X             |              |
 Cipher                      | PBEWithHmacSHA1AndAES_256       |                 |X             |              |
 Cipher                      | PBEWithHmacSHA224AndAES_128     |                 |X             |              |
@@ -434,6 +444,11 @@ SecretKeyFactory            | PBKDF2WithHmacSHA384            |X                
 SecretKeyFactory            | PBKDF2WithHmacSHA512            |X                |X             |              |
 SecretKeyFactory            | PBKDF2WithHmacSHA512/224        |                 |X             |              |
 SecretKeyFactory            | PBKDF2WithHmacSHA512/256        |                 |X             |              |
+SecretKeyFactory            | PBEWithSHA1AndDESede            |                 |X             |              |
+SecretKeyFactory            | PBEWithSHA1AndRC2_40            |                 |X             |              |
+SecretKeyFactory            | PBEWithSHA1AndRC2_128           |                 |X             |              |
+SecretKeyFactory            | PBEWithSHA1AndRC4_40            |                 |X             |              |
+SecretKeyFactory            | PBEWithSHA1AndRC4_128           |                 |X             |              |
 SecretKeyFactory            | PBEWithHmacSHA1AndAES_128       |                 |X             |              |
 SecretKeyFactory            | PBEWithHmacSHA1AndAES_256       |                 |X             |              |
 SecretKeyFactory            | PBEWithHmacSHA224AndAES_128     |                 |X             |              |
