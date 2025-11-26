@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -777,4 +777,33 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_DIGEST_1delete(
     if (debug) {
         gslogFunctionExit(functionName);
     }
+}
+
+//============================================================================
+/*
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
+ * Method:    DIGEST_1PKCS12Help
+ * Signature: (JJ)V
+ */
+JNIEXPORT jint JNICALL
+Java_com_ibm_crypto_plus_provider_ock_NativeInterface_DIGEST_1PKCS12Help(
+    JNIEnv* env, jclass thisObj, jlong ockContextId, jlong digestId,
+    jbyteArray data, jint offset, jint dataLen, jint iterationCount) {
+    int errorCode = 1;
+    for (int i = 1; i < iterationCount; i++) {
+        errorCode =
+            Java_com_ibm_crypto_plus_provider_ock_NativeInterface_DIGEST_1update(
+                env, thisObj, ockContextId, digestId, data, offset, dataLen);
+        if (errorCode < 0) {
+            return errorCode;
+        }
+        errorCode =
+            Java_com_ibm_crypto_plus_provider_ock_NativeInterface_DIGEST_1digest_1and_1reset__JJ_3B(
+                env, thisObj, ockContextId, digestId, data);
+        if (errorCode < 0) {
+            return errorCode;
+        }
+    }
+
+    return errorCode;
 }

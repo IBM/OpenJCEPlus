@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -665,6 +665,9 @@ final class NativeInterface {
     static public native void DIGEST_reset(long ockContextId, long digestId) throws OCKException;
 
     static public native void DIGEST_delete(long ockContextId, long digestId) throws OCKException;
+
+    static public native int DIGEST_PKCS12Help(long ockContextId, long digestId, byte[] input,
+            int offset, int length, int iterationCount) throws OCKException;
 
     // =========================================================================
     // Signature functions (with digest)

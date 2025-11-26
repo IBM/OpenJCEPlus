@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -78,6 +78,23 @@ public final class SymmetricCipher {
         String modeUpperCase = mode.toUpperCase();
         String algName = modeUpperCase.equals("ECB") ? "DES-EDE3" : "DES-EDE3-" + modeUpperCase;
         return getInstance(ockContext, algName, padding, provider);
+    }
+
+    public static SymmetricCipher getInstanceRC2(OCKContext ockContext, String mode,
+            Padding padding, int keysize, OpenJCEPlusProvider provider) throws OCKException {
+        String modeUpperCase = mode.toUpperCase();
+        String algName;
+        if (keysize == 16)
+            algName = modeUpperCase.equals("ECB") ? "RC2" : "RC2-" + modeUpperCase;
+        else 
+            algName = modeUpperCase.equals("ECB") ? "RC2" : "RC2-40-" + modeUpperCase;
+        return getInstance(ockContext, algName, padding, provider);
+    }
+
+    public static SymmetricCipher getInstanceRC4(OCKContext ockContext, int keysize,
+            OpenJCEPlusProvider provider) throws OCKException {
+        String algName = keysize == 16 ? "RC4" : "RC4-40"; 
+        return getInstance(ockContext, algName, Padding.NoPadding, provider);
     }
 
     private static SymmetricCipher getInstance(OCKContext ockContext, String cipherName,

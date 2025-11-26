@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -339,6 +339,30 @@ public final class Digest implements Cloneable {
         this.provider.registerCleanable(copy, cleanOCKResources(copy.digestId, copy.algIndx,
             copy.contextFromQueue, copy.needsReinit, copy.ockContext));
         return copy;
+    }
+
+    public byte[] PKCS12DigestHelp(byte[] input, int offset, int length, int iterationCount) throws OCKException {
+        int errorCode = 0;
+
+        if (length == 0) {
+            return null;
+        }
+
+        if (input == null || length < 0 || offset < 0 || (offset + length) > input.length) {
+            throw new IllegalArgumentException("Input range is invalid.");
+        }
+
+        if (!validId(this.digestId)) {
+            throw new OCKException(badIdMsg);
+        }
+
+        errorCode = NativeInterface.DIGEST_PKCS12Help(this.ockContext.getId(), this.digestId, input, offset, length, iterationCount);
+        if (errorCode < 0) {
+            throwOCKException(errorCode);
+        }
+        this.needsReinit.setValue(false);
+
+        return input;
     }
 
     private Runnable cleanOCKResources(long digestId, int algIndx, boolean contextFromQueue,

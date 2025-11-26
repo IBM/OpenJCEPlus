@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -62,6 +62,14 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
             return this.digest.getDigestLength();
         } catch (Exception e) {
             throw provider.providerException("Failure in engineGetDigestLength", e);
+        }
+    }
+
+    protected byte[] PKCS12Help(byte[] input, int offset, int length, int iterationCount) {
+        try {
+            return this.digest.PKCS12DigestHelp(input, offset, length, iterationCount);
+        } catch (Exception e) {
+            throw provider.providerException("Failure in PKCS12 key derivation native helper method", e);
         }
     }
 
