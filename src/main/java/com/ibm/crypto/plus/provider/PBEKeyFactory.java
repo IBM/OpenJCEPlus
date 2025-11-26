@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -118,6 +118,36 @@ abstract class PBEKeyFactory extends SecretKeyFactorySpi {
             extends PBEKeyFactory {
         public PBEWithHmacSHA512_256AndAES_256(OpenJCEPlusProvider provider) {
             super("PBEWithHmacSHA512/256AndAES_256", provider);
+        }
+    }
+
+    public static final class PBEWithSHA1AndDESede extends PBEKeyFactory {
+        public PBEWithSHA1AndDESede(OpenJCEPlusProvider provider) {
+            super("PBEWithSHA1AndDESede", provider);
+        }
+    }
+
+    public static final class PBEWithSHA1AndRC2_40 extends PBEKeyFactory {
+        public PBEWithSHA1AndRC2_40(OpenJCEPlusProvider provider) {
+            super("PBEWithSHA1AndRC2_40", provider);
+        }
+    }
+
+    public static final class PBEWithSHA1AndRC2_128 extends PBEKeyFactory {
+        public PBEWithSHA1AndRC2_128(OpenJCEPlusProvider provider) {
+            super("PBEWithSHA1AndRC2_128", provider);
+        }
+    }
+
+    public static final class PBEWithSHA1AndRC4_40 extends PBEKeyFactory {
+        public PBEWithSHA1AndRC4_40(OpenJCEPlusProvider provider) {
+            super("PBEWithSHA1AndRC4_40", provider);
+        }
+    }
+
+    public static final class PBEWithSHA1AndRC4_128 extends PBEKeyFactory {
+        public PBEWithSHA1AndRC4_128(OpenJCEPlusProvider provider) {
+            super("PBEWithSHA1AndRC4_128", provider);
         }
     }
 
