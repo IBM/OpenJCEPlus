@@ -886,4 +886,10 @@ final class NativeInterface {
 
     static public native boolean PQC_SIGNATURE_verify(long ockContextId, long ockPKeyId, byte[] sigBytes, byte[] data) 
             throws OCKException;
+
+    // =========================================================================
+    // Password based encryption functions ( PBE )
+    // =========================================================================
+    static public native byte[] PBE_doFinal(long ockContextId, String algorithm, byte[] password, byte[] salt,
+            byte[] input, int iterations, int is_en) throws OCKException;
 }
