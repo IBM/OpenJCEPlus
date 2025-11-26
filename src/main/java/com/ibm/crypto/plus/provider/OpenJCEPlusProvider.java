@@ -44,7 +44,7 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
 
     static final boolean allowLegacyHKDF = Boolean.getBoolean("openjceplus.allowLegacyHKDF");
 
-    private final Cleaner[] cleaners;
+    private final transient Cleaner[] cleaners;
 
     private final int DEFAULT_NUM_CLEANERS = 2;
 

@@ -117,9 +117,9 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
             HKDFParameters hkdfParametersBC = new HKDFParameters(ikmArray, saltArray,
                     infoArray);
             hkdfBytesGeneratorBC.init(hkdfParametersBC);
-            byte[] okmBC = new byte[(int) okmLength];
+            byte[] okmBC = new byte[okmLength];
 
-            hkdfBytesGeneratorBC.generateBytes(okmBC, 0, (int) okmLength);
+            hkdfBytesGeneratorBC.generateBytes(okmBC, 0, okmLength);
 
             assertArrayEquals(calcOkmArray, okmBC, "OpenJCEPlus and BC results don't match");
         }
@@ -159,9 +159,9 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
                 HKDFParameters hkdfParametersBC = new HKDFParameters(ikmArray, saltArray,
                         infoArray);
                 hkdfBytesGeneratorBC.init(hkdfParametersBC);
-                byte[] okmBC = new byte[(int) okmLength];
+                byte[] okmBC = new byte[okmLength];
 
-                hkdfBytesGeneratorBC.generateBytes(okmBC, 0, (int) okmLength);
+                hkdfBytesGeneratorBC.generateBytes(okmBC, 0, okmLength);
                 assertArrayEquals(calcOkmArray, okmBC, "OpenJCEPlus and BC results don't match");
             }
         } catch (NoSuchAlgorithmException e) {
