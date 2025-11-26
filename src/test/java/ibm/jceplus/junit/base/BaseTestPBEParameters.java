@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -19,13 +19,14 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BaseTestPBES2Parameters extends BaseTestJunit5 {
+public class BaseTestPBEParameters extends BaseTestJunit5 {
 
     @ParameterizedTest
     @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
         "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
         "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
-        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_40", 
+        "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_40", "PBEWithSHA1AndRC4_128"})
     public void testParameters(String algorithm) throws Exception {
         PBEKeySpec ks = new PBEKeySpec("password".toCharArray());
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, getProviderName());
@@ -33,7 +34,6 @@ public class BaseTestPBES2Parameters extends BaseTestJunit5 {
 
         Cipher c = Cipher.getInstance(algorithm, getProviderName());
         c.init(Cipher.ENCRYPT_MODE, key);
-        c.doFinal("This is just an example".getBytes());
 
         AlgorithmParameters params = c.getParameters();
 
