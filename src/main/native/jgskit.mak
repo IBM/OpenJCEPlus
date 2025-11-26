@@ -89,6 +89,7 @@ OBJS = \
 	${HOSTOUT}/KEM.o \
 	${HOSTOUT}/MLKey.o \
 	${HOSTOUT}/PBKDF.o \
+	${HOSTOUT}/PBE.o \
 	${HOSTOUT}/PKey.o \
 	${HOSTOUT}/Poly1305Cipher.o \
 	${HOSTOUT}/RSA.o \

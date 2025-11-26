@@ -50,7 +50,8 @@ public class PBEBenchmark extends JMHBase {
     private byte[] cipherText;
     
     @Param({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_256",
-        "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/256AndAES_256"})
+        "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/256AndAES_256", "PBEWithMD5AndDES", "PBEWithSHA1AndDESede",
+        "PBEWithRC2_128, PBEWithRC4_128"})
     private String algorithm;
 
     @Param({"OpenJCEPlus", "SunJCE"})
