@@ -41,6 +41,7 @@ OBJS= \
 	KEM.obj \
 	MLKey.obj \
 	PBKDF.obj \
+	PBE.obj \
 	PKey.obj \
 	Poly1305Cipher.obj \
 	RSA.obj \

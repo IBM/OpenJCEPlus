@@ -42,6 +42,7 @@ OBJS= \
 	$(HOSTOUT)/KEM.obj \
 	$(HOSTOUT)/MLKey.obj \
 	$(HOSTOUT)/PBKDF.obj \
+	$(HOSTOUT)/PBE.obj \
 	$(HOSTOUT)/PKey.obj \
 	$(HOSTOUT)/Poly1305Cipher.obj \
 	$(HOSTOUT)/RSA.obj \
