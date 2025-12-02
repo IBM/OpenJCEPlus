@@ -47,11 +47,14 @@ public final class RSA extends CipherSpi {
 
     private static final boolean doTypeChecking;
     private static final String DO_TYPE_CHECKING = "com.ibm.crypto.provider.DoRSATypeChecking";
+    private static final boolean allowNonOAEPFIPS;
+    private static final String ALLOW_NON_OAEP_FIPS = "com.ibm.openjceplusfips.allowNonOAEP";
 
     private final static byte[] B0 = new byte[0];
 
     static {
         doTypeChecking = Boolean.parseBoolean(System.getProperty(DO_TYPE_CHECKING, "true"));
+        allowNonOAEPFIPS = Boolean.parseBoolean(System.getProperty(ALLOW_NON_OAEP_FIPS, "false"));
     }
 
     public RSA(OpenJCEPlusProvider provider) {
@@ -358,7 +361,7 @@ public final class RSA extends CipherSpi {
 
     @Override
     protected void engineSetMode(String mode) throws NoSuchAlgorithmException {
-        if (mode == null || mode.matches(" |ECB|SSL")) {
+        if (mode == null || mode.matches("ECB")) {
             return;
         }
         throw new NoSuchAlgorithmException("Unsupported mode " + mode);
@@ -366,16 +369,22 @@ public final class RSA extends CipherSpi {
 
     @Override
     protected void engineSetPadding(String padding) throws NoSuchPaddingException {
-        if (padding.equalsIgnoreCase("NoPadding")) {
-            this.padding = RSAPadding.NoPadding;
-        } else if (padding.equalsIgnoreCase("PKCS1Padding")) {
-            this.padding = RSAPadding.PKCS1Padding;
-        } else if (padding.equalsIgnoreCase("OAEPPadding")
+        if (padding.equalsIgnoreCase("OAEPPadding")
                 || padding.equalsIgnoreCase("OAEPWithSHA-1AndMGF1Padding")
                 || padding.equalsIgnoreCase("OAEPWithSHA1AndMGF1Padding")) {
             this.padding = RSAPadding.OAEPPadding;
         } else {
-            throw new NoSuchPaddingException("Padding: " + padding + " not implemented");
+            if (provider.isFIPS() && !allowNonOAEPFIPS) {
+                throw new NoSuchPaddingException("Padding: " + padding + " not supported through FIPS provider");
+            } else {
+                if (padding.equalsIgnoreCase("NoPadding")) {
+                    this.padding = RSAPadding.NoPadding;
+                } else if (padding.equalsIgnoreCase("PKCS1Padding")) {
+                    this.padding = RSAPadding.PKCS1Padding;
+                } else {
+                    throw new NoSuchPaddingException("Padding: " + padding + " not implemented");
+                }
+            }
         }
     }
 

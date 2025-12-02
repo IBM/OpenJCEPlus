@@ -30,6 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
 
@@ -500,6 +501,7 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
 
     @Test
     public void testEncryptPlusDecryptBC() {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
         try {
 
@@ -543,6 +545,8 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
 
     @Test
     public void testEncryptBCDecryptPlus() {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         byte[] msgBytes = ("This is a short message".getBytes());
         //long message to be encrypted and decrypted using RSA public and Private key;" + 
         //        "encrypt with BC and decrypt with BCPlus and vice versa").getBytes();
