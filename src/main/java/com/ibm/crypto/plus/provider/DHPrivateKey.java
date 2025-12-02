@@ -233,8 +233,6 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
         } finally {
             closeStream(asn1Key);
         }
-
-
     }
 
     protected void parseKeyBits() throws IOException {

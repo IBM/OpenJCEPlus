@@ -237,7 +237,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "AlgorithmParameters", "RSAPSS",
                 "com.ibm.crypto.plus.provider.PSSParameters", aliases));
 
-
         aliases = null;
         putService(new OpenJCEPlusService(jce, "AlgorithmParameterGenerator", "DSA",
                 "com.ibm.crypto.plus.provider.DSAParameterGenerator", aliases));
@@ -500,7 +499,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "KeyGenerator", "AES",
                 "com.ibm.crypto.plus.provider.AESKeyGenerator", aliases));
 
-
         aliases = new String[] {"TripleDES", "3DES"};
         putService(new OpenJCEPlusService(jce, "KeyGenerator", "DESede",
                 "com.ibm.crypto.plus.provider.DESedeKeyGenerator", aliases));
@@ -592,7 +590,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "KeyGenerator", "ChaCha20",
                 "com.ibm.crypto.plus.provider.ChaCha20KeyGenerator", aliases));
 
-
         /* =======================================================================
          * Keypair Generator engines
          * =======================================================================
@@ -612,7 +609,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
         putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "XDH",
                 "com.ibm.crypto.plus.provider.XDHKeyPairGenerator$XDH", null));
-
 
         aliases = new String[] {"OID.1.3.101.110", "1.3.101.110"};
         putService(new OpenJCEPlusService(jce, "KeyPairGenerator", "X25519",
@@ -996,7 +992,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         aliases = null;
         putService(new OpenJCEPlusService(jce, "Signature", "RSAforSSL",
                 "com.ibm.crypto.plus.provider.RSASignatureSSL", aliases));
-
 
         aliases = new String[] {"ECDSAforSSL"};
 
