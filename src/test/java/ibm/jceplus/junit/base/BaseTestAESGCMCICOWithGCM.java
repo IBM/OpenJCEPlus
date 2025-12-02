@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.io.ByteArrayInputStream;
@@ -60,7 +61,6 @@ public class BaseTestAESGCMCICOWithGCM extends BaseTestJunit5 {
 
         Cipher decCipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         decCipher.init(Cipher.DECRYPT_MODE, key, encCipher.getParameters());
-
 
         //init cipher streams
         ByteArrayInputStream baInput = new ByteArrayInputStream(plainText);

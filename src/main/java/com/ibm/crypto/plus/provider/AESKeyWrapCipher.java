@@ -356,6 +356,7 @@ abstract class AESKeyWrapCipher extends CipherSpi {
         }
         return true;
     }
+
     public static final class KW extends AESKeyWrapCipher {
 
         public KW(OpenJCEPlusProvider provider) {

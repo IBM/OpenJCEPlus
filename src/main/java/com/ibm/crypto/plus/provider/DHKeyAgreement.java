@@ -155,7 +155,6 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
             throw ise;
         }
 
-
         // Make the computed secert compatible with  IBMJCE provider
         BigInteger modulus = init_p;
         int expectedLen = (modulus.bitLength() + 7) >>> 3;
@@ -185,8 +184,6 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
             }
             return result;
         }
-
-
     }
 
     @Override

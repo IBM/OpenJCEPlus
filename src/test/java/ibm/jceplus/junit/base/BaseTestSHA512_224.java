@@ -60,7 +60,6 @@ public class BaseTestSHA512_224 extends BaseTestMessageDigest {
                 "ab12a705621af00fd85fa2b5631ff4a1083817838c69c9ac10a73f4e", //8
                 "224a965f8f9b6ed2e96054923f026a69f99e213665c1cb6214ffa040"};
 
-
         String msg = "";
         int j = 0;
         MessageDigest mdIBM = MessageDigest.getInstance(getAlgorithm(), getProviderName());
@@ -76,8 +75,6 @@ public class BaseTestSHA512_224 extends BaseTestMessageDigest {
             msg = msg + String.valueOf(i);
 
         }
-
-
     }
 
     @Test
