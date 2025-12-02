@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.io.File;
@@ -91,7 +92,7 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
         if ("OpenJCEPlusFIPS".equalsIgnoreCase(getProviderName()) && (algorithm.equalsIgnoreCase("DESede") || algorithm.equalsIgnoreCase("ChaCha20"))) {
             return;
         }
-        
+
         keyGen = KeyGenerator.getInstance(algorithm, getProviderName());
         keyGen.init(size);
         key = keyGen.generateKey();

@@ -39,6 +39,7 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTestJunit
     // reported as a test failure.
     //
     abstract public boolean isMethodMeantToBePublicAndExplicitlyCallableByUsers(Method method);
+
     @Test
     public void testCheckForPublicMethods() throws Exception {
         Vector<String> publicMethodNamesToCheck = new Vector<String>();

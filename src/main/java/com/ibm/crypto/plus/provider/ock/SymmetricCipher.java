@@ -194,7 +194,6 @@ public final class SymmetricCipher {
             System.arraycopy(reinitKey, 0, reinitIVAndKey, reinitIV.length, reinitKey.length);
         }
 
-
         if (use_z_fast_command) {
             if (parametersBuffer == null) {
                 parametersBuffer = FastJNIBuffer.create(PARAM_CAP);

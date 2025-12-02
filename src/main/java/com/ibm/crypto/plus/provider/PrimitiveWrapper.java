@@ -21,6 +21,7 @@ package com.ibm.crypto.plus.provider;
 public final class PrimitiveWrapper {
     public static class Long { 
         long value;
+
         public Long(long value) {
             this.value = value;
         }
@@ -36,6 +37,7 @@ public final class PrimitiveWrapper {
 
     public static class Bool {
         boolean value;
+
         public Bool(boolean value) {
             this.value = value;
         }
@@ -51,6 +53,7 @@ public final class PrimitiveWrapper {
 
     public static class ByteArray {
         byte[] value;
+
         public ByteArray(byte[] value) {
             this.value = value;
         }

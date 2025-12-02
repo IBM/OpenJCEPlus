@@ -186,6 +186,7 @@ abstract class ECDSASignature extends SignatureSpi {
             super(provider, "SHA512");
         }
     }
+
     // nested static class for the SHA3_224withECDSA implementation
     public static final class SHA3_224withECDSA extends ECDSASignature {
         public SHA3_224withECDSA(OpenJCEPlusProvider provider) {
