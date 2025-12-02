@@ -26,6 +26,8 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
 
     private static final boolean printFipsDeveloperModeWarning = Boolean.parseBoolean(System.getProperty("openjceplus.fips.devmodewarn", "true"));
 
+    private static final boolean allowNonOAEPFIPS = Boolean.parseBoolean(System.getProperty("com.ibm.openjceplusfips.allowNonOAEP", "false"));
+
     private static final String info = "OpenJCEPlusFIPS Provider implements the following:\n" +
 
             "Algorithm parameter                : AES, DiffieHellman, DSA, EC, GCM, OAEP, RSAPSS\n"
@@ -219,8 +221,21 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
                 "com.ibm.crypto.plus.provider.AESCipher", aliases));
 
         aliases = null;
+        Map<String, String> rsaAttr = new HashMap<>();
+
+        String supportedPaddings = "OAEPPADDING"
+                + "|OAEPWITHSHA1ANDMGF1PADDING"
+                + "|OAEPWITHSHA-1ANDMGF1PADDING";
+        if (allowNonOAEPFIPS) {
+            supportedPaddings += "|NOPADDING|PKCS1PADDING";
+        }
+        rsaAttr.put("SupportedModes", "ECB");
+        rsaAttr.put("SupportedPaddings", supportedPaddings);
+        rsaAttr.put("SupportedKeyClasses",
+                "java.security.interfaces.RSAPublicKey" +
+                "|java.security.interfaces.RSAPrivateKey");
         putService(new OpenJCEPlusService(jce, "Cipher", "RSA", "com.ibm.crypto.plus.provider.RSA",
-                aliases));
+                aliases, rsaAttr));
 
         aliases = new String[] {"AESWrap"};
         putService(new OpenJCEPlusService(jce, "Cipher", "AES/KW/NoPadding",
