@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base;
 
 import java.security.MessageDigest;
@@ -68,6 +69,7 @@ public class BaseTestSHA1 extends BaseTestMessageDigest {
             (byte) 0xC4, (byte) 0xDA, (byte) 0xA4, (byte) 0xF6, (byte) 0x1E, (byte) 0xEB,
             (byte) 0x2B, (byte) 0xDB, (byte) 0xAD, (byte) 0x27, (byte) 0x31, (byte) 0x65,
             (byte) 0x34, (byte) 0x01, (byte) 0x6F};
+
     @BeforeAll
     public void setUp() {
         setAlgorithm("SHA1");

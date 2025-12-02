@@ -68,6 +68,7 @@ public final class CCMCipher {
 
 
     private static final Map<Integer, String> ErrorCodes;
+
     static {
         ErrorCodes = new HashMap<Integer, String>();
         ErrorCodes.put(1, "ICC_AES_CCM_CTX_new failed");
@@ -87,6 +88,7 @@ public final class CCMCipher {
         //useJavaTLS = true; //(tls_support_result != 0);
         //OCKDebug.Msg (debPrefix,  "static", "UseJavaTLS" + useJavaTLS);
     }
+
     private static final int FastJNIInputBufferSize = 1024 * 2 * 2;
     private static final int FastJNIOutputBufferSize = 1024 * 2 * 2 + 16;
     private static final int FastJNIParameterBufferSize = 1024;
@@ -184,7 +186,6 @@ public final class CCMCipher {
             inputOffset = 0;
         }
 
-
         authenticationData = (aad != null) ? aad.clone() : emptyAAD.clone();
 
         int aadLen = authenticationData.length;
@@ -237,7 +238,6 @@ public final class CCMCipher {
             rc = NativeInterface.do_CCM_decrypt(ockContext.getId(), iv, iv.length, key, key.length,
                     authenticationData, aadLen, tempInput, inputLen, tempOutput, tempOutput.length,
                     tagLen);
-
 
             if (rc != 0) {
                 throw new OCKException(ErrorCodes.get(rc));
@@ -299,7 +299,6 @@ public final class CCMCipher {
             throw new ShortBufferException(
                     "Output buffer must be (at least) " + len + " bytes long");
         }
-
 
         //OCKDebug.Msg(debPrefix, methodName, "key :", key);
         //OCKDebug.Msg(debPrefix, methodName, "iv :", iv);

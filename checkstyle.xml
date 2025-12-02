@@ -21,6 +21,10 @@
         <property name="fileExtensions" value="java"/>
         <module name="AvoidStarImport"/>
         <module name="EmptyBlock"/>
+        <module name="EmptyLineSeparator">
+            <property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>
+            <property name="allowNoEmptyLineBetweenFields" value="true"/>
+        </module>
         <module name="GenericWhitespace"/>
         <module name="ImportOrder"/>
         <module name="Indentation">

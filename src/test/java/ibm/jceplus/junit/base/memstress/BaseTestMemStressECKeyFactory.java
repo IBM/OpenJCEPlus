@@ -5,6 +5,7 @@
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
+
 package ibm.jceplus.junit.base.memstress;
 
 import ibm.jceplus.junit.base.BaseTestJunit5;
@@ -73,9 +74,7 @@ public class BaseTestMemStressECKeyFactory extends BaseTestJunit5 {
         }
     }
 
-
     void keyFactoryPublicTest(int size) throws Exception {
-
 
         try {
 
