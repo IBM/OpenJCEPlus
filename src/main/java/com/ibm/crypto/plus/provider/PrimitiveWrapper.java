@@ -19,6 +19,9 @@ package com.ibm.crypto.plus.provider;
  */
 
 public final class PrimitiveWrapper {
+
+    private PrimitiveWrapper() {}
+    
     public static class Long { 
         long value;
 
