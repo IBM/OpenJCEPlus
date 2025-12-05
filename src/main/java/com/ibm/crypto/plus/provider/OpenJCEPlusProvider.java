@@ -41,7 +41,7 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
 
     static final String DEBUG_VALUE = "jceplus";
 
-    private final Cleaner[] cleaners;
+    private final transient Cleaner[] cleaners;
 
     private final int DEFAULT_NUM_CLEANERS = 2;
 

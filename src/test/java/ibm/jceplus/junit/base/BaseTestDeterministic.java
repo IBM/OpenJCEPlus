@@ -329,6 +329,7 @@ public class BaseTestDeterministic extends BaseTestJunit5 {
     public static class SeededSecureRandom extends SecureRandom {
 
         private final Random rnd;
+        private static final long serialVersionUID = 1L;
 
         public static long seed() {
             String value = System.getProperty("secure.random.seed");
