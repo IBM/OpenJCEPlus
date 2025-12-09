@@ -413,42 +413,42 @@ public class Debug {
 
     public void exit(long type, Object loggingClass, String loggingMethod, byte retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
-                new Byte(retValue));
+                Byte.valueOf(retValue));
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, short retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
-                new Short(retValue));
+                Short.valueOf(retValue));
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, int retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
-                new Integer(retValue));
+                Integer.valueOf(retValue));
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, long retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
-                new Long(retValue));
+                Long.valueOf(retValue));
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, float retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
-                new Float(retValue));
+                Float.valueOf(retValue));
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, double retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
-                new Double(retValue));
+                Double.valueOf(retValue));
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, char retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
-                new Character(retValue));
+                Character.valueOf(retValue));
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, boolean retValue) {
         tl.logp(PlatformLogger.Level.FINER, (String) loggingClass, loggingMethod, "RETURN {0}",
-                new Boolean(retValue));
+                Boolean.valueOf(retValue));
     }
 
     public void exit(long type, Object loggingClass, String loggingMethod, Object retValue) {
