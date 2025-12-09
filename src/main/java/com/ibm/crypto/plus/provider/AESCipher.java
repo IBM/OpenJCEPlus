@@ -86,6 +86,12 @@ public final class AESCipher extends CipherSpi implements AESConstants {
         checkCipherInitialized();
 
         try {
+            int outputSize = engineGetOutputSize(inputLen);
+            if ((output == null) || ((output.length - outputOffset) < outputSize)) {
+                throw new ShortBufferException(
+                        "Output buffer must be " + "(at least) " + outputSize + " bytes long");
+            }
+
             if (use_z_fast_command) {
                 int encryptedData = engineUpdate(input, inputOffset, inputLen, output,
                         outputOffset);
