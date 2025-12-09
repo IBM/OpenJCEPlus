@@ -138,7 +138,7 @@ You can test your installation by issuing `mvn --version`. For example:
 
 ## Test Execution
 
-Tests are available within the `OpenJCEPlus` repository. These Junit tests can be run in various ways including running individual tests or the entire test suite.
+Tests are available within the `OpenJCEPlus` repository. These JUnit tests can be run in various ways including running individual tests, specific test classes, or test suites.
 
 ### Run all tests
 
@@ -176,14 +176,22 @@ On AIX you must set an additional setting for the `LIBPATH` environment variable
 export LIBPATH="$PROJECT_HOME/OCK/:$PROJECT_HOME/OCK/jgsk_sdk"
 ```
 
-On all platforms change to the OpenJCEPlus directory and set the following environment variables and execute a specific test name using `mvn`. You must set your JAVA_HOME value to the latest generally available version of Java when using code located in the `main` branch.
+On all platforms change to the OpenJCEPlus directory and set the following environment variables and execute a specific test class using `mvn`. You must set your JAVA_HOME value to the latest generally available version of Java when using code located in the `main` branch.
 
 ```console
 cd OpenJCEPlus
 export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION"
 export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
-mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test -Dtest=TestClassname
+mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test -Dtest=TestClassName
 ```
+
+### Using the `-Dgroups` Property
+
+The `-Dgroups` property allows you to filter and run tests based on JUnit tags. This is useful when you want to run tests for a specific set of tags without specifying individual test classes. This value is a comma deliminated list of tags.
+
+**Available Groups/Tags:**
+- `OpenJCEPlus` - Run tests tagged for the OpenJCEPlus provider
+- `OpenJCEPlusFIPS` - Run tests tagged for the OpenJCEPlusFIPS provider
 
 ### Run performance tests
 
