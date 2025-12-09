@@ -27,6 +27,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.security.spec.XECPrivateKeySpec;
 import java.security.spec.XECPublicKeySpec;
+import java.util.Arrays;
 import java.util.Optional;
 
 class XDHKeyFactory extends KeyFactorySpi {
@@ -169,7 +170,12 @@ class XDHKeyFactory extends KeyFactorySpi {
                     }
 
                     Optional<byte[]> scalar = xecPrivKey.getScalar();
-                    return keySpec.cast(new XECPrivateKeySpec(params, scalar.get()));
+                    byte[] scalarArray = scalar.get();
+                    try {
+                        return keySpec.cast(new XECPrivateKeySpec(params, scalarArray));
+                    } finally {
+                        Arrays.fill(scalarArray, (byte) 0x00);
+                    }
                 } else if (keySpec.isAssignableFrom(pkcs8KeySpec))
                     return keySpec.cast(new PKCS8EncodedKeySpec(key.getEncoded()));
                 else
