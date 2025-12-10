@@ -26,6 +26,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -175,23 +176,26 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
 
     @Test
     public void testAESShortBuffer() throws Exception {
-        doTestAESShortBuffer("AES", getProviderName());
-        doTestAESShortBuffer("AES", getInteropProviderName());
+        String msg = doTestAESShortBuffer("AES", getProviderName());
+        String interopMsg = doTestAESShortBuffer("AES", getInteropProviderName());
+        assertEquals(msg, interopMsg);
     }
 
-    private void doTestAESShortBuffer(String algorithm, String providerA) throws Exception {
+    private String doTestAESShortBuffer(String algorithm, String providerA) throws Exception {
+        String msg = null;
         try {
             // Test AES Cipher
-            cpA = Cipher.getInstance(algorithm, getProviderName());
+            cpA = Cipher.getInstance(algorithm, providerA);
 
             // Encrypt the plain text
             cpA.init(Cipher.ENCRYPT_MODE, key);
             byte[] cipherText = new byte[5];
             cpA.doFinal(plainText, 0, plainText.length, cipherText);
-            fail("Expected ShortBufferException did not occur");
+            fail("Expected ShortBufferException did not occur for provider: " + providerA);
         } catch (ShortBufferException ex) {
-            assertTrue(true);
+            msg = ex.getMessage();
         }
+        return msg;
     }
 
     @Test
