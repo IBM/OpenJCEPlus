@@ -536,6 +536,7 @@
                     <source>${jdk.build.target}</source>
                     <target>${jdk.build.target}</target>
                     <compilerArgs>
+                        <arg>-Werror</arg>
                         <arg>-XDignore.symbol.file</arg>
                         <arg>-Xlint:all</arg>
                         <arg>-Xlint:-processing</arg>
