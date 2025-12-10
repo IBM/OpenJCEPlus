@@ -244,6 +244,13 @@
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-surefire-plugin</artifactId>
                   <version>3.5.3</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>me.fabriciorby</groupId>
+                      <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+                      <version>1.5.1</version>
+                    </dependency>
+                  </dependencies>
                   <configuration>
                     <useModulePath>false</useModulePath>
                     <!-- Could add -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:8787 for debug -->
@@ -286,6 +293,21 @@
                         **/ibm/jceplus/junit/TestMultithreadFIPS.java
                       </include>
                     </includes>
+                    <reportFormat>plain</reportFormat>
+                    <consoleOutputReporter>
+                      <disable>true</disable>
+                    </consoleOutputReporter>
+                    <statelessTestsetInfoReporter
+                      implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
+                      <printStacktraceOnError>true</printStacktraceOnError>
+                      <printStacktraceOnFailure>true</printStacktraceOnFailure>
+                      <printStdoutOnError>true</printStdoutOnError>
+                      <printStdoutOnFailure>true</printStdoutOnFailure>
+                      <printStdoutOnSuccess>false</printStdoutOnSuccess>
+                      <printStderrOnError>true</printStderrOnError>
+                      <printStderrOnFailure>true</printStderrOnFailure>
+                      <printStderrOnSuccess>false</printStderrOnSuccess>
+                    </statelessTestsetInfoReporter>
                   </configuration>
                 </plugin>
                 <plugin>
@@ -373,6 +395,13 @@
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-surefire-plugin</artifactId>
                   <version>3.5.3</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>me.fabriciorby</groupId>
+                      <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+                      <version>1.5.1</version>
+                    </dependency>
+                  </dependencies>
                   <configuration>
                     <useModulePath>false</useModulePath>
                     <trimStackTrace>false</trimStackTrace>
@@ -394,6 +423,21 @@
                         **/ibm/jceplus/junit/TestMultithreadFIPS.java
                       </include>
                     </includes>
+                    <reportFormat>plain</reportFormat>
+                    <consoleOutputReporter>
+                      <disable>true</disable>
+                    </consoleOutputReporter>
+                    <statelessTestsetInfoReporter
+                      implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
+                      <printStacktraceOnError>true</printStacktraceOnError>
+                      <printStacktraceOnFailure>true</printStacktraceOnFailure>
+                      <printStdoutOnError>true</printStdoutOnError>
+                      <printStdoutOnFailure>true</printStdoutOnFailure>
+                      <printStdoutOnSuccess>false</printStdoutOnSuccess>
+                      <printStderrOnError>true</printStderrOnError>
+                      <printStderrOnFailure>true</printStderrOnFailure>
+                      <printStderrOnSuccess>false</printStderrOnSuccess>
+                    </statelessTestsetInfoReporter>
                   </configuration>
                 </plugin>
               </plugins>
@@ -738,25 +782,25 @@
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
-            <version>1.13.0-M3</version>
+            <version>1.14.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.13.0-M3</version>
+            <version>5.14.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.13.0-M3</version>
+            <version>5.14.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.13.0-M3</version>
+            <version>5.14.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
