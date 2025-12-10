@@ -52,6 +52,7 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
 
     private AtomicInteger count = new AtomicInteger(0);
 
+    @SuppressWarnings("exports")
     protected static final Debug debug = Debug.getInstance(DEBUG_VALUE); 
 
     OpenJCEPlusProvider(String name, String info) {
@@ -80,6 +81,7 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
         cleaner.register(owner, cleanAction);
     }
 
+    @SuppressWarnings("exports")
     public static Debug getDebug() {
         return debug;
     }

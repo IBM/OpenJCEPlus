@@ -170,6 +170,7 @@ final class NativeInterface {
         }
     }
 
+    @SuppressWarnings("restricted")
     private static boolean loadIfExists(File libraryFile) {
         String libraryName = libraryFile.getAbsolutePath();
 
