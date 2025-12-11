@@ -180,6 +180,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
     @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     public void testKEMKeys(String Algorithm) throws Exception {
 
+        boolean removeWarning = false;
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair("RSA");
@@ -188,6 +189,9 @@ public class BaseTestKEM extends BaseTestJunit5 {
 
         try {
             KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
+            if (removeWarning) {
+                System.out.println((Object) encr);
+            }
             fail("testKEMKeys failed RSA public key worked.");
         } catch (InvalidKeyException ike) {
             // continue with test
@@ -195,17 +199,23 @@ public class BaseTestKEM extends BaseTestJunit5 {
   
         try {
             KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
+            if (removeWarning) {
+                System.out.println((Object) decr);
+            }
             fail("testKEMKeys failed RSA private key worked.");
         } catch (InvalidKeyException ike) {
             // continue with test
         }
-        
+
         // Test null keys
         PublicKey pub = null;
         PrivateKey priv = null;
 
         try {
             KEM.Encapsulator encr = kem.newEncapsulator(pub);
+            if (removeWarning) {
+                System.out.println((Object) encr);
+            }
             fail("testKEMKeys failed public key null worked.");
         } catch (InvalidKeyException ike) {
             // continue with test
@@ -213,6 +223,9 @@ public class BaseTestKEM extends BaseTestJunit5 {
   
         try {
             KEM.Decapsulator decr = kem.newDecapsulator(priv);
+            if (removeWarning) {
+                System.out.println((Object) decr);
+            }
             fail("testKEMKeys failed private key null worked.");
         } catch (InvalidKeyException ike) {
             // continue with test
