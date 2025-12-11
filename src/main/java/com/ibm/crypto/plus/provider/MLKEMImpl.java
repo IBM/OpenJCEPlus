@@ -129,7 +129,7 @@ public class MLKEMImpl implements KEMSpi {
             AlgorithmParameterSpec spec)
             throws InvalidAlgorithmParameterException, InvalidKeyException {
  
-        if (privateKey == null) {
+        if (privateKey == null || !(privateKey instanceof PQCPrivateKey)) {
             throw new InvalidKeyException("unsupported key");
         }
 

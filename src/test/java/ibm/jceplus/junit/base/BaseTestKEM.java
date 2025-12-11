@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base;
 
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -173,6 +174,49 @@ public class BaseTestKEM extends BaseTestJunit5 {
         SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 16, "AES");
         
         assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
+    }
+
+    @ParameterizedTest
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    public void testKEMKeys(String Algorithm) throws Exception {
+
+        KEM kem = KEM.getInstance(Algorithm, getProviderName());
+
+        KeyPair pqcKeyPair = generateKeyPair("RSA");
+        pqcKeyPair.getPublic();
+        pqcKeyPair.getPrivate();
+
+        try {
+            KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
+            fail("testKEMKeys failed RSA public key worked.");
+        } catch (InvalidKeyException ike) {
+            // continue with test
+        }
+  
+        try {
+            KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
+            fail("testKEMKeys failed RSA private key worked.");
+        } catch (InvalidKeyException ike) {
+            // continue with test
+        }
+        
+        // Test null keys
+        PublicKey pub = null;
+        PrivateKey priv = null;
+
+        try {
+            KEM.Encapsulator encr = kem.newEncapsulator(pub);
+            fail("testKEMKeys failed public key null worked.");
+        } catch (InvalidKeyException ike) {
+            // continue with test
+        }
+  
+        try {
+            KEM.Decapsulator decr = kem.newDecapsulator(priv);
+            fail("testKEMKeys failed private key null worked.");
+        } catch (InvalidKeyException ike) {
+            // continue with test
+        }
     }
 
     protected KeyPair generateKeyPair(String Algorithm) throws Exception {
