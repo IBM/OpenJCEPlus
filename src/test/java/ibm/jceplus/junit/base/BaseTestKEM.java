@@ -36,8 +36,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
@@ -57,8 +55,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         KEM.Encapsulated enc = encr.encapsulate();
@@ -79,8 +75,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         for (int i =0; i < 4; i++) {
@@ -162,8 +156,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         KEM.Encapsulated enc = encr.encapsulate(0, 16, "AES");
@@ -184,15 +176,13 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair("RSA");
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         try {
             KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
             if (removeWarning) {
                 System.out.println((Object) encr);
             }
-            fail("testKEMKeys failed RSA public key worked.");
+            fail("testKEMKeys failed - RSA Public key did not cause an Invalid Key Excepton.");
         } catch (InvalidKeyException ike) {
             // continue with test
         }
@@ -202,7 +192,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
             if (removeWarning) {
                 System.out.println((Object) decr);
             }
-            fail("testKEMKeys failed RSA private key worked.");
+            fail("testKEMKeys failed - RSA Private key did not cause an Invalid Key Excepton.");
         } catch (InvalidKeyException ike) {
             // continue with test
         }
@@ -216,7 +206,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
             if (removeWarning) {
                 System.out.println((Object) encr);
             }
-            fail("testKEMKeys failed public key null worked.");
+            fail("testKEMKeys failed - NULL Public key did not cause an Invalid Key Excepton.");
         } catch (InvalidKeyException ike) {
             // continue with test
         }
@@ -226,7 +216,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
             if (removeWarning) {
                 System.out.println((Object) decr);
             }
-            fail("testKEMKeys failed private key null worked.");
+            fail("testKEMKeys failed - NULL Private key did not cause an Invalid Key Excepton.");
         } catch (InvalidKeyException ike) {
             // continue with test
         }
