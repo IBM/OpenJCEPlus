@@ -37,7 +37,6 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
     private static final long serialVersionUID = 6034044314589513430L;
 
     private OpenJCEPlusProvider provider = null;
-    private transient Optional<byte[]> scalar;
     private transient NamedParameterSpec params;
     private CURVE curve;
     private byte[] k; // The raw key bytes, without OctetString or DER encoded
@@ -56,7 +55,6 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         if (k == null) {
             k = extractPrivateKeyFromOCK(xecKey.getPrivateKeyBytes()); // Extract key from GSKit and sets params
             setPKCS8KeyByte(k);
-            this.scalar = Optional.of(k);
             this.algid = CurveUtil.getAlgId(this.params.getName());
         }
     }
@@ -96,7 +94,6 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             // to fit with GSKit and sets params
             int encodingSize = CurveUtil.getDEREncodingSize(curve);
             this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded, encodingSize, provider);
-            this.scalar = Optional.of(k);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");
             provider.setOCKExceptionCause(ike, exception);
@@ -135,7 +132,6 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         // TODO: figure out how to build FFDHE curves from paramspec
 
         this.provider = provider;
-        this.scalar = scalar;
         if (scalar != null)
             k = scalar.get();
         try {
@@ -391,7 +387,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         } catch (Exception exception) {
             this.exception = exception;
         }
-        return scalar;
+        return Optional.of(getKeyBytes());
     }
 
     public byte[] getKeyBytes() {
@@ -527,7 +523,6 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             if (this.key != null)
                 Arrays.fill(this.key, (byte) 0x00);
             this.xecKey = null;
-            this.scalar = null;
             this.params = null;
         }
     }
