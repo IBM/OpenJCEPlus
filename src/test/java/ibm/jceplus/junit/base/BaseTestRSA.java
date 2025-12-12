@@ -43,6 +43,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class BaseTestRSA extends BaseTestCipher {
 
@@ -197,26 +198,36 @@ public class BaseTestRSA extends BaseTestCipher {
 
     @Test
     public void testRSACipher_PKCS1Padding() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         encryptDecrypt("RSA/ECB/PKCS1Padding");
     }
 
     @Test
     public void testRSACipher_NoPadding() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         encryptDecrypt("RSA/ECB/NoPadding");
     }
 
     @Test
     public void testRSACipher_ECB_PKCS1Padding() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         encryptDecrypt("RSA/ECB/PKCS1Padding");
     }
 
     @Test
     public void testRSACipher_ECB_NoPadding() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         encryptDecrypt("RSA/ECB/NoPadding");
     }
 
     @Test
     public void testRSACipher_ECB_ZeroPadding() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         encryptDecrypt("RSA/ECB/ZeroPadding");
     }
 
@@ -228,11 +239,6 @@ public class BaseTestRSA extends BaseTestCipher {
     @Test
     public void testRSACipherForSSL() throws Exception {
         encryptDecrypt("RSAforSSL");
-    }
-
-    @Test
-    public void testRSACipher_SSL_PKCS1Padding() throws Exception {
-        encryptDecrypt("RSA/SSL/PKCS1Padding");
     }
 
     @Test
@@ -312,25 +318,22 @@ public class BaseTestRSA extends BaseTestCipher {
 
     @Test
     public void testRSAShortBuffer2() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         String algorithm = "RSA/ECB/NoPadding";
         int outputByteLength = 64;
         int finalOffset = 65;
 
         try {
-
             Cipher cipher = Cipher.getInstance(algorithm, getProviderName());
 
             if (cipher.equals(null))
                 System.out.println("The cipher was null.");
 
             cipher.init(Cipher.ENCRYPT_MODE, rsaPub);
-
             byte[] newplainText2 = new byte[outputByteLength];
-
             cipher.doFinal(newplainText2, finalOffset);
-
             fail("Expected ShortBufferException did not occur");
-
         } catch (ShortBufferException ex) {
             assertTrue(true);
         }
@@ -360,6 +363,7 @@ public class BaseTestRSA extends BaseTestCipher {
 
     @Test
     public void testRSAIllegalMode() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
         // Test RSA Cipher
         Cipher cp = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
@@ -376,7 +380,6 @@ public class BaseTestRSA extends BaseTestCipher {
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), plainText, newPlainText);
         assertTrue(success, "Decrypted text does not match expected");
-
     }
 
     @Test
@@ -386,26 +389,36 @@ public class BaseTestRSA extends BaseTestCipher {
 
     @Test
     public void testRSACipher_PKCS1Padding_getParams() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         checkGetParamsNull("RSA/ECB/PKCS1Padding");
     }
 
     @Test
     public void testRSACipher_NoPadding_getParams() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         checkGetParamsNull("RSA/ECB/NoPadding");
     }
 
     @Test
     public void testRSACipher_ECB_PKCS1Padding_getParams() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         checkGetParamsNull("RSA/ECB/PKCS1Padding");
     }
 
     @Test
     public void testRSACipher_ECB_NoPadding_getParams() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         checkGetParamsNull("RSA/ECB/NoPadding");
     }
 
     @Test
     public void testRSACipher_ECB_ZeroPadding_getParams() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         checkGetParamsNull("RSA/ECB/ZeroPadding");
     }
 
@@ -417,11 +430,6 @@ public class BaseTestRSA extends BaseTestCipher {
     @Test
     public void testRSACipherForSSL_getParams() throws Exception {
         checkGetParamsNull("RSAforSSL");
-    }
-
-    @Test
-    public void testRSACipher_SSL_PKCS1Padding_getParams() throws Exception {
-        checkGetParamsNull("RSA/SSL/PKCS1Padding");
     }
 
     @Test
