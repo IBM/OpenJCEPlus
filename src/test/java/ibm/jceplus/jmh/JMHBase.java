@@ -35,15 +35,29 @@ abstract public class JMHBase {
         String ockLibraryPath = System.getProperty("ock.library.path");
         String jgskitLibraryPath = System.getProperty("jgskit.library.path");
         String osName = System.getProperty("os.name").toLowerCase();
+        String threadsProperty = System.getProperty("jmh.threads", "1");
+        int threads;
+        try {
+            threads = Integer.parseInt(threadsProperty);
+            if (threads < 1) {
+                throw new IllegalArgumentException("Thread count must be at least 1, got: " + threads);
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid thread count <" + threadsProperty + ">. Must be an integer.", e);
+        }
         System.out.println("Home dir: " + projectHomeDir);
         System.out.println("JGSkit Library Path: " + jgskitLibraryPath);
         System.out.println("Regex of classes to run: " + regexClassName);
         System.out.println("OS Name: " + osName);
+        System.out.println("Thread count: " + threads);
+
+        String logFileWithThreads = logFileRoot + "-" + threads + "t";
 
         OptionsBuilder optionsBuilder = new OptionsBuilder();
+        optionsBuilder.threads(threads);
         optionsBuilder.include(regexClassName);
         optionsBuilder.resultFormat(org.openjdk.jmh.results.format.ResultFormatType.JSON);
-        optionsBuilder.result(projectHomeDir + "/target/jmh-results/" + logFileRoot + ".json");
+        optionsBuilder.result(projectHomeDir + "/target/jmh-results/" + logFileWithThreads + ".json");
         optionsBuilder.addProfiler(StackProfiler.class);
         optionsBuilder.addProfiler(GCProfiler.class);
         optionsBuilder.addProfiler(ClassloaderProfiler.class);
@@ -56,7 +70,7 @@ abstract public class JMHBase {
                 "-Dock.library.path=" + ockLibraryPath,
                 "-Djgskit.library.path=" + jgskitLibraryPath);
         optionsBuilder.forks(1);
-        optionsBuilder.output(projectHomeDir + "/target/jmh-results/" + logFileRoot + ".txt");
+        optionsBuilder.output(projectHomeDir + "/target/jmh-results/" + logFileWithThreads + ".txt");
 
         //TODO Most Jenkins systems dont seem to work with this. Must be admin.
         /*
