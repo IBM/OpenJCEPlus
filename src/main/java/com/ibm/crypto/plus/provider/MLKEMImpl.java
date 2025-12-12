@@ -12,11 +12,15 @@ import com.ibm.crypto.plus.provider.ock.OCKException;
 import com.ibm.crypto.plus.provider.ock.OJPKEM;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.ProviderException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.DecapsulateException;
 import javax.crypto.KEM;
 import javax.crypto.KEMSpi;
@@ -60,14 +64,28 @@ public class MLKEMImpl implements KEMSpi {
     public KEMSpi.EncapsulatorSpi engineNewEncapsulator(PublicKey publicKey,
             AlgorithmParameterSpec spec, SecureRandom secureRandom)
             throws InvalidAlgorithmParameterException, InvalidKeyException {
-        if (publicKey == null || !(publicKey instanceof PQCPublicKey) ) {
+        
+        PublicKey pubKey = publicKey;
+        if (pubKey == null) {
             throw new InvalidKeyException("unsupported key");
+        }
+
+        if (!(pubKey instanceof PQCPublicKey)) {
+            // Try and convert this key to a usage PQCPublicKey
+            try {
+                KeyFactory kf = KeyFactory.getInstance(this.alg, this.provider.getName());
+                EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKey.getEncoded());
+                pubKey = kf.generatePublic(publicKeySpec);
+       
+            } catch (Exception e) {
+                throw new InvalidKeyException("unsupported key");
+            }
         }
 
         if (spec != null) {
             throw new InvalidAlgorithmParameterException("no spec needed");
         }
-        return new MLKEMEncapsulator(publicKey, spec, null);
+        return new MLKEMEncapsulator(pubKey, spec, null);
     }
 
     class MLKEMEncapsulator implements KEMSpi.EncapsulatorSpi {
@@ -129,14 +147,27 @@ public class MLKEMImpl implements KEMSpi {
             AlgorithmParameterSpec spec)
             throws InvalidAlgorithmParameterException, InvalidKeyException {
  
-        if (privateKey == null || !(privateKey instanceof PQCPrivateKey)) {
+        PrivateKey privKey = privateKey;
+
+        if (privKey == null) {
             throw new InvalidKeyException("unsupported key");
+        }
+
+        if (!(privKey instanceof PQCPrivateKey)) {
+            // Try and convert this key to a usage PQCPrivateKey
+            try {
+                KeyFactory kf = KeyFactory.getInstance(this.alg, this.provider.getName());      
+                PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKey.getEncoded());
+                privKey = kf.generatePrivate(privateKeySpec);     
+            } catch (Exception e){
+                throw new InvalidKeyException("unsupported key");
+            }
         }
 
         if (spec != null) {
             throw new InvalidAlgorithmParameterException("no spec needed");
         }
-        return new MLKEMDecapsulator(privateKey, null);
+        return new MLKEMDecapsulator(privKey, null);
     }
 
     /*

@@ -75,6 +75,38 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     } 
 
     @Test
+    public void testPQCKeyGenKEMAutoKeyConvertion() throws Exception {
+        String pqcAlgorithm = "ML-KEM-512";
+
+        if (getProviderName().equals("OpenJCEPlusFIPS") || 
+            getInteropProviderName().equals(Utils.PROVIDER_BC)) {
+            //This is not in the FIPS provider yet and Boucy Castle does not support this test.
+            return;
+        }
+
+        KEM kemInterop = KEM.getInstance(pqcAlgorithm, getProviderName());
+
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(pqcAlgorithm, getInteropProviderName());
+        KeyPair keyPair = generateKeyPair(keyPairGen);
+
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+            
+        KEM.Encapsulator encr = kemInterop.newEncapsulator(publicKey);
+        KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
+        if (enc == null){
+            System.out.println("enc = null");
+            assertTrue(false, "KEMPlusCreatesInteropGet failed no enc.");
+        }
+        SecretKey keyE = enc.key();
+
+        KEM.Decapsulator decr = kemInterop.newDecapsulator(privateKey);
+        SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 32, "AES");
+
+        assertTrue(Arrays.equals(keyE.getEncoded(), keyD.getEncoded()), "Secrets do NOT match");
+    } 
+
+    @Test
     public void testPQCKeyGenKEM_Interop() throws Exception {
         String pqcAlgorithm = "ML-KEM-512";
         boolean same = false;

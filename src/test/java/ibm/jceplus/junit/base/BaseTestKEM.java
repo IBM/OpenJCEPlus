@@ -21,6 +21,7 @@ import javax.crypto.SecretKey;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestKEM extends BaseTestJunit5 {
@@ -172,29 +173,24 @@ public class BaseTestKEM extends BaseTestJunit5 {
     @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
     public void testKEMKeys(String Algorithm) throws Exception {
 
-        boolean removeWarning = false;
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair("RSA");
 
         try {
             KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
-            if (removeWarning) {
-                System.out.println((Object) encr);
-            }
+            encr.toString();
             fail("testKEMKeys failed - RSA Public key did not cause an Invalid Key Excepton.");
         } catch (InvalidKeyException ike) {
-            // continue with test
+            assertTrue(ike.getMessage().equals("unsupported key"));
         }
   
         try {
             KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
-            if (removeWarning) {
-                System.out.println((Object) decr);
-            }
+            decr.toString();
             fail("testKEMKeys failed - RSA Private key did not cause an Invalid Key Excepton.");
         } catch (InvalidKeyException ike) {
-            // continue with test
+            assertTrue(ike.getMessage().equals("unsupported key"));
         }
 
         // Test null keys
@@ -203,22 +199,18 @@ public class BaseTestKEM extends BaseTestJunit5 {
 
         try {
             KEM.Encapsulator encr = kem.newEncapsulator(pub);
-            if (removeWarning) {
-                System.out.println((Object) encr);
-            }
+            encr.toString();
             fail("testKEMKeys failed - NULL Public key did not cause an Invalid Key Excepton.");
         } catch (InvalidKeyException ike) {
-            // continue with test
+            assertTrue(ike.getMessage().equals("unsupported key"));
         }
   
         try {
             KEM.Decapsulator decr = kem.newDecapsulator(priv);
-            if (removeWarning) {
-                System.out.println((Object) decr);
-            }
+            decr.toString();
             fail("testKEMKeys failed - NULL Private key did not cause an Invalid Key Excepton.");
         } catch (InvalidKeyException ike) {
-            // continue with test
+            assertTrue(ike.getMessage().equals("unsupported key"));
         }
     }
 
