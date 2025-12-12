@@ -78,7 +78,7 @@ public class MLKEMImpl implements KEMSpi {
                 pubKey = kf.generatePublic(publicKeySpec);
        
             } catch (Exception e) {
-                throw new InvalidKeyException("unsupported key");
+                throw new InvalidKeyException("unsupported key", e.getCause());
             }
         }
 
@@ -160,7 +160,7 @@ public class MLKEMImpl implements KEMSpi {
                 PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKey.getEncoded());
                 privKey = kf.generatePrivate(privateKeySpec);     
             } catch (Exception e){
-                throw new InvalidKeyException("unsupported key");
+                throw new InvalidKeyException("unsupported key", e.getCause());
             }
         }
 

@@ -182,6 +182,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
             encr.toString();
             fail("testKEMKeys failed - RSA Public key did not cause an Invalid Key Excepton.");
         } catch (InvalidKeyException ike) {
+            System.out.println("error - "+ike.getMessage());
             assertTrue(ike.getMessage().equals("unsupported key"));
         }
   
