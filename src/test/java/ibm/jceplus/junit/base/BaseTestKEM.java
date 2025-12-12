@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base;
 
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -20,6 +21,7 @@ import javax.crypto.SecretKey;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestKEM extends BaseTestJunit5 {
@@ -35,8 +37,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
@@ -56,8 +56,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         KEM.Encapsulated enc = encr.encapsulate();
@@ -78,8 +76,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         for (int i =0; i < 4; i++) {
@@ -161,8 +157,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         KEM.Encapsulated enc = encr.encapsulate(0, 16, "AES");
@@ -173,6 +167,52 @@ public class BaseTestKEM extends BaseTestJunit5 {
         SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 16, "AES");
         
         assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
+    }
+
+    @ParameterizedTest
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    public void testKEMKeys(String Algorithm) throws Exception {
+
+        KEM kem = KEM.getInstance(Algorithm, getProviderName());
+
+        KeyPair pqcKeyPair = generateKeyPair("RSA");
+
+        try {
+            KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
+            encr.toString();
+            fail("testKEMKeys failed - RSA Public key did not cause an Invalid Key Excepton.");
+        } catch (InvalidKeyException ike) {
+            System.out.println("error - "+ike.getMessage());
+            assertTrue(ike.getMessage().equals("unsupported key"));
+        }
+  
+        try {
+            KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
+            decr.toString();
+            fail("testKEMKeys failed - RSA Private key did not cause an Invalid Key Excepton.");
+        } catch (InvalidKeyException ike) {
+            assertTrue(ike.getMessage().equals("unsupported key"));
+        }
+
+        // Test null keys
+        PublicKey pub = null;
+        PrivateKey priv = null;
+
+        try {
+            KEM.Encapsulator encr = kem.newEncapsulator(pub);
+            encr.toString();
+            fail("testKEMKeys failed - NULL Public key did not cause an Invalid Key Excepton.");
+        } catch (InvalidKeyException ike) {
+            assertTrue(ike.getMessage().equals("unsupported key"));
+        }
+  
+        try {
+            KEM.Decapsulator decr = kem.newDecapsulator(priv);
+            decr.toString();
+            fail("testKEMKeys failed - NULL Private key did not cause an Invalid Key Excepton.");
+        } catch (InvalidKeyException ike) {
+            assertTrue(ike.getMessage().equals("unsupported key"));
+        }
     }
 
     protected KeyPair generateKeyPair(String Algorithm) throws Exception {
