@@ -396,7 +396,8 @@ pipeline {
         string(name: 'ADDITIONAL_CMD_ARGS', defaultValue: '', description: '\
             Additional command line arguments that one might want to add to the mvn command.<br> \
             The contents of this will directly be appended to the mvn command, so write exactly as \
-            you would if running this manually in a command line (e.g., -Dflag1=true -Dflag2=false ...).')
+            you would if running this manually in a command line (e.g., -Dflag1=true -Dflag2=false ...).<br> \
+            Note: You can use -Djmh.threads=X to specify the number of threads for JMH benchmarks (-Djmh.threads=16).')
         string(name: 'TIMEOUT_TIME', defaultValue: '48', description: '\
             Overall build timeout (HOURS)')
     }
