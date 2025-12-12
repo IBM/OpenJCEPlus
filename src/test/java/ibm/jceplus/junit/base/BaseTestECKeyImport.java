@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -9,11 +9,13 @@
 package ibm.jceplus.junit.base;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Signature;
 import java.security.spec.ECField;
 import java.security.spec.ECFieldFp;
 import java.security.spec.ECGenParameterSpec;
@@ -24,11 +26,13 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HexFormat;
 import org.junit.jupiter.api.Test;
 import sun.security.pkcs.PKCS8Key;
 import sun.security.x509.X509Key;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestECKeyImport extends BaseTestJunit5 {
@@ -82,7 +86,37 @@ public class BaseTestECKeyImport extends BaseTestJunit5 {
                                                  + "9C57C30FAA2DEF09DDDAD4E8748C442325B8EDB94EF7AA9"
                                                  + "78D4A56F0B601448B0DDFA4CC4B0555EAE67354C442A3AC"
                                                  + "E9D04BE186765A1921962FC08D1A58C53A";
-    
+
+    private static final String private_secp256r1_parameters_publickey =
+                                                "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg15U0PERqsupn6Hy5" +
+                                                "Jlk6HKBiJlBvMWVSxEWYNipV2SOgCgYIKoZIzj0DAQehRANCAARFcF00hBK8Es2M" +
+                                                "H29DmA3fsYf4qWFSloVWoFct4CxffJ7hG0O4TXkMaPrAjgXc42SPdKRb7FcO0Lhz" +
+                                                "EVpYquVY";
+    private static final String public_secp256r1_parameters_publickey =
+                                                "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAERXBdNIQSvBLNjB9vQ5gN37GH+Klh" +
+                                                "UpaFVqBXLeAsX3ye4RtDuE15DGj6wI4F3ONkj3SkW+xXDtC4cxFaWKrlWA==";
+
+    private static final String private_secp256r1_publickey_only =
+                                                "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgn5K03bpTLjEtFQRa" +
+                                                "JUtx22gtmGEvvSUSQdimhGthdtihRANCAARv72fTmp9ed8dRvTG1Ak1Lgl5KLoiM" +
+                                                "59bk2pyG8qd8l7L1WQnNHtAcu44RJ1/GVHurxghaCKHeJYsZ8H7DEeI6";
+    private static final String public_secp256r1_publickey_only =
+                                                "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEb+9n05qfXnfHUb0xtQJNS4JeSi6I" +
+                                                "jOfW5NqchvKnfJey9VkJzR7QHLuOESdfxlR7q8YIWgih3iWLGfB+wxHiOg==";
+
+    private static final String private_secp256r1_parameters_only =
+                                                "ME0CAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEMzAxAgEBBCDQG6sBj2l7SbIwjb4f" +
+                                                "4AVQdtE717IaMXiRBzGboI7IWaAKBggqhkjOPQMBBw==";
+    private static final String public_secp256r1_parameters_only =
+                                                "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAESaogWgFBKmRm5SUKilBVhNx/l/60" +
+                                                "H/OTNDAz1OUi+Gy1MkrKMktPmpRw6gq26jxRXhRYFJhMuU0R1fktCXcG3g==";
+
+    private static final String private_secp256r1_no_parameters_no_public =
+                                                "MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCDlySzNwwln6W+zDiDk" +
+                                                "K7OvyaalUUdkOd6CrThHqenrfg==";
+    private static final String public_secp256r1_no_parameters_no_public =
+                                                "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEG9JA6mkSGkIKBSsKxDDtmhHMEo+P" +
+                                                "MNHwWo60TKvsYpEWYqGLvaqmhwqIyf+qVQD5/9hU4WFiB/t3jV+sO2RuHA==";
 
     /**
      * Generate a KeyPair using ECGEenParam and then import the key pair
@@ -304,6 +338,76 @@ public class BaseTestECKeyImport extends BaseTestJunit5 {
         importPublicKey = keyFactory.generatePublic(publicKeySpec);
 
         assertTrue(((X509Key) importPublicKey).getAlgorithmId().toString().contains("secp521r1"), "Curve is not what is expected.");
+    }
+
+    @Test
+    public void testECPrivateKeyWithVariousOptionalFields() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("EC", getProviderName());
+        Signature signature = Signature.getInstance("SHA256withECDSA", getProviderName());
+
+        // 1) parameters + publicKey
+        testSignAndVerify(
+                "parameters and publicKey",
+                kf,
+                signature,
+                private_secp256r1_parameters_publickey,
+                public_secp256r1_parameters_publickey
+        );
+
+        // 2) publicKey only
+        testSignAndVerify(
+                "publicKey only",
+                kf,
+                signature,
+                private_secp256r1_publickey_only,
+                public_secp256r1_publickey_only
+        );
+
+        // 3) parameters only
+        testSignAndVerify(
+                "parameters only",
+                kf,
+                signature,
+                private_secp256r1_parameters_only,
+                public_secp256r1_parameters_only
+        );
+
+        // 4) no parameters + no publicKey
+        testSignAndVerify(
+                "no parameters and no publickey",
+                kf,
+                signature,
+                private_secp256r1_no_parameters_no_public,
+                public_secp256r1_no_parameters_no_public
+        );
+        System.out.println("ALL tests completed.");
+    }
+
+    private static void testSignAndVerify(
+            String label,
+            KeyFactory kf,
+            Signature sig,
+            String pkcs8Base64,
+            String x509PublicBase64
+    ) throws Exception {
+        PrivateKey priv = kf.generatePrivate(new PKCS8EncodedKeySpec(Base64.getMimeDecoder().decode(pkcs8Base64)));
+
+        // Sign
+        byte[] msg = ("msg-" + label).getBytes(StandardCharsets.UTF_8);
+        sig.initSign(priv);
+        sig.update(msg);
+        byte[] signed = sig.sign();
+        assertNotNull(signed, "Signature is null for: " + label);
+        assertTrue(signed.length > 0, "Signature should not be empty for: " + label);
+        System.out.println("sign OK");
+
+        // Verify
+        PublicKey pub = kf.generatePublic(new X509EncodedKeySpec(Base64.getMimeDecoder().decode(x509PublicBase64)));
+        sig.initVerify(pub);
+        sig.update(msg);
+        boolean verified = sig.verify(signed);
+        assertTrue(verified, "Signature verification failed for: " + label);
+        System.out.println("verify OK");
     }
 }
 
