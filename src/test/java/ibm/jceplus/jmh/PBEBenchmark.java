@@ -9,7 +9,7 @@
 package ibm.jceplus.jmh;
 
 import java.security.AlgorithmParameters;
-import java.util.Locale;
+import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -41,7 +41,8 @@ public class PBEBenchmark extends JMHBase {
     private Cipher pbeEncrypt;
     private Cipher pbeDecrypt;
 
-    private byte[] salt = new byte[16];
+    private byte[] salt = new byte[8];
+    private SecureRandom random = new SecureRandom();
     private byte[] ivBytes = {
         0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
         0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20,
@@ -49,8 +50,7 @@ public class PBEBenchmark extends JMHBase {
     private byte[] text = "Bob the builder by IBM".getBytes();
     private byte[] cipherText;
     
-    @Param({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_256",
-        "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/256AndAES_256"})
+    @Param({"PBEWithMD5AndDES", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_128"})
     private String algorithm;
 
     @Param({"OpenJCEPlus", "SunJCE"})
@@ -62,6 +62,7 @@ public class PBEBenchmark extends JMHBase {
     @Setup
     public void setup() throws Exception {
         insertProvider(provider);
+        random.nextBytes(salt);
 
         pbeEncrypt = Cipher.getInstance(algorithm, provider);
         SecretKey pbeKey = getKey(algorithm);
@@ -87,9 +88,7 @@ public class PBEBenchmark extends JMHBase {
 
     private SecretKey getKey(String algo) throws Exception {
         PBEKeySpec pbeKeySpec = new PBEKeySpec("mypassword".toCharArray());
-        int modeIdx = algo.toUpperCase(Locale.ENGLISH).indexOf("/CBC");
-        String keyAlgo = (modeIdx == -1 ? algo : algo.substring(0, modeIdx));
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(keyAlgo, provider);
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(algo, provider);
         SecretKey pbeKey = keyFactory.generateSecret(pbeKeySpec);
 
         return pbeKey;
