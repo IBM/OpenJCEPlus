@@ -351,7 +351,7 @@ abstract class AESKeyWrapCipher extends CipherSpi {
     }
 
     private boolean checkKeySize(int keySize) {
-        if ((!AESUtils.isKeySizeValid(keySize) || (keySize != setKeySize)) && (setKeySize != -1)) {
+        if (!AESUtils.isKeySizeValid(keySize) || ((keySize != setKeySize) && (-1 != setKeySize))) {
             return false;
         }
         return true;
