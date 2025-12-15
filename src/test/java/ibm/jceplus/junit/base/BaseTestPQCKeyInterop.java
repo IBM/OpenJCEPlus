@@ -24,8 +24,10 @@ import javax.crypto.SecretKey;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
@@ -72,6 +74,36 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         // The original and new keys are the same
         same = Arrays.equals(publicKeyBytesPlus, publicKeyInterop.getEncoded());
         assertTrue(same);
+    } 
+
+    @Test
+    public void testPQCKeyGenKEMAutoKeyConvertion() throws Exception {
+        String pqcAlgorithm = "ML-KEM-512";
+
+        //This is not in the FIPS provider yet and BouncyCastle  does not support this test.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        KEM kemInterop = KEM.getInstance(pqcAlgorithm, getProviderName());
+
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(pqcAlgorithm, getInteropProviderName());
+        KeyPair keyPair = generateKeyPair(keyPairGen);
+
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+            
+        KEM.Encapsulator encr = kemInterop.newEncapsulator(publicKey);
+        KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
+        if (enc == null){
+            System.out.println("enc = null");
+            fail("KEMPlusCreatesInteropGet failed no enc.");
+        }
+        SecretKey keyE = enc.key();
+
+        KEM.Decapsulator decr = kemInterop.newDecapsulator(privateKey);
+        SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 32, "AES");
+
+        assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
     } 
 
     @Test
@@ -337,7 +369,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             assertTrue(verifyingPlus.verify(signedBytesInterop), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "SignInteropAndVerifyPlus failed");
+            fail("SignInteropAndVerifyPlus failed");
         }
     }
 
@@ -372,7 +404,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             assertTrue(verifyingPlus.verify(signedBytesInterop), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "SignInteropAndVerifyPlus failed");
+            fail("SignInteropAndVerifyPlus failed");
         }
     }
 
@@ -408,7 +440,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             assertTrue(verifyingPlus.verify(signedBytesPlus), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "SignPlusAndVerifyInterop failed");
+            fail("SignPlusAndVerifyInterop failed");
         }
     }
 
@@ -440,17 +472,17 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
             if (enc == null){
                 System.out.println("enc = null");
-                assertTrue(false, "KEMPlusCreatesInteropGet failed no enc.");
+                fail("KEMPlusCreatesInteropGet failed no enc.");
             }
             SecretKey keyE = enc.key();
 
             KEM.Decapsulator decr = kemInterop.newDecapsulator(privateKeyInterop);
             SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 32, "AES");
 
-            assertTrue(Arrays.equals(keyE.getEncoded(), keyD.getEncoded()), "Secrets do NOT match");
+            assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "KEMPlusCreatesInteropGet failed");
+            fail("KEMPlusCreatesInteropGet failed");
         }
     }
 
@@ -482,17 +514,17 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
             if (enc == null){
                 System.out.println("enc = null");
-                assertTrue(false, "KEMPlusCreatesInteropGet failed no enc.");
+                fail("KEMPlusCreatesInteropGet failed no enc.");
             }
             SecretKey keyE = enc.key();
 
             KEM.Decapsulator decr = kemPlus.newDecapsulator(privateKeyPlus);
             SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 32, "AES");
 
-            assertTrue(Arrays.equals(keyE.getEncoded(), keyD.getEncoded()), "Secrets do NOT match");
+            assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "KEMPlusCreatesInteropGet failed");
+            fail("KEMPlusCreatesInteropGet failed");
         }
     }
         
@@ -522,17 +554,17 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
             if (enc == null){
                 System.out.println("enc = null");
-                assertTrue(false, "KEMPlusCreatesInteropGet failed no enc.");
+                fail("KEMPlusCreatesInteropGet failed no enc.");
             }
             SecretKey keyE = enc.key();
 
             KEM.Decapsulator decr = kemPlus.newDecapsulator(privateKeyPlus);
             SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 32, "AES");
 
-            assertTrue(Arrays.equals(keyE.getEncoded(), keyD.getEncoded()), "Secrets do NOT match");
+            assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "KEMPlusCreatesInteropGet failed");
+            fail("KEMPlusCreatesInteropGet failed");
         }
     }
 
@@ -566,10 +598,10 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
             SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 32, "AES");
 
-            assertTrue(Arrays.equals(keyE.getEncoded(), keyD.getEncoded()), "Secrets do NOT match");
+            assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "KEMInteropCreatesPlusGet failed");
+            fail("KEMInteropCreatesPlusGet failed");
         }
     }
 
