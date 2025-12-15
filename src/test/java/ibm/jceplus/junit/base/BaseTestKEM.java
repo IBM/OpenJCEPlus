@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.base;
 
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -20,6 +21,7 @@ import javax.crypto.SecretKey;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestKEM extends BaseTestJunit5 {
@@ -35,8 +37,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
@@ -56,8 +56,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         KEM.Encapsulated enc = encr.encapsulate();
@@ -78,8 +76,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         for (int i =0; i < 4; i++) {
@@ -161,8 +157,6 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        pqcKeyPair.getPublic();
-        pqcKeyPair.getPrivate();
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
         KEM.Encapsulated enc = encr.encapsulate(0, 16, "AES");
@@ -173,6 +167,47 @@ public class BaseTestKEM extends BaseTestJunit5 {
         SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 16, "AES");
         
         assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
+    }
+
+    @ParameterizedTest
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    public void testKEMKeys(String Algorithm) throws Exception {
+
+        KEM kem = KEM.getInstance(Algorithm, getProviderName());
+
+        KeyPair pqcKeyPair = generateKeyPair("RSA");
+
+        try {
+            kem.newEncapsulator(pqcKeyPair.getPublic());
+            fail("testKEMKeys failed - RSA Public key did not cause an InvalidKeyException.");
+        } catch (InvalidKeyException ike) {
+            assertTrue(ike.getMessage().equals("unsupported key"));
+        }
+  
+        try {
+            kem.newDecapsulator(pqcKeyPair.getPrivate());
+            fail("testKEMKeys failed - RSA Private key did not cause an InvalidKeyException.");
+        } catch (InvalidKeyException ike) {
+            assertTrue(ike.getMessage().equals("unsupported key"));
+        }
+
+        // Test null keys
+        PublicKey pub = null;
+        PrivateKey priv = null;
+
+        try {
+            kem.newEncapsulator(pub);
+            fail("testKEMKeys failed - NULL Public key did not cause an InvalidKeyException.");
+        } catch (InvalidKeyException ike) {
+            assertTrue(ike.getMessage().equals("Key is null."));
+        }
+  
+        try {
+            kem.newDecapsulator(priv);
+            fail("testKEMKeys failed - NULL Private key did not cause an InvalidKeyException.");
+        } catch (InvalidKeyException ike) {
+            assertTrue(ike.getMessage().equals("Key is null."));
+        }
     }
 
     protected KeyPair generateKeyPair(String Algorithm) throws Exception {
