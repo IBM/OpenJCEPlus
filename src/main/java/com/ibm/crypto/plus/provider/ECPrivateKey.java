@@ -102,16 +102,9 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
         this.provider = provider;
 
         try {
-            // Set parameters.
-            AlgorithmParameters algParams = this.algid.getParameters();
-            if (algParams == null) {
-                throw new IOException(
-                        "EC domain parameters must be encoded in the algorithm identifier");
-            }
-            this.params = algParams.getParameterSpec(ECParameterSpec.class);
-
             // Get from the encoding:
             //    * the private key as a BigInteger (this.s)
+            // and set parameters.
             parsePrivateKeyEncoding();
 
             // Create appropriate encoding and create ecKey.
@@ -138,19 +131,12 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
             algidOut.putDerValue(new DerValue(ecKey.getParameters()));
             this.algid = AlgorithmId
                     .parse(new DerValue(DerValue.tag_Sequence, algidOut.toByteArray()));
-
-            AlgorithmParameters algParams = this.algid.getParameters();
-            if (algParams == null) {
-                throw new IOException(
-                        "EC domain parameters must be encoded in the algorithm identifier");
-            }
-            this.params = algParams.getParameterSpec(ECParameterSpec.class);
-
             // Get private key encoding from ECKey.
             this.key = ecKey.getPrivateKeyBytes();
 
             // Get from the encoding:
             //    * the private key as a BigInteger (this.s)
+            // and set parameters.
             parsePrivateKeyEncoding();
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create EC private key", exception);
@@ -178,33 +164,13 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
         DerValue[] inputDerValue = privKeyBytesEncodedStream.getSequence(4);
         DerOutputStream outEncodedStream = new DerOutputStream();
 
-        if (inputDerValue.length < 2) {
-            throw new IOException("Incorrect EC private key encoding");
-        }
         BigInteger tempVersion1 = inputDerValue[0].getBigInteger();
-        if (tempVersion1.compareTo(BigInteger.ONE) != 0) {
-            throw new IOException("Decoding EC private key failed. The version must be 1");
-        }
         outEncodedStream.putInteger(tempVersion1);
 
         byte[] privateKeyBytes = inputDerValue[1].getOctetString();
         outEncodedStream.putOctetString(privateKeyBytes);
 
         byte[] encodedParams = this.getAlgorithmId().getEncodedParams();
-        if (inputDerValue.length > 2) { 
-            if (inputDerValue[2].isContextSpecific(TAG_PARAMETERS_ATTRS)) {
-                DerInputStream paramDerInputStream = inputDerValue[2].getData();
-                byte[] privateKeyParams = paramDerInputStream.toByteArray();
-                // Check against the existing parameters created by PKCS8Key.
-                if (!Arrays.equals(privateKeyParams, encodedParams)) {
-                    throw new IOException("Decoding EC private key failed. The params are not the same as PKCS8Key's");
-                }
-            } else if (!inputDerValue[2].isContextSpecific(TAG_PUBLIC_KEY_ATTRS)) {
-                // Unknown third+ element: we can throw, or ignore.
-                // Keeping old behavior would be to throw; but RFC allows only [0]/[1] here.
-                throw new IOException("Decoding EC private key failed. Unexpected tagged field in ECPrivateKey");
-            }
-        }
         // The native library needs the ASN.1 DER decoding of the private key to contain the parameters (i.e., the OID).
         outEncodedStream.write(
                     DerValue.createTag(DerValue.TAG_CONTEXT, true, TAG_PARAMETERS_ATTRS),
@@ -216,24 +182,66 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
     }
 
     /**
-     * Parse the private key encoding to:
+     * Check that the encoding is correct and at the same time
+     * parse the private key encoding to:
      * - get the key and set it as a BigInteger (i.e., this.s)
-     * - get the public key, if available, and check its tag
+     * - check the public key tag, if available
+     * - validate the parameters, if available
      *
-     * @throws IOException
+     * @throws InvalidKeyException
      */
-    private void parsePrivateKeyEncoding() throws IOException {
-        DerInputStream privKeyBytesEncodedStream = new DerInputStream(this.key);
-        DerValue[] inputDerValue = privKeyBytesEncodedStream.getSequence(4);
-
-        byte[] privateKeyBytes = inputDerValue[1].getOctetString();
-        this.s = new BigInteger(1, privateKeyBytes);
-
-        for (int i = 2; i < inputDerValue.length; i++) {
-            if (!inputDerValue[i].isContextSpecific(TAG_PARAMETERS_ATTRS) && 
-                !inputDerValue[i].isContextSpecific(TAG_PUBLIC_KEY_ATTRS)) {
-                throw new IOException("Decoding EC private key failed. Unexpected tagged field in ECPrivateKey");
+    private void parsePrivateKeyEncoding() throws InvalidKeyException {
+        // Parse private key material from PKCS8Key.decode()
+        try {
+            DerInputStream in = new DerInputStream(this.key);
+            DerValue derValue = in.getDerValue();
+            if (derValue.tag != DerValue.tag_Sequence) {
+                throw new IOException("Not a SEQUENCE");
             }
+            DerInputStream data = derValue.data;
+            int version = data.getInteger();
+            if (version != 1) {
+                throw new IOException("Version must be 1");
+            }
+            byte[] privData = data.getOctetString();
+            this.s = new BigInteger(1, privData);
+
+            // Validate parameters stored from PKCS8Key.decode()
+            AlgorithmParameters algParams = this.algid.getParameters();
+            if (algParams == null) {
+                throw new InvalidKeyException("EC domain parameters must be "
+                    + "encoded in the algorithm identifier");
+            }
+            this.params = algParams.getParameterSpec(ECParameterSpec.class);
+
+            if (data.available() == 0) {
+                return;
+            }
+
+            DerValue value = data.getDerValue();
+            if (value.isContextSpecific(TAG_PARAMETERS_ATTRS)) {
+                byte[] privateKeyParams = value.getDataBytes();
+                byte[] encodedParams = this.getAlgorithmId().getEncodedParams();
+                // Check against the existing parameters created by PKCS8Key.
+                if (!Arrays.equals(privateKeyParams, encodedParams)) {
+                    throw new InvalidKeyException("Decoding EC private key failed. The params are not the same as PKCS8Key's");
+                }
+                if (data.available() == 0) {
+                    return;
+                }
+                value = data.getDerValue();
+            }
+
+            if (!value.isContextSpecific(TAG_PUBLIC_KEY_ATTRS)) {
+                throw new InvalidKeyException("Unexpected value: " + value);
+            }
+
+            if (data.available() != 0) {
+                throw new InvalidKeyException("Encoding has more than 4 values.");
+            }
+
+        } catch (IOException | InvalidParameterSpecException e) {
+            throw new InvalidKeyException("Invalid EC private key", e);
         }
     }
 
@@ -319,5 +327,40 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
         if (destroyed) {
             throw new IllegalStateException("This key is no longer valid");
         }
+    }
+
+    /**
+     * Compares two private keys.
+     *
+     * The PKCS8Key.equals() method that compares encodings is used first.
+     *
+     * If that fails, we compare the private part of the key and the params to validate equivalence,
+     * since the keys might be equal but have different encodings if one or more of the optional
+     * parts are missing.
+     *
+     * @param object the object with which to compare
+     * @return {@code true} if this key is equal to the object argument; {@code false} otherwise.
+     */
+    @Override
+    public boolean equals(Object object) {
+        boolean sameEncoding = super.equals(object);
+        if (!sameEncoding) {
+            if (!(object instanceof java.security.interfaces.ECPrivateKey ecObj)) {
+                return false;
+            }
+
+            // 1. Compare the secret scalar (S)
+            if (!this.getS().equals(ecObj.getS())) {
+                return false;
+            }
+
+            // 2. Compare the Curve Parameters
+            ECParameterSpec s1 = this.getParams();
+            ECParameterSpec s2 = ecObj.getParams();
+
+            return ECUtils.equals(s1, s2);
+        }
+
+        return true;
     }
 }
