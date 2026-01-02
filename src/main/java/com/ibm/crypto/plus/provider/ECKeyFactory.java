@@ -82,10 +82,10 @@ public final class ECKeyFactory extends KeyFactorySpi {
             }
 
         } catch (InvalidKeyException e) {
-            throw new InvalidKeySpecException("Inappropriate key specification: " + e.getMessage());
+            throw new InvalidKeySpecException("Inappropriate key specification: ", e);
         } catch (InvalidParameterSpecException e) {
             throw new InvalidKeySpecException(
-                    "Inappropriate Parameter specification: " + e.getMessage());
+                    "Inappropriate Parameter specification: ", e);
         }
     }
 
