@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# Copyright IBM Corp. 2023
+# Copyright IBM Corp. 2023, 2025
 #
 # This code is free software; you can redistribute it and/or modify it
 # under the terms provided by IBM in the LICENSE file that accompanied
@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: IBM/OpenCryptographyKitC
-          ref: 3688bdffd5fa2a39590e92b563826407c21a53de # Branch V_8.9.14 on Sept 18th 2025.
+          ref: f3dde51a02675270adf994dc22c7f2853dc86ba6 # Branch V_8.9.18 on Jan 2nd 2026.
           path: ${{ github.workspace }}/OpenCryptographyKitC
       - name: Compile Open Cryptography Kit C
         run: |
