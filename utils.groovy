@@ -114,14 +114,32 @@ def getJava(hardware, software) {
 
     def java_link = ""
     if (JAVA_RELEASE == "") {
-        java_link = "https://api.adoptopenjdk.net/v3/binary/latest/${JAVA_VERSION}/ga/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
+        if (software == "windows") {
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround050126/ibm-semeru-open-jdk_x64_windows_JDK26U_2026-01-02-02-41.zip"
+        } else if ((software == "linux") && (hardware == "aarch64")) {
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround050126/ibm-semeru-open-jdk_aarch64_linux_JDK26U_2026-01-03-18-27.tar.gz"
+        } else if ((software == "linux") && (hardware == "ppc64le")) {
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround050126/ibm-semeru-open-jdk_ppc64le_linux_JDK26U_2026-01-03-18-27.tar.gz"
+        } else if ((software == "linux") && (hardware == "x64")) {
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround050126/ibm-semeru-open-jdk_x64_linux_JDK26U_2026-01-02-02-41.tar.gz"
+        } else if ((software == "linux") && (hardware == "s390x")) {
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround050126/ibm-semeru-open-jdk_s390x_linux_JDK26U_2026-01-03-18-27.tar.gz"
+        } else if ((software == "mac") && (hardware == "aarch64")) {
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround050126/ibm-semeru-open-jdk_aarch64_mac_JDK26U_2026-01-03-18-27.tar.gz"
+        } else if ((software == "mac") && (hardware == "x64")) {
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround050126/ibm-semeru-open-jdk_x64_mac_JDK26U_2026-01-03-18-27.tar.gz"
+        } else if (software == "aix") {
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaround050126/ibm-semeru-open-jdk_ppc64_aix_JDK26U_2026-01-03-18-27.tar.gz"
+        } else {
+            echo "No Java SDK downloaded!!!"
+        }
     } else {
         def java_release_link = JAVA_RELEASE.replace("+", "%2B")
         java_link = "https://api.adoptopenjdk.net/v3/binary/version/${java_release_link}/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
     }
 
     dir("java") {
-        sh "curl -LJkO ${java_link}"
+        sh "curl -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD ${java_link} > java.tar.gz"
         def java_file = sh (
             script: 'ls | grep \'tar\\|zip\'',
             returnStdout: true
