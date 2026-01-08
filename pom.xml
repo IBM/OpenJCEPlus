@@ -252,6 +252,8 @@
                       --add-exports=openjceplus/ibm.jceplus.junit=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.base.memstress=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.suites=ALL-UNNAMED
+                      --add-exports=openjceplus/ibm.jceplus.junit.tests=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.integration=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplus.memstress=ALL-UNNAMED
@@ -260,9 +262,11 @@
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.integration=ALL-UNNAMED
                       --add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.multithread=ALL-UNNAMED
                       --add-opens=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
+                      --add-opens=openjceplus/ibm.jceplus.junit.tests=ALL-UNNAMED
                       --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
+                    <groups>${groups}</groups>
                     <systemPropertyVariables>
                       <jgskit.library.path>${build.target.jgskitlib.dir}</jgskit.library.path>
                     </systemPropertyVariables>
@@ -272,7 +276,10 @@
                         **/ibm/jceplus/junit/TestAll.java,
                         **/ibm/jceplus/junit/TestMemStressAll.java,
                         **/ibm/jceplus/junit/TestMultithread.java,
-                        **/ibm/jceplus/junit/TestMultithreadFIPS.java
+                        **/ibm/jceplus/junit/TestMultithreadFIPS.java,
+                        **/ibm/jceplus/junit/suites/TestAll.java,
+                        **/ibm/jceplus/junit/suites/TestMultiThreadOpenJCEPlus.java,
+                        **/ibm/jceplus/junit/suites/TestMultiThreadOpenJCEPlusFIPS.java
                       </include>
                     </includes>
                     <reportFormat>plain</reportFormat>
@@ -402,7 +409,10 @@
                         **/ibm/jceplus/junit/TestAll.java,
                         **/ibm/jceplus/junit/TestMemStressAll.java,
                         **/ibm/jceplus/junit/TestMultithread.java,
-                        **/ibm/jceplus/junit/TestMultithreadFIPS.java
+                        **/ibm/jceplus/junit/TestMultithreadFIPS.java,
+                        **/ibm/jceplus/junit/suites/TestAll.java,
+                        **/ibm/jceplus/junit/suites/TestMultiThreadOpenJCEPlus.java,
+                        **/ibm/jceplus/junit/suites/TestMultiThreadOpenJCEPlusFIPS.java
                       </include>
                     </includes>
                     <reportFormat>plain</reportFormat>
