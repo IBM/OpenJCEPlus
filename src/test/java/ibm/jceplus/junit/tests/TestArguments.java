@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -19,14 +19,25 @@ import org.junit.jupiter.params.provider.Arguments;
 public class TestArguments {
 
     /**
-     * Generates combinations of all aes key sizes and OpenJCEPlus* providers under test.
+     * Generates test combinations for each AES key size with the active OpenJCEPlus* providers.
+     * 
+     * @return Stream of Arguments containing AES key sizes and OpenJCEPlus* providers
+     */ 
+    public static Stream<Arguments> aesKeySizesAndJCEPlusProviders() {
+        int[] aesKeySizes = {128, 192, 256};
+        return keySizesAndJCEPlusProviders(aesKeySizes);
+    }
+
+    /**
+     * Generates combinations of all key sizes and OpenJCEPlus* providers under test.
      * 
      * If no tags are found, all variations are returned.
-     *
+     * 
+     * @param keySizes Array of key sizes to combine with providers
+     * 
      * @return Stream of Arguments containing key sizes and OpenJCEPlus* providers
      */
-    public static Stream<Arguments> aesKeySizesAndJCEPlusProviders() {
-        int[] keySizes = {128, 192, 256};
+    private static Stream<Arguments> keySizesAndJCEPlusProviders(int[] keySizes) {
 
         // Get active provider tags from -Dgroups system property
         String[] groupPropertyTags = BaseTest.getTagsPropertyAsArray();
