@@ -100,6 +100,19 @@ jobs:
           install
         env:
           GSKIT_HOME: ${{ github.workspace }}/OCK/jgsk_sdk
+      - name: Execute Migrated Maven Install Target And OpenJCEPlus Provider Tests
+        run: > 
+          mvn
+          --batch-mode
+          '-Dock.library.path=${{ github.workspace }}/OCK/'
+          '-Dgroups=OpenJCEPlus'
+          -Dtest='
+          ibm.jceplus.junit.suites.TestOpenJCEPlus,
+          ibm.jceplus.junit.suites.TestMultiThreadOpenJCEPlus.java
+          '
+          install
+        env:
+          GSKIT_HOME: ${{ github.workspace }}/OCK/jgsk_sdk
       #- name: List Files In The Entire Workspace
       #  run: |
       #    tree ${{ github.workspace }}
