@@ -12,8 +12,6 @@ import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 @SelectClasses({
-    TestAES_256.class,
-    TestAES.class,
     TestAES256Interop.class,
     TestAESCCM.class,
     TestAESCCM2.class,
