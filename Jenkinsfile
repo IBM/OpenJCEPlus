@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2024, 2025
+ * Copyright IBM Corp. 2024, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -208,7 +208,7 @@ def run(platform) {
 
             // Some OSes have some further specific requirements.
             if (software == "aix") {
-                // Java 25 requires C++17.1 runtime. Otherwise crashes occur.
+                // Java 25+ requires C++17.1 runtime. Otherwise crashes occur.
                 nodeTags = "hw.arch.${node_hardware}&&sw.os.aix.7_2&&sw.tool.c++runtime.17_1&&ci.role.build"
             } else {
 
@@ -322,7 +322,7 @@ pipeline {
             Typically this will use https://github.com/IBM/OpenJCEPlus')
         string(name: 'OPENJCEPLUS_BRANCH', defaultValue: '', description: '\
             The OpenJCEPlus branch to be used. When not specified this will default to the branch scanned by this multibranch pipeline.')
-        choice(name: 'JAVA_VERSION', choices: ['25', '24', '23', '22', '21', '17', '11'], description: '\
+        string(name: 'JAVA_VERSION', defaultValue: '25', description: '\
             Specify the Java version your branch uses to build.')
         string(name: 'JAVA_RELEASE', defaultValue: '', description: '\
             Indicate a specific Java release that you want to use to build your branch.<br> \
