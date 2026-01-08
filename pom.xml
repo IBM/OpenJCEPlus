@@ -1,7 +1,7 @@
 <!--
 ###############################################################################
 #
-# Copyright IBM Corp. 2023, 2025
+# Copyright IBM Corp. 2023, 2026
 #
 # This code is free software; you can redistribute it and/or modify it
 # under the terms provided by IBM in the LICENSE file that accompanied
@@ -555,7 +555,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.13</version>
+                <version>0.8.14</version>
                 <executions>
                     <execution>
                         <id>start-agent</id>
@@ -804,7 +804,7 @@
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.13</version>
+            <version>0.8.14</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
