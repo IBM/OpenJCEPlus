@@ -2,7 +2,7 @@
 <!--
 ###############################################################################
 #
-# Copyright IBM Corp. 2023
+# Copyright IBM Corp. 2023, 2026
 #
 # This code is free software; you can redistribute it and/or modify it
 # under the terms provided by IBM in the LICENSE file that accompanied
@@ -41,5 +41,8 @@
         <module name="UnusedImports"/>
         <module name="UnusedLocalVariable"/>
         <module name="WhitespaceAfter"/>
+        <module name="WhitespaceAround">
+          <property name="allowEmptyConstructors" value="true"/>
+        </module>
     </module>
 </module>

@@ -198,8 +198,8 @@ public final class PQCKey implements AsymmetricKey {
         return out;
     }
 
-    private Runnable cleanOCKResources(byte[] privateKeyBytes, long pkeyId, OCKContext ockContext){
-        return() -> {
+    private Runnable cleanOCKResources(byte[] privateKeyBytes, long pkeyId, OCKContext ockContext) {
+        return () -> {
             try {
                 if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
                     Arrays.fill(privateKeyBytes, (byte) 0x00);

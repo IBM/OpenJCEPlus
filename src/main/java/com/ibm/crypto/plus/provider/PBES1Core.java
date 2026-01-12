@@ -239,10 +239,10 @@ abstract class PBES1Core extends CipherSpi {
         }
         
         byte[] pass = new byte[(password.length * 2) + 2];
-        for (int i = 0, j = 0; i < password.length; i++, j+=2) {
+        for (int i = 0, j = 0; i < password.length; i++, j += 2) {
             char passwordChar = (char) (password[i] & 0x7f);
             pass[j] = (byte) ((passwordChar >>> 8) & 0xFF);
-            pass[j+1] = (byte) (passwordChar & 0xFF);
+            pass[j + 1] = (byte) (passwordChar & 0xFF);
         }
 
         return pass;
