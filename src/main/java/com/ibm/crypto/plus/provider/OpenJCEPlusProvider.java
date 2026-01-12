@@ -56,7 +56,7 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
         super(name, PROVIDER_VER, info);
 
         numCleaners = Integer.getInteger("openjceplus.cleaners.num", DEFAULT_NUM_CLEANERS);
-        if (numCleaners < 1){
+        if (numCleaners < 1) {
             throw new IllegalArgumentException(numCleaners + " is an invalid number of cleaner threads, must be at least 1.");
         }
 
