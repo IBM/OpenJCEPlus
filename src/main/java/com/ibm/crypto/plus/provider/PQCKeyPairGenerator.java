@@ -59,7 +59,7 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
                 }
             } else if (!pqcAlg.equalsIgnoreCase(name)) {
                 throw new InvalidAlgorithmParameterException(
-                    "Algorithm in AlgorithmParameterSpec: " +spec.getName() + 
+                    "Algorithm in AlgorithmParameterSpec: " + spec.getName() + 
                     " must match the Algorithnm for this KeyPairGenerator: " + pqcAlg);
             }
         } else {
@@ -103,7 +103,7 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
                                                         pqcAlg, pubKeyBytes, provider));
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
-            throw provider.providerException("Failure in generateKeyPair - " +e.getCause(), e);
+            throw provider.providerException("Failure in generateKeyPair - " + e.getCause(), e);
         }
     }
 

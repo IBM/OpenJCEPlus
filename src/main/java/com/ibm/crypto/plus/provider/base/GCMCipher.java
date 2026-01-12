@@ -65,18 +65,18 @@ public final class GCMCipher {
     // each key size needs different cache since a GCM context initialized with a 16B key
     // cannot be used for any other key size without destroying it
     // Same story for FIPS mode contexts
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE16 = new ThreadLocal<GCMContextPointer>() {};
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE24 = new ThreadLocal<GCMContextPointer>() {};
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE32 = new ThreadLocal<GCMContextPointer>() {};
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE16FIPS = new ThreadLocal<GCMContextPointer>() {};
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE24FIPS = new ThreadLocal<GCMContextPointer>() {};
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE32FIPS = new ThreadLocal<GCMContextPointer>() {};
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD16 = new ThreadLocal<GCMContextPointer>() {};
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD24 = new ThreadLocal<GCMContextPointer>() {};
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD32 = new ThreadLocal<GCMContextPointer>() {};
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD16FIPS = new ThreadLocal<GCMContextPointer>() {};
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD24FIPS = new ThreadLocal<GCMContextPointer>() {};
-    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD32FIPS = new ThreadLocal<GCMContextPointer>() {};
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE16 = new ThreadLocal<GCMContextPointer>();
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE24 = new ThreadLocal<GCMContextPointer>();
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE32 = new ThreadLocal<GCMContextPointer>();
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE16FIPS = new ThreadLocal<GCMContextPointer>();
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE24FIPS = new ThreadLocal<GCMContextPointer>();
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferE32FIPS = new ThreadLocal<GCMContextPointer>();
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD16 = new ThreadLocal<GCMContextPointer>();
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD24 = new ThreadLocal<GCMContextPointer>();
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD32 = new ThreadLocal<GCMContextPointer>();
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD16FIPS = new ThreadLocal<GCMContextPointer>();
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD24FIPS = new ThreadLocal<GCMContextPointer>();
+    private static final ThreadLocal<GCMContextPointer> gcmContextBufferD32FIPS = new ThreadLocal<GCMContextPointer>();
     private static final boolean useJavaTLS = true;
 
     private static final Map<Integer, String> ErrorCodes;
@@ -1055,8 +1055,8 @@ public final class GCMCipher {
             return gcmCtx;
         }
 
-        private Runnable cleanOCKResources(long gcmCtx, long ockContext){
-            return() -> {
+        private Runnable cleanOCKResources(long gcmCtx, long ockContext) {
+            return () -> {
                 try {
                     if (gcmCtx != 0) {
                         NativeInterface.free_GCM_ctx(ockContext, gcmCtx);
