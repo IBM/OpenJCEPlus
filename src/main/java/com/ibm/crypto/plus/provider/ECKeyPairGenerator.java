@@ -25,7 +25,7 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
     private static final boolean legacyECdefault = Boolean.parseBoolean(System.getProperty(EC_LEGACY_DEFAULT_KEYSIZE));
 
     private OpenJCEPlusProvider provider = null;
-    private int keysize = legacyECdefault? 256 : 384;
+    private int keysize = legacyECdefault ? 256 : 384;
     private SecureRandom cryptoRandom = null;
     ECParameterSpec ecSpec;
     private ObjectIdentifier oid = null;

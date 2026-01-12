@@ -169,7 +169,7 @@ public final class XECKey implements AsymmetricKey {
     }
 
     private Runnable cleanOCKResources(byte[] privateKeyBytes, long xecKeyId, OCKContext ockContext) {
-        return() -> {
+        return () -> {
             try {
                 if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
                     Arrays.fill(privateKeyBytes, (byte) 0x00);
@@ -177,7 +177,7 @@ public final class XECKey implements AsymmetricKey {
                 if (xecKeyId != 0) {
                     NativeInterface.XECKEY_delete(ockContext.getId(), xecKeyId);
                 }
-            } catch (OCKException e){
+            } catch (OCKException e) {
                 if (OpenJCEPlusProvider.getDebug() != null) {
                     OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
                     e.printStackTrace();

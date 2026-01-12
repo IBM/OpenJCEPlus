@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -33,7 +33,7 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
     byte[] randomSalt = new byte[32];
     SecureRandom random = new SecureRandom();
     PBEKeySpec pbeks = null;
-    List<String> allowableFIPSAlgorithms = new ArrayList<String>(){{
+    List<String> allowableFIPSAlgorithms = new ArrayList<String>() {{
             add("PBKDF2WithHmacSHA224");
             add("PBKDF2WithHmacSHA256");
             add("PBKDF2WithHmacSHA384");
