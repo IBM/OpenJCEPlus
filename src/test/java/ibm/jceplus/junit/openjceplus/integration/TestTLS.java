@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2024
+ * Copyright IBM Corp. 2024, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -19,7 +19,7 @@ public class TestTLS extends BaseTestTLS {
     private static boolean insertProviderUponCleanup = false;
 
     @BeforeAll
-    public static void init() throws Exception{
+    public static void init() throws Exception {
         if (java.security.Security.getProvider("OpenJCEPlusFIPS") != null) {
             insertProviderUponCleanup = true;
             java.security.Security.removeProvider("OpenJCEPlusFIPS");

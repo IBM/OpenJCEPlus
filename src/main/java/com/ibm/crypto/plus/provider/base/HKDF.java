@@ -121,7 +121,7 @@ public final class HKDF {
     }
 
     private Runnable cleanOCKResources(long hkdfId, byte[] reinitKey, OCKContext ockContext) {
-        return() -> {
+        return () -> {
             try {
                 if (hkdfId != 0) {
                     NativeInterface.HKDF_delete(ockContext.getId(), hkdfId);
