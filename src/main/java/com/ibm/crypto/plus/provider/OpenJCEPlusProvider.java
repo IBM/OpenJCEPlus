@@ -8,6 +8,9 @@
 
 package com.ibm.crypto.plus.provider;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.lang.ref.Cleaner;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -117,6 +120,40 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
             exception.initCause(throwable);
         }
     }
+
+    protected void LoadStringConfig(Provider prov, String configName) throws InvalidParameterException {
+        if (configName == null) {
+            throw new InvalidParameterException("configName is null");
+        }
+        if (configName.length() == 0) {
+            throw new InvalidParameterException("configName is empty");
+        }
+        if (configName.indexOf('\\') != -1) {
+            throw new InvalidParameterException("configName contains '\\'");
+        }
+        
+        try {
+            ProviderServiceReader config = new ProviderServiceReader(new BufferedReader(new StringReader(configName)));  
+            List<ProviderServiceReader.ServiceDefinition> services = config.readServices();
+            if (debug != null) {
+                debug.println("Provider Name - " + config.getName());
+                debug.println("Provider Description - " + config.getDesc());
+                debug.println("Numnber of Services - " + services.size());
+                debug.println("Services:");
+            }
+
+            for (ProviderServiceReader.ServiceDefinition service : services) {
+                putService(new OpenJCEPlusService(prov, service.getType(), service.getAlgorithm(),
+                    service.getClassName(), service.getAliases().toArray(new String[service.getAliases().size()]), service.getAttributes()));
+                if (debug != null) {
+                    debug.println(service.toString());
+                }
+            }
+        } catch (IOException e) {
+            throw new InvalidParameterException("Error configuring OpenJCEPlus provider - ", e); 
+        }  
+        
+    }    
 
     protected static class OpenJCEPlusService extends Service {
         private static Class<?> openjceplusClass;
