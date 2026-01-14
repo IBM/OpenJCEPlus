@@ -28,30 +28,131 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RSAKEY_1generate(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jint numBits, jlong e) {
     static const char *functionName = "NativeInterface.RSAKEY_generate";
 
-    ICC_CTX *ockCtx   = (ICC_CTX *)((intptr_t)ockContextId);
-    ICC_RSA *ockRSA   = NULL;
-    jlong    rsaKeyId = 0;
+    ICC_CTX          *ockCtx   = (ICC_CTX *)((intptr_t)ockContextId);
+    ICC_RSA          *ockRSA   = NULL;
+    ICC_EVP_PKEY     *ockPKey  = NULL;
+    ICC_EVP_PKEY_CTX *pctx     = NULL;
+    jlong             rsaKeyId = 0;
+    int               ret      = 0;
+    char              bitStr[32];
+    char              expStr[32];
 
     if (debug) {
         gslogFunctionEntry(functionName);
     }
 
-    ockRSA = ICC_RSA_generate_key(ockCtx, (int)numBits, (long)e, NULL, NULL);
-    if (ockRSA == NULL) {
+    pctx = ICC_EVP_PKEY_CTX_new_id(ockCtx, ICC_EVP_PKEY_RSA, NULL);
+    if (pctx == NULL) {
 #ifdef DEBUG_RSA_DETAIL
         if (debug) {
-            gslogMessage("DETAIL_RSA  FAILURE ICC_RSA_generate_key");
+            gslogMessage("DETAIL_RSA FAILURE ICC_EVP_PKEY_CTX_new_id");
         }
 #endif
         ockCheckStatus(ockCtx);
-        throwOCKException(env, 0, "ICC_RSA_generate_key() failed");
-    } else {
-        rsaKeyId = (jlong)((intptr_t)ockRSA);
+        throwOCKException(env, 0, "ICC_EVP_PKEY_CTX_new_id() failed");
+        goto cleanup;
+    }
+
+    ret = ICC_EVP_PKEY_keygen_init(ockCtx, pctx);
+    if (ret != ICC_OSSL_SUCCESS) {
 #ifdef DEBUG_RSA_DETAIL
         if (debug) {
-            gslogMessage("DETAIL_RSA  rsaKeyId %lx", rsaKeyId);
+            gslogMessage("DETAIL_RSA FAILURE ICC_EVP_PKEY_keygen_init");
         }
 #endif
+        ockCheckStatus(ockCtx);
+        throwOCKException(env, 0, "ICC_EVP_PKEY_keygen_init() failed");
+        goto cleanup;
+    }
+
+    snprintf(bitStr, sizeof(bitStr), "%d", (int)numBits);
+#ifdef __MVS__
+#pragma convert("ISO8859-1")
+#endif
+    ret = ICC_EVP_PKEY_CTX_ctrl_str(ockCtx, pctx, "rsa_keygen_bits", bitStr);
+#ifdef __MVS__
+#pragma convert(pop)
+#endif
+    if (ret <= 0) {
+#ifdef DEBUG_RSA_DETAIL
+        if (debug) {
+            gslogMessage(
+                "DETAIL_RSA FAILURE ICC_EVP_PKEY_CTX_ctrl_str (set bits)");
+        }
+#endif
+        ockCheckStatus(ockCtx);
+        throwOCKException(env, 0,
+                          "ICC_EVP_PKEY_CTX_ctrl_str() failed to set key size");
+        goto cleanup;
+    }
+
+    snprintf(expStr, sizeof(expStr), "%ld", (long)e);
+#ifdef __MVS__
+#pragma convert("ISO8859-1")
+#endif
+    ret = ICC_EVP_PKEY_CTX_ctrl_str(ockCtx, pctx, "rsa_keygen_pubexp", expStr);
+#ifdef __MVS__
+#pragma convert(pop)
+#endif
+    if (ret <= 0) {
+#ifdef DEBUG_RSA_DETAIL
+        if (debug) {
+            gslogMessage(
+                "DETAIL_RSA FAILURE ICC_EVP_PKEY_CTX_ctrl_str (set pubexp)");
+        }
+#endif
+        ockCheckStatus(ockCtx);
+        throwOCKException(
+            env, 0,
+            "ICC_EVP_PKEY_CTX_ctrl_str() failed to set public exponent");
+        goto cleanup;
+    }
+
+    ret = ICC_EVP_PKEY_keygen(ockCtx, pctx, &ockPKey);
+    if (ret != ICC_OSSL_SUCCESS || ockPKey == NULL) {
+#ifdef DEBUG_RSA_DETAIL
+        if (debug) {
+            gslogMessage("DETAIL_RSA FAILURE ICC_EVP_PKEY_keygen");
+        }
+#endif
+        ockCheckStatus(ockCtx);
+        throwOCKException(env, 0, "ICC_EVP_PKEY_keygen() failed");
+        goto cleanup;
+    }
+
+    ockRSA = ICC_EVP_PKEY_get1_RSA(ockCtx, ockPKey);
+    if (ockRSA == NULL) {
+#ifdef DEBUG_RSA_DETAIL
+        if (debug) {
+            gslogMessage("DETAIL_RSA FAILURE ICC_EVP_PKEY_get1_RSA");
+        }
+#endif
+        ockCheckStatus(ockCtx);
+        throwOCKException(env, 0, "ICC_EVP_PKEY_get1_RSA() failed");
+        goto cleanup;
+    }
+
+    rsaKeyId = (jlong)((intptr_t)ockRSA);
+#ifdef DEBUG_RSA_DETAIL
+    if (debug) {
+        gslogMessage("DETAIL_RSA rsaKeyId %lx", rsaKeyId);
+    }
+#endif
+
+cleanup:
+    if (pctx != NULL) {
+        ICC_EVP_PKEY_CTX_free(ockCtx, pctx);
+        pctx = NULL;
+    }
+
+    if (ockPKey != NULL) {
+        ICC_EVP_PKEY_free(ockCtx, ockPKey);
+        ockPKey = NULL;
+    }
+
+    if ((ockRSA != NULL) && (rsaKeyId == 0)) {
+        ICC_RSA_free(ockCtx, ockRSA);
+        ockRSA = NULL;
     }
 
     if (debug) {
