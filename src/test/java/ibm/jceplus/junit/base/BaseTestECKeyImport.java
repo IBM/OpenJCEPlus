@@ -21,8 +21,11 @@ import java.security.spec.ECFieldFp;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
+import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.EllipticCurve;
 import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
@@ -34,6 +37,7 @@ import sun.security.x509.X509Key;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestECKeyImport extends BaseTestJunit5 {
 
@@ -92,6 +96,19 @@ public class BaseTestECKeyImport extends BaseTestJunit5 {
                                                 "Jlk6HKBiJlBvMWVSxEWYNipV2SOgCgYIKoZIzj0DAQehRANCAARFcF00hBK8Es2M" +
                                                 "H29DmA3fsYf4qWFSloVWoFct4CxffJ7hG0O4TXkMaPrAjgXc42SPdKRb7FcO0Lhz" +
                                                 "EVpYquVY";
+
+    private static final String private_secp256r1_parameters_twice_publickey =
+                                                "MIGhAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBIGGMIGDAgEBBCDXlTQ8RGqy6mfo" +
+                                                "fLkmWTocoGImUG8xZVLERZg2KlXZI6AKBggqhkjOPQMBB6AKBggqhkjOPQMBB6FE" +
+                                                "A0IABEVwXTSEErwSzYwfb0OYDd+xh/ipYVKWhVagVy3gLF98nuEbQ7hNeQxo+sCO" +
+                                                "BdzjZI90pFvsVw7QuHMRWliq5Vg=";
+
+    private static final String private_secp256r1_publickey_parameters =
+                                                "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg15U0PERqsupn6Hy5" +
+                                                "Jlk6HKBiJlBvMWVSxEWYNipV2SOhRANCAARFcF00hBK8Es2MH29DmA3fsYf4qWFS" +
+                                                "loVWoFct4CxffJ7hG0O4TXkMaPrAjgXc42SPdKRb7FcO0LhzEVpYquVYoAoGCCqG" +
+                                                "SM49AwEH";
+
     private static final String public_secp256r1_parameters_publickey =
                                                 "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAERXBdNIQSvBLNjB9vQ5gN37GH+Klh" +
                                                 "UpaFVqBXLeAsX3ye4RtDuE15DGj6wI4F3ONkj3SkW+xXDtC4cxFaWKrlWA==";
@@ -152,11 +169,16 @@ public class BaseTestECKeyImport extends BaseTestJunit5 {
         EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privKeyBytes);
         PrivateKey privateKey2 = keyFactory.generatePrivate(privateKeySpec);
 
+        KeySpec privateKeySpec2 = keyFactory.getKeySpec(privateKey, ECPrivateKeySpec.class);
+        PrivateKey privateKey3 = keyFactory.generatePrivate(privateKeySpec2);
+
         EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(pubKeyBytes);
         PublicKey publicKey2 = keyFactory.generatePublic(publicKeySpec);
 
         // The original and new keys are the same
         boolean same = privateKey.equals(privateKey2);
+        assertTrue(same);
+        same = privateKey.equals(privateKey3);
         assertTrue(same);
         same = publicKey.equals(publicKey2);
         assertTrue(same);
@@ -214,14 +236,20 @@ public class BaseTestECKeyImport extends BaseTestJunit5 {
         EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privKeyBytes);
         PrivateKey privateKey2 = keyFactory.generatePrivate(privateKeySpec);
 
+        KeySpec privateKeySpec2 = keyFactory.getKeySpec(privateKey, ECPrivateKeySpec.class);
+        PrivateKey privateKey3 = keyFactory.generatePrivate(privateKeySpec2);
+
         EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
         PublicKey publicKey2 = keyFactory.generatePublic(publicKeySpec);
 
         // The original and new keys are the same
         boolean same = privateKey.equals(privateKey2);
         assertTrue(same);
+        same = privateKey.equals(privateKey3);
+        assertTrue(same);
         same = publicKey.equals(publicKey2);
         assertTrue(same);
+
         byte[] publicKey2Bytes = publicKey2.getEncoded();
         byte[] privateKey2Bytes = privateKey2.getEncoded();
 
@@ -381,6 +409,28 @@ public class BaseTestECKeyImport extends BaseTestJunit5 {
                 public_secp256r1_no_parameters_no_public
         );
         System.out.println("ALL tests completed.");
+    }
+
+    @Test
+    public void testInvalidEncodings() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("EC", getProviderName());
+        try {
+            // Test encoding with two parameters.
+            kf.generatePrivate(new PKCS8EncodedKeySpec(Base64.getMimeDecoder()
+                    .decode(private_secp256r1_parameters_twice_publickey)));
+            fail("Expected InvalidKeySpecException not thrown.");
+        } catch (InvalidKeySpecException ikse) {
+            assertTrue("Inappropriate key specification: ".equals(ikse.getMessage()));
+        }
+
+        try {
+            // Test encoding where the public key is before the parameters.
+            kf.generatePrivate(new PKCS8EncodedKeySpec(Base64.getMimeDecoder()
+                    .decode(private_secp256r1_publickey_parameters)));
+            fail("Expected InvalidKeySpecException not thrown.");
+        } catch (InvalidKeySpecException ikse) {
+            assertTrue("Inappropriate key specification: ".equals(ikse.getMessage()));
+        }
     }
 
     private static void testSignAndVerify(
