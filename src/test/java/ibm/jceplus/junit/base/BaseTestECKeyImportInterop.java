@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -19,12 +19,15 @@ import java.security.spec.ECFieldFp;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
+import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.EllipticCurve;
 import java.security.spec.EncodedKeySpec;
+import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestECKeyImportInterop extends BaseTestJunit5Interop {
@@ -72,6 +75,52 @@ public class BaseTestECKeyImportInterop extends BaseTestJunit5Interop {
         // The original and new keys are the same
         assertTrue(Arrays.equals(publicKey2.getEncoded(), pubKeyBytes));
         assertTrue(Arrays.equals(privateKey2.getEncoded(), privKeyBytes));
+    }
+
+    @Test
+    public void testCreateKeyPairECImportCompareKeys() throws Exception {
+        doCreateKeyPairECImportCompareKeys(getProviderName(), getInteropProviderName());
+        doCreateKeyPairECImportCompareKeys(getInteropProviderName(), getProviderName());
+    }
+
+    private void doCreateKeyPairECImportCompareKeys(String createProviderName,
+            String importProviderName) throws Exception {
+
+        //final String methodName = "testCreateKeyPairECImportCompareKeys";
+
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("EC", createProviderName);
+
+        keyPairGen.initialize(256);
+        KeyPair keyPair = keyPairGen.generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        byte[] publicKeyBytes = publicKey.getEncoded();
+        byte[] privKeyBytes = privateKey.getEncoded();
+
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", importProviderName);
+        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privKeyBytes);
+        PrivateKey privateKey2 = keyFactory.generatePrivate(privateKeySpec);
+
+        KeySpec privateKeySpec2 = keyFactory.getKeySpec(privateKey, ECPrivateKeySpec.class);
+        PrivateKey privateKey3 = keyFactory.generatePrivate(privateKeySpec2);
+
+        EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+        PublicKey publicKey2 = keyFactory.generatePublic(publicKeySpec);
+
+        // The original and new keys are the same
+        boolean same = privateKey.equals(privateKey2);
+        assertTrue(same);
+        same = privateKey.equals(privateKey3);
+        assertTrue(same);
+        same = publicKey.equals(publicKey2);
+        assertTrue(same);
+
+        byte[] publicKey2Bytes = publicKey2.getEncoded();
+        byte[] privateKey2Bytes = privateKey2.getEncoded();
+
+        assertArrayEquals(publicKeyBytes, publicKey2Bytes);
+        assertArrayEquals(privKeyBytes, privateKey2Bytes);
     }
 
     @Test
