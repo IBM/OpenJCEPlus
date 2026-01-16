@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -373,49 +373,45 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1createPrivateKey(
         return mlkeyId;
     }
 
-    keyBytesNative = (unsigned char *)((*env)->GetPrimitiveArrayCritical(
-        env, privateKeyBytes, &isCopy));
-    if (NULL == keyBytesNative) {
-        throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical!");
+    if (!(algoChars = (*env)->GetStringUTFChars(env, cipherName, NULL))) {
+#ifdef DEBUG_PQC_KEY_DETAIL
+        if (debug) {
+            gslogMessage("GetStringUTFChars failed %s", cipherName);
+        }
+#endif
+        return 0;
+    }
+
+    nid = ICC_OBJ_txt2nid(ockCtx, algoChars);
+
+    if (!nid) {
+        throwOCKException(
+            env, 0, "Algorithm not found."); /* Unsupported algorithm */
     } else {
-        pBytes = keyBytesNative;
-        size   = (*env)->GetArrayLength(env, privateKeyBytes);
-        if (cipherName == NULL) {
-#ifdef DEBUG_PQC_KEY_DETAIL
-            if (debug) {
-                gslogMessage("cipherName = NULL");
-            }
-#endif
-            (*env)->ReleasePrimitiveArrayCritical(env, privateKeyBytes,
-                                                  keyBytesNative, JNI_ABORT);
-            return 0;
-        }
+        keyBytesNative = (unsigned char *)((*env)->GetPrimitiveArrayCritical(
+            env, privateKeyBytes, &isCopy));
 
-        if (!(algoChars = (*env)->GetStringUTFChars(env, cipherName, NULL))) {
-#ifdef DEBUG_PQC_KEY_DETAIL
-            if (debug) {
-                gslogMessage("GetStringUTFChars failed %s", cipherName);
-            }
-#endif
-            (*env)->ReleasePrimitiveArrayCritical(env, privateKeyBytes,
-                                                  keyBytesNative, JNI_ABORT);
-            return 0;
-        }
-        nid = ICC_OBJ_txt2nid(ockCtx, algoChars);
+        if (NULL != keyBytesNative) {
+            pBytes = keyBytesNative;
+            size   = (*env)->GetArrayLength(env, privateKeyBytes);
 
-        if (!nid) {
-            throwOCKException(
-                env, 0, "Algorithm not found."); /* Unsupported algorithm */
-        } else {
-            ockPKey =
-                ICC_d2i_PrivateKey(ockCtx, nid, &ockPKey, &pBytes, (long)size);
+            if (cipherName != NULL) {
+                ockPKey =
+                    ICC_d2i_PrivateKey(ockCtx, nid, &ockPKey, &pBytes, (long)size);
 
-            if (ockPKey == NULL) {
-                ockCheckStatus(ockCtx);
-                throwOCKException(env, 0, "ICC_d2i_PrivateKey failed");
+                if (ockPKey == NULL) {
+                    ockCheckStatus(ockCtx);
+                    throwOCKException(env, 0, "ICC_d2i_PrivateKey failed");
+                } else {
+                    mlkeyId = (jlong)((intptr_t)ockPKey);
+                }
             } else {
-                mlkeyId = (jlong)((intptr_t)ockPKey);
-            }
+#ifdef DEBUG_PQC_KEY_DETAIL
+                if (debug) {
+                    gslogMessage("cipherName = NULL");
+                }
+#endif
+            } 
         }
     }
 
@@ -653,7 +649,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_MLKEY_1getPublicKeyBytes(
         (*env)->DeleteLocalRef(env, keyBytes);
     }
 
-    return keyBytes;
+    return retKeyBytes;
 }
 
 //============================================================================
