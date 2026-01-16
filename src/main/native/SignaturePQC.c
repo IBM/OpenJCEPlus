@@ -177,7 +177,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_PQC_1SIGNATURE_1verify(
             env, data, &isCopy));
 
         if (dataNative == NULL) {
-            (*env)->ReleasePrimitiveArrayCritical(env, data, dataNative,
+            (*env)->ReleasePrimitiveArrayCritical(env, sigBytes, sigBytesNative,
                                                   JNI_ABORT);
             throwOCKException(env, 0, "GetPrimitiveArrayCritical failed");
             return verified;
