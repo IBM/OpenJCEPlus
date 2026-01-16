@@ -213,10 +213,20 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         Map<String, String> rsaAttr = new HashMap<>();
 
         String supportedPaddings = "OAEPPADDING"
-                + "|OAEPWITHSHA1ANDMGF1PADDING"
-                + "|OAEPWITHSHA-1ANDMGF1PADDING";
+                + "|OAEPWITHSHA224ANDMGF1PADDING"
+                + "|OAEPWITHSHA-224ANDMGF1PADDING"
+                + "|OAEPWITHSHA256ANDMGF1PADDING"
+                + "|OAEPWITHSHA-256ANDMGF1PADDING"
+                + "|OAEPWITHSHA384ANDMGF1PADDING"
+                + "|OAEPWITHSHA-384ANDMGF1PADDING"
+                + "|OAEPWITHSHA512ANDMGF1PADDING"
+                + "|OAEPWITHSHA-512ANDMGF1PADDING"
+                + "|OAEPWITHSHA-512/224ANDMGF1PADDING"
+                + "|OAEPWITHSHA-512/256ANDMGF1PADDING";
         if (allowNonOAEPFIPS) {
-            supportedPaddings += "|NOPADDING|PKCS1PADDING";
+            supportedPaddings += "|OAEPWITHSHA1ANDMGF1PADDING"
+                               + "|OAEPWITHSHA-1ANDMGF1PADDING"
+                               + "|NOPADDING|PKCS1PADDING";
         }
         rsaAttr.put("SupportedModes", "ECB");
         rsaAttr.put("SupportedPaddings", supportedPaddings);
