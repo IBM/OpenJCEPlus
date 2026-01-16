@@ -41,6 +41,9 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -73,12 +76,10 @@ public class BaseTestRSA extends BaseTestCipher {
     }
 
     @Test
-    public void testRSACipher() throws Exception {
-        encryptDecrypt("RSA");
-    }
-
-    @Test
     public void testRSAPlainCipher() throws Exception {
+        // FIPS does not support non-OAEP paddings.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         KeyFactory kf;
 
         BigInteger N = new BigInteger(
@@ -106,11 +107,6 @@ public class BaseTestRSA extends BaseTestCipher {
         String rin1 = "09:01:06:53:a7:96:09:63:ef:e1:3f:e9:8d:95:22:d1:0e:1b:87:c1:a2:41:b2:09:97:a3:5e:e0:a4:1d:59:91:21:e4:ca:87:bf:77:4a:7e:a2:22:ff:59:1e:bd:a4:80:aa:93:4a:41:56:95:5b:f4:57:df:fc:52:2f:46:9b:45:d7:03:ae:22:8e:67:9e:6c:b9:95:4f:bd:8e:e8:67:90:5b:fe:de:2f:11:22:2e:9d:30:93:6d:c0:48:00:cb:08:b9:c4:36:e9:03:7c:08:2d:68:42:cb:71:d0:7d:47:22:c1:58:c5:b8:2f:28:3e:98:78:11:6d:71:5b:3b:36:3c";
         String rout1 = "4a:21:64:20:56:5f:27:0c:90:1d:f3:1b:64:8e:16:d3:af:79:ca:c6:65:56:19:77:8f:25:35:70:be:f3:15:b3:e3:d8:8f:04:ec:c3:60:59:d0:9a:66:be:1c:ad:f7:09:46:a9:09:46:12:5f:28:b6:28:b1:53:fb:fe:07:73:b8:8b:f8:83:64:8e:2d:45:ca:1a:fd:85:4a:2c:fa:fc:e6:58:f7:e4:83:68:8c:38:49:2b:f3:5c:c1:2d:24:6a:cd:22:6d:cb:f4:f1:8c:9e:1a:94:a7:4b:6f:d1:b4:b4:ab:56:8b:a3:a9:89:88:c3:5d:a8:47:2a:67:50:32:71:19";
 
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            //FIPS does not support plain keys
-            return;
-        }
-
         try {
             kf = KeyFactory.getInstance("RSA", getProviderName());
         } catch (NoSuchAlgorithmException e) {
@@ -122,25 +118,21 @@ public class BaseTestRSA extends BaseTestCipher {
 
         RSAPrivateKeySpec privSpec = new RSAPrivateKeySpec(N, D);
         PrivateKey privateKey = kf.generatePrivate(privSpec);
+        
+        // blocktype 2
+        plainKeyEncDec("RSA/ECB/PKCS1Padding", 96, publicKey, privateKey);
+        // blocktype 1
+        plainKeyEncDec("RSA/ECB/NoPadding", 128, publicKey, privateKey);
 
-        try {
-            // blocktype 2
-            plainKeyEncDec("RSA/ECB/PKCS1Padding", 96, publicKey, privateKey);
-            // blocktype 1
-            plainKeyEncDec("RSA/ECB/NoPadding", 128, publicKey, privateKey);
+        // expected failure, blocktype 2 random padding bytes are different
+        plainKeyCipher("RSA/ECB/PKCS1Padding", Cipher.ENCRYPT_MODE, publicKey, in2, out2,
+                false);
+        plainKeyCipher("RSA/ECB/PKCS1Padding", Cipher.DECRYPT_MODE, privateKey, out2, in2,
+                true);
 
-            // expected failure, blocktype 2 random padding bytes are different
-            plainKeyCipher("RSA/ECB/PKCS1Padding", Cipher.ENCRYPT_MODE, publicKey, in2, out2,
-                    false);
-            plainKeyCipher("RSA/ECB/PKCS1Padding", Cipher.DECRYPT_MODE, privateKey, out2, in2,
-                    true);
-
-            plainKeyCipher("RSA/ECB/NoPadding", Cipher.ENCRYPT_MODE, publicKey, rin1, rout1, true);
-            plainKeyCipher("RSA/ECB/NoPadding", Cipher.DECRYPT_MODE, privateKey, rout1, rin1, true);
-        } catch (Exception e) {
-            fail("Got Exception in testRSAPlainCipher");
-            return;
-        }
+        plainKeyCipher("RSA/ECB/NoPadding", Cipher.ENCRYPT_MODE, publicKey, rin1, rout1, true);
+        plainKeyCipher("RSA/ECB/NoPadding", Cipher.DECRYPT_MODE, privateKey, rout1, rin1, true);
+        
         try {
             // decrypt something not PKCS#1 formatted
             plainKeyCipher("RSA/ECB/PKCS1Padding", Cipher.DECRYPT_MODE, privateKey, rout1, rin1,
@@ -180,9 +172,7 @@ public class BaseTestRSA extends BaseTestCipher {
         c.init(Cipher.DECRYPT_MODE, decKey);
         byte[] dec = c.doFinal(enc);
 
-        if (Arrays.equals(b, dec) == false) {
-            throw new Exception("Failure");
-        }
+        assertArrayEquals(b, dec);
     }
 
     public void plainKeyCipher(String alg, int mode, Key key, String in, String out, boolean result)
@@ -196,115 +186,74 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    @Test
-    public void testRSACipher_PKCS1Padding() throws Exception {
+    @ParameterizedTest
+    @CsvSource({"RSA", "RSA/ECB/PKCS1Padding", "RSA/ECB/NoPadding", "RSA/ECB/ZeroPadding", "RSAwithNoPad",
+                "RSAforSSL", "RSA/ECB/OAEPPadding",
+                "RSA/ECB/OAEPWithSHA-1AndMGF1Padding", "RSA/ECB/OAEPWithSHA1AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-224AndMGF1Padding", "RSA/ECB/OAEPWithSHA224AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-256AndMGF1Padding", "RSA/ECB/OAEPWithSHA256AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-384AndMGF1Padding", "RSA/ECB/OAEPWithSHA384AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-512AndMGF1Padding", "RSA/ECB/OAEPWithSHA512AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-512/224AndMGF1Padding", "RSA/ECB/OAEPWithSHA512/224AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-512/256AndMGF1Padding", "RSA/ECB/OAEPWithSHA512/256AndMGF1Padding"
+    })
+    public void testRSACipher_NoSpec(String algorithm) throws Exception {
+        // OAEP from OpenJCEPlusFIPS only works with spec initialization.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
-
-        encryptDecrypt("RSA/ECB/PKCS1Padding");
+        encryptDecrypt(algorithm, null);
     }
 
-    @Test
-    public void testRSACipher_NoPadding() throws Exception {
-        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+    @ParameterizedTest
+    @CsvSource({"NONE, SHA-1",
+                "NONE, SHA1",
+                "SHA-1, SHA-1",
+                "SHA1, SHA1",
+                "SHA-224, SHA-224",
+                "SHA224, SHA224",
+                "SHA-256, SHA-256",
+                "SHA256, SHA256",
+                "SHA-384, SHA-384",
+                "SHA384, SHA384",
+                "SHA-512, SHA-512",
+                "SHA512, SHA512",
+                "SHA-512/224, SHA-512/224",
+                "SHA512/224, SHA512/224",
+                "SHA-512/256, SHA-512/256",
+                "SHA512/256, SHA512/256",
+                "SHA-224, SHA-1",
+                "SHA-256, SHA-1",
+                "SHA-384, SHA-1",
+                "SHA-512, SHA-1",
+                "SHA-512/224, SHA-1",
+                "SHA-512/256, SHA-1",
+                "SHA-1, SHA-224",
+                "SHA-1, SHA-256",
+                "SHA-1, SHA-384",
+                "SHA-1, SHA-512",
+                "SHA-1, SHA-512/224",
+                "SHA-1, SHA-512/256",
+    })
+    public void testRSACipher_WithSpec(String md, String mgf1) throws Exception {
+        // OAEP in OpenJCEPlusFIPS only works when initialized with non SHA-1 digests.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName())
+            && (md.equals("SHA-1") || md.equals("SHA1") || mgf1.equals("SHA-1") || mgf1.equals("SHA1")));
 
-        encryptDecrypt("RSA/ECB/NoPadding");
-    }
-
-    @Test
-    public void testRSACipher_ECB_PKCS1Padding() throws Exception {
-        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
-
-        encryptDecrypt("RSA/ECB/PKCS1Padding");
-    }
-
-    @Test
-    public void testRSACipher_ECB_NoPadding() throws Exception {
-        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
-
-        encryptDecrypt("RSA/ECB/NoPadding");
-    }
-
-    @Test
-    public void testRSACipher_ECB_ZeroPadding() throws Exception {
-        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
-
-        encryptDecrypt("RSA/ECB/ZeroPadding");
-    }
-
-    @Test
-    public void testRSACipherWithNoPad() throws Exception {
-        encryptDecrypt("RSAwithNoPad");
-    }
-
-    @Test
-    public void testRSACipherForSSL() throws Exception {
-        encryptDecrypt("RSAforSSL");
-    }
-
-    @Test
-    public void testRSACipherWithOAEPPadding() throws Exception {
-        byte[] message = getMessage_OAEP_SHA1();
-        if (message != null) {
-            encryptDecrypt("RSA/ECB/OAEPPadding", message);
-        }
-    }
-
-    @Test
-    public void testRSACipherWithPaddingSHA_1() throws Exception {
-        byte[] message = getMessage_OAEP_SHA1();
-        if (message != null) {
-            encryptDecrypt("RSA/ECB/OAEPWithSHA-1AndMGF1Padding", message);
-        }
-    }
-
-    @Test
-    public void testRSACipherWithPaddingSHA1() throws Exception {
-        byte[] message = getMessage_OAEP_SHA1();
-        if (message != null) {
-            encryptDecrypt("RSA/ECB/OAEPWithSHA1AndMGF1Padding", message);
-        }
-    }
-
-    @Test
-    public void testRSACipherWithPaddingSHA224() throws Exception {
-        byte[] message = getMessage_OAEP_SHA224();
-        if (message != null) {
-            encryptDecrypt("RSA/ECB/OAEPWithSHA-224AndMGF1Padding", message);
-        }
-    }
-
-    @Test
-    public void testRSACipherWithPaddingSHA256() throws Exception {
-        byte[] message = getMessage_OAEP_SHA256();
-        if (message != null) {
-            encryptDecrypt("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", message);
-        }
-    }
-
-    @Test
-    public void testRSACipherWithPaddingSHA384() throws Exception {
-        byte[] message = getMessage_OAEP_SHA384();
-        if (message != null) {
-            encryptDecrypt("RSA/ECB/OAEPWithSHA-384AndMGF1Padding", message);
-        }
-    }
-
-    @Test
-    public void testRSACipherWithPaddingSHA512() throws Exception {
-        byte[] message = getMessage_OAEP_SHA512();
-        if (message != null) {
-            encryptDecrypt("RSA/ECB/OAEPWithSHA-512AndMGF1Padding");
-        }
+        String transformation = md.equals("NONE") ? "RSA/ECB/OAEPPadding" : "RSA/ECB/OAEPWith" + md + "AndMGF1Padding";
+        encryptDecrypt(transformation, mgf1);
     }
 
     @Test
     public void testRSAShortBuffer() throws Exception {
 
         try {
-            Cipher cp = Cipher.getInstance("RSA", getProviderName());
+            Cipher cp = Cipher.getInstance("RSA/ECB/OAEPPadding", getProviderName());
+            AlgorithmParameterSpec algParams = new OAEPParameterSpec("SHA-256",
+                                                                     "MGF1",
+                                                                     MGF1ParameterSpec.SHA256,
+                                                                     PSource.PSpecified.DEFAULT);
 
             // Encrypt the plain text
-            cp.init(Cipher.ENCRYPT_MODE, rsaPub);
+            cp.init(Cipher.ENCRYPT_MODE, rsaPub, algParams);
             byte[] cipherText = new byte[5];
 
             cp.doFinal(plainText, 0, plainText.length, cipherText);
@@ -344,14 +293,18 @@ public class BaseTestRSA extends BaseTestCipher {
 
         try {
             // Test RSA Cipher
-            Cipher cp = Cipher.getInstance("RSA", getProviderName());
+            Cipher cp = Cipher.getInstance("RSA/ECB/OAEPPadding", getProviderName());
+            AlgorithmParameterSpec algParams = new OAEPParameterSpec("SHA-256",
+                                                                     "MGF1",
+                                                                     MGF1ParameterSpec.SHA256,
+                                                                     PSource.PSpecified.DEFAULT);
 
             // Encrypt the plain text
-            cp.init(Cipher.ENCRYPT_MODE, rsaPub);
+            cp.init(Cipher.ENCRYPT_MODE, rsaPub, algParams);
             byte[] cipherText = cp.doFinal(plainText);
 
             // Verify the text
-            cp.init(Cipher.DECRYPT_MODE, rsaPriv);
+            cp.init(Cipher.DECRYPT_MODE, rsaPriv, algParams);
             cp.doFinal(cipherText, 0, cipherText.length - 1);
 
             fail("Expected BadPaddingException did not occur");
@@ -361,110 +314,75 @@ public class BaseTestRSA extends BaseTestCipher {
         }
     }
 
-    @Test
-    public void testRSAIllegalMode() throws Exception {
+    @ParameterizedTest
+    @CsvSource({"RSA", "RSA/ECB/PKCS1Padding", "RSA/ECB/NoPadding", "RSA/ECB/ZeroPadding", "RSAwithNoPad",
+                "RSAforSSL"
+    })
+    public void testRSACipher_getParams(String algorithm) throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
-
-        // Test RSA Cipher
-        Cipher cp = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
-
-        // Encrypt the plain text
-        cp.init(Cipher.ENCRYPT_MODE, rsaPub);
-        cp.update(plainText);
-        byte[] cipherText = cp.doFinal();
-
-        // Verify the text
-        cp.init(Cipher.DECRYPT_MODE, rsaPriv);
-        cp.update(cipherText);
-        byte[] newPlainText = cp.doFinal();
-
-        boolean success = decryptResultsMatch(cp.getAlgorithm(), plainText, newPlainText);
-        assertTrue(success, "Decrypted text does not match expected");
-    }
-
-    @Test
-    public void testRSACipher_getParams() throws Exception {
-        checkGetParamsNull("RSA");
-    }
-
-    @Test
-    public void testRSACipher_PKCS1Padding_getParams() throws Exception {
-        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
-
-        checkGetParamsNull("RSA/ECB/PKCS1Padding");
-    }
-
-    @Test
-    public void testRSACipher_NoPadding_getParams() throws Exception {
-        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
-
-        checkGetParamsNull("RSA/ECB/NoPadding");
-    }
-
-    @Test
-    public void testRSACipher_ECB_PKCS1Padding_getParams() throws Exception {
-        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
-
-        checkGetParamsNull("RSA/ECB/PKCS1Padding");
-    }
-
-    @Test
-    public void testRSACipher_ECB_NoPadding_getParams() throws Exception {
-        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
-
-        checkGetParamsNull("RSA/ECB/NoPadding");
-    }
-
-    @Test
-    public void testRSACipher_ECB_ZeroPadding_getParams() throws Exception {
-        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
-
-        checkGetParamsNull("RSA/ECB/ZeroPadding");
-    }
-
-    @Test
-    public void testRSACipherWithNoPad_getParams() throws Exception {
-        checkGetParamsNull("RSAwithNoPad");
-    }
-
-    @Test
-    public void testRSACipherForSSL_getParams() throws Exception {
-        checkGetParamsNull("RSAforSSL");
+        checkGetParamsNull(algorithm);
     }
 
     @Test
     public void testRSACipherWithOAEPPadding_getParams() throws Exception {
-        checkGetParamsNotNull("RSA/ECB/OAEPPadding");
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
+        checkGetParamsNotNull("RSA/ECB/OAEPPadding", null);
     }
 
-    @Test
-    public void testRSACipherWithPaddingSHA_1_getParams() throws Exception {
-        checkGetParamsNotNull("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+    @ParameterizedTest
+    @CsvSource({"RSA/ECB/OAEPWithSHA-1AndMGF1Padding", "RSA/ECB/OAEPWithSHA1AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-224AndMGF1Padding", "RSA/ECB/OAEPWithSHA224AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-256AndMGF1Padding", "RSA/ECB/OAEPWithSHA256AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-384AndMGF1Padding", "RSA/ECB/OAEPWithSHA384AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-512AndMGF1Padding", "RSA/ECB/OAEPWithSHA512AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-512/224AndMGF1Padding", "RSA/ECB/OAEPWithSHA512/224AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-512/256AndMGF1Padding", "RSA/ECB/OAEPWithSHA512/256AndMGF1Padding"
+    })
+    public void testRSACipherWithOAEPPaddingWithSHA_NoSpec_getParams(String algorithm) throws Exception {
+        // OAEP in OpenJCEPlusFIPS only works when initialized with an OAEPParameterSpec.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
+        checkGetParamsNotNull(algorithm, null);
     }
 
-    @Test
-    public void testRSACipherWithPaddingSHA1_getParams() throws Exception {
-        checkGetParamsNotNull("RSA/ECB/OAEPWithSHA1AndMGF1Padding");
-    }
+    @ParameterizedTest
+    @CsvSource({"NONE, SHA-1",
+                "NONE, SHA1",
+                "SHA-1, SHA-1",
+                "SHA1, SHA1",
+                "SHA-224, SHA-224",
+                "SHA224, SHA224",
+                "SHA-256, SHA-256",
+                "SHA256, SHA256",
+                "SHA-384, SHA-384",
+                "SHA384, SHA384",
+                "SHA-512, SHA-512",
+                "SHA512, SHA512",
+                "SHA-512/224, SHA-512/224",
+                "SHA512/224, SHA512/224",
+                "SHA-512/256, SHA-512/256",
+                "SHA512/256, SHA512/256",
+                "SHA-224, SHA-1",
+                "SHA-256, SHA-1",
+                "SHA-384, SHA-1",
+                "SHA-512, SHA-1",
+                "SHA-512/224, SHA-1",
+                "SHA-512/256, SHA-1",
+                "SHA-1, SHA-224",
+                "SHA-1, SHA-256",
+                "SHA-1, SHA-384",
+                "SHA-1, SHA-512",
+                "SHA-1, SHA-512/224",
+                "SHA-1, SHA-512/256",
+    })
+    public void testRSACipherWithOAEPPaddingWithSHA_WithSpec_getParams(String md, String mgf1) throws Exception {
+        // OAEP in OpenJCEPlusFIPS only works when initialized with non SHA-1 digests.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName())
+            && (md.equals("SHA-1") || md.equals("SHA1") || mgf1.equals("SHA-1") || mgf1.equals("SHA1")));
 
-    @Test
-    public void testRSACipherWithPaddingSHA224_getParams() throws Exception {
-        checkGetParamsNotNull("RSA/ECB/OAEPWithSHA-224AndMGF1Padding");
-    }
-
-    @Test
-    public void testRSACipherWithPaddingSHA256_getParams() throws Exception {
-        checkGetParamsNotNull("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-    }
-
-    @Test
-    public void testRSACipherWithPaddingSHA384_getParams() throws Exception {
-        checkGetParamsNotNull("RSA/ECB/OAEPWithSHA-384AndMGF1Padding");
-    }
-
-    @Test
-    public void testRSACipherWithPaddingSHA512_getParams() throws Exception {
-        checkGetParamsNotNull("RSA/ECB/OAEPWithSHA-512AndMGF1Padding");
+        String transformation = md.equals("NONE") ? "RSA/ECB/OAEPPadding" : "RSA/ECB/OAEPWith" + md + "AndMGF1Padding";
+        checkGetParamsNotNull(transformation, mgf1);
     }
 
 
@@ -480,15 +398,32 @@ public class BaseTestRSA extends BaseTestCipher {
     }
 
 
-    public void checkGetParamsNotNull(String transformation) throws Exception {
+    public void checkGetParamsNotNull(String transformation, String mgf1) throws Exception {
         if (isTransformationValidButUnsupported(transformation)) {
             return;
         }
 
         Cipher cp = Cipher.getInstance(transformation, getProviderName());
-        cp.init(Cipher.ENCRYPT_MODE, rsaPub);
+        if (mgf1 != null) {
+            cp.init(Cipher.ENCRYPT_MODE, rsaPub, getOAEPParameterSpec(transformation, mgf1));
+        } else {
+            cp.init(Cipher.ENCRYPT_MODE, rsaPub);
+        }
         AlgorithmParameters algParams = cp.getParameters();
         assertTrue((algParams != null), "AlgorithmParameters is null");
+    }
+
+    private OAEPParameterSpec getOAEPParameterSpec(String transformation, String mgf1) {
+        String md = "SHA-1";
+        int mdPos = transformation.indexOf("SHA");
+        if (mdPos != -1) {
+            md = transformation.substring(mdPos, transformation.indexOf("And"));
+        }
+
+        return new OAEPParameterSpec(md,
+                                     "MGF1",
+                                     new MGF1ParameterSpec(mgf1),
+                                     PSource.PSpecified.DEFAULT);
     }
 
     @Test
@@ -634,106 +569,11 @@ public class BaseTestRSA extends BaseTestCipher {
         assertTrue(success, "Decrypted text does not match expected");
     }
 
-    @Test
-    public void testRSACipher_init_key_algparmspec() throws Exception {
-        String transformation = "RSA/ECB/OAEPPadding";
-        AlgorithmParameterSpec algParams = new OAEPParameterSpec("SHA-1",
-                                                                 "MGF1",
-                                                                 MGF1ParameterSpec.SHA1,
-                                                                 PSource.PSpecified.DEFAULT);
-
-        byte[] message = getMessage_OAEP_SHA1();
-        if (message != null) {
-            doTestRSACipher_init_key_algparmspec_oaep(transformation, algParams, message);
-        }
-    }
-
-    @Test
-    public void testRSACipher_init_key_algparmspec_SHA1() throws Exception {
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            //FIPS does not support SHA1
-            return;
-        }
-
-        String oaepHashAlgorithm = "SHA-1";
-        String transformation = "RSA/ECB/OAEPWith" + oaepHashAlgorithm + "AndMGF1Padding";
-        AlgorithmParameterSpec algParams = new OAEPParameterSpec(oaepHashAlgorithm, "MGF1",
-                MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT);
-        byte[] message = getMessage_OAEP_SHA1();
-        if (message != null) {
-            doTestRSACipher_init_key_algparmspec_oaep(transformation, algParams, message);
-        }
-    }
-
-    @Test
-    public void testRSACipher_init_key_algparmspec_SHA224() throws Exception {
-        String oaepHashAlgorithm = "SHA-224";
-        String transformation = "RSA/ECB/OAEPWith" + oaepHashAlgorithm + "AndMGF1Padding";
-        AlgorithmParameterSpec algParams = new OAEPParameterSpec(oaepHashAlgorithm, "MGF1",
-                MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT);
-        byte[] message = getMessage_OAEP_SHA224();
-        if (message != null) {
-            doTestRSACipher_init_key_algparmspec_oaep(transformation, algParams, message);
-        }
-    }
-
-    @Test
-    public void testRSACipher_init_key_algparmspec_SHA256() throws Exception {
-        String oaepHashAlgorithm = "SHA-256";
-        String transformation = "RSA/ECB/OAEPWith" + oaepHashAlgorithm + "AndMGF1Padding";
-        AlgorithmParameterSpec algParams = new OAEPParameterSpec(oaepHashAlgorithm, "MGF1",
-                MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT);
-        byte[] message = getMessage_OAEP_SHA256();
-        if (message != null) {
-            doTestRSACipher_init_key_algparmspec_oaep(transformation, algParams, message);
-        }
-    }
-
-    @Test
-    public void testRSACipher_init_key_algparmspec_SHA384() throws Exception {
-        String oaepHashAlgorithm = "SHA-384";
-        String transformation = "RSA/ECB/OAEPWith" + oaepHashAlgorithm + "AndMGF1Padding";
-        AlgorithmParameterSpec algParams = new OAEPParameterSpec(oaepHashAlgorithm, "MGF1",
-                MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT);
-        byte[] message = getMessage_OAEP_SHA384();
-        if (message != null) {
-            doTestRSACipher_init_key_algparmspec_oaep(transformation, algParams, message);
-        }
-    }
-
-    @Test
-    public void testRSACipher_init_key_algparmspec_SHA512() throws Exception {
-        String oaepHashAlgorithm = "SHA-512";
-        String transformation = "RSA/ECB/OAEPWith" + oaepHashAlgorithm + "AndMGF1Padding";
-        AlgorithmParameterSpec algParams = new OAEPParameterSpec(oaepHashAlgorithm, "MGF1",
-                MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT);
-        byte[] message = getMessage_OAEP_SHA512();
-        if (message != null) {
-            doTestRSACipher_init_key_algparmspec_oaep(transformation, algParams, message);
-        }
-    }
-
-
-    public void doTestRSACipher_init_key_algparmspec_oaep(String transformation,
-            AlgorithmParameterSpec algParams, byte[] message) throws Exception {
-        if (isTransformationValidButUnsupported(transformation)) {
-            return;
-        }
-
-        Cipher cp = Cipher.getInstance(transformation, getProviderName());
-        cp.init(Cipher.ENCRYPT_MODE, rsaPub, algParams);
-        byte[] cipherText = cp.doFinal(message);
-
-        // Verify the text
-        cp.init(Cipher.DECRYPT_MODE, rsaPriv, algParams);
-        byte[] newPlainText = cp.doFinal(cipherText);
-
-        boolean success = decryptResultsMatch(cp.getAlgorithm(), message, newPlainText);
-        assertTrue(success, "Decrypted text does not match expected");
-    }
 
     @Test
     public void testRSACipher_init_key_algparmspecnull() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equalsIgnoreCase(getProviderName()));
+
         Cipher cp = Cipher.getInstance("RSA", getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, rsaPub, (AlgorithmParameterSpec) null);
         byte[] cipherText = cp.doFinal(plainText);
@@ -796,21 +636,44 @@ public class BaseTestRSA extends BaseTestCipher {
     }
 
 
-    protected void encryptDecrypt(String algorithm) throws Exception {
-        encryptDecryptDoFinal(algorithm, plainText);
-        encryptDecryptUpdate(algorithm, plainText);
-        encryptDecryptPartialUpdate(algorithm, plainText);
+    protected void encryptDecrypt(String algorithm, String mgf1) throws Exception {
+        byte[] message = getMessage(algorithm);
+        encryptDecryptDoFinal(algorithm, mgf1, message);
+        encryptDecryptUpdate(algorithm, mgf1, message);
+        encryptDecryptPartialUpdate(algorithm, mgf1, message);
+    }
+
+    private byte[] getMessage(String algorithm) {
+        switch(algorithm) {
+            case "RSA/ECB/OAEPPadding":
+            case "RSA/ECB/OAEPWithSHA-1AndMGF1Padding":
+            case "RSA/ECB/OAEPWithSHA1AndMGF1Padding":
+                return getMessage_OAEP_SHA1();
+            case "RSA/ECB/OAEPWithSHA-224AndMGF1Padding":
+            case "RSA/ECB/OAEPWithSHA224AndMGF1Padding":
+                return getMessage_OAEP_SHA224();
+            case "RSA/ECB/OAEPWithSHA-256AndMGF1Padding":
+            case "RSA/ECB/OAEPWithSHA256AndMGF1Padding":
+                return getMessage_OAEP_SHA256();
+            case "RSA/ECB/OAEPWithSHA-384AndMGF1Padding":
+            case "RSA/ECB/OAEPWithSHA384AndMGF1Padding":
+                return getMessage_OAEP_SHA384();
+            case "RSA/ECB/OAEPWithSHA-512AndMGF1Padding":
+            case "RSA/ECB/OAEPWithSHA512AndMGF1Padding":
+                return getMessage_OAEP_SHA512();
+            case "RSA/ECB/OAEPWithSHA-512/224AndMGF1Padding":
+            case "RSA/ECB/OAEPWithSHA512/224AndMGF1Padding":
+                return getMessage_OAEP_SHA512_224();
+            case "RSA/ECB/OAEPWithSHA-512/256AndMGF1Padding":
+            case "RSA/ECB/OAEPWithSHA512/256AndMGF1Padding":
+                return getMessage_OAEP_SHA512_256();
+            default:
+                return plainText;
+        }
     }
 
 
-    protected void encryptDecrypt(String algorithm, byte[] message) throws Exception {
-        encryptDecryptDoFinal(algorithm, message);
-        encryptDecryptUpdate(algorithm, message);
-        encryptDecryptPartialUpdate(algorithm, message);
-    }
-
-
-    protected void encryptDecryptDoFinal(String algorithm, byte[] message) throws Exception {
+    protected void encryptDecryptDoFinal(String algorithm, String mgf1, byte[] message) throws Exception {
 
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
@@ -819,11 +682,19 @@ public class BaseTestRSA extends BaseTestCipher {
         Cipher cp = Cipher.getInstance(algorithm, getProviderName());
 
         // Encrypt the plain text
-        cp.init(Cipher.ENCRYPT_MODE, rsaPub);
+        if (mgf1 != null) {
+            cp.init(Cipher.ENCRYPT_MODE, rsaPub, getOAEPParameterSpec(algorithm, mgf1));
+        } else {
+            cp.init(Cipher.ENCRYPT_MODE, rsaPub);
+        }
         byte[] cipherText = cp.doFinal(message);
 
         // Verify the text
-        cp.init(Cipher.DECRYPT_MODE, rsaPriv);
+        if (mgf1 != null) {
+            cp.init(Cipher.DECRYPT_MODE, rsaPriv, getOAEPParameterSpec(algorithm, mgf1));
+        } else {
+            cp.init(Cipher.DECRYPT_MODE, rsaPriv);
+        }
         byte[] newPlainText = cp.doFinal(cipherText);
 
         boolean success = decryptResultsMatch(cp.getAlgorithm(), message, newPlainText);
@@ -831,7 +702,7 @@ public class BaseTestRSA extends BaseTestCipher {
     }
 
 
-    protected void encryptDecryptUpdate(String algorithm, byte[] message) throws Exception {
+    protected void encryptDecryptUpdate(String algorithm, String mgf1, byte[] message) throws Exception {
 
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
@@ -840,12 +711,20 @@ public class BaseTestRSA extends BaseTestCipher {
         Cipher cp = Cipher.getInstance(algorithm, getProviderName());
 
         // Encrypt the plain text
-        cp.init(Cipher.ENCRYPT_MODE, rsaPub);
+        if (mgf1 != null) {
+            cp.init(Cipher.ENCRYPT_MODE, rsaPub, getOAEPParameterSpec(algorithm, mgf1));
+        } else {
+            cp.init(Cipher.ENCRYPT_MODE, rsaPub);
+        }
         cp.update(message);
         byte[] cipherText = cp.doFinal();
 
         // Verify the text
-        cp.init(Cipher.DECRYPT_MODE, rsaPriv);
+        if (mgf1 != null) {
+            cp.init(Cipher.DECRYPT_MODE, rsaPriv, getOAEPParameterSpec(algorithm, mgf1));
+        } else {
+            cp.init(Cipher.DECRYPT_MODE, rsaPriv);
+        }
         cp.update(cipherText);
         byte[] newPlainText = cp.doFinal();
 
@@ -854,7 +733,7 @@ public class BaseTestRSA extends BaseTestCipher {
     }
 
 
-    protected void encryptDecryptPartialUpdate(String algorithm, byte[] message) throws Exception {
+    protected void encryptDecryptPartialUpdate(String algorithm, String mgf1, byte[] message) throws Exception {
 
         if (isTransformationValidButUnsupported(algorithm)) {
             return;
@@ -863,12 +742,20 @@ public class BaseTestRSA extends BaseTestCipher {
         Cipher cp = Cipher.getInstance(algorithm, getProviderName());
 
         // Encrypt the plain text
-        cp.init(Cipher.ENCRYPT_MODE, rsaPub);
+        if (mgf1 != null) {
+            cp.init(Cipher.ENCRYPT_MODE, rsaPub, getOAEPParameterSpec(algorithm, mgf1));
+        } else {
+            cp.init(Cipher.ENCRYPT_MODE, rsaPub);
+        }
         byte[] cipherText1 = cp.update(message, 0, 10);
         byte[] cipherText2 = cp.doFinal(message, 10, message.length - 10);
 
         // Verify the text
-        cp.init(Cipher.DECRYPT_MODE, rsaPriv);
+        if (mgf1 != null) {
+            cp.init(Cipher.DECRYPT_MODE, rsaPriv, getOAEPParameterSpec(algorithm, mgf1));
+        } else {
+            cp.init(Cipher.DECRYPT_MODE, rsaPriv);
+        }
         byte[] newPlainText1 = cp.update(cipherText1);
         byte[] newPlainText2 = cp.doFinal(cipherText2);
 
@@ -967,6 +854,14 @@ public class BaseTestRSA extends BaseTestCipher {
         return getMessage_OAEP(64);
     }
 
+    private byte[] getMessage_OAEP_SHA512_224() {
+        return getMessage_OAEP(28);
+    }
+
+    private byte[] getMessage_OAEP_SHA512_256() {
+        return getMessage_OAEP(32);
+    }
+
 
     private byte[] getMessage_OAEP(int digestLen) {
         int keySize = specifiedKeySize;
@@ -1043,11 +938,7 @@ public class BaseTestRSA extends BaseTestCipher {
     //
     @Override
     public boolean isPaddingValidButUnsupported(String padding) {
-        if (padding.equalsIgnoreCase("ZeroPadding")
-                || padding.equalsIgnoreCase("OAEPWithSHA-224AndMGF1Padding")
-                || padding.equalsIgnoreCase("OAEPWithSHA-256AndMGF1Padding")
-                || padding.equalsIgnoreCase("OAEPWithSHA-384AndMGF1Padding")
-                || padding.equalsIgnoreCase("OAEPWithSHA-512AndMGF1Padding")) {
+        if (padding.equalsIgnoreCase("ZeroPadding")) {
             return true;
         }
 

@@ -9,7 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.PrimitiveWrapper;
 import java.math.BigInteger;
 import java.util.Arrays;
 
@@ -23,7 +22,6 @@ public final class RSAKey implements AsymmetricKey {
     private OpenJCEPlusProvider provider;
     private OCKContext ockContext;
     private final long rsaKeyId;
-    private PrimitiveWrapper.Long pkeyId;
     private byte[] privateKeyBytes;
     private byte[] publicKeyBytes;
     private int keySize;
@@ -95,13 +93,12 @@ public final class RSAKey implements AsymmetricKey {
             byte[] publicKeyBytes, OpenJCEPlusProvider provider) {
         this.ockContext = ockContext;
         this.rsaKeyId = rsaKeyId;
-        this.pkeyId = new PrimitiveWrapper.Long(0);
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
         this.keySize = 0;
         this.provider = provider;
 
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, rsaKeyId, pkeyId, ockContext));
+        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, rsaKeyId, ockContext));
     }
 
     @Override
@@ -115,12 +112,7 @@ public final class RSAKey implements AsymmetricKey {
 
     @Override
     public long getPKeyId() throws OCKException {
-        //final String methodName = "getPkeyId :";
-        if (pkeyId.getValue() == 0) {
-            obtainPKeyId();
-        }
-        //OCKDebug.Msg(debPrefix, methodName,   this.pkeyId);
-        return pkeyId.getValue();
+        return this.rsaKeyId;
     }
 
     public int getKeySize() throws OCKException {
@@ -150,19 +142,6 @@ public final class RSAKey implements AsymmetricKey {
         }
         //OCKDebug.Msg(debPrefix, methodName, publicKeyBytes);
         return (publicKeyBytes == null) ? null : publicKeyBytes.clone();
-    }
-
-    private synchronized void obtainPKeyId() throws OCKException {
-        // Leave this duplicate check in here. If two threads are both trying
-        // to getPKeyId at the same time, we only want to call the native
-        // code one time.
-        //
-        if (pkeyId.getValue() == 0) {
-            if (!validId(rsaKeyId)) {
-                throw new OCKException(badIdMsg);
-            }
-            this.pkeyId.setValue(NativeInterface.RSAKEY_createPKey(ockContext.getId(), rsaKeyId));
-        }
     }
 
     private synchronized void obtainPrivateKeyBytes() throws OCKException {
@@ -213,7 +192,7 @@ public final class RSAKey implements AsymmetricKey {
         return (id != 0L);
     }
 
-    private Runnable cleanOCKResources(byte[] privateKeyBytes, long rsaKeyId, PrimitiveWrapper.Long pkeyId, OCKContext ockContext) {
+    private Runnable cleanOCKResources(byte[] privateKeyBytes, long rsaKeyId, OCKContext ockContext) {
         return() -> {
             try {
                 if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
@@ -221,10 +200,6 @@ public final class RSAKey implements AsymmetricKey {
                 }
                 if (rsaKeyId != 0) {
                     NativeInterface.RSAKEY_delete(ockContext.getId(), rsaKeyId);
-                }
-
-                if (pkeyId.getValue() != 0) {
-                    NativeInterface.PKEY_delete(ockContext.getId(), pkeyId.getValue());
                 }
             } catch (Exception e) {
                 if (OpenJCEPlusProvider.getDebug() != null) {

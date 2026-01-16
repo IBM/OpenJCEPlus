@@ -22,6 +22,7 @@ public class TestRSAKeyInteropBC extends BaseTestRSAKeyInteropBC {
         Utils.loadProviderBC();
         setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
         setInteropProviderName(Utils.PROVIDER_BC);
-        setKeySize(1024);
+        setInteropProviderName2(Utils.PROVIDER_BC);
+        setKeySize(2048);
     }
 }

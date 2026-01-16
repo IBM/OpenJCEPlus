@@ -30,12 +30,22 @@ import org.openjdk.jmh.runner.options.Options;
 @State(Scope.Benchmark)
 @Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
-public class DESedeCipherBenchmark extends SymmetricCipherBase {
+public class RSACipherBenchmark extends AsymmetricCipherBase {
 
-    @Param({"DESede/ECB/PKCS5Padding", "DESede/CBC/PKCS5Padding"})
-    private String transformation;
+    @Param({"OAEPPADDING", "OAEPWITHSHA1ANDMGF1PADDING", "OAEPWITHSHA-1ANDMGF1PADDING",
+            "OAEPWITHSHA-224ANDMGF1PADDING",
+            "OAEPWITHSHA-256ANDMGF1PADDING",
+            "OAEPWITHSHA-384ANDMGF1PADDING",
+            "OAEPWITHSHA-512ANDMGF1PADDING",
+            "OAEPWITHSHA-512/224ANDMGF1PADDING",
+            "OAEPWITHSHA-512/256ANDMGF1PADDING",
+            "NOPADDING", "PKCS1PADDING"})
+    private String padding;
 
-    @Param({"1024", "32768"})
+    @Param({"2048"})
+    private int keySize;
+
+    @Param({"53", "126"})
     private int payloadSize;
 
     @Param({"OpenJCEPlus", "SunJCE"})
@@ -43,18 +53,13 @@ public class DESedeCipherBenchmark extends SymmetricCipherBase {
 
     @Setup
     public void setup() throws Exception {
-        super.setup(168, transformation, payloadSize, provider);
+        super.setup(keySize, padding, payloadSize, provider);
     }
 
     @Setup(Level.Invocation)
     public void setupInvocation() throws Exception {
-        if (iv != null) {
-            encryptCipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
-            decryptCipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
-        } else {
-            encryptCipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            decryptCipher.init(Cipher.DECRYPT_MODE, secretKey);
-        }
+        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        decryptCipher.init(Cipher.DECRYPT_MODE, privateKey);
     }
 
     @Benchmark
@@ -68,7 +73,7 @@ public class DESedeCipherBenchmark extends SymmetricCipherBase {
     }
 
     public static void main(String[] args) throws RunnerException {
-        String testSimpleName = DESedeCipherBenchmark.class.getSimpleName();
+        String testSimpleName = RSACipherBenchmark.class.getSimpleName();
         Options opt = optionsBuild(testSimpleName, testSimpleName);
 
         new Runner(opt).run();
