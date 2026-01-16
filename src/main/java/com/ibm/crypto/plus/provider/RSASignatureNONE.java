@@ -59,7 +59,7 @@ public final class RSASignatureNONE extends SignatureSpi {
 
     private OpenJCEPlusProvider provider = null;
     private RSACipher rsaCipher = null;
-    private RSAPadding padding = RSAPadding.PKCS1Padding;
+    private RSAPadding padding = RSAPadding.PKCS1Padding();
     private ByteArrayOutputStream data;
 
     public RSASignatureNONE(OpenJCEPlusProvider provider) {
