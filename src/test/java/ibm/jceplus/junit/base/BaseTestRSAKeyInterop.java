@@ -502,7 +502,7 @@ public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
             RSAPrivateCrtKey rsaPrivJCE = (RSAPrivateCrtKey) rsaKeyFactoryJCE
                     .generatePrivate(pkcs8SpecPlus);
 
-            Cipher cipherJCE = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
+            Cipher cipherJCE = Cipher.getInstance("RSA/ECB/PKCS1Padding", getInteropProviderName2());
             cipherJCE.init(Cipher.DECRYPT_MODE, rsaPrivJCE);
             byte[] decryptedBytes = cipherJCE.doFinal(cipherText);
             System.out.println("msgBytes = " + toHex(msgBytes));
@@ -542,7 +542,7 @@ public class BaseTestRSAKeyInterop extends BaseTestJunit5Interop {
             RSAPrivateCrtKey rsaPrivPlus = (RSAPrivateCrtKey) rsaKeyFactoryPlus
                     .generatePrivate(pkcs8SpecJCE);
 
-            Cipher cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
+            Cipher cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", getInteropProviderName2());
             cipherPlus.init(Cipher.DECRYPT_MODE, rsaPrivPlus);
             byte[] decryptedBytes = cipherPlus.doFinal(cipherText);
             System.out.println("msgBytes = " + toHex(msgBytes));

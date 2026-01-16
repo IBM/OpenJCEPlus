@@ -214,7 +214,19 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
 
         String supportedPaddings = "OAEPPADDING"
                 + "|OAEPWITHSHA1ANDMGF1PADDING"
-                + "|OAEPWITHSHA-1ANDMGF1PADDING";
+                + "|OAEPWITHSHA-1ANDMGF1PADDING"
+                + "|OAEPWITHSHA224ANDMGF1PADDING"
+                + "|OAEPWITHSHA-224ANDMGF1PADDING"
+                + "|OAEPWITHSHA256ANDMGF1PADDING"
+                + "|OAEPWITHSHA-256ANDMGF1PADDING"
+                + "|OAEPWITHSHA384ANDMGF1PADDING"
+                + "|OAEPWITHSHA-384ANDMGF1PADDING"
+                + "|OAEPWITHSHA512ANDMGF1PADDING"
+                + "|OAEPWITHSHA-512ANDMGF1PADDING"
+                + "|OAEPWITHSHA512/224ANDMGF1PADDING"
+                + "|OAEPWITHSHA-512/224ANDMGF1PADDING"
+                + "|OAEPWITHSHA512/256ANDMGF1PADDING"
+                + "|OAEPWITHSHA-512/256ANDMGF1PADDING";
         if (allowNonOAEPFIPS) {
             supportedPaddings += "|NOPADDING|PKCS1PADDING";
         }
