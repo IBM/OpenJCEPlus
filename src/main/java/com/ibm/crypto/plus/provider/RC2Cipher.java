@@ -32,7 +32,7 @@ import javax.crypto.spec.RC2ParameterSpec;
  * OpenJCEPlus doesn't support RC2 Ciphers. This class
  * is only used for PBES1 algorithms.
  */
-public final class RC2Cipher {
+public final class RC2Cipher extends LegacyCipher {
 
     private OpenJCEPlusProvider provider = null;
     private SymmetricCipher symmetricCipher = null;
@@ -50,6 +50,7 @@ public final class RC2Cipher {
         this.provider = provider;
     }
 
+    @Override
     protected byte[] engineDoFinal(byte[] input, int inputOffset, int inputLen)
             throws IllegalBlockSizeException, BadPaddingException {
         checkCipherInitialized();
@@ -80,6 +81,7 @@ public final class RC2Cipher {
         }
     }
 
+    @Override
     protected int engineDoFinal(byte[] input, int inputOffset, int inputLen, byte[] output,
             int outputOffset)
             throws ShortBufferException, IllegalBlockSizeException, BadPaddingException {
@@ -104,10 +106,12 @@ public final class RC2Cipher {
         }
     }
 
+    @Override
     protected int engineGetBlockSize() {
         return RC2_BLOCK_SIZE;
     }
 
+    @Override
     protected int engineGetKeySize(Key key) throws InvalidKeyException {
         if (key == null) {
             throw new InvalidKeyException("Key missing");
@@ -120,10 +124,12 @@ public final class RC2Cipher {
         return encoded.length * 8;
     }
 
+    @Override
     protected byte[] engineGetIV() {
         return (this.iv == null) ? null : this.iv.clone();
     }
 
+    @Override
     protected int engineGetOutputSize(int inputLen) {
         try {
             return symmetricCipher.getOutputSize(inputLen);
@@ -132,6 +138,11 @@ public final class RC2Cipher {
         }
     }
 
+    /*
+     * RC2 Parameter class is neither implemented nor registered as this method is 
+     * never used by PBE algorithms. 
+     */
+    @Override
     protected AlgorithmParameters engineGetParameters() {
         AlgorithmParameters params = null;
 
@@ -153,6 +164,7 @@ public final class RC2Cipher {
         return params;
     }
 
+    @Override
     protected void engineInit(int opmode, Key key, SecureRandom random) throws InvalidKeyException {
         if (mode.equals("ECB")) {
             internalInit(opmode, key, null);
@@ -173,6 +185,7 @@ public final class RC2Cipher {
         internalInit(opmode, key, generatedIv);
     }
 
+    @Override
     protected void engineInit(int opmode, Key key, AlgorithmParameterSpec params,
             SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
         if (params == null) {
@@ -193,6 +206,7 @@ public final class RC2Cipher {
         }
     }
 
+    @Override
     protected void engineInit(int opmode, Key key, AlgorithmParameters params, SecureRandom random)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
         if (params != null) {
@@ -255,6 +269,7 @@ public final class RC2Cipher {
         }
     }
 
+    @Override
     protected void engineSetMode(String mode) throws NoSuchAlgorithmException {
         String modeUpperCase = mode.toUpperCase();
         if (modeUpperCase.equals("ECB") || modeUpperCase.equals("CBC")/*
@@ -267,6 +282,7 @@ public final class RC2Cipher {
         }
     }
 
+    @Override
     protected void engineSetPadding(String padding) throws NoSuchPaddingException {
         if (padding.equalsIgnoreCase("NoPadding")) {
             this.padding = Padding.NoPadding;
@@ -277,6 +293,7 @@ public final class RC2Cipher {
         }
     }
 
+    @Override
     protected byte[] engineUpdate(byte[] input, int inputOffset, int inputLen) {
         checkCipherInitialized();
 
@@ -298,6 +315,7 @@ public final class RC2Cipher {
         }
     }
 
+    @Override
     protected int engineUpdate(byte[] input, int inputOffset, int inputLen, byte[] output,
             int outputOffset) throws ShortBufferException {
         checkCipherInitialized();

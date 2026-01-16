@@ -27,7 +27,7 @@ import javax.crypto.ShortBufferException;
  * OpenJCEPlus doesn't support RC4 Ciphers. This class
  * is only used for PBES1 algorithms.
  */
-public final class RC4Cipher {
+public final class RC4Cipher extends LegacyCipher {
 
     private OpenJCEPlusProvider provider = null;
     private SymmetricCipher symmetricCipher = null;
@@ -40,6 +40,7 @@ public final class RC4Cipher {
         this.provider = provider;
     }
 
+    @Override
     protected byte[] engineDoFinal(byte[] input, int inputOffset, int inputLen)
             throws IllegalBlockSizeException, BadPaddingException {
         checkCipherInitialized();
@@ -70,6 +71,7 @@ public final class RC4Cipher {
         }
     }
 
+    @Override
     protected int engineDoFinal(byte[] input, int inputOffset, int inputLen, byte[] output,
             int outputOffset)
             throws ShortBufferException, IllegalBlockSizeException, BadPaddingException {
@@ -94,10 +96,12 @@ public final class RC4Cipher {
         }
     }
 
+    @Override
     protected int engineGetBlockSize() {
         return RC4_BLOCK_SIZE;
     }
 
+    @Override
     protected int engineGetKeySize(Key key) throws InvalidKeyException {
         if (key == null) {
             throw new InvalidKeyException("Key missing");
@@ -110,10 +114,12 @@ public final class RC4Cipher {
         return encoded.length * 8;
     }
 
+    @Override
     protected byte[] engineGetIV() {
         return null;
     }
 
+    @Override
     protected int engineGetOutputSize(int inputLen) {
         try {
             return symmetricCipher.getOutputSize(inputLen);
@@ -122,19 +128,23 @@ public final class RC4Cipher {
         }
     }
 
+    @Override
     protected AlgorithmParameters engineGetParameters() {
         return null;
     }
 
+    @Override
     protected void engineInit(int opmode, Key key, SecureRandom random) throws InvalidKeyException {
         internalInit(opmode, key);
     }
 
+    @Override
     protected void engineInit(int opmode, Key key, AlgorithmParameterSpec params,
             SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
         engineInit(opmode, key, random);
     }
 
+    @Override
     protected void engineInit(int opmode, Key key, AlgorithmParameters params, SecureRandom random)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
         engineInit(opmode, key, random);
@@ -182,6 +192,7 @@ public final class RC4Cipher {
         }
     }
 
+    @Override
     protected void engineSetMode(String mode) throws NoSuchAlgorithmException {
         String modeUpperCase = mode.toUpperCase();
         if (!modeUpperCase.equals("ECB")) {
@@ -189,12 +200,14 @@ public final class RC4Cipher {
         }
     }
 
+    @Override
     protected void engineSetPadding(String padding) throws NoSuchPaddingException {
         if (!padding.equalsIgnoreCase("NoPadding")) {
             throw new NoSuchPaddingException("Padding: " + padding + " not implemented");
         }
     }
 
+    @Override
     protected byte[] engineUpdate(byte[] input, int inputOffset, int inputLen) {
         checkCipherInitialized();
 
@@ -216,6 +229,7 @@ public final class RC4Cipher {
         }
     }
 
+    @Override
     protected int engineUpdate(byte[] input, int inputOffset, int inputLen, byte[] output,
             int outputOffset) throws ShortBufferException {
         checkCipherInitialized();

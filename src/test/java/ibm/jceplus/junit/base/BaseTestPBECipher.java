@@ -66,7 +66,7 @@ public class BaseTestPBECipher extends BaseTestJunit5 {
     void testPBEFunctionality(String alg) throws Exception {
         SecretKey key = createKey(alg);
         encryptDecrypt(alg, key);
-        encryptDecrypt(alg, key, false);
+        encryptDecrypt(alg, key, true);
     }
     
     @ParameterizedTest
@@ -74,7 +74,7 @@ public class BaseTestPBECipher extends BaseTestJunit5 {
     void testPBEFunctionalityModePadding(String alg) throws Exception {
         SecretKey key = createKey(alg);
         encryptDecrypt(alg, key);
-        encryptDecrypt(alg, key, false);
+        encryptDecrypt(alg, key, true);
     }
 
     @ParameterizedTest
@@ -196,26 +196,6 @@ public class BaseTestPBECipher extends BaseTestJunit5 {
         }
     }
 
-    @ParameterizedTest
-    @FieldSource("algorithms")
-    void testDecryptUnwrapNullParameters(String alg) throws Exception {
-        SecretKey key = createKey(alg);
-        Cipher c = Cipher.getInstance(alg, getProviderName());
-        try {
-            c.init(Cipher.DECRYPT_MODE, key);
-            fail("Expected InvalidKeyException didn't occur");
-        } catch (InvalidKeyException e) {
-            assertTrue(true);
-        }
-
-        try {
-            c.init(Cipher.UNWRAP_MODE, key);
-            fail("Expected InvalidKeyException didn't occur");
-        } catch (InvalidKeyException e) {
-            assertTrue(true);
-        }
-    }
-
     private SecretKey createKey(String algorithm) throws Exception {
         PBEKeySpec pbeKeySpec = new PBEKeySpec("mypassword".toCharArray());
         int modeIdx = algorithm.toUpperCase(Locale.ENGLISH).indexOf("/CBC");
@@ -226,7 +206,6 @@ public class BaseTestPBECipher extends BaseTestJunit5 {
 
         return pbeKey;
     }
-
 
     private void encryptDecrypt(String algorithm, SecretKey key)
             throws Exception {

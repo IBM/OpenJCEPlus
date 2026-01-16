@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -22,13 +22,12 @@ import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.CipherSpi;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 
-public final class DESedeCipher extends CipherSpi implements DESConstants {
+public final class DESedeCipher extends LegacyCipher implements DESConstants {
 
     private OpenJCEPlusProvider provider = null;
     private SymmetricCipher symmetricCipher = null;

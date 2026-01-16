@@ -34,11 +34,9 @@ abstract class PBES1Core extends CipherSpi {
     private final String pbeAlgo;
     private final String cipheralgo;
     private final int keysize;
-    private DESedeCipher cipherDES;
-    private RC2Cipher cipherRC2;
-    private RC4Cipher cipherRC4;
-    private int iterationCount;
+    private final LegacyCipher cipher;
     private byte[] salt;
+    private int iterationCount;
     private OpenJCEPlusProvider provider = null;
 
     private static final int DEFAULT_ITERATION_COUNT = 1024;
@@ -50,20 +48,19 @@ abstract class PBES1Core extends CipherSpi {
         throws NoSuchAlgorithmException, NoSuchPaddingException {
         this.provider = provider;
         this.cipheralgo = cipheralgo;
-        this.pbeAlgo = cipheralgo.equals("DESede") ? "PBEWithSHA1And" + cipheralgo : "PBEWithSHA1And" + cipheralgo + "_" + (keysize * 8);
+        this.pbeAlgo = cipheralgo.equals("DESede") ? "PBEWithSHA1And" + cipheralgo :
+            "PBEWithSHA1And" + cipheralgo + "_" + (keysize * 8);
 
         if (cipheralgo.equals("DESede")) {
-            cipherDES = new DESedeCipher(provider);
-            cipherDES.engineSetMode("CBC");
-            cipherDES.engineSetPadding("PKCS5Padding");
+            cipher = new DESedeCipher(provider);
         } else if (cipheralgo.equals("RC2")) {
-            cipherRC2 = new RC2Cipher(provider);
-            cipherRC2.engineSetMode("CBC");
-            cipherRC2.engineSetPadding("PKCS5Padding");
+            cipher = new RC2Cipher(provider);
         } else {
-            cipherRC4 = new RC4Cipher(provider);
+            cipher = new RC4Cipher(provider);
         }
         
+        cipher.engineSetMode(mode);
+        cipher.engineSetPadding(padding.toString());
         this.keysize = keysize;
     }
 
@@ -95,33 +92,15 @@ abstract class PBES1Core extends CipherSpi {
     }
 
     protected int engineGetBlockSize() {
-        if (cipheralgo.equals("DESede")) {
-            return cipherDES.engineGetBlockSize();
-        } else if (cipheralgo.equals("RC2")) {
-            return cipherRC2.engineGetBlockSize();
-        } else {
-            return cipherRC4.engineGetBlockSize();
-        }
+        return cipher.engineGetBlockSize();
     }
 
     protected int engineGetOutputSize(int inputLen) {
-        if (cipheralgo.equals("DESede")) {
-            return cipherDES.engineGetOutputSize(inputLen);
-        } else if (cipheralgo.equals("RC2")) {
-            return cipherRC2.engineGetOutputSize(inputLen);
-        } else {
-            return cipherRC4.engineGetOutputSize(inputLen);
-        }
+        return cipher.engineGetOutputSize(inputLen);
     }
 
     protected byte[] engineGetIV() {
-        if (cipheralgo.equals("DESede")) {
-            return cipherDES.engineGetIV();
-        } else if (cipheralgo.equals("RC2")) {
-            return cipherRC2.engineGetIV();
-        } else {
-            return cipherRC4.engineGetIV();
-        }
+        return cipher.engineGetIV();
     }
 
     protected AlgorithmParameters engineGetParameters() {
@@ -154,8 +133,11 @@ abstract class PBES1Core extends CipherSpi {
         try {
             engineInit(opmode, key, (AlgorithmParameterSpec) null, random);
         } catch (InvalidAlgorithmParameterException e) {
-            // should never happen
-            throw new InvalidKeyException("PBE parameters cannot be generated", e);
+            /* 
+             * If initializing the Cipher in Decrypt mode without parameters
+             * (neither passed directly or via the key), silence InvalidAlgorithmParameterException
+             * to match OpenJDK behavior. 
+             */
         }
     }
 
@@ -181,7 +163,7 @@ abstract class PBES1Core extends CipherSpi {
         if (!(key instanceof SecretKey)) {
             throw new InvalidKeyException("SecretKey of PBE type required");
         }
-        
+
         byte[] password = key.getEncoded();
         if (password == null) {
             throw new InvalidKeyException("Missing password");
@@ -243,13 +225,7 @@ abstract class PBES1Core extends CipherSpi {
         Arrays.fill(pass, (byte) 0x00);
 
         SecretKeySpec cipherKey = new SecretKeySpec(derivedKey, cipheralgo);
-        if (cipheralgo.equals("DESede")) {
-            cipherDES.engineInit(opmode, cipherKey, new IvParameterSpec(iv), random);
-        } else if (cipheralgo.equals("RC2")) {
-            cipherRC2.engineInit(opmode, cipherKey, new IvParameterSpec(iv), random);
-        } else {
-            cipherRC4.engineInit(opmode, cipherKey, new IvParameterSpec(iv), random);
-        }
+        cipher.engineInit(opmode, cipherKey, new IvParameterSpec(iv), random);
     }
 
     private byte[] passwordBigEndian(byte[] password) {
@@ -344,72 +320,36 @@ abstract class PBES1Core extends CipherSpi {
     }
 
     protected byte[] engineUpdate(byte[] input, int inputOffset, int inputLen) {
-        if (cipheralgo.equals("DESede")) {
-            return cipherDES.engineUpdate(input, inputOffset, inputLen);
-        } else if (cipheralgo.equals("RC2")) {
-            return cipherRC2.engineUpdate(input, inputOffset, inputLen);
-        } else {
-            return cipherRC4.engineUpdate(input, inputOffset, inputLen);
-        }
+        return cipher.engineUpdate(input, inputOffset, inputLen);
     }
 
     protected int engineUpdate(byte[] input, int inputOffset, int inputLen,
                                byte[] output, int outputOffset)
         throws ShortBufferException {
-        if (cipheralgo.equals("DESede")) {
-            return cipherDES.engineUpdate(input, inputOffset, inputLen, output, outputOffset);
-        } else if (cipheralgo.equals("RC2")) {
-            return cipherRC2.engineUpdate(input, inputOffset, inputLen, output, outputOffset);
-        } else {
-            return cipherRC4.engineUpdate(input, inputOffset, inputLen, output, outputOffset);
-        }
+        return cipher.engineUpdate(input, inputOffset, inputLen, output, outputOffset);
     }
 
     protected byte[] engineDoFinal(byte[] input, int inputOffset, int inputLen)
         throws IllegalBlockSizeException, BadPaddingException {
-        if (cipheralgo.equals("DESede")) {
-            return cipherDES.engineDoFinal(input, inputOffset, inputLen);
-        } else if (cipheralgo.equals("RC2")) {
-            return cipherRC2.engineDoFinal(input, inputOffset, inputLen);
-        } else {
-            return cipherRC4.engineDoFinal(input, inputOffset, inputLen);
-        }
+        return cipher.engineDoFinal(input, inputOffset, inputLen);
     }
 
     protected int engineDoFinal(byte[] input, int inputOffset, int inputLen,
                                 byte[] output, int outputOffset)
         throws ShortBufferException, IllegalBlockSizeException,
                BadPaddingException {
-        if (cipheralgo.equals("DESede")) {
-            return cipherDES.engineDoFinal(input, inputOffset, inputLen, output, outputOffset);
-        } else if (cipheralgo.equals("RC2")) {
-            return cipherRC2.engineDoFinal(input, inputOffset, inputLen, output, outputOffset);
-        } else {
-            return cipherRC4.engineDoFinal(input, inputOffset, inputLen, output, outputOffset);
-        }
+        return cipher.engineDoFinal(input, inputOffset, inputLen, output, outputOffset);
     }
 
     protected byte[] engineWrap(Key key)
         throws IllegalBlockSizeException, InvalidKeyException {
-        if (cipheralgo.equals("DESede")) {
-            return cipherDES.engineWrap(key);
-        } else if (cipheralgo.equals("RC2")) {
-            return cipherRC2.engineWrap(key);
-        } else {
-            return cipherRC4.engineWrap(key);
-        }
+        return cipher.engineWrap(key);
     }
 
     protected Key engineUnwrap(byte[] wrappedKey, String wrappedKeyAlgorithm,
                                int wrappedKeyType)
         throws InvalidKeyException, NoSuchAlgorithmException {
-        if (cipheralgo.equals("DESede")) {
-            return cipherDES.engineUnwrap(wrappedKey, wrappedKeyAlgorithm, wrappedKeyType);
-        } else if (cipheralgo.equals("RC2")) {
-            return cipherRC2.engineUnwrap(wrappedKey, wrappedKeyAlgorithm, wrappedKeyType);
-        } else {
-            return cipherRC4.engineUnwrap(wrappedKey, wrappedKeyAlgorithm, wrappedKeyType);
-        }
+        return cipher.engineUnwrap(wrappedKey, wrappedKeyAlgorithm, wrappedKeyType);
     }
 
     public static final class PBEWithSHA1AndDESede extends PBES1Core {

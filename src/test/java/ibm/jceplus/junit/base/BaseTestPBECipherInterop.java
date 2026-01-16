@@ -67,7 +67,7 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
     void testPBEFunctionality(String alg) throws Exception {
         SecretKey key = createKey(alg);
         encryptDecrypt(alg, key);
-        encryptDecrypt(alg, key, false);
+        encryptDecrypt(alg, key, true);
     }
 
     @ParameterizedTest
@@ -75,7 +75,7 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
     void testPBEFunctionalityModePadding(String alg) throws Exception {
         SecretKey key = createKey(alg);
         encryptDecrypt(alg, key);
-        encryptDecrypt(alg, key, false);
+        encryptDecrypt(alg, key, true);
     }
 
     @ParameterizedTest
@@ -297,30 +297,6 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
         }
         assertEquals(msg, msgInterop);
     }
-
-    // OpenJDK doesn't throw an an exception when you try to initialize a cipher in 
-    // Decrypt or Unwrap mode without parameters 
-    // @ParameterizedTest
-    // @FieldSource("algorithms")
-    // void testDecryptUnwrapNullParameters(String alg) throws Exception {
-    //     String msg = "", msgInterop = "";
-    //     SecretKey key = createKey(alg);
-    //     try {
-    //         Cipher c = Cipher.getInstance(alg, getProviderName());
-    //         c.init(Cipher.DECRYPT_MODE, key);
-    //         fail("Expected InvalidKeyException didn't occur");
-    //     } catch (InvalidKeyException e) {
-    //         msg = e.getMessage();
-    //     }
-    //     try {
-    //         Cipher c = Cipher.getInstance(alg, getInteropProviderName());
-    //         c.init(Cipher.UNWRAP_MODE, key);
-    //         fail("Expected InvalidKeyException didn't occur");
-    //     } catch (InvalidKeyException e) {
-    //         msgInterop = e.getMessage();
-    //     }
-    //     assertEquals(msg, msgInterop);
-    // }
 
     private SecretKey createKey(String algorithm) throws Exception {
         PBEKeySpec pbeKeySpec = new PBEKeySpec("mypassword".toCharArray());
