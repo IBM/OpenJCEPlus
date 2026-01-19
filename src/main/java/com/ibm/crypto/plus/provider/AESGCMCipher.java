@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,9 +8,9 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.GCMCipher;
-import com.ibm.crypto.plus.provider.ock.OCKContext;
-import com.ibm.crypto.plus.provider.ock.OCKException;
+import com.ibm.crypto.plus.provider.base.GCMCipher;
+import com.ibm.crypto.plus.provider.base.OCKContext;
+import com.ibm.crypto.plus.provider.base.OCKException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
@@ -380,7 +380,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
             ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
             provider.setOCKExceptionCause(sbe, ock_sbe);
             throw sbe;
-        } catch (com.ibm.crypto.plus.provider.ock.OCKException ock_excp) {
+        } catch (com.ibm.crypto.plus.provider.base.OCKException ock_excp) {
             resetVars(true);
             AEADBadTagException tagexcp = new AEADBadTagException(ock_excp.getMessage());
             provider.setOCKExceptionCause(tagexcp, ock_excp);
@@ -1147,7 +1147,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
             ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
             provider.setOCKExceptionCause(sbe, ock_sbe);
             throw sbe;
-        } catch (com.ibm.crypto.plus.provider.ock.OCKException ock_excp) {
+        } catch (com.ibm.crypto.plus.provider.base.OCKException ock_excp) {
             sbeInLastUpdateEncrypt = false;
             AEADBadTagException tagexcp = new AEADBadTagException(ock_excp.getMessage());
             provider.setOCKExceptionCause(tagexcp, ock_excp);
