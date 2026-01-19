@@ -1,0 +1,161 @@
+###############################################################################
+#
+# Copyright IBM Corp. 2023, 2026
+#
+# This code is free software; you can redistribute it and/or modify it
+# under the terms provided by IBM in the LICENSE file that accompanied
+# this code, including the "Classpath" Exception described therein.
+###############################################################################
+
+TOPDIR=../../../..
+
+PLAT=x86
+CC=gcc
+CFLAGS= -fPIC -Werror -std=gnu99 -pedantic -Wall -fstack-protector
+LDFLAGS= -shared
+
+ifeq (${PLATFORM},arm-linux64)
+  PLAT=xr
+  CFLAGS+= -DLINUX
+  OSINCLUDEDIR=linux
+else ifeq (${PLATFORM},ppc-aix64)
+  PLAT=ap
+  CC=xlclang
+  CFLAGS+= -DAIX -m64
+  LDFLAGS+= -brtl -m64
+  OSINCLUDEDIR=aix
+else ifeq (${PLATFORM},ppcle-linux64)
+  PLAT=xl
+  CFLAGS+= -DLINUX -m64
+  LDFLAGS+= -m64
+  OSINCLUDEDIR=linux
+else ifeq (${PLATFORM},s390-linux64)
+  PLAT=xz
+  CFLAGS+= -DS390_PLATFORM -DLINUX -m64
+  LDFLAGS+= -m64
+  OSINCLUDEDIR=linux
+else ifeq (${PLATFORM},s390-zos64)
+  CC=xlc
+  PLAT=mz
+  CFLAGS= -DS390 -m64
+  CFLAGS+= -O3 -Wc,strict,hgpr,hot
+  CFLAGS+= -Wc,XPLINK,LP64,DLL,exportall
+  LDFLAGS= -Wl,XPLINK,LP64,DLL,AMODE=64
+  ICCARCHIVE = ${GSKIT_HOME}/libjgsk8iccs_64.x
+  OSINCLUDEDIR=zos
+else ifeq (${PLATFORM},x86-linux64)
+  PLAT=xa
+  CFLAGS+= -DLINUX -m64
+  LDFLAGS+= -m64
+  OSINCLUDEDIR=linux
+endif
+
+#Setting this flag will result non key material such as handle to OCK Objects etc being logged to the trace file.
+#This flag must be disabled before building production version
+#DEBUG_FLAGS += -DDEBUG
+#DEBUG_DETAIL = -DDEBUG_RANDOM_DETAIL -DDEBUG_RAND_DETAIL -DDEBUG_DH_DETAIL -DDEBUG_DSA_DETAIL -DDEBUG_DIGEST_DETAIL -DDEBUG_EC_DETAIL -DDEBUG_EXTENDED_RANDOM_DETAIL -DDEBUG_GCM_DETAIL -DDEBUG_CCM_DETAIL -DDEBUG_HMAC_DETAIL -DDEBUG_PKEY_DETAIL -DDEBUG_CIPHER_DETAIL -DDEBUG_RSA_DETAIL -DDEBUG_SIGNATURE_DETAIL -DDEBUG_SIGNATURE_DSANONE_DETAIL -DDEBUG_SIGNATURE_RSASSL_DETAIL -DDEBUG_HKDF_DETAIL -DDEBUG_RSAPSS_DETAIL -DDEBUG_SIGNATURE_EDDSA_DETAIL -DDEBUG_PBKDF_DETAIL -DDEBUG_PQC_KEY_DETAIL
+
+#Setting this flag will result sensitive key material such as private/public key bytes/parameter bytes being logged to the trace file.
+#Please warn the customer know that it not suitable to deploy jgskit library on production system, enabling this flag.
+#This flag must be disabled before building production version
+#DEBUG_DATA = -DDEBUG_DH_DATA -DDEBUG_DSA_DATA -DDEBUG_EC_DATA -DDEBUG_GCM_DATA -DDEBUG_CCM_DATA -DDEBUG_HMAC_DATA -DDEBUG_CIPHER_DATA -DDEBUG_RSA_DATA -DDEBUG_SIGNATURE_DATA -DDEBUG_SIGNATURE_DSANONE_DATA -DDEBUG_SIGNATURE_RSASSL_DATA -DDEBUG_HKDF_DATA -DDEBUG_RSAPSS_DATA -DDEBUG_SIGNATURE_EDDSA_DATA
+#DEBUG_FLAGS+= -g ${DEBUG_DETAIL} ${DEBUG_DATA}
+
+BUILDTOP = ${TOPDIR}/target
+HOSTOUT = ${BUILDTOP}/jgskit-${PLAT}-64
+
+OPENJCEPLUS_HEADER_FILES ?= ${TOPDIR}/src/main/native/ock
+JAVACLASSDIR=${BUILDTOP}/classes
+
+OBJS = \
+	${HOSTOUT}/AESKeyWrap.o \
+	${HOSTOUT}/BasicRandom.o \
+	${HOSTOUT}/BuildDate.o \
+	${HOSTOUT}/CCM.o \
+	${HOSTOUT}/Digest.o \
+	${HOSTOUT}/DHKey.o \
+	${HOSTOUT}/DSAKey.o \
+	${HOSTOUT}/ECKey.o \
+	${HOSTOUT}/ExtendedRandom.o \
+	${HOSTOUT}/GCM.o \
+	${HOSTOUT}/HKDF.o \
+	${HOSTOUT}/HMAC.o \
+	${HOSTOUT}/KEM.o \
+	${HOSTOUT}/MLKey.o \
+	${HOSTOUT}/PBKDF.o \
+	${HOSTOUT}/PKey.o \
+	${HOSTOUT}/Poly1305Cipher.o \
+	${HOSTOUT}/RSA.o \
+	${HOSTOUT}/RSAKey.o \
+	${HOSTOUT}/RsaPss.o \
+	${HOSTOUT}/Signature.o \
+	${HOSTOUT}/SignatureDSANONE.o \
+	${HOSTOUT}/SignatureEdDSA.o \
+	${HOSTOUT}/SignaturePQC.o \
+	${HOSTOUT}/SignatureRSASSL.o \
+	${HOSTOUT}/StaticStub.o \
+	${HOSTOUT}/SymmetricCipher.o \
+	${HOSTOUT}/Utils.o
+
+TARGET = ${HOSTOUT}/libjgskit.so
+
+GSK8ICCS64=jgsk8iccs_64
+
+all : displaycompiler ${TARGET}
+
+ifneq (,$(filter s390-zos64,${PLATFORM}))
+  TARGET_LIBS := ${ICCARCHIVE}
+else
+  TARGET_LIBS := -L ${GSKIT_HOME}/lib64 -l ${GSK8ICCS64}
+endif
+
+${TARGET} : ${OBJS}
+	${CC} ${LDFLAGS} -o ${TARGET} ${OBJS} ${TARGET_LIBS}
+
+${HOSTOUT}/%.o : %.c
+	test -d ${@D} || mkdir -p ${@D}
+	${CC} \
+		${CFLAGS} \
+		${DEBUG_FLAGS} \
+		-c \
+		-I${GSKIT_HOME}/inc \
+		-I${JAVA_HOME}/include \
+		-I${JAVA_HOME}/include/${OSINCLUDEDIR} \
+		-I${OPENJCEPLUS_HEADER_FILES} \
+		-o $@ \
+		$<
+
+displaycompiler :
+	@echo "Compiler version: " && ${CC} --version
+	@echo "Building with ${CC} compiler..."
+	@echo "-------------------------------------"
+
+# Force BuildDate to be compiled every time.
+#
+${HOSTOUT}/BuildDate.o : FORCE
+
+FORCE :
+
+ifneq (${EXTERNAL_HEADERS},true)
+
+${OBJS} : | headers
+
+headers :
+	echo "Compiling OpenJCEPlus headers"
+	${JAVA_HOME}/bin/javac \
+		--add-exports java.base/sun.security.util=openjceplus \
+		--add-exports java.base/sun.security.util=ALL-UNNAMED \
+		-d ${JAVACLASSDIR} \
+		-h ${TOPDIR}/src/main/native/ock/ \
+		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/base/FastJNIBuffer.java \
+		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/base/NativeInterface.java
+
+endif # ! EXTERNAL_HEADERS
+
+clean :
+	rm -f ${HOSTOUT}/*.o
+	rm -f ${HOSTOUT}/*.so
+	rm -f com_ibm_crypto_plus_provider_base_FastJNIBuffer.h
+	rm -f com_ibm_crypto_plus_provider_base_NativeInterface.h
+
+.PHONY : all headers clean FORCE displaycompiler

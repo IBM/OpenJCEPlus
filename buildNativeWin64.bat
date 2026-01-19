@@ -1,6 +1,6 @@
 ::#############################################################################
 ::#
-::# Copyright IBM Corp. 2023
+::# Copyright IBM Corp. 2023, 2026
 ::#
 ::# This code is free software; you can redistribute it and/or modify it
 ::# under the terms provided by IBM in the LICENSE file that accompanied
@@ -31,7 +31,7 @@ IF NOT DEFINED GSKIT_HOME (
 
 :: @call "%VCVARS_64_SCRIPT%"
 
-cd src/main/native
+cd src/main/native/ock
 
 @call nmake -nologo -f jgskit.win64.cygwin.mak clean
 @call nmake -nologo -f jgskit.win64.cygwin.mak
