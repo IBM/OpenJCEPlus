@@ -8,8 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS;
-import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS.InitOp;
+import com.ibm.crypto.plus.provider.base.SignatureRSAPSS;
+import com.ibm.crypto.plus.provider.base.SignatureRSAPSS.InitOp;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
