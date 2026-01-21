@@ -341,7 +341,7 @@ public final class Digest implements Cloneable {
         return copy;
     }
 
-    public byte[] PKCS12DigestHelp(byte[] input, int offset, int length, int iterationCount) throws OCKException {
+    public byte[] PKCS12KeyDeriveHelp(byte[] input, int offset, int length, int iterationCount) throws OCKException {
         int errorCode = 0;
 
         if (length == 0) {
@@ -356,7 +356,7 @@ public final class Digest implements Cloneable {
             throw new OCKException(badIdMsg);
         }
 
-        errorCode = NativeInterface.DIGEST_PKCS12Help(this.ockContext.getId(), this.digestId, input, offset, length, iterationCount);
+        errorCode = NativeInterface.DIGEST_PKCS12KeyDeriveHelp(this.ockContext.getId(), this.digestId, input, offset, length, iterationCount);
         if (errorCode < 0) {
             throwOCKException(errorCode);
         }

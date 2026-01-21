@@ -266,7 +266,7 @@ abstract class PBES1Core extends CipherSpi {
             sha.engineUpdate(D, 0, D.length);
             sha.engineUpdate(I, 0, I.length);
             Ai = sha.engineDigest();
-            Ai = sha.PKCS12Help(Ai, 0, Ai.length, this.iterationCount);
+            Ai = sha.PKCS12KeyDeriveHelp(Ai, 0, Ai.length, this.iterationCount);
             System.arraycopy(Ai, 0, res, u * i, Math.min(n, u));
             if (i + 1 == c) {
                 break;

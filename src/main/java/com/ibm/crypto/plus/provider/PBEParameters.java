@@ -32,13 +32,13 @@ public final class PBEParameters extends AlgorithmParametersSpi {
 
     protected void engineInit(AlgorithmParameterSpec paramSpec)
         throws InvalidParameterSpecException {
-        if (!(paramSpec instanceof PBEParameterSpec)) {
+        if (!(paramSpec instanceof PBEParameterSpec pbespec)) {
             throw new InvalidParameterSpecException("Inappropriate parameter specification");
         }
 
-        this.salt = ((PBEParameterSpec) paramSpec).getSalt().clone();
-        this.iCount = ((PBEParameterSpec) paramSpec).getIterationCount();
-        this.cipherParam = ((PBEParameterSpec) paramSpec).getParameterSpec();
+        this.salt = pbespec.getSalt().clone();
+        this.iCount = pbespec.getIterationCount();
+        this.cipherParam = pbespec.getParameterSpec();
     }
 
     protected void engineInit(byte[] encoded)
