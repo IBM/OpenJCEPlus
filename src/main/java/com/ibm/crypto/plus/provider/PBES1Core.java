@@ -220,6 +220,7 @@ abstract class PBES1Core extends CipherSpi {
         }
         
         byte[] pass = passwordBigEndian(password);
+        Arrays.fill(password, (byte) 0x00);
         byte[] iv = deriveKey(8, CIPHER_IV, pass);
         byte[] derivedKey = deriveKey(keysize, CIPHER_KEY, pass);
         Arrays.fill(pass, (byte) 0x00);
