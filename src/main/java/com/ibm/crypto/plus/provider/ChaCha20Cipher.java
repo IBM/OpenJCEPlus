@@ -8,8 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.Padding;
-import com.ibm.crypto.plus.provider.ock.SymmetricCipher;
+import com.ibm.crypto.plus.provider.base.Padding;
+import com.ibm.crypto.plus.provider.base.SymmetricCipher;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.AlgorithmParameters;

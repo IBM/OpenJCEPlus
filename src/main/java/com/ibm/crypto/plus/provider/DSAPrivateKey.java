@@ -8,7 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.DSAKey;
+import com.ibm.crypto.plus.provider.base.DSAKey;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;

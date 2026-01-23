@@ -8,8 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.RSACipher;
-import com.ibm.crypto.plus.provider.ock.RSAPadding;
+import com.ibm.crypto.plus.provider.base.RSACipher;
+import com.ibm.crypto.plus.provider.base.RSAPadding;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;

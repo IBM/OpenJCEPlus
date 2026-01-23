@@ -30,7 +30,7 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.SignatureRSASSL;
+import com.ibm.crypto.plus.provider.base.SignatureRSASSL;
 import java.io.ByteArrayOutputStream;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
