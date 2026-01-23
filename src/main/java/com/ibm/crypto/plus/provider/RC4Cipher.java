@@ -286,6 +286,6 @@ public final class RC4Cipher extends LegacyCipher {
     }
 
     static final boolean isKeySizeValid(int len) {
-        return len == 16 || len == 5 ? true : false;
+        return len == 16 || len == 5;
     }
 }

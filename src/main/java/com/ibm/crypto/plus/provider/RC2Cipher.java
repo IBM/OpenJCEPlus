@@ -192,10 +192,10 @@ public final class RC2Cipher extends LegacyCipher {
             engineInit(opmode, key, random);
         } else {
             byte[] ivBytes = null;
-            if (params instanceof IvParameterSpec) {
-                ivBytes = ((IvParameterSpec) params).getIV();
-            } else if (params instanceof RC2ParameterSpec) {
-                ivBytes = ((RC2ParameterSpec) params).getIV();
+            if (params instanceof IvParameterSpec ivspec) {
+                ivBytes = ivspec.getIV();
+            } else if (params instanceof RC2ParameterSpec rc2spec) {
+                ivBytes = rc2spec.getIV();
             } else {
                 throw new InvalidAlgorithmParameterException("Wrong parameter type: IV or RC2 expected");
             }
@@ -372,6 +372,6 @@ public final class RC2Cipher extends LegacyCipher {
     }
 
     static final boolean isKeySizeValid(int len) {
-        return len == 16 || len == 5 ? true : false;
+        return len == 16 || len == 5;
     }
 }

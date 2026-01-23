@@ -196,8 +196,7 @@ abstract class PBES1Core extends CipherSpi {
                 provider.getSecureRandom(null).nextBytes(this.salt);
             }
         } else {
-            if (params instanceof PBEParameterSpec) {
-                PBEParameterSpec pbespec = (PBEParameterSpec) params;
+            if (params instanceof PBEParameterSpec pbespec) {
                 if (keyIterationCount != 0 && (keyIterationCount != pbespec.getIterationCount())) {
                     throw new InvalidAlgorithmParameterException("Different iteration count between key and params");
                 }
@@ -218,14 +217,20 @@ abstract class PBES1Core extends CipherSpi {
         if (iterationCount <= 0) {
             throw new InvalidAlgorithmParameterException("IterationCount must be a positive number");
         }
-        
-        byte[] pass = passwordBigEndian(password);
-        Arrays.fill(password, (byte) 0x00);
-        byte[] iv = deriveKey(8, CIPHER_IV, pass);
-        byte[] derivedKey = deriveKey(keysize, CIPHER_KEY, pass);
-        Arrays.fill(pass, (byte) 0x00);
 
-        SecretKeySpec cipherKey = new SecretKeySpec(derivedKey, cipheralgo);
+        byte[] pass = null, derivedKey = null, iv;
+        SecretKey cipherKey;
+        try {
+            pass = passwordBigEndian(password);
+            iv = deriveKey(8, CIPHER_IV, pass);
+            derivedKey = deriveKey(keysize, CIPHER_KEY, pass);
+            cipherKey = new SecretKeySpec(derivedKey, cipheralgo);
+        } finally {
+            Arrays.fill(password, (byte) 0x00);
+            Arrays.fill(pass, (byte) 0x00);
+            Arrays.fill(derivedKey, (byte) 0x00);
+        }
+
         cipher.engineInit(opmode, cipherKey, new IvParameterSpec(iv), random);
     }
 
