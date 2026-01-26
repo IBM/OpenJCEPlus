@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -228,7 +228,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             assertTrue(verifyingPlus.verify(signedBytesInterop), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "SignInteropAndVerifyPlus failed");
+            fail("SignInteropAndVerifyPlus failed");
         }
     }
 
@@ -263,7 +263,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             assertTrue(verifyingPlus.verify(signedBytesInterop), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "SignInteropAndVerifyPlus failed");
+            fail("SignInteropAndVerifyPlus failed");
         }
     }
 
@@ -299,7 +299,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             assertTrue(verifyingPlus.verify(signedBytesPlus), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "SignPlusAndVerifyInterop failed");
+            fail("SignPlusAndVerifyInterop failed");
         }
     }
 }
