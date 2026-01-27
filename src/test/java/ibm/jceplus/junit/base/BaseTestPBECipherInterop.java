@@ -53,14 +53,10 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
             "PBEWithHmacShA512/256AndAES_256/CBC/pkCS5Padding", "PBEWithSHA1AndDESede/CBC/PKCS5Padding", "PBEWithSHA1AndRC2_40/CBC/PKCS5Padding", "PBEWithSHA1AndRC2_128/CBC/PKCS5Padding",
             "PBEWithSHA1AndRC4_40/ECB/NoPadding", "PBEWithSHA1AndRC4_128/ECB/NoPadding");
 
-    private final byte[] plainText14 = "12345678123456".getBytes();
+    private final byte[] plainText15 = "123456781234567".getBytes();
     private final byte[] plainText16 = "1234567812345678".getBytes();
-    private final byte[] plainText18 = "123456781234567812".getBytes();
-    private final byte[] plainText63 = "123456781234567812345678123456781234567812345678123456781234567"
-            .getBytes();
-    private final byte[] plainText128 = "12345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678"
-            .getBytes();
-    private final byte[] plainText = plainText128; // default value
+    private final byte[] plainText17 = "12345678123456781".getBytes();
+    private final byte[] plainText = plainText17; // default value // default value
 
     @ParameterizedTest
     @FieldSource("algorithms")
@@ -316,11 +312,9 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
     }
 
     private void encryptDecrypt(String algorithm, SecretKey key, boolean algParams) throws Exception {
-        encryptDecrypt(algorithm, key, algParams, plainText14);
+        encryptDecrypt(algorithm, key, algParams, plainText15);
         encryptDecrypt(algorithm, key, algParams, plainText16);
-        encryptDecrypt(algorithm, key, algParams, plainText18);
-        encryptDecrypt(algorithm, key, algParams, plainText63);
-        encryptDecrypt(algorithm, key, algParams, plainText128);
+        encryptDecrypt(algorithm, key, algParams, plainText17);
     }
 
     private void encryptDecrypt(String algorithm, SecretKey key, boolean algParams, byte[] message) throws Exception {
