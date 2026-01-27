@@ -541,39 +541,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         putService(new OpenJCEPlusService(jce, "KeyGenerator", "HmacSHA3-512",
                 "com.ibm.crypto.plus.provider.HmacKeyGenerator$HmacSHA3_512", aliases));
 
-        aliases = new String[] {"TlsPrf"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "SunTlsPrf",
-                "com.ibm.crypto.plus.provider.TlsPrfGenerator$V10", aliases));
-
-        aliases = new String[] {"Tls12Prf"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "SunTls12Prf",
-                "com.ibm.crypto.plus.provider.TlsPrfGenerator$V12", aliases));
-
-        aliases = new String[] {"TlsRsaPremasterSecret"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "SunTlsRsaPremasterSecret",
-                "com.ibm.crypto.plus.provider.TlsRsaPremasterSecretGenerator", aliases));
-
-        aliases = new String[] {"Tls12RsaPremasterSecret"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "SunTls12RsaPremasterSecret",
-                "com.ibm.crypto.plus.provider.TlsRsaPremasterSecretGenerator", aliases));
-
-        aliases = new String[] {"TlsMasterSecret", "TlsExtendedMasterSecret",
-                "SunTlsExtendedMasterSecret"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "SunTlsMasterSecret",
-                "com.ibm.crypto.plus.provider.TlsMasterSecretGenerator", aliases));
-
-        aliases = new String[] {"Tls12MasterSecret"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "SunTls12MasterSecret",
-                "com.ibm.crypto.plus.provider.TlsMasterSecretGenerator", aliases));
-
-        aliases = new String[] {"TlsKeyMaterial"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "SunTlsKeyMaterial",
-                "com.ibm.crypto.plus.provider.TlsKeyMaterialGenerator", aliases));
-
-        aliases = new String[] {"Tls12KeyMaterial"};
-        putService(new OpenJCEPlusService(jce, "KeyGenerator", "SunTls12KeyMaterial",
-                "com.ibm.crypto.plus.provider.TlsKeyMaterialGenerator", aliases));
-
         // Used for both ChaCha20 and ChaCha20-Poly1305 ciphers
         aliases = null;
         putService(new OpenJCEPlusService(jce, "KeyGenerator", "ChaCha20",
