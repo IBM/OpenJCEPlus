@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -67,7 +67,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_KEM_1encapsulate(
             free(wrappedKeyLocal);
         }
         if (genkeylocal != NULL) {
-            free(wrappedKeyLocal);
+            free(genkeylocal);
         }
         ICC_EVP_PKEY_CTX_free(ockCtx, evp_pk);
         throwOCKException(env, 0, "malloc failed");
