@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,8 +8,10 @@
 
 package ibm.jceplus.junit.suites;
 
+import ibm.jceplus.junit.tests.Tags;
+
 /**
- * Multi-threaded test suite that runs all tests tagged with "OpenJCEPlus"
+ * Multi-threaded test suite that runs all tests tagged with "OpenJCEPlusMultithread"
  * from the ibm.jceplus.junit.tests package.
  */
 public class TestMultiThreadOpenJCEPlus extends BaseTestMultiThread {
@@ -20,6 +22,6 @@ public class TestMultiThreadOpenJCEPlus extends BaseTestMultiThread {
 
     @Override
     protected String getTagName() {
-        return "OpenJCEPlus";
+        return Tags.OPENJCEPLUS_MULTITHREAD.getTag();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -19,12 +19,8 @@ import org.junit.platform.suite.api.Suite;
     TestAESCCMParameters.class,
     TestAESCipherInputStreamExceptions.class,
     TestAESCopySafe.class,
-    TestAESGCM_128.class,
-    TestAESGCM_192.class,
-    TestAESGCM_256.class,
     TestAESGCM_ExtIV.class,
     TestAESGCM_IntIV.class,
-    TestAESGCM.class,
     TestAESGCMBufferIV.class,
     TestAESGCMCICOWithGCM.class,
     TestAESGCMCICOWithGCMAndAAD.class,
