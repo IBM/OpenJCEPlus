@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -62,6 +62,18 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
             return this.digest.getDigestLength();
         } catch (Exception e) {
             throw provider.providerException("Failure in engineGetDigestLength", e);
+        }
+    }
+
+    /*
+     * This method helps in deriving PKCS12 key by performing update and digest in C
+     * in an iteration count loop avoiding excess JNI calls. 
+     */
+    protected byte[] PKCS12KeyDeriveHelp(byte[] input, int offset, int length, int iterationCount) {
+        try {
+            return this.digest.PKCS12KeyDeriveHelp(input, offset, length, iterationCount);
+        } catch (Exception e) {
+            throw provider.providerException("Failure in PKCS12 key derivation native helper method", e);
         }
     }
 
