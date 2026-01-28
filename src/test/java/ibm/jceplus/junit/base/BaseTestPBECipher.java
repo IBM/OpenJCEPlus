@@ -14,6 +14,7 @@ import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 import java.util.List;
 import java.util.Locale;
 import javax.crypto.Cipher;
@@ -209,9 +210,31 @@ public class BaseTestPBECipher extends BaseTestJunit5 {
     }
 
     private void encryptDecrypt(String algorithm, SecretKey key, boolean algParams) throws Exception {
-        encryptDecrypt(algorithm, key, algParams, plainText15);
-        encryptDecrypt(algorithm, key, algParams, plainText16);
-        encryptDecrypt(algorithm, key, algParams, plainText17);
+        CompletableFuture<Void> inputData15 =  CompletableFuture.runAsync(() -> {
+            try {
+                encryptDecrypt(algorithm, key, algParams, plainText15);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        CompletableFuture<Void> inputData16 =  CompletableFuture.runAsync(() -> {
+            try {
+                encryptDecrypt(algorithm, key, algParams, plainText16);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        CompletableFuture<Void> inputData17 =  CompletableFuture.runAsync(() -> {
+            try {
+                encryptDecrypt(algorithm, key, algParams, plainText17);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        CompletableFuture.allOf(inputData15, inputData16, inputData17).join();
     }
 
     private void encryptDecrypt(String algorithm, SecretKey key, boolean algParams, byte[] message) throws Exception {
