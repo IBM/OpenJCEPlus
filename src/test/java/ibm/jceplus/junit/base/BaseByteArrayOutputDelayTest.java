@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,7 +8,7 @@
 
 package ibm.jceplus.junit.base;
 
-import com.ibm.crypto.plus.provider.ock.ByteArrayOutputDelay;
+import com.ibm.crypto.plus.provider.base.ByteArrayOutputDelay;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;

@@ -2,7 +2,7 @@
 
 ###############################################################################
 #
-# Copyright IBM Corp. 2023
+# Copyright IBM Corp. 2023, 2026
 #
 # This code is free software; you can redistribute it and/or modify it
 # under the terms provided by IBM in the LICENSE file that accompanied
@@ -51,7 +51,7 @@ if [ ${PLATFORM} == "ppc-aix64" ];
   then
   make=gmake
 fi
-cd src/main/native
+cd src/main/native/ock
 
 ${make} -f jgskit.mak clean
 ${make} -f jgskit.mak

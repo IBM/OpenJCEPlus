@@ -1,0 +1,45 @@
+/*
+ * Copyright IBM Corp. 2023, 2026
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms provided by IBM in the LICENSE file that accompanied
+ * this code, including the "Classpath" Exception described therein.
+ */
+
+#include <winver.h>
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 8,0,0,0
+ PRODUCTVERSION 800
+ FILEFLAGSMASK 0x1fL
+#ifdef DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_DLL
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "00000000"
+        BEGIN
+            VALUE "CompanyName", "IBM\0"
+            VALUE "FileDescription", "Native JGSKIT runtime library\0"
+            VALUE "FileVersion", "23\0"
+	        VALUE "Build Increment", "0\0"
+            VALUE "InternalName", "jgskit.dll\0"
+            VALUE "LegalCopyright", "(C) Copyright IBM Corp. 2023, 2026. Licensed under the GLP v2 plus classpath exception. See LICENSE file associated with source.\0"
+            VALUE "OriginalFilename", "jgskit.dll\0"
+            VALUE "ProductName", "OpenJCEPlus Crypto Provider for Windows, 23.0\0"
+            VALUE "ProductVersion", "23.0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0000, 0000
+    END
+END
+
+

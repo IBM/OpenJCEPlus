@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,8 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS;
-import com.ibm.crypto.plus.provider.ock.SignatureRSAPSS.InitOp;
+import com.ibm.crypto.plus.provider.base.SignatureRSAPSS;
+import com.ibm.crypto.plus.provider.base.SignatureRSAPSS.InitOp;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
