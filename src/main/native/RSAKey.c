@@ -66,6 +66,11 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RSAKEY_1generate(
     }
 
     snprintf(bitStr, sizeof(bitStr), "%d", (int)numBits);
+
+#ifdef __MVS__
+    forceToAscii(bitStr); // Ensure the value is ASCII before passing to OCK
+#endif
+
 #ifdef __MVS__
 #pragma convert("ISO8859-1")
 #endif
@@ -87,6 +92,11 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_RSAKEY_1generate(
     }
 
     snprintf(expStr, sizeof(expStr), "%ld", (long)e);
+
+#ifdef __MVS__
+    forceToAscii(expStr); // Ensure the value is ASCII before passing to OCK
+#endif
+
 #ifdef __MVS__
 #pragma convert("ISO8859-1")
 #endif

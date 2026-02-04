@@ -52,4 +52,8 @@ void ockCheckStatus(ICC_CTX* ctx);
 
 void throwOCKException(JNIEnv* env, int code, const char* msg);
 
+#ifdef __MVS__
+void forceToAscii(char* s);
+#endif
+
 #endif
