@@ -248,5 +248,17 @@ void throwOCKException(JNIEnv *env, int code, const char *msg) {
 }
 
 #ifdef __MVS__
+/* Manual EBCDIC to ASCII conversion for digits */
+void forceToAscii(char *s) {
+    while (*s) {
+        if (*s >= (char)0xF0 && *s <= (char)0xF9) {
+            *s = *s - (char)0xF0 + (char)0x30;
+        }
+        s++;
+    }
+}
+#endif
+
+#ifdef __MVS__
 #include "closed_Utils_c.h"
 #endif
