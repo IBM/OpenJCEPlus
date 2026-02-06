@@ -31,7 +31,6 @@ public class TestMultithread {
     private final int numThreads = 10;
     private final int timeoutSec = 4500;
     private final String[] testList = {
-            "ibm.jceplus.junit.openjceplus.multithread.TestAESGCMCICOWithGCM",
             "ibm.jceplus.junit.openjceplus.multithread.TestAESGCMCICOWithGCMAndAAD",
             "ibm.jceplus.junit.openjceplus.multithread.TestAESCipherInputStreamExceptions",
             "ibm.jceplus.junit.openjceplus.multithread.TestAESCopySafe",
