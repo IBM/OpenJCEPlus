@@ -783,7 +783,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeInterface_DIGEST_1delete(
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
  * Method:    DIGEST_PKCS12KeyDeriveHelp
- * Signature: (JJ)V
+ * Signature: (JJ[BIII)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeInterface_DIGEST_1PKCS12KeyDeriveHelp(
