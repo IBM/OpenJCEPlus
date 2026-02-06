@@ -39,23 +39,8 @@ public class TestArguments {
      */
     private static Stream<Arguments> keySizesAndJCEPlusProviders(int[] keySizes) {
 
-        // Get active provider tags from -Dgroups system property
-        String[] groupPropertyTags = BaseTest.getTagsPropertyAsArray();
-
         // Check if provider tags are present and build a list. Defaults to all providers.
-        List<TestProvider> activeProviders = new ArrayList<>();
-        if (groupPropertyTags.length == 0) {
-            activeProviders.add(TestProvider.OpenJCEPlus);
-            activeProviders.add(TestProvider.OpenJCEPlusFIPS);
-        } else {
-            for (String tag : groupPropertyTags) {
-                if (TestProvider.OpenJCEPlus.getProviderName().equalsIgnoreCase(tag)) {
-                    activeProviders.add(TestProvider.OpenJCEPlus);
-                } else if (TestProvider.OpenJCEPlusFIPS.getProviderName().equalsIgnoreCase(tag)) {
-                    activeProviders.add(TestProvider.OpenJCEPlusFIPS);
-                }
-            }
-        }
+        List<TestProvider> activeProviders = getEnabledProviders().toList();
 
         // Generate all combinations of key sizes and providers determined above.
         List<Arguments> arguments = new ArrayList<>();
@@ -70,4 +55,31 @@ public class TestArguments {
         }
         return arguments.stream();
     }
+
+    /**
+     * Resolves enabled OpenJCEPlus* providers from -Dgroups, defaulting to all when none are specified.
+     *
+     * @return A stream of enabled TestProvider.
+     */ 
+    protected static Stream<TestProvider> getEnabledProviders(){
+
+        // Get active provider tags from -Dgroups system property
+        String[] groupPropertyTags = BaseTest.getTagsPropertyAsArray();
+
+        //retrieve enabled providers based on tags
+        List<TestProvider> enabledProviders = new ArrayList<>();
+        if (groupPropertyTags.length == 0) {
+            enabledProviders.add(TestProvider.OpenJCEPlus);
+            enabledProviders.add(TestProvider.OpenJCEPlusFIPS);
+        } else {
+            for (String tag : groupPropertyTags) {
+                if (TestProvider.OpenJCEPlus.getProviderName().equalsIgnoreCase(tag)) {
+                    enabledProviders.add(TestProvider.OpenJCEPlus);
+                } else if (TestProvider.OpenJCEPlusFIPS.getProviderName().equalsIgnoreCase(tag)) {
+                    enabledProviders.add(TestProvider.OpenJCEPlusFIPS);
+                }
+            }
+        }
+        return enabledProviders.stream();
+    }     
 }

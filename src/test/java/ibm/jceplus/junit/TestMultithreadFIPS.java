@@ -31,7 +31,6 @@ public class TestMultithreadFIPS {
     private final int numThreads = 10;
     private final int timeoutSec = 4500;
     private final String[] testList = {
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCM",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMCICOWithGCMAndAAD",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESCipherInputStreamExceptions",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESCopySafe",
