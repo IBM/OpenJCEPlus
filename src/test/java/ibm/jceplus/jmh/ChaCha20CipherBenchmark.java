@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -30,7 +30,7 @@ import org.openjdk.jmh.runner.options.Options;
 @State(Scope.Benchmark)
 @Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
-public class ChaCha20CipherBenchmark extends CipherBase {
+public class ChaCha20CipherBenchmark extends SymmetricCipherBase {
 
     @Param({"ChaCha20/None/NoPadding"})
     private String transformation;
