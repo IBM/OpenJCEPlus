@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,7 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.ock.SignatureDSANONE;
+import com.ibm.crypto.plus.provider.base.SignatureDSANONE;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.PrivateKey;
