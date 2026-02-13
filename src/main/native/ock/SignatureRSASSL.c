@@ -14,7 +14,7 @@
 #include <jcc_a.h>
 #include <icc.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include <stdint.h>
 
@@ -32,12 +32,12 @@
 //------------------------------------------------------------------------------
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSASSL_SIGNATURE_sign
  * Signature: (J[BJ)[B
  */
 JNIEXPORT jbyteArray JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSASSL_1SIGNATURE_1sign(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSASSL_1SIGNATURE_1sign(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jbyteArray digest,
     jlong rsaKeyId) {
     static const char *functionName = "NativeInterface.RSASSL_SIGNATURE_sign";
@@ -201,12 +201,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSASSL_1SIGNATURE_1sign(
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSASSL_SIGNATURE_verify
  * Signature: (J[BJ[B)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSASSL_1SIGNATURE_1verify(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSASSL_1SIGNATURE_1verify(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jbyteArray digest,
     jlong rsaKeyId, jbyteArray sigBytes, jboolean convert) {
     static const char *functionName = "NativeInterface.RSASSL_SIGNATURE_verify";

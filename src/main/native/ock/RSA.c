@@ -12,7 +12,7 @@
 #include <jcc_a.h>
 #include <icc.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include "RSAPadding.h"
 #include "RSA_temp.h"
@@ -23,12 +23,12 @@ static char * getDigestName(int mdId);
 static int setPadding(ICC_CTX *icc_ctx, ICC_EVP_PKEY_CTX *ctx, int rsaPaddingId, int mdId, int mgf1Id);
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSACIPHER_public_encrypt
  * Signature: (JJI[BII[BI)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSACIPHER_1public_1encrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSACIPHER_1public_1encrypt(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong rsaKeyId,
     jint rsaPaddingId, jint mdId, jint mgf1Id, jbyteArray plaintext, jint plaintextOff,
     jint plaintextLen, jbyteArray ciphertext, jint ciphertextOff) {
@@ -169,12 +169,12 @@ cleanup:
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSACIPHER_private_encrypt
  * Signature: (JJI[BII[BI)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSACIPHER_1private_1encrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSACIPHER_1private_1encrypt(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong rsaKeyId,
     jint rsaPaddingId, jbyteArray plaintext, jint plaintextOff,
     jint plaintextLen, jbyteArray ciphertext, jint ciphertextOff,
@@ -286,12 +286,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSACIPHER_1private_1encry
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSACIPHER_public_decrypt
  * Signature: (JJI[BII[BI)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSACIPHER_1public_1decrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSACIPHER_1public_1decrypt(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong rsaKeyId,
     jint rsaPaddingId, jbyteArray ciphertext, jint ciphertextOff,
     jint ciphertextLen, jbyteArray plaintext, jint plaintextOff) {
@@ -397,12 +397,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSACIPHER_1public_1decryp
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSACIPHER_private_decrypt
  * Signature: (JJI[BII[BI)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSACIPHER_1private_1decrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSACIPHER_1private_1decrypt(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong rsaKeyId,
     jint rsaPaddingId, jint mdId, jint mgf1Id, jbyteArray ciphertext, jint ciphertextOff,
     jint ciphertextLen, jbyteArray plaintext, jint plaintextOff,

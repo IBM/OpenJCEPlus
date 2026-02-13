@@ -9,7 +9,10 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.base.DHKey;
+import com.ibm.crypto.plus.provider.base.NativeInterface;
 import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -28,6 +31,7 @@ import sun.security.util.KeyUtil;
 public final class DHKeyAgreement extends KeyAgreementSpi {
 
     private OpenJCEPlusProvider provider = null;
+    private NativeInterface nativeInterface;
     private boolean generateSecret = false;
     private BigInteger init_p = null;
     private BigInteger init_g = null;
@@ -51,6 +55,7 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
 
     public DHKeyAgreement(OpenJCEPlusProvider provider) {
         this.provider = provider;
+        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
     }
 
     @Override
@@ -143,7 +148,7 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
             }
             synchronized (locker1) {
                 synchronized (locker2) {
-                    secret = DHKey.computeDHSecret(provider.getOCKContext(),
+                    secret = DHKey.computeDHSecret(this.nativeInterface,
                             ockDHKeyPub.getDHKeyId(), ockDHKeyPriv.getDHKeyId());
                 }
             }

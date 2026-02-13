@@ -65,7 +65,7 @@ final class ECPublicKey extends X509Key
             // publicKeyBytes.length);
             // this.ecKey = ECKey.createPublicKey(IBMJCEPlus.getOCKContext(), w,
             // ecParams);
-            this.ecKey = ECKey.createPublicKey(provider.getOCKContext(), publicKeyBytes,
+            this.ecKey = ECKey.createPublicKey(publicKeyBytes,
                     parameterBytes, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create EC public key");
@@ -89,7 +89,7 @@ final class ECPublicKey extends X509Key
             byte[] publicKeyBytes = buildOCKPublicKeyBytes();
             byte[] parameterBytes = ECParameters.encodeECParameters(this.params);
             // System.out.println ("Calling ECKey createPublicKey");
-            this.ecKey = ECKey.createPublicKey(provider.getOCKContext(), publicKeyBytes,
+            this.ecKey = ECKey.createPublicKey(publicKeyBytes,
                     parameterBytes, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create EC public key");

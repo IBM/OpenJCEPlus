@@ -9,19 +9,17 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 
 public final class ExtendedRandom {
 
-    OpenJCEPlusProvider provider;
-    OCKContext ockContext;
+    private OpenJCEPlusProvider provider;
+    private NativeInterface nativeInterface;
     final long ockPRNGContextId;
 
-    public static ExtendedRandom getInstance(OCKContext ockContext, String algName, OpenJCEPlusProvider provider)
+    public static ExtendedRandom getInstance(String algName, OpenJCEPlusProvider provider)
             throws OCKException {
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
         if ((algName == null) || algName.isEmpty()) {
             throw new IllegalArgumentException("algName is null/empty");
         }
@@ -30,15 +28,15 @@ public final class ExtendedRandom {
             throw new IllegalArgumentException("provider is null");
         }
 
-        return new ExtendedRandom(ockContext, algName, provider);
+        return new ExtendedRandom(algName, provider);
     }
 
-    private ExtendedRandom(OCKContext ockContext, String algName, OpenJCEPlusProvider provider) throws OCKException {
-        this.ockContext = ockContext;
-        this.ockPRNGContextId = NativeInterface.EXTRAND_create(ockContext.getId(), algName);
+    private ExtendedRandom(String algName, OpenJCEPlusProvider provider) throws OCKException {
         this.provider = provider;
+        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.ockPRNGContextId = this.nativeInterface.EXTRAND_create(algName);
 
-        this.provider.registerCleanable(this, cleanOCKResources(ockPRNGContextId, ockContext));
+        this.provider.registerCleanable(this, cleanOCKResources(ockPRNGContextId, nativeInterface));
     }
 
     public synchronized void nextBytes(byte[] bytes) throws OCKException {
@@ -47,7 +45,7 @@ public final class ExtendedRandom {
         }
 
         if (bytes.length > 0) {
-            NativeInterface.EXTRAND_nextBytes(ockContext.getId(), ockPRNGContextId, bytes);
+            this.nativeInterface.EXTRAND_nextBytes(ockPRNGContextId, bytes);
         }
     }
 
@@ -57,15 +55,15 @@ public final class ExtendedRandom {
         }
 
         if (seed.length > 0) {
-            NativeInterface.EXTRAND_setSeed(ockContext.getId(), ockPRNGContextId, seed);
+            this.nativeInterface.EXTRAND_setSeed(ockPRNGContextId, seed);
         }
     }
 
-    private Runnable cleanOCKResources(long ockPRNGContextId, OCKContext ockContext) {
+    private Runnable cleanOCKResources(long ockPRNGContextId, NativeInterface nativeInterface) {
         return () -> {
             try {
                 if (ockPRNGContextId != 0) {
-                    NativeInterface.EXTRAND_delete(ockContext.getId(), ockPRNGContextId);
+                    nativeInterface.EXTRAND_delete(ockPRNGContextId);
                 }
             } catch (Exception e) {
                 if (OpenJCEPlusProvider.getDebug() != null) {

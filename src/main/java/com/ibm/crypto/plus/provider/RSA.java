@@ -61,7 +61,7 @@ public final class RSA extends CipherSpi {
     public RSA(OpenJCEPlusProvider provider) {
         this.provider = provider;
         try {
-            this.rsaCipher = RSACipher.getInstance(provider.getOCKContext());
+            this.rsaCipher = RSACipher.getInstance(provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to initialize RSA cipher", e);
         }

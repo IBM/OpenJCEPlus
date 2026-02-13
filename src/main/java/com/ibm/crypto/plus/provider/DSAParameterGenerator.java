@@ -138,8 +138,7 @@ public final class DSAParameterGenerator extends AlgorithmParameterGeneratorSpi 
             }
 
             if (keysize > 0) {
-                byte[] encodedParams = DSAKey.generateParameters(provider.getOCKContext(),
-                        this.keysize);
+                byte[] encodedParams = DSAKey.generateParameters(this.keysize, provider);
                 algParams.init(encodedParams);
             } else {
                 throw new ProviderException("Invalid key size: " + keysize);

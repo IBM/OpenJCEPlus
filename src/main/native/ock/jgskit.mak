@@ -144,9 +144,9 @@ headers :
 		-d ${JAVACLASSDIR} \
 		-h ${TOPDIR}/src/main/native/ock/ \
 		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/base/FastJNIBuffer.java \
-		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/base/NativeInterface.java; \
+		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/NativeOCKImplementation.java; \
 		if  [ "${PLATFORM}" = "s390-zos64" ]; \
-			then chtag -t -c ISO8859-1 com_ibm_crypto_plus_provider_base_NativeInterface.h; \
+			then chtag -t -c ISO8859-1 com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h; \
 		fi
 
 endif # ! EXTERNAL_HEADERS
@@ -155,6 +155,6 @@ clean :
 	rm -f ${HOSTOUT}/*.o
 	rm -f ${HOSTOUT}/*.so
 	rm -f com_ibm_crypto_plus_provider_base_FastJNIBuffer.h
-	rm -f com_ibm_crypto_plus_provider_base_NativeInterface.h
+	rm -f com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h
 
 .PHONY : all headers clean FORCE displaycompiler
