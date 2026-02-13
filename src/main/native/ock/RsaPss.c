@@ -548,6 +548,7 @@ OCKDigest *allocateDigest(JNIEnv *env, ICC_CTX *ockCtx, jstring digestAlgo) {
         if (NULL == ockDigest->mdCtx) {
             ockCheckStatus(ockCtx);
             throwOCKException(env, 0, "ICC_EVP_MD_CTX_new failed");
+            FREE_N_NULL(ockDigest);
         } else {
             ICC_EVP_MD_CTX_init(ockCtx, ockDigest->mdCtx);
         }
