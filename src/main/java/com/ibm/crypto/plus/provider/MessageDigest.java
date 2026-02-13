@@ -65,6 +65,18 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
         }
     }
 
+    /*
+     * This method helps in deriving PKCS12 key by performing update and digest in C
+     * in an iteration count loop avoiding excess JNI calls. 
+     */
+    protected byte[] PKCS12KeyDeriveHelp(byte[] input, int offset, int length, int iterationCount) {
+        try {
+            return this.digest.PKCS12KeyDeriveHelp(input, offset, length, iterationCount);
+        } catch (Exception e) {
+            throw provider.providerException("Failure in PKCS12 key derivation native helper method", e);
+        }
+    }
+
     /**
      * Compares two digests for equality. Two digests are equal if they have
      * the same length and all bytes at corresponding positions are equal.

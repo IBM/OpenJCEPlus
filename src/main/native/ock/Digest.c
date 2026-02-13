@@ -778,3 +778,49 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_DIGEST_1delete(
         gslogFunctionExit(functionName);
     }
 }
+
+//============================================================================
+/*
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeInterface
+ * Method:    DIGEST_PKCS12KeyDeriveHelp
+ * Signature: (JJ[BIII)I
+ */
+JNIEXPORT jint JNICALL
+Java_com_ibm_crypto_plus_provider_base_NativeInterface_DIGEST_1PKCS12KeyDeriveHelp(
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId,
+    jbyteArray data, jint offset, jint dataLen, jint iterationCount) {
+    ICC_CTX       *ockCtx    = (ICC_CTX *)((intptr_t)ockContextId);
+    OCKDigest     *ockDigest = (OCKDigest *)((intptr_t)digestId);
+    jboolean       isCopy    = 0;
+    unsigned char *dataNative =
+        (unsigned char *)(*env)->GetPrimitiveArrayCritical(env, data, &isCopy);
+    int retCode = 0;
+
+    for (int i = 1; i < iterationCount; i++) {
+        retCode = DIGEST_update_internal(ockCtx, ockDigest, dataNative + offset,
+                                         (int)dataLen);
+        if (retCode < 0) {
+            throwOCKException(env, 0,
+                              "Digest Update failed. The specified input "
+                              "parameters are incorrect.");
+            goto cleanup;
+        }
+
+        retCode =
+            DIGEST_digest_and_reset_internal(ockCtx, ockDigest, dataNative);
+        if (retCode < 0) {
+            throwOCKException(env, 0,
+                              "Digest and Reset failed. The specified input "
+                              "parameters are incorrect.");
+            goto cleanup;
+        }
+    }
+
+cleanup:
+    if (NULL != dataNative) {
+        (*env)->ReleasePrimitiveArrayCritical(env, data, dataNative, 0);
+        dataNative = NULL;
+    }
+
+    return retCode;
+}

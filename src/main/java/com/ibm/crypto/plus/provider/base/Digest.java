@@ -341,6 +341,30 @@ public final class Digest implements Cloneable {
         return copy;
     }
 
+    public byte[] PKCS12KeyDeriveHelp(byte[] input, int offset, int length, int iterationCount) throws OCKException {
+        int errorCode = 0;
+
+        if (length == 0) {
+            return null;
+        }
+
+        if (input == null || length < 0 || offset < 0 || (offset + length) > input.length) {
+            throw new IllegalArgumentException("Input range is invalid.");
+        }
+
+        if (!validId(this.digestId)) {
+            throw new OCKException(badIdMsg);
+        }
+
+        errorCode = NativeInterface.DIGEST_PKCS12KeyDeriveHelp(this.ockContext.getId(), this.digestId, input, offset, length, iterationCount);
+        if (errorCode < 0) {
+            throwOCKException(errorCode);
+        }
+        this.needsReinit.setValue(false);
+
+        return input;
+    }
+
     private Runnable cleanOCKResources(long digestId, int algIndx, boolean contextFromQueue,
             PrimitiveWrapper.Bool needsReinit, OCKContext ockContext) {
         return () -> {
