@@ -157,7 +157,7 @@ public final class RC4Cipher extends LegacyCipher {
 
         try {
             if (symmetricCipher == null) {
-                symmetricCipher = SymmetricCipher.getInstanceRC4(provider.getOCKContext(), rawKey.length, provider);
+                symmetricCipher = SymmetricCipher.getInstanceRC4(rawKey.length, provider);
             }
 
             if (isEncrypt) {

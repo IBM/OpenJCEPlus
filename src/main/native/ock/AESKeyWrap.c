@@ -13,19 +13,19 @@
 #include <jcc_a.h>
 #include <icc.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include <stdint.h>
 #include <string.h>
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    CIPHER_KeyWraporUnwrap
  * Signature: (J[B[B[BI)V
  */
 JNIEXPORT jbyteArray JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_CIPHER_1KeyWraporUnwrap(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_CIPHER_1KeyWraporUnwrap(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jbyteArray input,
     jbyteArray KEK, jint type) {
     ICC_CTX       *ockCtx    = (ICC_CTX *)((intptr_t)ockContextId);

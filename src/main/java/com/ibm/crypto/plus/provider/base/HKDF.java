@@ -9,12 +9,14 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class HKDF {
 
     private OpenJCEPlusProvider provider;
-    private OCKContext ockContext = null;
+    private NativeInterface nativeInterface;
     private final long hkdfId;
     String debPrefix = "";
 
@@ -26,25 +28,21 @@ public final class HKDF {
     private final String badIdMsg = "HKDF Identifier is not valid";
 
 
-    public static HKDF getInstance(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
+    public static HKDF getInstance(String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        return new HKDF(ockContext, digestAlgo, provider);
+        return new HKDF(digestAlgo, provider);
     }
 
-    private HKDF(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
+    private HKDF(String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "HKDF (ockContext, String)";
-        this.ockContext = ockContext;
-        this.hkdfId = NativeInterface.HKDF_create(ockContext.getId(), digestAlgo);
         this.provider = provider;
+        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.hkdfId = this.nativeInterface.HKDF_create(digestAlgo);
         //OCKDebug.Msg (debPrefix, methodName,  "this.hkdfId :" + this.hkdfId );
 
-        this.provider.registerCleanable(this, cleanOCKResources(hkdfId, reinitKey, ockContext));
+        this.provider.registerCleanable(this, cleanOCKResources(hkdfId, reinitKey, nativeInterface));
     }
 
 
@@ -54,7 +52,7 @@ public final class HKDF {
         //OCKDebug.Msg (debPrefix, methodName,  "this.hkdfId :" + this.hkdfId );
         //OCKDebug.Msg (debPrefix, methodName,  "saltLen:" + saltLen );
         //OCKDebug.Msg (debPrefix, methodName,  "inpKeyLen:" + inpKeyLen  + " inKey.lenth=" + inKey.length);
-        byte[] extractedBytes = NativeInterface.HKDF_extract(ockContext.getId(), hkdfId, salt,
+        byte[] extractedBytes = this.nativeInterface.HKDF_extract(hkdfId, salt,
                 (long) (salt.length), inKey, inpKeyLen);
         return extractedBytes;
 
@@ -65,7 +63,7 @@ public final class HKDF {
         //final String methodName = "HKDF expand (byte[] prkBytes, long prkLen, \r\n"
         //        + "            byte[] info, long infoLen, long okmLen)";
         //OCKDebug.Msg (debPrefix, methodName,  "this.hkdfId :" + this.hkdfId );
-        byte[] expandedBytes = NativeInterface.HKDF_expand(ockContext.getId(), hkdfId, prkBytes,
+        byte[] expandedBytes = this.nativeInterface.HKDF_expand(hkdfId, prkBytes,
                 (long) (prkBytes.length), info, (long) (info.length), okmLen);
         return expandedBytes;
 
@@ -77,7 +75,7 @@ public final class HKDF {
         //OCKDebug.Msg (debPrefix, methodName,  "this.hkdfId :" + this.hkdfId );
         //OCKDebug.Msg (debPrefix, methodName,  "saltLen:" + saltLen );
         //OCKDebug.Msg (debPrefix, methodName,  "inpKeyLen:" + inpKeyLen  + " inKey.lenth=" + inKey.length);
-        byte[] generateBytes = NativeInterface.HKDF_derive(ockContext.getId(), hkdfId, salt,
+        byte[] generateBytes = this.nativeInterface.HKDF_derive(hkdfId, salt,
                 (long) (salt.length), inKey, inpKeyLen, info, (long) (info.length), okmLen);
         return generateBytes;
 
@@ -109,7 +107,7 @@ public final class HKDF {
             if (!validId(hkdfId)) {
                 throw new OCKException(badIdMsg);
             }
-            this.macLength = NativeInterface.HKDF_size(ockContext.getId(), hkdfId);
+            this.macLength = this.nativeInterface.HKDF_size(hkdfId);
         }
     }
 
@@ -120,11 +118,11 @@ public final class HKDF {
         return (id != 0L);
     }
 
-    private Runnable cleanOCKResources(long hkdfId, byte[] reinitKey, OCKContext ockContext) {
+    private Runnable cleanOCKResources(long hkdfId, byte[] reinitKey, NativeInterface nativeInterface) {
         return () -> {
             try {
                 if (hkdfId != 0) {
-                    NativeInterface.HKDF_delete(ockContext.getId(), hkdfId);
+                    nativeInterface.HKDF_delete(hkdfId);
                 }
 
                 if (reinitKey != null) {

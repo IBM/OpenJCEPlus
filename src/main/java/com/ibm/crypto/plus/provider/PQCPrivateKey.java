@@ -51,15 +51,15 @@ final class PQCPrivateKey extends PKCS8Key {
         if (OctectStringEncoded(keyBytes)) {
             //Remove encoding OctetString encoding.
             key = Arrays.copyOfRange(keyBytes, 4, keyBytes.length);
-        } else {            
+        } else {
             key = keyBytes;
         }
 
         // Currently the ICC expects the raw keys in an OctetString
-        try {  
+        try {
             try {
                 pkOct = new DerValue(DerValue.tag_OctetString, key);
-                this.pqcKey = PQCKey.createPrivateKey(provider.getOCKContext(), 
+                this.pqcKey = PQCKey.createPrivateKey(
                                 this.name, pkOct.toByteArray(), provider);
                 this.privKeyMaterial = pkOct.toByteArray();
             } finally {
@@ -124,7 +124,7 @@ final class PQCPrivateKey extends PKCS8Key {
             }
         }
         try {
-            this.pqcKey = PQCKey.createPrivateKey(provider.getOCKContext(), 
+            this.pqcKey = PQCKey.createPrivateKey(
                                 this.name, this.privKeyMaterial, provider);
         } catch (Exception e) {
             throw new InvalidKeyException("Invalid key " + e.getMessage(), e);

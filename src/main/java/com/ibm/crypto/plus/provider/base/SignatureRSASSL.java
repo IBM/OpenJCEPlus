@@ -8,6 +8,9 @@
 
 package com.ibm.crypto.plus.provider.base;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.security.InvalidKeyException;
 
 //------------------------------------------------------------------------------
@@ -29,23 +32,19 @@ import java.security.InvalidKeyException;
  */
 public final class SignatureRSASSL {
 
-    private OCKContext ockContext = null;
+    private NativeInterface nativeInterface;
     private RSAKey key = null;
     private boolean convertKey = false;
     private boolean initialized = false;
     private static final String debPrefix = "SignatureRSASSL";
     private final String badIdMsg = "RSA Key Identifier is not valid";
 
-    public static SignatureRSASSL getInstance(OCKContext ockContext) throws OCKException {
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
-        return new SignatureRSASSL(ockContext);
+    public static SignatureRSASSL getInstance(OpenJCEPlusProvider provider) throws OCKException {
+        return new SignatureRSASSL(provider);
     }
 
-    private SignatureRSASSL(OCKContext ockContext) throws OCKException {
-        this.ockContext = ockContext;
+    private SignatureRSASSL(OpenJCEPlusProvider provider) throws OCKException {
+        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
     }
 
     public void initialize(RSAKey key, boolean convert) throws InvalidKeyException, OCKException {
@@ -74,7 +73,7 @@ public final class SignatureRSASSL {
         if (!validId(this.key.getRSAKeyId())) {
             throw new OCKException(badIdMsg);
         }
-        byte[] signature = NativeInterface.RSASSL_SIGNATURE_sign(this.ockContext.getId(), digest,
+        byte[] signature = this.nativeInterface.RSASSL_SIGNATURE_sign(digest,
                 this.key.getRSAKeyId());
         //OCKDebug.Msg (debPrefix, methodName,  "signature :", signature);
         return signature;
@@ -98,7 +97,7 @@ public final class SignatureRSASSL {
         //OCKDebug.Msg(debPrefix, methodName, "RSAKeyId :" + this.key.getRSAKeyId() + " digest", digest);
         //OCKDebug.Msg(debPrefix, methodName, "sigBytes :",  sigBytes);
 
-        boolean verified = NativeInterface.RSASSL_SIGNATURE_verify(this.ockContext.getId(), digest,
+        boolean verified = this.nativeInterface.RSASSL_SIGNATURE_verify(digest,
                 this.key.getRSAKeyId(), sigBytes, convertKey);
         if (!validId(this.key.getRSAKeyId())) {
             throw new OCKException(badIdMsg);

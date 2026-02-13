@@ -15,7 +15,7 @@
 #include <icc.h>
 #include <iccglobals.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Padding.h"
 #include "Utils.h"
 #include "zHardwareFunctions.h"
@@ -132,7 +132,7 @@ ICC_AES_GCM_CTX* getOrfreeGCMContext(ICC_CTX* ockCtx, int keyLen) {
 
 /*============================================================================
  *
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    GCM_InitForUpdateDecrypt_core
  * Signature: (JJ)V
  */
@@ -249,7 +249,7 @@ int GCM_InitForUpdateDecrypt_core(JNIEnv* env, ICC_CTX* ockCtx,
 
 /*============================================================================
  *
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    GCM_UpdForUpdateDecrypt_core
  * Signature:
  */
@@ -354,7 +354,7 @@ int GCM_UpdForUpdateDecrypt_core(JNIEnv* env, ICC_CTX* ockCtx,
 }
 
 /*============================================================================
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    GCM_InitForUpdateEncrypt_core
  * Signature:
  */
@@ -484,7 +484,7 @@ int GCM_InitForUpdateEncrypt_core(JNIEnv* env, ICC_CTX* ockCtx,
 }
 
 /*============================================================================
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    GCM_UpdForUpdateEncrypt_core
  * Signature:
  */
@@ -592,7 +592,7 @@ int GCM_UpdForUpdateEncrypt_core(JNIEnv* env, ICC_CTX* ockCtx,
 }
 
 /*============================================================================
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    GCM_FinalForUpdateDecrypt_core
  * Signature:
  */
@@ -739,7 +739,7 @@ int GCM_FinalForUpdateDecrypt_core(JNIEnv* env, ICC_CTX* ockCtx,
 }
 
 /*============================================================================
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    GCM_FinalForUpdateEncrypt_core
  * Signature:
  */
@@ -1004,7 +1004,7 @@ int checkTagMismatch(char* input, int inputLen, char* parm_block, int tagOffset,
 }
 
 /*============================================================================
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    GCM_decrypt_core
  * Signature:
  */
@@ -1089,11 +1089,11 @@ int GCM_decrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
 }
 
 /*
- *  Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ *  Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  *  Method:    do_GCM_decryptFastJNI_WithHardwareSupport
  *  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1decryptFastJNI_1WithHardwareSupport(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1decryptFastJNI_1WithHardwareSupport(
     JNIEnv* env, jclass unusedClass, jint keyLen, jint ivLen,
     jint ciphertextOffset, jint ciphertextLen, jint plaintextOffset,
     jint aadLen, jint tagLen, jlong parameterBuffer, jbyteArray inputJ,
@@ -1161,11 +1161,11 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1decryptFastJNI_1
 }
 
 /*
- *  * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ *  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  *  * Method:    do_GCM_decryptFastJNI
  *  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1decryptFastJNI(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1decryptFastJNI(
     JNIEnv* env, jclass unusedClass, jlong ockContextId, jlong gcmCtxId,
     jint keyLen, jint ivLen, jint ciphertextOffset, jint ciphertextLen,
     jint plaintextOffset, jint aadLen, jint tagLen, jlong parameterBuffer,
@@ -1188,11 +1188,11 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1decryptFastJNI(
 }
 
 /*
- *  Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ *  Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  *  Method:    do_GCM_decrypt
  *  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1decrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1decrypt(
     JNIEnv* env, jclass thisObj, jlong ockContextId, jlong gcmCtxId,
     jbyteArray key, jint keyLen, jbyteArray iv, jint ivLen,
     jbyteArray ciphertext, jint ciphertextOffset, jint ciphertextLen,
@@ -1281,7 +1281,7 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1decrypt(
 }
 
 /*============================================================================
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    GCM_encrypt_core
  * Signature:
  */
@@ -1419,12 +1419,12 @@ int GCM_encrypt_core(JNIEnv* env, ICC_CTX* ockCtx, ICC_AES_GCM_CTX* gcmCtx,
 }
 
 /*
- *  * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ *  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  *  * Method:    do_GCM_checkHardwareGCMSupport
  *  */
 FUNC* JCC_OS_helpers(ICC_CTX* ctx);
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1checkHardwareGCMSupport(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1checkHardwareGCMSupport(
     JNIEnv* env, jclass unusedClass, jlong ockContextId) {
     ICC_CTX* ctx     = (ICC_CTX*)((intptr_t)ockContextId);
     FUNC*    funcPtr = ICC_OS_helpers(ctx);
@@ -1441,11 +1441,11 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1checkHardwareGCM
 }
 
 /*
- *  * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ *  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  *  * Method:    do_GCM_encryptFastJNI_WithHardwareSupport
  *  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1encryptFastJNI_1WithHardwareSupport(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1encryptFastJNI_1WithHardwareSupport(
     JNIEnv* env, jclass unusedClass, jint keyLen, jint ivLen,
     jint plaintextOffset, jint plaintextLen, jint ciphertextOffset, jint aadLen,
     jint tagLen, jlong parameterBuffer, jbyteArray inputJ, jint inputOffset,
@@ -1511,11 +1511,11 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1encryptFastJNI_1
 }
 
 /*
- *  * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ *  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  *  * Method:    do_GCM_encryptFastJNI
  *  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1encryptFastJNI(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1encryptFastJNI(
     JNIEnv* env, jclass unusedClass, jlong ockContextId, jlong gcmCtxId,
     jint keyLen, jint ivLen, jint plaintextOffset, jint plaintextLen,
     jint ciphertextOffset, jint aadLen, jint tagLen, jlong parameterBuffer,
@@ -1539,12 +1539,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1encryptFastJNI(
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    do_GCM_encrypt
  * Signature: (J[BI[BI[BII[BI[BI[B)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1encrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1encrypt(
     JNIEnv* env, jclass thisObj, jlong ockContextId, jlong gcmCtxId,
     jbyteArray key, jint keyLen, jbyteArray iv, jint ivLen,
     jbyteArray plaintext, jint plaintextOffset, jint plaintextLen,
@@ -1630,12 +1630,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1encrypt(
 }
 //============================================================================
 ///*
-// * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+// * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
 //  * Method:    do_GCM_delete
 //   * Signature: (JJ)V
 //    */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_GCM_1delete(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_GCM_1delete(
     JNIEnv* env, jclass thisObj, jlong ockContextId) {
     static const char* functionName = "NativeInterface.do_GCM_delete";
     ICC_CTX*           ockCtx       = (ICC_CTX*)((intptr_t)ockContextId);
@@ -1661,7 +1661,7 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_GCM_1delete(
  * Return Value 1 = TLS Disabled
  */
 // JNIEXPORT jint JNICALL
-// Java_com_ibm_crypto_plus_provider_base_NativeInterface_get_1GCM_1TLSEnabled
+// Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_get_1GCM_1TLSEnabled
 //	(JNIEnv *env, jclass thisObj) {
 //	static const char * functionName = "NativeInterface.get_GCM_TLSEnabled";
 //     int ret = 1;
@@ -1676,7 +1676,7 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_GCM_1delete(
 // }
 
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_create_1GCM_1context(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_create_1GCM_1context(
     JNIEnv* env, jclass thisObj, jlong ockContextId) {
     static const char* functionName = "NativeInterface.create_GCM_context";
     ICC_CTX*           ockCtx       = (ICC_CTX*)((intptr_t)ockContextId);
@@ -1703,12 +1703,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_create_1GCM_1context(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    free_GCM_ctx
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_free_1GCM_1ctx(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_free_1GCM_1ctx(
     JNIEnv* env, jclass thisObj, jlong ockContextId, jlong gcmContextId) {
     static const char* functionName = "NativeInterface.free_1GCM_1ctx";
     ICC_CTX*           ockCtx       = (ICC_CTX*)((intptr_t)ockContextId);
@@ -1727,12 +1727,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_free_1GCM_1ctx(
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    do_GCM_UpdForUpdateEncrypt
  * Signature:
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1UpdForUpdateEncrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1UpdForUpdateEncrypt(
     JNIEnv* env, jclass thisObj, jlong ockContextId, jlong gcmCtxId,
     jbyteArray plaintext, jint plaintextOffset, jint plaintextLen,
     jbyteArray ciphertext, jint ciphertextOffset) {
@@ -1828,12 +1828,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1UpdForUpdateEncr
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    do_GCM_FinalForUpdateEncrypt
  * Signature:
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1FinalForUpdateEncrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1FinalForUpdateEncrypt(
     JNIEnv* env, jclass thisObj, jlong ockContextId, jlong gcmCtxId,
     jbyteArray key, jint keyLen, jbyteArray iv, jint ivLen,
     jbyteArray plaintext, jint plaintextOffset, jint plaintextLen,
@@ -1947,12 +1947,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1FinalForUpdateEn
 #endif
 }
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    do_GCM_UpdForUpdateDecrypt
  * Signature:
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1UpdForUpdateDecrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1UpdForUpdateDecrypt(
     JNIEnv* env, jclass thisObj, jlong ockContextId, jlong gcmCtxId,
     jbyteArray ciphertext, jint ciphertextOffset, jint ciphertextLen,
     jbyteArray plaintext, jint plaintextOffset) {
@@ -2037,12 +2037,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1UpdForUpdateDecr
 #endif
 }
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    do_GCM_InitForUpdateDecrypt
  * Signature:
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1InitForUpdateDecrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1InitForUpdateDecrypt(
     JNIEnv* env, jclass thisObj, jlong ockContextId, jlong gcmCtxId,
     jbyteArray key, jint keyLen, jbyteArray iv, jint ivLen, jbyteArray aad,
     jint aadLen) {
@@ -2141,12 +2141,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1InitForUpdateDec
 #endif
 }
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    do_GCM_FinalForUpdateDecrypt
  * Signature:
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1FinalForUpdateDecrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1FinalForUpdateDecrypt(
     JNIEnv* env, jclass thisObj, jlong ockContextId, jlong gcmCtxId,
     jbyteArray ciphertext, jint ciphertextOffset, jint ciphertextLen,
     jbyteArray plaintext, jint plaintextOffset, jint plaintextLen,
@@ -2254,12 +2254,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1FinalForUpdateDe
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    do_GCM_InitForUpdateEncrypt
  * Signature:
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_do_1GCM_1InitForUpdateEncrypt(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1GCM_1InitForUpdateEncrypt(
     JNIEnv* env, jclass thisObj, jlong ockContextId, jlong gcmCtxId,
     jbyteArray key, jint keyLen, jbyteArray iv, jint ivLen, jbyteArray aad,
     jint aadLen) {

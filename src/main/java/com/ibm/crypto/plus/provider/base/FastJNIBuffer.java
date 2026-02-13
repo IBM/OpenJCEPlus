@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.base;
 
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.nio.ByteBuffer;
 
 class FastJNIBuffer {
@@ -27,7 +28,7 @@ class FastJNIBuffer {
 
     public static FastJNIBuffer create(int capacity) {
         FastJNIBuffer b = new FastJNIBuffer(capacity);
-        b.pointer = NativeInterface.getByteBufferPointer(b.byteBuffer);
+        b.pointer = NativeOCKAdapterNonFIPS.getInstance().getByteBufferPointer(b.byteBuffer);
         b.capacity = capacity;
         return b;
     }

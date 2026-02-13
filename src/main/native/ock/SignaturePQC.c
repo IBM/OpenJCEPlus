@@ -13,17 +13,17 @@
 #include <assert.h>
 #include <jcc_a.h>
 #include <icc.h>
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include <stdint.h>
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    PQC_SIGNATURE_sign
  * Signature: (JJ[B)[B
  */
 JNIEXPORT jbyteArray JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_PQC_1SIGNATURE_1sign(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_PQC_1SIGNATURE_1sign(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray data) {
     ICC_CTX          *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
@@ -140,12 +140,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_PQC_1SIGNATURE_1sign(
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    PQC_SIGNATURE_verify
  * Signature: (JJ[B[B)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_PQC_1SIGNATURE_1verify(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_PQC_1SIGNATURE_1verify(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray sigBytes, jbyteArray data) {
     ICC_CTX          *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);

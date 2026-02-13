@@ -9,11 +9,13 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.security.InvalidKeyException;
 
 public final class Signature {
 
-    private OCKContext ockContext = null;
+    private NativeInterface nativeInterface;
     private Digest digest = null;
     private AsymmetricKey key = null;
     private boolean initialized = false;
@@ -21,19 +23,16 @@ public final class Signature {
     private final String badIdMsg = "Digest Identifier or PKey Identifier is not valid";
     private final static String debPrefix = "SIGNATURE";
 
-    public static Signature getInstance(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider)
+    public static Signature getInstance(String digestAlgo, OpenJCEPlusProvider provider)
             throws OCKException {
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-        return new Signature(ockContext, digestAlgo, provider);
+        return new Signature(digestAlgo, provider);
     }
 
 
-    private Signature(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
+    private Signature(String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "Signature(String)";
-        this.ockContext = ockContext;
-        this.digest = Digest.getInstance(ockContext, digestAlgo, provider);
+        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.digest = Digest.getInstance(digestAlgo, provider);
         //OCKDebug.Msg (debPrefix, methodName, "digestAlgo :" + digestAlgo);
     }
 
@@ -75,7 +74,7 @@ public final class Signature {
 
         byte[] signature = null;
         try {
-            signature = NativeInterface.SIGNATURE_sign(this.ockContext.getId(), digest.getId(),
+            signature = this.nativeInterface.SIGNATURE_sign(digest.getId(),
                     this.key.getPKeyId(), this.convertKey);
         } finally {
             // Try to reset even if OCKException is thrown
@@ -104,7 +103,7 @@ public final class Signature {
 
         boolean verified = false;
         try {
-            verified = NativeInterface.SIGNATURE_verify(this.ockContext.getId(), digest.getId(),
+            verified = this.nativeInterface.SIGNATURE_verify(digest.getId(),
                     this.key.getPKeyId(), sigBytes);
         } finally {
             // Try to reset even if OCKException is thrown

@@ -96,8 +96,8 @@ public final class DatawithECDSA extends SignatureSpi {
                                 + maxDigestLength);
             }
 
-            byte[] signature = ECKey.signDatawithECDSA(provider.getOCKContext(), this.data,
-                    this.dataSize, this.ecKey);
+            byte[] signature = ECKey.signDatawithECDSA(this.data,
+                    this.dataSize, this.ecKey, provider);
 
             // System.out.println ("signature " + data.length + " dataSize =" +
             // dataSize );
@@ -161,8 +161,8 @@ public final class DatawithECDSA extends SignatureSpi {
     @Override
     protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
         try {
-            return ECKey.verifyDatawithECDSA(provider.getOCKContext(), this.data, this.dataSize,
-                    sigBytes, sigBytes.length, this.ecKey);
+            return ECKey.verifyDatawithECDSA(this.data, this.dataSize,
+                    sigBytes, sigBytes.length, this.ecKey, provider);
         } catch (Exception e) {
             // return false rather than throwing exception
             return false;

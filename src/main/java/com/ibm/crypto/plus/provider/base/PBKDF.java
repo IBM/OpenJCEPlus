@@ -8,6 +8,10 @@
 
 package com.ibm.crypto.plus.provider.base;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
+
 /**
  * Provides native implementations for password based key derivation related functions.
  */
@@ -26,8 +30,8 @@ public final class PBKDF {
      * @return An array of bytes representing the key that was derived.
      * @throws OCKException If input parameters are incorrect or an error occurs in OCKC deriving the key.
      */
-    public static byte[] PBKDF2derive(OCKContext ockContext, String algorithmName,
-            final byte[] password, byte[] salt, int iterations, int keyLength) throws OCKException {
+    public static byte[] PBKDF2derive(String algorithmName, final byte[] password,
+            byte[] salt, int iterations, int keyLength, OpenJCEPlusProvider provider) throws OCKException {
 
         if ((!algorithmName.equalsIgnoreCase("HmacSHA512/224"))
                 && (!algorithmName.equalsIgnoreCase("HmacSHA512/256"))
@@ -43,10 +47,6 @@ public final class PBKDF {
 
         if (keyLength <= 0) {
             throw new OCKException("Key length is less then or equal to 0");
-        }
-
-        if (ockContext == null) {
-            throw new OCKException("Context is null");
         }
 
         if (algorithmName == null || algorithmName.isEmpty()) {
@@ -65,7 +65,8 @@ public final class PBKDF {
             throw new OCKException("Iterations is less then or equal to 0");
         }
 
-        byte[] key = NativeInterface.PBKDF2_derive(ockContext.getId(), algorithmHashName, password,
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        byte[] key = nativeInterface.PBKDF2_derive(algorithmHashName, password,
                 salt, iterations, keyLength);
 
         if (null == key) {

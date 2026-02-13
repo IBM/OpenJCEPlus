@@ -14,18 +14,18 @@
 #include <jcc_a.h>
 #include <icc.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include "Digest.h"
 #include <stdint.h>
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    SIGNATURE_sign
  * Signature: (JJJ)[B
  */
 JNIEXPORT jbyteArray JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_SIGNATURE_1sign(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_SIGNATURE_1sign(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong iccMDId,
     jlong ockPKeyId, jboolean convert) {
     static const char *functionName = "NativeInterface.SIGNATURE_sign";
@@ -174,12 +174,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_SIGNATURE_1sign(
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    SIGNATURE_verify
  * Signature: (JJJ)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_SIGNATURE_1verify(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_SIGNATURE_1verify(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong iccMDId,
     jlong ockPKeyId, jbyteArray sigBytes) {
     static const char *functionName = "NativeInterface.SIGNATURE_verify";

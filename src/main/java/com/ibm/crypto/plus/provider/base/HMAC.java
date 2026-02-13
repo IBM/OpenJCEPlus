@@ -9,12 +9,14 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class HMAC {
 
     private OpenJCEPlusProvider provider;
-    private OCKContext ockContext = null;
+    private NativeInterface nativeInterface;
     private final long hmacId;
     private boolean needsReinit = false;
     private byte[] reinitKey = null;
@@ -22,16 +24,12 @@ public final class HMAC {
     private final String badIdMsg = "HMAC Identifier is not valid";
     private static final String debPrefix = "HAMC";
 
-    public static HMAC getInstance(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
+    public static HMAC getInstance(String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
 
-        return new HMAC(ockContext, digestAlgo, provider);
+        return new HMAC(digestAlgo, provider);
     }
 
     static void throwOCKException(int errorCode) throws OCKException {
@@ -47,14 +45,14 @@ public final class HMAC {
         }
     }
 
-    private HMAC(OCKContext ockContext, String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
+    private HMAC(String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "HMAC (String)";
-        this.ockContext = ockContext;
-        this.hmacId = NativeInterface.HMAC_create(ockContext.getId(), digestAlgo);
         this.provider = provider;
+        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.hmacId = this.nativeInterface.HMAC_create(digestAlgo);
         //OCKDebug.Msg (debPrefix, methodName,  "this.hmacId :" + this.hmacId + " digestAlgo :" + digestAlgo);
 
-        this.provider.registerCleanable(this, cleanOCKResources(hmacId, reinitKey, ockContext));
+        this.provider.registerCleanable(this, cleanOCKResources(hmacId, reinitKey, nativeInterface));
     }
 
     public synchronized void initialize(byte[] key) throws OCKException {
@@ -104,7 +102,7 @@ public final class HMAC {
         if (!validId(hmacId)) {
             throw new OCKException(badIdMsg);
         }
-        int result = NativeInterface.HMAC_update(ockContext.getId(), hmacId, reinitKey,
+        int result = this.nativeInterface.HMAC_update(hmacId, reinitKey,
                 reinitKey.length, input, inputOffset, inputLen, needsReinit);
         if (result < 0) {
             throwOCKException(result);
@@ -124,7 +122,7 @@ public final class HMAC {
         }
         obtainMacLength();
         byte[] hmac = new byte[macLength];
-        int result = NativeInterface.HMAC_doFinal(ockContext.getId(), hmacId, reinitKey,
+        int result = this.nativeInterface.HMAC_doFinal(hmacId, reinitKey,
                 reinitKey.length, hmac, needsReinit);
         if (result < 0) {
             throwOCKException(result);
@@ -149,7 +147,7 @@ public final class HMAC {
             if (!validId(hmacId)) {
                 throw new OCKException(badIdMsg);
             }
-            this.macLength = NativeInterface.HMAC_size(ockContext.getId(), hmacId);
+            this.macLength = this.nativeInterface.HMAC_size(hmacId);
         }
     }
 
@@ -160,11 +158,11 @@ public final class HMAC {
         return (id != 0L);
     }
 
-    private Runnable cleanOCKResources(long hmacId, byte[] reinitKey, OCKContext ockContext) {
+    private Runnable cleanOCKResources(long hmacId, byte[] reinitKey, NativeInterface nativeInterface) {
         return () -> {
             try {
                 if (hmacId != 0) {
-                    NativeInterface.HMAC_delete(ockContext.getId(), hmacId);
+                    nativeInterface.HMAC_delete(hmacId);
                 }
 
                 if (reinitKey != null) {
