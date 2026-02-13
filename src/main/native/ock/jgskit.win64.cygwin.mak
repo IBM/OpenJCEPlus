@@ -105,7 +105,7 @@ headers :
 		-d $(JAVACLASSDIR) \
 		-h $(TOPDIR)\src\main\native\ock\ \
 		$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\base\FastJNIBuffer.java \
-		$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\base\NativeInterface.java
+		$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\ock\NativeOCKImplementation.java
 
 clean :
 	-@del $(HOSTOUT)\*.obj

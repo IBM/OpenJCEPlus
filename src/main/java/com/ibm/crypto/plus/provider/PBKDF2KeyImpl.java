@@ -118,8 +118,8 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
 
             // Convert key length to bytes and derive key using OCKC.
             try {
-                this.key = PBKDF.PBKDF2derive(provider.getOCKContext(), this.prfAlgorithm,
-                        passwdBytes, salt, iterCount, keyLength / 8);
+                this.key = PBKDF.PBKDF2derive(this.prfAlgorithm,
+                        passwdBytes, salt, iterCount, keyLength / 8, provider);
             } catch (OCKException e) {
                 throw new InvalidKeySpecException(
                         "Error while deriving PBKDF2 key from a given PBEKeySpec.", e);

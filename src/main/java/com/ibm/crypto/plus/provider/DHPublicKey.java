@@ -119,7 +119,7 @@ final class DHPublicKey extends X509Key
             // System.out.println ("In DHPublicKey(Provider, byte[] encoded publicKeyBytes"
             // + ECUtils.bytesToHex(publicKeyBytes));
 
-            this.dhKey = DHKey.createPublicKey(provider.getOCKContext(),
+            this.dhKey = DHKey.createPublicKey(
                     /* publicKeyBytes */ this.encodedKey, provider);
 
             // System.err.println("Afte OCK: " + ECUtils.bytesToHex(this.key));

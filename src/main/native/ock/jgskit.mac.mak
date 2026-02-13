@@ -110,7 +110,7 @@ headers :
 		-d ${JAVACLASSDIR} \
 		-h ${TOPDIR}/src/main/native/ock/ \
 		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/base/FastJNIBuffer.java \
-		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/base/NativeInterface.java
+		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/NativeOCKImplementation.java
 
 endif # ! EXTERNAL_HEADERS
 
@@ -118,6 +118,6 @@ clean :
 	rm -f ${HOSTOUT}/*.o
 	rm -f ${HOSTOUT}/*.dylib
 	rm -f com_ibm_crypto_plus_provider_base_FastJNIBuffer.h
-	rm -f com_ibm_crypto_plus_provider_base_NativeInterface.h
+	rm -f com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h
 
 .PHONY : all headers clean FORCE displaycompiler

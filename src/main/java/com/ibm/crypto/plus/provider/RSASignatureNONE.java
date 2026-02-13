@@ -65,7 +65,7 @@ public final class RSASignatureNONE extends SignatureSpi {
     public RSASignatureNONE(OpenJCEPlusProvider provider) {
         try {
             this.provider = provider;
-            this.rsaCipher = RSACipher.getInstance(provider.getOCKContext());
+            this.rsaCipher = RSACipher.getInstance(provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to initialize RSA signature", e);
         }
