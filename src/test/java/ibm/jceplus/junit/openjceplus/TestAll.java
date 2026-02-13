@@ -92,7 +92,7 @@ import org.junit.platform.suite.api.Suite;
     TestOAEPOrderCheck.class,
     TestPBEKeyFactory.class,
     TestPBEKeyFactoryInterop.class,
-    TestPBES2Parameters.class,
+    TestPBEParameters.class,
     TestPBECipher.class,
     TestPBECipherInterop.class,
     TestPBKDF2.class,

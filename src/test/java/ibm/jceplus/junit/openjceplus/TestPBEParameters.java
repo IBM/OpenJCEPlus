@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,13 +8,13 @@
 
 package ibm.jceplus.junit.openjceplus;
 
-import ibm.jceplus.junit.base.BaseTestPBES2Parameters;
+import ibm.jceplus.junit.base.BaseTestPBEParameters;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
-public class TestPBES2Parameters extends BaseTestPBES2Parameters {
+public class TestPBEParameters extends BaseTestPBEParameters {
 
     @BeforeAll
     public void beforeAll() {
