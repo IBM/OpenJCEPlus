@@ -95,7 +95,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             byte[] alteredEncoded = processEncodedPrivateKey(encoded); // Sets params, key, and algid, and alters encoded
             // to fit with GSKit and sets params
             int curveSize = CurveUtil.getCurveSize(curve);
-            this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded, curveSize, provider);
+            this.xecKey = XECKey.createPrivateKey(alteredEncoded, curveSize, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");
             provider.setOCKExceptionCause(ike, exception);
@@ -139,12 +139,12 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         try {
             if (k == null) {
                 int keySize = CurveUtil.getCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(), this.curve.ordinal(), keySize, provider);
+                this.xecKey = XECKey.generateKeyPair(this.curve.ordinal(), keySize, provider);
             } else {
                 this.algid = CurveUtil.getAlgId(this.params.getName());
                 byte[] der = buildOCKPrivateKeyBytes();
                 int encodingSize = CurveUtil.getDEREncodingSize(curve);
-                this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der, encodingSize, provider);
+                this.xecKey = XECKey.createPrivateKey(der, encodingSize, provider);
             }
             setPKCS8KeyByte(k);
         } catch (Exception exception) {

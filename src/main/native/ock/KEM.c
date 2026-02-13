@@ -13,19 +13,19 @@
 #include <jcc_a.h>
 #include <icc.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include <stdint.h>
 #include <string.h>
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    KEM_encapsulate
  * Signature: (JJ[B[B)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_KEM_1encapsulate(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_KEM_1encapsulate(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray wrappedKey, jbyteArray randomKey) {
     ICC_CTX          *ockCtx          = (ICC_CTX *)((intptr_t)ockContextId);
@@ -108,12 +108,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_KEM_1encapsulate(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    KEM_decapsulate
  * Signature: (JJ[B)[B
  */
 JNIEXPORT jbyteArray JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_KEM_1decapsulate(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_KEM_1decapsulate(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPKeyId,
     jbyteArray wrappedKey) {
     ICC_CTX          *ockCtx           = (ICC_CTX *)((intptr_t)ockContextId);

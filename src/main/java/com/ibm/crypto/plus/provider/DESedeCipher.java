@@ -238,7 +238,7 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
 
         try {
             if (symmetricCipher == null) {
-                symmetricCipher = SymmetricCipher.getInstanceDESede(provider.getOCKContext(), mode,
+                symmetricCipher = SymmetricCipher.getInstanceDESede(mode,
                         padding, provider);
             }
 

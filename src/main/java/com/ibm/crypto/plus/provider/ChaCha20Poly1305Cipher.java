@@ -327,7 +327,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
 
         try {
             if (poly1305Cipher == null) {
-                poly1305Cipher = Poly1305Cipher.getInstance(provider.getOCKContext(),
+                poly1305Cipher = Poly1305Cipher.getInstance(
                         OCK_CHACHA20_POLY1305, padding, provider);
             }
 

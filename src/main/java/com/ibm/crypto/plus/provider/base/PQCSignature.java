@@ -8,6 +8,9 @@
 
 package com.ibm.crypto.plus.provider.base;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.security.InvalidKeyException;
 
 /**
@@ -21,22 +24,18 @@ import java.security.InvalidKeyException;
  */
 public final class PQCSignature {
 
-    private OCKContext ockContext = null;
+    private NativeInterface nativeInterface;
     private AsymmetricKey key = null;
     private boolean initialized = false;
 
-    public static PQCSignature getInstance(OCKContext ockContext)
+    public static PQCSignature getInstance(OpenJCEPlusProvider provider)
             throws OCKException {
-        if (ockContext == null) {
-            throw new IllegalArgumentException("Context is null");
-        }
-        return new PQCSignature(ockContext);
+        return new PQCSignature(provider);
     }
 
-
-    private PQCSignature(OCKContext ockContext) throws OCKException {
+    private PQCSignature(OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "Signature(String)";
-        this.ockContext = ockContext;
+        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         //OCKDebug.Msg (debPrefix, methodName, "digestAlgo :" + digestAlgo);
     }
 
@@ -70,8 +69,7 @@ public final class PQCSignature {
             throw new OCKException("No data to sign.");
         }
 
-        signature = NativeInterface.PQC_SIGNATURE_sign(this.ockContext.getId(),
-                this.key.getPKeyId(), data);
+        signature = this.nativeInterface.PQC_SIGNATURE_sign(this.key.getPKeyId(), data);
 
         //OCKDebug.Msg (debPrefix, "sign",  "signature :" + signature);
         return signature;
@@ -88,8 +86,7 @@ public final class PQCSignature {
         }
         boolean verified = false;
 
-        verified = NativeInterface.PQC_SIGNATURE_verify(this.ockContext.getId(),
-                                                        this.key.getPKeyId(), sigBytes, data);
+        verified = this.nativeInterface.PQC_SIGNATURE_verify(this.key.getPKeyId(), sigBytes, data);
 
         return verified;
     }

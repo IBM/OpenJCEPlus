@@ -17,18 +17,18 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include <stdint.h>
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    MLKEY_generate
  * Signature: (JLjava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_MLKEY_1generate(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_MLKEY_1generate(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jstring cipherName) {
     static const char *functionName = "NativeInterface.MLKEY_generate";
 
@@ -348,13 +348,13 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_MLKEY_1generate(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    MLKEY_createPrivateKey
  * Returns:   pointer to Octet encapsulated key
  * Signature: (JLjava/lang/String;[B)J
  */
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_MLKEY_1createPrivateKey(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_MLKEY_1createPrivateKey(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jstring cipherName,
     jbyteArray privateKeyBytes) {
     ICC_CTX             *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
@@ -427,13 +427,13 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_MLKEY_1createPrivateKey(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    MLKEY_createPublicKey
  * Return:    BitString encapsulated key
  * Signature: (JLjava/lang/String;[B)J
  */
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_MLKEY_1createPublicKey(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_MLKEY_1createPublicKey(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jstring cipherName,
     jbyteArray publicKeyBytes) {
     ICC_CTX             *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
@@ -498,13 +498,13 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_MLKEY_1createPublicKey(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    MLKEY_getPrivateKeyBytes
  * Return:    RAW key - This may change in the future.
  * Signature: (JJ)[B
  */
 JNIEXPORT jbyteArray JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_MLKEY_1getPrivateKeyBytes(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_MLKEY_1getPrivateKeyBytes(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong mlkeyId) {
     ICC_CTX       *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
     ICC_EVP_PKEY  *ockKey         = (ICC_EVP_PKEY *)((intptr_t)mlkeyId);
@@ -590,13 +590,13 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_MLKEY_1getPrivateKeyBytes
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    MLKEY_getPublicKeyBytes
  * Return:    RAW key
  * Signature: (JJ)[B
  */
 JNIEXPORT jbyteArray JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_MLKEY_1getPublicKeyBytes(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_MLKEY_1getPublicKeyBytes(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong mlkeyId) {
     ICC_CTX       *ockCtx         = (ICC_CTX *)((intptr_t)ockContextId);
     ICC_EVP_PKEY  *ockKey         = (ICC_EVP_PKEY *)((intptr_t)mlkeyId);
@@ -654,12 +654,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_MLKEY_1getPublicKeyBytes(
 
 //============================================================================
 /* NOTE:
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    MLKEY_delete
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_MLKEY_1delete(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_MLKEY_1delete(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong mlkeyId) {
     ICC_CTX      *ockCtx = (ICC_CTX *)((intptr_t)ockContextId);
     ICC_EVP_PKEY *ockKey = (ICC_EVP_PKEY *)((intptr_t)mlkeyId);
