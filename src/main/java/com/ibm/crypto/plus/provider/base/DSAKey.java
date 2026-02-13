@@ -10,6 +10,8 @@ package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class DSAKey implements AsymmetricKey {
@@ -20,7 +22,7 @@ public final class DSAKey implements AsymmetricKey {
     static final byte[] unobtainedKeyBytes = new byte[0];
 
     private OpenJCEPlusProvider provider;
-    private OCKContext ockContext;
+    private NativeInterface nativeInterface;
     private final long dsaKeyId;
     private PrimitiveWrapper.Long pkeyId;
     private byte[] parameters;
@@ -29,17 +31,14 @@ public final class DSAKey implements AsymmetricKey {
     private static final String badIdMsg = "DSA Key Identifier is not valid";
     private final static String debPrefix = "DSAKey";
 
-    public static DSAKey generateKeyPair(OCKContext ockContext, int numBits, OpenJCEPlusProvider provider) throws OCKException {
+    public static DSAKey generateKeyPair(int numBits, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "generateKeyPair(numBits) ";
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
         if (numBits < 0) {
             throw new IllegalArgumentException("key length is invalid");
         }
 
-        long dsaKeyId = NativeInterface.DSAKEY_generate(ockContext.getId(), numBits);
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        long dsaKeyId = nativeInterface.DSAKEY_generate(numBits);
         if (!validId(dsaKeyId)) {
             throw new OCKException(badIdMsg);
         }
@@ -48,40 +47,34 @@ public final class DSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
         //OCKDebug.Msg (debPrefix, methodName, "dsaKeyId=" + dsaKeyId);
-        return new DSAKey(ockContext, dsaKeyId, null, unobtainedKeyBytes, unobtainedKeyBytes, provider);
+        return new DSAKey(nativeInterface, dsaKeyId, null, unobtainedKeyBytes, unobtainedKeyBytes, provider);
     }
 
-    public static byte[] generateParameters(OCKContext ockContext, int numBits)
+    public static byte[] generateParameters(int numBits, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "generateParameters(numBits) ";
         byte[] paramBytes = null;
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
         if (numBits < 0) {
             throw new IllegalArgumentException("key length is invalid");
         }
         //OCKDebug.Msg (debPrefix, methodName, "numBits=" + numBits);
-        paramBytes = NativeInterface.DSAKEY_generateParameters(ockContext.getId(), numBits);
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        paramBytes = nativeInterface.DSAKEY_generateParameters(numBits);
         if (paramBytes == null) {
             throw new OCKException("The generated DSA parameter bytes are incorrect.");
         }
         return paramBytes;
     }
 
-    public static DSAKey generateKeyPair(OCKContext ockContext, byte[] parameters, OpenJCEPlusProvider provider)
+    public static DSAKey generateKeyPair(byte[] parameters, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "generateKeyPair";
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
         if (parameters == null || parameters.length == 0) {
             throw new IllegalArgumentException("DSA parameters are null/empty");
         }
 
-        long dsaKeyId = NativeInterface.DSAKEY_generate(ockContext.getId(), parameters);
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        long dsaKeyId = nativeInterface.DSAKEY_generate(parameters);
         //OCKDebug.Msg (debPrefix, methodName, "dsaKeyId=" + dsaKeyId);
         if (!validId(dsaKeyId)) {
             throw new OCKException(badIdMsg);
@@ -90,23 +83,19 @@ public final class DSAKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        return new DSAKey(ockContext, dsaKeyId, parameters.clone(), unobtainedKeyBytes,
+        return new DSAKey(nativeInterface, dsaKeyId, parameters.clone(), unobtainedKeyBytes,
                 unobtainedKeyBytes, provider);
     }
 
-    public static DSAKey createPrivateKey(OCKContext ockContext, byte[] privateKeyBytes, OpenJCEPlusProvider provider)
+    public static DSAKey createPrivateKey(byte[] privateKeyBytes, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "createPrivateKey ";
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
         if (privateKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
         }
 
-        long dsaKeyId = NativeInterface.DSAKEY_createPrivateKey(ockContext.getId(),
-                privateKeyBytes);
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        long dsaKeyId = nativeInterface.DSAKEY_createPrivateKey(privateKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName,  "dsakKeyId=" + dsaKeyId);
         if (!validId(dsaKeyId)) {
             throw new OCKException(badIdMsg);
@@ -115,21 +104,18 @@ public final class DSAKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        return new DSAKey(ockContext, dsaKeyId, null, privateKeyBytes.clone(), null, provider);
+        return new DSAKey(nativeInterface, dsaKeyId, null, privateKeyBytes.clone(), null, provider);
     }
 
-    public static DSAKey createPublicKey(OCKContext ockContext, byte[] publicKeyBytes, OpenJCEPlusProvider provider)
+    public static DSAKey createPublicKey(byte[] publicKeyBytes, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "createPublicKey";
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
         if (publicKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
         }
 
-        long dsaKeyId = NativeInterface.DSAKEY_createPublicKey(ockContext.getId(), publicKeyBytes);
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        long dsaKeyId = nativeInterface.DSAKEY_createPublicKey(publicKeyBytes);
         if (!validId(dsaKeyId)) {
             throw new OCKException(badIdMsg);
         }
@@ -138,20 +124,20 @@ public final class DSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
         //OCKDebug.Msg (debPrefix, methodName, "dsakKeyId=" + dsaKeyId);
-        return new DSAKey(ockContext, dsaKeyId, null, null, publicKeyBytes.clone(), provider);
+        return new DSAKey(nativeInterface, dsaKeyId, null, null, publicKeyBytes.clone(), provider);
     }
 
-    private DSAKey(OCKContext ockContext, long dsaKeyId, byte[] parameters, byte[] privateKeyBytes,
+    private DSAKey(NativeInterface nativeInterface, long dsaKeyId, byte[] parameters, byte[] privateKeyBytes,
             byte[] publicKeyBytes, OpenJCEPlusProvider provider) {
-        this.ockContext = ockContext;
         this.dsaKeyId = dsaKeyId;
         this.pkeyId = new PrimitiveWrapper.Long(0);
         this.parameters = parameters;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
         this.provider = provider;
+        this.nativeInterface = nativeInterface;
 
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, dsaKeyId, pkeyId, ockContext));
+        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, dsaKeyId, pkeyId, nativeInterface));
     }
 
     @Override
@@ -214,7 +200,7 @@ public final class DSAKey implements AsymmetricKey {
             if (!validId(dsaKeyId)) {
                 throw new OCKException(badIdMsg);
             }
-            this.pkeyId.setValue(NativeInterface.DSAKEY_createPKey(ockContext.getId(), dsaKeyId));
+            this.pkeyId.setValue(this.nativeInterface.DSAKEY_createPKey(dsaKeyId));
             if (!validId(pkeyId.getValue())) {
                 throw new OCKException(badIdMsg);
             }
@@ -232,7 +218,7 @@ public final class DSAKey implements AsymmetricKey {
             if (!validId(dsaKeyId)) {
                 throw new OCKException(badIdMsg);
             }
-            this.parameters = NativeInterface.DSAKEY_getParameters(ockContext.getId(), dsaKeyId);
+            this.parameters = this.nativeInterface.DSAKEY_getParameters(dsaKeyId);
         }
     }
 
@@ -246,8 +232,7 @@ public final class DSAKey implements AsymmetricKey {
             if (!validId(dsaKeyId)) {
                 throw new OCKException(badIdMsg);
             }
-            this.privateKeyBytes = NativeInterface.DSAKEY_getPrivateKeyBytes(ockContext.getId(),
-                    dsaKeyId);
+            this.privateKeyBytes = this.nativeInterface.DSAKEY_getPrivateKeyBytes(dsaKeyId);
         }
     }
 
@@ -261,8 +246,7 @@ public final class DSAKey implements AsymmetricKey {
             if (!validId(dsaKeyId)) {
                 throw new OCKException(badIdMsg);
             }
-            this.publicKeyBytes = NativeInterface.DSAKEY_getPublicKeyBytes(ockContext.getId(),
-                    dsaKeyId);
+            this.publicKeyBytes = this.nativeInterface.DSAKEY_getPublicKeyBytes(dsaKeyId);
         }
     }
 
@@ -273,17 +257,17 @@ public final class DSAKey implements AsymmetricKey {
         return (id != 0L);
     }
 
-    private Runnable cleanOCKResources(byte[] privateKeyBytes, long dsaKeyId, PrimitiveWrapper.Long pkeyId, OCKContext ockContext) {
+    private Runnable cleanOCKResources(byte[] privateKeyBytes, long dsaKeyId, PrimitiveWrapper.Long pkeyId, NativeInterface nativeInterface) {
         return () -> {
             try {
                 if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
                     Arrays.fill(privateKeyBytes, (byte) 0x00);
                 }
                 if (dsaKeyId != 0) {
-                    NativeInterface.DSAKEY_delete(ockContext.getId(), dsaKeyId);
+                    nativeInterface.DSAKEY_delete(dsaKeyId);
                 }
                 if (pkeyId.getValue() != 0) {
-                    NativeInterface.PKEY_delete(ockContext.getId(), pkeyId.getValue());
+                    nativeInterface.PKEY_delete(pkeyId.getValue());
                 }
             } catch (Exception e) {
                 if (OpenJCEPlusProvider.getDebug() != null) {

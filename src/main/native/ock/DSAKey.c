@@ -13,17 +13,17 @@
 #include <jcc_a.h>
 #include <icc.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include <stdint.h>
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    DSAKEY_generate
  * Signature: (JI)J
  */
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1generate__JI(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DSAKEY_1generate__JI(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jint numBits) {
     static const char *functionName = "NativeInterface.DSAKEY_generate(size)";
 
@@ -104,12 +104,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1generate__JI(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    DSAKEY_generateParameters
  * Signature: (JI)[B
  */
 JNIEXPORT jbyteArray JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1generateParameters(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DSAKEY_1generateParameters(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jint numBits) {
     static const char *functionName =
         "NativeInterface.DSAKEY_generateParameters";
@@ -245,12 +245,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1generateParameter
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    DSAKEY_generate
  * Signature: (J[B)J
  */
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1generate__J_3B(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DSAKEY_1generate__J_3B(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jbyteArray parmBytes) {
     static const char *functionName = "NativeInterface.DSAKEY_generate(parms)";
 
@@ -358,12 +358,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1generate__J_3B(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    DSAKEY_createPrivateKey
  * Signature: (J[B)J
  */
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1createPrivateKey(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DSAKEY_1createPrivateKey(
     JNIEnv *env, jclass thisObj, jlong ockContextId,
     jbyteArray privateKeyBytes) {
     static const char *functionName = "NativeInterface.DSAKEY_createPrivateKey";
@@ -438,12 +438,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1createPrivateKey(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    DSAKEY_createPublicKey
  * Signature: (J[B)J
  */
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1createPublicKey(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DSAKEY_1createPublicKey(
     JNIEnv *env, jclass thisObj, jlong ockContextId,
     jbyteArray publicKeyBytes) {
     static const char *functionName = "NativeInterface.DSAKEY_createPublicKey";
@@ -519,12 +519,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1createPublicKey(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    DSAKEY_getParameters
  * Signature: (JJ)[B
  */
 JNIEXPORT jbyteArray JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1getParameters(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DSAKEY_1getParameters(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong dsaKeyId) {
     static const char *functionName = "NativeInterface.DSAKEY_getParameters";
 
@@ -627,12 +627,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1getParameters(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    DSAKEY_getPrivateKeyBytes
  * Signature: (JJ)[B
  */
 JNIEXPORT jbyteArray JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1getPrivateKeyBytes(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DSAKEY_1getPrivateKeyBytes(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong dsaKeyId) {
     static const char *functionName =
         "NativeInterface.DSAKEY_getPrivateKeyBytes";
@@ -743,12 +743,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1getPrivateKeyByte
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    DSAKEY_getPublicKeyBytes
  * Signature: (JJ)[B
  */
 JNIEXPORT jbyteArray JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1getPublicKeyBytes(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DSAKEY_1getPublicKeyBytes(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong dsaKeyId) {
     static const char *functionName =
         "NativeInterface.DSAKEY_getPublicKeyBytes";
@@ -859,12 +859,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1getPublicKeyBytes
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    DSAKEY_createPKey
  * Signature: (JJ)J
  */
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1createPKey(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DSAKEY_1createPKey(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong dsaKeyId) {
     static const char *functionName = "NativeInterface.DSAKEY_createPKey";
 
@@ -936,12 +936,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1createPKey(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    DSAKEY_delete
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_DSAKEY_1delete(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DSAKEY_1delete(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong dsaKeyId) {
     static const char *functionName = "NativeInterface.DSAKEY_delete";
 

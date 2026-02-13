@@ -133,7 +133,7 @@ abstract class RSAKeyPairGenerator extends KeyPairGeneratorSpi {
     @Override
     public KeyPair generateKeyPair() {
         try {
-            RSAKey rsaKey = RSAKey.generateKeyPair(provider.getOCKContext(), this.keysize,
+            RSAKey rsaKey = RSAKey.generateKeyPair(this.keysize,
                     this.publicExponent, provider);
             java.security.interfaces.RSAPrivateKey privKey = new RSAPrivateCrtKey(rsaId, provider, rsaKey);
             java.security.interfaces.RSAPublicKey pubKey = new RSAPublicKey(rsaId, provider, rsaKey);

@@ -31,9 +31,9 @@ abstract class HASHDRBG extends SecureRandomSpi {
         this.provider = provider;
         this.providerContext = provider.getProviderContext();
         this.randomAlgo = ockRandomAlgo;
-        basicRandom = BasicRandom.getInstance(provider.getOCKContext());
+        basicRandom = BasicRandom.getInstance(provider);
         try {
-            extendedRandom = ExtendedRandom.getInstance(provider.getOCKContext(), ockRandomAlgo, provider);
+            extendedRandom = ExtendedRandom.getInstance(ockRandomAlgo, provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to get HASHDRBG algorithm", e);
         }
@@ -86,10 +86,10 @@ abstract class HASHDRBG extends SecureRandomSpi {
         //System.out.println("Restoring SecureRandom for " + randomAlgo + " from provider " + provider.getName());
 
         // Recreate OCK object per tag [SERIALIZATION] in DesignNotes.txt
-        basicRandom = BasicRandom.getInstance(provider.getOCKContext());
+        basicRandom = BasicRandom.getInstance(provider);
         try {
             // Recreate OCK object per tag [SERIALIZATION] in DesignNotes.txt
-            extendedRandom = ExtendedRandom.getInstance(provider.getOCKContext(), randomAlgo, provider);
+            extendedRandom = ExtendedRandom.getInstance(randomAlgo, provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to get HASHDRBG algorithm", e);
         }

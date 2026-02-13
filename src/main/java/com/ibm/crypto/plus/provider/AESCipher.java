@@ -301,7 +301,7 @@ public final class AESCipher extends CipherSpi implements AESConstants {
 
         try {
             if ((symmetricCipher == null) || (symmetricCipher.getKeyLength() != rawKey.length)) {
-                symmetricCipher = SymmetricCipher.getInstanceAES(provider.getOCKContext(), mode,
+                symmetricCipher = SymmetricCipher.getInstanceAES(mode,
                         padding, rawKey.length, provider);
                 // Check whether used algorithm is CBC and whether hardware supports is available
                 use_z_fast_command = symmetricCipher.getHardwareSupportStatus();

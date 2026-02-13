@@ -117,8 +117,8 @@ public class MLKEMImpl implements KEMSpi {
             }
 
             try {
-                OJPKEM.KEM_encapsulate(provider.getOCKContext(),
-                        ((PQCPublicKey) publicKey).getPQCKey().getPKeyId(), encapsulation, secret);
+                OJPKEM.KEM_encapsulate(((PQCPublicKey) publicKey).getPQCKey().getPKeyId(),
+                        encapsulation, secret, provider);
             } catch (OCKException e) {
                 throw new ProviderException("OCK Exception: ", e);
             }
@@ -160,7 +160,7 @@ public class MLKEMImpl implements KEMSpi {
                 KeyFactory kf = KeyFactory.getInstance(this.alg, this.provider.getName());
                 encoding = privateKey.getEncoded();
                 PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(encoding);
-                privKey = kf.generatePrivate(privateKeySpec);     
+                privKey = kf.generatePrivate(privateKeySpec);
             } catch (Exception e) {
                 throw new InvalidKeyException("unsupported key", e);
             } finally {
@@ -198,8 +198,8 @@ public class MLKEMImpl implements KEMSpi {
                 throw new NullPointerException();
             }
             try {
-                secret = OJPKEM.KEM_decapsulate(provider.getOCKContext(),
-                        ((PQCPrivateKey) this.privateKey).getPQCKey().getPKeyId(), cipherText);
+                secret = OJPKEM.KEM_decapsulate(((PQCPrivateKey) this.privateKey).getPQCKey().getPKeyId(),
+                        cipherText, provider);
 
             } catch (OCKException e) {
                 throw new DecapsulateException("Decapsulation Error: ", e);
@@ -238,7 +238,7 @@ public class MLKEMImpl implements KEMSpi {
 
     public static final class MLKEM1024 extends MLKEMImpl {
 
-        public MLKEM1024(OpenJCEPlusProvider provider) {           
+        public MLKEM1024(OpenJCEPlusProvider provider) {
             super(provider, "ML-KEM-1024");
         }
     }    
