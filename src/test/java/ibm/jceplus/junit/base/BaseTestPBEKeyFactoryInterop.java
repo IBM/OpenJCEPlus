@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -46,7 +46,8 @@ public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
     @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
         "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
         "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
-        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_40", 
+        "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_40", "PBEWithSHA1AndRC4_128"})
     public void testGetAlgorithm(String algorithm) throws Exception {
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
@@ -54,7 +55,6 @@ public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
                 this.getInteropProviderName());
 
         // Validate that the algorithm name from provider under test matches the interop provider.
-        System.out.println("    Checking getAlgorithm()");
         assertEquals(skf.getAlgorithm(), skfInterop.getAlgorithm(),
                 "Algorithm name is not as expected.");
     }
@@ -67,7 +67,8 @@ public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
     @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
         "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
         "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
-        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_40", 
+        "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_40", "PBEWithSHA1AndRC4_128"})
     public void testGetEncoding(String algorithm) throws Exception {
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
@@ -88,7 +89,8 @@ public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
     @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
         "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
         "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
-        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_40", 
+        "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_40", "PBEWithSHA1AndRC4_128"})
     public void testTranslate(String algorithm) throws Exception {
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
@@ -96,7 +98,6 @@ public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
                 this.getInteropProviderName());
 
         // Validate key translations of the same key generated from provider under test matches the interop provider.
-        System.out.println("    Checking translateKey()");
         SecretKey sk1 = skf.generateSecret(pbeks);
         SecretKey skInterop = skfInterop.generateSecret(pbeks);
         SecretKey sk1T = skf.translateKey(sk1);
@@ -117,7 +118,8 @@ public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
     @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
         "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
         "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
-        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_40", 
+        "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_40", "PBEWithSHA1AndRC4_128"})
     public void testKeySpec(String algorithm) throws Exception {
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
@@ -125,7 +127,6 @@ public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
                 this.getInteropProviderName());
 
         // Validate that the key spec produced by the provider under test matches the interop provider.
-        System.out.println("    Checking getKeySpec()");
         SecretKey sk1 = skf.generateSecret(pbeks);
         SecretKey skInterop = skfInterop.generateSecret(pbeks);
         PBEKeySpec ks1 = (PBEKeySpec) skf.getKeySpec(sk1, PBEKeySpec.class);
@@ -145,7 +146,8 @@ public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
     @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
         "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
         "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
-        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_40", 
+        "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_40", "PBEWithSHA1AndRC4_128"})
     public void testHashCode(String algorithm) throws Exception {
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
@@ -164,7 +166,8 @@ public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
     @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
         "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
         "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
-        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_40", 
+        "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_40", "PBEWithSHA1AndRC4_128"})
     public void testEquality(String algorithm) throws Exception {
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
@@ -188,7 +191,8 @@ public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
     @CsvSource({"PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
         "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
         "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256", "PBEWithHmacSHA512/224AndAES_128", "PBEWithHmacSHA512/224AndAES_256",
-        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256"})
+        "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_40", 
+        "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_40", "PBEWithSHA1AndRC4_128"})
     public void testGetFormat(String algorithm) throws Exception {
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
