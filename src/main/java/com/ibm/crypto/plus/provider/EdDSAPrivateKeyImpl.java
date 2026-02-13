@@ -94,13 +94,13 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
 
             if (this.privKeyMaterial == null) {
                 int keySize = CurveUtil.getCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(provider.getOCKContext(),
+                this.xecKey = XECKey.generateKeyPair(
                         this.curve.ordinal(), keySize, provider);
             } else {
                 this.algid = CurveUtil.getAlgId(this.curve);
                 byte[] der = buildOCKPrivateKeyBytes();
                 int encodingSize = CurveUtil.getDEREncodingSize(curve);
-                this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), der,
+                this.xecKey = XECKey.createPrivateKey(der,
                         encodingSize, provider);
             }
         } catch (Exception exception) {
@@ -122,7 +122,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
 
             checkLength(this.curve);
             int encodingSize = CurveUtil.getDEREncodingSize(curve);
-            this.xecKey = XECKey.createPrivateKey(provider.getOCKContext(), alteredEncoded,
+            this.xecKey = XECKey.createPrivateKey(alteredEncoded,
                     encodingSize, provider);
 
         } catch (Exception exception) {

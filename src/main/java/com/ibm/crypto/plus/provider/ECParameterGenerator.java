@@ -58,16 +58,14 @@ public final class ECParameterGenerator extends AlgorithmParameterGeneratorSpi {
 
             if (keysize > 0) {
                 algParams = AlgorithmParameters.getInstance("EC", provider);
-                byte[] encodedParams = ECKey.generateParameters(provider.getOCKContext(),
-                        this.keysize);
+                byte[] encodedParams = ECKey.generateParameters(this.keysize, provider);
                 algParams.init(encodedParams);
                 return algParams;
             } else if (algParamSpec != null) {
                 if (algParamSpec instanceof ECGenParameterSpec) {
                     algParams = AlgorithmParameters.getInstance("EC", provider);
                     String curveName = ((ECGenParameterSpec) algParamSpec).getName();
-                    byte[] encodedParams = ECKey.generateParameters(provider.getOCKContext(),
-                            curveName);
+                    byte[] encodedParams = ECKey.generateParameters(curveName, provider);
                     algParams.init(encodedParams);
                     return algParams;
                 }

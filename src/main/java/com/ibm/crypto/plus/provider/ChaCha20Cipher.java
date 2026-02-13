@@ -231,8 +231,7 @@ public final class ChaCha20Cipher extends CipherSpi implements ChaCha20Constants
 
         try {
             if (symmetricCipher == null) {
-                symmetricCipher = SymmetricCipher.getInstanceChaCha20(provider.getOCKContext(),
-                        padding, provider);
+                symmetricCipher = SymmetricCipher.getInstanceChaCha20(padding, provider);
             }
 
             if (isEncrypt) {

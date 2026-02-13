@@ -9,6 +9,8 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class PQCKey implements AsymmetricKey {
@@ -19,44 +21,38 @@ public final class PQCKey implements AsymmetricKey {
     static final byte[] unobtainedKeyBytes = new byte[0];
 
     private OpenJCEPlusProvider provider;
-    private OCKContext ockContext;
+    private NativeInterface nativeInterface;
     private final long pkeyId;
-    private String algName; 
+    private String algName;
     private byte[] privateKeyBytes;
     private byte[] publicKeyBytes;
     private final static String badIdMsg = "Key Identifier is not valid";
 
-    public static PQCKey generateKeyPair(OCKContext ockContext, String algName, OpenJCEPlusProvider provider)
+    public static PQCKey generateKeyPair(String algName, OpenJCEPlusProvider provider)
             throws OCKException {
         long keyId = 0;
         // final String methodName = "generateKeyPair ";
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
 
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         try {
             String NoDashAlg = algName.replace('-', '_');
-            keyId = NativeInterface.MLKEY_generate(ockContext.getId(), NoDashAlg);
+            keyId = nativeInterface.MLKEY_generate(NoDashAlg);
 
-            if (keyId == 0) {   
+            if (keyId == 0) {
                 throw new OCKException("PQCKey.generateKeyPair: MLKEY_generate failed");
             }    
         } catch (Exception e) {
             throw new OCKException("PQCKey.generateKeyPair: Exception " + e.getMessage(), e);
         }
-        return new PQCKey(ockContext, keyId, unobtainedKeyBytes, unobtainedKeyBytes, algName, provider);
+        return new PQCKey(nativeInterface, keyId, unobtainedKeyBytes, unobtainedKeyBytes, algName, provider);
     }
 
-    public static PQCKey createPrivateKey(OCKContext ockContext, String algName, byte[] privateKeyBytes, OpenJCEPlusProvider provider)
+    public static PQCKey createPrivateKey(String algName, byte[] privateKeyBytes, OpenJCEPlusProvider provider)
             throws OCKException {
         // final String methodName = "createPrivateKey ";
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
         if (privateKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
         }
@@ -64,21 +60,17 @@ public final class PQCKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         long keyId = 0;
         String NoDashAlg = algName.replace('-', '_');
-        keyId = NativeInterface.MLKEY_createPrivateKey(ockContext.getId(), NoDashAlg,
-                privateKeyBytes);
+        keyId = nativeInterface.MLKEY_createPrivateKey(NoDashAlg, privateKeyBytes);
 
-        return new PQCKey(ockContext, keyId, privateKeyBytes.clone(), null, algName, provider);
+        return new PQCKey(nativeInterface, keyId, privateKeyBytes.clone(), null, algName, provider);
     }
 
-    public static PQCKey createPublicKey(OCKContext ockContext,  String algName, byte[] publicKeyBytes, OpenJCEPlusProvider provider)
+    public static PQCKey createPublicKey(String algName, byte[] publicKeyBytes, OpenJCEPlusProvider provider)
             throws OCKException {
         // final String methodName = "createPublicKey ";
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
         if (publicKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
         }
@@ -86,18 +78,18 @@ public final class PQCKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         long keyId = 0;
         String NoDashAlg = algName.replace('-', '_');
-        keyId = NativeInterface.MLKEY_createPublicKey(ockContext.getId(), NoDashAlg,
-            publicKeyBytes);
+        keyId = nativeInterface.MLKEY_createPublicKey(NoDashAlg, publicKeyBytes);
 
         // OCKDebug.Msg (debPrefix, methodName, "mlkemKeyId :" + mlkemKeyId);
-        return new PQCKey(ockContext, keyId, null, publicKeyBytes.clone(), algName, provider);
+        return new PQCKey(nativeInterface, keyId, null, publicKeyBytes.clone(), algName, provider);
     }
 
-    private PQCKey(OCKContext ockContext, long keyId, byte[] privateKeyBytes,
+    private PQCKey(NativeInterface nativeInterface, long keyId, byte[] privateKeyBytes,
             byte[] publicKeyBytes, String algName, OpenJCEPlusProvider provider) throws OCKException {
-        this.ockContext = ockContext;
+        this.nativeInterface = nativeInterface;
         this.pkeyId = keyId;
         this.algName = algName;
         this.provider = provider;
@@ -111,19 +103,17 @@ public final class PQCKey implements AsymmetricKey {
         }
 
         if (privateKeyBytes == unobtainedKeyBytes) {
-            this.privateKeyBytes = NativeInterface.MLKEY_getPrivateKeyBytes(ockContext.getId(),
-            keyId);
+            this.privateKeyBytes = this.nativeInterface.MLKEY_getPrivateKeyBytes(keyId);
         } else {
             this.privateKeyBytes = privateKeyBytes;
         }
         if (publicKeyBytes == unobtainedKeyBytes) {
-            this.publicKeyBytes = NativeInterface.MLKEY_getPublicKeyBytes(ockContext.getId(),
-            keyId);
+            this.publicKeyBytes = this.nativeInterface.MLKEY_getPublicKeyBytes(keyId);
         } else {
             this.publicKeyBytes = publicKeyBytes;
         }
 
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, pkeyId, ockContext));
+        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, pkeyId, this.nativeInterface));
     }
 
     @Override
@@ -165,8 +155,7 @@ public final class PQCKey implements AsymmetricKey {
             }
         
             System.out.println("getPrivKeyBytes - pkeyId :" + pkeyId);
-            this.privateKeyBytes = NativeInterface.MLKEY_getPrivateKeyBytes(ockContext.getId(),
-            pkeyId);
+            this.privateKeyBytes = this.nativeInterface.MLKEY_getPrivateKeyBytes(pkeyId);
         }
     }
 
@@ -179,8 +168,7 @@ public final class PQCKey implements AsymmetricKey {
             if (!validId(pkeyId)) {
                 throw new OCKException(badIdMsg);
             }
-            this.publicKeyBytes = NativeInterface.MLKEY_getPublicKeyBytes(ockContext.getId(),
-            pkeyId);
+            this.publicKeyBytes = this.nativeInterface.MLKEY_getPublicKeyBytes(pkeyId);
         }
     }
 
@@ -198,14 +186,14 @@ public final class PQCKey implements AsymmetricKey {
         return out;
     }
 
-    private Runnable cleanOCKResources(byte[] privateKeyBytes, long pkeyId, OCKContext ockContext) {
+    private Runnable cleanOCKResources(byte[] privateKeyBytes, long pkeyId, NativeInterface nativeInterface) {
         return () -> {
             try {
                 if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
                     Arrays.fill(privateKeyBytes, (byte) 0x00);
                 }
                 if (pkeyId != 0) {
-                    NativeInterface.MLKEY_delete(ockContext.getId(), pkeyId);
+                    nativeInterface.MLKEY_delete(pkeyId);
                 }
             } catch (Exception e) {
                 if (OpenJCEPlusProvider.getDebug() != null) {

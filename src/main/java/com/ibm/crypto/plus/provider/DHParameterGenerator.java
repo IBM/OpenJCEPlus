@@ -250,7 +250,7 @@ public final class DHParameterGenerator extends AlgorithmParameterGeneratorSpi {
             }
 
             if (keysize > 0) {
-                byte[] encodedParams = DHKey.generateParameters(provider.getOCKContext(),
+                byte[] encodedParams = DHKey.generateParameters(provider,
                         this.keysize);
                 algParams.init(encodedParams);
                 return algParams;

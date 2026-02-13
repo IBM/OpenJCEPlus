@@ -101,7 +101,7 @@ abstract class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
     public KeyPair generateKeyPair() {
         try {
             int keySize = CurveUtil.getCurveSize(curve);
-            XECKey xecKey = XECKey.generateKeyPair(provider.getOCKContext(),
+            XECKey xecKey = XECKey.generateKeyPair(
                     this.curve.ordinal(), keySize, provider);
             EdDSAPublicKeyImpl pubKey = new EdDSAPublicKeyImpl(provider, xecKey,
                     this.curve);

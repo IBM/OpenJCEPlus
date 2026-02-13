@@ -67,7 +67,7 @@ public final class RSASignatureSSL_I2 extends SignatureSpi {
     public RSASignatureSSL_I2(OpenJCEPlusProvider provider) {
         try {
             this.provider = provider;
-            this.signature = SignatureRSASSL.getInstance(provider.getOCKContext());
+            this.signature = SignatureRSASSL.getInstance(provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to initialize RSA signature", e);
         }

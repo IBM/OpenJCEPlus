@@ -178,7 +178,7 @@ public final class RC2Cipher extends LegacyCipher {
 
         try {
             if (symmetricCipher == null) {
-                symmetricCipher = SymmetricCipher.getInstanceRC2(provider.getOCKContext(), mode,
+                symmetricCipher = SymmetricCipher.getInstanceRC2(mode,
                         padding, rawKey.length, provider);
             }
 
