@@ -689,6 +689,15 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         return new OpenJCEPlusFIPSContext();
     }
 
+    /**
+     * Indicate whether the platform is certified FIPS or when FIPS is simulated on non-certified platforms.
+     * @return true if FIPS is active (certified or simulated)
+     */
+    @Override
+    boolean isFIPS() {
+        return super.isFIPS() || !isFIPSCertifiedPlatform;
+    }
+
     // Get SecureRandom to use for crypto operations. Returns a FIPS
     // approved SecureRandom to use. Ignore any user supplied
     // SecureRandom in FIPS mode.
