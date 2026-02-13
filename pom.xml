@@ -19,6 +19,7 @@
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <jmh.benchmark>ibm.jceplus.jmh.RunAll</jmh.benchmark>
         <jmh.benchmark.skip>true</jmh.benchmark.skip>
+        <consoleOutputReporter.disable>true</consoleOutputReporter.disable>
     </properties>
         <profiles>
           <profile>
@@ -221,7 +222,7 @@
                     </includes>
                     <reportFormat>plain</reportFormat>
                     <consoleOutputReporter>
-                      <disable>true</disable>
+                      <disable>${consoleOutputReporter.disable}</disable>
                     </consoleOutputReporter>
                     <statelessTestsetInfoReporter
                       implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
@@ -354,7 +355,7 @@
                     </includes>
                     <reportFormat>plain</reportFormat>
                     <consoleOutputReporter>
-                      <disable>true</disable>
+                      <disable>${consoleOutputReporter.disable}</disable>
                     </consoleOutputReporter>
                     <statelessTestsetInfoReporter
                       implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
