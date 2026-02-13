@@ -30,7 +30,7 @@ import org.openjdk.jmh.runner.options.Options;
 @State(Scope.Benchmark)
 @Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
-public class AESCipherBenchmark extends CipherBase {
+public class AESCipherBenchmark extends SymmetricCipherBase {
 
     @Param({"AES/ECB/PKCS5Padding", "AES/CBC/PKCS5Padding", "AES/CFB/PKCS5Padding",
             "AES/OFB/PKCS5Padding", "AES/CTR/NoPadding", "AES/GCM/NoPadding"})

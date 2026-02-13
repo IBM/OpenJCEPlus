@@ -75,6 +75,7 @@ import org.junit.platform.suite.api.Suite;
     TestRSA_2048.class,
     TestRSA_4096.class,
     TestRSA.class,
+    TestRSACipherInterop.class,
     TestRSAKey.class,
     TestRSAKeyInterop.class,
     TestRSAKeyInteropBC.class,

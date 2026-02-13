@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.base.OCKException;
 import com.ibm.crypto.plus.provider.base.RSACipher;
 import com.ibm.crypto.plus.provider.base.RSAPadding;
 import java.nio.ByteBuffer;
@@ -36,7 +37,7 @@ public final class RSA extends CipherSpi {
 
     private OpenJCEPlusProvider provider = null;
     private RSACipher rsaCipher = null;
-    private RSAPadding padding = RSAPadding.PKCS1Padding;
+    private RSAPadding padding = RSAPadding.PKCS1Padding();
     private ByteBuffer msgBuffer = null;
     private AlgorithmParameterSpec spec = null;
     private String oaepHashAlgorithm = "SHA-1";
@@ -141,19 +142,7 @@ public final class RSA extends CipherSpi {
             this.msgLength = 0; // reset cipher for another
                                 // encryption/decryption
             return outLen;
-        } catch (ShortBufferException ock_sbe) {
-            ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
-            throw sbe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            throw ibse;
-        } catch (BadPaddingException ock_bpe) {
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
-            throw bpe;
-        } catch (Exception e) {
+        } catch (OCKException e) {
             // Unsure of msg length behavior on failure. e.g. do we set it to 0?
             // do we clear the buffer?
             throw provider.providerException("Failure in engineDoFinal", e);
@@ -264,17 +253,24 @@ public final class RSA extends CipherSpi {
             throw new InvalidKeyException("Invalid mode: " + opmode);
         }
 
-        if (this.padding.getId() == RSAPadding.OAEPPadding.getId()) {
+        if (this.padding.isPadding(RSAPadding.RSAPAD_OAEP)) {
             if (params != null) {
-                if (!(params instanceof OAEPParameterSpec)) {
+                if (!(params instanceof OAEPParameterSpec oaepParameterSpec)) {
                     throw new InvalidAlgorithmParameterException(
                             "Wrong parameters for OAEP Padding");
                 }
                 checkOAEPParameters((OAEPParameterSpec) params);
                 this.spec = params;
+                this.padding.setMessageDigest(oaepParameterSpec.getDigestAlgorithm());
+                this.padding.setMGF1Digest((MGF1ParameterSpec) oaepParameterSpec.getMGFParameters());
             } else {
-                this.spec = new OAEPParameterSpec(oaepHashAlgorithm, "MGF1", MGF1ParameterSpec.SHA1,
-                        PSource.PSpecified.DEFAULT);
+                if (this.provider.getName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
+                    throw new ProviderException("RSA with OAEP padding from OpenJCEPlusFIPS has to "
+                            + "be initialized with parameters that conform with FIPS requirements");
+                }
+                this.spec = new OAEPParameterSpec(oaepHashAlgorithm,
+                                                  "MGF1", MGF1ParameterSpec.SHA1,
+                                                  PSource.PSpecified.DEFAULT);
             }
         }
 
@@ -341,19 +337,21 @@ public final class RSA extends CipherSpi {
     private void checkOAEPParameters(OAEPParameterSpec spec)
             throws InvalidAlgorithmParameterException {
         // ensure we are only supporting OAEPParameters.DEFAULT fields
-        if (!("SHA-1".equals(spec.getDigestAlgorithm()))
-                || !("MGF1".equals(spec.getMGFAlgorithm()))) {
-            throw new InvalidAlgorithmParameterException("Only SHA-1 & MGF1 is supported for OAEP");
-        }
-        MGF1ParameterSpec mgf1Spec = (MGF1ParameterSpec) spec.getMGFParameters();
-        if (mgf1Spec != null && !(mgf1Spec.getDigestAlgorithm()
-                .equals(MGF1ParameterSpec.SHA1.getDigestAlgorithm()))) {
-            throw new InvalidAlgorithmParameterException(
-                    "Only SHA-1 is supported for MGF1 in OAEP");
+        if ("OpenJCEPlusFIPS".equalsIgnoreCase(this.provider.getName())) {
+            String mdName = spec.getDigestAlgorithm();
+            if (mdName.equals("SHA-1") || mdName.equals("SHA1")) {
+                throw new InvalidAlgorithmParameterException(
+                        "OAEPWithSHA-1 is not supported in FIPS mode");
+            }
+            MGF1ParameterSpec mgf1Spec = (MGF1ParameterSpec) spec.getMGFParameters();
+            if (mgf1Spec != null && (mgf1Spec.getDigestAlgorithm().equals("SHA-1")
+                                  || mgf1Spec.getDigestAlgorithm().equals("SHA1"))) {
+                throw new InvalidAlgorithmParameterException(
+                        "SHA-1 for MGF1 in OAEP is not supported in FIPS mode");
+            }
         }
         PSource.PSpecified specified = (PSource.PSpecified) spec.getPSource();
-        if (specified != null
-                && !(Arrays.equals(specified.getValue(), PSource.PSpecified.DEFAULT.getValue()))) {
+        if (!(Arrays.equals(specified.getValue(), PSource.PSpecified.DEFAULT.getValue()))) {
             throw new InvalidAlgorithmParameterException(
                     "Only PSource.PSpecified.DEFAULT is supported for PSource in OAEP");
         }
@@ -372,19 +370,41 @@ public final class RSA extends CipherSpi {
         if (padding.equalsIgnoreCase("OAEPPadding")
                 || padding.equalsIgnoreCase("OAEPWithSHA-1AndMGF1Padding")
                 || padding.equalsIgnoreCase("OAEPWithSHA1AndMGF1Padding")) {
-            this.padding = RSAPadding.OAEPPadding;
+            this.padding = RSAPadding.OAEPPadding();
+        } else if (padding.equalsIgnoreCase("OAEPWithSHA-224AndMGF1Padding")
+                || padding.equalsIgnoreCase("OAEPWithSHA224AndMGF1Padding")) {
+            this.padding = RSAPadding.OAEPPaddingSHA224();
+        } else if (padding.equalsIgnoreCase("OAEPWithSHA-256AndMGF1Padding")
+                || padding.equalsIgnoreCase("OAEPWithSHA256AndMGF1Padding")) {
+            this.padding = RSAPadding.OAEPPaddingSHA256();
+        } else if (padding.equalsIgnoreCase("OAEPWithSHA-384AndMGF1Padding")
+                || padding.equalsIgnoreCase("OAEPWithSHA384AndMGF1Padding")) {
+            this.padding = RSAPadding.OAEPPaddingSHA384();
+        } else if (padding.equalsIgnoreCase("OAEPWithSHA-512AndMGF1Padding")
+                || padding.equalsIgnoreCase("OAEPWithSHA512AndMGF1Padding")) {
+            this.padding = RSAPadding.OAEPPaddingSHA512();
+        } else if (padding.equalsIgnoreCase("OAEPWithSHA-512/224AndMGF1Padding")
+                || padding.equalsIgnoreCase("OAEPWithSHA512/224AndMGF1Padding")) {
+            this.padding = RSAPadding.OAEPPaddingSHA512_224();
+        } else if (padding.equalsIgnoreCase("OAEPWithSHA-512/256AndMGF1Padding")
+                || padding.equalsIgnoreCase("OAEPWithSHA512/256AndMGF1Padding")) {
+            this.padding = RSAPadding.OAEPPaddingSHA512_256();
         } else {
             if (provider.isFIPS() && !allowNonOAEPFIPS) {
                 throw new NoSuchPaddingException("Padding: " + padding + " not supported through FIPS provider");
             } else {
                 if (padding.equalsIgnoreCase("NoPadding")) {
-                    this.padding = RSAPadding.NoPadding;
+                    this.padding = RSAPadding.NoPadding();
                 } else if (padding.equalsIgnoreCase("PKCS1Padding")) {
-                    this.padding = RSAPadding.PKCS1Padding;
+                    this.padding = RSAPadding.PKCS1Padding();
                 } else {
                     throw new NoSuchPaddingException("Padding: " + padding + " not implemented");
                 }
             }
+        }
+
+        if (this.padding.isPadding(RSAPadding.RSAPAD_OAEP)) {
+            this.oaepHashAlgorithm = getMDName(this.padding.getMessageDigest());
         }
     }
 
@@ -455,21 +475,55 @@ public final class RSA extends CipherSpi {
         }
     }
 
-    private int oaepInputLimit() throws Exception {
-        try {
-            int digestLength = 20; // sha-1 digest length
-            return rsaCipher.getOutputSize() - (2 * digestLength) - 2;
-        } catch (Exception e) {
-            throw provider.providerException("Unable to get input limit", e);
+    private String getMDName(int md) throws NoSuchPaddingException {
+        switch (md) {
+            case 1:
+                return "SHA-1";
+            case 2:
+                return "SHA-224";
+            case 3:
+                return "SHA-256";
+            case 4:
+                return "SHA-384";
+            case 5:
+                return "SHA-512";
+            case 6:
+                return "SHA-512/224";
+            case 7:
+                return "SHA-512/256";
+            default:
+                throw new NoSuchPaddingException("Incorrect message digest in OAEP padding: " + md);
         }
     }
 
-    private int pkcs1InputLimit() throws Exception {
-        try {
-            return rsaCipher.getOutputSize() - 11;
-        } catch (Exception e) {
-            throw provider.providerException("Unable to get input limit", e);
+    private int getDigestLength() {
+        switch (this.padding.getMessageDigest()) {
+            case 1:
+                return 20;
+            case 2:
+                return 28;
+            case 3:
+                return 32;
+            case 4:
+                return 48;
+            case 5:
+                return 64;
+            case 6:
+                return 28;
+            case 7:
+                return 32;
+            default:
+                return 0; // NONE selected for padding
         }
+    }
+
+    private int oaepInputLimit() throws OCKException {
+        int digestLength = getDigestLength();
+        return rsaCipher.getOutputSize() - (2 * digestLength) - 2;
+    }
+
+    private int pkcs1InputLimit() throws OCKException {
+        return rsaCipher.getOutputSize() - 11;
     }
 
     private void checkCipherInitialized() throws IllegalStateException {

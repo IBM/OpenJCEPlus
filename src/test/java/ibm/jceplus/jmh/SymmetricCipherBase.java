@@ -16,7 +16,7 @@ import javax.crypto.spec.ChaCha20ParameterSpec;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 
-abstract public class CipherBase extends JMHBase {
+abstract public class SymmetricCipherBase extends JMHBase {
 
     protected byte[] plaintext = null;
     protected SecretKey secretKey = null;
