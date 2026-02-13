@@ -770,7 +770,7 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
     }
 
     private Runnable cleanOCKResources(byte[] Key, OCKContext ockContext) {
-        return() -> {
+        return () -> {
             try {
                 if (ockContext != null) {
                     CCMCipher.doCCM_cleanup(ockContext);

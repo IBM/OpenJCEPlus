@@ -38,7 +38,7 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
             throw new IllegalArgumentException("No input buffer given");
         }
         if ((offset < 0) || (length < 0) || (offset > input.length - length)) {
-            throw new ArrayIndexOutOfBoundsException("Range out of bounds for buffer of length " + input.length +" using offset: " + offset + ", input length: " + length);
+            throw new ArrayIndexOutOfBoundsException("Range out of bounds for buffer of length " + input.length + " using offset: " + offset + ", input length: " + length);
         }
         try {
             this.digest.update(input, offset, length);

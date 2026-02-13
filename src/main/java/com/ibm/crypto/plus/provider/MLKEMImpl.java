@@ -109,7 +109,7 @@ public class MLKEMImpl implements KEMSpi {
             byte[] encapsulation = new byte[encapLen];
             byte[] secret = new byte[SECRETSIZE];
 
-            if (from < 0 || to > SECRETSIZE || ((to - from) < 0) || (from >= SECRETSIZE)){
+            if (from < 0 || to > SECRETSIZE || ((to - from) < 0) || (from >= SECRETSIZE)) {
                 throw new IndexOutOfBoundsException();
             }
             if (algorithm == null) {
@@ -191,7 +191,7 @@ public class MLKEMImpl implements KEMSpi {
                 throws DecapsulateException {
             byte[] secret;
 
-            if (from < 0 || to > SECRETSIZE || ((to - from) < 0) || (from >= SECRETSIZE)){
+            if (from < 0 || to > SECRETSIZE || ((to - from) < 0) || (from >= SECRETSIZE)) {
                 throw new IndexOutOfBoundsException();
             }
             if (algorithm == null || cipherText == null) {
