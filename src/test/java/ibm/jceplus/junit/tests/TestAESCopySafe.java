@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -7,7 +7,7 @@
  */
 
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -19,11 +19,27 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestAESCopySafe extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.OPENJCEPLUS_MULTITHREAD_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestAESCopySafe extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     private static final boolean DEBUG = false;
     private static final int INPUT_LENGTH = 32; // should be a multiple of block size
@@ -36,6 +52,11 @@ public class BaseTestAESCopySafe extends BaseTestJunit5 {
 
     protected int specifiedKeySize = 128;
 
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
+   
     @Test
     public void testOverlappingBuffer() throws Exception {
 
