@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -30,7 +30,7 @@ import org.openjdk.jmh.runner.options.Options;
 @State(Scope.Benchmark)
 @Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
-public class DESedeCipherBenchmark extends CipherBase {
+public class DESedeCipherBenchmark extends SymmetricCipherBase {
 
     @Param({"DESede/ECB/PKCS5Padding", "DESede/CBC/PKCS5Padding"})
     private String transformation;
