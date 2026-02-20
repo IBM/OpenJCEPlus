@@ -66,11 +66,11 @@ final class PQCPublicKey extends X509Key
             this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
 
             //OCKC puts the BITSTRING on the key. Need to remove it.
-            setKey(new BitArray((rawKey.length - 5)*8, rawKey, 5));
+            setKey(new BitArray((rawKey.length - 5) * 8, rawKey, 5));
 
             this.pqcKey = pqcKey;
         } catch (Exception exception) {
-            throw provider.providerException("Failure in PublicKey + "+ exception.getMessage(), exception);
+            throw provider.providerException("Failure in PublicKey + " + exception.getMessage(), exception);
         }
     }
 
