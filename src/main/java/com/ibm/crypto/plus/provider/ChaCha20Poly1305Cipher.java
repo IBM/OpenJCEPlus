@@ -474,7 +474,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             throw new IllegalStateException("AAD update already done");
         }
 
-        this.authData = /*new byte[src.remaining()];*/ new byte[src.capacity()];
+        this.authData = new byte[src.remaining()];
         src.get(authData, 0, authData.length);
         try {
             poly1305Cipher.update(authData, 0, authData.length, null, 0);
