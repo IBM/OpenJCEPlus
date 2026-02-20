@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -290,7 +290,7 @@ public class BaseTestChaCha20Poly1305ByteBuffer extends BaseTestJunit5 {
     // put in with a complete encryption operation still gets the
     // expected answer.
     private void vectorTest(ByteBuffer buffer) throws Exception {
-        Cipher cipher = Cipher.getInstance("ChaCha20-Poly1305");
+        Cipher cipher = Cipher.getInstance("ChaCha20-Poly1305", getProviderName());
         cipher.init(Cipher.ENCRYPT_MODE,
                 new SecretKeySpec(TEST_KEY_BYTES, "ChaCha20"),
                 new IvParameterSpec(TEST_NONCE_BYTES));
