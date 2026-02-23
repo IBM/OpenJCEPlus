@@ -54,6 +54,9 @@ public class RSACipherBenchmark extends AsymmetricCipherBase {
         paddings.put("NoPadding", 1);
         paddings.put("PKCS1Padding", 11);
         paddings.put("OAEPPadding", (2 * 20 + 2)); // SHA-1 size is 20 bytes
+        paddings.put("OAEPWithSHA-256AndMGF1Padding", (2 * 32 + 2)); // SHA-256 size is 32 bytes
+        paddings.put("OAEPWithSHA-512AndMGF1Padding", (2 * 64 + 2)); // SHA-512 size is 64 bytes
+        paddings.put("OAEPWithSHA-512/224AndMGF1Padding", (2 * 28 + 2)); // SHA-512/224 size is 28 bytes
 
         for (String padding : paddings.keySet()) {
             encryptCiphers.put(padding, Cipher.getInstance("RSA/ECB/" + padding, provider));
@@ -106,6 +109,36 @@ public class RSACipherBenchmark extends AsymmetricCipherBase {
     @Benchmark
     public byte[] benchmarkDecryption_OAEPPadding() throws Exception {
         return decryptCiphers.get("OAEPPadding").doFinal(ciphertexts.get("OAEPPadding"));
+    }
+
+    @Benchmark
+    public byte[] benchmarkEncryption_OAEPWithSHA256AndMGF1Padding() throws Exception {
+        return encryptCiphers.get("OAEPWithSHA-256AndMGF1Padding").doFinal(plaintexts.get("OAEPWithSHA-256AndMGF1Padding"));
+    }
+
+    @Benchmark
+    public byte[] benchmarkDecryption_OAEPWithSHA256AndMGF1Padding() throws Exception {
+        return decryptCiphers.get("OAEPWithSHA-256AndMGF1Padding").doFinal(ciphertexts.get("OAEPWithSHA-256AndMGF1Padding"));
+    }
+
+    @Benchmark
+    public byte[] benchmarkEncryption_OAEPWithSHA512AndMGF1Padding() throws Exception {
+        return encryptCiphers.get("OAEPWithSHA-512AndMGF1Padding").doFinal(plaintexts.get("OAEPWithSHA-512AndMGF1Padding"));
+    }
+
+    @Benchmark
+    public byte[] benchmarkDecryption_OAEPWithSHA512AndMGF1Padding() throws Exception {
+        return decryptCiphers.get("OAEPWithSHA-512AndMGF1Padding").doFinal(ciphertexts.get("OAEPWithSHA-512AndMGF1Padding"));
+    }
+
+    @Benchmark
+    public byte[] benchmarkEncryption_OAEPWithSHA512_224AndMGF1Padding() throws Exception {
+        return encryptCiphers.get("OAEPWithSHA-512/224AndMGF1Padding").doFinal(plaintexts.get("OAEPWithSHA-512/224AndMGF1Padding"));
+    }
+
+    @Benchmark
+    public byte[] benchmarkDecryption_OAEPWithSHA512_224AndMGF1Padding() throws Exception {
+        return decryptCiphers.get("OAEPWithSHA-512/224AndMGF1Padding").doFinal(ciphertexts.get("OAEPWithSHA-512/224AndMGF1Padding"));
     }
 
     public static void main(String[] args) throws RunnerException {
