@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2026
+ * Copyright IBM Corp. 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.base.OCKException;
 import com.ibm.crypto.plus.provider.base.Padding;
 import com.ibm.crypto.plus.provider.base.SymmetricCipher;
 import java.security.AlgorithmParameters;
@@ -15,10 +16,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.ProviderException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -26,8 +25,13 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.RC2ParameterSpec;
 
-public final class DESedeCipher extends LegacyCipher implements DESConstants {
+/*
+ * OpenJCEPlus doesn't support RC2 Ciphers. This class
+ * is only used for PBES1 algorithms.
+ */
+public final class RC2Cipher extends LegacyCipher {
 
     private OpenJCEPlusProvider provider = null;
     private SymmetricCipher symmetricCipher = null;
@@ -36,9 +40,10 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
     private byte[] iv = null;
     private boolean encrypting = true;
     private boolean initialized = false;
-    private SecureRandom cryptoRandom = null;
 
-    public DESedeCipher(OpenJCEPlusProvider provider) {
+    static private final int RC2_BLOCK_SIZE = 8;
+
+    public RC2Cipher(OpenJCEPlusProvider provider) {
         this.provider = provider;
     }
 
@@ -60,15 +65,10 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
             } else {
                 return output;
             }
-        } catch (BadPaddingException ock_bpe) {
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
-            throw bpe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            throw ibse;
-        } catch (Exception e) {
+        } catch (ShortBufferException ock_sbe) {
+            // should not occur
+            throw provider.providerException("Failure in engineDoFinal", ock_sbe);
+        } catch (OCKException e) {
             throw provider.providerException("Failure in engineDoFinal", e);
         }
     }
@@ -81,39 +81,20 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
 
         try {
             return symmetricCipher.doFinal(input, inputOffset, inputLen, output, outputOffset);
-        } catch (BadPaddingException ock_bpe) {
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
-            throw bpe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            throw ibse;
-        } catch (ShortBufferException ock_sbe) {
-            ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
-            throw sbe;
-        } catch (Exception e) {
+        } catch (OCKException e) {
             throw provider.providerException("Failure in engineDoFinal", e);
         }
     }
 
     @Override
     protected int engineGetBlockSize() {
-        return DES_BLOCK_SIZE;
+        return RC2_BLOCK_SIZE;
     }
 
     @Override
     protected int engineGetKeySize(Key key) throws InvalidKeyException {
-        if (key == null) {
-            throw new InvalidKeyException("Key missing");
-        }
-
-        byte[] encoded = key.getEncoded();
-        if (encoded.length != 24) {
-            throw new InvalidKeyException("Invalid key length: " + encoded.length + " bytes");
-        }
-        return 168;
+        throw new UnsupportedOperationException("Method engineGetKeySize " +
+            "is not supported for RC2Cipher class");
     }
 
     @Override
@@ -132,45 +113,14 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
 
     @Override
     protected AlgorithmParameters engineGetParameters() {
-        AlgorithmParameters params = null;
-
-        if (this.iv != null) {
-            IvParameterSpec ivSpec = new IvParameterSpec(this.iv);
-            try {
-                params = AlgorithmParameters.getInstance("DESede", provider);
-                params.init(ivSpec);
-            } catch (NoSuchAlgorithmException nsae) {
-                throw new ProviderException(
-                        "Cannot find DESede AlgorithmParameters implementation in "
-                                + provider.getName() + " provider");
-            } catch (InvalidParameterSpecException ipse) {
-                // should never happen
-                throw new ProviderException(ivSpec.getClass() + " not supported");
-            }
-        }
-
-        return params;
+        throw new UnsupportedOperationException("Method engineGetParameters " +
+            "is not supported for RC2Cipher class");
     }
 
     @Override
     protected void engineInit(int opmode, Key key, SecureRandom random) throws InvalidKeyException {
-        if (mode.equals("ECB")) {
-            internalInit(opmode, key, null);
-            return;
-        }
-
-        if ((opmode == Cipher.DECRYPT_MODE) || (opmode == Cipher.UNWRAP_MODE)) {
-            throw new InvalidKeyException("Parameters missing");
-        }
-
-        if (cryptoRandom == null) {
-            cryptoRandom = provider.getSecureRandom(random);
-        }
-
-        byte[] generatedIv = new byte[DES_BLOCK_SIZE];
-        cryptoRandom.nextBytes(generatedIv);
-
-        internalInit(opmode, key, generatedIv);
+        throw new UnsupportedOperationException("Method engineInit for RC2Cipher class " +
+            "is only supported when AlgorithmParameterSpec is passed as a parameter");
     }
 
     @Override
@@ -179,33 +129,26 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
         if (params == null) {
             engineInit(opmode, key, random);
         } else {
-            if (params instanceof IvParameterSpec) {
-                byte[] iv = ((IvParameterSpec) params).getIV();
-                if (iv.length != DES_BLOCK_SIZE) {
-                    throw new InvalidAlgorithmParameterException(
-                            "IV must be " + DES_BLOCK_SIZE + " bytes");
-                }
-                internalInit(opmode, key, iv);
+            byte[] ivBytes = null;
+            if (params instanceof IvParameterSpec ivspec) {
+                ivBytes = ivspec.getIV();
+            } else if (params instanceof RC2ParameterSpec rc2spec) {
+                ivBytes = rc2spec.getIV();
             } else {
-                throw new InvalidAlgorithmParameterException("Wrong parameter type: IV expected");
+                throw new InvalidAlgorithmParameterException("Wrong parameter type: IV or RC2 expected");
             }
+            if (ivBytes.length != RC2_BLOCK_SIZE) {
+                throw new InvalidAlgorithmParameterException("IV must be " + RC2_BLOCK_SIZE + " bytes");
+            }
+            internalInit(opmode, key, ivBytes);
         }
     }
 
     @Override
     protected void engineInit(int opmode, Key key, AlgorithmParameters params, SecureRandom random)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        IvParameterSpec ivSpec = null;
-
-        if (params != null) {
-            try {
-                ivSpec = params.getParameterSpec(IvParameterSpec.class);
-            } catch (InvalidParameterSpecException ipse) {
-                throw new InvalidAlgorithmParameterException("Wrong parameter type: IV expected");
-            }
-        }
-
-        engineInit(opmode, key, ivSpec, random);
+        throw new UnsupportedOperationException("Method engineInit for RC2Cipher class " +
+            "is only supported when AlgorithmParameterSpec is passed as a parameter");
     }
 
     private void internalInit(int opmode, Key key, byte[] iv) throws InvalidKeyException {
@@ -213,8 +156,8 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
             throw new InvalidKeyException("Key missing");
         }
 
-        if (!(key.getAlgorithm().equalsIgnoreCase("DESede"))) {
-            throw new InvalidKeyException("Wrong algorithm: DESede required");
+        if (!(key.getAlgorithm().equalsIgnoreCase("RC2"))) {
+            throw new InvalidKeyException("Wrong algorithm: RC2 required");
         }
 
         if (!(key.getFormat().equalsIgnoreCase("RAW"))) {
@@ -227,19 +170,16 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
         }
 
         if (!isKeySizeValid(rawKey.length)) {
-            throw new InvalidKeyException("Invalid DESede key length: " + rawKey.length + " bytes");
+            Arrays.fill(rawKey, (byte) 0x00);
+            throw new InvalidKeyException("Invalid RC2 key length: " + rawKey.length + " bytes");
         }
 
         boolean isEncrypt = (opmode == Cipher.ENCRYPT_MODE) || (opmode == Cipher.WRAP_MODE);
-        // if (isEncrypt && provider.isFIPS()) {
-        // throw new ProviderException("DESede encrypt is not supported in FIPS
-        // mode");
-        // }
 
         try {
             if (symmetricCipher == null) {
-                symmetricCipher = SymmetricCipher.getInstanceDESede(provider.getOCKContext(), mode,
-                        padding, provider);
+                symmetricCipher = SymmetricCipher.getInstanceRC2(provider.getOCKContext(), mode,
+                        padding, rawKey.length, provider);
             }
 
             if (isEncrypt) {
@@ -253,6 +193,8 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
             this.initialized = true;
         } catch (Exception e) {
             throw provider.providerException("Failed to init cipher", e);
+        } finally {
+            Arrays.fill(rawKey, (byte) 0x00);
         }
     }
 
@@ -297,7 +239,13 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
             } else {
                 return output;
             }
-        } catch (Exception e) {
+        } catch (BadPaddingException ock_bpe) {
+            // should not occur
+            throw provider.providerException("Failure in engineUpdate", ock_bpe);
+        } catch (ShortBufferException ock_sbe) {
+            // should not occur
+            throw provider.providerException("Failure in engineUpdate", ock_sbe);
+        } catch (OCKException e) {
             throw provider.providerException("Failure in engineUpdate", e);
         }
     }
@@ -309,11 +257,10 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
 
         try {
             return symmetricCipher.update(input, inputOffset, inputLen, output, outputOffset);
-        } catch (ShortBufferException ock_sbe) {
-            ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
-            throw sbe;
-        } catch (Exception e) {
+        } catch (BadPaddingException ock_bpe) {
+            // should not occur
+            throw provider.providerException("Failure in engineDoFinal", ock_bpe);
+        } catch (OCKException e) {
             throw provider.providerException("Failure in engineDoFinal", e);
         }
     }
@@ -358,7 +305,7 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
         }
     }
 
-    static final boolean isKeySizeValid(int len) {
-        return len == 24 ? true : false;
+    private boolean isKeySizeValid(int len) {
+        return (len == 16 || len == 5);
     }
 }
