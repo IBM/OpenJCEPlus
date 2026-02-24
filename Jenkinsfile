@@ -48,8 +48,10 @@ def cloneOpenJCEPlus() {
         //     git branch: "${OPENJCEPLUS_BRANCH}", url: "${OPENJCEPLUS_REPO}"
         // }
         // sh "git config http.sslVerify false"
-        deleteDir()
-        sh "git clone -b ${CHANGE_BRANCH} git@github.com:gin-nader/OpenJCEPlus.git"
+        if (software == "zos") {
+            deleteDir()
+            sh "git clone -b ${CHANGE_BRANCH} git@github.com:gin-nader/OpenJCEPlus.git"
+        }
     }
 }
 
