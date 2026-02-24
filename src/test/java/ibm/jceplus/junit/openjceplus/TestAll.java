@@ -89,7 +89,7 @@ import org.junit.platform.suite.api.Suite;
     TestMiniRSAPSS2.class,
     TestPBEKeyFactory.class,
     TestPBEKeyFactoryInterop.class,
-    TestPBES2Parameters.class,
+    TestPBEParameters.class,
     TestPBECipher.class,
     TestPBECipherInterop.class,
     TestPBKDF2.class,
