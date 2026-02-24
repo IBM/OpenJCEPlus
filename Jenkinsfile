@@ -38,7 +38,7 @@ import groovy.transform.Field;
  * Clone the branch from the repo specified to
  * get the appropriate OpenJCEPlus code to build.
  */
-def cloneOpenJCEPlus() {
+def cloneOpenJCEPlus(def software) {
     dir("openjceplus/OpenJCEPlus") {
         // if ((OPENJCEPLUS_REPO == "") && (OPENJCEPLUS_BRANCH == "")) {
         //     echo "Clone using default branch and repository."
@@ -241,7 +241,7 @@ def run(platform) {
             echo "${nodeTags}"
 
             node("$nodeTags") {
-                cloneOpenJCEPlus()
+                cloneOpenJCEPlus(software)
                 echo "OpenJCEPlus cloned"
                 dir("openjceplus/OpenJCEPlus") {
                     externalLibrary = load("./utils.groovy")
