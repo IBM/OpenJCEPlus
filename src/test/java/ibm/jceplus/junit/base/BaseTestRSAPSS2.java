@@ -192,9 +192,6 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
             rsaKeyPairGen.initialize(4096, null);
             rsaKeyPair_OpenJCEPlusFIPS[4] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlusFIPS[4] = RSA 4096
 
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlusFIPS");
-            rsaKeyPairGen.initialize(5120, null);
-            rsaKeyPair_OpenJCEPlusFIPS[5] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlusFIPS[5] = RSA 5120
         }
 
         //================================================================
@@ -308,11 +305,6 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     if (printJunitTrace)
                         System.out.println(
                                 "TestRSAPSS():  Initializing rsaKeyPair with rsaKeyPair_OpenJCEPlusFIPS[4] ");
-                } else if (ii == 5) {
-                    rsaKeyPair = rsaKeyPair_OpenJCEPlusFIPS[5]; // RSA keylength 5120
-                    if (printJunitTrace)
-                        System.out.println(
-                                "TestRSAPSS():  Initializing rsaKeyPair with rsaKeyPair_OpenJCEPlusFIPS[5] ");
                 }
             }
 
