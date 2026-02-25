@@ -244,6 +244,8 @@ def run(platform) {
                 cloneOpenJCEPlus(software)
                 echo "OpenJCEPlus cloned"
                 dir("openjceplus/OpenJCEPlus") {
+                    sh "ls -la"
+                    sh "pwd"
                     externalLibrary = load("./utils.groovy")
                 }
                 try {
