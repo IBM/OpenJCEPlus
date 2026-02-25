@@ -15,11 +15,13 @@ import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.ProviderException;
 import java.security.PublicKey;
@@ -48,6 +50,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -1088,6 +1091,27 @@ public class BaseTestRSA extends BaseTestCipher {
             } else if ((ch >= 'A') && (ch <= 'F')) {
                 return ch - 'A' + 10;
             }
+        }
+    }
+
+    /**
+     * Test that FIPS provider rejects some non-FIPS-compliant RSA key sizes.
+     * @throws NoSuchProviderException 
+     * @throws NoSuchAlgorithmException 
+     */
+    @ParameterizedTest
+    @CsvSource({"512", "1024", "1536", "5120", "6144", "7680", "8192"})
+    public void testFIPSBadRSAKeySizes(int keySize) throws NoSuchAlgorithmException, NoSuchProviderException {
+        assumeTrue("OpenJCEPlusFIPS".equals(getProviderName()));
+
+        final String expectedMessage = "In FIPS mode, only 2048, 3072, or 4096 size RSA keys are accepted.";
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
+            keyGen.initialize(keySize, null);
+            keyGen.generateKeyPair();
+            fail("Expected InvalidParameterException for non-FIPS-compliant RSA key size: " + keySize);
+        } catch (InvalidParameterException e) {
+            assertEquals(expectedMessage, e.getMessage());
         }
     }
 }
