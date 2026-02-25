@@ -50,7 +50,7 @@ def cloneOpenJCEPlus(def software) {
         // sh "git config http.sslVerify false"
         if (software == "zos") {
             deleteDir()
-            sh "git clone -b ${CHANGE_BRANCH} git@github.com:gin-nader/OpenJCEPlus.git"
+            sh "git clone -b ${CHANGE_BRANCH} git@github.com:gin-nader/OpenJCEPlus.git ."
         }
     }
 }
