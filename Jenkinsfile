@@ -13,6 +13,7 @@ import groovy.transform.Field;
 @Field boolean X86_64_LINUX
 @Field boolean PPC64LE_LINUX
 @Field boolean S390X_LINUX
+@Field boolean S390X_ZOS
 @Field boolean X86_64_WINDOWS
 @Field boolean AARCH64_MAC
 @Field boolean X86_64_MAC
@@ -37,14 +38,18 @@ import groovy.transform.Field;
  * Clone the branch from the repo specified to
  * get the appropriate OpenJCEPlus code to build.
  */
-def cloneOpenJCEPlus() {
+def cloneOpenJCEPlus(def software) {
     dir("openjceplus/OpenJCEPlus") {
-        if ((OPENJCEPLUS_REPO == "") && (OPENJCEPLUS_BRANCH == "")) {
-            echo "Clone using default branch and repository."
-            checkout scm
-        } else {
-            echo "Clone using ${OPENJCEPLUS_BRANCH} from ${OPENJCEPLUS_REPO}"
-            git branch: "${OPENJCEPLUS_BRANCH}", url: "${OPENJCEPLUS_REPO}"
+        // if ((OPENJCEPLUS_REPO == "") && (OPENJCEPLUS_BRANCH == "")) {
+        //     echo "Clone using default branch and repository."
+        //     checkout scm
+        // } else {
+        //     echo "Clone using ${OPENJCEPLUS_BRANCH} from ${OPENJCEPLUS_REPO}"
+        //     git branch: "${OPENJCEPLUS_BRANCH}", url: "${OPENJCEPLUS_REPO}"
+        // }
+        if (software == "zos") {
+            deleteDir()
+            sh "git clone -b ${CHANGE_BRANCH} git@github.com:gin-nader/OpenJCEPlus.git ."
         }
     }
 }
@@ -72,6 +77,10 @@ def getPlatforms() {
 
     if (S390X_LINUX == "true") {
         platforms.add("s390x_linux")
+    }
+
+    if (S390X_ZOS == "true") {
+        platforms.add("s390x_zos")
     }
 
     if (X86_64_WINDOWS == "true") {
@@ -129,7 +138,7 @@ def getTestFlag(hardware, software) {
  * @return              The URL to the uploaded file
  */
 def archive(platform, iteration) {
-    
+
     // Create compressed file containing build.
     def ending = ".tar.gz"
     def filename = "openjceplus-$iteration-$platform$ending"
@@ -210,6 +219,8 @@ def run(platform) {
             if (software == "aix") {
                 // Java 25+ requires C++17.1 runtime. Otherwise crashes occur.
                 nodeTags = "hw.arch.${node_hardware}&&sw.os.aix.7_2&&sw.tool.c++runtime.17_1&&ci.role.build"
+            } else if (software == "zos") {
+                nodeTags = "ci.project.openj9&&ci.role.build&&hw.arch.${node_hardware}&&sw.os.zos.3_2"
             } else {
 
                 // Machines tagged as ci.role.test are expected to have
@@ -229,13 +240,16 @@ def run(platform) {
             echo "${nodeTags}"
 
             node("$nodeTags") {
-                cloneOpenJCEPlus()
+                cloneOpenJCEPlus(software)
                 echo "OpenJCEPlus cloned"
                 dir("openjceplus/OpenJCEPlus") {
                     externalLibrary = load("./utils.groovy")
                 }
                 try {
-                    externalLibrary.getJava(hardware, software)
+                    withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_USERNAME')]) {
+                        externalLibrary.getJava(hardware, software)
+                    }
+
                     echo "Java fetched"
                     externalLibrary.getBinaries(hardware, software)
                     echo "Binaries fetched"
@@ -294,6 +308,8 @@ pipeline {
             Build for ppc64le_linux platform')
         booleanParam(name: 's390x_linux', defaultValue: false, description: '\
             Build for s390x_linux platform')
+        booleanParam(name: 's390x_zos', defaultValue: false, description: '\
+            Build for s390x_zos platform')
         booleanParam(name: 'x86_64_windows', defaultValue: false, description: '\
             Build for x86-64_windows platform')
         booleanParam(name: 'aarch64_mac', defaultValue: false, description: '\
@@ -407,6 +423,7 @@ pipeline {
                         X86_64_LINUX = "${params.x86_64_linux}"
                         PPC64LE_LINUX="${params.ppc64le_linux}"
                         S390X_LINUX="${params.s390x_linux}"
+                        S390X_ZOS="${params.s390x_zos}"
                         X86_64_WINDOWS="${params.x86_64_windows}"
                         AARCH64_MAC="${params.aarch64_mac}"
                         X86_64_MAC="${params.x86_64_mac}"
@@ -431,7 +448,7 @@ pipeline {
                             // Figure out the platforms to build on.
                             def platforms = getPlatforms()
                             assert !((platforms.size() > 1) && (OCK_FULL_URL != "")) : "Cannot specify full OCK URL and multiple platforms."
-                             
+
                              // Check whether the build has to be run multiple times in parallel.
                             def iter = (PARALLEL_ITERATIONS ?: "1").toInteger()
                             echo "Parallel iterations to be run: ${iter}"
