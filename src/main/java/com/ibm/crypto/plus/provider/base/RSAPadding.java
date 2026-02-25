@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.base;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.security.spec.MGF1ParameterSpec;
 
 public final class RSAPadding implements Cloneable {
@@ -84,7 +85,7 @@ public final class RSAPadding implements Cloneable {
         return (this.id == paddingId);
     }
 
-    public void setMessageDigest(String mdName) {
+    public void setMessageDigest(String mdName) throws InvalidAlgorithmParameterException {
         this.md = getIdFromName(mdName);
     }
 
@@ -92,7 +93,7 @@ public final class RSAPadding implements Cloneable {
         return this.md;
     }
 
-    public void setMGF1Digest(MGF1ParameterSpec spec) {
+    public void setMGF1Digest(MGF1ParameterSpec spec) throws InvalidAlgorithmParameterException {
         if (spec != null) {
             this.mgf1 = getIdFromName(spec.getDigestAlgorithm());
         }
@@ -106,8 +107,8 @@ public final class RSAPadding implements Cloneable {
         return description;
     }
 
-    private int getIdFromName(String name) {
-        switch (name) {
+    private int getIdFromName(String name) throws InvalidAlgorithmParameterException {
+        switch (name.toUpperCase()) {
             case "SHA-1":
             case "SHA1":
                 return SHA1;
@@ -130,7 +131,7 @@ public final class RSAPadding implements Cloneable {
             case "SHA512/256":
                 return SHA512_256;
             default:
-                return NONE;
+                throw new InvalidAlgorithmParameterException("The message digest cannot be " + name);
         }
     }
 }

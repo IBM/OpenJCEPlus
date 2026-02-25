@@ -146,6 +146,9 @@ public final class RSA extends CipherSpi {
             // Unsure of msg length behavior on failure. e.g. do we set it to 0?
             // do we clear the buffer?
             throw provider.providerException("Failure in engineDoFinal", e);
+        } catch (InvalidAlgorithmParameterException iape) {
+            // Thrown by oaepInputLimit(). Should never happen.
+            throw provider.providerException("Failure in engineDoFinal", iape);
         }
     }
 
@@ -339,15 +342,21 @@ public final class RSA extends CipherSpi {
         // ensure we are only supporting OAEPParameters.DEFAULT fields
         if ("OpenJCEPlusFIPS".equalsIgnoreCase(this.provider.getName())) {
             String mdName = spec.getDigestAlgorithm();
-            if (mdName.equals("SHA-1") || mdName.equals("SHA1")) {
+            if (!isOAEPDigestFIPSAllowed(mdName)) {
                 throw new InvalidAlgorithmParameterException(
-                        "OAEPWithSHA-1 is not supported in FIPS mode");
+                        "OAEPWith" + mdName + " is not supported in FIPS mode");
             }
+
             MGF1ParameterSpec mgf1Spec = (MGF1ParameterSpec) spec.getMGFParameters();
-            if (mgf1Spec != null && (mgf1Spec.getDigestAlgorithm().equals("SHA-1")
-                                  || mgf1Spec.getDigestAlgorithm().equals("SHA1"))) {
+            if (mgf1Spec == null) {
                 throw new InvalidAlgorithmParameterException(
-                        "SHA-1 for MGF1 in OAEP is not supported in FIPS mode");
+                        "Default(SHA-1) for MGF1 in OAEP is not supported in FIPS mode");
+            }
+
+            String mgf1Md = mgf1Spec.getDigestAlgorithm();
+            if (!isOAEPDigestFIPSAllowed(mgf1Md)) {
+                throw new InvalidAlgorithmParameterException(
+                        mgf1Md + " for MGF1 in OAEP is not supported in FIPS mode");
             }
         }
         PSource.PSpecified specified = (PSource.PSpecified) spec.getPSource();
@@ -355,6 +364,26 @@ public final class RSA extends CipherSpi {
             throw new InvalidAlgorithmParameterException(
                     "Only PSource.PSpecified.DEFAULT is supported for PSource in OAEP");
         }
+    }
+
+    private boolean isOAEPDigestFIPSAllowed(String name) {
+        switch (name.toUpperCase()) {
+                case "SHA-224":
+                case "SHA224":
+                case "SHA-256":
+                case "SHA256":
+                case "SHA-384":
+                case "SHA384":
+                case "SHA-512":
+                case "SHA512":
+                case "SHA-512/224":
+                case "SHA512/224":
+                case "SHA-512/256":
+                case "SHA512/256":
+                    return true;
+                default:
+                    return false;
+            }
     }
 
     @Override
@@ -496,33 +525,40 @@ public final class RSA extends CipherSpi {
         }
     }
 
-    private int getDigestLength() {
-        switch (this.padding.getMessageDigest()) {
-            case 1:
+    private int getDigestLength() throws InvalidAlgorithmParameterException {
+        int mdId = this.padding.getMessageDigest();
+        switch (mdId) {
+            case RSAPadding.SHA1:
                 return 20;
-            case 2:
+            case RSAPadding.SHA224:
                 return 28;
-            case 3:
+            case RSAPadding.SHA256:
                 return 32;
-            case 4:
+            case RSAPadding.SHA384:
                 return 48;
-            case 5:
+            case RSAPadding.SHA512:
                 return 64;
-            case 6:
+            case RSAPadding.SHA512_224:
                 return 28;
-            case 7:
+            case RSAPadding.SHA512_256:
                 return 32;
             default:
-                return 0; // NONE selected for padding
+                // Should never happen given that we control setting this field in RSAPadding.
+                throw new InvalidAlgorithmParameterException("The message digest ID is incorrect: " + mdId);
         }
     }
 
-    private int oaepInputLimit() throws OCKException {
+    private int oaepInputLimit() throws InvalidAlgorithmParameterException, OCKException {
         int digestLength = getDigestLength();
+        // The limit for useful data is the maximum amount based on the keysize
+        // minus the OAEP padding, which is twice the output size of the digest
+        // used plus 2 extra bytes.
         return rsaCipher.getOutputSize() - (2 * digestLength) - 2;
     }
 
     private int pkcs1InputLimit() throws OCKException {
+        // The limit for useful data is the maximum amount based on the keysize
+        // minus the PKCS1 padding, which is exactly 11 bytes.
         return rsaCipher.getOutputSize() - 11;
     }
 
