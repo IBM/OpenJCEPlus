@@ -50,6 +50,8 @@ def getOCKTarget(hardware, software) {
         if (hardware == "x86-64") {
             target = "win64_x86"
         }
+    } else if (software == "zos") {
+        target = "zos64a"
     }
 
     return target
@@ -63,7 +65,7 @@ def getOCKTarget(hardware, software) {
 def getBinaries(hardware, software) {
     def ockRelease = OCK_RELEASE
     if (ockRelease == "") {
-        if ((software == "linux") && (hardware == "s390x")) {
+        if (hardware == "s390x") { // covers LoZ and z/OS
             ockRelease = "20260219_8.9.21"
         } else {
             ockRelease = "20251128_8.9.18"
@@ -72,7 +74,7 @@ def getBinaries(hardware, software) {
     def target = getOCKTarget(hardware, software)
     def gskit_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/gskit8/$ockRelease/$target/jgsk_crypto.tar"
     def gskit_sdk_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/gskit8/$ockRelease/$target/jgsk_crypto_sdk.tar"
-    
+
     // If user has specified OCK_FULL_URL, override default location.
     def ockUrl = OCK_FULL_URL
     if (ockUrl != "") {
@@ -81,11 +83,18 @@ def getBinaries(hardware, software) {
     }
     dir("openjceplus/OCK") {
         withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'GSKIT_PASSWORD', usernameVariable: 'GSKIT_USERNAME')]) {
-            sh "curl -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_bin > jgsk_crypto.tar"
-            sh "curl -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_sdk_bin > jgsk_crypto_sdk.tar"
+            sh "curl -k -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_bin -o jgsk_crypto.tar"
+            sh "curl -k -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_sdk_bin -o jgsk_crypto_sdk.tar"
         }
-        untar file: 'jgsk_crypto.tar'
-        untar file: 'jgsk_crypto_sdk.tar'
+        if (software == "zos") {
+            sh 'chtag -b jgsk_crypto.tar'
+            sh 'tar -oxf jgsk_crypto.tar'
+            sh 'chtag -b jgsk_crypto_sdk.tar'
+            sh 'tar -oxf jgsk_crypto_sdk.tar'
+        } else {
+            untar file: 'jgsk_crypto.tar'
+            untar file: 'jgsk_crypto_sdk.tar'
+        }
 
         def jgsk8Lib = 'libjgsk8iccs_64.so'
         if (target.contains('osx')) {
@@ -120,34 +129,55 @@ def getJava(hardware, software) {
     def java_link = ""
     if (JAVA_RELEASE == "") {
         java_link = "https://api.adoptopenjdk.net/v3/binary/latest/${JAVA_VERSION}/ga/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
+        if (software == "zos") {
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/hyc-runtimes-jenkins.swg-devops.com/Build_JDK25_s390x_zos_Nightly/278/ibm-semeru-certified-jdk_s390x_zos_25.0.2.0-20260225-080405.pax.Z"
+        }
     } else {
         def java_release_link = JAVA_RELEASE.replace("+", "%2B")
         java_link = "https://api.adoptopenjdk.net/v3/binary/version/${java_release_link}/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
     }
 
     dir("java") {
-        sh "curl -LJkO ${java_link}"
-        def java_file = sh (
-            script: 'ls | grep \'tar\\|zip\'',
-            returnStdout: true
-        ).trim()
+        def java_file = ""
+        if (software == "zos") {
+            sh "curl -LJkO -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD ${java_link}"
+            java_file = sh (
+                script: 'ls | grep \'pax\'',
+                returnStdout: true
+            ).trim()
+
+            // We also need to download a java.base patch to disabled checking for signed JARs or else we can't do a patch-module.
+            sh "curl -LJkO -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaroundzos032526/java.base.jar"
+        } else {
+            sh "curl -LJkO ${java_link}"
+            java_file = sh (
+                script: 'ls | grep \'tar\\|zip\'',
+                returnStdout: true
+            ).trim()
+        }
 
        if (software == "windows") {
             unzip zipFile: "$java_file"
+        } else if (software =="zos") {
+           sh "pax -p x -rf $java_file"
         } else {
             untar file: "$java_file"
         }
         sh "rm $java_file"
 
+        def java_prefix = "jdk-"
+        if (software == "zos") {
+            java_prefix = "J"
+        }
         def java_folder = sh (
-            script: "ls | grep \'jdk-${JAVA_VERSION}\'",
+            script: "ls | grep \'${java_prefix}${JAVA_VERSION}\'",
             returnStdout: true
         ).trim()
         fileOperations([folderRenameOperation(destination: 'jdk', source: "$java_folder")])
 
-        // AIX always loads the bundled version of native libraries. We delete them to
+        // AIX and z/OS always loads the bundled version of native libraries. We delete them to
         // ensure that the one provided by the user is utilized.
-        if (software == "aix") {
+        if (software == "aix" || software == "zos") {
             fileOperations([fileDeleteOperation(excludes: '', includes: 'jdk/lib/libjgsk8iccs_64.so'),
                             fileDeleteOperation(excludes: '', includes: 'jdk/lib/libjgskit.so'),
                             folderDeleteOperation('jdk/lib/C'),
@@ -159,9 +189,12 @@ def getJava(hardware, software) {
 /*
  * Get the Maven tool and extract it.
  */
-def getMaven() {
+def getMaven(software) {
     sh "curl -kLO https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.10/apache-maven-3.9.10-bin.tar.gz"
     untar file: "apache-maven-3.9.10-bin.tar.gz"
+    if (software == "zos") {
+        sh "chtag -tR -c ISO8859-1 apache-maven-3.9.10"
+    }
 }
 
 /*
@@ -171,8 +204,42 @@ def getMaven() {
 def runOpenJCEPlus(command, software) {
     dir("openjceplus/OpenJCEPlus") {
         def additional_exports = ""
-        if (software == "aix") {
+        if (software == "aix" || software == "zos") {
             additional_exports = "export LIBPATH=$WORKSPACE/openjceplus/OCK/:$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
+        }
+        if (software == "zos") {
+            // Setting exports here since forkCount is set to 0 on z/OS
+            additional_exports += "export JAVA_TOOL_OPTIONS=\"-Djgskit.library.path=$WORKSPACE/openjceplus/OpenJCEPlus/target/jgskit-mz-64/ " +
+                                            "-Dstdout.encoding=IBM-1047 " +
+                                            "-Dstderr.encoding=IBM-1047 " +
+                                            "--add-exports=java.base/sun.security.internal.interfaces=ALL-UNNAMED " +
+                                            "--add-exports=java.base/sun.security.internal.interfaces=openjceplus " +
+                                            "--add-exports=java.base/sun.security.internal.spec=ALL-UNNAMED " +
+                                            "--add-exports=java.base/sun.security.internal.spec=openjceplus " +
+                                            "--add-exports=java.base/sun.security.pkcs=ALL-UNNAMED " +
+                                            "--add-exports=java.base/sun.security.pkcs=openjceplus " +
+                                            "--add-exports=java.base/sun.security.util=ALL-UNNAMED " +
+                                            "--add-exports=java.base/sun.security.util=openjceplus " +
+                                            "--add-exports=java.base/sun.security.x509=ALL-UNNAMED " +
+                                            "--add-exports=java.base/sun.security.x509=openjceplus " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit.base.memstress=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit.suites=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit.tests=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit.openjceplus=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit.openjceplus.integration=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit.openjceplus.memstress=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit.openjceplus.multithread=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.integration=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/ibm.jceplus.junit.openjceplusfips.multithread=ALL-UNNAMED " +
+                                            "--add-opens=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED " +
+                                            "--add-opens=openjceplus/ibm.jceplus.junit.tests=ALL-UNNAMED " +
+                                            "--add-exports=openjceplus/com.ibm.crypto.plus.provider.base=ALL-UNNAMED " +
+                                            "--patch-module=java.base=\"$WORKSPACE/java/java.base.jar\" " +
+                                            "--patch-module=openjceplus=\"target/classes:target/test-classes\"" +
+                                            "\";"
         }
 
         def additional_envars = ADDITIONAL_ENVARS
@@ -180,7 +247,6 @@ def runOpenJCEPlus(command, software) {
             for (envar in additional_envars.split(",")) {
                 additional_exports += " export ${envar.trim()};"
             }
-            
         }
 
         def java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
@@ -209,6 +275,12 @@ def runOpenJCEPlus(command, software) {
             java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
         } else if (software == "aix") {
             environment = "export PATH=/opt/IBM/openxlC/17.1.3/bin:/opt/IBM/openxlC/17.1.3/tools:/opt/IBM/openxlC/17.1.3/compat/llvm:${mavenPath}:\$PATH;"
+        } else if (software == "zos") {
+            // Setting forkCount to 0 or else the JVM crashes on z/OS
+            additional_cmd_args += " -DforkCount=0"
+
+            // Compile first so that the tests pick up the newly built jgskit library.
+            sh "${java_home} ${gskit_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' ${additional_cmd_args} --batch-mode compile"
         }
 
         if (software != "windows") {
@@ -251,7 +323,7 @@ def upload_artifactory(uploadSpec) {
     return server.getUrl()
 }
 
-/* 
+/*
  * Returns a formatted directory name based upon a branch name.
  */
 def getSanitizedBranchName() {
