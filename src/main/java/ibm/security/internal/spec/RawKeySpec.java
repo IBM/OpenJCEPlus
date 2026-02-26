@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -40,7 +40,7 @@ public class RawKeySpec implements KeySpec {
     }
 
     private Runnable cleanOCKResources(byte[] keyBytes) {
-        return() -> {
+        return () -> {
             try {
                 if (keyBytes != null) {
                     Arrays.fill(keyBytes, 0, keyBytes.length, (byte) 0);

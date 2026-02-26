@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -161,12 +161,12 @@ final class DESedeKey implements SecretKey, Destroyable {
     }
 
     private Runnable cleanOCKResources(byte[] key) {
-        return() -> {
+        return () -> {
             try {
                 if (key != null) {
                     Arrays.fill(key, (byte) 0x00);
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 if (OpenJCEPlusProvider.getDebug() != null) {
                     OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
                     e.printStackTrace();

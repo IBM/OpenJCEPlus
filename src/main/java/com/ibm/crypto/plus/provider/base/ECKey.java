@@ -131,7 +131,7 @@ public final class ECKey implements AsymmetricKey {
         long ecKeyId;
         try {
             ecKeyId = NativeInterface.ECKEY_generate(ockContext.getId(), size);
-        } catch (OCKException oe){
+        } catch (OCKException oe) {
             if (oe.getMessage().contains("Incorrect key size") && allowIncorrectKeysizes) {
                 // If the flag is set and an incorrect key size was provided, default to 256.
                 ecKeyId = NativeInterface.ECKEY_generate(ockContext.getId(), 256);
@@ -509,7 +509,7 @@ public final class ECKey implements AsymmetricKey {
     }
 
     private Runnable cleanOCKResources(byte[] privateKeyBytes, long ecKeyId, PrimitiveWrapper.Long pkeyId, OCKContext ockContext) {
-        return() -> {
+        return () -> {
             try {
                 if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
                     Arrays.fill(privateKeyBytes, (byte) 0x00);
