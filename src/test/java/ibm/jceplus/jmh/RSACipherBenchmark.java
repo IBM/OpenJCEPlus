@@ -51,7 +51,7 @@ public class RSACipherBenchmark extends AsymmetricCipherBase {
         super.setup(keySize, "RSA", provider);
 
         Map<String, Integer> paddings = new HashMap<>();
-        paddings.put("NoPadding", 0);
+        paddings.put("NoPadding", 1);
         paddings.put("PKCS1Padding", 11);
         paddings.put("OAEPPadding", (2 * 20 + 2)); // SHA-1 size is 20 bytes
 
