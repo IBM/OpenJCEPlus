@@ -161,7 +161,7 @@ public final class HMAC {
     }
 
     private Runnable cleanOCKResources(long hmacId, byte[] reinitKey, OCKContext ockContext) {
-        return() -> {
+        return () -> {
             try {
                 if (hmacId != 0) {
                     NativeInterface.HMAC_delete(ockContext.getId(), hmacId);
