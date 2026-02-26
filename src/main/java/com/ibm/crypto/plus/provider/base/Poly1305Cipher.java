@@ -404,7 +404,7 @@ public final class Poly1305Cipher implements Poly1305Constants {
     }
 
     private Runnable cleanOCKResources(long ockCipherId, byte[] reinitKey, OCKContext ockContext) {
-        return() -> {
+        return () -> {
             try {
                 if (ockCipherId != 0) {
                     NativeInterface.POLY1305CIPHER_delete(ockContext.getId(), ockCipherId);

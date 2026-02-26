@@ -193,7 +193,7 @@ abstract class PBEKeyFactory extends SecretKeyFactorySpi {
             if ((keySpecCl != null) && keySpecCl.isAssignableFrom(PBEKeySpec.class)) {
                 byte[] passwdBytes = key.getEncoded();
                 char[] passwdChars = new char[passwdBytes.length];
-                for (int i=0; i < passwdChars.length; i++)
+                for (int i = 0; i < passwdChars.length; i++)
                     passwdChars[i] = (char) (passwdBytes[i] & 0x7f);
                 PBEKeySpec ret = new PBEKeySpec(passwdChars);
                 // password char[] was cloned in PBEKeySpec constructor,

@@ -41,7 +41,7 @@ public class TestAESGCMCICOWithGCM extends BaseTest {
     protected int specifiedKeySize = 128;
 
     @BeforeEach
-    public void setUp() throws Exception{
+    public void setUp() throws Exception {
         setAndInsertProvider(provider);
     }
 
