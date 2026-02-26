@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -132,7 +132,7 @@ public class ECSignatureBenchmark extends JMHBase {
         ecSha3_224Signature = ecSha3_224SignatureInstance.sign();
         ecSha3_256Signature = ecSha3_256SignatureInstance.sign();
         ecSha3_384Signature = ecSha3_384SignatureInstance.sign();
-        ecSha3_512Signature= ecSha3_512SignatureInstance.sign();
+        ecSha3_512Signature = ecSha3_512SignatureInstance.sign();
     }
 
     @Benchmark

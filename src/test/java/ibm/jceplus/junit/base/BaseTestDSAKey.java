@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -88,7 +88,7 @@ public class BaseTestDSAKey extends BaseTestJunit5 {
                                         + "VO9gVq4efm555G10qdQ1KEUd90iMfV4+pZ6tTSs/bSOKL+7uTHu"
                                         + "iGb8YvHlvkctrp6e5eC3JjN/CoQ7TGUa0xPMC3t9rFTJzcj17hr"
                                         + "qMpislBtDj4EIgIgJGAGjgXTmTeq0L8Oo2jCuSCLmEeFfMM9xjt"
-                                        +"tGLOCEc8=";
+                                        + "tGLOCEc8=";
 
     @Test
     public void testDSAKeyGen_1024() throws Exception {

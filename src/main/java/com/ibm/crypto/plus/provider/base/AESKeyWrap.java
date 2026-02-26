@@ -35,7 +35,7 @@ public final class AESKeyWrap {
         
         int type = 1; //wrap
         if (padding) {
-            type = type|4; // add padding
+            type = type | 4; // add padding
         }
 
         try {
@@ -64,7 +64,7 @@ public final class AESKeyWrap {
         try {
             output = NativeInterface.CIPHER_KeyWraporUnwrap(this.ockContext.getId(), inData, this.key, type);
         } catch (Exception e) {
-            throw new OCKException("Failed to unwrap data"+ e.getMessage());
+            throw new OCKException("Failed to unwrap data" + e.getMessage());
         }  finally {
             //Clear inData
             Arrays.fill(inData, (byte) 0);
