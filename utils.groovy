@@ -104,6 +104,7 @@ def getBinaries(hardware, software) {
         echo "Before copy folder: $jgsk8Lib"
         fileOperations([fileCopyOperation(includes: jgsk8Lib, targetLocation: 'jgsk_sdk/lib64')])
         echo "After copy folder: $jgsk8Lib"
+        sh "env"
 
         // Additional copy is required
         if (target.contains('aix')) {
