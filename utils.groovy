@@ -199,6 +199,7 @@ def getMaven() {
     sh "curl -kLO https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.10/apache-maven-3.9.10-bin.tar.gz"
     untar file: "apache-maven-3.9.10-bin.tar.gz"
     sh "ls -laT apache-maven-3.9.10"
+    sh "ls -laT apache-maven-3.9.10/bin"
 }
 
 /*
