@@ -253,7 +253,7 @@ def run(platform) {
                     echo "Java fetched"
                     externalLibrary.getBinaries(hardware, software)
                     echo "Binaries fetched"
-                    externalLibrary.getMaven()
+                    externalLibrary.getMaven(software)
                     echo "Maven fetched"
                     def command = "install"
                     command += getTestFlag(hardware, software)
