@@ -29,6 +29,26 @@ public class TestArguments {
     }
 
     /**
+     * Generates test combinations for each RSA key size with the active OpenJCEPlus* providers.
+     * 
+     * @return Stream of Arguments containing RSA key sizes and OpenJCEPlus* providers
+     */
+    public static Stream<Arguments> rsaKeySizesAndJCEPlusProviders() {
+        int[] rsaKeySizes = {512, 1024, 2048, 3072, 4096};
+        return keySizesAndJCEPlusProviders(rsaKeySizes);
+    }
+
+    /**
+     * Generates test combinations for RSA key size with the active OpenJCEPlus* providers for multi-threading.
+     * 
+     * @return Stream of Arguments containing RSA key size and OpenJCEPlus* providers
+     */
+    public static Stream<Arguments> rsaMultithreadKeySizesAndProviders() {
+        int[] rsaKeySizes = {2048};
+        return keySizesAndJCEPlusProviders(rsaKeySizes);
+    }    
+       
+    /**
      * Generates combinations of all key sizes and OpenJCEPlus* providers under test.
      * 
      * If no tags are found, all variations are returned.

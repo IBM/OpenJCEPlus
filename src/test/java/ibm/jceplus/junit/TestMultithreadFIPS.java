@@ -56,7 +56,6 @@ public class TestMultithreadFIPS {
             "ibm.jceplus.junit.openjceplusfips.multithread.TestPBKDF2",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestPBKDF2Interop",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignature",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSA_2048",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAKey",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS2",

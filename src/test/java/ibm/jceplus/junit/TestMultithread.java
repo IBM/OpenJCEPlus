@@ -61,7 +61,6 @@ public class TestMultithread {
             "ibm.jceplus.junit.openjceplus.multithread.TestPQCKEM",
             "ibm.jceplus.junit.openjceplus.multithread.TestPQCSignatures",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSASignature",
-            "ibm.jceplus.junit.openjceplus.multithread.TestRSA_2048",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSAKey",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSAPSS",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSAPSS2",
