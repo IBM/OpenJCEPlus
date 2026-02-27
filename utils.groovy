@@ -195,11 +195,13 @@ def getJava(hardware, software) {
 /*
  * Get the Maven tool and extract it.
  */
-def getMaven() {
+def getMaven(def software) {
     sh "curl -kLO https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.10/apache-maven-3.9.10-bin.tar.gz"
     untar file: "apache-maven-3.9.10-bin.tar.gz"
-    sh "ls -laT apache-maven-3.9.10"
-    sh "ls -laT apache-maven-3.9.10/bin"
+    if (software == "zos") {
+        sh "ls -laT apache-maven-3.9.10"
+        sh "ls -laT apache-maven-3.9.10/bin"
+    }
 }
 
 /*
