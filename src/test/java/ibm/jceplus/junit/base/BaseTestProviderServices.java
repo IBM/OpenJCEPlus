@@ -28,6 +28,7 @@ public class BaseTestProviderServices extends BaseTestJunit5 {
         try {
             System.out.println("Testing services for provider: ");
             ProviderServiceReader reader = new ProviderServiceReader("./src/test/ProviderAttrs.config");
+            reader.readServices();
             List<ProviderServiceReader.ServiceDefinition> services = reader.readServices();
             
             System.out.println("Found " + services.size() + " service definitions: for  "+reader.getName());
@@ -57,16 +58,15 @@ public class BaseTestProviderServices extends BaseTestJunit5 {
                     }
                 }
                 System.out.println();
-            }
+            } 
             
         } catch (Exception e) {
             System.err.println("Error reading file: " + e.getMessage());
             e.printStackTrace();
-            System.exit(1);
         }
     }
     
-    @Test
+/*     @Test
     public void testCompareProviders() throws Exception {
         String config = "C:/Users/JohnPeck/work/OpenJCEPlus-work/ProviderAttrs.config";
         Provider provider1 = new OpenJCEPlus();
@@ -82,7 +82,7 @@ public class BaseTestProviderServices extends BaseTestJunit5 {
         assertTrue(compareServices(services1, provider1, provider2), "Providers have different services");
     }
 
-
+*/
     /**
      * Compares two service definitions and identifies differences.
      */

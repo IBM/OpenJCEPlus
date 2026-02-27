@@ -146,12 +146,14 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         if (!ockInitialized) {
             initializeContext();
         }
+        
         try {
-            List<ProviderServiceReader.ServiceDefinition> services = config.readServices();
+            config.readServices();
+ /*            List<ProviderServiceReader.ServiceDefinition> services = config.readServices();
             for (ProviderServiceReader.ServiceDefinition service : services) {
                 putService(new OpenJCEPlusService(jce, service.getType(), service.getAlgorithm(),
                     service.getClassName(), service.getAliases().toArray(new String[service.getAliases().size()]), service.getAttributes()));
-            }
+            }*/
         } catch (IOException e) {
             throw new InvalidParameterException("Error configuring OpenJCEPlus provider"); 
         }         

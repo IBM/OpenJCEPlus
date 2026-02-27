@@ -15,10 +15,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * A class to read and parse Provider.Service definitions from a file.
@@ -40,11 +41,8 @@ public class ProviderServiceReader {
     private String filePath = null;
     private String name;
     private String description;
-    private static final Pattern PUT_SERVICE_PATTERN = Pattern.compile(
-        "putService\\s*\\(\\s*new\\s+\\w+Service\\s*\\([^,]+,\\s*\"([^\"]+)\"\\s*,\\s*\"([^\"]+)\"\\s*,\\s*\"([^\"]+)\"",
-        Pattern.DOTALL
-    );
     private BufferedReader reader = null;
+    private String defaults = null;
     
     /**
      * Represents a single service definition parsed from the file.
@@ -55,17 +53,14 @@ public class ProviderServiceReader {
         private final String className;
         private final List<String> aliases;
         private final Map<String, String> attributes;
-        private final int lineNumber;
-
-        
+       
         public ServiceDefinition(String type, String algorithm, String className, 
-                               List<String> aliases, Map<String, String> attributes, int lineNumber) {
+                               List<String> aliases, Map<String, String> attributes) {
             this.type = type;
             this.algorithm = algorithm;
             this.className = className;
             this.aliases = aliases != null ? new ArrayList<>(aliases) : new ArrayList<>();
             this.attributes = attributes != null ? new HashMap<>(attributes) : new HashMap<>();
-            this.lineNumber = lineNumber;
         }
         
         public String getType() {
@@ -88,14 +83,10 @@ public class ProviderServiceReader {
             return new HashMap<>(attributes);
         }
         
-        public int getLineNumber() {
-            return lineNumber;
-        }
-        
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append("ServiceDefinition[line=").append(lineNumber)
+            sb.append("ServiceDefinition[")
               .append(", type=").append(type)
               .append(", algorithm=").append(algorithm)
               .append(", className=").append(className);
@@ -136,6 +127,10 @@ public class ProviderServiceReader {
      */
     public List<ServiceDefinition> readServices() throws IOException {
         List<ServiceDefinition> services = new ArrayList<>();
+        Set<String> setAliases = new HashSet<>();
+        Set<String> setAttributes = new HashSet<>();
+        Set<String> setServices = new HashSet<>();
+
         BufferedReader rd = null;
 
         System.out.println("file path = " + filePath);
@@ -151,198 +146,120 @@ public class ProviderServiceReader {
                 // this filePath != null && Files.exists(Paths.get(filePath))
                 rd = new BufferedReader(new FileReader(filePath));
             }     
+
+            Properties pr = new Properties();
+        
+            pr.load(rd);
+            Set<String> keys = pr.stringPropertyNames();
+            //Split keys in groups: Aliases, Attributes and Services
+            for (String key : keys) {
+                String[] parts = key.split("\\.");
+                /*System.out.println("key = " + key);
+                //System.out.println("value = "+ pr.getProperty(key));
+                for (String part : parts) {
+                    System.out.println("part = " + part);
+                }*/
+                if (parts.length == 3 && parts[0].equalsIgnoreCase("Service")) {
+                    setServices.add(key);
+                } else if (parts.length == 4 && parts[2].equalsIgnoreCase("alias")) {
+                    setAliases.add(key);
+                } else if (parts.length == 5 && parts[2].equalsIgnoreCase("attr")) {
+                    setAttributes.add(key);
+                } else if (parts.length == 1 && parts[0].equalsIgnoreCase("name")) {
+                    name = pr.getProperty(key);
+                } else if (parts.length == 1 && parts[0].equalsIgnoreCase("description")) {
+                    description = pr.getProperty(key);
+                } else if (parts.length == 1 && parts[0].equalsIgnoreCase("default")) {
+                    defaults = pr.getProperty(key);
+                } else {
+                    throw new IOException("Invalid key: " + key);
+                }
+            
+            }    
+
+            //Deal with default values
+            /*********** add code here */
+
+            for (String key : setServices) {
+                String[] parts = key.split("\\.");
+                List<String> aliases = processAliases(parts, pr);
+                Map<String, String> attributes = processAttributes(parts, setAttributes, pr);
+                ServiceDefinition service = new ServiceDefinition(parts[1], parts[2], pr.getProperty(key), aliases, attributes);
+                if (service != null) {
+                    services.add(service);
+                    aliases = null;
+                    attributes.clear();     
+                }        
+            }
         } catch (Exception e) {
             throw new IOException("File issue: " + e.getMessage());
         } 
-        
-        try {
-            String line;
-            int lineNumber = 0;
-            StringBuilder currentStatement = new StringBuilder();
-            int statementStartLine = 0;
-            int type = 0;
-            List<String> aliases = null;
-            Map<String, String> attributes = new HashMap();
-            
-            while ((line = rd.readLine()) != null) {
-                lineNumber++;
-                String trimmedLine = line.trim();
-                
-                // Skip empty lines and comments
-                if (trimmedLine.isEmpty() || trimmedLine.startsWith("//") || trimmedLine.startsWith("/*")) {
-                    continue;
-                }
-
-                // Check if this line starts a putService call
-                if (trimmedLine.contains("putService(")) {
-                    currentStatement = new StringBuilder(trimmedLine);
-                    statementStartLine = lineNumber;
-                    type = 1;
-                }
-                
-                // Check if this line starts a aliases call
-                if (trimmedLine.contains("aliases =")) {
-                    currentStatement = new StringBuilder(trimmedLine);
-                    statementStartLine = lineNumber;
-                    type = 2;
-                }
-                
-                // Check if this line starts a attrs.put call
-                if (trimmedLine.contains("attrs.put(")) {
-                    currentStatement = new StringBuilder(trimmedLine);
-                    statementStartLine = lineNumber;
-                    type = 3;
-                }
-                
-                // Check if this line starts a putService call
-                if (trimmedLine.contains("name =")) {
-                    currentStatement = new StringBuilder(trimmedLine);
-                    statementStartLine = lineNumber;
-                    type = 4;
-                }
-                
-                // Check if this line starts a putService call
-                if (trimmedLine.contains("descrption =")) {
-                    currentStatement = new StringBuilder(trimmedLine);
-                    statementStartLine = lineNumber;
-                    type = 5;
-                }
-                
-                // Accumulate the statement
-                if (currentStatement.length() > 0) {
-                    if (currentStatement.toString().compareTo(trimmedLine) != 0) {
-                        currentStatement.append(" ").append(trimmedLine);
-                    }
-
-                    // Check if statement is complete (ends with semicolon)
-                    if (trimmedLine.endsWith(";")) {
-                        switch(type) {
-                            case 1:
-                                ServiceDefinition service = parseServiceDefinition(
-                                    currentStatement.toString(), statementStartLine, aliases, attributes);
-                                if (service != null) {
-                                    services.add(service);
-                                    aliases = null;
-                                    attributes.clear();
-                                }
-                                break;    
-                            case 2:
-                                aliases = parseAliases(currentStatement.toString());
-                                break;
-                            case 3:
-                                parseAttributes(attributes, currentStatement.toString());
-                                break;
-                            case 4:
-                                name = parseString(currentStatement.toString());
-                                break;
-                            case 5:
-                                description =  parseString(currentStatement.toString());
-                                break;
-                        }
-                        type = 0;
-                        currentStatement = new StringBuilder();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new IOException("Error reading config. file", e.getCause());
-        }
        
         return services;
     }
-    
+       
     /**
-     * Parses a single putService statement into a ServiceDefinition.
-     * 
-     * @param statement the complete putService statement
-     * @param lineNumber the line number where the statement starts
-     * @return a ServiceDefinition object, or null if parsing fails
-     */
-    private ServiceDefinition parseServiceDefinition(String statement, int lineNumber, List<String> aliases, Map<String, String> attributes) {
-        Matcher matcher = PUT_SERVICE_PATTERN.matcher(statement);
-        
-        if (!matcher.find()) {
-            return null;
-        }
-        
-        String type = matcher.group(1);
-        String algorithm = matcher.group(2);
-        String className = matcher.group(3);
-      
-        return new ServiceDefinition(type, algorithm, className, aliases, attributes, lineNumber);
-    }
-    
-    /**
-     * Parses the aliases array from a putService statement.
+     * Process the aliases array from a putService statement.
+     * Assume that there is only ever one .add, .replace or .delete property.
+     * per Type and Algorithm.
      * 
      * @param statement the putService statement
      * @return a list of alias strings
      */
-    private List<String> parseAliases(String statement) {
-        List<String> aliases = new ArrayList<>();
-        
-        // Look for aliases = new String[] { ... } pattern
-        Pattern aliasPattern = Pattern.compile(
-            "aliases\\s*=\\s*new\\s+String\\s*\\[\\s*\\]\\s*\\{([^}]+)\\}",
-            Pattern.DOTALL
-        );
-        Matcher matcher = aliasPattern.matcher(statement);
-        
-        if (matcher.find()) {
-            String aliasContent = matcher.group(1);
-            // Split by comma and extract quoted strings
-            Pattern quotedString = Pattern.compile("\"([^\"]+)\"");
-            Matcher quoteMatcher = quotedString.matcher(aliasContent);
-            while (quoteMatcher.find()) {
-                aliases.add(quoteMatcher.group(1));
+    private List<String> processAliases(String[] parts, Properties pr) {
+        List<String> Aliases = new ArrayList<>();
+        String keyBase = parts[1] + "." + parts[2] + ".alias";
+
+        String value = pr.getProperty(keyBase + ".add");
+        if (value != null) {
+            String[] aliases = value.split("\\s*,\\s*");
+            for (String alias : aliases) {
+                Aliases.add(alias);
             }
         }
-        
-        return aliases;
+
+        value = pr.getProperty(keyBase + ".delete");
+        if (value != null) {
+            String[] aliases = value.split("\\s*,\\s*");
+            for (String alias : aliases) {
+                Aliases.remove(alias);
+            }
+        }    
+    
+        value = pr.getProperty(keyBase + ".replace");
+        if (value != null) {
+            String[] aliases = value.split("\\s*,\\s*");
+            Aliases.clear();
+            for (String alias : aliases) {
+                Aliases.add(alias);
+            }
+        }   
+
+        return Aliases;
     }
     
-    /**
-     * Parses the string to remove quotes and continuation chars
-     * 
-     * @param statement the name = or description = statements
-     * @return a string
-     */
-    private String parseString(String statement) {
-        String str = null;
-     
-        Pattern pattern = Pattern.compile("=\\s*(\"[^\"]*\"(?:\\s*\\+\\s*\"[^\"]*\")*)", Pattern.DOTALL);
-        Matcher matcher = pattern.matcher(statement);
-        if (matcher.find()) {
-            str = matcher.group(1);
-            str = str.replaceAll("\"\\s*\\+\\s*\"", "");  // Remove " + " between strings
-            str = str.replaceAll("\"", "");
-            str = str.replaceAll("\\\\n", "\n");  // Replace \n with newline
-        }
-        
-        return str;
-    }
-
     /**
      * Parses attributes from a putService statement.
      * 
      * @param statement the putService statement
      * @return a map of attribute key-value pairs
      */
-    private void parseAttributes(Map<String, String> attributes, String statement) {
-        // The regex pattern
-        String regex = "attrs\\.put\\(\"([^\"]+)\",\\s*([a-zA-Z_][a-zA-Z0-9_]*|\"[^\"]+(?:\"\\s*\\+\\s*\"[^\"]+)*\")\\);";
-        Pattern pattern = Pattern.compile(regex);
-        
-        // Process each input
+    private Map<String, String> processAttributes(String[] parts, Set<String> attrs, Properties pr) {
+        Map<String, String> attributes = new HashMap<>();
+        String search = parts[1] + "." + parts[2] + ".attr";
 
-        Matcher matcher = pattern.matcher(statement);
-        if (matcher.find()) {
-            String attributeName = matcher.group(1);
-            String value = matcher.group(2);
-            attributes.put(attributeName, value);
+        for (String attribute : attrs) {
+            if (attribute.startsWith(search)) {
+                String[] pieces = attribute.split("\\.");
+                if (pieces[3].equalsIgnoreCase("add")) {
+                    attributes.put(pieces[4], pr.getProperty(attribute));
+                } else if (pieces[3].equalsIgnoreCase("delete")) {
+                    attributes.remove(attribute);
+                }
+            } 
+
         }
-
-        return;
+        return attributes;
     }
     
     /**
@@ -352,7 +269,7 @@ public class ProviderServiceReader {
      * @param type the service type to filter by
      * @return a list of services matching the specified type
      */
-    public static List<ServiceDefinition> filterByType(List<ServiceDefinition> services, String type) {
+    public List<ServiceDefinition> filterByType(List<ServiceDefinition> services, String type) {
         List<ServiceDefinition> filtered = new ArrayList<>();
         for (ServiceDefinition service : services) {
             if (service.getType().equalsIgnoreCase(type)) {
@@ -369,7 +286,7 @@ public class ProviderServiceReader {
      * @param algorithm the algorithm to filter by
      * @return a list of services matching the specified algorithm
      */
-    public static List<ServiceDefinition> filterByAlgorithm(List<ServiceDefinition> services, String algorithm) {
+    public List<ServiceDefinition> filterByAlgorithm(List<ServiceDefinition> services, String algorithm) {
         List<ServiceDefinition> filtered = new ArrayList<>();
         for (ServiceDefinition service : services) {
             if (service.getAlgorithm().equalsIgnoreCase(algorithm)) {
@@ -385,7 +302,7 @@ public class ProviderServiceReader {
      * @param services the list of services
      * @return a list of unique service types
      */
-    public static List<String> getUniqueTypes(List<ServiceDefinition> services) {
+    public List<String> getUniqueTypes(List<ServiceDefinition> services) {
         List<String> types = new ArrayList<>();
         for (ServiceDefinition service : services) {
             if (!types.contains(service.getType())) {
