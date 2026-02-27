@@ -50,6 +50,8 @@ def getOCKTarget(hardware, software) {
         if (hardware == "x86-64") {
             target = "win64_x86"
         }
+    } else if (software == "zos") {
+        target = "zos64a"
     }
 
     return target
@@ -67,7 +69,7 @@ def getBinaries(hardware, software) {
     def target = getOCKTarget(hardware, software)
     def gskit_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/gskit8/$OCK_RELEASE/$target/jgsk_crypto.tar"
     def gskit_sdk_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/gskit8/$OCK_RELEASE/$target/jgsk_crypto_sdk.tar"
-    
+
     // If user has specified OCK_FULL_URL, override default location.
     def ockUrl = OCK_FULL_URL
     if (ockUrl != "") {
@@ -76,11 +78,22 @@ def getBinaries(hardware, software) {
     }
     dir("openjceplus/OCK") {
         withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'GSKIT_PASSWORD', usernameVariable: 'GSKIT_USERNAME')]) {
-            sh "curl -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_bin > jgsk_crypto.tar"
-            sh "curl -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_sdk_bin > jgsk_crypto_sdk.tar"
+            sh "curl -k -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_bin -o jgsk_crypto.tar"
+            sh "curl -k -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_sdk_bin -o jgsk_crypto_sdk.tar"
         }
-        untar file: 'jgsk_crypto.tar'
-        untar file: 'jgsk_crypto_sdk.tar'
+        if (software == "zos") {
+            sh 'ls -laT jgsk_crypto.tar'
+            sh 'chtag -b jgsk_crypto.tar'
+            sh 'ls -laT jgsk_crypto.tar'
+            sh 'tar -oxf jgsk_crypto.tar'
+            sh 'ls -laT jgsk_crypto.tar'
+            sh 'chtag -b jgsk_crypto_sdk.tar'
+            sh 'ls -laT jgsk_crypto_sdk.tar'
+            sh 'tar -oxf jgsk_crypto_sdk.tar'
+        } else {
+            untar file: 'jgsk_crypto.tar'
+            untar file: 'jgsk_crypto_sdk.tar'
+        }
 
         def jgsk8Lib = 'libjgsk8iccs_64.so'
         if (target.contains('osx')) {
@@ -88,7 +101,10 @@ def getBinaries(hardware, software) {
         } else if (target.contains('win')) {
             jgsk8Lib = 'jgsk8iccs_64.dll'
         }
+        echo "Before copy folder: $jgsk8Lib"
         fileOperations([fileCopyOperation(includes: jgsk8Lib, targetLocation: 'jgsk_sdk/lib64')])
+        echo "After copy folder: $jgsk8Lib"
+        sh "env"
 
         // Additional copy is required
         if (target.contains('aix')) {
@@ -114,30 +130,55 @@ def getJava(hardware, software) {
 
     def java_link = ""
     if (JAVA_RELEASE == "") {
-        java_link = "https://api.adoptopenjdk.net/v3/binary/latest/${JAVA_VERSION}/ga/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
+        if (software == "zos") {
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/hyc-runtimes-jenkins.swg-devops.com/Build_JDK25_s390x_zos_Nightly/278/ibm-semeru-certified-jdk_s390x_zos_25.0.2.0-20260225-080405.pax.Z"
+        } else {
+            java_link = "https://api.adoptopenjdk.net/v3/binary/latest/${JAVA_VERSION}/ga/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
+        }
     } else {
         def java_release_link = JAVA_RELEASE.replace("+", "%2B")
         java_link = "https://api.adoptopenjdk.net/v3/binary/version/${java_release_link}/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
     }
 
     dir("java") {
-        sh "curl -LJkO ${java_link}"
-        def java_file = sh (
-            script: 'ls | grep \'tar\\|zip\'',
-            returnStdout: true
-        ).trim()
+        def java_file = ""
+        if (software == "zos") {
+            sh "curl -LJkO -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD ${java_link}"
+            java_file = sh (
+                script: 'ls | grep \'pax\'',
+                returnStdout: true
+            ).trim()
+        } else {
+            sh "curl -LJkO ${java_link}"
+            java_file = sh (
+                script: 'ls | grep \'tar\\|zip\'',
+                returnStdout: true
+            ).trim()
+        }
+
+        echo "java_file: $java_file"
 
        if (software == "windows") {
             unzip zipFile: "$java_file"
+        } else if (software =="zos") {
+           sh "pax -p x -rf $java_file"
         } else {
-            untar file: "$java_file"
+            file: "$java_file"
         }
         sh "rm $java_file"
 
-        def java_folder = sh (
-            script: "ls | grep \'jdk-${JAVA_VERSION}\'",
-            returnStdout: true
-        ).trim()
+        def java_folder = ""
+        if (software == "zos") {
+            java_folder = sh (
+                script: "ls | grep \'J${JAVA_VERSION}\'",
+                returnStdout: true
+            ).trim()
+        } else {
+            java_folder = sh (
+                script: "ls | grep \'jdk-${JAVA_VERSION}\'",
+                returnStdout: true
+            ).trim()
+        }
         fileOperations([folderRenameOperation(destination: 'jdk', source: "$java_folder")])
 
         // AIX always loads the bundled version of native libraries. We delete them to
@@ -154,9 +195,13 @@ def getJava(hardware, software) {
 /*
  * Get the Maven tool and extract it.
  */
-def getMaven() {
+def getMaven(software) {
     sh "curl -kLO https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.10/apache-maven-3.9.10-bin.tar.gz"
     untar file: "apache-maven-3.9.10-bin.tar.gz"
+    if (software == "zos") {
+        sh "ls -laT apache-maven-3.9.10"
+        sh "ls -laT apache-maven-3.9.10/bin"
+    }
 }
 
 /*
@@ -175,7 +220,7 @@ def runOpenJCEPlus(command, software) {
             for (envar in additional_envars.split(",")) {
                 additional_exports += " export ${envar.trim()};"
             }
-            
+
         }
 
         def java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
@@ -246,7 +291,7 @@ def upload_artifactory(uploadSpec) {
     return server.getUrl()
 }
 
-/* 
+/*
  * Returns a formatted directory name based upon a branch name.
  */
 def getSanitizedBranchName() {

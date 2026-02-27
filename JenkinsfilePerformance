@@ -100,7 +100,7 @@ def getPlatforms() {
  * @return              The URL to the uploaded file
  */
 def archive(platform, iteration) {
-    
+
     // Create compressed file containing build.
     def ending = ".tar.gz"
     def filename = "openjceplus-performance-$iteration-$platform$ending"
@@ -219,7 +219,7 @@ def run(platform) {
                     echo "Java fetched"
                     externalLibrary.getBinaries(hardware, software)
                     echo "Binaries fetched"
-                    externalLibrary.getMaven()
+                    externalLibrary.getMaven(software)
                     echo "Maven fetched"
                     def command = "clean install -DskipTests -Djmh.benchmark.skip=false -Djmh.benchmark=" + BENCHMARK
                     externalLibrary.runOpenJCEPlus(command, software)
@@ -439,7 +439,7 @@ pipeline {
                             // Figure out the platforms to build on.
                             def platforms = getPlatforms()
                             assert !((platforms.size() > 1) && (OCK_FULL_URL != "")) : "Cannot specify full OCK URL and multiple platforms."
-                             
+
                              // Check whether the build has to be run multiple times in parallel.
                             def iter = (PARALLEL_ITERATIONS ?: "1").toInteger()
                             echo "Parallel iterations to be run: ${iter}"
