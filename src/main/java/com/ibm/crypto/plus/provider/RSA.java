@@ -368,22 +368,22 @@ public final class RSA extends CipherSpi {
 
     private boolean isOAEPDigestFIPSAllowed(String name) {
         switch (name.toUpperCase()) {
-                case "SHA-224":
-                case "SHA224":
-                case "SHA-256":
-                case "SHA256":
-                case "SHA-384":
-                case "SHA384":
-                case "SHA-512":
-                case "SHA512":
-                case "SHA-512/224":
-                case "SHA512/224":
-                case "SHA-512/256":
-                case "SHA512/256":
-                    return true;
-                default:
-                    return false;
-            }
+            case "SHA-224":
+            case "SHA224":
+            case "SHA-256":
+            case "SHA256":
+            case "SHA-384":
+            case "SHA384":
+            case "SHA-512":
+            case "SHA512":
+            case "SHA-512/224":
+            case "SHA512/224":
+            case "SHA-512/256":
+            case "SHA512/256":
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override

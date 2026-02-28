@@ -644,7 +644,7 @@ public class BaseTestRSA extends BaseTestCipher {
     }
 
     private byte[] getMessage(String algorithm) {
-        switch(algorithm) {
+        switch (algorithm) {
             case "RSA/ECB/OAEPPadding":
             case "RSA/ECB/OAEPWithSHA-1AndMGF1Padding":
             case "RSA/ECB/OAEPWithSHA1AndMGF1Padding":
