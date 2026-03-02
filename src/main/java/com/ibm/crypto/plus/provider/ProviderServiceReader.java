@@ -133,8 +133,6 @@ public class ProviderServiceReader {
 
         BufferedReader rd = null;
 
-        System.out.println("file path = " + filePath);
-
         try {
             if (filePath == null && this.reader == null) {
                 throw new IOException("No file specified"); 
@@ -154,11 +152,7 @@ public class ProviderServiceReader {
             //Split keys in groups: Aliases, Attributes and Services
             for (String key : keys) {
                 String[] parts = key.split("\\.");
-                /*System.out.println("key = " + key);
-                //System.out.println("value = "+ pr.getProperty(key));
-                for (String part : parts) {
-                    System.out.println("part = " + part);
-                }*/
+
                 if (parts.length == 3 && parts[0].equalsIgnoreCase("Service")) {
                     setServices.add(key);
                 } else if (parts.length == 4 && parts[2].equalsIgnoreCase("alias")) {
@@ -173,8 +167,7 @@ public class ProviderServiceReader {
                     defaults = pr.getProperty(key);
                 } else {
                     throw new IOException("Invalid key: " + key);
-                }
-            
+                }           
             }    
 
             //Deal with default values

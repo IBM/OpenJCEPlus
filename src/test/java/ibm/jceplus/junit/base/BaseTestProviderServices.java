@@ -66,9 +66,9 @@ public class BaseTestProviderServices extends BaseTestJunit5 {
         }
     }
     
-/*     @Test
+    @Test
     public void testCompareProviders() throws Exception {
-        String config = "C:/Users/JohnPeck/work/OpenJCEPlus-work/ProviderAttrs.config";
+        String config = "./src/test/ProviderAttrs.config";
         Provider provider1 = new OpenJCEPlus();
         Provider provider2 = provider1.configure(config);
         Security.addProvider(provider2);
@@ -82,7 +82,6 @@ public class BaseTestProviderServices extends BaseTestJunit5 {
         assertTrue(compareServices(services1, provider1, provider2), "Providers have different services");
     }
 
-*/
     /**
      * Compares two service definitions and identifies differences.
      */
