@@ -1,12 +1,12 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
@@ -14,7 +14,13 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /*
  * @test
@@ -22,7 +28,17 @@ import org.junit.jupiter.api.Test;
  * @summary Check if AEAD operations work correctly when buffers used
  *          for storing plain text and cipher text are overlapped or the same
  */
-public class BaseTestAESGCMSameBuffer extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.OPENJCEPLUS_MULTITHREAD_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestAESGCMSameBuffer extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     private static final String AES = "AES";
     private static final String GCM = "GCM";
@@ -37,6 +53,11 @@ public class BaseTestAESGCMSameBuffer extends BaseTestJunit5 {
     private String transformation;
     private int textLength;
     private int AADLength;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
 
     @Test
     public void testAESGCMSameBuffer() throws Exception {
