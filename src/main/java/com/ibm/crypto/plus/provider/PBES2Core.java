@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -51,7 +51,7 @@ abstract class PBES2Core extends CipherSpi {
         if (cipherAlgo.equalsIgnoreCase("AES")) {
             cipher = new AESCipher(provider);
 
-            switch(kdfAlgo.toLowerCase()) {
+            switch (kdfAlgo.toLowerCase()) {
                 case "hmacsha1":
                     kdf = new PBKDF2Core.HmacSHA1(provider);
                     break;

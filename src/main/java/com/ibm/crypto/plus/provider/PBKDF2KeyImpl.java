@@ -178,7 +178,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
         for (int i = 1; i < this.key.length; i++) {
             retval += this.key[i] * i;
         }
-        return(retval ^= getAlgorithm().toLowerCase(Locale.ENGLISH).hashCode());
+        return (retval ^= getAlgorithm().toLowerCase(Locale.ENGLISH).hashCode());
     }
 
     public boolean equals(Object obj) {
@@ -239,8 +239,8 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
         throw new InvalidObjectException("PBKDF2KeyImpl keys are not directly deserializable");
     }
 
-    private Runnable cleanOCKResources(byte[] key, char[] passwd, byte[] salt){
-        return() -> {
+    private Runnable cleanOCKResources(byte[] key, char[] passwd, byte[] salt) {
+        return () -> {
             try {
                 if (key != null) {
                     java.util.Arrays.fill(key, (byte) 0x00);
@@ -251,7 +251,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
                 if (salt != null) {
                     java.util.Arrays.fill(salt, (byte) 0x00);
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 if (OpenJCEPlusProvider.getDebug() != null) {
                     OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
                     e.printStackTrace();

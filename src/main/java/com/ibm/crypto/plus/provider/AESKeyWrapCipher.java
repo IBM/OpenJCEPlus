@@ -187,7 +187,7 @@ abstract class AESKeyWrapCipher extends CipherSpi {
         } else {
             result = Math.addExact(inputLen, 16);
         }
-        return (result < 0? 0:result);
+        return (result < 0 ? 0 : result);
     }
 
     @Override

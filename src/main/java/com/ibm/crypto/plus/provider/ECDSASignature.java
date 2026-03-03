@@ -130,7 +130,7 @@ abstract class ECDSASignature extends SignatureSpi {
         }
         if (params instanceof ECParameterSpec) {
             ECParameterSpec ecparams = (ECParameterSpec) params;
-            java.security.interfaces.ECKey key = (this.privateKey == null? this.publicKey : this.privateKey);
+            java.security.interfaces.ECKey key = (this.privateKey == null ? this.publicKey : this.privateKey);
             if ((key != null) && !ECUtil.equals(ecparams, key.getParams())) {
                 throw new InvalidAlgorithmParameterException(
                         "Signature params does not match key params");
