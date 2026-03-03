@@ -61,7 +61,7 @@ public class TestArguments {
      *
      * @return A stream of enabled TestProvider.
      */ 
-    protected static Stream<TestProvider> getEnabledProviders(){
+    protected static Stream<TestProvider> getEnabledProviders() {
 
         // Get active provider tags from -Dgroups system property
         String[] groupPropertyTags = BaseTest.getTagsPropertyAsArray();

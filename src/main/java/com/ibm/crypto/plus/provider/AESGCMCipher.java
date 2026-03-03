@@ -1445,7 +1445,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
     }
 
     private Runnable cleanOCKResources(PrimitiveWrapper.ByteArray Key) {
-        return() -> {
+        return () -> {
             try {
                 //JS00684 - Leave cleanup of internal variables to GCMCipher that caches them
                 if (Key.getValue() != null) {

@@ -263,7 +263,7 @@ public final class SignatureRSAPSS {
     }
 
     private Runnable cleanOCKResources(PrimitiveWrapper.Long rsaPssId, OCKContext ockContext) {
-        return() -> {
+        return () -> {
             try {
                 if (rsaPssId.getValue() != 0) {
                     NativeInterface.RSAPSS_releaseContext(ockContext.getId(), rsaPssId.getValue());

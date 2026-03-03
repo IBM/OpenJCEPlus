@@ -62,7 +62,7 @@ public final class ExtendedRandom {
     }
 
     private Runnable cleanOCKResources(long ockPRNGContextId, OCKContext ockContext) {
-        return() -> {
+        return () -> {
             try {
                 if (ockPRNGContextId != 0) {
                     NativeInterface.EXTRAND_delete(ockContext.getId(), ockPRNGContextId);

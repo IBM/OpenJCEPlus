@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -226,9 +226,11 @@ public class BaseTestHKDF extends BaseTestJunit5 {
         }
     }
     
-    private static class MyKDFParameters implements KDFParameters {}
+    private static class MyKDFParameters implements KDFParameters {
+    }
 
-    private static class MyKDFParameters2 implements KDFParameters {}
+    private static class MyKDFParameters2 implements KDFParameters {
+    }
 
     private void aesHKDF(int aesKeySize, String hashAlg, String extractAlg, String expandAlg,
             String providerName) throws NoSuchAlgorithmException, NoSuchProviderException,

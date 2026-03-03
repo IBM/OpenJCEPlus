@@ -214,7 +214,7 @@ public final class RSAKey implements AsymmetricKey {
     }
 
     private Runnable cleanOCKResources(byte[] privateKeyBytes, long rsaKeyId, PrimitiveWrapper.Long pkeyId, OCKContext ockContext) {
-        return() -> {
+        return () -> {
             try {
                 if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
                     Arrays.fill(privateKeyBytes, (byte) 0x00);
