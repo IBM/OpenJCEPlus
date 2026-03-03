@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -94,7 +94,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             
         KEM.Encapsulator encr = kemInterop.newEncapsulator(publicKey);
         KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
-        if (enc == null){
+        if (enc == null) {
             System.out.println("enc = null");
             fail("KEMPlusCreatesInteropGet failed no enc.");
         }
@@ -470,7 +470,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
             KEM.Encapsulator encr = kemInterop.newEncapsulator(publicKeyInterop);
             KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
-            if (enc == null){
+            if (enc == null) {
                 System.out.println("enc = null");
                 fail("KEMPlusCreatesInteropGet failed no enc.");
             }
@@ -512,7 +512,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
             KEM.Encapsulator encr = kemPlus.newEncapsulator(publicKeyPlus);
             KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
-            if (enc == null){
+            if (enc == null) {
                 System.out.println("enc = null");
                 fail("KEMPlusCreatesInteropGet failed no enc.");
             }
@@ -552,7 +552,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
             KEM.Encapsulator encr = kemInterop.newEncapsulator(publicKeyInterop);
             KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
-            if (enc == null){
+            if (enc == null) {
                 System.out.println("enc = null");
                 fail("KEMPlusCreatesInteropGet failed no enc.");
             }
