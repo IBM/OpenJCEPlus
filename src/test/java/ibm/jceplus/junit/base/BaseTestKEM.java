@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -78,7 +78,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
 
         KEM.Encapsulator encr = kem.newEncapsulator(pqcKeyPair.getPublic());
-        for (int i =0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             int from = 0;
             int to = 0;
             switch (i) {
@@ -115,7 +115,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
         enc = encr.encapsulate(0, 32, "AES");
        
         KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
-        for (int i =0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             int from = 0;
             int to = 0;
             switch (i) {

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025. 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -29,7 +29,7 @@ public final class PrimitiveWrapper {
             this.value = value;
         }
 
-        public long getValue(){
+        public long getValue() {
             return this.value;
         }
 
@@ -45,7 +45,7 @@ public final class PrimitiveWrapper {
             this.value = value;
         }
 
-        public boolean getValue(){
+        public boolean getValue() {
             return this.value;
         }
 
@@ -61,7 +61,7 @@ public final class PrimitiveWrapper {
             this.value = value;
         }
 
-        public byte[] getValue(){
+        public byte[] getValue() {
             return this.value;
         }
 

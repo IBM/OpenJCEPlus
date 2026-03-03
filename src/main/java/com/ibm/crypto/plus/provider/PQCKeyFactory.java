@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -195,7 +195,7 @@ class PQCKeyFactory extends KeyFactorySpi {
                 for (int i = 2; i < 4; i++) {
                     sb.append(String.format("%02X", key[i]));
                 }
-                String s =sb.toString();
+                String s = sb.toString();
                 int b =  Integer.parseInt(s, 16);
                 if (b == (key.length - 4)) {
                     //This is an encoding
