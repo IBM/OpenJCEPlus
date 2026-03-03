@@ -694,8 +694,8 @@ public final class SymmetricCipher {
         }
     }
 
-    private Runnable cleanOCKResources(boolean use_z_fast_command, long ockCipherId, byte[] reinitKey, OCKContext ockContext){
-        return() -> {
+    private Runnable cleanOCKResources(boolean use_z_fast_command, long ockCipherId, byte[] reinitKey, OCKContext ockContext) {
+        return () -> {
             try {
                 if (!use_z_fast_command) {
                     if (ockCipherId != 0) {
