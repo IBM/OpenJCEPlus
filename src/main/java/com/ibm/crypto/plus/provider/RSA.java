@@ -11,6 +11,7 @@ package com.ibm.crypto.plus.provider;
 import com.ibm.crypto.plus.provider.base.OCKException;
 import com.ibm.crypto.plus.provider.base.RSACipher;
 import com.ibm.crypto.plus.provider.base.RSAPadding;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -45,6 +46,7 @@ public final class RSA extends CipherSpi {
     private int keyType = -1;
     private boolean initialized = false;
     private boolean encrypting = true;
+    private RSAPublicKey rsaPub = null;
 
     private static final boolean doTypeChecking;
     private static final String DO_TYPE_CHECKING = "com.ibm.crypto.provider.DoRSATypeChecking";
@@ -104,14 +106,21 @@ public final class RSA extends CipherSpi {
         try {
             int outLen = 0;
             if (this.encrypting) {
-                if (this.padding.isPadding(RSAPadding.RSAPAD_NONE)
-                        && msgLength != engineGetOutputSize(0)) {
-                    byte[] paddedInput = new byte[engineGetOutputSize(0)];
-                    System.arraycopy(this.msgBuffer.array(), 0, paddedInput,
-                            paddedInput.length - msgLength, msgLength);
-                    this.msgBuffer.clear();
-                    this.msgBuffer.put(paddedInput);
-                    this.msgLength = paddedInput.length;
+                if (this.padding.isPadding(RSAPadding.RSAPAD_NONE)) {
+                    if (msgLength != engineGetOutputSize(0)) {
+                        byte[] paddedInput = new byte[engineGetOutputSize(0)];
+                        System.arraycopy(this.msgBuffer.array(), 0, paddedInput,
+                                paddedInput.length - msgLength, msgLength);
+                        this.msgBuffer.clear();
+                        this.msgBuffer.put(paddedInput);
+                        this.msgLength = paddedInput.length;
+                    }
+
+                    BigInteger m = new BigInteger(1, this.msgBuffer.array());
+                    BigInteger n = this.rsaPub.getModulus();
+                    if (m.compareTo(n) >= 0) {
+                        throw new BadPaddingException("Message is larger than modulus");
+                    }
                 } else if (this.padding.isPadding(RSAPadding.RSAPAD_PKCS1)
                         && msgLength > pkcs1InputLimit()) {
                     throw new IllegalBlockSizeException(
@@ -286,7 +295,7 @@ public final class RSA extends CipherSpi {
                 }
             }
             try {
-                RSAPublicKey rsaPub = (RSAPublicKey) rsaKey;
+                this.rsaPub = (RSAPublicKey) rsaKey;
                 rsaCipher.initialize(rsaPub.getOCKKey(), false);
                 this.keyType = Cipher.PUBLIC_KEY;
             } catch (Exception e) {
@@ -300,6 +309,7 @@ public final class RSA extends CipherSpi {
             }
             try {
                 RSAPrivateCrtKey rsaPriv = (RSAPrivateCrtKey) rsaKey;
+                this.rsaPub = null;
                 rsaCipher.initialize(rsaPriv.getOCKKey(), false);
                 this.keyType = Cipher.PRIVATE_KEY;
             } catch (Exception e) {
@@ -313,6 +323,7 @@ public final class RSA extends CipherSpi {
             }
             try {
                 RSAPrivateKey rsaPriv = (RSAPrivateKey) rsaKey;
+                this.rsaPub = null;
                 rsaCipher.initialize(rsaPriv.getOCKKey(), true);
                 this.keyType = Cipher.PRIVATE_KEY;
             } catch (Exception e) {
