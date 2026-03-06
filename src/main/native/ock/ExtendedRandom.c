@@ -16,6 +16,80 @@
 #include "Utils.h"
 #include <stdint.h>
 
+#include <pthread.h>
+#include <string.h>
+#include <stdlib.h>
+
+// One cached per (ockCtx, algName)
+typedef struct extrand_entry_t {
+    ICC_CTX      *ockCtx;
+    char         *algName;
+    ICC_PRNG_CTX *prngCtx;    // cached DRBG
+    struct extrand_entry_t *next;
+} extrand_entry_t;
+
+// Per-thread cache: list head
+typedef struct extrand_cache_t {
+    extrand_entry_t *head;
+} extrand_cache_t;
+
+static pthread_key_t g_extrand_key;
+static pthread_once_t g_extrand_key_once = PTHREAD_ONCE_INIT;
+
+static void extrand_cache_destructor(void *ptr) {
+    extrand_cache_t *c = (extrand_cache_t *)ptr;
+    if (!c) return;
+
+    extrand_entry_t *e = c->head;
+    while (e) {
+        extrand_entry_t *next = e->next;
+
+        if (e->prngCtx && e->ockCtx) {
+            ICC_RNG_CTX_free(e->ockCtx, e->prngCtx);
+            e->prngCtx = NULL;
+        }
+        if (e->algName) {
+            free(e->algName);
+            e->algName = NULL;
+        }
+        free(e);
+        e = next;
+    }
+
+    c->head = NULL;
+    free(c);
+}
+
+static void extrand_make_key(void) {
+    (void)pthread_key_create(&g_extrand_key, extrand_cache_destructor);
+}
+
+static extrand_cache_t *extrand_get_cache(void) {
+    pthread_once(&g_extrand_key_once, extrand_make_key);
+
+    extrand_cache_t *c = (extrand_cache_t *)pthread_getspecific(g_extrand_key);
+    if (!c) {
+        c = (extrand_cache_t *)calloc(1, sizeof(*c));
+        if (c) {
+            (void)pthread_setspecific(g_extrand_key, c);
+        }
+    }
+    return c;
+}
+
+static extrand_entry_t *extrand_find_entry(extrand_cache_t *cache,
+                                          ICC_CTX *ockCtx,
+                                          const char *algName) {
+    if (!cache || !ockCtx || !algName) return NULL;
+
+    for (extrand_entry_t *e = cache->head; e; e = e->next) {
+        if (e->ockCtx == ockCtx && e->algName && strcmp(e->algName, algName) == 0) {
+            return e;
+        }
+    }
+    return NULL;
+}
+
 //============================================================================
 /*
  * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
@@ -34,6 +108,9 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_EXTRAND_1create(
     SP800_90STATE spState;
     jlong         ockPRNGContextId = 0;
 
+    extrand_cache_t *cache = NULL;
+    extrand_entry_t *entry = NULL;
+
     if (debug) {
         gslogFunctionEntry(functionName);
     }
@@ -41,42 +118,96 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_EXTRAND_1create(
     algNameChars = (*env)->GetStringUTFChars(env, algName, NULL);
     if (algNameChars == NULL) {
         throwOCKException(env, 0, "GetStringUTFChars() failed");
-    } else {
-#ifdef DEBUG_EXTENDED_RANDOM_DETAIL
-        if (debug) {
-            gslogMessage("DETAIL_EXT_RANDOM algName=%s", algNameChars);
-        }
-#endif
-
-        ockPRNG = ICC_get_RNGbyname(ockCtx, algNameChars);
-        if (ockPRNG == NULL) {
-            ockCheckStatus(ockCtx);
-            throwOCKException(env, 0, "ICC_getRNGbyname() failed");
-        } else {
-            ockPRNGCtx = ICC_RNG_CTX_new(ockCtx);
-            if (ockPRNGCtx == NULL) {
-                ockCheckStatus(ockCtx);
-                throwOCKException(env, 0, "ICC_RNG_CTX_new() failed");
-            } else {
-                spState = ICC_RNG_CTX_Init(ockCtx, ockPRNGCtx, ockPRNG, NULL, 0,
-                                           0, 0);
-                if ((spState == (SP800_90STATE)ICC_FAILURE) ||
-                    (spState == SP800_90ERROR) || (spState == SP800_90CRIT)) {
-                    ockCheckStatus(ockCtx);
-                    throwOCKException(env, 0, "ICC_RNG_CTX_Init() failed");
-                } else {
-                    ockPRNGContextId = (jlong)((intptr_t)ockPRNGCtx);
-#ifdef DEBUG_EXTENDED_RANDOM_DETAIL
-                    if (debug) {
-                        gslogMessage("DETAIL_EXT_RANDOM iccpRNGContext=%lx",
-                                     (long)ockPRNGContextId);
-                    }
-#endif
-                }
-            }
-        }
+        goto done;
     }
 
+#ifdef DEBUG_EXTENDED_RANDOM_DETAIL
+    if (debug) {
+        gslogMessage("DETAIL_EXT_RANDOM algName=%s", algNameChars);
+    }
+#endif
+
+    // Per-thread cache lookup (multi-entry)
+    cache = extrand_get_cache();
+    entry = extrand_find_entry(cache, ockCtx, algNameChars);
+    if (entry && entry->prngCtx) {
+        ockPRNGContextId = (jlong)((intptr_t)entry->prngCtx);
+
+#ifdef DEBUG_EXTENDED_RANDOM_DETAIL
+        if (debug) {
+            gslogMessage("DETAIL_EXT_RANDOM cache-hit iccpRNGContext=%lx",
+                         (long)ockPRNGContextId);
+        }
+#endif
+        goto done;
+    }
+
+    ockPRNG = ICC_get_RNGbyname(ockCtx, algNameChars);
+    if (ockPRNG == NULL) {
+        ockCheckStatus(ockCtx);
+        throwOCKException(env, 0, "ICC_getRNGbyname() failed");
+        goto done;
+    }
+
+    ockPRNGCtx = ICC_RNG_CTX_new(ockCtx);
+    if (ockPRNGCtx == NULL) {
+        ockCheckStatus(ockCtx);
+        throwOCKException(env, 0, "ICC_RNG_CTX_new() failed");
+        goto done;
+    }
+
+    spState = ICC_RNG_CTX_Init(ockCtx, ockPRNGCtx, ockPRNG, NULL, 0, 0, 0);
+    if ((spState == (SP800_90STATE)ICC_FAILURE) ||
+        (spState == SP800_90ERROR) || (spState == SP800_90CRIT)) {
+        ockCheckStatus(ockCtx);
+        throwOCKException(env, 0, "ICC_RNG_CTX_Init() failed");
+        goto done;
+    }
+
+    ockPRNGContextId = (jlong)((intptr_t)ockPRNGCtx);
+
+#ifdef DEBUG_EXTENDED_RANDOM_DETAIL
+    if (debug) {
+        gslogMessage("DETAIL_EXT_RANDOM cache-miss/new iccpRNGContext=%lx",
+                     (long)ockPRNGContextId);
+    }
+#endif
+
+    // Cache the newly created context as an entry for (ockCtx, algName)
+    if (cache) {
+        if (!entry) {
+            entry = (extrand_entry_t *)calloc(1, sizeof(*entry));
+            if (!entry) {
+                // Shouldn't fail, but if failed, back to non-cached behavior
+                goto done;
+            }
+
+            entry->ockCtx = ockCtx;
+            entry->algName = strdup(algNameChars);
+            if (!entry->algName) {
+                free(entry);
+                entry = NULL;
+                // Shouldn't fail, but if failed, back to non-cached behavior
+                goto done;
+            }
+
+            // Push-front into list
+            entry->next = cache->head;
+            cache->head = entry;
+        } else {
+            // Entry existed but had no prngCtx, clear old ctx if present
+            if (entry->prngCtx && entry->ockCtx) {
+                ICC_RNG_CTX_free(entry->ockCtx, entry->prngCtx);
+            }
+        }
+
+        entry->prngCtx = ockPRNGCtx;
+
+        // Prevent cleanup below from freeing it; cache owns it now.
+        ockPRNGCtx = NULL;
+    }
+
+done:
     if (algNameChars != NULL) {
         (*env)->ReleaseStringUTFChars(env, algName, algNameChars);
     }
@@ -136,7 +267,7 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_EXTRAND_1nextBytes(
         if ((spState == (SP800_90STATE)ICC_FAILURE) ||
             (spState == SP800_90ERROR) || (spState == SP800_90CRIT)) {
             ockCheckStatus(ockCtx);
-            throwOCKException(env, 0, "ICC_RNG_CTX_Init() failed");
+            throwOCKException(env, 0, "ICC_RNG_Generate() failed");
         }
     }
 
@@ -215,22 +346,22 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_EXTRAND_1delete(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockPRNGContextId) {
     static const char *functionName = "NativeInterface.EXTRAND_delete";
 
-    ICC_CTX      *ockCtx     = (ICC_CTX *)((intptr_t)ockContextId);
-    ICC_PRNG_CTX *ockPRNGCtx = (ICC_PRNG_CTX *)((intptr_t)ockPRNGContextId);
-
     if (debug) {
         gslogFunctionEntry(functionName);
 #ifdef DEBUG_EXTENDED_RANDOM_DETAIL
         gslogMessage("DETAIL_EXT_RANDOM iccpRNGContext=%lx",
                      (long)ockPRNGContextId);
 #endif
-    }
-    if (ockPRNGCtx != NULL) {
-        ICC_RNG_CTX_free(ockCtx, ockPRNGCtx);
-        ockPRNGCtx = NULL;
-    }
-
-    if (debug) {
         gslogFunctionExit(functionName);
     }
+
+    // With Thread-Local Storage caching, the RNG ctx is owned by the
+    // thread-local cache. Java Cleanable may run on a different thread; 
+    // freeing here can free another thread's cached ctx and break later
+    // nextBytes() calls.
+    (void)env;
+    (void)thisObj;
+    (void)ockContextId;
+    (void)ockPRNGContextId;
+    return;
 }
