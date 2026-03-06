@@ -25,6 +25,9 @@ import groovy.transform.Field;
 @Field OCK_FULL_URL
 @Field PARALLEL_ITERATIONS
 @Field BENCHMARK
+@Field boolean PROVIDER_OPENJCEPLUS
+@Field boolean PROVIDER_OPENJCEPLUSFIPS
+@Field boolean PROVIDER_SUN
 @Field ADDITIONAL_NODE_LABELS
 @Field OVERRIDE_NODE_LABELS
 @Field ADDITIONAL_ENVARS
@@ -221,9 +224,24 @@ def run(platform) {
                     echo "Binaries fetched"
                     externalLibrary.getMaven()
                     echo "Maven fetched"
-                    def command = "clean install -DskipTests -Djmh.benchmark.skip=false -Djmh.benchmark=" + BENCHMARK
-                    externalLibrary.runOpenJCEPlus(command, software)
-                    echo "OpenJCEPlus built"
+                    def allowedProviders = []
+                    if (PROVIDER_OPENJCEPLUS == "true") {
+                        allowedProviders.add("OpenJCEPlus")
+                    }
+                    if (PROVIDER_OPENJCEPLUSFIPS == "true") {
+                        allowedProviders.add("OpenJCEPlusFIPS")
+                    }
+                    if (PROVIDER_SUN == "true") {
+                        allowedProviders += ["SunEC", "SunJCE", "SunRsaSign", "SUN"]
+                    }
+
+                    if (!allowedProvider.isEmpty()) {
+                        def command = "clean install -DskipTests -Djmh.benchmark.skip=false -Djmh.benchmark=" + BENCHMARK + " -Djmh.allowedProviders=" + allowedProviders.join(",")
+                        externalLibrary.runOpenJCEPlus(command, software)
+                        echo "OpenJCEPlus built"
+                    } else {
+                        echo "No providers specified. Nothing to run."
+                    }
                 } finally {
                     iteration++
                     try {
@@ -368,6 +386,12 @@ pipeline {
                                             'ibm.jceplus.jmh.XDHKeyExchangeBenchmark', \
                                             'ibm.jceplus.jmh.XDHKeyGeneratorBenchmark'], description: '\
             Specify the performance benchmark you would like to run.')
+        booleanParam(name: 'OpenJCEPlus', defaultValue: true, description: '\
+            Run benchmarks with OpenJCEPlus provider')
+        booleanParam(name: 'OpenJCEPlusFIPS', defaultValue: true, description: '\
+            Run benchmarks with OpenJCEPlusFIPS provider')
+        booleanParam(name: 'Sun', defaultValue: true, description: '\
+            Run benchmarks with all Sun providers')
         separator(name: "ExtendedOptions", sectionHeader: "Extended Options",
             separatorStyle: "border-width: 0",
             sectionHeaderStyle: """
@@ -427,6 +451,9 @@ pipeline {
                         OCK_FULL_URL="${params.OCK_FULL_URL}"
                         PARALLEL_ITERATIONS="${params.PARALLEL_ITERATIONS}"
                         BENCHMARK="${params.BENCHMARK}"
+                        PROVIDER_OPENJCEPLUS="${params.OpenJCEPlus}"
+                        PROVIDER_OPENJCEPLUSFIPS="${params.OpenJCEPlusFIPS}"
+                        PROVIDER_SUN="${params.Sun}"
                         ADDITIONAL_NODE_LABELS="${params.ADDITIONAL_NODE_LABELS}"
                         OVERRIDE_NODE_LABELS="${params.OVERRIDE_NODE_LABELS}"
                         ADDITIONAL_ENVARS="${params.ADDITIONAL_ENVARS}"
