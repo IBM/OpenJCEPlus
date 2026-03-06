@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -36,44 +36,24 @@ public class RandomBenchmark extends JMHBase {
 
     private byte[] payload;
 
-    private SecureRandom randomOpenJCEPlusSHA256DRBG;
-    private SecureRandom randomOpenJCEPlusSHA512DRBG;
-    private SecureRandom randomSUNSHA1PRNG;
-    private SecureRandom randomSUNDRBG;
-    private SecureRandom random = new SecureRandom();
+    private SecureRandom random;
+
+    @Param({"SHA256DRBG|OpenJCEPlus", "SHA512DRBG|OpenJCEPlus", "SHA1PRNG|SUN", "DRBG|SUN"})
+    private String randomToTest;
 
     @Setup
     public void setup() throws Exception {
-        insertProvider("OpenJCEPlus");
-        randomOpenJCEPlusSHA256DRBG = SecureRandom.getInstance("SHA256DRBG", "OpenJCEPlus");
-        randomOpenJCEPlusSHA512DRBG = SecureRandom.getInstance("SHA512DRBG", "OpenJCEPlus");
-        randomSUNSHA1PRNG = SecureRandom.getInstance("SHA1PRNG", "SUN");
-        randomSUNDRBG = SecureRandom.getInstance("DRBG", "SUN");
+        String[] algAndProvider = randomToTest.split("|");
+        String algorithm = algAndProvider[0];
+        String provider = algAndProvider[1];
+        super.setup(provider);
+        random = SecureRandom.getInstance(algorithm, provider);
         payload = new byte[payloadSize];
+    }
+
+    @Benchmark
+    public byte[] runSecureRandom() {
         random.nextBytes(payload);
-    }
-
-    @Benchmark
-    public byte[] runOpenJCEPlusSHA256DRBG() {
-        randomOpenJCEPlusSHA256DRBG.nextBytes(payload);
-        return payload;
-    }
-
-    @Benchmark
-    public byte[] runOpenJCEPlusSHA512DRBG() {
-        randomOpenJCEPlusSHA512DRBG.nextBytes(payload);
-        return payload;
-    }
-
-    @Benchmark
-    public byte[] runSUNSHA1PRNG() {
-        randomSUNSHA1PRNG.nextBytes(payload);
-        return payload;
-    }
-
-    @Benchmark
-    public byte[] runSUNDRBG() {
-        randomSUNDRBG.nextBytes(payload);
         return payload;
     }
 
