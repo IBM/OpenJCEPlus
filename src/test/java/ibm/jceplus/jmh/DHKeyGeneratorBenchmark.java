@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -40,7 +40,7 @@ public class DHKeyGeneratorBenchmark extends JMHBase {
 
     @Setup
     public void setup() throws Exception {
-        insertProvider(provider);
+        super.setup(provider);
 
         dhKeyPairGenerator1024 = KeyPairGenerator.getInstance("DH", provider);
         dhKeyPairGenerator1024.initialize(1024);
