@@ -11,6 +11,7 @@ package com.ibm.crypto.plus.provider;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -43,6 +44,9 @@ public class ProviderServiceReader {
     private String description;
     private BufferedReader reader = null;
     private String defaults = null;
+    private Set<String> setDefAttributes = null;
+    private Properties defPr = null;
+    private boolean def = false;
     
     /**
      * Represents a single service definition parsed from the file.
@@ -130,25 +134,25 @@ public class ProviderServiceReader {
         Set<String> setAliases = new HashSet<>();
         Set<String> setAttributes = new HashSet<>();
         Set<String> setServices = new HashSet<>();
-
         BufferedReader rd = null;
+        Properties pr = new Properties();
 
         try {
             if (filePath == null && this.reader == null) {
-                throw new IOException("No file specified"); 
+                throw new IOException("No file specified");
             } else if (null == filePath && this.reader != null) {
                 rd = this.reader;
-            } else if (filePath != null && !Files.exists(Paths.get(filePath))) { 
-                throw new IOException("File not found: " + filePath);  
+            } else if (filePath != null && !Files.exists(Paths.get(filePath))) {
+                throw new IOException("File not found: " + filePath);
             } else {
                 // this filePath != null && Files.exists(Paths.get(filePath))
                 rd = new BufferedReader(new FileReader(filePath));
-            }     
+            }
 
-            Properties pr = new Properties();
-        
             pr.load(rd);
+
             Set<String> keys = pr.stringPropertyNames();
+
             //Split keys in groups: Aliases, Attributes and Services
             for (String key : keys) {
                 String[] parts = key.split("\\.");
@@ -167,26 +171,52 @@ public class ProviderServiceReader {
                     defaults = pr.getProperty(key);
                 } else {
                     throw new IOException("Invalid key: " + key);
-                }           
-            }    
+                }
+            }
+ 
+            //Get default values, if needed.
+            if (defaults != null &&
+                (defaults.equalsIgnoreCase("true" ) ||
+                defaults.equals("1"))) {
+                BufferedReader defRd = new BufferedReader(new StringReader(DefaultProviderAttrs.defaultProvAttrs));
+                defPr = new Properties();
+                defPr.load(defRd);
 
-            //Deal with default values
-            /*********** add code here */
+                //Add default Services
+                Set<String> defKeys = defPr.stringPropertyNames();
+
+                for (String key : defKeys) {
+                    String[] parts = key.split("\\.");
+
+                    if (parts.length == 3 && parts[0].equalsIgnoreCase("Service")) {
+                        List<String> aliases = processAliases(parts, defPr, pr, setAliases);
+                        Map<String, String> attributes = processAttributes(parts, setAttributes, defPr, pr);
+                        ServiceDefinition service = new ServiceDefinition(parts[1], parts[2], defPr.getProperty(key), aliases, attributes);
+                        if (service != null) {
+                            services.add(service);
+                            aliases = null;
+                            attributes.clear();
+                        }
+                    }
+                }
+  
+                def = true;
+            }
 
             for (String key : setServices) {
                 String[] parts = key.split("\\.");
-                List<String> aliases = processAliases(parts, pr);
-                Map<String, String> attributes = processAttributes(parts, setAttributes, pr);
+                List<String> aliases = processAliases(parts, pr, null, null);
+                Map<String, String> attributes = processAttributes(parts, setAttributes, pr, null);
                 ServiceDefinition service = new ServiceDefinition(parts[1], parts[2], pr.getProperty(key), aliases, attributes);
                 if (service != null) {
                     services.add(service);
                     aliases = null;
-                    attributes.clear();     
-                }        
+                    attributes.clear();
+                }
             }
         } catch (Exception e) {
             throw new IOException("File issue: " + e.getMessage());
-        } 
+        }
        
         return services;
     }
@@ -195,62 +225,137 @@ public class ProviderServiceReader {
      * Process the aliases array from a putService statement.
      * Assume that there is only ever one .add, .replace or .delete property.
      * per Type and Algorithm.
-     * 
-     * @param statement the putService statement
+     *
+     * @param parts the service key parts (Service, Type, Algorithm)
+     * @param defaultPr the default properties (can be null)
+     * @param configPr the config file properties (can be null)
+     * @param configAliases the set of alias keys from config file (can be null)
      * @return a list of alias strings
      */
-    private List<String> processAliases(String[] parts, Properties pr) {
+    private List<String> processAliases(String[] parts, Properties defaultPr, Properties configPr, Set<String> configAliases) {
         List<String> Aliases = new ArrayList<>();
         String keyBase = parts[1] + "." + parts[2] + ".alias";
 
-        String value = pr.getProperty(keyBase + ".add");
-        if (value != null) {
-            String[] aliases = value.split("\\s*,\\s*");
-            for (String alias : aliases) {
-                Aliases.add(alias);
+        //There is only ever one .add, .replace or .delete per Type and Algorithm.
+        //The defaults if applicable need to be added in first and then the
+        //properties from the config are applied.
+        //.add will add those alaises to the list with the default ones(if applicable)
+        //.delete will remove the aliasses from the current list of aliases
+        //.replace will remove the current list of aliases and then add the new ones.
+
+        //add the default aliases if applicable.
+        if (defaultPr != null) {
+            String value = defaultPr.getProperty(keyBase + ".add");
+            if (value != null) {
+                String[] aliases = value.split("\\s*,\\s*");
+                for (String alias : aliases) {
+                    Aliases.add(alias);
+                }
             }
         }
 
-        value = pr.getProperty(keyBase + ".delete");
-        if (value != null) {
-            String[] aliases = value.split("\\s*,\\s*");
-            for (String alias : aliases) {
-                Aliases.remove(alias);
+        //Process the aliases from the config file.
+        if (configPr != null) {
+            String value = configPr.getProperty(keyBase + ".add");
+            if (value != null) {
+                String[] aliases = value.split("\\s*,\\s*");
+                for (String alias : aliases) {
+                    Aliases.add(alias);
+                }
             }
-        }    
-    
-        value = pr.getProperty(keyBase + ".replace");
-        if (value != null) {
-            String[] aliases = value.split("\\s*,\\s*");
-            Aliases.clear();
-            for (String alias : aliases) {
-                Aliases.add(alias);
+
+            value = configPr.getProperty(keyBase + ".delete");
+            if (value != null) {
+                String[] aliases = value.split("\\s*,\\s*");
+                for (String alias : aliases) {
+                    Aliases.remove(alias);
+                }
             }
-        }   
+        
+            value = configPr.getProperty(keyBase + ".replace");
+            if (value != null) {
+                String[] aliases = value.split("\\s*,\\s*");
+                Aliases.clear();
+                for (String alias : aliases) {
+                    Aliases.add(alias);
+                }
+            }
+        }
 
         return Aliases;
     }
     
     /**
      * Parses attributes from a putService statement.
-     * 
-     * @param statement the putService statement
+     *
+     * @param parts the service key parts (Service, Type, Algorithm)
+     * @param configAttrs the set of attribute keys from config file
+     * @param defaultPr the default properties (can be null)
+     * @param configPr the config file properties (can be null)
      * @return a map of attribute key-value pairs
      */
-    private Map<String, String> processAttributes(String[] parts, Set<String> attrs, Properties pr) {
+    private Map<String, String> processAttributes(String[] parts, Set<String> configAttrs, Properties defaultPr, Properties configPr) {
         Map<String, String> attributes = new HashMap<>();
         String search = parts[1] + "." + parts[2] + ".attr";
 
-        for (String attribute : attrs) {
-            if (attribute.startsWith(search)) {
-                String[] pieces = attribute.split("\\.");
-                if (pieces[3].equalsIgnoreCase("add")) {
-                    attributes.put(pieces[4], pr.getProperty(attribute));
-                } else if (pieces[3].equalsIgnoreCase("delete")) {
-                    attributes.remove(attribute);
-                }
-            } 
+        //Only .add, and .delete are supported for Attributes
+        //The defaults if applicable need to be added those in first and then the
+        //properties from the config are applied.
+        //.add will add the Attributes to the list with the default ones(if applicable)
+        //.delete will remove the Attribute from the current list of Attributes
 
+        //add the default Attributes if applicable.
+        if (defaultPr != null) {
+            //Create the list of default Attributes
+            if (setDefAttributes == null) {
+                setDefAttributes = new HashSet<>();
+
+                Set<String> keys = defaultPr.stringPropertyNames();
+
+                //Split keys in groups: Aliases, Attributes and Services
+                for (String key : keys) {
+                    String[] defParts = key.split("\\.");
+
+                    if (defParts.length == 5 && defParts[2].equalsIgnoreCase("attr")) {
+                        setDefAttributes.add(key);
+                    }
+                }
+            }
+
+            // Add Default Attributes
+            if (setDefAttributes != null && setDefAttributes.size() > 0) {
+                for (String attribute : setDefAttributes) {
+                    if (attribute.startsWith(search)) {
+                        String[] pieces = attribute.split("\\.");
+                        if (pieces[3].equalsIgnoreCase("add")) {
+                            attributes.put(pieces[4], defaultPr.getProperty(attribute));
+                        }
+                    }
+                }
+            }
+        }
+
+        //Add or remove Attributes based on config file.
+        //Process adds first, then deletes to ensure correct order
+        if (configPr != null && configAttrs != null) {
+            // First pass: process all "add" operations
+            for (String attribute : configAttrs) {
+                if (attribute.startsWith(search)) {
+                    String[] pieces = attribute.split("\\.");
+                    if (pieces[3].equalsIgnoreCase("add")) {
+                        attributes.put(pieces[4], configPr.getProperty(attribute));
+                    }
+                }
+            }
+            // Second pass: process all "delete" operations
+            for (String attribute : configAttrs) {
+                if (attribute.startsWith(search)) {
+                    String[] pieces = attribute.split("\\.");
+                    if (pieces[3].equalsIgnoreCase("delete")) {
+                        attributes.remove(pieces[4]);
+                    }
+                }
+            }
         }
         return attributes;
     }

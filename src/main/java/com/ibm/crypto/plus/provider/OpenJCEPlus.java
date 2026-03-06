@@ -10,6 +10,7 @@ package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.ock.OCKContext;
 import com.ibm.crypto.plus.provider.ock.OCKException;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.security.AccessController;
 import java.security.InvalidParameterException;
@@ -130,6 +131,21 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         }
     }
 
+    public Provider configure(BufferedReader br) throws InvalidParameterException {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<>() {
+                @Override
+                public OpenJCEPlus run() throws Exception {
+                    return new OpenJCEPlus(new ProviderServiceReader(br));
+                }
+            });
+        } catch (PrivilegedActionException pae) {
+            InvalidParameterException ipe =
+                new InvalidParameterException("Error configuring OpenJCEPlus provider");
+            throw (InvalidParameterException) ipe.initCause(pae.getException());
+        }
+    }
+
     public OpenJCEPlus(ProviderServiceReader config) {
         super("OpenJCEPlus-"+config.getName(), config.getDesc());
 
@@ -150,7 +166,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         try {
             List<ProviderServiceReader.ServiceDefinition> services = config.readServices();
             for (ProviderServiceReader.ServiceDefinition service : services) {
-                System.out.println("service = "+service.toString());
                 putService(new OpenJCEPlusService(jce, service.getType(), service.getAlgorithm(),
                     service.getClassName(), service.getAliases().toArray(new String[service.getAliases().size()]), service.getAttributes()));
             }

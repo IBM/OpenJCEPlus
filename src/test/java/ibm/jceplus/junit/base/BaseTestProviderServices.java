@@ -10,9 +10,12 @@ package ibm.jceplus.junit.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlus;
 import com.ibm.crypto.plus.provider.ProviderServiceReader;
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BaseTestProviderServices extends BaseTestJunit5 {
     
     @Test
-    public void testServices() throws Exception {
+    public void testDefaultsServices() throws Exception {
         try {
             System.out.println("Testing services for provider: ");
-            ProviderServiceReader reader = new ProviderServiceReader("./src/test/ProviderAttrs.config");
+            ProviderServiceReader reader = new ProviderServiceReader("./src/test/ProviderDefAttrs.config");
             reader.readServices();
             List<ProviderServiceReader.ServiceDefinition> services = reader.readServices();
             
@@ -67,9 +70,134 @@ public class BaseTestProviderServices extends BaseTestJunit5 {
     }
     
     @Test
-    public void testCompareProviders() throws Exception {
-        String config = "./src/test/ProviderAttrs.config";
+    public void testDefServicesAddAlias() throws Exception {
+        
+        String config = "name = test\n"
+            + "description =  OpenJCEPlus-test Provider\n"
+            + "default = true\n"
+            + "AlgorithmParameters.CCM.alias.add = TEST, JOHN";
+
         Provider provider1 = new OpenJCEPlus();
+        BufferedReader br = new BufferedReader(new StringReader(config));
+        Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
+        Security.addProvider(provider2);
+             
+        List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
+        List<String> expected = Arrays.asList("AESCCM", "TEST", "JOHN");
+        assertEquals(expected, Alaises);
+
+        for (String alias : Alaises) {
+            System.out.println(alias);
+        }
+    }
+
+    @Test
+    public void testDefServicesDelAlias() throws Exception {
+        
+        String config = "name = test\n"
+            + "description =  OpenJCEPlus-test Provider\n"
+            + "default = true\n"
+            + "AlgorithmParameters.CCM.alias.add = TEST, JOHN\n"
+            + "AlgorithmParameters.CCM.alias.delete = TEST";
+
+        Provider provider1 = new OpenJCEPlus();
+        BufferedReader br = new BufferedReader(new StringReader(config));
+        Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
+        Security.addProvider(provider2);
+             
+        List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
+        List<String> expected = Arrays.asList("AESCCM", "JOHN");
+        assertEquals(expected, Alaises);
+
+        for (String alias : Alaises) {
+            System.out.println(alias);
+        }
+    }
+
+    @Test
+    public void testDefServicesReplaceAlias() throws Exception {
+        
+        String config = "name = test\n"
+            + "description =  OpenJCEPlus-test Provider\n"
+            + "default = true\n"
+            + "AlgorithmParameters.CCM.alias.replace = TEST, JOHN";
+
+        Provider provider1 = new OpenJCEPlus();
+        BufferedReader br = new BufferedReader(new StringReader(config));
+        Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
+        Security.addProvider(provider2);
+             
+        List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
+        List<String> expected = Arrays.asList("TEST", "JOHN");
+        assertEquals(expected, Alaises);
+
+        for (String alias : Alaises) {
+            System.out.println(alias);
+        }
+    }
+
+    @Test
+    public void testDefServicesAddAttribute() throws Exception {
+        
+        String config = "name = test\n"
+            + "description =  OpenJCEPlus-test Provider\n"
+            + "default = true\n"
+            + "AlgorithmParameters.CCM.attr.add.TestAttr1 = TestValue1\n"
+            + "AlgorithmParameters.CCM.attr.add.TestAttr2 = TestValue2";
+
+        Provider provider1 = new OpenJCEPlus();
+        BufferedReader br = new BufferedReader(new StringReader(config));
+        Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
+        Security.addProvider(provider2);
+             
+        // Get the service
+        Provider.Service service = provider2.getService("AlgorithmParameters", "CCM");
+        
+        // Verify the added attributes exist
+        String attr1 = service.getAttribute("TestAttr1");
+        String attr2 = service.getAttribute("TestAttr2");
+        
+        assertEquals("TestValue1", attr1, "TestAttr1 should have value TestValue1");
+        assertEquals("TestValue2", attr2, "TestAttr2 should have value TestValue2");
+
+        System.out.println("TestAttr1: " + attr1);
+        System.out.println("TestAttr2: " + attr2);
+    }
+
+    @Test
+    public void testDefServicesDelAttribute() throws Exception {
+        
+        String config = "name = test\n"
+            + "description =  OpenJCEPlus-test Provider\n"
+            + "default = true\n"
+            + "AlgorithmParameters.CCM.attr.add.TestAttr1 = TestValue1\n"
+            + "AlgorithmParameters.CCM.attr.add.TestAttr2 = TestValue2\n"
+            + "AlgorithmParameters.CCM.attr.delete.TestAttr1 = ";
+
+        Provider provider1 = new OpenJCEPlus();
+        BufferedReader br = new BufferedReader(new StringReader(config));
+        Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
+        Security.addProvider(provider2);
+             
+        // Get the service
+        Provider.Service service = provider2.getService("AlgorithmParameters", "CCM");
+        
+        // Verify TestAttr1 was deleted and TestAttr2 still exists
+        String attr1 = service.getAttribute("TestAttr1");
+        String attr2 = service.getAttribute("TestAttr2");
+        
+        assertEquals(null, attr1, "TestAttr1 should be deleted (null)");
+        assertEquals("TestValue2", attr2, "TestAttr2 should still have value TestValue2");
+
+        System.out.println("TestAttr1 (should be null): " + attr1);
+        System.out.println("TestAttr2: " + attr2);
+    }
+
+    @Test
+    public void testCompareProviders() throws Exception {
+        String config = "./src/test/ProviderDefAttrs.config";
+        Provider provider1 = new OpenJCEPlus();
+        BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = provider1.configure(config);
         Security.addProvider(provider2);
 
@@ -125,11 +253,11 @@ public class BaseTestProviderServices extends BaseTestJunit5 {
         // Iterate through all provider properties
         for (String key : provider.stringPropertyNames()) {
             // Check for alias properties specific to the type and algorithm
-            if (key.startsWith("Alg. Alias." + type + ".")) {
+            if (key.startsWith("Alg.Alias." + type + ".")) {               
                 String aliasAlgorithm = provider.getProperty(key);
                 if (algorithm.equals(aliasAlgorithm)) {
                     // Extract the alias name from the key
-                    String aliasName = key.substring(("Alg. Alias." + type + ".").length());
+                    String aliasName = key.substring(("Alg.Alias." + type + ".").length());
                     aliases.add(aliasName);
                 }
             }
