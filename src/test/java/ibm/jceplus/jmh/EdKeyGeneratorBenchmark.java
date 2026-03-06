@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -40,7 +40,7 @@ public class EdKeyGeneratorBenchmark extends JMHBase {
 
     @Setup
     public void setup() throws Exception {
-        insertProvider(provider);
+        super.setup(provider);
 
         ed25519KeyPairGenerator = KeyPairGenerator.getInstance("Ed25519", provider);
         ed448KeyPairGenerator = KeyPairGenerator.getInstance("Ed448", provider);

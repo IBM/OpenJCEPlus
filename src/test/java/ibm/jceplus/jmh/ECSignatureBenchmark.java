@@ -79,7 +79,7 @@ public class ECSignatureBenchmark extends JMHBase {
 
     @Setup
     public void setup() throws Exception {
-        insertProvider(provider);
+        super.setup(provider);
 
         ecKeyPairGenerator = KeyPairGenerator.getInstance("EC", provider);
         ecKeyPairGenerator.initialize(keySize);

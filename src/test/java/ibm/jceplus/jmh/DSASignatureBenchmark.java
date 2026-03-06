@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -59,7 +59,7 @@ public class DSASignatureBenchmark extends JMHBase {
 
     @Setup
     public void setup() throws Exception {
-        insertProvider(provider);
+        super.setup(provider);
 
         dsaKeyPairGenerator = KeyPairGenerator.getInstance("DSA", provider);
         dsaKeyPairGenerator.initialize(keySize);

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -44,7 +44,7 @@ public class RandomBenchmark extends JMHBase {
 
     @Setup
     public void setup() throws Exception {
-        insertProvider("OpenJCEPlus");
+        super.setup("OpenJCEPlus");
         randomOpenJCEPlusSHA256DRBG = SecureRandom.getInstance("SHA256DRBG", "OpenJCEPlus");
         randomOpenJCEPlusSHA512DRBG = SecureRandom.getInstance("SHA512DRBG", "OpenJCEPlus");
         randomSUNSHA1PRNG = SecureRandom.getInstance("SHA1PRNG", "SUN");
