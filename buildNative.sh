@@ -8,23 +8,24 @@
 # under the terms provided by IBM in the LICENSE file that accompanied
 # this code, including the "Classpath" Exception described therein.
 ###############################################################################
+set -o xtrace
 
 PLATFORMS=(arm-linux64 ppc-aix64 ppcle-linux64 s390-linux64 s390-zos64 x86-linux64)
 
-if [ -z "$JAVA_HOME" ]; 
-  then 
+if [ -z "$JAVA_HOME" ];
+  then
   echo "Error: JAVA_HOME is not defined or is empty";
   exit;
-fi 
+fi
 
-if [ -z "$GSKIT_HOME" ]; 
-  then 
+if [ -z "$GSKIT_HOME" ];
+  then
   echo "Error: GSKIT_HOME is not defined or is empty";
   exit;
 fi
 
-if [ -z "$PLATFORM" ]; 
-  then 
+if [ -z "$PLATFORM" ];
+  then
   echo "Error: PLATFORM is not defined or is empty";
   echo "PLATFORM should be one the following:"
   echo ${PLATFORMS[*]}
