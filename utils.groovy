@@ -245,7 +245,8 @@ def runOpenJCEPlus(command, software) {
 
         def additional_cmd_args = ADDITIONAL_CMD_ARGS
 
-        def ock_path = "$WORKSPACE/openjceplus/OCK/"
+        // def ock_path = "$WORKSPACE/openjceplus/OCK/"
+        def ock_path = "$WORKSPACE/java/jdk/lib/"
         if (software == "windows") {
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
             bat """
