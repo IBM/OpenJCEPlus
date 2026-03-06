@@ -62,7 +62,7 @@ public class PBEBenchmark extends JMHBase {
 
     @Setup
     public void setup() throws Exception {
-        insertProvider(provider);
+        super.setup(provider);
         random.nextBytes(salt);
 
         pbeEncrypt = Cipher.getInstance(algorithm, provider);

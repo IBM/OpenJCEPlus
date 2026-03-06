@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -52,7 +52,7 @@ public class HmacBenchmark extends JMHBase {
 
     @Setup(Level.Trial)
     public void setup() throws Exception {
-        insertProvider(provider);
+        super.setup(provider);
 
         KeyGenerator kg = KeyGenerator.getInstance("AES");
         kg.init(256);

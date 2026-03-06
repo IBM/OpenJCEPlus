@@ -38,7 +38,7 @@ abstract public class SymmetricCipherBase extends JMHBase {
      */
     public void setup(int keySize, String transformation, int payloadSize, String provider)
             throws Exception {
-        insertProvider(provider);
+        super.setup(provider);
         String splitTransformation[] = transformation.split("/");
 
         String algorithm = splitTransformation[0];
