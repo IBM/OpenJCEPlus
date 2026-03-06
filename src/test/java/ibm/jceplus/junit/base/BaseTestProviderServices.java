@@ -197,7 +197,6 @@ public class BaseTestProviderServices extends BaseTestJunit5 {
     public void testCompareProviders() throws Exception {
         String config = "./src/test/ProviderDefAttrs.config";
         Provider provider1 = new OpenJCEPlus();
-        BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = provider1.configure(config);
         Security.addProvider(provider2);
 
