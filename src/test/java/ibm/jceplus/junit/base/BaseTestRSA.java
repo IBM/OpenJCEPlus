@@ -48,6 +48,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -590,6 +591,29 @@ public class BaseTestRSA extends BaseTestCipher {
 
             fail("Did not get IllegalBlockSizeException");
         } catch (IllegalBlockSizeException e) {
+        }
+    }
+
+    @Test
+    public void testRSACipherNoPaddingExceedInput() throws Exception {
+        // FIPS does not support non-OAEP paddings.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        try {
+            rsaKeyPairGen.initialize(2048);
+            KeyPair rsaKeyPair = rsaKeyPairGen.generateKeyPair();
+            RSAPublicKey pubKey = (RSAPublicKey) rsaKeyPair.getPublic();
+            Cipher cp = Cipher.getInstance("RSA/ECB/NoPadding", getProviderName());
+            cp.init(Cipher.ENCRYPT_MODE, pubKey);
+
+            BigInteger modulus = ((RSAKey) pubKey).getModulus();
+            byte[] modulusPlusOne = modulus.add(BigInteger.ONE).toByteArray();
+            byte[] plaintext = Arrays.copyOfRange(modulusPlusOne, 1, modulusPlusOne.length); // BigInteger has an extra byte for sign.
+
+            cp.doFinal(plaintext);
+
+            fail("Did not get expected BadPaddingException.");
+        } catch (BadPaddingException bpe) {
+            assertEquals("Message is larger than modulus", bpe.getMessage(), "Exception message is not what's expected.");
         }
     }
 
