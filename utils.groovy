@@ -245,8 +245,10 @@ def runOpenJCEPlus(command, software) {
 
         def additional_cmd_args = ADDITIONAL_CMD_ARGS
 
-        // def ock_path = "$WORKSPACE/openjceplus/OCK/"
-        def ock_path = "$WORKSPACE/java/jdk/lib/"
+        sh "rm -rf $WORKSPACE/java/jdk/lib/N"
+
+        def ock_path = "$WORKSPACE/openjceplus/OCK/"
+        // def ock_path = "$WORKSPACE/java/jdk/lib/"
         if (software == "windows") {
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
             bat """
@@ -266,7 +268,7 @@ def runOpenJCEPlus(command, software) {
         } else if (software == "aix") {
             environment = "export PATH=/opt/IBM/openxlC/17.1.3/bin:/opt/IBM/openxlC/17.1.3/tools:/opt/IBM/openxlC/17.1.3/compat/llvm:${mavenPath}:\$PATH;"
         } else if (software == "zos") {
-            additional_cmd_args += " -Dgroups=OpenJCEPlus"
+            additional_cmd_args += " -Dgroups=OpenJCEPlus -DforkCount=0"
         }
 
         if (software != "windows") {

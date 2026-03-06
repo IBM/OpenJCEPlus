@@ -232,7 +232,7 @@
                     </dependency>
                   </dependencies>
                   <configuration>
-                    <forkCount>0</forkCount>
+                    <!-- <forkCount>0</forkCount> -->
                     <useModulePath>false</useModulePath>
                     <!-- Could add -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:8787 for debug -->
                     <!-- Could add -Djava.security.auth.debug=all for debug -->
