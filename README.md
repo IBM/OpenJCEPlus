@@ -138,9 +138,11 @@ You can test your installation by issuing `mvn --version`. For example:
 
 ## Test Execution
 
+### Run functional tests
+
 Tests are available within the `OpenJCEPlus` repository. These JUnit tests can be run in various ways including running individual tests, specific test classes, or test suites.
 
-### Run all tests
+#### Run all tests
 
 On AIX:
 
@@ -168,7 +170,7 @@ mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test
 
 **NOTE**: When using a JDK that doesn't have `OpenJCEPlus` bundled with it, you might notice a few warnings like `WARNING: Unknown module: openjceplus specified to --add-exports`. There is no need to worry as they do not affect execution of tests or the build itself.
 
-### Run single test
+#### Run single test
 
 On AIX you must set an additional setting for the `LIBPATH` environment variable:
 
@@ -185,7 +187,7 @@ export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
 mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test -Dtest=TestClassName
 ```
 
-### Using the `-Dgroups` Property
+#### Using the `-Dgroups` Property
 
 The `-Dgroups` property allows you to filter and run tests based on JUnit tags. This is useful when you want to run tests for a specific set of tags without specifying individual test classes. This value is a comma deliminated list of tags.
 
@@ -208,6 +210,19 @@ To run all performance tests:
 ```console
 mvn -Dock.library.path=$PROJECT_HOME/OCK/jgsk_crypto clean install -DskipTests -Djmh.benchmark.skip=false
 ```
+
+#### Using the `-Djmh.threads` Property
+The `-Djmh.threads=X` property, where `X` is a positive integer, can be used to specify the number of threads utilized to run the JMH benchmarks (e.g., `-Djmh.threads=16`).
+
+#### Using the `-Djmh.allowedProviders` Property
+The `-Djmh.allowedProviders=<providers>` property, where `<providers>` is a list of comma-separated provider names, can be used to specify the subset of providers that you want run the benchmarks with. If the property is omitted, all benchmarks are executed with all available providers.
+
+**Available providers to benchmark:**
+- `OpenJCEPlus` - Benchmarks are executed using the OpenJCEPlus provider (all benchmarks supported)
+- `SunEC` - Benchmarks are executed using the SunEC provider (specific benchmarks supported based on algorithms)
+- `SunJCE` - Benchmarks are executed using the SunJCE provider (specific benchmarks supported based on algorithms)
+- `SunRsaSign` - Benchmarks are executed using the SunRsaSign provider (specific benchmarks supported based on algorithms)
+- `SUN` - Benchmarks are executed using the SUN provider (specific benchmarks supported based on algorithms)
 
 ## OpenJCEPlus and OpenJCEPlusFIPS Provider SDK Installation
 

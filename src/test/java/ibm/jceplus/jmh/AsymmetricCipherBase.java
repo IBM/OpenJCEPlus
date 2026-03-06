@@ -30,7 +30,7 @@ abstract public class AsymmetricCipherBase extends JMHBase {
      */
     public void setup(int keySize, String algorithm, String provider)
             throws Exception {
-        insertProvider(provider);
+        super.setup(provider);
 
         KeyPairGenerator kpg = null;
         if (algorithm.contains("RSA")) {
