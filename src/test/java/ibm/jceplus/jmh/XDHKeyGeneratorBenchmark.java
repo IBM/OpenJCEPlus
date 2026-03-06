@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -40,7 +40,7 @@ public class XDHKeyGeneratorBenchmark extends JMHBase {
 
     @Setup
     public void setup() throws Exception {
-        insertProvider(provider);
+        super.setup(provider);
 
         x25519KeyPairGenerator = KeyPairGenerator.getInstance("X25519", provider);
         x448KeyPairGenerator = KeyPairGenerator.getInstance("X448", provider);
