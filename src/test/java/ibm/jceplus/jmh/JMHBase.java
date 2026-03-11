@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -12,14 +12,19 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.Provider;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.openjdk.jmh.profile.ClassloaderProfiler;
 import org.openjdk.jmh.profile.CompilerProfiler;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.profile.StackProfiler;
+import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 abstract public class JMHBase {
+    private List<String> allowedProviders = null;
 
     static Options optionsBuild(String regexClassName, String logFileRoot) {
         // This is necessary to pass various classpath values to the forked JVM we are about to create.
@@ -36,6 +41,7 @@ abstract public class JMHBase {
         String jgskitLibraryPath = System.getProperty("jgskit.library.path");
         String osName = System.getProperty("os.name").toLowerCase();
         String threadsProperty = System.getProperty("jmh.threads", "1");
+        String allowedProv = System.getProperty("jmh.allowedProviders");
         int threads;
         try {
             threads = Integer.parseInt(threadsProperty);
@@ -50,6 +56,7 @@ abstract public class JMHBase {
         System.out.println("Regex of classes to run: " + regexClassName);
         System.out.println("OS Name: " + osName);
         System.out.println("Thread count: " + threads);
+        System.out.println("Allowed providers: " + allowedProv);
 
         String logFileWithThreads = logFileRoot + "-" + threads + "t";
 
@@ -69,6 +76,9 @@ abstract public class JMHBase {
                 "--add-exports=java.base/sun.security.x509=ALL-UNNAMED",
                 "-Dock.library.path=" + ockLibraryPath,
                 "-Djgskit.library.path=" + jgskitLibraryPath);
+        if (allowedProv != null) {
+            optionsBuilder.jvmArgsAppend("-Djmh.allowedProviders=" + allowedProv);
+        }
         optionsBuilder.forks(1);
         optionsBuilder.output(projectHomeDir + "/target/jmh-results/" + logFileWithThreads + ".txt");
 
@@ -86,6 +96,28 @@ abstract public class JMHBase {
         //Add these conditionally based on os and arch:
         //.addProfiler(DTraceAsmProfiler.class)
         return optionsBuilder.build();
+    }
+
+    private List<String> getAllowedProviders() {
+        String providers = System.getProperty("jmh.allowedProviders");
+        if (providers != null) {
+            return new ArrayList<>(Arrays.asList(providers.split(",")));
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    protected void setup(String provider) throws Exception {
+        if (allowedProviders == null) {
+            allowedProviders = getAllowedProviders();
+        }
+
+        if ((!allowedProviders.isEmpty()) && !allowedProviders.contains(provider)) {
+            System.out.println("Skipping provider: " + provider);
+            throw new RunnerException("Skipping provider: " + provider);
+        }
+
+        insertProvider(provider);
     }
 
     protected void insertProvider(String provider) throws Exception {
