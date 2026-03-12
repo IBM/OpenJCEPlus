@@ -63,6 +63,8 @@ def getOCKTarget(hardware, software) {
 def getBinaries(hardware, software) {
 
     def target = getOCKTarget(hardware, software)
+    def gskit_bin = ""
+    def gskit_sdk_bin = ""
     if ((software == "linux") && (hardware == "s390x")) {
         def gskit_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/general_mailbox/260219_Candidate_8.9.21_8.8.2/$target/jgsk_crypto.tar"
         def gskit_sdk_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/general_mailbox/260219_Candidate_8.9.21_8.8.2/$target/jgsk_crypto_sdk.tar"
