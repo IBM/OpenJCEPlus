@@ -66,8 +66,8 @@ def getBinaries(hardware, software) {
     def gskit_bin = ""
     def gskit_sdk_bin = ""
     if ((software == "linux") && (hardware == "s390x")) {
-        gskit_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/general_mailbox/260219_Candidate_8.9.21_8.8.2/$target/jgsk_crypto.tar"
-        gskit_sdk_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/general_mailbox/260219_Candidate_8.9.21_8.8.2/$target/jgsk_crypto_sdk.tar"
+        gskit_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/general_mailbox/260219_Candidate_8.9.21_8.8.2/linux64-s390/jgsk_crypto.tar"
+        gskit_sdk_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/general_mailbox/260219_Candidate_8.9.21_8.8.2/linux64-s390/jgsk_crypto_sdk.tar"
     } else {
         if (OCK_RELEASE == "") {
             OCK_RELEASE = "20251128_8.9.18"
