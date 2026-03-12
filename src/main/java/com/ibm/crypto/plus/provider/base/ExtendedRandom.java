@@ -16,6 +16,20 @@ public final class ExtendedRandom {
     OCKContext ockContext;
     final long ockPRNGContextId;
 
+    // Defaults (in KB)
+    private static final int DEFAULT_RANDOM_BYTE_CACHE_SIZE_KB = 128;
+    private static final int DEFAULT_BYPASS_THRESHOLD_KB = 16;
+
+    private static final int RANDOM_BYTE_CACHE_SIZE = Integer.getInteger("openjceplus.random.cache.size",
+            DEFAULT_RANDOM_BYTE_CACHE_SIZE_KB) * 1024;
+
+    private static final int BYPASS_THRESHOLD = Integer.getInteger("openjceplus.random.bypass.threshold",
+            DEFAULT_BYPASS_THRESHOLD_KB) * 1024;
+
+    private byte[] randomByteCache;
+    private int cachePos; // Next unread index in cache
+    private int randomByteCacheLength;
+
     public static ExtendedRandom getInstance(OCKContext ockContext, String algName, OpenJCEPlusProvider provider)
             throws OCKException {
         if (ockContext == null) {
@@ -45,9 +59,39 @@ public final class ExtendedRandom {
         if (bytes == null) {
             throw new IllegalArgumentException("bytes is null");
         }
+        int len = bytes.length;
+        if (len == 0) {
+            return;
+        }
 
-        if (bytes.length > 0) {
+        // 1) LARGE REQUEST BYPASS:
+        // Fill destination directly to avoid cache->dest copy cost.
+        if (len >= BYPASS_THRESHOLD) {
             NativeInterface.EXTRAND_nextBytes(ockContext.getId(), ockPRNGContextId, bytes);
+            return;
+        }
+
+        // 2) SMALL/MEDIUM REQUEST:
+        // Serve from cache, refilling as needed.
+        int outPos = 0;
+        int needed = len;
+
+        while (needed > 0) {
+            int available = randomByteCacheLength - cachePos;
+
+            // If cache is empty (or not initialized), refill it.
+            if (available <= 0) {
+                refillMegaByteCache();
+                available = randomByteCacheLength - cachePos;
+            }
+
+            // Copy as much as we can from cache into output.
+            int toCopy = Math.min(available, needed);
+            System.arraycopy(randomByteCache, cachePos, bytes, outPos, toCopy);
+
+            cachePos += toCopy;
+            outPos += toCopy;
+            needed -= toCopy;
         }
     }
 
@@ -74,5 +118,17 @@ public final class ExtendedRandom {
                 }
             }
         };
+    }
+
+    private void refillMegaByteCache() throws OCKException {
+        if (randomByteCache == null) {
+            randomByteCache = new byte[RANDOM_BYTE_CACHE_SIZE];
+        }
+
+        // Fill the entire cache from native.
+        NativeInterface.EXTRAND_nextBytes(ockContext.getId(), ockPRNGContextId, randomByteCache);
+
+        cachePos = 0;
+        randomByteCacheLength = randomByteCache.length;
     }
 }
