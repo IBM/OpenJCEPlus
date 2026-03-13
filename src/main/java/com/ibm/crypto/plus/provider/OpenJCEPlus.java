@@ -19,6 +19,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.Provider;
 import java.security.ProviderException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
