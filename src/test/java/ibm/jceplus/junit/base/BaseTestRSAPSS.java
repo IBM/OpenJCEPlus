@@ -180,30 +180,34 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
     }
 
     /**
-     * Change the keysize in steps of 32 or 512 to speed up the test case
-     * Generate a key once and use it for multiple tests - The OpenJCEPlusFIPS does not allow keysize < 2048
+     * Test RSA-PSS signatures with multiple key sizes.
+     * For OpenJCEPlus, test keys from 1024 to 4096 inclusively in increments of 512 bits.
+     * For OpenJCEPlusFIPS, test keys from 2048 to 4096 inclusively in increments of 1024 bits. OpenJCEPlusFIPS
+     *   only supports specific key sizes (2048, 3072, 4096) and nothing else.
+     * Generate a key once and use it for multiple tests.
      * @throws Exception
      */
     @Test
     public void testRSASignatureWithPSSBigMsgMultiKeySize() throws Exception {
         try {
             int startSize = 1024;
+            int increment = 512;
 
             if (getProviderName().equals("OpenJCEPlusFIPS")) {
                 startSize = 2048;
+                increment = 1024; // FIPS supports 2048, 3072, 4096, etc. (multiples of 1024)
             }
-            for (int i = startSize; i < 4096;) {
-                if (printJunitTrace)
-                    System.out.println("keySize=" + i);
+            for (int i = startSize; i <= 4096;i = i + increment) {
+                if (printJunitTrace) {
+                    System.out.println("Running test with keysize: " + i + ", provider: " + getProviderName());
+                }
                 KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
                 keyGen.initialize(i, new java.security.SecureRandom());
                 KeyPair keyPair = keyGen.genKeyPair();
                 dotestSignature(content3, IBM_ALG, keyPair, null);
                 dotestSignature(oneByte, IBM_ALG, keyPair, null);
                 dotestSignature(content, IBM_ALG, keyPair, null);
-                i = i + 512;
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             assertTrue(false);
