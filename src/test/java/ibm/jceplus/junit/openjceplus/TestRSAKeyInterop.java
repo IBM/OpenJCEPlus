@@ -21,6 +21,7 @@ public class TestRSAKeyInterop extends BaseTestRSAKeyInterop {
         Utils.loadProviderTestSuite();
         setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
         setInteropProviderName(Utils.PROVIDER_SunRsaSign);
-        setKeySize(1024);
+        setInteropProviderName2(Utils.PROVIDER_SunJCE);
+        setKeySize(2048);
     }
 }
