@@ -150,7 +150,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
     }
 
     public OpenJCEPlus(ProviderServiceReader config) {
-        super("OpenJCEPlus-"+config.getName(), config.getDesc());
+        super("OpenJCEPlus-" + config.getName(), config.getDesc());
 
         if (debug != null) {
             debug.println("New OpenJCEPlus instance");

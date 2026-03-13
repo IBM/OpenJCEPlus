@@ -34,8 +34,8 @@ public class BaseTestProviderServices extends BaseTestJunit5 {
             reader.readServices();
             List<ProviderServiceReader.ServiceDefinition> services = reader.readServices();
             
-            System.out.println("Found " + services.size() + " service definitions: for  "+reader.getName());
-            System.out.println("Description: "+reader.getDesc());
+            System.out.println("Found " + services.size() + " service definitions: for  " + reader.getName());
+            System.out.println("Description: " + reader.getDesc());
             System.out.println();
             
             // Group by type
@@ -55,8 +55,8 @@ public class BaseTestProviderServices extends BaseTestJunit5 {
                         Map<String, String> attributes = service.getAttributes();
                         System.out.println("    Attributes: ");
                         for (Map.Entry<String, String> en : attributes.entrySet()) {
-                            System.out.println("               key - "+en.getKey());
-                            System.out.println("               value - "+en.getValue());                             
+                            System.out.println("               key - " + en.getKey());
+                            System.out.println("               value - " + en.getValue());                             
                         }
                     }
                 }

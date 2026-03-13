@@ -14,7 +14,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
-public class TestProviderAttributes extends BaseTestProviderServices{
+public class TestProviderAttributes extends BaseTestProviderServices {
 
     @BeforeAll
     public void beforeAll() {
