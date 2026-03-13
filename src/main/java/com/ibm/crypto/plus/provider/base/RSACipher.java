@@ -84,8 +84,8 @@ public final class RSACipher {
             throw new OCKException(badIdMsg);
         }
         return checkOutLen(NativeInterface.RSACIPHER_public_encrypt(this.ockContext.getId(),
-                this.rsaKey.getRSAKeyId(), padding.getId(), input, inOffset, inLen, output,
-                outOffset));
+                this.rsaKey.getRSAKeyId(), padding.getId(), padding.getMessageDigest(),
+                padding.getMGF1Digest(), input, inOffset, inLen, output, outOffset));
     }
 
     public synchronized int privateEncrypt(RSAPadding padding, byte[] input, int inOffset,
@@ -140,8 +140,8 @@ public final class RSACipher {
             throw new OCKException(badIdMsg);
         }
         return checkOutLen(NativeInterface.RSACIPHER_private_decrypt(this.ockContext.getId(),
-                this.rsaKey.getRSAKeyId(), padding.getId(), input, inOffset, inLen, output,
-                outOffset, convertKey));
+                this.rsaKey.getRSAKeyId(), padding.getId(), padding.getMessageDigest(),
+                padding.getMGF1Digest(), input, inOffset, inLen, output, outOffset, convertKey));
     }
 
     private void checkInputRange(byte[] input, int offset, int length) {
