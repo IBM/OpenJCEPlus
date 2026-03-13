@@ -181,8 +181,8 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
 
     /**
      * Test RSA-PSS signatures with multiple key sizes.
-     * For OpenJCEPlus, test keys from 1024 to 4096 inclusivly in increments of 512 bits.
-     * For OpenJCEPlusFIPS, test keys from 2048 to 4096 inclusivly in increments of 1024 bits. OpenJCEPlusFIPS
+     * For OpenJCEPlus, test keys from 1024 to 4096 inclusively in increments of 512 bits.
+     * For OpenJCEPlusFIPS, test keys from 2048 to 4096 inclusively in increments of 1024 bits. OpenJCEPlusFIPS
      *   only supports specific key sizes (2048, 3072, 4096) and nothing else.
      * Generate a key once and use it for multiple tests.
      * @throws Exception
@@ -197,19 +197,17 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
                 startSize = 2048;
                 increment = 1024; // FIPS supports 2048, 3072, 4096, etc. (multiples of 1024)
             }
-            for (int i = startSize; i <= 4096;) {
-                if (printJunitTrace)
-                    System.out.println("keySize=" + i);
+            for (int i = startSize; i <= 4096;i = i + increment) {
+                if (printJunitTrace) {
+                    System.out.println("Running test with keysize: " + i + ", provider: " + getProviderName());
+                }
                 KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
-                System.out.println("Running test with keysize: " + i + ", provider: " + getProviderName());
                 keyGen.initialize(i, new java.security.SecureRandom());
                 KeyPair keyPair = keyGen.genKeyPair();
                 dotestSignature(content3, IBM_ALG, keyPair, null);
                 dotestSignature(oneByte, IBM_ALG, keyPair, null);
                 dotestSignature(content, IBM_ALG, keyPair, null);
-                i = i + increment;
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             assertTrue(false);
