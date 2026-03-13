@@ -367,7 +367,7 @@ final class NativeInterface {
 
     static public native void CIPHER_delete(long ockContextId, long ockCipherId)
             throws OCKException;
-            
+
     static public native byte[] CIPHER_KeyWraporUnwrap(long ockContextId, byte[] key, byte[] KEK, int type)
             throws OCKException;
 
@@ -883,9 +883,9 @@ final class NativeInterface {
     // =========================================================================
     // PQC Signture functions - for use with ML-DSA and ML-SLH
     // =========================================================================
-    static public native byte[] PQC_SIGNATURE_sign(long ockContextId,  long ockPKeyId, byte[] data) 
+    static public native byte[] PQC_SIGNATURE_sign(long ockContextId,  long ockPKeyId, byte[] data)
             throws OCKException;
 
-    static public native boolean PQC_SIGNATURE_verify(long ockContextId, long ockPKeyId, byte[] sigBytes, byte[] data) 
+    static public native boolean PQC_SIGNATURE_verify(long ockContextId, long ockPKeyId, byte[] sigBytes, byte[] data)
             throws OCKException;
 }
