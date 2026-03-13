@@ -10,10 +10,17 @@ package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.base.OCKContext;
 import com.ibm.crypto.plus.provider.base.OCKException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.security.AccessController;
+import java.security.InvalidParameterException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.security.Provider;
 import java.security.ProviderException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class OpenJCEPlus extends OpenJCEPlusProvider {
@@ -94,7 +101,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             initializeContext();
         }
         registerAlgorithms(jce);
-
+        
         if (instance == null) {
             instance = this;
         }
@@ -108,6 +115,69 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             } catch (Throwable t) {
                 t.printStackTrace(System.out);
             }
+        }
+    }
+
+    @Override
+    public Provider configure(String configFile) throws InvalidParameterException {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<>() {
+                @Override
+                public OpenJCEPlus run() throws Exception {
+                    return new OpenJCEPlus(new ProviderServiceReader(configFile));
+                }
+            });
+        } catch (PrivilegedActionException pae) {
+            InvalidParameterException ipe =
+                new InvalidParameterException("Error configuring OpenJCEPlus provider");
+            throw (InvalidParameterException) ipe.initCause(pae.getException());
+        }
+    }
+
+    public Provider configure(BufferedReader br) throws InvalidParameterException {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<>() {
+                @Override
+                public OpenJCEPlus run() throws Exception {
+                    return new OpenJCEPlus(new ProviderServiceReader(br));
+                }
+            });
+        } catch (PrivilegedActionException pae) {
+            InvalidParameterException ipe =
+                new InvalidParameterException("Error configuring OpenJCEPlus provider");
+            throw (InvalidParameterException) ipe.initCause(pae.getException());
+        }
+    }
+
+    public OpenJCEPlus(ProviderServiceReader config) {
+        super("OpenJCEPlus-" + config.getName(), config.getDesc());
+
+        if (debug != null) {
+            debug.println("New OpenJCEPlus instance");
+        }
+
+        final OpenJCEPlusProvider jce = this;
+
+        // Do java OCK initialization which includes loading native code
+        // Don't do this in the static initializer because it might
+        // be necessary for an applet running in a browser to grant
+        // access rights beforehand.
+        if (!ockInitialized) {
+            initializeContext();
+        }
+        
+        try {
+            List<ProviderServiceReader.ServiceDefinition> services = config.readServices();
+            for (ProviderServiceReader.ServiceDefinition service : services) {
+                putService(new OpenJCEPlusService(jce, service.getType(), service.getAlgorithm(),
+                    service.getClassName(), service.getAliases().toArray(new String[service.getAliases().size()]), service.getAttributes()));
+            }
+        } catch (IOException e) {
+            throw new InvalidParameterException("Error configuring OpenJCEPlus provider - " + e.getMessage()); 
+        }         
+
+        if (instance == null) {
+            instance = this;
         }
     }
 
