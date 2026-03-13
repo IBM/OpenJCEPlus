@@ -1,12 +1,12 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,6 +15,7 @@ import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -45,15 +46,28 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-public class BaseTestRSA extends BaseTestCipher {
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+public abstract class BaseTestRSA extends BaseTestCipher {
+
+    @Parameter(0)
+    int keySize;
+
+    @Parameter(1)
+    TestProvider provider;
 
     static final char[] hexDigits = "0123456789abcdef".toCharArray();
 
@@ -61,21 +75,49 @@ public class BaseTestRSA extends BaseTestCipher {
 
     static final int DEFAULT_KEY_SIZE = 2048;
 
-
     protected KeyPairGenerator rsaKeyPairGen;
     protected KeyPair rsaKeyPair;
     protected RSAPublicKey rsaPub;
     protected RSAPrivateCrtKey rsaPriv;
-    protected int specifiedKeySize = 0;
     protected boolean providerStripsLeadingZerosForNoPaddingDecrypt = false; // FIXME - IBMJCE tests will need this to be true
 
     @BeforeEach
     public void setUp() throws Exception {
-        rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", getProviderName());
-        if (specifiedKeySize > 0) {
-            rsaKeyPairGen.initialize(specifiedKeySize, null);
+
+        if (keySize != 512 &&
+                keySize != 1024 &&
+                keySize != 2048 &&
+                keySize != 3072 &&
+                keySize != 4096) {
+
+            throw new Exception("Illegal key size in BaseTestRSA.");
         }
-        rsaKeyPair = rsaKeyPairGen.generateKeyPair();
+
+        setKeySize(keySize);
+        setAndInsertProvider(provider);
+
+        try {
+            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", getProviderName());
+            if (keySize > 0) {
+                rsaKeyPairGen.initialize(keySize, null);
+            }
+
+            rsaKeyPair = rsaKeyPairGen.generateKeyPair();
+
+            // If we reach here and keySize < 2048 in OpenJCEPlusFIPS mode, it's wrong
+            if (provider.getProviderName().equals("OpenJCEPlusFIPS") && keySize < 2048) {
+                fail("RSA " + keySize + " worked unexpectedly in OpenJCEPlusFIPS mode");
+            }
+
+        } catch (InvalidParameterException e) {
+            if (provider.getProviderName().equals("OpenJCEPlusFIPS") && keySize < 2048) {
+                assertEquals("RSA keys must be at least 2048 bits long", e.getMessage());
+                assumeTrue(false); // skip the test since the provider does not support this key size
+            } else {
+                throw e;
+            }
+        }
+
         rsaPub = (RSAPublicKey) rsaKeyPair.getPublic();
         rsaPriv = (RSAPrivateCrtKey) rsaKeyPair.getPrivate();
     }
@@ -205,6 +247,8 @@ public class BaseTestRSA extends BaseTestCipher {
     public void testRSACipher_NoSpec(String algorithm) throws Exception {
         // OAEP from OpenJCEPlusFIPS only works with spec initialization.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse((keySize == 512) && !(algorithm.contains("SHA1") || algorithm.contains("SHA-1")));
+        assumeFalse((keySize == 1024) && (algorithm.contains("WithSHA-512AndMGF1Padding") || algorithm.contains("WithSHA512AndMGF1Padding")));
         encryptDecrypt(algorithm, null);
     }
 
@@ -242,7 +286,8 @@ public class BaseTestRSA extends BaseTestCipher {
         // OAEP in OpenJCEPlusFIPS only works when initialized with non SHA-1 digests.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName())
             && (md.equals("SHA-1") || md.equals("SHA1") || mgf1.equals("SHA-1") || mgf1.equals("SHA1")));
-
+        assumeFalse((keySize == 512) && !(md.contains("SHA1") || md.contains("SHA-1")));
+        assumeFalse((keySize == 1024) && (md.equals("SHA512") || md.equals("SHA-512")));
         String transformation = md.equals("NONE") ? "RSA/ECB/OAEPPadding" : "RSA/ECB/OAEPWith" + md + "AndMGF1Padding";
         encryptDecrypt(transformation, mgf1);
     }
@@ -380,7 +425,7 @@ public class BaseTestRSA extends BaseTestCipher {
 
     @Test
     public void testRSAShortBuffer() throws Exception {
-
+        assumeFalse(keySize != 2048);
         try {
             Cipher cp = Cipher.getInstance("RSA/ECB/OAEPPadding", getProviderName());
             AlgorithmParameterSpec algParams = new OAEPParameterSpec("SHA-256",
@@ -426,7 +471,7 @@ public class BaseTestRSA extends BaseTestCipher {
 
     @Test
     public void testRSABadPadding() throws Exception {
-
+        assumeFalse(keySize != 2048);
         try {
             // Test RSA Cipher
             Cipher cp = Cipher.getInstance("RSA/ECB/OAEPPadding", getProviderName());
@@ -568,7 +613,6 @@ public class BaseTestRSA extends BaseTestCipher {
         cp.init(Cipher.ENCRYPT_MODE, rsaPub);
         int outputSize = cp.getOutputSize(1);
 
-        int keySize = specifiedKeySize;
         if (keySize == 0) {
             keySize = ((java.security.interfaces.RSAKey) rsaPub).getModulus().bitLength();
         }
@@ -1000,7 +1044,6 @@ public class BaseTestRSA extends BaseTestCipher {
 
 
     private byte[] getMessage_OAEP(int digestLen) {
-        int keySize = specifiedKeySize;
         if (keySize == 0) {
             keySize = ((java.security.interfaces.RSAKey) rsaPub).getModulus().bitLength();
         }
