@@ -61,12 +61,17 @@ def getOCKTarget(hardware, software) {
  * locations.
  */
 def getBinaries(hardware, software) {
-    if (OCK_RELEASE == "") {
-        OCK_RELEASE = "20251128_8.9.18"
+    def ockRelease = OCK_RELEASE
+    if (ockRelease == "") {
+        if ((software == "linux") && (hardware == "s390x")) {
+            ockRelease = "20260219_8.9.21"
+        } else {
+            ockRelease = "20251128_8.9.18"
+        }
     }
     def target = getOCKTarget(hardware, software)
-    def gskit_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/gskit8/$OCK_RELEASE/$target/jgsk_crypto.tar"
-    def gskit_sdk_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/gskit8/$OCK_RELEASE/$target/jgsk_crypto_sdk.tar"
+    def gskit_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/gskit8/$ockRelease/$target/jgsk_crypto.tar"
+    def gskit_sdk_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/gskit8/$ockRelease/$target/jgsk_crypto_sdk.tar"
     
     // If user has specified OCK_FULL_URL, override default location.
     def ockUrl = OCK_FULL_URL
