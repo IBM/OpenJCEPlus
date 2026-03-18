@@ -1,0 +1,117 @@
+###############################################################################
+#
+# Copyright IBM Corp. 2026, 2026
+#
+# This code is free software; you can redistribute it and/or modify it
+# under the terms provided by IBM in the LICENSE file that accompanied
+# this code, including the "Classpath" Exception described therein.
+###############################################################################
+
+name: GitHub Actions OpenJCEPlus Dependency Check
+run-name: ${{ github.actor }} is running scheduled dependency check 🚀
+on:
+  schedule:
+    - cron: '0 10 */2 * *' # 10:00 UTC = 6:00 AM EDT, every other day.
+  workflow_dispatch:
+jobs:
+  Dependency-Check-OpenJCEPlus:
+    name: Scheduled OpenJCEPlus Dependency Check
+    runs-on: ${{ matrix.os }}
+    permissions:
+      actions: write
+      checks: write
+      contents: read
+    strategy:
+        matrix:
+          os: [ubuntu-22.04]
+          include:
+            - os: ubuntu-22.04
+              github_actions_runner_root: /
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server."
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to run dependency check on the runner."
+      - name: List files in the repository
+        run: |
+          tree ${{ github.workspace }}
+      - name: Setup Semeru JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25.0.2'
+          distribution: 'semeru'
+          architecture: 'x64'
+      - name: Compute Current OWASP Dependency-Check DB Cache Key
+        id: cache-key
+        run: |
+          KEY="${{ runner.os }}-dependency-check-data-$(date +%F)-${{ github.run_number }}-${{ github.run_attempt }}"
+          PREFIX="${{ runner.os }}-dependency-check-data-"
+          echo "Computed key: $KEY"
+          echo "Computed prefix: $PREFIX"
+          echo "key=$KEY" >> "$GITHUB_OUTPUT"
+          echo "prefix=$PREFIX" >> "$GITHUB_OUTPUT"
+      - name: List Existing OWASP Dependency-Check DB Caches
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PREFIX: ${{ steps.cache-key.outputs.prefix }}
+        run: |
+          echo "Listing existing DB caches with prefix: $PREFIX"
+          gh cache list --repo "$REPO" --key "$PREFIX" --limit 100
+      - name: Restore OWASP Dependency-Check DB Cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: ${{ steps.cache-key.outputs.key }}
+          restore-keys: |
+            ${{ steps.cache-key.outputs.prefix }}
+      - name: Run OWASP Dependency-Check update-only
+        id: dc-update
+        run: > 
+          mvn
+          --batch-mode
+          dependency-check:update-only
+          -DnvdApiDelay=12000
+      - name: Save Current OWASP Dependency-Check DB Cache
+        id: dc-save
+        if: steps.dc-update.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: ${{ steps.cache-key.outputs.key }}
+      - name: Run OWASP Dependency-Check check
+        if: steps.dc-update.outcome == 'success'
+        run: > 
+          mvn
+          --batch-mode
+          dependency-check:check
+          -DnvdApiDelay=12000
+      - name: Delete Older OWASP Dependency-Check DB Caches
+        if: steps.dc-save.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          CURRENT_KEY: ${{ steps.cache-key.outputs.key }}
+          PREFIX: ${{ steps.cache-key.outputs.prefix }}
+        run: |
+          gh cache list --repo "$REPO" --key "$PREFIX" --limit 100 | while read -r id key size created last_accessed ref; do
+            if [ "$key" != "$CURRENT_KEY" ]; then
+              echo "Deleting old cache: $key"
+              gh cache delete "$key" --repo "$REPO" || true
+            fi
+          done
+      - name: Upload OWASP Dependency-Check Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: target/dependency-check-report.html
+      - name: Add OWASP Dependency-Check Summary
+        if: always()
+        run: |
+          echo "The Dependency Check Report was uploaded as artifact: \`dependency-check-report\`." >> $GITHUB_STEP_SUMMARY
+      - run: echo "🍏 This job's status is ${{ job.status }}."
