@@ -439,7 +439,7 @@ final class NativeOCKImplementation {
     // =========================================================================
 
     static public native int RSACIPHER_public_encrypt(long ockContextId, long rsaKeyId,
-            int rsaPaddingId, byte[] plaintext, int plaintextOffset, int plaintextLen,
+            int rsaPaddingId, int mdId, int mgf1Id, byte[] plaintext, int plaintextOffset, int plaintextLen,
             byte[] ciphertext, int ciphertextOffset) throws OCKException;
 
     static public native int RSACIPHER_private_encrypt(long ockContextId, long rsaKeyId,
@@ -451,7 +451,7 @@ final class NativeOCKImplementation {
             byte[] plaintext, int plaintextOffset) throws OCKException;
 
     static public native int RSACIPHER_private_decrypt(long ockContextId, long rsaKeyId,
-            int rsaPaddingId, byte[] ciphertext, int ciphertextOffset, int ciphertextLen,
+            int rsaPaddingId, int mdId, int mgf1Id, byte[] ciphertext, int ciphertextOffset, int ciphertextLen,
             byte[] plaintext, int plaintextOffset, boolean convertKey) throws OCKException;
 
     // =========================================================================
@@ -503,9 +503,6 @@ final class NativeOCKImplementation {
             throws OCKException;
 
     static public native byte[] RSAKEY_getPublicKeyBytes(long ockContextId, long rsaKeyId)
-            throws OCKException;
-
-    static public native long RSAKEY_createPKey(long ockContextId, long rsaKeyId)
             throws OCKException;
 
     static public native int RSAKEY_size(long ockContextId, long rsaKeyId);

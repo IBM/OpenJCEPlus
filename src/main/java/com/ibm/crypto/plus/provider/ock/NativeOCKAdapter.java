@@ -665,10 +665,11 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     }
 
     @Override
-    public int RSACIPHER_public_encrypt(long rsaKeyId, int rsaPaddingId, byte[] plaintext, int plaintextOffset,
+    public int RSACIPHER_public_encrypt(long rsaKeyId,
+            int rsaPaddingId, int mdId, int mgf1Id, byte[] plaintext, int plaintextOffset,
             int plaintextLen, byte[] ciphertext, int ciphertextOffset) throws OCKException {
         return NativeOCKImplementation.RSACIPHER_public_encrypt(ockContext.getId(), rsaKeyId, rsaPaddingId,
-            plaintext, plaintextOffset, plaintextLen, ciphertext, ciphertextOffset);
+            mdId, mgf1Id, plaintext, plaintextOffset, plaintextLen, ciphertext, ciphertextOffset);
     }
 
     @Override
@@ -686,10 +687,12 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     }
 
     @Override
-    public int RSACIPHER_private_decrypt(long rsaKeyId, int rsaPaddingId, byte[] ciphertext, int ciphertextOffset,
-            int ciphertextLen, byte[] plaintext, int plaintextOffset, boolean convertKey) throws OCKException {
+    public int RSACIPHER_private_decrypt(long rsaKeyId,
+            int rsaPaddingId, int mdId, int mgf1Id, byte[] ciphertext, int ciphertextOffset,
+            int ciphertextLen, byte[] plaintext, int plaintextOffset, boolean convertKey)
+            throws OCKException {
         return NativeOCKImplementation.RSACIPHER_private_decrypt(ockContext.getId(), rsaKeyId, rsaPaddingId,
-            ciphertext, ciphertextOffset, ciphertextLen, plaintext, plaintextOffset, convertKey);
+            mdId, mgf1Id, ciphertext, ciphertextOffset, ciphertextLen, plaintext, plaintextOffset, convertKey);
     }
 
     @Override
@@ -770,11 +773,6 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     @Override
     public byte[] RSAKEY_getPublicKeyBytes(long rsaKeyId) throws OCKException {
         return NativeOCKImplementation.RSAKEY_getPublicKeyBytes(ockContext.getId(), rsaKeyId);
-    }
-
-    @Override
-    public long RSAKEY_createPKey(long rsaKeyId) throws OCKException {
-        return NativeOCKImplementation.RSAKEY_createPKey(ockContext.getId(), rsaKeyId);
     }
 
     @Override
