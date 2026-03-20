@@ -49,7 +49,7 @@ public final class SymmetricCipher {
     /* private final static String debPrefix = "SymCipher"; Adding Debug causes test cases to fail */
     int paramOffset;
     FastJNIBuffer parametersBuffer = null;
-    // GSKit code adds 16 to the input buffer length for every Update  and provide a 
+    // GSKit code adds 16 to the input buffer length for every Update  and provide a
     // 16  byte buffer for the Final which has no input data.
     private final int OCK_ENCRYPTION_RESIDUE = 16;
     //final String debPrefix = "SymmetricCipher";
@@ -86,14 +86,14 @@ public final class SymmetricCipher {
         String algName;
         if (keysize == 16)
             algName = modeUpperCase.equals("ECB") ? "RC2" : "RC2-" + modeUpperCase;
-        else 
+        else
             algName = modeUpperCase.equals("ECB") ? "RC2" : "RC2-40-" + modeUpperCase;
         return getInstance(ockContext, algName, padding, provider);
     }
 
     public static SymmetricCipher getInstanceRC4(OCKContext ockContext, int keysize,
             OpenJCEPlusProvider provider) throws OCKException {
-        String algName = keysize == 16 ? "RC4" : "RC4-40"; 
+        String algName = keysize == 16 ? "RC4" : "RC4-40";
         return getInstance(ockContext, algName, Padding.NoPadding, provider);
     }
 
@@ -142,13 +142,18 @@ public final class SymmetricCipher {
         // Check whether used algorithm is CBC and whether hardware supports
         this.provider = provider;
         boolean isHardwareSupport = false;
-        if (hardwareEnabled.containsKey(ockContext))
-            isHardwareSupport = hardwareEnabled.get(ockContext);
-        else {
-            hardwareFunctionPtr = checkHardwareSupport(ockContext.getId());
-            isHardwareSupport = (hardwareFunctionPtr == 1) ? true : false;
-            hardwareEnabled.put(ockContext, isHardwareSupport);
+
+        // The OS_Helper functions are not NIST certified, thus they can't be used in FIPS mode.
+        if (!ockContext.isFIPS()) {
+            if (hardwareEnabled.containsKey(ockContext))
+                isHardwareSupport = hardwareEnabled.get(ockContext);
+            else {
+                hardwareFunctionPtr = checkHardwareSupport(ockContext.getId());
+                isHardwareSupport = (hardwareFunctionPtr == 1) ? true : false;
+                hardwareEnabled.put(ockContext, isHardwareSupport);
+            }
         }
+
         use_z_fast_command = "AES".equals(cipherName.substring(0, 3))
                 && "CBC".equals(cipherName.substring(cipherName.length() - 3)) && isHardwareSupport;
 
@@ -292,7 +297,7 @@ public final class SymmetricCipher {
     /**
      * OCKC always oversizes the buffer by 16 bytes (i.e. 128 bits).
      *
-     * This buffer is larger than what end user application will provide typically as a 
+     * This buffer is larger than what end user application will provide typically as a
      * buffer. This method calculates the amount of space that is needed by OCKC in order
      * to perform its operations.
      *
