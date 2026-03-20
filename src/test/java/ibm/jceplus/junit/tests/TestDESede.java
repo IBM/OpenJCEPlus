@@ -1,12 +1,12 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -24,12 +24,27 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.RC2ParameterSpec;
 import javax.crypto.spec.RC5ParameterSpec;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestDESede extends BaseTestCipher {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.OPENJCEPLUS_MULTITHREAD_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestDESede extends BaseTestCipher {
+
+    @Parameter(0)
+    TestProvider provider;
 
     // 14 bytes: PASSED
     static final byte[] plainText14 = "12345678123456".getBytes();
@@ -64,6 +79,7 @@ public class BaseTestDESede extends BaseTestCipher {
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         this.encryptProviderName = getProviderName();
         try {
             keyGen = KeyGenerator.getInstance("DESede", getProviderName());
@@ -76,6 +92,20 @@ public class BaseTestDESede extends BaseTestCipher {
             }
         }
         key = keyGen.generateKey();
+    }
+
+    /**
+     * This method is to check whether a mode is valid for the cipher
+     * but not supported by a given provider.
+     */
+    @Override
+    public boolean isModeValidButUnsupported(String mode) {
+        if (mode.equalsIgnoreCase("CFB") || mode.equalsIgnoreCase("CFB64")
+                || mode.equalsIgnoreCase("OFB")) {
+            return true;
+        }
+
+        return super.isModeValidButUnsupported(mode);
     }
 
     @Test
