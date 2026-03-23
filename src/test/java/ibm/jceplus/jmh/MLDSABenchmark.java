@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -60,7 +60,7 @@ public class MLDSABenchmark extends JMHBase {
 
     @Setup
     public void setup() throws Exception {
-        insertProvider(provider);
+        super.setup(provider);
 
         mldsa44KeyPairGenerator = KeyPairGenerator.getInstance("ML-DSA-44", provider);
         mldsa65KeyPairGenerator = KeyPairGenerator.getInstance("ML-DSA-65", provider);
