@@ -235,7 +235,7 @@ def run(platform) {
                         allowedProviders += ["SunEC", "SunJCE", "SunRsaSign", "SUN"]
                     }
 
-                    if (!allowedProvider.isEmpty()) {
+                    if (!allowedProviders.isEmpty()) {
                         def command = "clean install -DskipTests -Djmh.benchmark.skip=false -Djmh.benchmark=" + BENCHMARK + " -Djmh.allowedProviders=" + allowedProviders.join(",")
                         externalLibrary.runOpenJCEPlus(command, software)
                         echo "OpenJCEPlus built"
