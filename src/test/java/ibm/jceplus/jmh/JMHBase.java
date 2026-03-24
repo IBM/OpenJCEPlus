@@ -40,6 +40,7 @@ abstract public class JMHBase {
         String projectHomeDir = System.getProperty("jmh.project.dir");
         String ockLibraryPath = System.getProperty("ock.library.path");
         String jgskitLibraryPath = System.getProperty("jgskit.library.path");
+        String osArch = System.getProperty("os.arch", "").toLowerCase();
         String osName = System.getProperty("os.name").toLowerCase();
         String threadsProperty = System.getProperty("jmh.threads", "1");
         String allowedProv = System.getProperty("jmh.allowedProviders");
@@ -55,6 +56,7 @@ abstract public class JMHBase {
         System.out.println("Home dir: " + projectHomeDir);
         System.out.println("JGSkit Library Path: " + jgskitLibraryPath);
         System.out.println("Regex of classes to run: " + regexClassName);
+        System.out.println("OS Arch: " + osArch);
         System.out.println("OS Name: " + osName);
         System.out.println("Thread count: " + threads);
         System.out.println("Allowed providers: " + allowedProv);
@@ -69,7 +71,14 @@ abstract public class JMHBase {
         optionsBuilder.addProfiler(StackProfiler.class);
         optionsBuilder.addProfiler(GCProfiler.class);
         optionsBuilder.addProfiler(ClassloaderProfiler.class);
-        optionsBuilder.addProfiler(CompilerProfiler.class);
+        
+        // CompilerProfiler causes issues on ppc64le Linux which causes the Jenkins job to fail.
+        // Add the compiler profiler for all other platforms.
+        boolean isPpc64le = osArch.equals("ppc64le");
+        boolean isLinux = osName.contains("linux");
+        if (!(isPpc64le && isLinux)) {
+            optionsBuilder.addProfiler(CompilerProfiler.class);
+        }
         List<String> jvmArgs = new ArrayList<>(Arrays.asList("-Xms1G", "-Xmx1G", "--patch-module",
                 "openjceplus=" + projectHomeDir + "/target/classes",
                 "--add-exports=java.base/sun.security.util=ALL-UNNAMED",
