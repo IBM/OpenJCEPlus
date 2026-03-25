@@ -9,6 +9,7 @@
 package ibm.jceplus.jmh;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.Provider;
@@ -112,7 +113,33 @@ abstract public class JMHBase {
         }
     }
 
+    private void logBenchmark() throws IllegalAccessException {
+        // JMH auto-generates multiple subclasses of the original benchmark.
+        Class<?> subClass = this.getClass();
+        Class<?> originalClass = subClass.getSuperclass();
+        while (originalClass != null && originalClass.getSimpleName().contains("_jmhType")) {
+            originalClass = originalClass.getSuperclass();
+        }
+        if (originalClass != null) {
+            System.out.println("Running " + originalClass.getSimpleName() + " with:");
+            Field[] allFields = originalClass.getDeclaredFields();
+            for (Field field : allFields) {
+                field.setAccessible(true);
+                if ((field.getType() == String.class)
+                    || (field.getType() == int.class)
+                ) {
+                    System.out.println("\t" + field.getName() + " = " + field.get(this));
+                }
+            }
+        } else {
+            System.out.println("Running " + subClass.getSimpleName() + ":");
+            System.out.println("\tNote: Failed to get original benchmark name");
+        }
+    }
+
     protected void setup(String provider) throws Exception {
+        logBenchmark();
+        
         if (allowedProviders == null) {
             allowedProviders = getAllowedProviders();
         }
