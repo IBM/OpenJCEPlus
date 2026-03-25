@@ -401,6 +401,24 @@ pipeline {
     stages {
         stage('Build And Test OpenJCEPlus') {
             steps {
+                // Set custom GitHub status context to avoid conflicts with JenkinsfilePerformance
+                script {
+                    if (env.CHANGE_ID) {
+                        step([
+                            $class: 'GitHubCommitStatusSetter',
+                            contextSource: [
+                                $class: 'ManuallyEnteredCommitContextSource',
+                                context: 'OpenJCEPlus-Build-Test'
+                            ],
+                            statusResultSource: [
+                                $class: 'ConditionalStatusResultSource',
+                                results: [
+                                    [$class: 'AnyBuildResult', message: 'Building...', state: 'PENDING']
+                                ]
+                            ]
+                        ])
+                    }
+                }
                 timestamps {
                     script {
                         // Set values for various variables associated with the parameters
@@ -450,6 +468,21 @@ pipeline {
                             // Run said jobs in parallel.
                             parallel mapForParallel
                         }
+                    }
+                }
+                // Set final GitHub status
+                script {
+                    if (env.CHANGE_ID) {
+                        step([
+                            $class: 'GitHubCommitStatusSetter',
+                            contextSource: [
+                                $class: 'ManuallyEnteredCommitContextSource',
+                                context: 'OpenJCEPlus-Build-Test'
+                            ],
+                            statusResultSource: [
+                                $class: 'DefaultStatusResultSource'
+                            ]
+                        ])
                     }
                 }
             }
