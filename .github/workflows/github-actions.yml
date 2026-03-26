@@ -79,7 +79,7 @@ jobs:
       - name: Setup Semeru JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '21.0.9+10.0.LTS'
+          java-version: '21.0.10+7.0.LTS'
           distribution: 'temurin'
           architecture: 'x64'
       # Uncomment to capture all files in the runner for debugging purposes.          
