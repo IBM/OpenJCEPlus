@@ -11,7 +11,7 @@ TOPDIR=../../../..
 
 CFLAGS= -fPIC -DMAC -Werror -std=gnu99 -pedantic -Wall -fstack-protector -m64
 LDFLAGS= -shared -m64
-CC = gcc
+CC ?= clang
 
 ifeq (${PLATFORM},x86_64-mac)
   ARCHFLAGS= -arch x86_64
