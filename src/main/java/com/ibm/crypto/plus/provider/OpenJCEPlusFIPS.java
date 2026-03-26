@@ -108,6 +108,14 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
             }
         }
 
+        // Print FIPS 140-3 mode message for s390x Linux or z/OS platforms
+        if (osArch.contains("s390x")) {
+            System.out.println("FIPS 140-3 mode enabled (for evaluation only, not supported for production use)");
+            if (debug != null) {
+                debug.println("FIPS 140-3 mode enabled (for evaluation only, not supported for production use)");
+            }
+        }
+
         final OpenJCEPlusProvider jce = this;
 
         AccessController.doPrivileged(new java.security.PrivilegedAction() {
