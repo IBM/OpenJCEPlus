@@ -384,6 +384,7 @@ pipeline {
                                             'ibm.jceplus.jmh.RSACipherBenchmark', \
                                             'ibm.jceplus.jmh.RSAKeyGeneratorBenchmark', \
                                             'ibm.jceplus.jmh.RSASignatureBenchmark', \
+                                            'ibm.jceplus.jmh.TLSHandshakeBenchmark', \
                                             'ibm.jceplus.jmh.X448KeyExchangeBenchmark', \
                                             'ibm.jceplus.jmh.X25519KeyExchangeBenchmark', \
                                             'ibm.jceplus.jmh.XDHKeyExchangeBenchmark', \
