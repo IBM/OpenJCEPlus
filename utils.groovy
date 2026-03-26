@@ -103,6 +103,26 @@ def getBinaries(hardware, software) {
 }
 
 /*
+ * Constructs the appropriate Semeru JDK download URL based on the Java version,
+ * hardware platform, and software OS. Supports both latest GA releases and
+ * specific version releases using the AdoptOpenJDK API.
+ */
+def getJavaDownloadUrl(javaVersion, hardware, software, javaRelease) {
+    def java_link = ""
+    
+    if (javaRelease == "") {
+        // Use latest GA version
+        java_link = "https://api.adoptopenjdk.net/v3/binary/latest/${javaVersion}/ga/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
+    } else {
+        // Use specific version
+        def java_release_link = javaRelease.replace("+", "%2B")
+        java_link = "https://api.adoptopenjdk.net/v3/binary/version/${java_release_link}/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
+    }
+    
+    return java_link
+}
+
+/*
  * Figure out the proper URL, get the Semeru JDK,
  * extract it and rename the containing folder to
  * be used later on.
@@ -117,13 +137,8 @@ def getJava(hardware, software) {
         hardware = "x64"
     }
 
-    def java_link = ""
-    if (JAVA_RELEASE == "") {
-        java_link = "https://api.adoptopenjdk.net/v3/binary/latest/${JAVA_VERSION}/ga/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
-    } else {
-        def java_release_link = JAVA_RELEASE.replace("+", "%2B")
-        java_link = "https://api.adoptopenjdk.net/v3/binary/version/${java_release_link}/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
-    }
+    // Get the download URL using the helper method that uses an API
+    def java_link = getJavaDownloadUrl(JAVA_VERSION, hardware, software, JAVA_RELEASE)
 
     dir("java") {
         sh "curl -LJkO ${java_link}"
