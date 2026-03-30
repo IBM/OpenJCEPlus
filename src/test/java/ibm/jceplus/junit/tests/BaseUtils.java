@@ -41,4 +41,21 @@ public class BaseUtils {
         return bytes;
     }
 
+    /**
+     * Converts a hex string to a byte array. The hex string can contain spaces, which will be ignored.
+     * @param string the hex string to convert
+     * @return the byte array represented by the hex string
+     */
+    public static byte[] hexStringToByteArray(String string) {
+        String s = string.trim().replaceAll(" +", ""); // remove all spaces
+
+        byte[] b = new byte[s.length() / 2];
+        for (int i = 0; i < b.length; i++) {
+            int index = i * 2;
+            int v = Integer.parseInt(s.substring(index, index + 2), 16);
+            b[i] = (byte) v;
+        }
+        return b;
+    }
+
 }
