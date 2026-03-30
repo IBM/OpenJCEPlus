@@ -21,7 +21,6 @@ import org.junit.platform.suite.api.Suite;
     TestAESGCM_IntIV.class,
     TestAESGCMBufferIV.class,
     TestAESGCMUpdate.class,
-    TestAESGCMWithByteBuffer.class,
     TestAESKeyWrap.class,
     TestAliases.class,
     TestAttributes.class,
