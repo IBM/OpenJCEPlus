@@ -578,6 +578,9 @@ getDigestName(int mdId)
         gslogMessage("DETAIL_RSACIPHER mdId %lx ", (long)mdId);
     }
 #endif
+#ifdef __MVS__
+  #pragma convert("ISO8859-1")
+#endif
     switch (mdId) {
         case SHA1:
             return "SHA1";
@@ -596,6 +599,9 @@ getDigestName(int mdId)
         default:
             return NULL;
     }
+#ifdef __MVS__
+  #pragma convert(pop)
+#endif
 }
 
 static int
