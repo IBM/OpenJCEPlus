@@ -682,7 +682,7 @@ public abstract class BaseTestRSA extends BaseTestCipher {
         Cipher cp = Cipher.getInstance("RSA/ECB/NoPadding", getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, pubKey);
 
-        byte[] plaintext = {(byte) 0xFF ,(byte) 0x01 ,(byte) 0x01 ,(byte) 0x01 ,(byte) 0x01};
+        byte[] plaintext = {(byte) 0xFF, (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01};
 
         cp.doFinal(plaintext);
     }
