@@ -211,8 +211,21 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         byte[] newPubKey = parsePub(publicKey.getEncoded());
         byte[] newPrivKey = parsePriv(privateKey.getEncoded());
 
-        assertArrayEquals(newPubKey, pubKey, "Public key does not match generated public key - " + Algorithm);
-        assertArrayEquals(newPrivKey, privKey, "Private key does not match generated public key - " + Algorithm);
+        assertArrayEquals(newPubKey, pubKey, "Public key does not match internal generated public key - " + Algorithm);
+        assertArrayEquals(newPrivKey, privKey, "Private key does not match internal generated private key - " + Algorithm);
+
+        sun.security.util.RawKeySpec pubSpecFromSun = new sun.security.util.RawKeySpec(pubKey);
+        sun.security.util.RawKeySpec privSpecFromSun = new sun.security.util.RawKeySpec(privKey);
+
+        PublicKey publicKeyFromSun = pqcKeyFactory.generatePublic(pubSpecFromSun);
+        PrivateKey privateKeyFromSun = pqcKeyFactory.generatePrivate(privSpecFromSun);
+
+        //Need to extract just the key material from the key to do the compare
+        byte[] newPubKeyFromSun = parsePub(publicKeyFromSun.getEncoded());
+        byte[] newPrivKeyFromSun = parsePriv(privateKeyFromSun.getEncoded());
+
+        assertArrayEquals(newPubKeyFromSun, pubKey, "Public key does not match Sun generated public key - " + Algorithm);
+        assertArrayEquals(newPrivKeyFromSun, privKey, "Private key does not match Sun generated private key - " + Algorithm);
 
     }
 
