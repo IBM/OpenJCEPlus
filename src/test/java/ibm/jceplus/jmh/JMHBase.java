@@ -80,7 +80,7 @@ abstract public class JMHBase {
         if (!(isPpc64le && isLinux)) {
             optionsBuilder.addProfiler(CompilerProfiler.class);
         }
-        List<String> jvmArgs = new ArrayList<>(Arrays.asList("-Xms1G", "-Xmx1G", "--patch-module",
+        List<String> jvmArgs = new ArrayList<>(Arrays.asList("-Xms4G", "-Xmx4G", "--patch-module",
                 "openjceplus=" + projectHomeDir + "/target/classes",
                 "--add-exports=java.base/sun.security.util=ALL-UNNAMED",
                 "--add-exports=java.base/sun.security.pkcs=ALL-UNNAMED",
