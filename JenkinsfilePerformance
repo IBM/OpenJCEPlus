@@ -326,8 +326,14 @@ pipeline {
         string(name: 'JAVA_RELEASE', defaultValue: '', description: '\
             Indicate a specific Java release that you want to use to build your branch.<br> \
             If left empty, the default release for the chosen version will be used.<br> \
+            <br><b>Option 1: Specify a release version</b><br> \
             Specify the full name of the release.<br> \
-            (i.e., jdk-&ltjdk version&gt_openj9-&ltopenj9 version&gt => eg., jdk-21.0.2+13_openj9-0.43.0)')
+            (i.e., jdk-&ltjdk version&gt_openj9-&ltopenj9 version&gt => eg., jdk-21.0.2+13_openj9-0.43.0)<br> \
+            <br><b>Option 2: Specify an Artifactory URL</b><br> \
+            Provide a full URL to a Java build hosted on na.artifactory.swg-devops.com.<br> \
+            The URL must contain "na.artifactory.swg-devops.com" or the build will fail.<br> \
+            Example: https://na.artifactory.swg-devops.com/artifactory/path/to/java.tar.gz<br> \
+            Note: Artifactory credentials will be used automatically for download.')
         string(name: 'OCK_RELEASE', defaultValue: '', description: '\
             Indicate the specific release of the OCK binaries that you want to use to build your branch.<br> \
             If left empty, the latest release will be used.<br> \
