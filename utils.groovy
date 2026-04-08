@@ -184,15 +184,40 @@ def getJava(hardware, software) {
         hardware = "x64"
     }
 
-    // Get the download URL using the helper method that uses an API
-    def java_link = getJavaDownloadUrl(JAVA_VERSION, hardware, software, JAVA_RELEASE)
+    def java_link = ""
+    
+    // Check if JAVA_RELEASE is a URL that contains artifactory.
+    if (JAVA_RELEASE.contains("https://na.artifactory.swg-devops.com")) {
+        // JAVA_RELEASE is an Artifactory URL
+        java_link = JAVA_RELEASE
+        echo "Using Artifactory URL from JAVA_RELEASE: ${java_link}"
+    } else if (JAVA_RELEASE.startsWith("http://") || JAVA_RELEASE.startsWith("https://")) {
+        // JAVA_RELEASE is a URL but not from Artifactory - fail the build
+        error("JAVA_RELEASE contains a URL that is not from na.artifactory.swg-devops.com. Only Artifactory URLs are supported.")
+    } else {
+        // JAVA_RELEASE is a version string or empty - use the API
+        java_link = getJavaDownloadUrl(JAVA_VERSION, hardware, software, JAVA_RELEASE)
+        echo "Using AdoptOpenJDK API URL: ${java_link}"
+    }
+
+    // Determine file extension based on platform
+    def file_extension = "tar.gz"
+    if (software == "windows") {
+        file_extension = "zip"
+    }
 
     // Use workaround URL from Artifactory, if official builds don't work
     //def java_link = getJavaWorkaroundUrl("openjceplusworkaround050126", hardware, software, JAVA_RELEASE)
 
     dir("java") {
         def java_file = ""
-        if (software == "zos") {
+        // Download Java - use credentials if it's an Artifactory URL
+        if (JAVA_RELEASE.contains("na.artifactory.swg-devops.com")) {
+            java_file = "java.${file_extension}"
+            withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_USERNAME')]) {
+                sh "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD ${java_link} > ${java_file}"
+            }
+        } else if (software == "zos") {
             sh "curl -LJkO -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD ${java_link}"
             java_file = sh (
                 script: 'ls | grep \'pax\'',
@@ -218,15 +243,26 @@ def getJava(hardware, software) {
         }
         sh "rm $java_file"
 
-        def java_prefix = "jdk-"
-        if (software == "zos") {
-            java_prefix = "J"
-        }
-        def java_folder = sh (
-            script: "ls | grep \'${java_prefix}${JAVA_VERSION}\'",
+        // Check if folder is already named 'jdk' (Artifactory downloads) or needs renaming
+        def folderCheck = sh (
+            script: "ls -d jdk 2>/dev/null || echo ''",
             returnStdout: true
         ).trim()
-        fileOperations([folderRenameOperation(destination: 'jdk', source: "$java_folder")])
+        
+        if (folderCheck == "") {
+            // Folder is not named 'jdk', so find and rename it
+            def java_prefix = "jdk-"
+            if (software == "zos") {
+                java_prefix = "J"
+            }
+            def java_folder = sh (
+                script: "ls | grep \'${java_prefix}${JAVA_VERSION}\'",
+                returnStdout: true
+            ).trim()
+            fileOperations([folderRenameOperation(destination: 'jdk', source: "$java_folder")])
+        } else {
+            echo "Java folder already named 'jdk', no rename needed"
+        }
 
         // AIX and z/OS always loads the bundled version of native libraries. We delete them to
         // ensure that the one provided by the user is utilized.
