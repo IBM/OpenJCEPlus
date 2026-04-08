@@ -8,7 +8,6 @@
 
 package com.ibm.crypto.plus.provider;
 
-import ibm.security.internal.spec.RawKeySpec;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactorySpi;
@@ -37,71 +36,55 @@ class PQCKeyFactory extends KeyFactorySpi {
 
     @Override
     protected PrivateKey engineGeneratePrivate(KeySpec keySpec) throws InvalidKeySpecException {
+        byte[] bytes = null;
         try {
             if (keySpec instanceof PKCS8EncodedKeySpec) {
                 PrivateKey generated = new PQCPrivateKey(provider,
                         ((PKCS8EncodedKeySpec) keySpec).getEncoded());
                 checkKeyAlgo(generated);
                 return generated;
-            } else if (keySpec instanceof RawKeySpec) {
-                RawKeySpec rks = RawKeySpec.class.cast(keySpec);
-                byte[] bytes = rks.getKeyArr();
-                if (checkEncoded(bytes, false)) {
-                    throw new InvalidKeySpecException("Key spec does not match Spec indicated");   
-                }
-                try {
-                    return new PQCPrivateKey(provider, bytes, algName);
-                } finally {
-                    Arrays.fill(bytes, (byte) 0);
-                }
-            } else if (keySpec instanceof EncodedKeySpec
-                && ((EncodedKeySpec) keySpec).getFormat().equalsIgnoreCase("RAW")) {
-                byte[] bytes = ((EncodedKeySpec) keySpec).getEncoded();
-                try {
-                    return new PQCPrivateKey(provider, bytes, algName);
-                } finally {
-                    Arrays.fill(bytes, (byte) 0);
-                } 
-            } else {
-                throw new InvalidKeySpecException("Inappropriate key specification");
-            }      
+            }
+
+            bytes = getRawBytes(keySpec);
+            
+            if (!(keySpec instanceof EncodedKeySpec) && checkEncoded(bytes, false)) {
+                throw new InvalidKeySpecException("Key spec does not match Spec indicated");
+            }
+
+            return new PQCPrivateKey(provider, bytes, algName);
         } catch (InvalidKeyException e) {
             throw new InvalidKeySpecException("Inappropriate key specification: ", e);
+        } finally {
+            if (bytes != null) {
+                Arrays.fill(bytes, (byte) 0);
+            }
         }
     }
 
     @Override
     protected PublicKey engineGeneratePublic(KeySpec keySpec) throws InvalidKeySpecException {
+        byte[] bytes = null;
         try {
             if (keySpec instanceof X509EncodedKeySpec) {
                 PQCPublicKey generated = new PQCPublicKey(provider,
                         ((X509EncodedKeySpec) keySpec).getEncoded());
                 checkKeyAlgo(generated);
                 return generated;
-            } else if (keySpec instanceof RawKeySpec) {
-                RawKeySpec rks = RawKeySpec.class.cast(keySpec);
-                byte[] bytes = rks.getKeyArr(); 
-                if (checkEncoded(bytes, true)) {
-                    throw new InvalidKeySpecException("Key does not match Spec indicated");   
-                }
-                try {
-                    return new PQCPublicKey(provider, bytes, algName);
-                } finally {
-                    Arrays.fill(bytes, (byte) 0);
-                }
-            } else if (keySpec instanceof EncodedKeySpec
-                    && ((EncodedKeySpec) keySpec).getFormat().equalsIgnoreCase("RAW")) {
-                byte[] bytes = ((EncodedKeySpec) keySpec).getEncoded();
-                try {
-                    return new PQCPublicKey(provider, bytes, algName);
-                } finally {
-                    Arrays.fill(bytes, (byte) 0);
-                }
-            } else {
-                throw new InvalidKeySpecException("Inappropriate key specification");
             }
+
+            bytes = getRawBytes(keySpec);
+
+            if (!(keySpec instanceof EncodedKeySpec) && checkEncoded(bytes, true)) {
+                throw new InvalidKeySpecException("Key does not match Spec indicated");
+            }
+
+            return new PQCPublicKey(provider, bytes, algName);
         } catch (InvalidKeyException e) {
             throw new InvalidKeySpecException("Inappropriate key specification: ", e);
+        } finally {
+            if (bytes != null) {
+                Arrays.fill(bytes, (byte) 0);
+            }
         }
     }
 
@@ -172,6 +155,32 @@ class PQCKeyFactory extends KeyFactorySpi {
         } catch (InvalidKeySpecException e) {
             throw new InvalidKeyException("Cannot translate key: ", e);
         }
+    }
+
+    /**
+     * Extracts the raw byte array from the given {@code KeySpec}.
+     *
+     * @param keySpec the key specification to extract bytes from; may be {@code null}.
+     * @return the raw byte array if the spec is supported and valid; 
+     */
+    private byte[] getRawBytes(KeySpec keySpec) throws InvalidKeySpecException {
+        byte[] bytes = null;
+        if (keySpec instanceof ibm.security.internal.spec.RawKeySpec) {
+            bytes = ((ibm.security.internal.spec.RawKeySpec) keySpec).getKeyArr();
+        } else if (keySpec instanceof sun.security.util.RawKeySpec) {
+            bytes = ((sun.security.util.RawKeySpec) keySpec).getKeyArr();
+        } else if (keySpec instanceof EncodedKeySpec) {
+            EncodedKeySpec eks = (EncodedKeySpec) keySpec;
+            if ("RAW".equalsIgnoreCase(eks.getFormat())) {
+                bytes = eks.getEncoded();
+            }
+        }
+
+        if (bytes != null) {
+            return bytes;
+        }
+        throw new InvalidKeySpecException("Inappropriate key specification: " 
+            + (keySpec != null ? keySpec.getClass().getName() : "null"));
     }
 
     // Internal utility method for checking key algorithm
