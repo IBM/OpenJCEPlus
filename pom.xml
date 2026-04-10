@@ -59,10 +59,11 @@
               </os>
             </activation>
             <properties>
-              <style.encoding>IBM1047</style.encoding>
+              <style.encoding>UTF-8</style.encoding>
               <build.native.file>${basedir}/buildNative.sh</build.native.file>
               <build.platform.value>s390-zos64</build.platform.value>
               <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-mz-64/</build.target.jgskitlib.dir>
+              <skip.native.compile>true</skip.native.compile>
             </properties>
             <build>
               <plugins>
@@ -80,32 +81,27 @@
                       <configuration>
                         <target>
                           <mkdir dir="${project.basedir}/src/main/native/ock"/>
-                          <echo file="${project.basedir}/src/main/native/ock/closed_Utils_c.h" append="false">
+                          <echo file="${project.basedir}/src/main/native/ock/closed_Utils_c.h" append="false" encoding="IBM-1047">
                             // This file is required for compiling with OpenXL. The actual file will get copied during a z/OS JDK build.
                           </echo>
                         </target>
                       </configuration>
                     </execution>
-                  </executions>
-                </plugin>
-                <plugin>
-                  <groupId>org.codehaus.mojo</groupId>
-                  <artifactId>exec-maven-plugin</artifactId>
-                  <version>3.5.0</version>
-                  <executions>
                     <execution>
-                      <id>Execute Native Library Build Script</id>
+                      <id>Execute Native Library Build Script on z/OS</id>
                       <phase>compile</phase>
                       <goals>
-                        <goal>exec</goal>
+                        <goal>run</goal>
                       </goals>
                       <configuration>
-                        <skip>${skip.native.compile}</skip>
-                        <environmentVariables>
-                          <PLATFORM>${build.platform.value}</PLATFORM>
-                        </environmentVariables>
-                        <executable>bash</executable>
-                        <commandlineArgs>${build.native.file}</commandlineArgs>
+                        <skip>${skip.zos.native.compile}</skip>
+                        <target>
+                          <exec executable="bash" failonerror="true">
+                            <arg value="-c"/>
+                            <arg value="${build.native.file}"/>
+                            <env key="PLATFORM" value="${build.platform.value}"/>
+                          </exec>
+                        </target>
                       </configuration>
                     </execution>
                   </executions>
