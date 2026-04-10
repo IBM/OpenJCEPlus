@@ -668,6 +668,22 @@
                 </execution>
               </executions>
             </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>12.2.0</version>
+                <configuration>
+                    <!-- disable those analyzer OpenJCEPlus don't use -->
+                    <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
+                    <nodeAuditAnalyzerEnabled>false</nodeAuditAnalyzerEnabled>
+                    <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
+                    <yarnAuditAnalyzerEnabled>false</yarnAuditAnalyzerEnabled>
+                    <pnpmAuditAnalyzerEnabled>false</pnpmAuditAnalyzerEnabled>
+                    <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
+                    <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+                    <cocoapodsAnalyzerEnabled>false</cocoapodsAnalyzerEnabled>
+                </configuration>     
+            </plugin>
         </plugins>
         <resources>
             <resource>
