@@ -1,21 +1,37 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestHmacSHA3_224 extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.OPENJCEPLUS_MULTITHREAD_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestHmacSHA3_256 extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     // test vectors fromhttps://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values#aMsgAuth
 
@@ -40,40 +56,45 @@ public class BaseTestHmacSHA3_224 extends BaseTestJunit5 {
             NISTKEY_172[i] = (byte) i;
         }
         /*
-        t("HmacSHA3-224", STR_NIST1, "332cfd59347fdb8e576e77260be4aba2d6dc53117b3bfb52c6d18c04", Arrays.copyOf(NISTKEY_172, 28)),
-        t("HmacSHA3-224", STR_NIST2, "d8b733bcf66c644a12323d564e24dcf3fc75f231f3b67968359100c7", Arrays.copyOf(NISTKEY_172, 144)),
-        t("HmacSHA3-224", STR_NIST3, "078695eecc227c636ad31d063a15dd05a7e819a66ec6d8de1e193e59", NISTKEY_172),
+        t("HmacSHA3-256", STR_NIST1, "4fe8e202c4f058e8dddc23d8c34e467343e23555e24fc2f025d598f558f67205", Arrays.copyOf(NISTKEY_172, 32)),
+        t("HmacSHA3-256", STR_NIST2, "68b94e2e538a9be4103bebb5aa016d47961d4d1aa906061313b557f8af2c3faa", Arrays.copyOf(NISTKEY_172, 136)),
+        t("HmacSHA3-256", STR_NIST3, "9bcf2c238e235c3ce88404e813bd2f3a97185ac6f238c63d6229a00b07974258", Arrays.copyOf(NISTKEY_172, 168)),
         */
 
-        key_1 = Arrays.copyOf(NISTKEY_172, 28);
+        key_1 = Arrays.copyOf(NISTKEY_172, 32);
 
         data1 = "Sample message for keylen<blocklen";
         data_1 = data1.getBytes(StandardCharsets.UTF_8);
 
-        digest_1 = BaseUtils
-                .hexStringToByteArray("332cfd59347fdb8e576e77260be4aba2d6dc53117b3bfb52c6d18c04");
+        digest_1 = BaseUtils.hexStringToByteArray(
+                "4fe8e202c4f058e8dddc23d8c34e467343e23555e24fc2f025d598f558f67205");
 
-        key_2 = Arrays.copyOf(NISTKEY_172, 144);
+        key_2 = Arrays.copyOf(NISTKEY_172, 136);
 
         data2 = "Sample message for keylen=blocklen";
         data_2 = data2.getBytes(StandardCharsets.UTF_8);
 
-        digest_2 = BaseUtils
-                .hexStringToByteArray("d8b733bcf66c644a12323d564e24dcf3fc75f231f3b67968359100c7");
+        digest_2 = BaseUtils.hexStringToByteArray(
+                "68b94e2e538a9be4103bebb5aa016d47961d4d1aa906061313b557f8af2c3faa");
 
-        key_3 = NISTKEY_172.clone();
+        key_3 = Arrays.copyOf(NISTKEY_172, 168);
 
         data3 = "Sample message for keylen>blocklen";
         data_3 = data3.getBytes(StandardCharsets.UTF_8);
 
-        digest_3 = BaseUtils
-                .hexStringToByteArray("078695eecc227c636ad31d063a15dd05a7e819a66ec6d8de1e193e59");
+        digest_3 = BaseUtils.hexStringToByteArray(
+                "9bcf2c238e235c3ce88404e813bd2f3a97185ac6f238c63d6229a00b07974258");
+    }
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
     }
 
     @Test
-    public void testHmacSHA3_224_key1() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA3-224", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA3-224");
+    public void testHmacSHA3_256_key1() throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA3-256", getProviderName());
+        SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA3-256");
         mac.init(key);
         mac.update(data_1);
         byte[] digest = mac.doFinal();
@@ -82,9 +103,9 @@ public class BaseTestHmacSHA3_224 extends BaseTestJunit5 {
     }
 
     @Test
-    public void testHmacSHA3_224_key2() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA3-224", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_2, "HmacSHA3-224");
+    public void testHmacSHA3_256_key2() throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA3-256", getProviderName());
+        SecretKeySpec key = new SecretKeySpec(key_2, "HmacSHA3-256");
         mac.init(key);
         mac.update(data_2);
         byte[] digest = mac.doFinal();
@@ -93,9 +114,9 @@ public class BaseTestHmacSHA3_224 extends BaseTestJunit5 {
     }
 
     @Test
-    public void testHmacSHA3_224_key3() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA3-224", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_3, "HmacSHA3-224");
+    public void testHmacSHA3_256_key3() throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA3-256", getProviderName());
+        SecretKeySpec key = new SecretKeySpec(key_3, "HmacSHA3-256");
         mac.init(key);
         mac.update(data_3);
         byte[] digest = mac.doFinal();
@@ -105,8 +126,8 @@ public class BaseTestHmacSHA3_224 extends BaseTestJunit5 {
 
     @Test
     public void test_reset() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA3-224", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA3-224");
+        Mac mac = Mac.getInstance("HmacSHA3-256", getProviderName());
+        SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA3-256");
         mac.init(key);
         mac.update(data_1);
         mac.reset();
@@ -118,8 +139,8 @@ public class BaseTestHmacSHA3_224 extends BaseTestJunit5 {
 
     @Test
     public void test_reuse() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA3-224", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA3-224");
+        Mac mac = Mac.getInstance("HmacSHA3-256", getProviderName());
+        SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA3-256");
         mac.init(key);
         mac.update(data_1);
         byte[] digest = mac.doFinal();
@@ -134,9 +155,9 @@ public class BaseTestHmacSHA3_224 extends BaseTestJunit5 {
 
     @Test
     public void test_mac_length() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA3-224", getProviderName());
+        Mac mac = Mac.getInstance("HmacSHA3-256", getProviderName());
         int macLength = mac.getMacLength();
-        boolean isExpectedValue = (macLength == 28);
+        boolean isExpectedValue = (macLength == 32);
         assertTrue(isExpectedValue, "Unexpected mac length");
     }
 }
