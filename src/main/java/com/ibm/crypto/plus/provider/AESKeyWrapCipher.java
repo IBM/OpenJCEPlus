@@ -257,11 +257,11 @@ abstract class AESKeyWrapCipher extends CipherSpi {
         }
 
         try {
-            this.cipher = new AESKeyWrap(provider.getOCKContext(), rawKey, setPadding);
+            this.cipher = new AESKeyWrap(this.provider, rawKey, setPadding);
         } catch (Exception e) {
             throw new InvalidKeyException("OCKC context null or bad key.", e);
         } 
-        this.initialized = true;   
+        this.initialized = true;
     }
 
     @Override

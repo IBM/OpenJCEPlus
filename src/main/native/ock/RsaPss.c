@@ -14,18 +14,18 @@
 #include <jcc_a.h>
 #include <icc.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include "RsaPss.h"
 #include <stdint.h>
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSAPSS_signInit
  * DigestSignature: (JJJ)[B
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1signInit(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1signInit(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockRsaPssId,
     jlong ockPKeyId, jint saltlen, jboolean convert) {
     static const char *functionName = "NativeInterface.RSAPSS_signInit";
@@ -133,12 +133,12 @@ sig_len = modulus/4;
 rv = ICC_EVP_DigestSignFinal(ctx,md_ctx,sig_buf,&sig_len);*/
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSAPSS_verifyInit
  * DigestSignature: (JJJ)[B
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1verifyInit(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1verifyInit(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockRsaPssId,
     jlong ockPKeyId, jint saltlen) {
     static const char *functionName = "NativeInterface.RSAPSS_verifyInit";
@@ -217,12 +217,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1verifyInit(
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSAPSS_getSigLen
  * DigestSignature: (JJ)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1getSigLen(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1getSigLen(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockRsaPssId) {
     /*static const char * functionName = "NativeInterface.RSAPSS_getSigLen";*/
 
@@ -246,12 +246,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1getSigLen(
     return outLen;
 }
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSAPSS_signFinal
  * DigestSignature: (JJJ[BI)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1signFinal(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1signFinal(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockRsaPssId,
     jbyteArray signature, jint length) {
     static const char *functionName = "NativeInterface.RSAPSS_signFinal";
@@ -339,12 +339,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1signFinal(
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSAPSS_verifyFinal
  * Signature: (JJJ)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1verifyFinal(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1verifyFinal(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockRsaPssId,
     jbyteArray sigBytes, jint size) {
     static const char *functionName = "NativeInterface.RSAPSS_verifyFinal";
@@ -423,12 +423,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1verifyFinal(
 }
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSAPSS_digestUpdate
  * Signature: (JJ[BII)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1digestUpdate(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1digestUpdate(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong rsaPssId,
     jbyteArray data, jint offset, jint dataLen) {
     static const char *functionName = "NativeInterface.RSAPSS_digestUpdate";
@@ -560,13 +560,13 @@ OCKDigest *allocateDigest(JNIEnv *env, ICC_CTX *ockCtx, jstring digestAlgo) {
 }
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSAPSS_createContext
  * Signature: (JLjava/lang/String;)J
  */
 
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1createContext(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1createContext(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jstring digestAlgo,
     jstring mgf1SpecAlgo) {
     static const char *functionName = "NativeInterface.RSAPSS_createContext";
@@ -602,13 +602,13 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1createContext(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSAPSS_releaseContext
  * Signature: (JJ)V
  */
 
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1releaseContext(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1releaseContext(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockRsaPssId) {
     static const char *functionName = "NativeInterface.RSAPSS_releaseContext";
 
@@ -651,12 +651,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1releaseContext(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSAPSS_reset
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1reset(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1reset(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId) {
     static const char *functionName = "NativeInterface.RSAPSS_reset";
 
@@ -702,13 +702,13 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1reset(
 }
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSAPSS_resetDigest
  * Signature: (JJ)V
  */
 
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_RSAPSS_1resetDigest(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1resetDigest(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockRsaPssId) {
     static const char *functionName = "NativeInterface.RSAPSS_resetDigest";
 

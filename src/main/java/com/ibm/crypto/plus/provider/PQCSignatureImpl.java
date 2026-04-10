@@ -34,7 +34,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
     PQCSignatureImpl(OpenJCEPlusProvider provider) {
         try {
             this.provider = provider;
-            this.signature = PQCSignature.getInstance(provider.getOCKContext());
+            this.signature = PQCSignature.getInstance(provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to initialize EdDSA signature", e);
         }
@@ -43,7 +43,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
     PQCSignatureImpl(OpenJCEPlusProvider provider, String Alg) {
         try {
             this.provider = provider;
-            this.signature = PQCSignature.getInstance(provider.getOCKContext());
+            this.signature = PQCSignature.getInstance(provider);
         } catch (Exception e) {
             throw provider.providerException("Failed to initialize EdDSA signature", e);
         }

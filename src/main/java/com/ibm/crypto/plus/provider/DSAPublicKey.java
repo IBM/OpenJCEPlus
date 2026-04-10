@@ -66,7 +66,7 @@ final class DSAPublicKey extends X509Key
 
         try {
             byte[] publicKeyBytes = buildOCKPublicKeyBytes();
-            this.dsaKey = DSAKey.createPublicKey(provider.getOCKContext(), publicKeyBytes, provider);
+            this.dsaKey = DSAKey.createPublicKey(publicKeyBytes, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create DSA public key");
             provider.setOCKExceptionCause(ike, exception);
@@ -87,7 +87,7 @@ final class DSAPublicKey extends X509Key
 
         try {
             byte[] publicKeyBytes = buildOCKPublicKeyBytes();
-            this.dsaKey = DSAKey.createPublicKey(provider.getOCKContext(), publicKeyBytes, provider);
+            this.dsaKey = DSAKey.createPublicKey(publicKeyBytes, provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create DSA public key");
             provider.setOCKExceptionCause(ike, exception);

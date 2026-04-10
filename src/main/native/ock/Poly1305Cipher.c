@@ -13,7 +13,7 @@
 #include <jcc_a.h>
 #include <icc.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Padding.h"
 #include "Utils.h"
 #include "ExceptionCodes.h"
@@ -26,12 +26,12 @@ typedef struct OCKCipher {
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_create
  * Signature: (JLjava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1create(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1create(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jstring cipherName) {
     static const char *functionName = "NativeInterface.POLY1305CIPHER_create";
 
@@ -108,12 +108,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1create(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_init
  * Signature: (JJZ)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1init(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1init(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId,
     jint isEncrypt, jbyteArray key, jbyteArray iv) {
     static const char *functionName = "NativeInterface.POLY1305CIPHER_init";
@@ -175,12 +175,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1init(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_clean
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1clean(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1clean(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId) {
     static const char *functionName = "NativeInterface.POLY1305CIPHER_clean";
 
@@ -211,12 +211,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1clean(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_setPadding
  * Signature: (JJZ)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1setPadding(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1setPadding(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId,
     jint paddingId) {
     static const char *functionName =
@@ -274,12 +274,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1setPaddin
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_getBlockSize
  * Signature: (JJ)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1getBlockSize(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1getBlockSize(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId) {
     static const char *functionName =
         "NativeInterface.POLY1305CIPHER_getBlockSize";
@@ -304,12 +304,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1getBlockS
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_getKeyLength
  * Signature: (JJ)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1getKeyLength(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1getKeyLength(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId) {
     static const char *functionName =
         "NativeInterface.POLY1305CIPHER_getKeyLength";
@@ -334,12 +334,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1getKeyLen
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_getIVLength
  * Signature: (JJ)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1getIVLength(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1getIVLength(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId) {
     static const char *functionName =
         "NativeInterface.POLY1305CIPHER_getIVLength";
@@ -364,12 +364,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1getIVLeng
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_getOID
  * Signature: (JJ)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1getOID(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1getOID(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId) {
     static const char *functionName = "NativeInterface.POLY1305CIPHER_getOID";
 
@@ -393,12 +393,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1getOID(
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_encryptUpdate
  * Signature: (JJI[B[B)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1encryptUpdate(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1encryptUpdate(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId,
     jbyteArray plaintext, jint plaintextOffset, jint plaintextLen,
     jbyteArray ciphertext, jint ciphertextOffset) {
@@ -498,12 +498,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1encryptUp
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_encryptFinal
  * Signature: (JJI[B[B)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1encryptFinal(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1encryptFinal(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId,
     jbyteArray plaintext, jint plaintextOffset, jint plaintextLen,
     jbyteArray ciphertext, jint ciphertextOffset, jbyteArray tag) {
@@ -643,12 +643,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1encryptFi
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_decryptUpdate
  * Signature: (JJI[B[B)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1decryptUpdate(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1decryptUpdate(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId,
     jbyteArray ciphertext, jint ciphertextOffset, jint ciphertextLen,
     jbyteArray plaintext, jint plaintextOffset) {
@@ -744,12 +744,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1decryptUp
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_decryptFinal
  * Signature: (JJI[B[B)I
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1decryptFinal(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1decryptFinal(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId,
     jbyteArray ciphertext, jint ciphertextOffset, jint ciphertextLen,
     jbyteArray plaintext, jint plaintextOffset, jbyteArray tag) {
@@ -928,12 +928,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1decryptFi
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_delete
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_POLY1305CIPHER_1delete(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1delete(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong ockCipherId) {
     static const char *functionName = "NativeInterface.POLY1305CIPHER_delete";
 

@@ -111,8 +111,8 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
             } else {
                 secrectBufferSize = 0; // Let OCK decide the size
             }
-            this.secret = XECKey.computeECDHSecret(provider.getOCKContext(), genCtx,
-                    ockXecKeyPub.getPKeyId(), ockXecKeyPriv.getPKeyId(), secrectBufferSize);
+            this.secret = XECKey.computeECDHSecret(genCtx,
+                    ockXecKeyPub.getPKeyId(), ockXecKeyPriv.getPKeyId(), secrectBufferSize, provider);
         } catch (OCKException e) {
             //Validate the secret value for a small order point condition.
             byte orValue = (byte) 0;

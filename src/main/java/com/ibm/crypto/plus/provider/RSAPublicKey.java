@@ -73,7 +73,7 @@ final class RSAPublicKey extends X509Key
         }
 
         try {
-            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), getKey().toByteArray(), provider);
+            this.rsaKey = RSAKey.createPublicKey(getKey().toByteArray(), provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA public key");
             provider.setOCKExceptionCause(ike, exception);
@@ -91,7 +91,7 @@ final class RSAPublicKey extends X509Key
         checkExponentRange();
 
         try {
-            this.rsaKey = RSAKey.createPublicKey(provider.getOCKContext(), getKey().toByteArray(), provider);
+            this.rsaKey = RSAKey.createPublicKey(getKey().toByteArray(), provider);
         } catch (Exception exception) {
             InvalidKeyException ike = new InvalidKeyException("Failed to create RSA public key");
             provider.setOCKExceptionCause(ike, exception);

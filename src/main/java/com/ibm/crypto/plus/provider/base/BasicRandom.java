@@ -8,19 +8,22 @@
 
 package com.ibm.crypto.plus.provider.base;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
+
 public final class BasicRandom {
 
-    OCKContext ockContext;
+    private OpenJCEPlusProvider provider;
+    private NativeInterface nativeInterface;
 
-    public static BasicRandom getInstance(OCKContext ockContext) {
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-        return new BasicRandom(ockContext);
+    public static BasicRandom getInstance(OpenJCEPlusProvider provider) {
+        return new BasicRandom(provider);
     }
 
-    private BasicRandom(OCKContext ockContext) {
-        this.ockContext = ockContext;
+    private BasicRandom(OpenJCEPlusProvider provider) {
+        this.provider = provider;
+        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
     }
 
     public void nextBytes(byte[] bytes) throws OCKException {
@@ -29,7 +32,7 @@ public final class BasicRandom {
         }
 
         if (bytes.length > 0) {
-            NativeInterface.RAND_nextBytes(ockContext.getId(), bytes);
+            this.nativeInterface.RAND_nextBytes(bytes);
         }
     }
 
@@ -39,7 +42,7 @@ public final class BasicRandom {
         }
 
         if (seed.length > 0) {
-            NativeInterface.RAND_setSeed(ockContext.getId(), seed);
+            this.nativeInterface.RAND_setSeed(seed);
         }
     }
 
@@ -50,7 +53,7 @@ public final class BasicRandom {
 
         byte[] seed = new byte[numBytes];
         if (numBytes > 0) {
-            NativeInterface.RAND_generateSeed(ockContext.getId(), seed);
+            this.nativeInterface.RAND_generateSeed(seed);
         }
         return seed;
     }

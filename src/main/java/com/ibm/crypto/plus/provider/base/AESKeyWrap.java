@@ -8,20 +8,23 @@
 
 package com.ibm.crypto.plus.provider.base;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class AESKeyWrap {
 
-    private OCKContext ockContext;
+    private NativeInterface nativeInterface;
     private byte[] key = null;
     private boolean padding = false;
 
-    public AESKeyWrap(OCKContext ockContext, byte[] key, boolean padding)
+    public AESKeyWrap(OpenJCEPlusProvider provider, byte[] key, boolean padding)
             throws OCKException {
-        if (ockContext == null || key == null) {
+        if (key == null) {
             throw new OCKException("Invalid input data");
         }
-        this.ockContext = ockContext;
+        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         this.key = key;
         this.padding = padding;
     }
@@ -39,7 +42,7 @@ public final class AESKeyWrap {
         }
 
         try {
-            output = NativeInterface.CIPHER_KeyWraporUnwrap(this.ockContext.getId(), inData, this.key, type);
+            output = this.nativeInterface.CIPHER_KeyWraporUnwrap(inData, this.key, type);
         } catch (Exception e) {
             throw new OCKException("Failed to wrap data" + e.getMessage());
         }  finally {
@@ -62,7 +65,7 @@ public final class AESKeyWrap {
         }
 
         try {
-            output = NativeInterface.CIPHER_KeyWraporUnwrap(this.ockContext.getId(), inData, this.key, type);
+            output = this.nativeInterface.CIPHER_KeyWraporUnwrap(inData, this.key, type);
         } catch (Exception e) {
             throw new OCKException("Failed to unwrap data" + e.getMessage());
         }  finally {

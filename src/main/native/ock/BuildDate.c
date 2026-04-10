@@ -11,17 +11,17 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include <stdint.h>
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    getLibraryBuildDate
  * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_getLibraryBuildDate(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_getLibraryBuildDate(
     JNIEnv* env, jclass thisObj) {
     static const char* functionName    = "NativeInterface.getLibraryBuildDate";
     const char*        buildDateString = NULL;

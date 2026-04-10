@@ -8,11 +8,13 @@
 
 package com.ibm.crypto.plus.provider.base;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.security.InvalidKeyException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.ShortBufferException;
-
 
 /*From section 9.11 of GSKit_crypto.pdf 
 RSA keys contain a lot of internal state, and if a single key is used for multiple purposes (sign/verify with different
@@ -39,21 +41,18 @@ long. This limitation should never be hit in practice. (The typical RSA exponent
 
 public final class RSACipher {
 
-    private OCKContext ockContext = null;
+    private NativeInterface nativeInterface;
     private RSAKey rsaKey = null;
     private final String badIdMsg = "RSA Key Identifier is not valid";
     private boolean convertKey = false; //Used to convert RSA Plain keys
     // private final String debPrefix = "RSACipher"; /* Adding DEBUG messes up encrypt/decrypt cases */
 
-    public static RSACipher getInstance(OCKContext ockContext) {
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-        return new RSACipher(ockContext);
+    public static RSACipher getInstance(OpenJCEPlusProvider provider) {
+        return new RSACipher(provider);
     }
 
-    private RSACipher(OCKContext ockContext) {
-        this.ockContext = ockContext;
+    private RSACipher(OpenJCEPlusProvider provider) {
+        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
     }
 
     public void initialize(RSAKey key, boolean plainRSAKey)
@@ -83,7 +82,7 @@ public final class RSACipher {
         if (!validId(this.rsaKey.getRSAKeyId())) {
             throw new OCKException(badIdMsg);
         }
-        return checkOutLen(NativeInterface.RSACIPHER_public_encrypt(this.ockContext.getId(),
+        return checkOutLen(this.nativeInterface.RSACIPHER_public_encrypt(
                 this.rsaKey.getRSAKeyId(), padding.getId(), padding.getMessageDigest(),
                 padding.getMGF1Digest(), input, inOffset, inLen, output, outOffset));
     }
@@ -99,7 +98,7 @@ public final class RSACipher {
         if (!validId(this.rsaKey.getRSAKeyId())) {
             throw new OCKException(badIdMsg);
         }
-        return checkOutLen(NativeInterface.RSACIPHER_private_encrypt(this.ockContext.getId(),
+        return checkOutLen(this.nativeInterface.RSACIPHER_private_encrypt(
                 this.rsaKey.getRSAKeyId(), padding.getId(), input, inOffset, inLen, output,
                 outOffset, convertKey));
     }
@@ -119,7 +118,7 @@ public final class RSACipher {
         if (!validId(this.rsaKey.getRSAKeyId())) {
             throw new OCKException(badIdMsg);
         }
-        return checkOutLen(NativeInterface.RSACIPHER_public_decrypt(this.ockContext.getId(),
+        return checkOutLen(this.nativeInterface.RSACIPHER_public_decrypt(
                 this.rsaKey.getRSAKeyId(), padding.getId(), input, inOffset, inLen, output,
                 outOffset));
     }
@@ -139,7 +138,7 @@ public final class RSACipher {
         if (!validId(this.rsaKey.getRSAKeyId())) {
             throw new OCKException(badIdMsg);
         }
-        return checkOutLen(NativeInterface.RSACIPHER_private_decrypt(this.ockContext.getId(),
+        return checkOutLen(this.nativeInterface.RSACIPHER_private_decrypt(
                 this.rsaKey.getRSAKeyId(), padding.getId(), padding.getMessageDigest(),
                 padding.getMGF1Digest(), input, inOffset, inLen, output, outOffset, convertKey));
     }

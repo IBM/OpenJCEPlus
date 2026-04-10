@@ -9,6 +9,8 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class XECKey implements AsymmetricKey {
@@ -17,7 +19,7 @@ public final class XECKey implements AsymmetricKey {
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
     private OpenJCEPlusProvider provider;
-    private OCKContext ockContext;
+    private NativeInterface nativeInterface;
     private final long xecKeyId;
     private byte[] privateKeyBytes;
     private byte[] publicKeyBytes;
@@ -32,52 +34,48 @@ public final class XECKey implements AsymmetricKey {
         }
     };
 
-    private XECKey(OCKContext ockContext, long xecKeyId, byte[] privateKeyBytes,
+    private XECKey(NativeInterface nativeInterface, long xecKeyId, byte[] privateKeyBytes,
             byte[] publicKeyBytes, OpenJCEPlusProvider provider) {
         //final String methodName = "XECKey(long, byte[], byte[]) ";
-        this.ockContext = ockContext;
         this.xecKeyId = xecKeyId;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
         this.provider = provider;
-
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, xecKeyId, ockContext));
+        this.nativeInterface = nativeInterface;
+        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, xecKeyId, nativeInterface));
     }
 
 
-    public static XECKey generateKeyPair(OCKContext ockContext, int curveNum, int pub_size, OpenJCEPlusProvider provider)
+    public static XECKey generateKeyPair(int curveNum, int pub_size, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "generateKeyPair(NamedParameterSpec.CURVE) ";
-        if (ockContext == null)
-            throw new IllegalArgumentException("The context parameter is null");
-
         FastJNIBuffer buffer = XECKey.buffer.get();
 
-        long xecKeyId = NativeInterface.XECKEY_generate(ockContext.getId(), curveNum,
-                buffer.pointer());
-        if (!validId(xecKeyId))
-            throw new OCKException(badIdMsg);
-            
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
 
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        long xecKeyId = nativeInterface.XECKEY_generate(curveNum,
+                buffer.pointer());
+        if (!validId(xecKeyId))
+            throw new OCKException(badIdMsg);
+
         byte[] publicKeyBytes = new byte[pub_size];
         buffer.get(0, publicKeyBytes, 0, pub_size);
 
-        return new XECKey(ockContext, xecKeyId, unobtainedKeyBytes, publicKeyBytes, provider);
+        return new XECKey(nativeInterface, xecKeyId, unobtainedKeyBytes, publicKeyBytes, provider);
     }
 
-    public static byte[] computeECDHSecret(OCKContext ockContext, long genCtx, long pubId,
-            long privId, int secrectBufferSize) throws OCKException {
-        if (ockContext == null)
-            throw new IllegalArgumentException("context is null");
+    public static byte[] computeECDHSecret(long genCtx, long pubId,
+            long privId, int secrectBufferSize, OpenJCEPlusProvider provider) throws OCKException {
         if (pubId == 0)
             throw new IllegalArgumentException("The public key parameter is not valid");
         if (privId == 0)
             throw new IllegalArgumentException("The private key parameter is not valid");
 
-        byte[] sharedSecretBytes = NativeInterface.XECKEY_computeECDHSecret(ockContext.getId(),
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        byte[] sharedSecretBytes = nativeInterface.XECKEY_computeECDHSecret(
                 genCtx, pubId, privId, secrectBufferSize);
         //OCKDebug.Msg (debPrefix, methodName,  "pubId :" + pubId + " privId :" + privId + " sharedSecretBytes :", sharedSecretBytes);
         return sharedSecretBytes;
@@ -97,8 +95,7 @@ public final class XECKey implements AsymmetricKey {
         if (privateKeyBytes == unobtainedKeyBytes) {
             if (!validId(xecKeyId))
                 throw new OCKException(badIdMsg);
-            this.privateKeyBytes = NativeInterface.XECKEY_getPrivateKeyBytes(ockContext.getId(),
-                    xecKeyId); // Returns DER encoded bytes
+            this.privateKeyBytes = this.nativeInterface.XECKEY_getPrivateKeyBytes(xecKeyId); // Returns DER encoded bytes
         }
     }
 
@@ -120,11 +117,9 @@ public final class XECKey implements AsymmetricKey {
         return (publicKeyBytes == null) ? null : publicKeyBytes.clone();
     }
 
-    public synchronized static XECKey createPrivateKey(OCKContext ockContext,
+    public synchronized static XECKey createPrivateKey(
             byte[] privateKeyBytes, int priv_size, OpenJCEPlusProvider provider) throws OCKException {
         //final String methodName = "createPrivateKey";
-        if (ockContext == null)
-            throw new IllegalArgumentException("context is null");
         if (privateKeyBytes == null)
             throw new IllegalArgumentException("key bytes is null");
         if (provider == null) 
@@ -132,7 +127,8 @@ public final class XECKey implements AsymmetricKey {
 
         FastJNIBuffer buffer = XECKey.buffer.get();
 
-        long xecKeyId = NativeInterface.XECKEY_createPrivateKey(ockContext.getId(), privateKeyBytes,
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        long xecKeyId = nativeInterface.XECKEY_createPrivateKey(privateKeyBytes,
                 buffer.pointer());
         if (!validId(xecKeyId))
             throw new OCKException(badIdMsg);
@@ -141,22 +137,21 @@ public final class XECKey implements AsymmetricKey {
         byte[] publicKeyBytes = new byte[priv_size];
         buffer.get(0, publicKeyBytes, 0, priv_size);
 
-        return new XECKey(ockContext, xecKeyId, privateKeyBytes.clone(), publicKeyBytes, provider);
+        return new XECKey(nativeInterface, xecKeyId, privateKeyBytes.clone(), publicKeyBytes, provider);
     }
 
-    public static XECKey createPublicKey(OCKContext ockContext, byte[] publicKeyBytes, OpenJCEPlusProvider provider)
+    public static XECKey createPublicKey(byte[] publicKeyBytes, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "createPublicKey";
-        if (ockContext == null)
-            throw new IllegalArgumentException("context is null");
         if (publicKeyBytes == null)
             throw new IllegalArgumentException("key bytes is null");
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
 
-        long xecKeyId = NativeInterface.XECKEY_createPublicKey(ockContext.getId(), publicKeyBytes);
-        return new XECKey(ockContext, xecKeyId, null, publicKeyBytes.clone(), provider);
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        long xecKeyId = nativeInterface.XECKEY_createPublicKey(publicKeyBytes);
+        return new XECKey(nativeInterface, xecKeyId, null, publicKeyBytes.clone(), provider);
     }
 
     public String getAlgorithm() {
@@ -168,14 +163,14 @@ public final class XECKey implements AsymmetricKey {
         return xecKeyId;
     }
 
-    private Runnable cleanOCKResources(byte[] privateKeyBytes, long xecKeyId, OCKContext ockContext) {
+    private Runnable cleanOCKResources(byte[] privateKeyBytes, long xecKeyId, NativeInterface nativeInterface) {
         return () -> {
             try {
                 if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
                     Arrays.fill(privateKeyBytes, (byte) 0x00);
                 }
                 if (xecKeyId != 0) {
-                    NativeInterface.XECKEY_delete(ockContext.getId(), xecKeyId);
+                    nativeInterface.XECKEY_delete(xecKeyId);
                 }
             } catch (OCKException e) {
                 if (OpenJCEPlusProvider.getDebug() != null) {

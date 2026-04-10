@@ -84,7 +84,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
             // Create appropriate encoding and create ecKey.
             byte[] privateKeyBytes = createEncodedPrivateKeyWithParams();
             byte[] paramBytes = ECParameters.encodeECParameters(this.params);
-            this.ecKey = ECKey.createPrivateKey(provider.getOCKContext(), privateKeyBytes,
+            this.ecKey = ECKey.createPrivateKey(privateKeyBytes,
                     paramBytes, provider);
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create EC private key, " + exception.getMessage(), exception);
@@ -112,7 +112,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
             // Create appropriate encoding and create ecKey.
             byte[] privateKeyBytes = createEncodedPrivateKeyWithParams();
             byte[] paramBytes = ECParameters.encodeECParameters(params);
-            this.ecKey = ECKey.createPrivateKey(provider.getOCKContext(), privateKeyBytes,
+            this.ecKey = ECKey.createPrivateKey(privateKeyBytes,
                     paramBytes, provider);
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create EC private key, " + exception.getMessage(), exception);

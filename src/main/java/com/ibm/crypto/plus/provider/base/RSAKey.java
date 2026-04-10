@@ -9,6 +9,8 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.math.BigInteger;
 import java.util.Arrays;
 
@@ -20,7 +22,7 @@ public final class RSAKey implements AsymmetricKey {
     static final byte[] unobtainedKeyBytes = new byte[0];
 
     private OpenJCEPlusProvider provider;
-    private OCKContext ockContext;
+    private NativeInterface nativeInterface;
     private final long rsaKeyId;
     private byte[] privateKeyBytes;
     private byte[] publicKeyBytes;
@@ -28,13 +30,9 @@ public final class RSAKey implements AsymmetricKey {
     private final static String badIdMsg = "RSA Key Identifier is not valid";
     private final static String debPrefix = "RSAKey";
 
-    public static RSAKey generateKeyPair(OCKContext ockContext, int numBits, BigInteger e, OpenJCEPlusProvider provider)
+    public static RSAKey generateKeyPair(int numBits, BigInteger e, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "generateKeyPair ";
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
         if (numBits < 0) {
             throw new IllegalArgumentException("key length is invalid");
         }
@@ -43,18 +41,15 @@ public final class RSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
 
-        long rsaKeyId = NativeInterface.RSAKEY_generate(ockContext.getId(), numBits, e.longValue());
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        long rsaKeyId = nativeInterface.RSAKEY_generate(numBits, e.longValue());
         //OCKDebug.Msg (debPrefix, methodName,  "numBits=" + numBits + " rsaKeyId=" + rsaKeyId);
-        return new RSAKey(ockContext, rsaKeyId, unobtainedKeyBytes, unobtainedKeyBytes, provider);
+        return new RSAKey(nativeInterface, rsaKeyId, unobtainedKeyBytes, unobtainedKeyBytes, provider);
     }
 
-    public static RSAKey createPrivateKey(OCKContext ockContext, byte[] privateKeyBytes, OpenJCEPlusProvider provider)
+    public static RSAKey createPrivateKey(byte[] privateKeyBytes, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "createPrivateKey ";
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
         if (privateKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
         }
@@ -63,19 +58,15 @@ public final class RSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
 
-        long rsaKeyId = NativeInterface.RSAKEY_createPrivateKey(ockContext.getId(),
-                privateKeyBytes);
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        long rsaKeyId = nativeInterface.RSAKEY_createPrivateKey(privateKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName,  "rsaKeyId :" + rsaKeyId);
-        return new RSAKey(ockContext, rsaKeyId, privateKeyBytes.clone(), null, provider);
+        return new RSAKey(nativeInterface, rsaKeyId, privateKeyBytes.clone(), null, provider);
     }
 
-    public static RSAKey createPublicKey(OCKContext ockContext, byte[] publicKeyBytes, OpenJCEPlusProvider provider)
+    public static RSAKey createPublicKey(byte[] publicKeyBytes, OpenJCEPlusProvider provider)
             throws OCKException {
         //final String methodName = "createPublicKey ";
-        if (ockContext == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-
         if (publicKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
         }
@@ -84,21 +75,22 @@ public final class RSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
 
-        long rsaKeyId = NativeInterface.RSAKEY_createPublicKey(ockContext.getId(), publicKeyBytes);
+        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        long rsaKeyId = nativeInterface.RSAKEY_createPublicKey(publicKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName,  "rsaKeyId :" + rsaKeyId);
-        return new RSAKey(ockContext, rsaKeyId, null, publicKeyBytes.clone(), provider);
+        return new RSAKey(nativeInterface, rsaKeyId, null, publicKeyBytes.clone(), provider);
     }
 
-    private RSAKey(OCKContext ockContext, long rsaKeyId, byte[] privateKeyBytes,
+    private RSAKey(NativeInterface nativeInterface, long rsaKeyId, byte[] privateKeyBytes,
             byte[] publicKeyBytes, OpenJCEPlusProvider provider) {
-        this.ockContext = ockContext;
         this.rsaKeyId = rsaKeyId;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
         this.keySize = 0;
         this.provider = provider;
+        this.nativeInterface = nativeInterface;
 
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, rsaKeyId, ockContext));
+        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, rsaKeyId, nativeInterface));
     }
 
     @Override
@@ -153,8 +145,7 @@ public final class RSAKey implements AsymmetricKey {
             if (!validId(rsaKeyId)) {
                 throw new OCKException(badIdMsg);
             }
-            this.privateKeyBytes = NativeInterface.RSAKEY_getPrivateKeyBytes(ockContext.getId(),
-                    rsaKeyId);
+            this.privateKeyBytes = this.nativeInterface.RSAKEY_getPrivateKeyBytes(rsaKeyId);
         }
     }
 
@@ -167,8 +158,7 @@ public final class RSAKey implements AsymmetricKey {
             if (!validId(rsaKeyId)) {
                 throw new OCKException(badIdMsg);
             }
-            this.publicKeyBytes = NativeInterface.RSAKEY_getPublicKeyBytes(ockContext.getId(),
-                    rsaKeyId);
+            this.publicKeyBytes = this.nativeInterface.RSAKEY_getPublicKeyBytes(rsaKeyId);
         }
     }
 
@@ -181,7 +171,7 @@ public final class RSAKey implements AsymmetricKey {
             if (!validId(rsaKeyId)) {
                 throw new OCKException(badIdMsg);
             }
-            this.keySize = NativeInterface.RSAKEY_size(ockContext.getId(), rsaKeyId);
+            this.keySize = this.nativeInterface.RSAKEY_size(rsaKeyId);
         }
     }
 
@@ -192,14 +182,14 @@ public final class RSAKey implements AsymmetricKey {
         return (id != 0L);
     }
 
-    private Runnable cleanOCKResources(byte[] privateKeyBytes, long rsaKeyId, OCKContext ockContext) {
+    private Runnable cleanOCKResources(byte[] privateKeyBytes, long rsaKeyId, NativeInterface nativeInterface) {
         return () -> {
             try {
                 if ((privateKeyBytes != null) && (privateKeyBytes != unobtainedKeyBytes)) {
                     Arrays.fill(privateKeyBytes, (byte) 0x00);
                 }
                 if (rsaKeyId != 0) {
-                    NativeInterface.RSAKEY_delete(ockContext.getId(), rsaKeyId);
+                    nativeInterface.RSAKEY_delete(rsaKeyId);
                 }
             } catch (Exception e) {
                 if (OpenJCEPlusProvider.getDebug() != null) {

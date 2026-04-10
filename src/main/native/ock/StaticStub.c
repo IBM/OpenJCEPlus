@@ -12,7 +12,7 @@
 #include <jcc_a.h>
 #include <icc.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include "ExceptionCodes.h"
 #include "Context.h"
@@ -20,12 +20,12 @@
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    initializeOCK
  * Signature: (Z)J
  */
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_initializeOCK(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_initializeOCK(
     JNIEnv *env, jclass thisObj, jboolean isFIPS) {
     static const char *functionName = "NativeInterface.initializeOCK";
 
@@ -133,12 +133,12 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_initializeOCK(
 }
 
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    CTX_getValue
  * Signature: (JI)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_CTX_1getValue(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_CTX_1getValue(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jint valueId) {
     static const char *functionName = "NativeInterface.CTX_getValue";
 
@@ -191,7 +191,7 @@ Java_com_ibm_crypto_plus_provider_base_NativeInterface_CTX_1getValue(
 }
 
 JNIEXPORT jlong JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_getByteBufferPointer(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_getByteBufferPointer(
     JNIEnv *env, jclass unusedclass, jobject obj) {
     return (jlong)((intptr_t)(*env)->GetDirectBufferAddress(env, obj));
 }

@@ -8,8 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.base.OCKContext;
-import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.ProviderException;
@@ -57,7 +56,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     private static volatile OpenJCEPlusFIPS instance;
 
     private static boolean ockInitialized = false;
-    private static OCKContext ockContext;
 
     private static final boolean isFIPSCertifiedPlatform;
     private static final Map<String, List<String>> supportedPlatforms = new HashMap<>();
@@ -115,13 +113,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
 
         final OpenJCEPlusProvider jce = this;
 
-        // Do java OCK initialization which includes loading native code
-        // Don't do this in the static initializer because it might
-        // be necessary for an applet running in a browser to grant
-        // access rights beforehand.
-        if (!ockInitialized) {
-            initializeContext();
-        }
         registerAlgorithms(jce);
 
         if (instance == null) {
@@ -130,10 +121,10 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
 
         if (debug != null) {
             debug.println("OpenJCEPlusFIPS Build-Level: " + getDebugDate(this.getClass().getName()));
-            debug.println("OpenJCEPlusFIPS library build date: " + OCKContext.getLibraryBuildDate());
+            debug.println("OpenJCEPlusFIPS library build date: " + NativeOCKAdapterFIPS.getInstance().getLibraryBuildDate());
             try {
-                debug.println("OpenJCEPlusFIPS dependent library version: " + ockContext.getOCKVersion());
-                debug.println("OpenJCEPlusFIPS dependent library path: " + ockContext.getOCKInstallPath());
+                debug.println("OpenJCEPlusFIPS dependent library version: " + NativeOCKAdapterFIPS.getInstance().getLibraryVersion());
+                debug.println("OpenJCEPlusFIPS dependent library path: " + NativeOCKAdapterFIPS.getInstance().getLibraryInstallPath());
             } catch (Throwable t) {
                 t.printStackTrace(System.out);
             }
@@ -746,8 +737,8 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
      * @return true if FIPS is active (certified or simulated)
      */
     @Override
-    boolean isFIPS() {
-        return super.isFIPS() || !isFIPSCertifiedPlatform;
+    public boolean isFIPS() {
+        return true;
     }
 
     // Get SecureRandom to use for crypto operations. Returns a FIPS
@@ -760,91 +751,6 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         } catch (NoSuchAlgorithmException e) {
             throw new ProviderException("SecureRandom not available");
         }
-    }
-
-    // Initialize OCK context(s)
-    //
-    private synchronized void initializeContext() {
-        // Leave this duplicate check in here. If two threads are both trying
-        // to instantiate an OpenJCEPlusFIPS provider at the same time, we need
-        // to ensure that the initialization only happens one time. We have
-        // made the method synchronizaed to ensure only one thread can execute
-        // the method at a time.
-        //
-        if (ockInitialized) {
-            return;
-        }
-
-        try {
-            boolean useFIPSMode = true;
-            if (!isFIPSCertifiedPlatform) {
-                if (printFipsDeveloperModeWarning) {
-                    System.out.println("WARNING: OpenJCEPlusFIPS is about to load non FIPS 140-3 library!");
-                }
-                if (debug != null) {
-                    debug.println("WARNING: OpenJCEPlusFIPS is about to load non FIPS 140-3 library!");
-                }
-                useFIPSMode = false;
-            }
-
-            ockContext = OCKContext.createContext(useFIPSMode);
-            ockInitialized = true;
-        } catch (OCKException e) {
-            throw providerException("Failed to initialize OpenJCEPlusFIPS provider", e);
-        } catch (Throwable t) {
-            ProviderException exceptionToThrow = providerException(
-                    "Failed to initialize OpenJCEPlusFIPS provider", t);
-
-            if (exceptionToThrow.getCause() == null) {
-                // We are not including the full stack trace back to the point
-                // of origin. Try and obtain the message for the underlying
-                // cause of the exception.
-                //
-                // If an ExceptionInInitializerError or NoClassDefFoundError is
-                // thrown, we want to get the message from the cause of that
-                // exception.
-                //
-                if ((t instanceof java.lang.ExceptionInInitializerError)
-                        || (t instanceof java.lang.NoClassDefFoundError)) {
-                    Throwable cause = t.getCause();
-                    if (cause != null) {
-                        t = cause;
-                    }
-                }
-
-                // In the case that the JNI library could not be loaded.
-                //
-                String message = t.getMessage();
-                if ((message != null) && (message.length() > 0)) {
-                    // We want to see the message for the underlying cause even
-                    // if not showing the stack trace all the way back to the
-                    // point of origin.
-                    //
-                    exceptionToThrow.initCause(new ProviderException(t.getMessage()));
-                }
-            }
-
-            if (debug != null) {
-                exceptionToThrow.printStackTrace(System.out);
-            }
-
-            throw exceptionToThrow;
-        }
-    }
-
-    // Get OCK context for crypto operations
-    //
-    OCKContext getOCKContext() {
-        // May need to initialize OCK here in the case that a serialized
-        // OpenJCEPlus object, such as a HASHDRBG SecureRandom, is being 
-        // deserialized in a JVM that has not instantiated the 
-        // OpenJCEPlusFIPS provider yet.
-        //
-        if (!ockInitialized) {
-            initializeContext();
-        }
-
-        return ockContext;
     }
 
     ProviderException providerException(String message, Throwable ockException) {

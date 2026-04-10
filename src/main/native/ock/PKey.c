@@ -13,18 +13,18 @@
 #include <jcc_a.h>
 #include <icc.h>
 
-#include "com_ibm_crypto_plus_provider_base_NativeInterface.h"
+#include "com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h"
 #include "Utils.h"
 #include <stdint.h>
 
 //============================================================================
 /*
- * Class:     com_ibm_crypto_plus_provider_base_NativeInterface
+ * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    PKEY_delete
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL
-Java_com_ibm_crypto_plus_provider_base_NativeInterface_PKEY_1delete(
+Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_PKEY_1delete(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong pkeyId) {
     static const char *functionName = "NativeInterface.PKEY_delete";
 
