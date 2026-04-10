@@ -23,7 +23,10 @@ public final class GCMCipher {
     private static final String DISABLE_GCM_ACCELERATION = "com.ibm.crypto.provider.DisableGCMAcceleration";
     private static final boolean disableGCMAcceleration = Boolean.parseBoolean(System.getProperty(DISABLE_GCM_ACCELERATION));
     private static final String debPrefix = "GCMCipher";
-    private static long GCMHardwareFunctionPtr = 0;
+
+    // This tracks if the HARDWARE actually supports GCM (Checked once)
+    // 0 = Not checked, 1 = Supported, -1 = Not supported
+    private static long actualHardwareSupport = 0;
 
     static final int parameterBlockSize = 80;
     static final int TAADLOffset = 48;
@@ -189,10 +192,20 @@ public final class GCMCipher {
         int aadLen = authenticationData.length;
 
         long gcmCtx = getGCMContext(false, key.length, ockContext, provider);
+        long GCMHardwareFunctionPtr;
 
-        if (GCMHardwareFunctionPtr == 0)
-            GCMHardwareFunctionPtr = NativeInterface
-                    .do_GCM_checkHardwareGCMSupport(ockContext.getId());
+        // The OS_Helper functions are not NIST certified, thus they can't be used in FIPS mode.
+        if (ockContext.isFIPS()) {
+            // FIPS always bypasses hardware, but doesn't change the global hardware check result
+            GCMHardwareFunctionPtr = -1;
+        } else {
+            // Non-FIPS: Check the hardware capability
+            if (actualHardwareSupport == 0) {
+                // This can be synchronized to prevent multiple JNI calls.
+                actualHardwareSupport = NativeInterface.do_GCM_checkHardwareGCMSupport(ockContext.getId());
+            }
+            GCMHardwareFunctionPtr = actualHardwareSupport;
+        }
 
         if (iv.length + key.length + aadLen <= FastJNIParameterBufferSize && !disableGCMAcceleration
                 && (inputLen <= FastJNIInputBufferSize || GCMHardwareFunctionPtr != -1)) {
@@ -317,10 +330,21 @@ public final class GCMCipher {
         int aadLen = authenticationData.length;
 
         long gcmCtx = getGCMContext(true, key.length, ockContext, provider);
+        long GCMHardwareFunctionPtr;
 
-        if (GCMHardwareFunctionPtr == 0)
-            GCMHardwareFunctionPtr = NativeInterface
-                    .do_GCM_checkHardwareGCMSupport(ockContext.getId());
+        // The OS_Helper functions are not NIST certified, thus they can't be used in FIPS mode.
+        if (ockContext.isFIPS()) {
+            // FIPS always bypasses hardware, but doesn't change the global hardware check result
+            GCMHardwareFunctionPtr = -1;
+        } else {
+            // Non-FIPS: Check the hardware capability
+            if (actualHardwareSupport == 0) {
+                // This can be synchronized to prevent multiple JNI calls.
+                actualHardwareSupport = NativeInterface.do_GCM_checkHardwareGCMSupport(ockContext.getId());
+            }
+            GCMHardwareFunctionPtr = actualHardwareSupport;
+        }
+
         if (iv.length + key.length + aadLen + tagLen <= FastJNIParameterBufferSize
                 && (inputLen <= FastJNIInputBufferSize || GCMHardwareFunctionPtr != -1)) {
             FastJNIBuffer parameters = GCMCipher.parameterBuffer.get();
@@ -442,7 +466,7 @@ public final class GCMCipher {
         if (rc != 0) {
             throw new OCKException(ErrorCodes.get(rc));
         }
-        
+
         //OCKDebug.Msg (debPrefix, methodName, "Returning length= " +  len);
         return len;
     }
@@ -500,7 +524,7 @@ public final class GCMCipher {
         //OCKDebug.Msg(debPrefix,methodName, "gcmCtx = " + gcmCtx );
 
         //To-Do - replace false with actual logic
-    
+
         //OCKDebug.Msg (debPrefix, methodName, "key.length :" + key.length + " iv.length :" + iv.length + " inputOffset :" + inputOffset);
         //OCKDebug.Msg (debPrefix, methodName, " inputLen :" + inputLen + " aadLen :" + aadLen + " tagLen :" + tagLen);
         //OCKDebug.Msg (debPrefix, methodName, "outputOffset :" + String.valueOf(outputOffset));
@@ -861,7 +885,7 @@ public final class GCMCipher {
         if (rc != 0) {
             throw new OCKException(ErrorCodes.get(rc));
         }
-        
+
         //OCKDebug.Msg(debPrefix, methodName,  "outLen=" + outLen + " output=",  output);
         return outLen;
     }
@@ -906,8 +930,8 @@ public final class GCMCipher {
         }
     }
 
-    /* 
-     * This method will be called by init/doFinal with no update calls. This won't 
+    /*
+     * This method will be called by init/doFinal with no update calls. This won't
      * look at what is buffered.
      */
     public static int getOutputSizeLegacy(int inputLen, boolean encrypting, int tLen) {
