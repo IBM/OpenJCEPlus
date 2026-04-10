@@ -43,7 +43,7 @@ public class RandomBenchmark extends JMHBase {
 
     @Setup
     public void setup() throws Exception {
-        String[] algAndProvider = randomToTest.split("|");
+        String[] algAndProvider = randomToTest.split("\\|");
         String algorithm = algAndProvider[0];
         String provider = algAndProvider[1];
         super.setup(provider);
