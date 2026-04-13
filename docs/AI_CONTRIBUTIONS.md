@@ -8,7 +8,7 @@ This document outlines the guidelines and requirements for contributions that in
 
 **AI-generated code is permitted throughout the codebase** with proper validation. All AI-assisted contributions must follow the guidelines outlined in this document to ensure code quality, security, and legal compliance.
 
-**APPROVED AI TOOL**: At this time, only **Bob** is approved for use in this project. Use of other AI tools is not permitted.
+**APPROVED AI TOOL**: At this time, only **[Bob](https://bob.ibm.com/)** is approved for use in this project. Use of other AI tools is not permitted.
 
 ## Core Principles
 
@@ -22,7 +22,7 @@ While we embrace AI assistance, contributors must ensure:
 
 ## Where AI Assistance May Be Used
 
-Bob may be used for:
+[Bob](https://bob.ibm.com/) may be used for:
 
 - **Cryptographic implementations** (with rigorous validation and testing)
 - **Test code and test utilities**
@@ -39,7 +39,7 @@ Before submitting any AI-generated code, you MUST:
 
 ### 1. Verify Legal Compliance
 
-- Ensure the code is not copyrighted or licensed outside our project's licenses (Apache 2.0)
+- Ensure the code is not copyrighted or licensed outside our [project's license](../LICENSE)
 - Check that the code doesn't reproduce proprietary implementations
 - Confirm Bob's terms of service allow commercial use and redistribution
 - Verify no patent or trademark violations
@@ -163,6 +163,7 @@ This policy may be updated as AI tools and best practices evolve. Contributors a
 
 ## Additional Resources
 
+- [Bob - IBM's AI Assistant](https://bob.ibm.com/)
 - [Project License](../LICENSE)
 - [Notices and Attributions](../NOTICES.md)
 - [Security Policy](../SECURITY.md)
