@@ -7,24 +7,11 @@
 # this code, including the "Classpath" Exception described therein.
 ###############################################################################
 
-TOPDIR = $(MAKEDIR)../../../..
-
-PLAT = win
-CFLAGS= -nologo -DWINDOWS
-CC = cl
-
-#DEBUG_DETAIL = -DDEBUG_RANDOM_DETAIL -DDEBUG_RAND_DETAIL -DDEBUG_DH_DETAIL -DDEBUG_DSA_DETAIL -DDEBUG_DIGEST_DETAIL -DDEBUG_EC_DETAIL  -DDEBUG_EXTENDED_RANDOM_DETAIL -DDEBUG_GCM_DETAIL -DDEBUG_CCM_DETAIL -DDEBUG_HMAC_DETAIL -DDEBUG_PKEY_DETAIL -DDEBUG_CIPHER_DETAIL -DDEBUG_RSA_DETAIL -DDEBUG_SIGNATURE_DETAIL -DDEBUG_SIGNATURE_DSANONE_DETAIL -DDEBUG_SIGNATURE_RSASSL_DETAIL -DDEBUG_HKDF_DETAIL -DDEBUG_RSAPSS_DETAIL -DDEBUG_SIGNATURE_EDDSA_DETAIL -DDEBUG_PBKDF_DETAIL -DDEBUG_PQC_KEY_DETAIL
-
-#Setting this flag will result sensitive key material such as private/public key bytes/parameter bytes being logged to the trace file.
-#Please warn the customer know that it not suitable to deploy jgskit library on production system,  enabling this flag.
-#This flag must be disabled before building production version
-#DEBUG_DATA =  -DDEBUG_DH_DATA -DDEBUG_DSA_DATA -DDEBUG_EC_DATA -DDEBUG_GCM_DATA -DDEBUG_CCM_DATA -DDEBUG_HMAC_DATA -DDEBUG_CIPHER_DATA -DDEBUG_RSA_DATA -DDEBUG_SIGNATURE_DATA -DDEBUG_SIGNATURE_DSANONE_DATA -DDEBUG_SIGNATURE_RSASSL_DATA -DDEBUG_HKDF_DATA -DDEBUG_RSAPSS_DATA -DDEBUG_SIGNATURE_EDDSA_DATA
-#DEBUG_FLAGS = -DDEBUG $(DEBUG_DETAIL)  $(DEBUG_DATA)
-
-BUILDTOP = $(TOPDIR)/target/build$(PLAT)
 HOSTOUT = $(BUILDTOP)/host64
-OPENJCEPLUS_HEADER_FILES ?= $(TOPDIR)/src/main/native/ock
-JAVACLASSDIR = $(TOPDIR)/target/classes
+NATIVE_DIR = $(NATIVE_TOPDIR)/ock
+NATIVE_LIB_HOME = $(GSKIT_HOME)
+JNI_CLASS = $(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/NativeOCKImplementation.java
+JNI_HEADER = com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h
 
 OBJS= \
 	$(HOSTOUT)/AESKeyWrap.obj \
@@ -58,61 +45,9 @@ OBJS= \
 
 TARGET = $(HOSTOUT)/libjgskit_64.dll
 
-JGSKIT_RC_SRC = jgskit_resource.rc
-JGSKIT_RC_OBJ = $(HOSTOUT)/jgskit_resource.res
+RC_SRC = jgskit_resource.rc
+RC_OBJ = $(HOSTOUT)/jgskit_resource.res
 
-all : displaycompiler $(TARGET)
+TARGET_LIBS = -LIBPATH:"$(NATIVE_LIB_HOME)/lib" jgsk8iccs_64.lib
 
-$(TARGET) : $(OBJS) $(JGSKIT_RC_OBJ)
-	link -dll -out:$@ $(OBJS) $(JGSKIT_RC_OBJ) -LIBPATH:"$(GSKIT_HOME)/lib" jgsk8iccs_64.lib
-
-$(JGSKIT_RC_OBJ) : $(JGSKIT_RC_SRC)
-	rc $(BUILD_CFLAGS) -Fo$@ $(JGSKIT_RC_SRC)
-
-$(HOSTOUT)/%.obj : %.c
-	-@mkdir -p $(HOSTOUT) 2>nul
-	$(CC) \
-		$(DEBUG_FLAGS) \
-		$(CFLAGS) \
-		-c \
-		-I"$(GSKIT_HOME)/inc" \
-		-I"$(JAVA_HOME)/include" \
-		-I"$(JAVA_HOME)/include/win32" \
-		-I"$(OPENJCEPLUS_HEADER_FILES)" \
-		-Fo$@ \
-		$<
-
-displaycompiler :
-	@echo "Compiler version: " && $(CC)
-	@echo "Building with $(CC) compiler..."
-	@echo "-------------------------------------"
-
-# Force BuildDate to be recompiled every time
-#
-$(HOSTOUT)/BuildDate.obj : FORCE
-
-FORCE :
-
-ifneq (${EXTERNAL_HEADERS},true)
-
-$(OBJS) : | headers
-
-headers :
-	echo "Compiling OpenJCEPlus headers"
-	$(JAVA_HOME)/bin/javac \
-		--add-exports java.base/sun.security.util=openjceplus \
-		--add-exports java.base/sun.security.util=ALL-UNNAMED \
-		-d $(JAVACLASSDIR) \
-		-h $(TOPDIR)/src/main/native/ock/ \
-		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/base/FastJNIBuffer.java \
-		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/ock/NativeOCKImplementation.java
-
-endif # ! EXTERNAL_HEADERS
-
-clean :
-	-@del $(HOSTOUT)/*.obj
-	-@del $(HOSTOUT)/*.exp
-	-@del $(HOSTOUT)/*.lib
-	-@del $(HOSTOUT)/*.dll
-	-@del $(HOSTOUT)/*.res
-
+include ../share/common.win64.mak
