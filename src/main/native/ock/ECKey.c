@@ -2221,7 +2221,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_ECKEY_1computeECDH
 JNIEXPORT jbyteArray JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_XECKEY_1computeECDHSecret(
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong genCtx,
-    jlong pubXecKeyId, jlong privXecKeyId, jint secretBufferSize) {
+    jlong pubXecKeyId, jlong privXecKeyId) {
     static const char *functionName =
         "NativeInterface_XECKEY_1computeECDHSecret";
 
@@ -2233,6 +2233,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_XECKEY_1computeECD
     jbyteArray        secretBytes       = NULL;
     unsigned char    *secretBytesNative = NULL;
     jboolean          isCopy            = 0;
+    size_t            required_len      = 0;
     size_t            secret_key_len    = 0;
     int               rc                = 0;
 
@@ -2244,56 +2245,89 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_XECKEY_1computeECD
                                    NULL); /* Set private key */
     if (NULL == gen_ctx) {
         throwOCKException(env, 0, "NULL from ICC_EVP_PKEY_CTX_new");
-    } else {
-        ICC_EVP_PKEY_derive_init(ockCtx, gen_ctx);
-        ICC_EVP_PKEY_derive_set_peer(ockCtx, gen_ctx,
-                                     ockPubXecKey); /* Set public key */
-        if (secretBufferSize > 0) {
-            secret_key_len = secretBufferSize;
-        } else {
-            ICC_EVP_PKEY_derive(ockCtx, gen_ctx, NULL,
-                                &secret_key_len); /* Get secret key size */
-        }
-        secretBytes = (*env)->NewByteArray(
-            env, secret_key_len); /* Create Java secret bytes array with size */
-        if (NULL == secretBytes) {
-            throwOCKException(env, 0, "NewByteArray failed");
-        } else {
-            secretBytesNative =
-                (unsigned char *)((*env)->GetPrimitiveArrayCritical(
-                    env, secretBytes, &isCopy));
-            if (NULL == secretBytesNative) {
-                throwOCKException(env, 0,
-                                  "NULL from GetPrimitiveArrayCritical");
-            } else {
-                rc = ICC_EVP_PKEY_derive(ockCtx, gen_ctx, secretBytesNative,
-                                         &secret_key_len);
-                if (ICC_OSSL_SUCCESS != rc) {
-                    throwOCKException(
-                        env, 0, "ICC_EVP_PKEY_derive failed to derive a key");
-                }
-                ICC_EVP_PKEY_CTX_free(ockCtx, gen_ctx);
-                (*env)->ReleasePrimitiveArrayCritical(env, secretBytes,
-                                                      secretBytesNative, 0);
-                if (debug) {
-                    gslogFunctionExit(functionName);
-                }
-                return secretBytes;
-            }
-        }
+        goto cleanup;
     }
 
+    rc = ICC_EVP_PKEY_derive_init(ockCtx, gen_ctx);
+    if (ICC_OSSL_SUCCESS != rc) {
+        throwOCKException(env, 0, "ICC_EVP_PKEY_derive_init failed");
+        goto cleanup;
+    }
+
+    rc = ICC_EVP_PKEY_derive_set_peer(ockCtx, gen_ctx, ockPubXecKey); /* Set public key */
+    if (ICC_OSSL_SUCCESS != rc) {
+        throwOCKException(env, 0, "ICC_EVP_PKEY_derive_set_peer failed");
+        goto cleanup;
+    }
+
+    /*
+     * Always query the required secret size before deriving the secret.
+     * This avoids deriving into a buffer with an incorrect size.
+     */
+    rc = ICC_EVP_PKEY_derive(ockCtx, gen_ctx, NULL, &required_len); /* Get secret key size */
+    if (ICC_OSSL_SUCCESS != rc) {
+        throwOCKException(env, 0,
+                "ICC_EVP_PKEY_derive failed to get secret size");
+        goto cleanup;
+    }
+    if (required_len == 0) {
+        throwOCKException(env, 0, "Derived secret size is zero");
+        goto cleanup;
+    }
+
+    secret_key_len = required_len;
+
+    secretBytes = (*env)->NewByteArray(env, secret_key_len); /* Create Java secret bytes array */
+    if (NULL == secretBytes) {
+        throwOCKException(env, 0, "NewByteArray failed");
+        goto cleanup;
+    }
+
+    secretBytesNative = (unsigned char *)(*env)->GetPrimitiveArrayCritical(
+            env, secretBytes, &isCopy);
+    if (NULL == secretBytesNative) {
+        throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical");
+        goto cleanup;
+    }
+
+    rc = ICC_EVP_PKEY_derive(ockCtx, gen_ctx, secretBytesNative, &secret_key_len);
+    if (ICC_OSSL_SUCCESS != rc) {
+        throwOCKException(env, 0, "ICC_EVP_PKEY_derive failed to derive a key");
+        goto cleanup;
+    }
+
+    if (secret_key_len != required_len) {
+        throwOCKException(env, 0,
+                          "Derived secret size does not match required size");
+        goto cleanup;
+    }
+
+    ICC_EVP_PKEY_CTX_free(ockCtx, gen_ctx);
+    gen_ctx = NULL;
+
+    (*env)->ReleasePrimitiveArrayCritical(env, secretBytes, secretBytesNative, 0);
+    secretBytesNative = NULL;
+
+    if (debug) {
+        gslogFunctionExit(functionName);
+    }
+
+    return secretBytes;
+
+cleanup:
     if (NULL != gen_ctx) {
         ICC_EVP_PKEY_CTX_free(ockCtx, gen_ctx);
+        gen_ctx = NULL;
     }
 
     if (NULL != secretBytesNative) {
-        (*env)->ReleasePrimitiveArrayCritical(env, secretBytes,
-                                              secretBytesNative, 0);
+        (*env)->ReleasePrimitiveArrayCritical(env, secretBytes, secretBytesNative, 0);
+        secretBytesNative = NULL;
     }
 
     if (NULL != secretBytes) {
         (*env)->DeleteLocalRef(env, secretBytes);
+        secretBytes = NULL;
     }
 
     if (debug) {
