@@ -62,6 +62,11 @@ abstract public class JMHBase {
         System.out.println("Thread count: " + threads);
         System.out.println("Allowed providers: " + allowedProv);
 
+        // Print Java version information
+        System.out.println("Java Version: " + System.getProperty("java.version"));
+        System.out.println("Java Runtime Version: " + System.getProperty("java.runtime.version"));
+        System.out.println("Java VM Version: " + System.getProperty("java.vm.version"));
+
         String logFileWithThreads = logFileRoot + "-" + threads + "t";
 
         OptionsBuilder optionsBuilder = new OptionsBuilder();
@@ -167,6 +172,17 @@ abstract public class JMHBase {
             if (myProvider == null) {
                 myProvider = (Provider) Class.forName("com.ibm.crypto.plus.provider.OpenJCEPlus")
                         .getDeclaredConstructor().newInstance();
+            } else {
+                java.security.Security.removeProvider("OpenJCEPlus");
+            }
+            java.security.Security.insertProviderAt(myProvider, 1);
+        } else if (provider.equalsIgnoreCase("OpenJCEPlusFIPS")) {
+            Provider myProvider = java.security.Security.getProvider("OpenJCEPlusFIPS");
+            if (myProvider == null) {
+                myProvider = (Provider) Class.forName("com.ibm.crypto.plus.provider.OpenJCEPlusFIPS")
+                        .getDeclaredConstructor().newInstance();
+            } else {
+                java.security.Security.removeProvider("OpenJCEPlusFIPS");
             }
             java.security.Security.insertProviderAt(myProvider, 1);
         } else if (provider.equalsIgnoreCase("BC")) {
@@ -175,6 +191,8 @@ abstract public class JMHBase {
                 myProvider = (Provider) Class
                         .forName("org.bouncycastle.jce.provider.BouncyCastleProvider")
                         .getDeclaredConstructor().newInstance();
+            } else {
+                java.security.Security.removeProvider("BC");
             }
             java.security.Security.insertProviderAt(myProvider, 1);
         }
