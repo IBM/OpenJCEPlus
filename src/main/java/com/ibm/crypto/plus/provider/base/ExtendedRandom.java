@@ -19,7 +19,7 @@ public final class ExtendedRandom {
     final long ockPRNGContextId;
 
     public static ExtendedRandom getInstance(String algName, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         if ((algName == null) || algName.isEmpty()) {
             throw new IllegalArgumentException("algName is null/empty");
         }
@@ -31,7 +31,7 @@ public final class ExtendedRandom {
         return new ExtendedRandom(algName, provider);
     }
 
-    private ExtendedRandom(String algName, OpenJCEPlusProvider provider) throws OCKException {
+    private ExtendedRandom(String algName, OpenJCEPlusProvider provider) throws NativeException {
         this.provider = provider;
         this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         this.ockPRNGContextId = this.nativeInterface.EXTRAND_create(algName);
@@ -39,7 +39,7 @@ public final class ExtendedRandom {
         this.provider.registerCleanable(this, cleanOCKResources(ockPRNGContextId, nativeInterface));
     }
 
-    public synchronized void nextBytes(byte[] bytes) throws OCKException {
+    public synchronized void nextBytes(byte[] bytes) throws NativeException {
         if (bytes == null) {
             throw new IllegalArgumentException("bytes is null");
         }
@@ -49,7 +49,7 @@ public final class ExtendedRandom {
         }
     }
 
-    public synchronized void setSeed(byte[] seed) throws OCKException {
+    public synchronized void setSeed(byte[] seed) throws NativeException {
         if (seed == null) {
             throw new IllegalArgumentException("seed is null");
         }

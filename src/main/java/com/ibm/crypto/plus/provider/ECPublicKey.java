@@ -68,9 +68,7 @@ final class ECPublicKey extends X509Key
             this.ecKey = ECKey.createPublicKey(publicKeyBytes,
                     parameterBytes, provider);
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create EC public key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create EC public key", exception);
         }
     }
 
@@ -92,9 +90,7 @@ final class ECPublicKey extends X509Key
             this.ecKey = ECKey.createPublicKey(publicKeyBytes,
                     parameterBytes, provider);
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create EC public key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create EC public key", exception);
         }
     }
 
@@ -116,9 +112,7 @@ final class ECPublicKey extends X509Key
             parseKeyBits();
 
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create EC public key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create EC public key", exception);
         } finally {
             if (algidOut != null) {
                 try {

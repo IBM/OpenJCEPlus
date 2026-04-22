@@ -31,7 +31,7 @@ public final class RSAKey implements AsymmetricKey {
     private final static String debPrefix = "RSAKey";
 
     public static RSAKey generateKeyPair(int numBits, BigInteger e, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         //final String methodName = "generateKeyPair ";
         if (numBits < 0) {
             throw new IllegalArgumentException("key length is invalid");
@@ -48,7 +48,7 @@ public final class RSAKey implements AsymmetricKey {
     }
 
     public static RSAKey createPrivateKey(byte[] privateKeyBytes, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         //final String methodName = "createPrivateKey ";
         if (privateKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
@@ -65,7 +65,7 @@ public final class RSAKey implements AsymmetricKey {
     }
 
     public static RSAKey createPublicKey(byte[] publicKeyBytes, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         //final String methodName = "createPublicKey ";
         if (publicKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
@@ -103,11 +103,11 @@ public final class RSAKey implements AsymmetricKey {
     }
 
     @Override
-    public long getPKeyId() throws OCKException {
+    public long getPKeyId() throws NativeException {
         return this.rsaKeyId;
     }
 
-    public int getKeySize() throws OCKException {
+    public int getKeySize() throws NativeException {
         //final String methodName = "getKeySize";
         if (keySize == 0) {
             obtainKeySize();
@@ -117,7 +117,7 @@ public final class RSAKey implements AsymmetricKey {
     }
 
     @Override
-    public byte[] getPrivateKeyBytes() throws OCKException {
+    public byte[] getPrivateKeyBytes() throws NativeException {
         //final String methodName = "getPrivateKeyBytes :";
         if (privateKeyBytes == unobtainedKeyBytes) {
             obtainPrivateKeyBytes();
@@ -127,7 +127,7 @@ public final class RSAKey implements AsymmetricKey {
     }
 
     @Override
-    public byte[] getPublicKeyBytes() throws OCKException {
+    public byte[] getPublicKeyBytes() throws NativeException {
         //final String methodName = "getPrivateKeyBytes";
         if (publicKeyBytes == unobtainedKeyBytes) {
             obtainPublicKeyBytes();
@@ -136,40 +136,40 @@ public final class RSAKey implements AsymmetricKey {
         return (publicKeyBytes == null) ? null : publicKeyBytes.clone();
     }
 
-    private synchronized void obtainPrivateKeyBytes() throws OCKException {
+    private synchronized void obtainPrivateKeyBytes() throws NativeException {
         // Leave this duplicate check in here. If two threads are both trying
         // to getPrivateKeyBytes at the same time, we only want to call the
         // native code one time.
         //
         if (privateKeyBytes == unobtainedKeyBytes) {
             if (!validId(rsaKeyId)) {
-                throw new OCKException(badIdMsg);
+                throw new NativeException(badIdMsg);
             }
             this.privateKeyBytes = this.nativeInterface.RSAKEY_getPrivateKeyBytes(rsaKeyId);
         }
     }
 
-    private synchronized void obtainPublicKeyBytes() throws OCKException {
+    private synchronized void obtainPublicKeyBytes() throws NativeException {
         // Leave this duplicate check in here. If two threads are both trying
         // to getPublicKeyBytes at the same time, we only want to call the
         // native code one time.
         //
         if (publicKeyBytes == unobtainedKeyBytes) {
             if (!validId(rsaKeyId)) {
-                throw new OCKException(badIdMsg);
+                throw new NativeException(badIdMsg);
             }
             this.publicKeyBytes = this.nativeInterface.RSAKEY_getPublicKeyBytes(rsaKeyId);
         }
     }
 
-    private synchronized void obtainKeySize() throws OCKException {
+    private synchronized void obtainKeySize() throws NativeException {
         // Leave this duplicate check in here. If two threads are both trying
         // to obtainKeySize at the same time, we only want to call the
         // native code one time.
         //
         if (this.keySize == 0) {
             if (!validId(rsaKeyId)) {
-                throw new OCKException(badIdMsg);
+                throw new NativeException(badIdMsg);
             }
             this.keySize = this.nativeInterface.RSAKEY_size(rsaKeyId);
         }

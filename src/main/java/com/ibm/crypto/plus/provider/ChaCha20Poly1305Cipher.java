@@ -8,7 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.base.NativeException;
 import com.ibm.crypto.plus.provider.base.Padding;
 import com.ibm.crypto.plus.provider.base.Poly1305Cipher;
 import java.io.IOException;
@@ -77,23 +77,13 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             } else {
                 return output;
             }
-        } catch (BadPaddingException ock_bpe) {
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
-            throw bpe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            throw ibse;
-        } catch (IllegalArgumentException ock_iae) {
-            IllegalArgumentException iae = new IllegalArgumentException(ock_iae.getMessage());
-            provider.setOCKExceptionCause(iae, ock_iae);
-            throw iae;
-        } catch (OCKException ockException) {
+        } catch (BadPaddingException | IllegalBlockSizeException | IllegalArgumentException exc) {
+            throw exc;
+        } catch (NativeException NativeException) {
             if (!encrypting) {
                 throw new AEADBadTagException("Tag mismatch");
             } else {
-                throw provider.providerException("Failure in engineDoFinal", ockException);
+                throw provider.providerException("Failure in engineDoFinal", NativeException);
             }
         } catch (Exception e) {
             throw provider.providerException("Failure in engineDoFinal", e);
@@ -116,27 +106,13 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             int retvalue = poly1305Cipher.doFinal(input, inputOffset, inputLen, output,
                     outputOffset);
             return retvalue;
-        } catch (BadPaddingException ock_bpe) {
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
-            throw bpe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            throw ibse;
-        } catch (ShortBufferException ock_sbe) {
-            ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
-            throw sbe;
-        } catch (IllegalArgumentException ock_iae) {
-            IllegalArgumentException iae = new IllegalArgumentException(ock_iae.getMessage());
-            provider.setOCKExceptionCause(iae, ock_iae);
-            throw iae;
-        } catch (OCKException ockException) {
+        } catch (BadPaddingException | IllegalBlockSizeException | ShortBufferException | IllegalArgumentException exc) {
+            throw exc;
+        } catch (NativeException NativeException) {
             if (!encrypting) {
                 throw new AEADBadTagException("Tag mismatch");
             } else {
-                throw provider.providerException("Failure in engineDoFinal", ockException);
+                throw provider.providerException("Failure in engineDoFinal", NativeException);
             }
         } catch (Exception e) {
             throw provider.providerException("Failure in engineDoFinal", e);
@@ -432,9 +408,7 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             int retvalue = poly1305Cipher.update(input, inputOffset, inputLen, output,
                     outputOffset);
             return retvalue;
-        } catch (ShortBufferException ock_sbe) {
-            ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
+        } catch (ShortBufferException sbe) {
             throw sbe;
         } catch (Exception e) {
             throw provider.providerException("Failure in engineDoUpdate", e);

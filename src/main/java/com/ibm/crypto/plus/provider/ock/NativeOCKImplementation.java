@@ -8,7 +8,6 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
-import com.ibm.crypto.plus.provider.base.OCKException;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.ProviderException;

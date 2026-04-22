@@ -126,10 +126,7 @@ public final class DatawithECDSA extends SignatureSpi {
                 throw new SignatureException("invalid encoding for signature: " + ioe, ioe);
             }
         } catch (Exception e) {
-            SignatureException signatureException = new SignatureException("Could not sign data",
-                    e);
-            provider.setOCKExceptionCause(signatureException, e);
-            throw signatureException;
+            throw new SignatureException("Could not sign data", e);
         }
     }
 
