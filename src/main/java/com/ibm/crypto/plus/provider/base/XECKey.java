@@ -47,7 +47,7 @@ public final class XECKey implements AsymmetricKey {
 
 
     public static XECKey generateKeyPair(int curveNum, int pub_size, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         //final String methodName = "generateKeyPair(NamedParameterSpec.CURVE) ";
         FastJNIBuffer buffer = XECKey.buffer.get();
 
@@ -59,7 +59,7 @@ public final class XECKey implements AsymmetricKey {
         long xecKeyId = nativeInterface.XECKEY_generate(curveNum,
                 buffer.pointer());
         if (!validId(xecKeyId))
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
 
         byte[] publicKeyBytes = new byte[pub_size];
         buffer.get(0, publicKeyBytes, 0, pub_size);
@@ -68,7 +68,7 @@ public final class XECKey implements AsymmetricKey {
     }
 
     public static byte[] computeECDHSecret(long genCtx, long pubId,
-            long privId, int secrectBufferSize, OpenJCEPlusProvider provider) throws OCKException {
+            long privId, int secrectBufferSize, OpenJCEPlusProvider provider) throws NativeException {
         if (pubId == 0)
             throw new IllegalArgumentException("The public key parameter is not valid");
         if (privId == 0)
@@ -87,20 +87,20 @@ public final class XECKey implements AsymmetricKey {
         return (id != 0L);
     }
 
-    private synchronized void obtainPrivateKeyBytes() throws OCKException {
+    private synchronized void obtainPrivateKeyBytes() throws NativeException {
         // Leave this duplicate check in here. If two threads are both trying
         // to getPrivateKeyBytes at the same time, we only want to call the
         // native code one time.
         //
         if (privateKeyBytes == unobtainedKeyBytes) {
             if (!validId(xecKeyId))
-                throw new OCKException(badIdMsg);
+                throw new NativeException(badIdMsg);
             this.privateKeyBytes = this.nativeInterface.XECKEY_getPrivateKeyBytes(xecKeyId); // Returns DER encoded bytes
         }
     }
 
     @Override
-    public byte[] getPrivateKeyBytes() throws OCKException {
+    public byte[] getPrivateKeyBytes() throws NativeException {
         //final String methodName = "getPrivateKeyBytes()";
         if (privateKeyBytes == unobtainedKeyBytes)
             obtainPrivateKeyBytes();
@@ -108,17 +108,17 @@ public final class XECKey implements AsymmetricKey {
     }
 
     @Override
-    public byte[] getPublicKeyBytes() throws OCKException {
+    public byte[] getPublicKeyBytes() throws NativeException {
         //final String methodName = "getPublickeyBytes()";
         if (publicKeyBytes == unobtainedKeyBytes) {
-            throw new OCKException(
+            throw new NativeException(
                     "Public key should always be loaded on creation. Reaching this state means this object was initialized without a public key...");
         }
         return (publicKeyBytes == null) ? null : publicKeyBytes.clone();
     }
 
     public synchronized static XECKey createPrivateKey(
-            byte[] privateKeyBytes, int priv_size, OpenJCEPlusProvider provider) throws OCKException {
+            byte[] privateKeyBytes, int priv_size, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "createPrivateKey";
         if (privateKeyBytes == null)
             throw new IllegalArgumentException("key bytes is null");
@@ -131,7 +131,7 @@ public final class XECKey implements AsymmetricKey {
         long xecKeyId = nativeInterface.XECKEY_createPrivateKey(privateKeyBytes,
                 buffer.pointer());
         if (!validId(xecKeyId))
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
 
         // buffer now contains public key
         byte[] publicKeyBytes = new byte[priv_size];
@@ -141,7 +141,7 @@ public final class XECKey implements AsymmetricKey {
     }
 
     public static XECKey createPublicKey(byte[] publicKeyBytes, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         //final String methodName = "createPublicKey";
         if (publicKeyBytes == null)
             throw new IllegalArgumentException("key bytes is null");
@@ -159,7 +159,7 @@ public final class XECKey implements AsymmetricKey {
     }
 
     @Override
-    public long getPKeyId() throws OCKException {
+    public long getPKeyId() throws NativeException {
         return xecKeyId;
     }
 
@@ -172,7 +172,7 @@ public final class XECKey implements AsymmetricKey {
                 if (xecKeyId != 0) {
                     nativeInterface.XECKEY_delete(xecKeyId);
                 }
-            } catch (OCKException e) {
+            } catch (NativeException e) {
                 if (OpenJCEPlusProvider.getDebug() != null) {
                     OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
                     e.printStackTrace();

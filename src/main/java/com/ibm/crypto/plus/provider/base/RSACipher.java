@@ -56,7 +56,7 @@ public final class RSACipher {
     }
 
     public void initialize(RSAKey key, boolean plainRSAKey)
-            throws OCKException, InvalidKeyException {
+            throws NativeException, InvalidKeyException {
         if (key == null) {
             throw new InvalidKeyException("key is null");
         }
@@ -66,21 +66,21 @@ public final class RSACipher {
 
     // Method not synchronized since ObtainKeySize method used getKeySize is synchronized 
     //
-    public int getOutputSize() throws OCKException {
+    public int getOutputSize() throws NativeException {
         checkInitialized();
         return this.rsaKey.getKeySize();
     }
 
     public synchronized int publicEncrypt(RSAPadding padding, byte[] input, int inOffset, int inLen,
             byte[] output, int outOffset) throws BadPaddingException, IllegalBlockSizeException,
-            ShortBufferException, OCKException {
+            ShortBufferException, NativeException {
         checkInitialized();
         if (inLen == 0)
             return 0;
         checkInputRange(input, inOffset, inLen);
         checkOutputRange(output, outOffset);
         if (!validId(this.rsaKey.getRSAKeyId())) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
         return checkOutLen(this.nativeInterface.RSACIPHER_public_encrypt(
                 this.rsaKey.getRSAKeyId(), padding.getId(), padding.getMessageDigest(),
@@ -89,14 +89,14 @@ public final class RSACipher {
 
     public synchronized int privateEncrypt(RSAPadding padding, byte[] input, int inOffset,
             int inLen, byte[] output, int outOffset) throws BadPaddingException,
-            IllegalBlockSizeException, ShortBufferException, OCKException {
+            IllegalBlockSizeException, ShortBufferException, NativeException {
         checkInitialized();
         if (inLen == 0)
             return 0;
         checkInputRange(input, inOffset, inLen);
         checkOutputRange(output, outOffset);
         if (!validId(this.rsaKey.getRSAKeyId())) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
         return checkOutLen(this.nativeInterface.RSACIPHER_private_encrypt(
                 this.rsaKey.getRSAKeyId(), padding.getId(), input, inOffset, inLen, output,
@@ -105,7 +105,7 @@ public final class RSACipher {
 
     public synchronized int publicDecrypt(RSAPadding padding, byte[] input, int inOffset, int inLen,
             byte[] output, int outOffset) throws BadPaddingException, IllegalBlockSizeException,
-            ShortBufferException, OCKException {
+            ShortBufferException, NativeException {
         checkInitialized();
         if (inLen == 0)
             return 0;
@@ -116,7 +116,7 @@ public final class RSACipher {
                     "Input must be: " + getOutputSize() + " bytes long");
         }
         if (!validId(this.rsaKey.getRSAKeyId())) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
         return checkOutLen(this.nativeInterface.RSACIPHER_public_decrypt(
                 this.rsaKey.getRSAKeyId(), padding.getId(), input, inOffset, inLen, output,
@@ -125,7 +125,7 @@ public final class RSACipher {
 
     public synchronized int privateDecrypt(RSAPadding padding, byte[] input, int inOffset,
             int inLen, byte[] output, int outOffset) throws BadPaddingException,
-            IllegalBlockSizeException, ShortBufferException, OCKException {
+            IllegalBlockSizeException, ShortBufferException, NativeException {
         checkInitialized();
         if (inLen == 0)
             return 0;
@@ -136,7 +136,7 @@ public final class RSACipher {
                     "Input must be: " + getOutputSize() + " bytes long");
         }
         if (!validId(this.rsaKey.getRSAKeyId())) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
         return checkOutLen(this.nativeInterface.RSACIPHER_private_decrypt(
                 this.rsaKey.getRSAKeyId(), padding.getId(), padding.getMessageDigest(),
@@ -150,7 +150,7 @@ public final class RSACipher {
     }
 
     private void checkOutputRange(byte[] output, int offset)
-            throws ShortBufferException, OCKException {
+            throws ShortBufferException, NativeException {
         if (output == null || (offset > output.length)
                 || (output.length - offset) < getOutputSize()) {
             throw new ShortBufferException(

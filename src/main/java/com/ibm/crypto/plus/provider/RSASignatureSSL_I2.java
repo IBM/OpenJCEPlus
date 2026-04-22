@@ -169,9 +169,7 @@ public final class RSASignatureSSL_I2 extends SignatureSpi {
             byte[] signature = this.signature.sign(dataBytes);
             return signature;
         } catch (Exception e) {
-            SignatureException signatureException = new SignatureException("Could not sign data");
-            provider.setOCKExceptionCause(signatureException, e);
-            throw signatureException;
+            throw new SignatureException("Could not sign data", e);
         }
     }
 

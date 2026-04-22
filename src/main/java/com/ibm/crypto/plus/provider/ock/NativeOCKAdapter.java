@@ -9,7 +9,6 @@
 package com.ibm.crypto.plus.provider.ock;
 
 import com.ibm.crypto.plus.provider.base.NativeInterface;
-import com.ibm.crypto.plus.provider.base.OCKException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -176,16 +175,8 @@ public abstract class NativeOCKAdapter implements NativeInterface {
         }
     }
 
-    static public ProviderException providerException(String message, Throwable ockException) {
-        ProviderException providerException = new ProviderException(message, ockException);
-        setOCKExceptionCause(providerException, ockException);
-        return providerException;
-    }
-
-    static public void setOCKExceptionCause(Exception exception, Throwable ockException) {
-        if (debug != null) {
-            exception.initCause(ockException);
-        }
+    static public ProviderException providerException(String message, Throwable throwable) {
+        return new ProviderException(message, throwable);
     }
 
     @Override

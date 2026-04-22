@@ -9,7 +9,7 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.base.DHKey;
-import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.base.NativeException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,7 +93,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
             this.key = new DerValue(DerValue.tag_Integer, this.x.toByteArray()).toByteArray();
             this.encodedKey = getEncoded();
             this.dhKey = DHKey.createPrivateKey(encodedKey, provider);
-        } catch (OCKException e) {
+        } catch (NativeException e) {
             throw new InvalidKeyException("Failure in DHPrivateKey");
         }
     }

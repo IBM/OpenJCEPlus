@@ -19,13 +19,13 @@ public final class OJPKEM {
      */
 
     public static void KEM_encapsulate(long ockPKeyId, byte[] encapsulatedKey,
-            byte[] keyMaterial, OpenJCEPlusProvider provider) throws OCKException {
+            byte[] keyMaterial, OpenJCEPlusProvider provider) throws NativeException {
         NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         nativeInterface.KEM_encapsulate(ockPKeyId, encapsulatedKey, keyMaterial);
     }
 
     public static byte[] KEM_decapsulate(long ockPKeyId, byte[] encapsulatedKey, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         byte[] keyMaterial = nativeInterface.KEM_decapsulate(ockPKeyId, encapsulatedKey);
 

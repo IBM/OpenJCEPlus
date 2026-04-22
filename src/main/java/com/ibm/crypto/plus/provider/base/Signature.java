@@ -24,19 +24,19 @@ public final class Signature {
     private final static String debPrefix = "SIGNATURE";
 
     public static Signature getInstance(String digestAlgo, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         return new Signature(digestAlgo, provider);
     }
 
 
-    private Signature(String digestAlgo, OpenJCEPlusProvider provider) throws OCKException {
+    private Signature(String digestAlgo, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "Signature(String)";
         this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         this.digest = Digest.getInstance(digestAlgo, provider);
         //OCKDebug.Msg (debPrefix, methodName, "digestAlgo :" + digestAlgo);
     }
 
-    public void update(byte[] input, int offset, int length) throws OCKException {
+    public void update(byte[] input, int offset, int length) throws NativeException {
         if ((input == null) || (length < 0) || (offset < 0) || ((offset + length) > input.length)) {
             throw new IllegalArgumentException("Bad input parameters to Signature update");
         }
@@ -45,7 +45,7 @@ public final class Signature {
     }
 
     public void initialize(AsymmetricKey key, boolean rsaPlain)
-            throws InvalidKeyException, OCKException {
+            throws InvalidKeyException, NativeException {
         //final String methodName = "initialize";
         if (key == null) {
             throw new IllegalArgumentException("key is null");
@@ -60,7 +60,7 @@ public final class Signature {
         //OCKDebug.Msg (debPrefix, methodName,  "this.key=" + key);
     }
 
-    public synchronized byte[] sign() throws OCKException {
+    public synchronized byte[] sign() throws NativeException {
 
         if (!this.initialized) {
             throw new IllegalStateException("Signature not initialized");
@@ -69,7 +69,7 @@ public final class Signature {
         //OCKDebug.Msg (debPrefix, "sign", "digestId :" + digest.getId() + " pkeyId :" + this.key.getPKeyId());
         if ((this.digest == null) || !validId(this.digest.getId())
                 || !validId(this.key.getPKeyId())) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
 
         byte[] signature = null;
@@ -77,7 +77,7 @@ public final class Signature {
             signature = this.nativeInterface.SIGNATURE_sign(digest.getId(),
                     this.key.getPKeyId(), this.convertKey);
         } finally {
-            // Try to reset even if OCKException is thrown
+            // Try to reset even if NativeException is thrown
             this.digest.reset();
         }
 
@@ -85,7 +85,7 @@ public final class Signature {
         return signature;
     }
 
-    public synchronized boolean verify(byte[] sigBytes) throws OCKException {
+    public synchronized boolean verify(byte[] sigBytes) throws NativeException {
         //final String methodName = "verify";
         // create key length function and check sigbytes against key length?
         if (!this.initialized) {
@@ -98,7 +98,7 @@ public final class Signature {
         //OCKDebug.Msg (debPrefix, methodName,  "digestId :" + digest.getId() + " pkeyId :" + this.key.getPKeyId());
         //OCKDebug.Msg (debPrefix, methodName,  " sigBytes :",  sigBytes);
         if ((this.digest == null) || digest.getId() == 0L || this.key.getPKeyId() == 0L) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
 
         boolean verified = false;
@@ -106,7 +106,7 @@ public final class Signature {
             verified = this.nativeInterface.SIGNATURE_verify(digest.getId(),
                     this.key.getPKeyId(), sigBytes);
         } finally {
-            // Try to reset even if OCKException is thrown
+            // Try to reset even if NativeException is thrown
             this.digest.reset();
         }
 

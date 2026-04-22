@@ -8,7 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.base.NativeException;
 import com.ibm.crypto.plus.provider.base.SymmetricCipher;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -62,7 +62,7 @@ public final class RC4Cipher extends LegacyCipher {
         } catch (ShortBufferException ock_sbe) {
             // should not occur
             throw provider.providerException("Failure in engineDoFinal", ock_sbe);
-        } catch (OCKException e) {
+        } catch (NativeException e) {
             throw provider.providerException("Failure in engineDoFinal", e);
         }
     }
@@ -75,7 +75,7 @@ public final class RC4Cipher extends LegacyCipher {
 
         try {
             return symmetricCipher.doFinal(input, inputOffset, inputLen, output, outputOffset);
-        } catch (OCKException e) {
+        } catch (NativeException e) {
             throw provider.providerException("Failure in engineDoFinal", e);
         }
     }
@@ -213,7 +213,7 @@ public final class RC4Cipher extends LegacyCipher {
         } catch (ShortBufferException ock_sbe) {
             // should not occur
             throw provider.providerException("Failure in engineUpdate", ock_sbe);
-        } catch (OCKException e) {
+        } catch (NativeException e) {
             throw provider.providerException("Failure in engineUpdate", e);
         }
     }
@@ -228,7 +228,7 @@ public final class RC4Cipher extends LegacyCipher {
         } catch (BadPaddingException ock_bpe) {
             // should not occur
             throw provider.providerException("Failure in engineDoFinal", ock_bpe);
-        } catch (OCKException e) {
+        } catch (NativeException e) {
             throw provider.providerException("Failure in engineDoFinal", e);
         }
     }

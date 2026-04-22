@@ -9,7 +9,7 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.base.HKDF;
-import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.base.NativeException;
 import java.io.ByteArrayOutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -157,7 +157,7 @@ public class HKDFKeyDerivation extends KDFSpi {
                 throw new InvalidAlgorithmParameterException(
                         "an HKDF Extract could not be initialized with the "
                         + "given key or salt material", ike);
-            } catch (OCKException e) {
+            } catch (NativeException e) {
                 throw new IllegalStateException("Unable to extract bytes:" + e.getMessage());
             } finally {
                 if (inputKeyMaterial != null) {
@@ -186,7 +186,7 @@ public class HKDFKeyDerivation extends KDFSpi {
             try {
                 return hkdfObj.expand(pseudoRandomKey, (long) pseudoRandomKey.length, info,
                         (long) info.length, length);
-            } catch (OCKException e) {
+            } catch (NativeException e) {
                 throw new IllegalStateException("Unable to expand bytes:" + e.getMessage());
             } finally {
                 Arrays.fill(pseudoRandomKey, (byte) 0x00);
@@ -217,7 +217,7 @@ public class HKDFKeyDerivation extends KDFSpi {
                 // perform extract and then expand (derive in OCK)
                 return hkdfObj.derive(salt, (long) salt.length, inputKeyMaterial,
                         (long) inputKeyMaterial.length, info, (long) info.length, length);
-            } catch (OCKException e) {
+            } catch (NativeException e) {
                 throw new IllegalStateException("Unable to derive (extract then expand) bytes: " + e.getMessage());
             } catch (InvalidKeyException ike) {
                 throw new InvalidAlgorithmParameterException(
