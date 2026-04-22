@@ -142,11 +142,11 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
              * but engineDoFinal(..) is declared to be able to throw it since it also
              * handles user provided output buffers
              */
-            // OCKDebug.Msg(debPrefix, methodName, "OCKException seen");
+            // OCKDebug.Msg(debPrefix, methodName, "NativeException seen");
             if (!encrypting) {
                 AEADBadTagException abte = new AEADBadTagException(
                         "Unable to perform engine doFinal; Possibly a bad tag or bad padding or illegalBlockSize");
-                provider.setOCKExceptionCause(abte, e);
+                provider.setExceptionCause(abte, e);
                 throw abte;
             } else {
                 throw provider.providerException("unable to perform to engineDoFinal ", e);
@@ -199,11 +199,11 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
              * but engineDoFinal(..) is declared to be able to throw it since it also
              * handles user provided output buffers
              */
-            // OCKDebug.Msg(debPrefix, methodName, "OCKException seen");
+            // OCKDebug.Msg(debPrefix, methodName, "NativeException seen");
             if (!encrypting) {
                 AEADBadTagException abte = new AEADBadTagException(
                         "Uanble to perform engine doFinal; Possibly a bad tag or bad padding or illegalBlockSize");
-                provider.setOCKExceptionCause(abte, e);
+                provider.setExceptionCause(abte, e);
                 throw abte;
             } else {
                 throw provider.providerException("unable to perform to engineDoFinal ", e);
@@ -287,31 +287,16 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
                 authData = null; // Before returning from doFinal(), restore AAD to uninitialized state
                 return ret;
             }
-        } catch (AEADBadTagException e) {
-            AEADBadTagException abte = new AEADBadTagException(e.getMessage());
-            provider.setOCKExceptionCause(abte, e);
-            requireReinit = true;
-            throw abte;
-        } catch (BadPaddingException ock_bpe) {
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
+        } catch (BadPaddingException | IllegalBlockSizeException bpe) {
             requireReinit = true;
             throw bpe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            requireReinit = true;
-            throw ibse;
-        } catch (ShortBufferException ock_sbe) {
-            ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
+        } catch (ShortBufferException sbe) {
             throw sbe;
-        } catch (com.ibm.crypto.plus.provider.base.OCKException ock_excp) {
+        } catch (com.ibm.crypto.plus.provider.base.NativeException ock_excp) {
             requireReinit = true;
             AEADBadTagException tagexcp = new AEADBadTagException(ock_excp.getMessage());
-            provider.setOCKExceptionCause(tagexcp, ock_excp);
+            provider.setExceptionCause(tagexcp, ock_excp);
             throw tagexcp;
-
         } catch (Exception e) {
             requireReinit = true;
             throw provider.providerException("Failure in engineDoFinal", e);

@@ -95,9 +95,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             int encodingSize = CurveUtil.getDEREncodingSize(curve);
             this.xecKey = XECKey.createPrivateKey(alteredEncoded, encodingSize, provider);
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create XEC private key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create XEC private key", exception);
         }
     }
 
@@ -148,7 +146,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
                     "Failed to create XEC private key");
-            provider.setOCKExceptionCause(ike, exception);
+            provider.setExceptionCause(ike, exception);
             throw ike;
         }
 
@@ -446,9 +444,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         try {
             setFieldsFromXeckey();
         } catch (Exception exception) {
-            IOException ike = new IOException("Failed in setFieldsFromXeckey");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new IOException("Failed in setFieldsFromXeckey", exception);
         }
 
         DerOutputStream bytes = new DerOutputStream();

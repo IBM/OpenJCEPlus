@@ -89,9 +89,7 @@ public final class DSASignatureNONE extends SignatureSpi {
             byte[] signature = this.signature.sign(digestBuffer);
             return signature;
         } catch (Exception e) {
-            SignatureException signatureException = new SignatureException("Could not sign data");
-            provider.setOCKExceptionCause(signatureException, e);
-            throw signatureException;
+            throw new SignatureException("Could not sign data", e);
         }
     }
 

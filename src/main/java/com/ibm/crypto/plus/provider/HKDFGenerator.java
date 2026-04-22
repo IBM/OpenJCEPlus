@@ -9,7 +9,7 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.base.HKDF;
-import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.base.NativeException;
 import ibm.security.internal.spec.HKDFExpandParameterSpec;
 import ibm.security.internal.spec.HKDFExtractParameterSpec;
 import ibm.security.internal.spec.HKDFParameterSpec;
@@ -116,7 +116,7 @@ public class HKDFGenerator extends KeyGeneratorSpi {
                 extractedBytes = hkdfObj.extract(saltBytes, saltBytes.length, ikmBytes,
                         ikmBytes.length);
                 secretKey = new SecretKeySpec(extractedBytes, keyAlgorithm);
-            } catch (OCKException e) {
+            } catch (NativeException e) {
                 throw new IllegalStateException(MSG_EXTRACT + e.getMessage());
             }
 
@@ -131,7 +131,7 @@ public class HKDFGenerator extends KeyGeneratorSpi {
                 expandedBytes = hkdfObj.expand(prkBytes, (long) prkBytes.length, infoBytes,
                         (long) infoBytes.length, okmLength);
                 secretKey = new SecretKeySpec(expandedBytes, keyAlgorithm);
-            } catch (OCKException e) {
+            } catch (NativeException e) {
                 throw new IllegalStateException(MSG_EXPAND + e.getMessage());
             }
 
@@ -151,7 +151,7 @@ public class HKDFGenerator extends KeyGeneratorSpi {
                 resultBytes = hkdfObj.derive(saltBytes, (long) saltBytes.length, ikmBytes,
                         (long) ikmBytes.length, infoBytes, (long) infoBytes.length, okmLength);
                 secretKey = new SecretKeySpec(resultBytes, keyAlgorithm);
-            } catch (OCKException e) {
+            } catch (NativeException e) {
                 throw new IllegalStateException(MSG_DERIVE + e.getMessage());
             }
 

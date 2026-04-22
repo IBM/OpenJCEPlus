@@ -12,9 +12,9 @@ public interface AsymmetricKey {
 
     public String getAlgorithm();
 
-    public long getPKeyId() throws OCKException;
+    public long getPKeyId() throws NativeException;
 
-    public byte[] getPrivateKeyBytes() throws OCKException;
+    public byte[] getPrivateKeyBytes() throws NativeException;
 
-    public byte[] getPublicKeyBytes() throws OCKException;
+    public byte[] getPublicKeyBytes() throws NativeException;
 }
