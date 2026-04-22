@@ -68,7 +68,7 @@ public final class XECKey implements AsymmetricKey {
     }
 
     public static byte[] computeECDHSecret(long genCtx, long pubId,
-            long privId, int secrectBufferSize, OpenJCEPlusProvider provider) throws NativeException {
+            long privId, OpenJCEPlusProvider provider) throws NativeException {
         if (pubId == 0)
             throw new IllegalArgumentException("The public key parameter is not valid");
         if (privId == 0)
@@ -76,7 +76,7 @@ public final class XECKey implements AsymmetricKey {
 
         NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         byte[] sharedSecretBytes = nativeInterface.XECKEY_computeECDHSecret(
-                genCtx, pubId, privId, secrectBufferSize);
+                genCtx, pubId, privId);
         //OCKDebug.Msg (debPrefix, methodName,  "pubId :" + pubId + " privId :" + privId + " sharedSecretBytes :", sharedSecretBytes);
         return sharedSecretBytes;
     }
