@@ -9,7 +9,7 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.base.GCMCipher;
-import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.base.NativeException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
@@ -179,15 +179,15 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
                 resetVars(true);
 
                 throw e;
-            } catch (OCKException e) {
-                // OCKDebug.Msg(debPrefix, methodName, "OCKException encountered = " +
+            } catch (NativeException e) {
+                // OCKDebug.Msg(debPrefix, methodName, "NativeException encountered = " +
                 // e.getMessage());
 
                 if (!encrypting) {
                     AEADBadTagException abte = new AEADBadTagException(
                             "Unable to perform engine doFinal; "
                                     + "Possibly a bad tag or bad padding or illegalBlockSize");
-                    provider.setOCKExceptionCause(abte, e);
+                    provider.setExceptionCause(abte, e);
                     resetVars(true);
                     throw abte;
                 } else {
@@ -231,14 +231,14 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
              * handles user provided output buffers
              */
             resetVars(true);
-            // OCKDebug.Msg(debPrefix, methodName, "OCKException seen");
+            // OCKDebug.Msg(debPrefix, methodName, "NativeException seen");
             if (!encrypting) {
 
                 AEADBadTagException abte = new AEADBadTagException(
                         "Unable to perform engine doFinal; "
                                 + "Possibly a bad tag or bad padding or illegalBlockSize");
 
-                provider.setOCKExceptionCause(abte, e);
+                provider.setExceptionCause(abte, e);
                 throw abte;
             } else {
                 throw provider.providerException("unable to perform to engineDoFinal ", e);
@@ -284,7 +284,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
                 //                    requireReinit = true;
 
                 throw e;
-            } catch (OCKException e) {
+            } catch (NativeException e) {
 
                 //updateCalled = false;
                 //
@@ -292,7 +292,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
 
                 if (!encrypting) {
                     AEADBadTagException abte = new AEADBadTagException(e.getMessage());
-                    provider.setOCKExceptionCause(abte, e);
+                    provider.setExceptionCause(abte, e);
                     // OCKDebug.Msg (debPrefix, methodName, "Ret from engineDoFinal: ");
                     resetVars(true);
                     throw abte;
@@ -357,30 +357,16 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
                 authData = null; // Before returning from doFinal(), restore AAD to uninitialized state
                 return ret;
             }
-        } catch (AEADBadTagException e) {
+        } catch (BadPaddingException | IllegalBlockSizeException bpe) {
             resetVars(true);
-            AEADBadTagException abte = new AEADBadTagException(e.getMessage());
-            provider.setOCKExceptionCause(abte, e);
-            throw abte;
-        } catch (BadPaddingException ock_bpe) {
-            resetVars(true);
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
             throw bpe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-            resetVars(true);
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            throw ibse;
-        } catch (ShortBufferException ock_sbe) {
+        } catch (ShortBufferException sbe) {
             sbeInLastFinalEncrypt = encrypting;
-            ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
             throw sbe;
-        } catch (com.ibm.crypto.plus.provider.base.OCKException ock_excp) {
+        } catch (com.ibm.crypto.plus.provider.base.NativeException ock_excp) {
             resetVars(true);
             AEADBadTagException tagexcp = new AEADBadTagException(ock_excp.getMessage());
-            provider.setOCKExceptionCause(tagexcp, ock_excp);
+            provider.setExceptionCause(tagexcp, ock_excp);
             throw tagexcp;
         } catch (Exception e) {
             resetVars(true);
@@ -390,7 +376,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
 
     private byte[] doFinalForUpdates(byte[] input, int inputOffset, int inputLen)
             throws IllegalBlockSizeException, BadPaddingException, AEADBadTagException,
-            IllegalStateException, OCKException {
+            IllegalStateException, NativeException {
         //final String methodName = "byte[] doFinalForUpdates";
         // OCKDebug.Msg(debPrefix, methodName, "inputOffset=" + inputOffset + "
         // inputLen=" + inputLen + " input[]", input);
@@ -433,7 +419,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
 
     private int doFinalForUpdates(byte[] input, int inputOffset, int inputLen, byte[] output,
             int outputOffset) throws ShortBufferException, IllegalBlockSizeException,
-            BadPaddingException, AEADBadTagException, IllegalStateException, OCKException {
+            BadPaddingException, AEADBadTagException, IllegalStateException, NativeException {
         //final String methodName = "doFinalForUpdates";
         checkReinit();
 
@@ -1110,35 +1096,16 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
                 }
             }
 
-        } catch (IllegalStateException ock_illse) {
+        } catch (IllegalStateException | BadPaddingException | IllegalBlockSizeException exc) {
             sbeInLastUpdateEncrypt = false;
-            IllegalStateException illse = new IllegalStateException(ock_illse.getMessage());
-            provider.setOCKExceptionCause(illse, ock_illse);
-            throw illse;
-        } catch (AEADBadTagException e) {
-            sbeInLastUpdateEncrypt = false;
-            AEADBadTagException abte = new AEADBadTagException(e.getMessage());
-            provider.setOCKExceptionCause(abte, e);
-            throw abte;
-        } catch (BadPaddingException ock_bpe) {
-            sbeInLastUpdateEncrypt = false;
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
-            throw bpe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-            sbeInLastUpdateEncrypt = false;
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            throw ibse;
-        } catch (ShortBufferException ock_sbe) {
+            throw exc;
+        } catch (ShortBufferException sbe) {
             sbeInLastUpdateEncrypt = encrypting;
-            ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
             throw sbe;
-        } catch (com.ibm.crypto.plus.provider.base.OCKException ock_excp) {
+        } catch (com.ibm.crypto.plus.provider.base.NativeException ock_excp) {
             sbeInLastUpdateEncrypt = false;
             AEADBadTagException tagexcp = new AEADBadTagException(ock_excp.getMessage());
-            provider.setOCKExceptionCause(tagexcp, ock_excp);
+            provider.setExceptionCause(tagexcp, ock_excp);
             throw tagexcp;
         } catch (Exception e) {
             sbeInLastUpdateEncrypt = false;
@@ -1223,7 +1190,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
 
     private int fillOutputBuffer(byte[] finalBuf, int finalOffset, byte[] output, int outOfs,
             int finalBufLen, byte[] input) throws ShortBufferException, BadPaddingException,
-            IllegalBlockSizeException, OCKException {
+            IllegalBlockSizeException, NativeException {
         //final String methodName = "fillOutputBuffer";
         // OCKDebug.Msg(debPrefix, methodName, "Entering finalOffset = ", finalBuf);
         int len;
@@ -1245,7 +1212,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
 
     private int finalNoPadding(byte[] in, int inOfs, byte[] out, int outOfs, int len)
             throws IllegalBlockSizeException, AEADBadTagException, BadPaddingException,
-            ShortBufferException, OCKException {
+            ShortBufferException, NativeException {
 
         //final String methodName = "finalNoPadding";
         // OCKDebug.Msg(debPrefix, methodName, "Entering in" + in + " len=" + 0);

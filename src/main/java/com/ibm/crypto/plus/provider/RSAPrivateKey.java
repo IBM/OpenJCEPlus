@@ -71,9 +71,7 @@ final class RSAPrivateKey extends PKCS8Key
         try {
             this.rsaKey = RSAKey.createPrivateKey(this.privKeyMaterial, provider);
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create RSA private key", exception);
         }
     }
 
@@ -83,10 +81,8 @@ final class RSAPrivateKey extends PKCS8Key
         try {
             parseKeyBits();
         } catch (IOException e) {
-            InvalidKeyException ike = new InvalidKeyException(
-                    "Failed to parse key bits of encoded key");
-            provider.setOCKExceptionCause(ike, e);
-            throw ike;
+            throw new InvalidKeyException(
+                    "Failed to parse key bits of encoded key", e);
         }
 
         RSAKeyFactory.checkRSAProviderKeyLengths(provider, modulus.bitLength(), null);
@@ -94,9 +90,7 @@ final class RSAPrivateKey extends PKCS8Key
         try {
             this.rsaKey = RSAKey.createPrivateKey(this.privKeyMaterial, provider);
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create RSA private key", exception);
         }
     }
 
@@ -123,9 +117,7 @@ final class RSAPrivateKey extends PKCS8Key
             this.keyParams = RSAUtil.getParamSpec(algId);
             parseKeyBits();
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create RSA private key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create RSA private key", exception);
         }
     }
 

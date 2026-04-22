@@ -63,14 +63,8 @@ public final class ChaCha20Cipher extends CipherSpi implements ChaCha20Constants
             } else {
                 return output;
             }
-        } catch (BadPaddingException ock_bpe) {
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
-            throw bpe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            throw ibse;
+        } catch (BadPaddingException | IllegalBlockSizeException exc) {
+            throw exc;
         } catch (Exception e) {
             throw provider.providerException("Failure in engineDoFinal", e);
         } finally {
@@ -88,19 +82,8 @@ public final class ChaCha20Cipher extends CipherSpi implements ChaCha20Constants
         try {
             int ret = symmetricCipher.doFinal(input, inputOffset, inputLen, output, outputOffset);
             return ret;
-        } catch (BadPaddingException ock_bpe) {
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
-            throw bpe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            throw ibse;
-        } catch (ShortBufferException ock_sbe) {
-            ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
-            throw sbe;
+        } catch (BadPaddingException | IllegalBlockSizeException | ShortBufferException exc) {
+            throw exc;
         } catch (Exception e) {
             throw provider.providerException("Failure in engineDoFinal", e);
         } finally {
@@ -326,9 +309,7 @@ public final class ChaCha20Cipher extends CipherSpi implements ChaCha20Constants
 
         try {
             return symmetricCipher.update(input, inputOffset, inputLen, output, outputOffset);
-        } catch (ShortBufferException ock_sbe) {
-            ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
+        } catch (ShortBufferException sbe) {
             throw sbe;
         } catch (Exception e) {
             throw provider.providerException("Failure in engineUpdate", e);

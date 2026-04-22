@@ -150,7 +150,7 @@ void ockCheckStatus(ICC_CTX *ctx) {
 //
 //
 void throwOCKException(JNIEnv *env, int code, const char *msg) {
-#define EXCEPTION_CLASS "com/ibm/crypto/plus/provider/base/OCKException"
+#define EXCEPTION_CLASS "com/ibm/crypto/plus/provider/ock/OCKException"
     static const char *exceptionClass = EXCEPTION_CLASS;
 #ifdef __MVS__
 #pragma convert("ISO8859-1")
@@ -215,7 +215,7 @@ void throwOCKException(JNIEnv *env, int code, const char *msg) {
 #ifdef __MVS__
 #pragma convert(pop)
 #endif
-            gslogError("Can't find constuctor(message) for %s", exceptionClass);
+            gslogError("Can't find constructor(message) for %s", exceptionClass);
             return;
         }
 

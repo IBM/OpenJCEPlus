@@ -66,14 +66,8 @@ public final class AESCipher extends CipherSpi implements AESConstants {
             } else {
                 return output;
             }
-        } catch (BadPaddingException ock_bpe) {
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
+        } catch (BadPaddingException | IllegalBlockSizeException bpe) {
             throw bpe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            throw ibse;
         } catch (Exception e) {
             throw provider.providerException("Failure in engineDoFinal", e);
         }
@@ -147,18 +141,8 @@ public final class AESCipher extends CipherSpi implements AESConstants {
             } else {
                 return symmetricCipher.doFinal(input, inputOffset, inputLen, output, outputOffset);
             }
-        } catch (BadPaddingException ock_bpe) {
-            BadPaddingException bpe = new BadPaddingException(ock_bpe.getMessage());
-            provider.setOCKExceptionCause(bpe, ock_bpe);
-            throw bpe;
-        } catch (IllegalBlockSizeException ock_ibse) {
-            IllegalBlockSizeException ibse = new IllegalBlockSizeException(ock_ibse.getMessage());
-            provider.setOCKExceptionCause(ibse, ock_ibse);
-            throw ibse;
-        } catch (ShortBufferException ock_sbe) {
-            ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
-            throw sbe;
+        } catch (BadPaddingException | IllegalBlockSizeException | ShortBufferException exc) {
+            throw exc;
         } catch (Exception e) {
             throw provider.providerException("Failure in engineDoFinal", e);
         }
@@ -467,7 +451,7 @@ public final class AESCipher extends CipherSpi implements AESConstants {
             }
         } catch (ShortBufferException ock_sbe) {
             ShortBufferException sbe = new ShortBufferException(ock_sbe.getMessage());
-            provider.setOCKExceptionCause(sbe, ock_sbe);
+            provider.setExceptionCause(sbe, ock_sbe);
             throw sbe;
         } catch (Exception e) {
             throw provider.providerException("Failure in engineDoFinal", e);

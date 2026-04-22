@@ -89,9 +89,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
             this.algid = CurveUtil.getAlgId(curve);
             setFieldsFromXeckey();
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create XEC public key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create XEC public key", exception);
         }
     }
 
@@ -130,9 +128,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
             byte[] alteredEncoded = alterEncodedPublicKey(encoded); // Alters encoded to fit GSKit, and sets params
             this.xecKey = XECKey.createPublicKey(alteredEncoded, provider);
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create XEC public key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create XEC public key", exception);
         }
     }
 
@@ -212,7 +208,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
                     "Failed to create XEC public key");
-            provider.setOCKExceptionCause(ike, exception);
+            provider.setExceptionCause(ike, exception);
             throw ike;
         }
     }

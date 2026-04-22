@@ -8,7 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.base.NativeException;
 import com.ibm.crypto.plus.provider.base.RSACipher;
 import com.ibm.crypto.plus.provider.base.RSAPadding;
 import java.nio.ByteBuffer;
@@ -142,7 +142,7 @@ public final class RSA extends CipherSpi {
             this.msgLength = 0; // reset cipher for another
                                 // encryption/decryption
             return outLen;
-        } catch (OCKException e) {
+        } catch (NativeException e) {
             // Unsure of msg length behavior on failure. e.g. do we set it to 0?
             // do we clear the buffer?
             throw provider.providerException("Failure in engineDoFinal", e);
@@ -549,7 +549,7 @@ public final class RSA extends CipherSpi {
         }
     }
 
-    private int oaepInputLimit() throws InvalidAlgorithmParameterException, OCKException {
+    private int oaepInputLimit() throws InvalidAlgorithmParameterException, NativeException {
         int digestLength = getDigestLength();
         // The limit for useful data is the maximum amount based on the keysize
         // minus the OAEP padding, which is twice the output size of the digest
@@ -557,7 +557,7 @@ public final class RSA extends CipherSpi {
         return rsaCipher.getOutputSize() - (2 * digestLength) - 2;
     }
 
-    private int pkcs1InputLimit() throws OCKException {
+    private int pkcs1InputLimit() throws NativeException {
         // The limit for useful data is the maximum amount based on the keysize
         // minus the PKCS1 padding, which is exactly 11 bytes.
         return rsaCipher.getOutputSize() - 11;

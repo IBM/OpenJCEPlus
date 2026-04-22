@@ -39,15 +39,15 @@ public final class SignatureRSASSL {
     private static final String debPrefix = "SignatureRSASSL";
     private final String badIdMsg = "RSA Key Identifier is not valid";
 
-    public static SignatureRSASSL getInstance(OpenJCEPlusProvider provider) throws OCKException {
+    public static SignatureRSASSL getInstance(OpenJCEPlusProvider provider) throws NativeException {
         return new SignatureRSASSL(provider);
     }
 
-    private SignatureRSASSL(OpenJCEPlusProvider provider) throws OCKException {
+    private SignatureRSASSL(OpenJCEPlusProvider provider) throws NativeException {
         this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
     }
 
-    public void initialize(RSAKey key, boolean convert) throws InvalidKeyException, OCKException {
+    public void initialize(RSAKey key, boolean convert) throws InvalidKeyException, NativeException {
         //final String methodName = "initialize";
         if (key == null) {
             throw new IllegalArgumentException("key is null");
@@ -59,7 +59,7 @@ public final class SignatureRSASSL {
         //OCKDebug.Msg (debPrefix, methodName, "this.key :", this.key);
     }
 
-    public synchronized byte[] sign(byte[] digest) throws OCKException {
+    public synchronized byte[] sign(byte[] digest) throws NativeException {
         //final String methodName = "sign";
         if (!this.initialized) {
             throw new IllegalStateException("Signature not initialized");
@@ -71,7 +71,7 @@ public final class SignatureRSASSL {
 
         //OCKDebug.Msg (debPrefix, methodName,  "RSAKeyId=" + this.key.getRSAKeyId() + " digest :",  digest);
         if (!validId(this.key.getRSAKeyId())) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
         byte[] signature = this.nativeInterface.RSASSL_SIGNATURE_sign(digest,
                 this.key.getRSAKeyId());
@@ -79,7 +79,7 @@ public final class SignatureRSASSL {
         return signature;
     }
 
-    public synchronized boolean verify(byte[] digest, byte[] sigBytes) throws OCKException {
+    public synchronized boolean verify(byte[] digest, byte[] sigBytes) throws NativeException {
         //final String methodName = "verify";
         // create key length function and check sigbytes against key length?
         if (!this.initialized) {
@@ -100,7 +100,7 @@ public final class SignatureRSASSL {
         boolean verified = this.nativeInterface.RSASSL_SIGNATURE_verify(digest,
                 this.key.getRSAKeyId(), sigBytes, convertKey);
         if (!validId(this.key.getRSAKeyId())) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
         //OCKDebug.Msg(debPrefix, methodName, "verified=" + verified);
         return verified;
