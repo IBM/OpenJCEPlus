@@ -26,7 +26,7 @@ public final class BasicRandom {
         this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
     }
 
-    public void nextBytes(byte[] bytes) throws OCKException {
+    public void nextBytes(byte[] bytes) throws NativeException {
         if (bytes == null) {
             throw new IllegalArgumentException("bytes is null");
         }
@@ -36,7 +36,7 @@ public final class BasicRandom {
         }
     }
 
-    public void setSeed(byte[] seed) throws OCKException {
+    public void setSeed(byte[] seed) throws NativeException {
         if (seed == null) {
             throw new IllegalArgumentException("seed is null");
         }
@@ -46,7 +46,7 @@ public final class BasicRandom {
         }
     }
 
-    public byte[] generateSeed(int numBytes) throws OCKException {
+    public byte[] generateSeed(int numBytes) throws NativeException {
         if (numBytes < 0) {
             throw new IllegalArgumentException("numBytes is negative");
         }

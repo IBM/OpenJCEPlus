@@ -1261,12 +1261,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         }
     }
 
-    ProviderException providerException(String message, Throwable ockException) {
-        ProviderException providerException = new ProviderException(message, ockException);
-        setOCKExceptionCause(providerException, ockException);
-        return providerException;
-    }
-
     // Get the date from the ImplementationVersion in the manifest file
     private static String getDebugDate(String className) {
         String versionDate = "Unknown";

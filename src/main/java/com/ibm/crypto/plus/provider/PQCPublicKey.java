@@ -51,9 +51,7 @@ final class PQCPublicKey extends X509Key
 
             this.pqcKey = PQCKey.createPublicKey(algName, b, provider);
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create public key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create public key", exception);
         }
     }
 

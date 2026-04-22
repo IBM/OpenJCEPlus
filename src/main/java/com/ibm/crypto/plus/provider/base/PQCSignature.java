@@ -29,18 +29,18 @@ public final class PQCSignature {
     private boolean initialized = false;
 
     public static PQCSignature getInstance(OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         return new PQCSignature(provider);
     }
 
-    private PQCSignature(OpenJCEPlusProvider provider) throws OCKException {
+    private PQCSignature(OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "Signature(String)";
         this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         //OCKDebug.Msg (debPrefix, methodName, "digestAlgo :" + digestAlgo);
     }
 
     public void initialize(AsymmetricKey key)
-            throws InvalidKeyException, OCKException {
+            throws InvalidKeyException, NativeException {
         //final String methodName = "initialize";
         if (key == null) {
             throw new IllegalArgumentException("key is null");
@@ -51,7 +51,7 @@ public final class PQCSignature {
         //OCKDebug.Msg (debPrefix, methodName,  "this.key=" + key);
     }
 
-    public synchronized byte[] sign(byte[] data) throws OCKException {
+    public synchronized byte[] sign(byte[] data) throws NativeException {
 
         if (!this.initialized) {
             throw new IllegalStateException("Signature not initialized");
@@ -60,13 +60,13 @@ public final class PQCSignature {
         //OCKDebug.Msg (debPrefix, "sign"," pkeyId :" + this.key.getPKeyId());
 
        // if (!validId(this.key.getPKeyId())) {
-       //     throw new OCKException(badIdMsg);
+       //     throw new NativeException(badIdMsg);
        // }
 
         byte[] signature = null;
 
         if (data == null || data.length == 0) {
-            throw new OCKException("No data to sign.");
+            throw new NativeException("No data to sign.");
         }
 
         signature = this.nativeInterface.PQC_SIGNATURE_sign(this.key.getPKeyId(), data);
@@ -75,7 +75,7 @@ public final class PQCSignature {
         return signature;
     }
 
-    public synchronized boolean verify(byte[] sigBytes, byte[] data) throws OCKException {
+    public synchronized boolean verify(byte[] sigBytes, byte[] data) throws NativeException {
         //final String methodName = "verify";
         if (!this.initialized) {
             throw new IllegalStateException("Signature not initialized");

@@ -9,7 +9,7 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.base.AESKeyWrap;
-import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.base.NativeException;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -110,7 +110,7 @@ abstract class AESKeyWrapCipher extends CipherSpi {
             } else {
                 out = cipher.unwrap(buffer, 0, bufSize);
             }
-        } catch (OCKException ocke) {
+        } catch (NativeException ocke) {
             throw new ProviderException("Operation doFinal failed", ocke);
         }
         this.bufSize = 0;

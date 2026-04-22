@@ -74,9 +74,7 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             this.algid = CurveUtil.getAlgId(curve);
             setFieldsFromXeckey();
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create XEC public key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create XEC public key", exception);
         }
 
         //System.out.println("Pub Point = " + this.point);
@@ -116,9 +114,7 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             this.xecKey = XECKey.createPublicKey(alteredEncoded, provider);
 
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create EdDSA public key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create EdDSA public key", exception);
         }
 
         checkLength(this.curve);
@@ -148,9 +144,7 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             this.xecKey = XECKey.createPublicKey(der, provider);
 
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create EdDSA public key");
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
+            throw new InvalidKeyException("Failed to create EdDSA public key", exception);
         }
         checkLength(this.curve);
     }
