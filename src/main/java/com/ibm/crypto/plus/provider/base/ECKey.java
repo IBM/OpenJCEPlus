@@ -110,14 +110,14 @@ public final class ECKey implements AsymmetricKey {
     // Note that the caller of this method must ensure the pointer ecKeyId is not used
     // concurrently by suitable locking.
     protected static byte[] getParametersBytes(long ecKeyId, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         return nativeInterface.ECKEY_getParameters(ecKeyId);
     }
 
 
     public static ECKey generateKeyPair(int size, SecureRandom random, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         //final String methodName = "generateKeyPair ";
         if (size < 0) {
             throw new IllegalArgumentException("The key length parameter is invalid");
@@ -131,7 +131,7 @@ public final class ECKey implements AsymmetricKey {
         long ecKeyId;
         try {
             ecKeyId = nativeInterface.ECKEY_generate(size);
-        } catch (OCKException oe) {
+        } catch (NativeException oe) {
             if (oe.getMessage().contains("Incorrect key size") && allowIncorrectKeysizes) {
                 // If the flag is set and an incorrect key size was provided, default to 256.
                 ecKeyId = nativeInterface.ECKEY_generate(256);
@@ -141,7 +141,7 @@ public final class ECKey implements AsymmetricKey {
         }
         
         if (!validId(ecKeyId)) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
 
         byte[] parameterBytes = getParametersBytes(ecKeyId, provider);
@@ -152,7 +152,7 @@ public final class ECKey implements AsymmetricKey {
 
 
     public static ECKey generateKeyPair(String soid, SecureRandom random, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         //final String methodName = "generateKeyPair(String, SecureRandom) ";
         if ((soid == null) || (soid.equals("") == true)) {
             throw new IllegalArgumentException("The String Object Identifier parameter is invalid");
@@ -165,7 +165,7 @@ public final class ECKey implements AsymmetricKey {
         NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         long ecKeyId = nativeInterface.ECKEY_generate(soid);
         if (!validId(ecKeyId)) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
         byte[] parameterBytes = getParametersBytes(ecKeyId, provider);
         //OCKDebug.Msg (debPrefix, methodName, "soid :" + soid + " ecKeyId :" + ecKeyId + "parameterBytes :",  parameterBytes);
@@ -175,7 +175,7 @@ public final class ECKey implements AsymmetricKey {
     }
 
     public static ECKey generateKeyPair(byte[] parameterBytes,
-            SecureRandom random, OpenJCEPlusProvider provider) throws OCKException {
+            SecureRandom random, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "generateKeyPair(byte[], SecureRandom) ";
         if (parameterBytes == null) {
             throw new IllegalArgumentException("The parameter bytes is null");
@@ -193,7 +193,7 @@ public final class ECKey implements AsymmetricKey {
                 unobtainedKeyBytes, provider);
     }
 
-    public static byte[] generateParameters(int size, OpenJCEPlusProvider provider) throws OCKException {
+    public static byte[] generateParameters(int size, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "generateParameters (int) ";
         if (size < 0) {
             throw new IllegalArgumentException("key length is invalid");
@@ -205,7 +205,7 @@ public final class ECKey implements AsymmetricKey {
     }
 
     public static byte[] generateParameters(String soid, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         //final String methodName = "generateParameters(soid) ";
         if (soid == null || soid.equals("")) {
             throw new IllegalArgumentException(
@@ -229,7 +229,7 @@ public final class ECKey implements AsymmetricKey {
     }
 
     @Override
-    public long getPKeyId() throws OCKException {
+    public long getPKeyId() throws NativeException {
         if (pkeyId.getValue() == 0) {
             obtainPKeyId();
         }
@@ -237,7 +237,7 @@ public final class ECKey implements AsymmetricKey {
         return pkeyId.getValue();
     }
 
-    public byte[] getParameters() throws OCKException {
+    public byte[] getParameters() throws NativeException {
         //final String methodName = "getParameters :";
         if (ecSpec == null) {
             obtainParameters();
@@ -252,7 +252,7 @@ public final class ECKey implements AsymmetricKey {
     //    }
 
     @Override
-    public byte[] getPrivateKeyBytes() throws OCKException {
+    public byte[] getPrivateKeyBytes() throws NativeException {
         //final String methodName = "getPrivateKeyBytes()";
         if (privateKeyBytes == unobtainedKeyBytes) {
             obtainPrivateKeyBytes();
@@ -262,7 +262,7 @@ public final class ECKey implements AsymmetricKey {
     }
 
     @Override
-    public byte[] getPublicKeyBytes() throws OCKException {
+    public byte[] getPublicKeyBytes() throws NativeException {
         //final String methodName = "getPublickeyBytes()";
         if (publicKeyBytes == unobtainedKeyBytes) {
             obtainPublicKeyBytes();
@@ -271,54 +271,54 @@ public final class ECKey implements AsymmetricKey {
         return (publicKeyBytes == null) ? null : publicKeyBytes.clone();
     }
 
-    private synchronized void obtainPKeyId() throws OCKException {
+    private synchronized void obtainPKeyId() throws NativeException {
         // Leave this duplicate check in here. If two threads are both trying
         // to getPKeyId at the same time, we only want to call the native
         // code one time.
         //
         if (pkeyId.getValue() == 0) {
             if (!validId(ecKeyId)) {
-                throw new OCKException(badIdMsg);
+                throw new NativeException(badIdMsg);
             }
             this.pkeyId.setValue(this.nativeInterface.ECKEY_createPKey(ecKeyId));
         }
     }
 
-    private synchronized void obtainParameters() throws OCKException {
+    private synchronized void obtainParameters() throws NativeException {
         // Leave this duplicate check in here. If two threads are both trying
         // to getParameters at the same time, we only want to call the
         // native code one time.
         //
         if (ecSpec == null) {
             if (!validId(ecKeyId)) {
-                throw new OCKException(badIdMsg);
+                throw new NativeException(badIdMsg);
             }
             this.parameterBytes = this.nativeInterface.ECKEY_getParameters(ecKeyId);
         }
     }
 
-    private synchronized void obtainPrivateKeyBytes() throws OCKException {
+    private synchronized void obtainPrivateKeyBytes() throws NativeException {
         // Leave this duplicate check in here. If two threads are both trying
         // to getPrivateKeyBytes at the same time, we only want to call the
         // native code one time.
         //
         if (privateKeyBytes == unobtainedKeyBytes) {
             if (!validId(ecKeyId)) {
-                throw new OCKException(badIdMsg);
+                throw new NativeException(badIdMsg);
             }
             this.privateKeyBytes = this.nativeInterface.ECKEY_getPrivateKeyBytes(ecKeyId);
 
         }
     }
 
-    private synchronized void obtainPublicKeyBytes() throws OCKException {
+    private synchronized void obtainPublicKeyBytes() throws NativeException {
         // Leave this duplicate check in here. If two threads are both trying
         // to getPublicKeyBytes at the same time, we only want to call the
         // native code one time.
         //
         if (publicKeyBytes == unobtainedKeyBytes) {
             if (!validId(ecKeyId)) {
-                throw new OCKException(badIdMsg);
+                throw new NativeException(badIdMsg);
             }
             this.publicKeyBytes = this.nativeInterface.ECKEY_getPublicKeyBytes(ecKeyId);
         }
@@ -327,7 +327,7 @@ public final class ECKey implements AsymmetricKey {
     // The underlying native function used in this method does not use any native pointer
     // that is shared across threads. Hence, it does not require any locks
     public static ECKey createPrivateKey(byte[] privateKeyBytes,
-            byte[] paramBytes, OpenJCEPlusProvider provider) throws OCKException {
+            byte[] paramBytes, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "createPrivateKey";
         if (privateKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
@@ -342,7 +342,7 @@ public final class ECKey implements AsymmetricKey {
         long ecKeyId = nativeInterface.ECKEY_createPrivateKey(privateKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName, "ecPrivateKeyId :" + ecKeyId);
         if (!validId(ecKeyId)) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
         byte[] publicKeyBytes = nativeInterface.ECKEY_getPublicKeyBytes(ecKeyId);
 
@@ -355,7 +355,7 @@ public final class ECKey implements AsymmetricKey {
     // ECKEY.signDatawithECDSA is not synchronized and not thread safe.
     // The method ECKey.signDatawithECDSA should NOT be synchronized for performance as that would create a global lock.
     public static byte[] signDatawithECDSA(byte[] digestBytes,
-            int digestBytesLen, ECKey ecPrivateKey, OpenJCEPlusProvider provider) throws OCKException {
+            int digestBytesLen, ECKey ecPrivateKey, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "signDatawithECDSA";
         if (digestBytes == null || digestBytesLen < 1) {
             throw new IllegalArgumentException("digest bytes is null");
@@ -368,7 +368,7 @@ public final class ECKey implements AsymmetricKey {
         }
 
         if (!validId(ecPrivateKey.getEcKeyId())) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
 
         NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
@@ -388,7 +388,7 @@ public final class ECKey implements AsymmetricKey {
     // The method ECKey.verifyDatawithECDSA should NOT be synchronized for performance as that would create a global lock.
     public static boolean verifyDatawithECDSA(byte[] digestBytes,
             int digestBytesLen, byte[] sigBytes, int sigBytesLen, ECKey ecPublicKey, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         //final String methodName = "verifyDatawithECDSA";
         boolean verified = false;
         if (digestBytes == null || digestBytesLen < 1) {
@@ -415,7 +415,7 @@ public final class ECKey implements AsymmetricKey {
         }
 
         if (!validId(ecPublicKey.getEcKeyId())) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
         //OCKDebug.Msg (debPrefix, methodName, "diestBytesLen : " + digestBytesLen + " digestAcutalBytes : ", digestActualBytes);
         //OCKDebug.Msg (debPrefix, methodName, " sigActualBytes : ", sigActualBytes);
@@ -430,7 +430,7 @@ public final class ECKey implements AsymmetricKey {
     }
 
     public static ECKey createPublicKey(byte[] publicKeyBytes,
-            byte[] parameterBytes, OpenJCEPlusProvider provider) throws OCKException {
+            byte[] parameterBytes, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "createPublicKey";
         if (publicKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
@@ -454,7 +454,7 @@ public final class ECKey implements AsymmetricKey {
     // ECKey.computeDHSecret is not synchronized and not thread safe.
     // The method ECKey.computeDHSecret should NOT be synchronized for performance as that would create a global lock.
     public static byte[] computeECDHSecret(long pubEcKeyId, long privEcKeyId, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         //final String methodName = "computeECDHSecret ";
         if (pubEcKeyId == 0) {
             throw new IllegalArgumentException("The public key parameter is not valid");

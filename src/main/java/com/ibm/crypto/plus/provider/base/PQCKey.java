@@ -29,7 +29,7 @@ public final class PQCKey implements AsymmetricKey {
     private final static String badIdMsg = "Key Identifier is not valid";
 
     public static PQCKey generateKeyPair(String algName, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         long keyId = 0;
         // final String methodName = "generateKeyPair ";
 
@@ -42,16 +42,16 @@ public final class PQCKey implements AsymmetricKey {
             keyId = nativeInterface.MLKEY_generate(NoDashAlg);
 
             if (keyId == 0) {
-                throw new OCKException("PQCKey.generateKeyPair: MLKEY_generate failed");
+                throw new NativeException("PQCKey.generateKeyPair: MLKEY_generate failed");
             }    
         } catch (Exception e) {
-            throw new OCKException("PQCKey.generateKeyPair: Exception " + e.getMessage(), e);
+            throw new NativeException("PQCKey.generateKeyPair: Exception " + e.getMessage(), e);
         }
         return new PQCKey(nativeInterface, keyId, unobtainedKeyBytes, unobtainedKeyBytes, algName, provider);
     }
 
     public static PQCKey createPrivateKey(String algName, byte[] privateKeyBytes, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         // final String methodName = "createPrivateKey ";
         if (privateKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
@@ -69,7 +69,7 @@ public final class PQCKey implements AsymmetricKey {
     }
 
     public static PQCKey createPublicKey(String algName, byte[] publicKeyBytes, OpenJCEPlusProvider provider)
-            throws OCKException {
+            throws NativeException {
         // final String methodName = "createPublicKey ";
         if (publicKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
@@ -88,14 +88,14 @@ public final class PQCKey implements AsymmetricKey {
     }
 
     private PQCKey(NativeInterface nativeInterface, long keyId, byte[] privateKeyBytes,
-            byte[] publicKeyBytes, String algName, OpenJCEPlusProvider provider) throws OCKException {
+            byte[] publicKeyBytes, String algName, OpenJCEPlusProvider provider) throws NativeException {
         this.nativeInterface = nativeInterface;
         this.pkeyId = keyId;
         this.algName = algName;
         this.provider = provider;
 
         if (!validId(pkeyId)) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
 
         if (provider == null) {
@@ -122,12 +122,12 @@ public final class PQCKey implements AsymmetricKey {
     }
 
     @Override
-    public long getPKeyId() throws OCKException {
+    public long getPKeyId() throws NativeException {
         return pkeyId;
     }
 
     @Override
-    public byte[] getPrivateKeyBytes() throws OCKException {
+    public byte[] getPrivateKeyBytes() throws NativeException {
         // final String methodName = "getPrivateKeyBytes :";
         if (privateKeyBytes == unobtainedKeyBytes) {
             obtainPrivateKeyBytes();
@@ -136,7 +136,7 @@ public final class PQCKey implements AsymmetricKey {
     }
 
     @Override
-    public byte[] getPublicKeyBytes() throws OCKException {
+    public byte[] getPublicKeyBytes() throws NativeException {
         // final String methodName = "getPublicKeyBytes";
         if (publicKeyBytes == unobtainedKeyBytes) {
             obtainPublicKeyBytes();
@@ -144,14 +144,14 @@ public final class PQCKey implements AsymmetricKey {
         return (publicKeyBytes == null) ? null : publicKeyBytes.clone();
     }
 
-    private synchronized void obtainPrivateKeyBytes() throws OCKException {
+    private synchronized void obtainPrivateKeyBytes() throws NativeException {
         // Leave this duplicate check in here. If two threads are both trying
         // to getPrivateKeyBytes at the same time, we only want to call the
         // native code one time.
         //
         if (privateKeyBytes == unobtainedKeyBytes) {
             if (!validId(pkeyId)) {
-                throw new OCKException(badIdMsg);
+                throw new NativeException(badIdMsg);
             }
         
             System.out.println("getPrivKeyBytes - pkeyId :" + pkeyId);
@@ -159,14 +159,14 @@ public final class PQCKey implements AsymmetricKey {
         }
     }
 
-    private synchronized void obtainPublicKeyBytes() throws OCKException {
+    private synchronized void obtainPublicKeyBytes() throws NativeException {
         // Leave this duplicate check in here. If two threads are both trying
         // to getPublicKeyBytes at the same time, we only want to call the
         // native code one time.
         //
         if (publicKeyBytes == unobtainedKeyBytes) {
             if (!validId(pkeyId)) {
-                throw new OCKException(badIdMsg);
+                throw new NativeException(badIdMsg);
             }
             this.publicKeyBytes = this.nativeInterface.MLKEY_getPublicKeyBytes(pkeyId);
         }

@@ -8,8 +8,6 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
-import com.ibm.crypto.plus.provider.base.OCKException;
-
 public final class OCKContext {
 
     private long ockContextId;

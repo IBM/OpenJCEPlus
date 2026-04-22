@@ -66,10 +66,8 @@ final class DSAPrivateKey extends PKCS8Key
             byte[] privateKeyBytes = buildOCKPrivateKeyBytes();
             this.dsaKey = DSAKey.createPrivateKey(privateKeyBytes, provider);
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create DSA private key",
+            throw new InvalidKeyException("Failed to create DSA private key",
                     exception);
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
         }
     }
 
@@ -88,10 +86,8 @@ final class DSAPrivateKey extends PKCS8Key
             byte[] privateKeyBytes = buildOCKPrivateKeyBytes();
             this.dsaKey = DSAKey.createPrivateKey(privateKeyBytes, provider);
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create DSA private key",
+            throw new InvalidKeyException("Failed to create DSA private key",
                     exception);
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
         }
     }
 
@@ -104,10 +100,8 @@ final class DSAPrivateKey extends PKCS8Key
             this.dsaKey = dsaKey;
             parseKeyBits();
         } catch (Exception exception) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to create DSA private key",
+            throw new InvalidKeyException("Failed to create DSA private key",
                     exception);
-            provider.setOCKExceptionCause(ike, exception);
-            throw ike;
         }
     }
 

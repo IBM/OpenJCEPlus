@@ -22,16 +22,16 @@ public final class SignatureEdDSA {
     private final String badIdMsg = "Digest Identifier or PKey Identifier is not valid";
     private final static String debPrefix = "SIGNATURE";
 
-    public static SignatureEdDSA getInstance(OpenJCEPlusProvider provider) throws OCKException {
+    public static SignatureEdDSA getInstance(OpenJCEPlusProvider provider) throws NativeException {
         return new SignatureEdDSA(provider);
     }
 
-    private SignatureEdDSA(OpenJCEPlusProvider provider) throws OCKException {
+    private SignatureEdDSA(OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "SignatureEdDSA(String)";
         this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
     }
 
-    public void initialize(AsymmetricKey key) throws InvalidKeyException, OCKException {
+    public void initialize(AsymmetricKey key) throws InvalidKeyException, NativeException {
         //final String methodName = "initialize";
         if (key == null) {
             throw new IllegalArgumentException("key is null");
@@ -42,19 +42,19 @@ public final class SignatureEdDSA {
         //OCKDebug.Msg (debPrefix, methodName,  "this.key=" + key);
     }
 
-    public synchronized byte[] sign(byte[] oneShotData) throws OCKException, SignatureException {
+    public synchronized byte[] sign(byte[] oneShotData) throws NativeException, SignatureException {
         if (!this.initialized) {
             throw new IllegalStateException("SignatureEdDSA not initialized");
         }
         if (!validId(this.key.getPKeyId())) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
         byte[] signature = this.nativeInterface.SIGNATUREEdDSA_signOneShot(
                 this.key.getPKeyId(), oneShotData);
         return signature;
     }
 
-    public synchronized boolean verify(byte[] sigBytes, byte[] dataBytes) throws OCKException {
+    public synchronized boolean verify(byte[] sigBytes, byte[] dataBytes) throws NativeException {
         //final String methodName = "verify";
         // create key length function and check sigbytes against key length?
         if (!this.initialized) {
@@ -65,7 +65,7 @@ public final class SignatureEdDSA {
             throw new IllegalArgumentException("invalid signature");
         }
         if (this.key.getPKeyId() == 0L) {
-            throw new OCKException(badIdMsg);
+            throw new NativeException(badIdMsg);
         }
         boolean verified = this.nativeInterface.SIGNATUREEdDSA_verifyOneShot(
                 this.key.getPKeyId(), sigBytes, dataBytes);

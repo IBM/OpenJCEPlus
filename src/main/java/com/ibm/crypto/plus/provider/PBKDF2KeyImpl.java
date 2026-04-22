@@ -8,7 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.base.OCKException;
+import com.ibm.crypto.plus.provider.base.NativeException;
 import com.ibm.crypto.plus.provider.base.PBKDF;
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -120,7 +120,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
             try {
                 this.key = PBKDF.PBKDF2derive(this.prfAlgorithm,
                         passwdBytes, salt, iterCount, keyLength / 8, provider);
-            } catch (OCKException e) {
+            } catch (NativeException e) {
                 throw new InvalidKeySpecException(
                         "Error while deriving PBKDF2 key from a given PBEKeySpec.", e);
             }

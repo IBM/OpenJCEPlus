@@ -168,9 +168,7 @@ abstract class RSASignature extends SignatureSpi {
         try {
             this.signature.update(b, off, len);
         } catch (Exception e) {
-            SignatureException se = new SignatureException("Failure in engineUpdate");
-            provider.setOCKExceptionCause(se, e);
-            throw se;
+            throw new SignatureException("Failure in engineUpdate", e);
         }
     }
 
@@ -199,9 +197,7 @@ abstract class RSASignature extends SignatureSpi {
             }
             return this.signature.sign();
         } catch (Exception e) {
-            SignatureException signatureException = new SignatureException("Could not sign data");
-            provider.setOCKExceptionCause(signatureException, e);
-            throw signatureException;
+            throw new SignatureException("Could not sign data", e);
         }
     }
 
