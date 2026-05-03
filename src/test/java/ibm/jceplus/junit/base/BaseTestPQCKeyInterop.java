@@ -16,14 +16,19 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.EncodedKeySpec;
+import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import javax.crypto.KEM;
+import javax.crypto.SecretKey;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
@@ -40,10 +45,9 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         String pqcAlgorithm = "ML-DSA-65";
         boolean same = false;
 
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            //This is not in the FIPS provider yet.
-            return;
-        }
+        //This is not in the FIPS provider yet.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
         keyFactoryPlus = KeyFactory.getInstance(pqcAlgorithm, getProviderName());
         keyPairGenInterop = KeyPairGenerator.getInstance(pqcAlgorithm, getInteropProviderName2());
@@ -76,10 +80,9 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         String pqcAlgorithm = "ML-DSA-65";
         boolean same = false;
 
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            //This is not in the FIPS provider yet.
-            return;
-        }
+        //This is not in the FIPS provider yet.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
         keyFactoryPlus = KeyFactory.getInstance(pqcAlgorithm, getProviderName());
         keyPairGenInterop = KeyPairGenerator.getInstance(pqcAlgorithm, getInteropProviderName2());
@@ -112,11 +115,10 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         String pqcAlgorithm = "ML-DSA-65";
         boolean same = false;
 
-        if (getProviderName().equals("OpenJCEPlusFIPS") || 
-            getInteropProviderName().equals(Utils.PROVIDER_BC)) {
-            //This is not in the FIPS provider yet and Bouncy Castle does not support this test.
-            return;
-        }
+        //This is not in the FIPS provider yet and Bouncy Castle does not support this test.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
         keyFactoryPlus = KeyFactory.getInstance(pqcAlgorithm, getProviderName());
         keyPairGenInterop = KeyPairGenerator.getInstance(pqcAlgorithm, getInteropProviderName2());
@@ -162,14 +164,11 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignInteropAndVerifyPlus(String algorithm) throws Exception {
+        //This is not in the FIPS provider yet.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(algorithm.equalsIgnoreCase("ML-DSA") && getInteropProviderName2().equalsIgnoreCase("BC"));
+
         try {
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                //This is not in the FIPS provider yet.
-                return;
-            }
-            if (algorithm.equalsIgnoreCase("ML-DSA") && getInteropProviderName2().equalsIgnoreCase("BC")) {
-                return;
-            }
             keyPairGenInterop = KeyPairGenerator.getInstance(algorithm, getInteropProviderName2());
             KeyPair keyPairInterop = generateKeyPair(keyPairGenInterop);
 
@@ -200,12 +199,11 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignInteropKeysPlusSignVerify(String algorithm) {
+        //This is not in the FIPS provider yet.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName2()));
+
         try {
-            if (getProviderName().equals("OpenJCEPlusFIPS") || 
-                getInteropProviderName().equals(Utils.PROVIDER_BC)) {
-                //This is not in the FIPS provider yet.
-                return;
-            }
             keyPairGenInterop = KeyPairGenerator.getInstance(algorithm, getInteropProviderName2());
             KeyPair keyPairInterop = generateKeyPair(keyPairGenInterop);
 
@@ -235,12 +233,11 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignPlusKeysInteropSignVerify(String algorithm) {
+        //This is not in the FIPS provider yet.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName2()));
+
         try {
-            if (getProviderName().equals("OpenJCEPlusFIPS") || 
-                getInteropProviderName().equals(Utils.PROVIDER_BC)) {
-                //This is not in the FIPS provider yet.
-                return;
-            }
             keyPairGenPlus = KeyPairGenerator.getInstance(algorithm, getProviderName());
             KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
 
@@ -271,10 +268,8 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignPlusAndVerifyInterop(String algorithm) {
         try {
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                //This is not in the FIPS provider yet.
-                return;
-            }
+            //This is not in the FIPS provider yet.
+            assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
             keyPairGenPlus = KeyPairGenerator.getInstance(algorithm, getProviderName());
             KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
@@ -302,5 +297,161 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             fail("SignPlusAndVerifyInterop failed");
         }
     }
-}
 
+    /**
+     * Test ML-KEM interoperability using NamedParameterSpec to initialize KeyPairGenerator.
+     * Tests encapsulation / decapsulation with different providers.
+     *
+     * @param parameterSet The ML-KEM parameter set (ML-KEM-512, ML-KEM-768, ML-KEM-1024)
+     * @throws Exception if any cryptographic operation fails
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
+    public void testMLKEMInteropWithNamedParameterSpec(String parameterSet) throws Exception {
+        // Not in FIPS provider yet and BC doesn't support this test
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        // Generate key pair using NamedParameterSpec with provider
+        KeyPairGenerator keyPairGenPlus = KeyPairGenerator.getInstance("ML-KEM", getProviderName());
+        keyPairGenPlus.initialize(new NamedParameterSpec(parameterSet));
+        KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
+        
+        // Encapsulate using provider
+        KEM kemPlus = KEM.getInstance("ML-KEM", getProviderName());
+        KEM.Encapsulator encapsulator = kemPlus.newEncapsulator(keyPairPlus.getPublic());
+        KEM.Encapsulated encapsulated = encapsulator.encapsulate(0, 32, "AES");
+        
+        SecretKey encapKey = encapsulated.key();
+        byte[] encapsulation = encapsulated.encapsulation();
+        
+        // Decapsulate using interop provider
+        KEM kemInterop = KEM.getInstance("ML-KEM", getInteropProviderName());
+        KEM.Decapsulator decapsulator = kemInterop.newDecapsulator(keyPairPlus.getPrivate());
+        SecretKey decapKey = decapsulator.decapsulate(encapsulation, 0, 32, "AES");
+        
+        // Verify that both keys match
+        assertArrayEquals(encapKey.getEncoded(), decapKey.getEncoded(),
+                "Encapsulated and decapsulated keys do not match for " + parameterSet);
+    }
+
+    /**
+     * Test ML-KEM interoperability with empty parameters using NamedParameterSpec.
+     * Tests encapsulation and decapsulation without from/to specification.
+     *
+     * @param parameterSet The ML-KEM parameter set (ML-KEM-512, ML-KEM-768, ML-KEM-1024)
+     * @throws Exception if any cryptographic operation fails
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
+    public void testMLKEMInteropEmptyParamsWithNamedParameterSpec(String parameterSet) throws Exception {
+        // Not in FIPS provider yet and BC doesn't support this test
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        // Generate key pair using NamedParameterSpec with interop provider
+        KeyPairGenerator keyPairGenInterop = KeyPairGenerator.getInstance("ML-KEM", getInteropProviderName());
+        keyPairGenInterop.initialize(new NamedParameterSpec(parameterSet));
+        KeyPair keyPairInterop = generateKeyPair(keyPairGenInterop);
+        
+        // Encapsulate using interop provider (no from/to parameters)
+        KEM kemInterop = KEM.getInstance("ML-KEM", getInteropProviderName());
+        KEM.Encapsulator encapsulator = kemInterop.newEncapsulator(keyPairInterop.getPublic());
+        KEM.Encapsulated encapsulated = encapsulator.encapsulate();
+        
+        SecretKey encapKey = encapsulated.key();
+        byte[] encapsulation = encapsulated.encapsulation();
+        
+        // Decapsulate using provider (no from/to parameters)
+        KEM kemPlus = KEM.getInstance("ML-KEM", getProviderName());
+        KEM.Decapsulator decapsulator = kemPlus.newDecapsulator(keyPairInterop.getPrivate());
+        SecretKey decapKey = decapsulator.decapsulate(encapsulation);
+        
+        // Verify that both keys match
+        assertArrayEquals(encapKey.getEncoded(), decapKey.getEncoded(),
+                "Encapsulated and decapsulated keys do not match for " + parameterSet);
+    }
+
+    /**
+     * Test ML-KEM interoperability with smaller secret size using NamedParameterSpec.
+     * Tests with 16 bytes instead of the default 32 bytes.
+     *
+     * @param parameterSet The ML-KEM parameter set (ML-KEM-512, ML-KEM-768, ML-KEM-1024)
+     * @throws Exception if any cryptographic operation fails
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
+    public void testMLKEMInteropSmallerSecretWithNamedParameterSpec(String parameterSet) throws Exception {
+        // Not in FIPS provider yet and BC doesn't support this test
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        // Generate key pair using NamedParameterSpec with provider
+        KeyPairGenerator keyPairGenPlus = KeyPairGenerator.getInstance("ML-KEM", getProviderName());
+        keyPairGenPlus.initialize(new NamedParameterSpec(parameterSet));
+        KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
+        
+        // Encapsulate using provider with smaller secret (16 bytes)
+        KEM kemPlus = KEM.getInstance("ML-KEM", getProviderName());
+        KEM.Encapsulator encapsulator = kemPlus.newEncapsulator(keyPairPlus.getPublic());
+        KEM.Encapsulated encapsulated = encapsulator.encapsulate(0, 16, "AES");
+        
+        SecretKey encapKey = encapsulated.key();
+        byte[] encapsulation = encapsulated.encapsulation();
+        
+        // Decapsulate using interop provider with same secret size
+        KEM kemInterop = KEM.getInstance("ML-KEM", getInteropProviderName());
+        KEM.Decapsulator decapsulator = kemInterop.newDecapsulator(keyPairPlus.getPrivate());
+        SecretKey decapKey = decapsulator.decapsulate(encapsulation, 0, 16, "AES");
+        
+        // Verify that both keys match
+        assertArrayEquals(encapKey.getEncoded(), decapKey.getEncoded(),
+                "Encapsulated and decapsulated keys do not match for " + parameterSet);
+    }
+
+    /**
+     * Test bidirectional ML-KEM interoperability using NamedParameterSpec.
+     * Tests both directions to and from providers.
+     *
+     * @param parameterSet The ML-KEM parameter set (ML-KEM-512, ML-KEM-768, ML-KEM-1024)
+     * @throws Exception if any cryptographic operation fails
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
+    public void testMLKEMBidirectionalInteropWithNamedParameterSpec(String parameterSet) throws Exception {
+        // Not in FIPS provider yet and BC doesn't support this test
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        // Test 1: Generate with provider, encapsulate with interop provider, decapsulate with provider
+        KeyPairGenerator keyPairGenPlus = KeyPairGenerator.getInstance("ML-KEM", getProviderName());
+        keyPairGenPlus.initialize(new NamedParameterSpec(parameterSet));
+        KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
+        
+        KEM kemInterop = KEM.getInstance("ML-KEM", getInteropProviderName());
+        KEM.Encapsulator encapsulatorInterop = kemInterop.newEncapsulator(keyPairPlus.getPublic());
+        KEM.Encapsulated encapsulatedInterop = encapsulatorInterop.encapsulate(0, 32, "AES");
+        
+        KEM kemPlus = KEM.getInstance("ML-KEM", getProviderName());
+        KEM.Decapsulator decapsulatorPlus = kemPlus.newDecapsulator(keyPairPlus.getPrivate());
+        SecretKey decapKeyPlus = decapsulatorPlus.decapsulate(encapsulatedInterop.encapsulation(), 0, 32, "AES");
+        
+        assertArrayEquals(encapsulatedInterop.key().getEncoded(), decapKeyPlus.getEncoded(),
+                "Keys do not match for test 1 with " + parameterSet);
+        
+        // Test 2: Generate with interop provider, encapsulate with provider, decapsulate with interop provider
+        KeyPairGenerator keyPairGenInterop = KeyPairGenerator.getInstance("ML-KEM", getInteropProviderName());
+        keyPairGenInterop.initialize(new NamedParameterSpec(parameterSet));
+        KeyPair keyPairInterop = generateKeyPair(keyPairGenInterop);
+        
+        KEM.Encapsulator encapsulatorPlus = kemPlus.newEncapsulator(keyPairInterop.getPublic());
+        KEM.Encapsulated encapsulatedPlus = encapsulatorPlus.encapsulate(0, 32, "AES");
+        
+        KEM.Decapsulator decapsulatorInterop = kemInterop.newDecapsulator(keyPairInterop.getPrivate());
+        SecretKey decapKeyInterop = decapsulatorInterop.decapsulate(encapsulatedPlus.encapsulation(), 0, 32, "AES");
+        
+        assertArrayEquals(encapsulatedPlus.key().getEncoded(), decapKeyInterop.getEncoded(),
+                "Keys do not match for test 2 with " + parameterSet);
+    }
+
+}
