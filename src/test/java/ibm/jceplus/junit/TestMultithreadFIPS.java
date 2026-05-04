@@ -51,8 +51,6 @@ public class TestMultithreadFIPS {
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop3",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignatureInteropSunRsaSign",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA256Clone_SharedMD",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA3_224",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA3_256",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512_224",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestSHA512_256",
