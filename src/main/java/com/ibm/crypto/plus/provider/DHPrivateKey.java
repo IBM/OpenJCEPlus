@@ -101,7 +101,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
         }
     }
 
-    DHPrivateKey(OpenJCEPlusProvider provider, DHKey dhKey) throws InvalidKeyException, OCKException {
+    DHPrivateKey(OpenJCEPlusProvider provider, DHKey dhKey) {
         
         try {
 
