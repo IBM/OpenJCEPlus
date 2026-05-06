@@ -48,9 +48,9 @@ TARGET = ${HOSTOUT}/libjgskit.so
 GSK8ICCS64=jgsk8iccs_64
 
 ifneq (,$(filter s390-zos64,${PLATFORM}))
-  TARGET_LIBS := ${ICCARCHIVE}
+  TARGET_LIBS := $(NATIVE_LIB_HOME)/libjgsk8iccs_64.x
 else
-  TARGET_LIBS := -L ${GSKIT_HOME}/lib64 -l ${GSK8ICCS64}
+  TARGET_LIBS := -L ${NATIVE_LIB_HOME}/lib64 -l ${GSK8ICCS64}
 endif
 
 include ../share/common.mak
