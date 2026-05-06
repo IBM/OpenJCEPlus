@@ -48,7 +48,6 @@ else ifeq (${PLATFORM},s390-zos64)
   CFLAGS+= -fvisibility=default
   CFLAGS+= -fstack-protector-strong
   LDFLAGS= -Wl,-bAMODE=64
-  ICCARCHIVE = $(GSKIT_HOME)/libjgsk8iccs_64.x
   OSINCLUDEDIR=zos
 else ifeq (${PLATFORM},x86-linux64)
   PLAT=xa
