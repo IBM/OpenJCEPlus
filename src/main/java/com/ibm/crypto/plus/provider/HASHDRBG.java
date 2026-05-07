@@ -31,7 +31,7 @@ abstract class HASHDRBG extends SecureRandomSpi {
         this.provider = provider;
         this.providerContext = provider.getProviderContext();
         this.randomAlgo = ockRandomAlgo;
-        basicRandom = BasicRandom.getInstance(provider);
+        basicRandom = BasicRandom.getInstance(provider, ockRandomAlgo);
         try {
             extendedRandom = ExtendedRandom.getInstance(ockRandomAlgo, provider);
         } catch (Exception e) {
@@ -86,7 +86,8 @@ abstract class HASHDRBG extends SecureRandomSpi {
         //System.out.println("Restoring SecureRandom for " + randomAlgo + " from provider " + provider.getName());
 
         // Recreate OCK object per tag [SERIALIZATION] in DesignNotes.txt
-        basicRandom = BasicRandom.getInstance(provider);
+        basicRandom = BasicRandom.getInstance(provider, randomAlgo);
+
         try {
             // Recreate OCK object per tag [SERIALIZATION] in DesignNotes.txt
             extendedRandom = ExtendedRandom.getInstance(randomAlgo, provider);

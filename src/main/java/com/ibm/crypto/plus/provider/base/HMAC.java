@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class HMAC {
@@ -48,7 +46,8 @@ public final class HMAC {
     private HMAC(String digestAlgo, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "HMAC (String)";
         this.provider = provider;
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        String algo = "Hmac" + digestAlgo;
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "MAC", algo);
         this.hmacId = this.nativeInterface.HMAC_create(digestAlgo);
         //OCKDebug.Msg (debPrefix, methodName,  "this.hmacId :" + this.hmacId + " digestAlgo :" + digestAlgo);
 

@@ -88,14 +88,14 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
      * @param provider
      * @param encoded
      */
-    public XDHPrivateKeyImpl(OpenJCEPlusProvider provider, byte[] encoded)
+    public XDHPrivateKeyImpl(OpenJCEPlusProvider provider, byte[] encoded, String configAlgName)
             throws InvalidKeyException {
         this.provider = provider;
         try {
             byte[] alteredEncoded = processEncodedPrivateKey(encoded); // Sets params, key, and algid, and alters encoded
             // to fit with GSKit and sets params
             int curveSize = CurveUtil.getCurveSize(curve);
-            this.xecKey = XECKey.createPrivateKey(alteredEncoded, curveSize, provider);
+            this.xecKey = XECKey.createPrivateKey(alteredEncoded, curveSize, provider, configAlgName);
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create XEC private key", exception);
         }
@@ -109,7 +109,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
      * @param params   must be of type NamedParameterSpec
      */
     public XDHPrivateKeyImpl(OpenJCEPlusProvider provider, AlgorithmParameterSpec params,
-            Optional<byte[]> scalar) throws InvalidAlgorithmParameterException, InvalidParameterException {
+            Optional<byte[]> scalar, String configAlgName) throws InvalidAlgorithmParameterException, InvalidParameterException {
 
         if (provider == null) {
             throw new InvalidParameterException("provider must not be null");
@@ -137,12 +137,12 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         try {
             if (k == null) {
                 int keySize = CurveUtil.getCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(this.curve.ordinal(), keySize, provider);
+                this.xecKey = XECKey.generateKeyPair(this.curve.ordinal(), keySize, provider, configAlgName);
             } else {
                 this.algid = CurveUtil.getAlgId(this.params.getName());
                 byte[] der = buildOCKPrivateKeyBytes();
                 int encodingSize = CurveUtil.getDEREncodingSize(curve);
-                this.xecKey = XECKey.createPrivateKey(der, encodingSize, provider);
+                this.xecKey = XECKey.createPrivateKey(der, encodingSize, provider, configAlgName);
             }
             setPKCS8KeyByte(k);
         } catch (Exception exception) {

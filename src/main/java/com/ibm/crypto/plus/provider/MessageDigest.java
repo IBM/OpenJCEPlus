@@ -16,10 +16,10 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
     private OpenJCEPlusProvider provider = null;
     private Digest digest = null;
 
-    MessageDigest(OpenJCEPlusProvider provider, String ockDigestAlgo) {
+    MessageDigest(OpenJCEPlusProvider provider, String ockDigestAlgo, String configAlgName) {
         try {
             this.provider = provider;
-            this.digest = Digest.getInstance(ockDigestAlgo, provider);
+            this.digest = Digest.getInstance(ockDigestAlgo, provider, configAlgName);
         } catch (Exception e) {
             throw provider.providerException("Failure in MessageDigest", e);
         }
@@ -120,74 +120,78 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
 
     public static final class MD5 extends MessageDigest {
         public MD5(OpenJCEPlusProvider provider) {
-            super(provider, "MD5"); // OCK digest name
+            super(provider, "MD5", "MD5"); // OCK digest name
         }
     }
 
     public static final class SHA1 extends MessageDigest {
         public SHA1(OpenJCEPlusProvider provider) {
-            super(provider, "SHA1"); // OCK digest name
+            super(provider, "SHA1", "SHA1"); // OCK digest name
+        }
+
+        public SHA1(OpenJCEPlusProvider provider, String configAlgName) {
+            super(provider, "SHA1", configAlgName); // OCK digest name
         }
     }
 
     public static final class SHA224 extends MessageDigest {
         public SHA224(OpenJCEPlusProvider provider) {
-            super(provider, "SHA224"); // OCK digest name
+            super(provider, "SHA224", "SHA224"); // OCK digest name
         }
     }
 
     public static final class SHA256 extends MessageDigest {
         public SHA256(OpenJCEPlusProvider provider) {
-            super(provider, "SHA256"); // OCK digest name
+            super(provider, "SHA256", "SHA256"); // OCK digest name
         }
     }
 
     public static final class SHA384 extends MessageDigest {
         public SHA384(OpenJCEPlusProvider provider) {
-            super(provider, "SHA384"); // OCK digest name
+            super(provider, "SHA384", "SHA384"); // OCK digest name
         }
     }
 
     public static final class SHA512 extends MessageDigest {
         public SHA512(OpenJCEPlusProvider provider) {
-            super(provider, "SHA512"); // OCK digest name
+            super(provider, "SHA512", "SHA512"); // OCK digest name
         }
     }
 
     public static final class SHA512_224 extends MessageDigest {
         public SHA512_224(OpenJCEPlusProvider provider) {
-            super(provider, "SHA512-224"); // OCK digest name
+            super(provider, "SHA512-224", "SHA512-224"); // OCK digest name
         }
     }
 
 
     public static final class SHA512_256 extends MessageDigest {
         public SHA512_256(OpenJCEPlusProvider provider) {
-            super(provider, "SHA512-256"); // OCK digest name
+            super(provider, "SHA512-256", "SHA512-256"); // OCK digest name
         }
     }
 
     public static final class SHA3_224 extends MessageDigest {
         public SHA3_224(OpenJCEPlusProvider provider) {
-            super(provider, "SHA3-224"); // OCK digest name
+            super(provider, "SHA3-224", "SHA3-224"); // OCK digest name
         }
     }
 
     public static final class SHA3_256 extends MessageDigest {
         public SHA3_256(OpenJCEPlusProvider provider) {
-            super(provider, "SHA3-256"); // OCK digest name
+            super(provider, "SHA3-256", "SHA3-256"); // OCK digest name
         }
     }
 
     public static final class SHA3_384 extends MessageDigest {
         public SHA3_384(OpenJCEPlusProvider provider) {
-            super(provider, "SHA3-384"); // OCK digest name
+            super(provider, "SHA3-384", "SHA3-384"); // OCK digest name
         }
     }
 
     public static final class SHA3_512 extends MessageDigest {
         public SHA3_512(OpenJCEPlusProvider provider) {
-            super(provider, "SHA3-512"); // OCK digest name
+            super(provider, "SHA3-512", "SHA3-512"); // OCK digest name
         }
     }
 
