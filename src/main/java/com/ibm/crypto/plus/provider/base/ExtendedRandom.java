@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 
 public final class ExtendedRandom {
 
@@ -33,7 +31,7 @@ public final class ExtendedRandom {
 
     private ExtendedRandom(String algName, OpenJCEPlusProvider provider) throws NativeException {
         this.provider = provider;
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "SecureRandom", algName + "DRBG");
         this.ockPRNGContextId = this.nativeInterface.EXTRAND_create(algName);
 
         this.provider.registerCleanable(this, cleanOCKResources(ockPRNGContextId, nativeInterface));

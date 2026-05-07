@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class HMAC {
@@ -32,6 +30,14 @@ public final class HMAC {
         return new HMAC(digestAlgo, provider);
     }
 
+    public static HMAC getInstance(String digestAlgo, String ockAlgo, OpenJCEPlusProvider provider) throws NativeException {
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
+        return new HMAC(digestAlgo, ockAlgo, provider);
+    }
+
     static void throwNativeException(int errorCode) throws NativeException {
         switch (errorCode) {
             case -1:
@@ -48,7 +54,23 @@ public final class HMAC {
     private HMAC(String digestAlgo, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "HMAC (String)";
         this.provider = provider;
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        String algo = "Hmac" + digestAlgo;
+
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Mac", algo);
+
+        this.hmacId = this.nativeInterface.HMAC_create(digestAlgo);
+        //OCKDebug.Msg (debPrefix, methodName,  "this.hmacId :" + this.hmacId + " digestAlgo :" + digestAlgo);
+
+        this.provider.registerCleanable(this, cleanOCKResources(hmacId, reinitKey, nativeInterface));
+    }
+
+    private HMAC(String digestAlgo, String ockAlgo, OpenJCEPlusProvider provider) throws NativeException {
+        //final String methodName = "HMAC (String)";
+        this.provider = provider;
+        String algo = ockAlgo;
+
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Mac", algo);
+
         this.hmacId = this.nativeInterface.HMAC_create(digestAlgo);
         //OCKDebug.Msg (debPrefix, methodName,  "this.hmacId :" + this.hmacId + " digestAlgo :" + digestAlgo);
 

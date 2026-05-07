@@ -37,9 +37,15 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
     private boolean encrypting = true;
     private boolean initialized = false;
     private SecureRandom cryptoRandom = null;
+    private String configAlgName = "DESede";
 
     public DESedeCipher(OpenJCEPlusProvider provider) {
         this.provider = provider;
+    }
+
+    public DESedeCipher(OpenJCEPlusProvider provider, String algName) {
+        this.provider = provider;
+        this.configAlgName = algName;
     }
 
     @Override
@@ -223,7 +229,7 @@ public final class DESedeCipher extends LegacyCipher implements DESConstants {
         try {
             if (symmetricCipher == null) {
                 symmetricCipher = SymmetricCipher.getInstanceDESede(mode,
-                        padding, provider);
+                        padding, provider, configAlgName);
             }
 
             if (isEncrypt) {

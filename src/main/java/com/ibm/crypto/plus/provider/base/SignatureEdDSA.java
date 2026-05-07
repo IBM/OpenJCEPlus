@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.security.InvalidKeyException;
 import java.security.SignatureException;
 
@@ -22,13 +20,17 @@ public final class SignatureEdDSA {
     private final String badIdMsg = "Digest Identifier or PKey Identifier is not valid";
     private final static String debPrefix = "SIGNATURE";
 
-    public static SignatureEdDSA getInstance(OpenJCEPlusProvider provider) throws NativeException {
-        return new SignatureEdDSA(provider);
+    public static SignatureEdDSA getInstance(OpenJCEPlusProvider provider, String algName) throws NativeException {
+        if (algName == null) {
+            algName = "EdDSA";
+        }
+
+        return new SignatureEdDSA(provider, algName);
     }
 
-    private SignatureEdDSA(OpenJCEPlusProvider provider) throws NativeException {
+    private SignatureEdDSA(OpenJCEPlusProvider provider, String algName) throws NativeException {
         //final String methodName = "SignatureEdDSA(String)";
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Signature", algName);
     }
 
     public void initialize(AsymmetricKey key) throws InvalidKeyException, NativeException {

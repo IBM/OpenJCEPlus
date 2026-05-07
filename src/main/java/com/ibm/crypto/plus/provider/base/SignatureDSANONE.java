@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.security.InvalidKeyException;
 
 /**
@@ -30,7 +28,7 @@ public final class SignatureDSANONE {
     }
 
     private SignatureDSANONE(OpenJCEPlusProvider provider) throws NativeException {
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Signature", "NONEwithDSA");
     }
 
     public void initialize(DSAKey key) throws InvalidKeyException, NativeException {
@@ -54,7 +52,6 @@ public final class SignatureDSANONE {
             throw new IllegalArgumentException("invalid digest");
         }
 
-        //OCKDebug.Msg(debPrefix, methodName, "this.key.DSAKeyId :" + this.key.getDSAKeyId() + " digest :", digest);
         if (!validId(this.key.getDSAKeyId())) {
             throw new NativeException(badIdMsg);
         }
