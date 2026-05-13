@@ -10,6 +10,7 @@ package com.ibm.crypto.plus.provider;
 
 class DefaultFIPSProviderAttrs {
     static final boolean allowLegacyHKDF = Boolean.getBoolean("openjceplus.allowLegacyHKDF");
+    static final boolean allowNonOAEPFIPS = Boolean.parseBoolean(System.getProperty("com.ibm.openjceplusfips.allowNonOAEP", "false"));
     static String defaultFIPSProvAttrs = "Service.AlgorithmParameters.AES = com.ibm.crypto.plus.provider.AESParameters\n"
 
         + "AlgorithmParameters.DiffieHellman.alias.add = DH, OID.1.2.840.113549.1.3.1, 1.2.840.113549.1.3.1\n"
@@ -44,6 +45,8 @@ class DefaultFIPSProviderAttrs {
         + "Service.Cipher.AES/GCM/NoPadding = com.ibm.crypto.plus.provider.AESGCMCipher\n"
         + "Service.Cipher.AES/CCM/NoPadding = com.ibm.crypto.plus.provider.AESCCMCipher\n"
         + "Service.Cipher.AES = com.ibm.crypto.plus.provider.AESCipher\n"
+        + "Cipher.RSA.attr.add.SupportedModes = ECB\n"
+        + "Cipher.RSA.attr.add.SupportedKeyClasses = java.security.interfaces.RSAPublicKey|java.security.interfaces.RSAPrivateKey\n"
         + "Service.Cipher.RSA = com.ibm.crypto.plus.provider.RSA\n"
         + "Cipher.AES/KW/NoPadding.alias.add = AESWrap\n"
         + "Service.Cipher.AES/KW/NoPadding = com.ibm.crypto.plus.provider.AESKeyWrapCipher$KW\n"
@@ -270,6 +273,26 @@ class DefaultFIPSProviderAttrs {
                 + "KeyGenerator.kda-hkdf-with-sha512.alias.add = kda-hkdf-with-sha-512\n"
                 + "Service.KeyGenerator.kda-hkdf-with-sha512 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA512\n";
         }
+        
+        String supportedPaddings = "OAEPPADDING"
+                + "|OAEPWITHSHA224ANDMGF1PADDING"
+                + "|OAEPWITHSHA-224ANDMGF1PADDING"
+                + "|OAEPWITHSHA256ANDMGF1PADDING"
+                + "|OAEPWITHSHA-256ANDMGF1PADDING"
+                + "|OAEPWITHSHA384ANDMGF1PADDING"
+                + "|OAEPWITHSHA-384ANDMGF1PADDING"
+                + "|OAEPWITHSHA512ANDMGF1PADDING"
+                + "|OAEPWITHSHA-512ANDMGF1PADDING"
+                + "|OAEPWITHSHA512/224ANDMGF1PADDING"
+                + "|OAEPWITHSHA-512/224ANDMGF1PADDING"
+                + "|OAEPWITHSHA512/256ANDMGF1PADDING"
+                + "|OAEPWITHSHA-512/256ANDMGF1PADDING";
+        if (allowNonOAEPFIPS) {
+            supportedPaddings += "|OAEPWITHSHA1ANDMGF1PADDING"
+                               + "|OAEPWITHSHA-1ANDMGF1PADDING"
+                               + "|NOPADDING|PKCS1PADDING";
+        }
+        result = result + "Cipher.RSA.attr.add.SupportedPaddings = " + supportedPaddings + "\n";
         return result;
     }
 }
