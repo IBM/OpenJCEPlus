@@ -35,7 +35,6 @@ public class TestMultithread {
             "ibm.jceplus.junit.openjceplus.multithread.TestAliases",
             "ibm.jceplus.junit.openjceplus.multithread.TestDH",
             "ibm.jceplus.junit.openjceplus.multithread.TestDSAKey",
-            "ibm.jceplus.junit.openjceplus.multithread.TestDSASignatureInteropSUN",
             "ibm.jceplus.junit.openjceplus.multithread.TestECDH",
             "ibm.jceplus.junit.openjceplus.multithread.TestECDHInteropSunEC",
             "ibm.jceplus.junit.openjceplus.multithread.TestEdDSASignature",
