@@ -188,8 +188,20 @@ class PQCKeyFactory extends KeyFactorySpi {
         String keyAlg = key.getAlgorithm();
         if (keyAlg == null) {
             throw new InvalidKeyException("Algorithm associate with key is null.");
-        } else if (!(key.getAlgorithm().equalsIgnoreCase(this.algName) || 
-            (PQCKnownOIDs.findMatch(key.getAlgorithm()).stdName().equalsIgnoreCase(this.algName)))) {
+        }
+        
+        // Check if algorithms match exactly or via OID lookup
+        boolean matches = key.getAlgorithm().equalsIgnoreCase(this.algName) ||
+            (PQCKnownOIDs.findMatch(key.getAlgorithm()).stdName().equalsIgnoreCase(this.algName));
+        
+        // Special case for generic ML-KEM: Allow any ML-KEM parameter set variant
+        // (ML-KEM-512, ML-KEM-768, ML-KEM-1024) when using the generic "ML-KEM" KeyFactory.
+        // This enables interoperability with KEM.getInstance("ML-KEM", ...).
+        if (!matches && "ML-KEM".equals(this.algName) && keyAlg.startsWith("ML-KEM")) {
+            matches = true;
+        }
+        
+        if (!matches) {
             throw new InvalidKeyException("Expected a " + this.algName + " key, but got " + keyAlg);
         }
 
@@ -214,6 +226,13 @@ class PQCKeyFactory extends KeyFactorySpi {
             return false;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public static final class MLKEM extends PQCKeyFactory {
+
+        public MLKEM(OpenJCEPlusProvider provider) {
+            super(provider, "ML-KEM");
         }
     }
 
