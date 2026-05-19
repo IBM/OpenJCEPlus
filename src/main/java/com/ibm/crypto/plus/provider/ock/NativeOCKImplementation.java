@@ -153,7 +153,9 @@ final class NativeOCKImplementation {
         // Mac OS X: lib<OCK_CORE_LIBRARY_NAME>_64.so
         // Windows* amd64: <OCK_CORE_LIBRARY_NAME>_64.dll
         // --------------------------------------------------------------
-        if (osName.equals("Mac OS X")) {
+        if (osName.equals("Mac OS X") && osArch.equals("aarch64")) {
+            loadFile = new File(ockPath, "lib" + OCK_CORE_LIBRARY_NAME + "_64.dylib");
+        } else if (osName.equals("Mac OS X")) {
             loadFile = new File(ockPath, "lib" + OCK_CORE_LIBRARY_NAME + ".dylib");
         } else if (osName.startsWith("Windows") && osArch.equals("amd64")) {
             loadFile = new File(ockPath, OCK_CORE_LIBRARY_NAME + "_64.dll");
