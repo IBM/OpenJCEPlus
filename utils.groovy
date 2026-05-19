@@ -65,11 +65,7 @@ def getOCKTarget(hardware, software) {
 def getBinaries(hardware, software) {
     def ockRelease = OCK_RELEASE
     if (ockRelease == "") {
-        if (hardware == "s390x") { // covers LoZ and z/OS
-            ockRelease = "20260219_8.9.21"
-        } else {
-            ockRelease = "20251128_8.9.18"
-        }
+        ockRelease = "20260415_8.9.22"
     }
     def target = getOCKTarget(hardware, software)
     def gskit_bin = "https://na.artifactory.swg-devops.com/artifactory/sec-gskit-javasec-generic-local/gskit8/$ockRelease/$target/jgsk_crypto.tar"
@@ -96,7 +92,9 @@ def getBinaries(hardware, software) {
         }
 
         def jgsk8Lib = 'libjgsk8iccs_64.so'
-        if (target.contains('osx')) {
+        if (target == 'osx64_arm') {
+            jgsk8Lib = 'libjgsk8iccs_64.dylib'
+        } else if (target == 'osx64_x86') {
             jgsk8Lib = 'libjgsk8iccs.dylib'
         } else if (target.contains('win')) {
             jgsk8Lib = 'jgsk8iccs_64.dll'
