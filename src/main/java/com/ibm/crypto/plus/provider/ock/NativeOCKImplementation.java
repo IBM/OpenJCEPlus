@@ -8,12 +8,13 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.base.NativeImplementation;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.ProviderException;
 import sun.security.util.Debug;
 
-final class NativeOCKImplementation {
+final class NativeOCKImplementation extends NativeImplementation {
 
     // User enabled debugging
     private static Debug debug = Debug.getInstance("jceplus");
@@ -168,33 +169,6 @@ final class NativeOCKImplementation {
             throw new ProviderException("Could not load dependent ock library for os.name=" + osName
                         + ", os.arch=" + osArch);
         }
-    }
-
-    @SuppressWarnings("restricted")
-    private static boolean loadIfExists(File libraryFile) {
-        String libraryName = libraryFile.getAbsolutePath();
-
-        if (libraryFile.exists()) {
-            // Need a try/catch block in case the library has already been
-            // loaded by another ClassLoader
-            //
-            try {
-                System.load(libraryName);
-                if (debug != null) {
-                    debug.println("Loaded : " + libraryName);
-                }
-                return true;
-            } catch (Throwable t) {
-                if (debug != null) {
-                    debug.println("Failed to load : " + libraryName);
-                }
-            }
-        } else {
-            if (debug != null) {
-                debug.println("Skipping load of " + libraryName);
-            }
-        }
-        return false;
     }
 
     // =========================================================================

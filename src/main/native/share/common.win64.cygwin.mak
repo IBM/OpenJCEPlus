@@ -22,6 +22,7 @@ CC = cl
 #DEBUG_FLAGS = -DDEBUG $(DEBUG_DETAIL)  $(DEBUG_DATA)
 
 BUILDTOP = $(TOPDIR)\target\build$(PLAT)
+NATIVE_TOPDIR = $(TOPDIR)/src/main/native
 JAVACLASSDIR = $(TOPDIR)\target\classes
 
 all : displaycompiler copy
@@ -38,6 +39,7 @@ $(RC_OBJ) : $(RC_SRC)
 		$(CFLAGS) \
 		-c \
 		-I"$(NATIVE_LIB_HOME)\inc" \
+		-I"$(NATIVE_LIB_HOME)\include" \
 		-I"$(JAVA_HOME)\include" \
 		-I"$(JAVA_HOME)\include\win32" \
 		$*.c
@@ -67,7 +69,7 @@ headers :
 		--add-exports java.base/sun.security.util=openjceplus \
 		--add-exports java.base/sun.security.util=ALL-UNNAMED \
 		-d $(JAVACLASSDIR) \
-		-h $(TOPDIR)\src\main\native\ock\ \
+		-h $(NATIVE_DIR)\ \
 		$(TOPDIR)\src\main\java\com\ibm\crypto\plus\provider\base\FastJNIBuffer.java \
 		$(JNI_CLASS)
 

@@ -24,6 +24,12 @@ if [ -z "$GSKIT_HOME" ];
   exit;
 fi
 
+if [ -z "$OPENSSL_HOME" ];
+  then
+  echo "Error: OPENSSL_HOME is not defined or is empty";
+  exit;
+fi
+
 if [ -z "$PLATFORM" ];
   then
   echo "Error: PLATFORM is not defined or is empty";
@@ -56,3 +62,8 @@ cd src/main/native/ock
 
 ${make} -f jgskit.mak clean
 ${make} -f jgskit.mak
+
+cd ../openssl
+
+make -f openjceplus.mak clean
+make -f openjceplus.mak
