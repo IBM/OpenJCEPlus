@@ -34,6 +34,7 @@
                 <build.native.file>${basedir}/buildNative.sh</build.native.file>
                 <build.platform.value>arm-linux64</build.platform.value>
                 <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-xr-64/</build.target.jgskitlib.dir>
+                <build.target.ojplib.dir>${project.basedir}/target/ojp-xr-64/</build.target.ojplib.dir>
             </properties>
           </profile>
           <profile>
@@ -48,6 +49,7 @@
                 <build.native.file>${basedir}/buildNative.sh</build.native.file>
                 <build.platform.value>x86-linux64</build.platform.value>
                 <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-xa-64/</build.target.jgskitlib.dir>
+                <build.target.ojplib.dir>${project.basedir}/target/ojp-xa-64/</build.target.ojplib.dir>
             </properties>
           </profile>
           <profile>
@@ -121,6 +123,7 @@
                 <build.native.file>${basedir}/buildNative.sh</build.native.file>
                 <build.platform.value>s390-linux64</build.platform.value>
                 <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-xz-64/</build.target.jgskitlib.dir>
+                <build.target.ojplib.dir>${project.basedir}/target/ojp-xz-64/</build.target.ojplib.dir>
             </properties>
           </profile>
           <profile>
@@ -135,6 +138,7 @@
                 <build.native.file>${basedir}/buildNative.sh</build.native.file>
                 <build.platform.value>ppcle-linux64</build.platform.value>
                 <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-xl-64/</build.target.jgskitlib.dir>
+                <build.target.ojplib.dir>${project.basedir}/target/ojp-xl-64/</build.target.ojplib.dir>
             </properties>
           </profile>
           <profile>
@@ -149,6 +153,7 @@
                 <build.native.file>${basedir}/buildNativeWin64.bat</build.native.file>
                 <build.platform.value>win</build.platform.value>
                 <build.target.jgskitlib.dir>${project.basedir}\target\buildwin\host64\</build.target.jgskitlib.dir>
+                <build.target.ojplib.dir>${project.basedir}\target\buildwin\ojp-host64\</build.target.ojplib.dir>
             </properties>
           </profile>
           <profile>
@@ -163,6 +168,7 @@
                 <build.native.file>${basedir}/buildNative.sh</build.native.file>
                 <build.platform.value>ppc-aix64</build.platform.value>
                 <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-ap-64/</build.target.jgskitlib.dir>
+                <build.target.ojplib.dir>${project.basedir}/target/ojp-ap-64/</build.target.ojplib.dir>
             </properties>
           </profile>
           <profile>
@@ -177,6 +183,7 @@
                 <build.native.file>${basedir}/buildNativeMac.sh</build.native.file>
                 <build.platform.value>aarch64-mac</build.platform.value>
                 <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-aarch64-mac/</build.target.jgskitlib.dir>
+                <build.target.ojplib.dir>${project.basedir}/target/ojp-aarch64-mac/</build.target.ojplib.dir>
             </properties>
           </profile>
           <profile>
@@ -191,6 +198,7 @@
                 <build.native.file>${basedir}/buildNativeMac.sh</build.native.file>
                 <build.platform.value>x86_64-mac</build.platform.value>
                 <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-x86_64-mac/</build.target.jgskitlib.dir>
+                <build.target.ojplib.dir>${project.basedir}/target/ojp-x86_64-mac/</build.target.ojplib.dir>
             </properties>
           </profile>
           <profile>
@@ -279,6 +287,7 @@
                     <groups>${groups}</groups>
                     <systemPropertyVariables>
                       <jgskit.library.path>${build.target.jgskitlib.dir}</jgskit.library.path>
+                      <openjceplus.library.path>${build.target.ojplib.dir}</openjceplus.library.path>
                     </systemPropertyVariables>
                     <includes>
                       <include>
@@ -355,8 +364,16 @@
                               <value>${ock.library.path}</value>
                             </systemProperty>
                             <systemProperty>
+                              <key>openssl.library.path</key>
+                              <value>${openssl.library.path}</value>
+                            </systemProperty>
+                            <systemProperty>
                               <key>jgskit.library.path</key>
                               <value>${build.target.jgskitlib.dir}</value>
+                            </systemProperty>
+                            <systemProperty>
+                              <key>openjceplus.library.path</key>
+                              <value>${build.target.ojplib.dir}</value>
                             </systemProperty>
                             <systemProperty>
                               <key>java.io.tmpdir</key>
