@@ -646,18 +646,3 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_do_1CCM_1encrypt(
 
     return (jint)ret;
 }
-
-int OpenSSLError(ICC_CTX* ICC_ctx, const int line) {
-    char buf1[8192];
-
-    unsigned long retcode = 0;
-    retcode               = ICC_ERR_get_error(ICC_ctx);
-
-    /* While because we want to drain the swamp */
-    while (0 != retcode && ((unsigned long)-2L) != retcode) {
-        ICC_ERR_error_string(ICC_ctx, retcode, (char*)buf1);
-        printf("OpenSSL error line %d [%s]\n", line, buf1);
-        retcode = ICC_ERR_get_error(ICC_ctx);
-    }
-    return retcode;
-}
