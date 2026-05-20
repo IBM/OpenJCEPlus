@@ -469,7 +469,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAKEY_1getPrivate
 #ifdef DEBUG_RSA_DATA
     if (debug) {
         gslogMessagePrefix("DATA_RSA private KeyBytes : ");
-        gslogMessageHex((char *)pBytes, 0, (int)size, 0, 0,
+        gslogMessageHex((char *)keyBytesNative, 0, (int)size, 0, 0,
                         NULL);
     }
 #endif
@@ -580,7 +580,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAKEY_1getPublicK
 #ifdef DEBUG_RSA_DATA
     if (debug) {
         gslogMessagePrefix("DATA_RSA KeyBytes : ");
-        gslogMessageHex((char *)pBytes, 0, (int)size, 0, 0,
+        gslogMessageHex((char *)keyBytesNative, 0, (int)size, 0, 0,
                         NULL);
     }
 #endif
