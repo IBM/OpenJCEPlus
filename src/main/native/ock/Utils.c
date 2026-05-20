@@ -52,7 +52,7 @@ int gslogError(const char *formatString, ...) {
     static char printBuffer[4096];
 
     va_start(formatArgs, formatString);
-    charsPrinted = vsprintf(printBuffer, formatString, formatArgs);
+    charsPrinted = vsnprintf(printBuffer, sizeof(printBuffer), formatString, formatArgs);
 
     fprintf(stderr, "[ERROR] %s\n", printBuffer);
 
@@ -70,7 +70,7 @@ int gslogMessage(const char *formatString, ...) {
     static char printBuffer[4096];
 
     va_start(formatArgs, formatString);
-    charsPrinted = vsprintf(printBuffer, formatString, formatArgs);
+    charsPrinted = vsnprintf(printBuffer, sizeof(printBuffer), formatString, formatArgs);
 
     fprintf(stderr, "[DEBUG] %s\n", printBuffer);
 
@@ -88,7 +88,7 @@ int gslogMessagePrefix(const char *formatString, ...) {
     static char printBuffer[4096];
 
     va_start(formatArgs, formatString);
-    charsPrinted = vsprintf(printBuffer, formatString, formatArgs);
+    charsPrinted = vsnprintf(printBuffer, sizeof(printBuffer), formatString, formatArgs);
 
     fprintf(stderr, "[DEBUG] %s", printBuffer);
 
@@ -136,12 +136,11 @@ int gslogFunctionExit(const char *functionName) {
 void ockCheckStatus(ICC_CTX *ctx) {
     if (debug) {
         unsigned long errCode;
+        char errBuffer[8192];
 
-        while ((errCode = ICC_ERR_get_error(ctx)) == 1) {
-            char *err;
-            // gslogMessage("Generating error message");
-            err = ICC_ERR_error_string(ctx, errCode, NULL);
-            gslogMessage("%s", err);
+        while ((errCode = ICC_ERR_get_error(ctx)) != 0) {
+            ICC_ERR_error_string_n(ctx, errCode, errBuffer, sizeof(errBuffer));
+            gslogMessage("%s", errBuffer);
         }
     }
 }
