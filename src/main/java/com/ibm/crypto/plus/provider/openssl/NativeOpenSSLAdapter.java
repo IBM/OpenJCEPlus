@@ -8,14 +8,12 @@
 
 package com.ibm.crypto.plus.provider.openssl;
 
+import com.ibm.crypto.plus.provider.base.NativeInterface;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.nio.ByteBuffer;
 import java.security.ProviderException;
-
-import com.ibm.crypto.plus.provider.base.NativeInterface;
-
 import sun.security.util.Debug;
 
 public abstract class NativeOpenSSLAdapter implements NativeInterface {

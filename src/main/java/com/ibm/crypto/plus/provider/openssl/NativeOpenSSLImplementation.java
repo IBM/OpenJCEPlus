@@ -8,12 +8,10 @@
 
 package com.ibm.crypto.plus.provider.openssl;
 
+import com.ibm.crypto.plus.provider.base.NativeImplementation;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.ProviderException;
-
-import com.ibm.crypto.plus.provider.base.NativeImplementation;
-
 import sun.security.util.Debug;
 
 final class NativeOpenSSLImplementation extends NativeImplementation {
