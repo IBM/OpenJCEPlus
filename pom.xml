@@ -177,6 +177,7 @@
                 <build.native.file>${basedir}/buildNativeMac.sh</build.native.file>
                 <build.platform.value>aarch64-mac</build.platform.value>
                 <build.target.jgskitlib.dir>${project.basedir}/target/jgskit-aarch64-mac/</build.target.jgskitlib.dir>
+                <build.target.ojplib.dir>${project.basedir}/target/ojp-aarch64-mac/</build.target.ojplib.dir>
             </properties>
           </profile>
           <profile>
@@ -266,6 +267,7 @@
                     <groups>${groups}</groups>
                     <systemPropertyVariables>
                       <jgskit.library.path>${build.target.jgskitlib.dir}</jgskit.library.path>
+                      <openjceplus.library.path>${build.target.ojplib.dir}</openjceplus.library.path>
                     </systemPropertyVariables>
                     <includes>
                       <include>
@@ -342,8 +344,16 @@
                               <value>${ock.library.path}</value>
                             </systemProperty>
                             <systemProperty>
+                              <key>openssl.library.path</key>
+                              <value>${openssl.library.path}</value>
+                            </systemProperty>
+                            <systemProperty>
                               <key>jgskit.library.path</key>
                               <value>${build.target.jgskitlib.dir}</value>
+                            </systemProperty>
+                            <systemProperty>
+                              <key>openjceplus.library.path</key>
+                              <value>${build.target.ojplib.dir}</value>
                             </systemProperty>
                             <systemProperty>
                               <key>java.io.tmpdir</key>
