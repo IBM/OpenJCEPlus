@@ -404,7 +404,7 @@ return [
     getBinaries: this.&getBinaries,
     getJava: this.&getJava,
     getMaven: this.&getMaven,
-    getOpenSSL: this.&getOpenSSL
+    getOpenSSL: this.&getOpenSSL,
     cloneOpenJCEPlus: this.&cloneOpenJCEPlus,
     runOpenJCEPlus: this.&runOpenJCEPlus,
     upload_artifactory: this.&upload_artifactory,
