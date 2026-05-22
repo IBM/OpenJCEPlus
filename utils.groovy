@@ -286,6 +286,11 @@ def getMaven(software) {
     }
 }
 
+def getOpenSSL() {
+    def version = "openssl-3.5.6"
+    sh "git clone -b ${version} https://github.com/openssl/openssl.git ."
+}
+
 /*
  * Export the appropriate environment variables
  * and run the requested maven commands.
@@ -312,6 +317,7 @@ def runOpenJCEPlus(command, software) {
 
         def java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
         def gskit_home = "export GSKIT_HOME=$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
+        def openssl_home = "export OPENSSL_HOME=$WORKSPACE/openssl00;"
         def mavenPath = "$WORKSPACE/apache-maven-3.9.10/bin"
         def environment = "export PATH=${mavenPath}:\$PATH;"
 
