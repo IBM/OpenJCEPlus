@@ -84,6 +84,7 @@ ${HOSTOUT}/%.o : %.c
 		${DEBUG_FLAGS} \
 		-c \
 		-I${NATIVE_LIB_HOME}/inc \
+		-I${NATIVE_LIB_HOME}/include \
 		-I${JAVA_HOME}/include \
 		-I${JAVA_HOME}/include/${OSINCLUDEDIR} \
 		-I${OPENJCEPLUS_HEADER_FILES} \
