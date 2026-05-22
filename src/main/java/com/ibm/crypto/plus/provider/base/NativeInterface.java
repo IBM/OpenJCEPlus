@@ -548,7 +548,7 @@ public interface NativeInterface {
             long privEcKeyId) throws NativeException;
 
     public byte[] XECKEY_computeECDHSecret(long genCtx,
-            long pubEcKeyId, long privEcKeyId) throws NativeException;
+            long pubEcKeyId, long privEcKeyId, int secrectBufferSize) throws NativeException;
 
 
     public byte[] ECKEY_signDatawithECDSA(byte[] digestBytes,
