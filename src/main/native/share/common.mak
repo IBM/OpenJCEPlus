@@ -115,7 +115,7 @@ headers :
 		--add-exports java.base/sun.security.util=openjceplus \
 		--add-exports java.base/sun.security.util=ALL-UNNAMED \
 		-d ${JAVACLASSDIR} \
-		-h ${TOPDIR}/src/main/native/ock/ \
+		-h ${NATIVE_DIR}/ \
 		${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/base/FastJNIBuffer.java \
 		${JNI_CLASS}; \
 		if  [ "${PLATFORM}" = "s390-zos64" ]; \
