@@ -33,8 +33,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1cr
     jlong       digestId         = 0;
     int         rc               = 1;
 
-    gslogMessage("DIGEST_create started.");
-
     if (NULL == digestAlgo) {
         throwOSSLException(env, 0, "DIGEST_create: The specified digest algorithm is null");
         return 0;
@@ -53,25 +51,19 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1cr
 
     osslDigest->mdCtx = NULL;
     osslDigest->md = EVP_get_digestbyname("sha256");
-    gslogMessage("DIGEST_create: md %d", osslDigest->md);
     if (NULL == osslDigest->md) {
-        gslogMessage("DIGEST_create: Problem with md");
         //osslCheckStatus();
         throwOSSLException(env, 0, "DIGEST_create: EVP_get_digestbyname failed");
         goto cleanup;
     }
     osslDigest->mdCtx = EVP_MD_CTX_new();
-    gslogMessage("DIGEST_create: mdCtx %d", osslDigest->mdCtx);
     if (NULL == osslDigest->mdCtx) {
-        gslogMessage("DIGEST_create: Problem with mdCtx");
         throwOSSLException(env, 0, "DIGEST_create: EVP_MD_CTX_create failed");
         goto cleanup;
     }
 
     rc = EVP_DigestInit_ex2(osslDigest->mdCtx, osslDigest->md, NULL);
-    gslogMessage("DIGEST_create: rc %d", rc);
     if (1 != rc) {
-        gslogMessage("DIGEST_create: Problem with init");
         //ockCheckStatus(ockCtx);
         throwOSSLException(env, 0, "DIGEST_create: EVP_DigestInit_ex2 failed");
         goto cleanup;
@@ -83,7 +75,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1cr
 cleanup:
     (*env)->ReleaseStringUTFChars(env, digestAlgo, digestAlgoChars);
     if (0 == digestId) {
-        gslogMessage("DIGEST_create: Shouldn't get here");
         if (NULL != osslDigest) {
             if (NULL != osslDigest->mdCtx) {
                 EVP_MD_CTX_free(osslDigest->mdCtx);
@@ -93,8 +84,6 @@ cleanup:
             osslDigest = NULL;
         }
     }
-
-    gslogMessage("DIGEST_create finished.");
 
     return digestId;
 }
@@ -113,8 +102,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1co
     OSSLDigest *osslDigest     = (OSSLDigest *)((intptr_t)digestId);
     OSSLDigest *osslDigestCopy = NULL;
     jlong      digestCopyId  = 0;
-
-    gslogMessage("DIGEST_copy started.");
 
     if (NULL == osslDigest) {
         throwOSSLException(env, 0, "DIGEST_copy: The specified OSSLDigest is null");
@@ -154,8 +141,6 @@ cleanup:
             osslDigestCopy = NULL;
         }
     }
-
-    gslogMessage("DIGEST_copy finished.");
 
     return digestCopyId;
 }
@@ -203,8 +188,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1up
     jboolean       isCopy       = 0;
     int            returnResult = 0;
 
-    gslogMessage("DIGEST_update started.");
-
     if (NULL == data) {
         throwOSSLException(env, 0, "DIGEST_update: The specified data array is null");
         return 0;
@@ -225,8 +208,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1up
 
     (*env)->ReleasePrimitiveArrayCritical(env, data, dataNative, 0);
 
-    gslogMessage("DIGEST_update finished.");
-
     return (jint)returnResult;
 }
 
@@ -244,16 +225,12 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1up
     OSSLDigest      *osslDigest = (OSSLDigest *)digestId;
     unsigned char   *dataNative = (unsigned char *)dataBuffer;
 
-    gslogMessage("DIGEST_updateFastJNI started.");
-
     if (dataNative == NULL) {
         throwOSSLException(env, 0, "DIGEST_updateFastJNI: The pointer to the specified data buffer is null");
         return;
     }
 
     DIGEST_update_internal(env, osslDigest, dataNative, (int)dataLen);
-
-    gslogMessage("DIGEST_updateFastJNI finished.");
 }
 
 //============================================================================
@@ -274,8 +251,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1di
     int            digestLen         = 0;
     int            rc                = 0;
     jbyteArray     retDigestBytes    = NULL;
-
-    gslogMessage("DIGEST_digest started.");
 
     if (NULL == osslDigest) {
         throwOSSLException(env, 0, "DIGEST_digest: The specified OSSLDigest is null");
@@ -329,8 +304,6 @@ cleanup:
     if ((digestBytes != NULL) && (retDigestBytes == NULL)) {
         (*env)->DeleteLocalRef(env, digestBytes);
     }
-
-    gslogMessage("DIGEST_digest finished.");
 
     return retDigestBytes;
 }
@@ -391,11 +364,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1di
     unsigned char *digestBytesNative = (unsigned char *)((intptr_t)digestBytes);
     unsigned int   digestLen         = (unsigned int)length;
 
-    gslogMessage("DIGEST_digest_and_reset started.");
-
     DIGEST_digest_and_reset_internal(env, ockContextId, osslDigest, digestBytesNative, digestLen);
-
-    gslogMessage("DIGEST_digest_and_reset finished.");
 }
 
 /*
@@ -415,8 +384,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1di
     int            returnResult      = 0;
     unsigned int digestLen           = 0;
 
-    gslogMessage("DIGEST_digest_and_reset started.");
-
     if (NULL == digestBytes) {
         throwOSSLException(env, 0, "DIGEST_digest_and_reset: The specified data array is null");
         return 0;
@@ -435,8 +402,6 @@ cleanup:
         (*env)->ReleasePrimitiveArrayCritical(env, digestBytes, digestBytesNative, 0);
     }
 
-    gslogMessage("DIGEST_digest_and_reset finished.");
-
     return (jint)returnResult;
 }
 
@@ -454,8 +419,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1si
     OSSLDigest *osslDigest = (OSSLDigest *)((intptr_t)digestId);
     int        digestLen = 0;
 
-    gslogMessage("DIGEST_size started.");
-
     if (NULL == osslDigest) {
         throwOSSLException(env, 0, "DIGEST_size: The specified OSSLDigest is null");
         return 0;
@@ -472,7 +435,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1si
         throwOSSLException(env, 0, "DIGEST_size: EVP_MD_size failed");
     }
 
-    gslogMessage("DIGEST_size finished.");
     return digestLen;
 }
 
@@ -490,8 +452,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1re
     OSSLDigest *osslDigest = (OSSLDigest *)((intptr_t)digestId);
     int        rc        = 0;
 
-    gslogMessage("DIGEST_reset started.");
-
     if (NULL == osslDigest) {
         throwOSSLException(env, 0, "DIGEST_size: The specified OSSLDigest is null");
         return;
@@ -507,8 +467,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1re
         //ockCheckStatus(ockCtx);
         throwOSSLException(env, 0, "DIGEST_reset: EVP_DigestInit_ex2 failed");
     }
-
-    gslogMessage("DIGEST_reset finished.");
 }
 
 //============================================================================
@@ -522,8 +480,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1de
     JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId) {
     ////static const char *functionName = "NativeOSSLImplementation.DIGEST_delete";
 
-    gslogMessage("DIGEST_delete started.");
-
     OSSLDigest *osslDigest = (OSSLDigest *)((intptr_t)digestId);
 
     if (NULL != osslDigest) {
@@ -534,6 +490,4 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1de
         free(osslDigest);
         osslDigest = NULL;
     }
-
-    gslogMessage("DIGEST_delete finished.");
 }
