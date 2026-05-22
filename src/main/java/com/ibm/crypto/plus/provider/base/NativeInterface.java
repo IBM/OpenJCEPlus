@@ -30,7 +30,7 @@ public interface NativeInterface {
     // Static stub functions
     // =========================================================================
 
-    public long initializeOCK(boolean isFIPS) throws NativeException;
+    public long initializeNative(boolean isFIPS) throws NativeException;
 
     public String CTX_getValue(int valueId) throws NativeException;
 

@@ -25,7 +25,7 @@
  */
 JNIEXPORT jlong JNICALL
 Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1create(
-    JNIEnv *env, jclass thisObj, jstring digestAlgo) {
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jstring digestAlgo) {
     //static const char *functionName = "NativeOSSLImplementation.DIGEST_create";
 
     OSSLDigest  *osslDigest      = NULL;
@@ -107,7 +107,7 @@ cleanup:
  */
 JNIEXPORT jlong JNICALL
 Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1copy(
-    JNIEnv *env, jclass thisObj, jlong digestId) {
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId) {
     //static const char *functionName = "NativeOSSLImplementation.DIGEST_copy";
 
     OSSLDigest *osslDigest     = (OSSLDigest *)((intptr_t)digestId);
@@ -194,7 +194,7 @@ static int DIGEST_update_internal(JNIEnv *env, OSSLDigest *osslDigest, unsigned 
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1update(
-    JNIEnv *env, jclass thisObj, jlong digestId,
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId,
     jbyteArray data, jint offset, jint dataLen) {
     //static const char *functionName = "NativeOSSLImplementation.DIGEST_update";
 
@@ -237,7 +237,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1up
  */
 JNIEXPORT void JNICALL
 Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1updateFastJNI(
-    JNIEnv *env, jclass thisObj, jlong digestId,
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId,
     jlong dataBuffer, jint dataLen) {
     //static const char *functionName = "NativeOSSLImplementation.DIGEST_updateFastJNI";
 
@@ -264,7 +264,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1up
  */
 JNIEXPORT jbyteArray JNICALL
 Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1digest(
-    JNIEnv *env, jclass thisObj, jlong digestId) {
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId) {
     //static const char *functionName = "NativeOSSLImplementation.DIGEST_digest";
 
     OSSLDigest     *osslDigest         = (OSSLDigest *)((intptr_t)digestId);
@@ -336,7 +336,7 @@ cleanup:
 }
 
 static int
-DIGEST_digest_and_reset_internal(JNIEnv *env, OSSLDigest *osslDigest, unsigned char *digestBytesNative, unsigned int digestLen)
+DIGEST_digest_and_reset_internal(JNIEnv *env, jlong ockContextId, OSSLDigest *osslDigest, unsigned char *digestBytesNative, unsigned int digestLen)
 {
     int rc = 0;
 
@@ -383,7 +383,7 @@ DIGEST_digest_and_reset_internal(JNIEnv *env, OSSLDigest *osslDigest, unsigned c
  */
 JNIEXPORT void JNICALL
 Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1digest_1and_1reset__JJI(
-    JNIEnv *env, jclass thisObj, jlong digestId,
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId,
     jlong digestBytes, jint length) {
     //static const char *functionName = "NativeOSSLImplementation.DIGEST_digest_and_reset";
 
@@ -393,7 +393,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1di
 
     gslogMessage("DIGEST_digest_and_reset started.");
 
-    DIGEST_digest_and_reset_internal(env, osslDigest, digestBytesNative, digestLen);
+    DIGEST_digest_and_reset_internal(env, ockContextId, osslDigest, digestBytesNative, digestLen);
 
     gslogMessage("DIGEST_digest_and_reset finished.");
 }
@@ -404,8 +404,8 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1di
  * Signature: (J[B)V
  */
 JNIEXPORT jint JNICALL
-Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1digest_1and_1reset__J_3B(
-    JNIEnv *env, jclass thisObj, jlong digestId,
+Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1digest_1and_1reset__JJ_3B(
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId,
     jbyteArray digestBytes) {
     ////static const char *functionName = "NativeOSSLImplementation.DIGEST_digest_and_reset";
 
@@ -428,7 +428,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1di
         goto cleanup;
     }
 
-    returnResult = DIGEST_digest_and_reset_internal(env, osslDigest, digestBytesNative, digestLen);
+    returnResult = DIGEST_digest_and_reset_internal(env, ockContextId, osslDigest, digestBytesNative, digestLen);
 
 cleanup:
     if (digestBytesNative != NULL) {
@@ -448,7 +448,7 @@ cleanup:
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1size(
-    JNIEnv *env, jclass thisObj, jlong digestId) {
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId) {
     ////static const char *functionName = "NativeOSSLImplementation.DIGEST_size";
 
     OSSLDigest *osslDigest = (OSSLDigest *)((intptr_t)digestId);
@@ -484,7 +484,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1si
  */
 JNIEXPORT void JNICALL
 Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1reset(
-    JNIEnv *env, jclass thisObj, jlong digestId) {
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId) {
     ////static const char *functionName = "NativeOSSLImplementation.DIGEST_reset";
 
     OSSLDigest *osslDigest = (OSSLDigest *)((intptr_t)digestId);
@@ -519,7 +519,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1re
  */
 JNIEXPORT void JNICALL
 Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1delete(
-    JNIEnv *env, jclass thisObj, jlong digestId) {
+    JNIEnv *env, jclass thisObj, jlong ockContextId, jlong digestId) {
     ////static const char *functionName = "NativeOSSLImplementation.DIGEST_delete";
 
     gslogMessage("DIGEST_delete started.");

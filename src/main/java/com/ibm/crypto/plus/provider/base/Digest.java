@@ -11,7 +11,8 @@ package com.ibm.crypto.plus.provider.base;
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
 import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
+//import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
+import com.ibm.crypto.plus.provider.openssl.NativeOpenSSLAdapterNonFIPS;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -167,7 +168,7 @@ public final class Digest implements Cloneable {
 
         this.digestAlgo = digestAlgo;
         this.provider = provider;
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOpenSSLAdapterNonFIPS.getInstance();
         getContext();
         //OCKDebug.Msg(debPrefix, methodName,  "digestAlgo :" + digestAlgo);
 

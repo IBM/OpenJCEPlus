@@ -277,7 +277,7 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     }
 
     @Override
-    public long initializeOCK(boolean isFIPS) throws OCKException {
+    public long initializeNative(boolean isFIPS) throws OCKException {
         return NativeOCKImplementation.initializeOCK(isFIPS);
     }
 

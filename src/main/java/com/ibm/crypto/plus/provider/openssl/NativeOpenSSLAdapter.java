@@ -63,13 +63,14 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
         }
 
         try {
-            long osslContextId =  NativeOpenSSLImplementation.initializeOSSL(this.useFIPSMode);
+            //long osslContextId =  NativeOpenSSLImplementation.initializeOSSL(this.useFIPSMode);
+            long osslContextId = 0;
             this.osslContext = OpenSSLContext.createContext(osslContextId, this.useFIPSMode);
-            getLibraryBuildDate();
+            /*getLibraryBuildDate();
 
             if (validateOSSLLocation) {
                 validateLibraryLocation();
-            }
+            }*/
 
             this.osslInitialized = true;
         } catch (OpenSSLException e) {
@@ -270,8 +271,9 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     }
 
     @Override
-    public long initializeOCK(boolean isFIPS) throws OpenSSLException {
-        return NativeOpenSSLImplementation.initializeOSSL(isFIPS);
+    public long initializeNative(boolean isFIPS) throws OpenSSLException {
+        //return NativeOpenSSLImplementation.initializeOSSL(isFIPS);
+        return 0;
     }
 
     @Override

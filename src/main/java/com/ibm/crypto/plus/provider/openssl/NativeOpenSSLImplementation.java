@@ -141,6 +141,7 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
         osName = System.getProperty("os.name");
         osArch = System.getProperty("os.arch");
         String osslPath = getOSSLLoadPath();
+        System.out.println("Openssl path: " + osslPath);
         File loadFile = null;
 
         // --------------------------------------------------------------
@@ -155,7 +156,7 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
         // Windows* amd64: <OCK_CORE_LIBRARY_NAME>_64.dll
         // --------------------------------------------------------------
         if (osName.equals("Mac OS X")) {
-            loadFile = new File(osslPath, "lib" + OPENSSL_CORE_LIBRARY_NAME + ".dylib");
+            loadFile = new File(osslPath, "lib" + OPENSSL_CORE_LIBRARY_NAME + ".3.dylib");
         } else if (osName.startsWith("Windows") && osArch.equals("amd64")) {
             loadFile = new File(osslPath, OPENSSL_CORE_LIBRARY_NAME + "_64.dll");
         } else {
