@@ -38,7 +38,16 @@ public class RandomBenchmark extends JMHBase {
 
     private SecureRandom random;
 
-    @Param({"SHA256DRBG|OpenJCEPlus", "SHA512DRBG|OpenJCEPlus", "SHA1PRNG|SUN", "DRBG|SUN"})
+    @Param({
+        "SHA256DRBG|OpenJCEPlus",
+        "SHA512DRBG|OpenJCEPlus",
+        "HASHDRBG|OpenJCEPlus",
+        "SHA256DRBG|OpenJCEPlusFIPS",
+        "SHA512DRBG|OpenJCEPlusFIPS",
+        "HASHDRBG|OpenJCEPlusFIPS",
+        "SHA1PRNG|SUN",
+        "DRBG|SUN"
+    })
     private String randomToTest;
 
     @Setup
