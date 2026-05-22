@@ -1112,9 +1112,9 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     }
 
     @Override
-    public byte[] XECKEY_computeECDHSecret(long genCtx, long pubEcKeyId, long privEcKeyId)
+    public byte[] XECKEY_computeECDHSecret(long genCtx, long pubEcKeyId, long privEcKeyId, int secrectBufferSize)
             throws OCKException {
-        return NativeOCKImplementation.XECKEY_computeECDHSecret(ockContext.getId(), genCtx, pubEcKeyId, privEcKeyId);
+        return NativeOCKImplementation.XECKEY_computeECDHSecret(ockContext.getId(), genCtx, pubEcKeyId, privEcKeyId, secrectBufferSize);
     }
 
     @Override
