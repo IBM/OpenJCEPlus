@@ -46,7 +46,7 @@ int gslogMessageHex(char byte[], int offset, int length, int spaceAfter,
                     int newlineAfter, char* newlinePrefix);
 int gslogFunctionExit(const char* functionName);
 
-void osslCheckStatus();
+void osslCheckStatus(void);
 
 void throwOSSLException(JNIEnv* env, int code, const char* msg);
 

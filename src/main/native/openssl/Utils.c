@@ -114,7 +114,7 @@ int gslogFunctionExit(const char *functionName) {
 //============================================================================
 //
 //
-void osslCheckStatus() {
+void osslCheckStatus(void) {
     unsigned long errCode;
 
     while ((errCode = ERR_get_error()) == 1) {
