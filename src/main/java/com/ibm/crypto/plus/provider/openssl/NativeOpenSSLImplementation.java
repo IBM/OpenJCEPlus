@@ -141,7 +141,6 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
         osName = System.getProperty("os.name");
         osArch = System.getProperty("os.arch");
         String osslPath = getOSSLLoadPath();
-        System.out.println("Openssl path: " + osslPath);
         File loadFile = null;
 
         // --------------------------------------------------------------
@@ -165,7 +164,7 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
 
         boolean osslLibraryPreloaded = loadIfExists(loadFile);
         if ((osslLibraryPreloaded == false) && requirePreloadOSSL) {
-            throw new ProviderException("Could not load dependent ock library for os.name=" + osName
+            throw new ProviderException("Could not load dependent openssl library for os.name=" + osName
                         + ", os.arch=" + osArch);
         }
     }
