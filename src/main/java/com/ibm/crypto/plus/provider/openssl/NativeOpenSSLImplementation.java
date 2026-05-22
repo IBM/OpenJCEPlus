@@ -60,22 +60,33 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
 
     }
 
-    static String getOSSLLoadPath() {
-        String osslOverridePath = System.getProperty("openssl.library.path");
-        if (osslOverridePath != null) {
+    static File getOSSLLoadFile() {
+        osName = System.getProperty("os.name");
+        osArch = System.getProperty("os.arch");
+
+        File loadFile = null;
+
+        String osslPath = System.getProperty("openssl.library.path");
+        if (osslPath != null) {
             if (debug != null) {
                 debug.println("Loading openssl library using value in property openssl.library.path: "
-                    + osslOverridePath);
+                    + osslPath);
             }
-            return osslOverridePath;
+
+            if (osName.equals("Mac OS X")) {
+                loadFile = new File(osslPath, "lib" + OPENSSL_CORE_LIBRARY_NAME + ".dylib");
+            } else if (osName.startsWith("Windows") && osArch.equals("amd64")) {
+                loadFile = new File(osslPath, OPENSSL_CORE_LIBRARY_NAME + ".dll");
+            } else {
+                loadFile = new File(osslPath, "lib" + OPENSSL_CORE_LIBRARY_NAME + ".so");
+            }
+            return loadFile;
         }
         if (debug != null) {
             debug.println("Library path not found for openssl, use java home directory.");
         }
 
         String javaHome = System.getProperty("java.home");
-        osName = System.getProperty("os.name");
-        String osslPath;
 
         if (osName.startsWith("Windows")) {
             osslPath = javaHome + File.separator + "bin";
@@ -86,7 +97,15 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
         if (debug != null) {
             debug.println("Loading ock library using value: " + osslPath);
         }
-        return osslPath;
+
+        if (osName.equals("Mac OS X")) {
+            loadFile = new File(osslPath, "lib" + OPENSSL_CORE_LIBRARY_NAME + "-semeru.dylib");
+        } else if (osName.startsWith("Windows") && osArch.equals("amd64")) {
+            loadFile = new File(osslPath, OPENSSL_CORE_LIBRARY_NAME + "-semeru.dll");
+        } else {
+            loadFile = new File(osslPath, "lib" + OPENSSL_CORE_LIBRARY_NAME + "-semeru.so");
+        }
+        return loadFile;
     }
 
     static String getOpenJCEPlusNativeLoadPath() {
@@ -138,30 +157,8 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     }
 
     static void preloadOpenSSL() {
-        osName = System.getProperty("os.name");
-        osArch = System.getProperty("os.arch");
-        String osslPath = getOSSLLoadPath();
-        File loadFile = null;
-
-        // --------------------------------------------------------------
-        // Determine the OCK library to load for a given OS and architecture.
-        //
-        // AIX: lib<OCK_CORE_LIBRARY_NAME>_64.so
-        // Linux aarch64: lib<OCK_CORE_LIBRARY_NAME>.dylib
-        // Linux ppc64le: lib<OCK_CORE_LIBRARY_NAME>_64.so
-        // Linux s390x: lib<OCK_CORE_LIBRARY_NAME>_64.so
-        // Linux x86_64: lib<OCK_CORE_LIBRARY_NAME>_64.so
-        // Mac OS X: lib<OCK_CORE_LIBRARY_NAME>_64.so
-        // Windows* amd64: <OCK_CORE_LIBRARY_NAME>_64.dll
-        // --------------------------------------------------------------
-        if (osName.equals("Mac OS X")) {
-            loadFile = new File(osslPath, "lib" + OPENSSL_CORE_LIBRARY_NAME + ".3.dylib");
-        } else if (osName.startsWith("Windows") && osArch.equals("amd64")) {
-            loadFile = new File(osslPath, OPENSSL_CORE_LIBRARY_NAME + "_64.dll");
-        } else {
-            loadFile = new File(osslPath, "lib" + OPENSSL_CORE_LIBRARY_NAME + "_64.so");
-        }
-
+        
+        File loadFile = getOSSLLoadFile();
         boolean osslLibraryPreloaded = loadIfExists(loadFile);
         if ((osslLibraryPreloaded == false) && requirePreloadOSSL) {
             throw new ProviderException("Could not load dependent openssl library for os.name=" + osName

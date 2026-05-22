@@ -9,9 +9,6 @@
 package com.ibm.crypto.plus.provider.openssl;
 
 import com.ibm.crypto.plus.provider.base.NativeInterface;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.nio.ByteBuffer;
 import java.security.ProviderException;
 import sun.security.util.Debug;
@@ -175,7 +172,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
 
     @Override
     public void validateLibraryLocation() throws ProviderException, OpenSSLException {
-        if (NativeOpenSSLImplementation.requirePreloadOSSL == false) {
+        /*if (NativeOpenSSLImplementation.requirePreloadOSSL == false) {
             // If we are not requiring OCK to be pre-loaded, then it does not need to be
             // loaded from the JRE location
             //
@@ -185,7 +182,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
         try {
             // Check to make sure that the OCK install path is within the JRE
             //
-            String ockLoadPath = new File(NativeOpenSSLImplementation.getOSSLLoadPath()).getCanonicalPath();
+            String ockLoadPath = new File(NativeOpenSSLImplementation.getOSSLLoadFile()).getCanonicalPath();
             String ockInstallPath = new File(getLibraryInstallPath()).getCanonicalPath();
 
             if (debug != null) {
@@ -204,7 +201,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
             }
         } catch (java.io.IOException e) {
             throw new ProviderException("Failed to validate dependent library", e);
-        }
+        }*/
     }
 
     @Override
@@ -229,7 +226,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     }
 
     private String getExpectedLibraryVersion() {
-        String ockLoadPath = NativeOpenSSLImplementation.getOSSLLoadPath();
+        /*String ockLoadPath = NativeOpenSSLImplementation.getOSSLLoadFile();
         String ockSigFileName;
         if (this.useFIPSMode) {
             ockSigFileName = ockLoadPath + File.separator + "C" + File.separator + "icc"
@@ -257,7 +254,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
                 } catch (Exception e) {
                 }
             }
-        }
+        }*/
 
         return null;
     }
