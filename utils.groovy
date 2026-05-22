@@ -332,8 +332,10 @@ def runOpenJCEPlus(command, software) {
                set "JAVA_HOME=$WORKSPACE\\java\\jdk"
                set "PATH=$WORKSPACE\\apache-maven-3.9.10\\bin;%JAVA_HOME%;%PATH%"
                set "GSKIT_HOME=$WORKSPACE\\openjceplus\\OCK\\jgsk_sdk"
+               set "OPENSSL_HOME=$WORKSPACE\\openssl"
                echo PATH: %PATH%
                echo GSKIT_HOME: %GSKIT_HOME%
+               echo OPENSSL_HOME: %OPENSSL_HOME%
                echo JAVA_HOME: %JAVA_HOME%
                echo mvn -Dock.library.path=${ock_path} --batch-mode ${command}
                $WORKSPACE\\apache-maven-3.9.10\\bin\\mvn -Dock.library.path=${ock_path} ${additional_cmd_args} --batch-mode ${command}
@@ -345,7 +347,7 @@ def runOpenJCEPlus(command, software) {
         }
 
         if (software != "windows") {
-            sh "${java_home} ${gskit_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' ${additional_cmd_args} --batch-mode ${command}"
+            sh "${java_home} ${gskit_home} ${openssl_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' ${additional_cmd_args} --batch-mode ${command}"
         }
     }
 }
