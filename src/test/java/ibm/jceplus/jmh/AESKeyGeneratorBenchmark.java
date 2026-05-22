@@ -32,7 +32,7 @@ import org.openjdk.jmh.runner.options.Options;
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
 public class AESKeyGeneratorBenchmark extends JMHBase {
 
-    @Param({"OpenJCEPlus", "SunJCE"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunJCE"})
     private String provider;
 
     private KeyGenerator aesKeyGenerator128 = null;

@@ -395,7 +395,7 @@ pipeline {
             Specify the performance benchmark you would like to run.')
         booleanParam(name: 'OpenJCEPlus', defaultValue: true, description: '\
             Run benchmarks with OpenJCEPlus provider')
-        booleanParam(name: 'OpenJCEPlusFIPS', defaultValue: true, description: '\
+        booleanParam(name: 'OpenJCEPlusFIPS', defaultValue: false, description: '\
             Run benchmarks with OpenJCEPlusFIPS provider')
         booleanParam(name: 'Sun', defaultValue: true, description: '\
             Run benchmarks with all Sun providers')
