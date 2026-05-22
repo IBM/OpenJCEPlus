@@ -288,7 +288,7 @@ def getMaven(software) {
 
 def getOpenSSL() {
     def version = "openssl-3.5.6"
-    sh "git clone -b ${version} https://github.com/openssl/openssl.git ."
+    sh "git clone -b ${version} https://github.com/openssl/openssl.git"
 }
 
 /*
