@@ -34,7 +34,7 @@ import org.openjdk.jmh.runner.options.Options;
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
 public class ECDHKeyExchangeBenchmark extends JMHBase {
 
-    @Param({"OpenJCEPlus", "SunEC"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunEC"})
     private String provider;
 
     @Param({"secp256r1", "secp384r1", "secp521r1"})

@@ -32,42 +32,33 @@ import org.openjdk.jmh.runner.options.Options;
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
 public class HMACKeyGeneratorBenchmark extends JMHBase {
 
-    @Param({"OpenJCEPlus", "SunJCE"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunJCE"})
     private String provider;
 
-    private KeyGenerator hmacSha1KeyGenerator = null;
-    private KeyGenerator hmacSha256KeyGenerator = null;
-    private KeyGenerator hmacSha384KeyGenerator = null;
-    private KeyGenerator hmacSha512KeyGenerator = null;
+    /**
+     * HMAC algorithms for key generation.
+     * Non-FIPS compliant algorithm (HmacSHA1) will be skipped when provider is OpenJCEPlusFIPS.
+     */
+    @Param({"HmacSHA1", "HmacSHA256", "HmacSHA384", "HmacSHA512"})
+    private String algorithm;
+
+    private KeyGenerator keyGenerator;
 
     @Setup
     public void setup() throws Exception {
         super.setup(provider);
 
-        hmacSha1KeyGenerator = KeyGenerator.getInstance("HmacSHA1", provider);
-        hmacSha256KeyGenerator = KeyGenerator.getInstance("HmacSHA256", provider);
-        hmacSha384KeyGenerator = KeyGenerator.getInstance("HmacSHA384", provider);
-        hmacSha512KeyGenerator = KeyGenerator.getInstance("HmacSHA512", provider);
+        // Skip non-FIPS compliant algorithms when using OpenJCEPlusFIPS provider
+        if (provider.equalsIgnoreCase("OpenJCEPlusFIPS") && algorithm.equals("HmacSHA1")) {
+            throw new RunnerException("Skipping HmacSHA1 for FIPS provider");
+        }
+
+        keyGenerator = KeyGenerator.getInstance(algorithm, provider);
     }
 
     @Benchmark
-    public SecretKey hmacSha1KeyGeneration() throws Exception {
-        return hmacSha1KeyGenerator.generateKey();
-    }
-
-    @Benchmark
-    public SecretKey hmacSha256KeyGeneration() throws Exception {
-        return hmacSha256KeyGenerator.generateKey();
-    }
-
-    @Benchmark
-    public SecretKey hmacSha384KeyGeneration() throws Exception {
-        return hmacSha384KeyGenerator.generateKey();
-    }
-
-    @Benchmark
-    public SecretKey hmacSha512KeyGeneration() throws Exception {
-        return hmacSha512KeyGenerator.generateKey();
+    public SecretKey keyGeneration() {
+        return keyGenerator.generateKey();
     }
 
     public static void main(String[] args) throws RunnerException {
