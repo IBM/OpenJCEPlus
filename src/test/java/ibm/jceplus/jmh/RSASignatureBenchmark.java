@@ -37,7 +37,7 @@ public class RSASignatureBenchmark extends JMHBase {
     @Param({"2048", "32768"})
     private int payloadSize;
 
-    @Param({"OpenJCEPlus", "SunRsaSign"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunRsaSign"})
     private String provider;
 
     @Param({"2048", "4096"})

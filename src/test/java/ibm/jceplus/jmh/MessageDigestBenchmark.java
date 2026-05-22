@@ -35,7 +35,7 @@ public class MessageDigestBenchmark extends JMHBase {
     @Param({"16", "2048", "32768"})
     private int payloadSize;
 
-    @Param({"OpenJCEPlus", "SUN"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SUN"})
     private String provider;
 
     private MessageDigest messageDigestSHA512;
