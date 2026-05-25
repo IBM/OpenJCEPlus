@@ -286,9 +286,15 @@ def getMaven(software) {
     }
 }
 
-def getOpenSSL() {
+def getOpenSSL(hardware, software) {
     def version = "openssl-3.5.6"
     sh "git clone -b ${version} https://github.com/openssl/openssl.git"
+
+    if ((software == "mac") && (hardware == "aarch64")) {
+        dir("openssl") {
+            sh './Configure darwin64-arm64-cc --prefix=\$(pwd)"/.." --openssldir=\$(pwd)"/../ssl"'
+        }
+    }
 }
 
 /*

@@ -276,7 +276,7 @@ def run(platform) {
                     echo "Binaries fetched"
                     externalLibrary.getMaven(software)
                     echo "Maven fetched"
-                    externalLibrary.getOpenSSL()
+                    externalLibrary.getOpenSSL(hardware, software)
                     echo "OpenSSL cloned"
                     def command = "install"
                     command += getTestFlag(hardware, software)
