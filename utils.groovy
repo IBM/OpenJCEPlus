@@ -298,7 +298,9 @@ def getOpenSSL(hardware, software) {
             if (status == "200") {
                 echo "OpenSSL version ${version} already exists."
                 sh "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD ${openssl_link} > openssl.tar.gz"
-                sh "mkdir \$PWD/openssl; tar -xvf openssl.tar.gz --strip-components=2 -C \$PWD/openssl"
+                dir("openssl") {
+                    sh "tar -xvf ../openssl.tar.gz --strip-components=2"
+                }
             } else {
                 error("OpenSSL version ${version} does not exist. Need to build.")
             }
