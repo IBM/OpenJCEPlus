@@ -17,7 +17,14 @@ OBJS = \
 	${HOSTOUT}/Digest.o \
 	${HOSTOUT}/Utils.o
 
+ifndef OPENSSL_LIB_LOCATION
+	OPENSSL_LIB_LOCATION = ${JAVA_HOME}/lib
+	OPENSSL_LIB = crypto-semeru
+else
+	OPENSSL_LIB = crypto
+endif
+
 TARGET = ${HOSTOUT}/libopenjceplus.so
-TARGET_LIBS := -L ${OPENSSL_HOME}/lib -lcrypto
+TARGET_LIBS := -L ${OPENSSL_LIB_LOCATION} -l ${OPENSSL_LIB}
 
 include ../share/common.mak
