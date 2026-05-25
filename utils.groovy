@@ -342,7 +342,7 @@ def runOpenJCEPlus(command, software) {
         def additional_cmd_args = ADDITIONAL_CMD_ARGS
 
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
-        def openjceplus_path = "$WORKSPACE/openssl/lib/"
+        def openssl_path = "$WORKSPACE/openssl/lib/"
         if (software == "windows") {
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
             bat """
@@ -366,7 +366,7 @@ def runOpenJCEPlus(command, software) {
         }
 
         if (software != "windows") {
-            sh "${java_home} ${gskit_home} ${openssl_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' '-Dopenjceplus.library.path=${openjceplus_path}' ${additional_cmd_args} --batch-mode ${command}"
+            sh "${java_home} ${gskit_home} ${openssl_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' '-Dopenssl.library.path=${openssl_path}' ${additional_cmd_args} --batch-mode ${command}"
         }
     }
 }
