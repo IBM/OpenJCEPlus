@@ -62,7 +62,8 @@ Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers al
 
     Based on the platform, the library file (i.e., `$LIBJGSKIT_LIBRARY`) is named differently. The  values are as follows:
    * AIX/Linux: `libjgsk8iccs_64.so`
-   * Mac OS X: `libjgsk8iccs.dylib`
+   * Mac OS X (aarch64): `libjgsk8iccs_64.dylib`
+   * Mac OS X (x86-64): `libjgsk8iccs.dylib`
    * Windows: `jgsk8iccs_64.dll`
 
    Create the `lib64` directory and copy the `$LIBJGSKIT_LIBRARY` library to that location:

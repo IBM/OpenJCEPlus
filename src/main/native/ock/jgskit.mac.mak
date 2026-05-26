@@ -12,7 +12,12 @@ NATIVE_DIR = ${NATIVE_TOPDIR}/ock
 NATIVE_LIB_HOME = ${GSKIT_HOME}
 JNI_CLASS = ${TOPDIR}/src/main/java/com/ibm/crypto/plus/provider/ock/NativeOCKImplementation.java
 JNI_HEADER = com_ibm_crypto_plus_provider_ock_NativeOCKImplementation.h
-TARGET_LIBS := -L ${GSKIT_HOME}/lib64 -l jgsk8iccs
+
+ifeq (${PLATFORM},aarch64-mac)
+  TARGET_LIBS := -L ${GSKIT_HOME}/lib64 -l jgsk8iccs_64
+else
+  TARGET_LIBS := -L ${GSKIT_HOME}/lib64 -l jgsk8iccs
+endif
 
 OBJS = \
 	${HOSTOUT}/AESKeyWrap.o \
