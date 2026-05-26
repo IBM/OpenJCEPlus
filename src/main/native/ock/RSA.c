@@ -424,8 +424,8 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSACIPHER_1private
 #ifdef DEBUG_RSA_DETAIL
         gslogMessage(
             "DETAIL_RSACIPHER rsaKeyId %lx rsaPaddingId %x mdId %x plaintextOff %d "
-            "plaintextLen %d ciphertextOff %d",
-            (long)rsaKeyId, rsaPaddingId, mdId, (int)plaintextOff, (int)plaintextLen,
+            "ciphertextLen %d ciphertextOff %d",
+            (long)rsaKeyId, rsaPaddingId, mdId, (int)plaintextOff, (int)ciphertextLen,
             (int)ciphertextOff);
 #endif
     }
