@@ -288,25 +288,25 @@ def getMaven(software) {
 
 def getOpenSSL(hardware, software) {
     def version = "openssl-3.5.6"
+    def platform = "${hardware}_${software}"
     //sh "git clone -b ${version} https://github.com/openssl/openssl.git"
 
-    if ((software == "mac") && (hardware == "aarch64")) {
-        openssl_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/OpenSSL_builds/aarch64_mac/${version}/aarch64_mac-${version}.tar.gz"
-        withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_USERNAME')]) {
-            // -s: silent, -o: output to null, -w: write-out the status code, -I: HEAD request
-            def status = sh(script: "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD -s -o /dev/null -w '%{http_code}' -I ${openssl_link}", returnStdout: true).trim()
-            if (status == "200") {
-                echo "OpenSSL version ${version} already exists."
-                sh "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD ${openssl_link} > openssl.tar.gz"
-                dir("openssl") {
-                    sh "tar -xvf ../openssl.tar.gz --strip-components=2"
-                    sh "ls -la"
-                }
-            } else {
-                error("OpenSSL version ${version} does not exist. Need to build.")
+    openssl_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/OpenSSL_builds/${platform}/${version}/${platform}-${version}.tar.gz"
+    withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_USERNAME')]) {
+        // -s: silent, -o: output to null, -w: write-out the status code, -I: HEAD request
+        def status = sh(script: "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD -s -o /dev/null -w '%{http_code}' -I ${openssl_link}", returnStdout: true).trim()
+        if (status == "200") {
+            echo "OpenSSL version ${version} already exists."
+            sh "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD ${openssl_link} > openssl.tar.gz"
+            dir("openssl") {
+                sh "tar -xvf ../openssl.tar.gz --strip-components=2"
+                sh "ls -la"
             }
+        } else {
+            error("OpenSSL version ${version} does not exist. Need to build.")
         }
     }
+
 }
 
 /*
