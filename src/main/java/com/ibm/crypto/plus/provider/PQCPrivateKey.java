@@ -46,24 +46,43 @@ final class PQCPrivateKey extends PKCS8Key {
         this.provider = provider;
         byte[] key = null;
         DerValue pkOct = null;
-        
-        //Check to determine if the key bytes already have the Octet tag.
-        if (OctectStringEncoded(keyBytes)) {
-            //Remove encoding OctetString encoding.
-            key = Arrays.copyOfRange(keyBytes, 4, keyBytes.length);
-        } else {
-            key = keyBytes;
-        }
 
-        // Currently the ICC expects the raw keys in an OctetString
+        /*
+         * Java/PKCS#8 layer may contain a PQC private key choice:
+         *
+         *   seed      [0] IMPLICIT OCTET STRING  => 0x80
+         *   expanded  OCTET STRING               => 0x04
+         *   both      SEQUENCE                   => 0x30
+         *
+         * Keep this.privKeyMaterial as the original encoded choice when present,
+         * so getEncoded() preserves the Java-level PKCS#8 encoding.
+         *
+         * ICC still expects the raw key content wrapped in an OCTET STRING.
+         */
         try {
             try {
+                if (OctectStringEncoded(keyBytes)) {
+                    this.privKeyMaterial = Arrays.copyOf(keyBytes, keyBytes.length);
+
+                    // Remove the choice tag and DER length bytes for ICC input.
+                    key = Arrays.copyOfRange(keyBytes, getDerValueOffset(keyBytes), keyBytes.length);
+                } else {
+                    key = keyBytes;
+                }
+
+                // Currently the ICC expects the raw keys in an OctetString.
                 pkOct = new DerValue(DerValue.tag_OctetString, key);
+
                 this.pqcKey = PQCKey.createPrivateKey(
                                 this.name, pkOct.toByteArray(), provider);
-                this.privKeyMaterial = pkOct.toByteArray();
+
+                if (!(OctectStringEncoded(keyBytes))) {
+                    this.privKeyMaterial = pkOct.toByteArray();
+                }
             } finally {
-                pkOct.clear();
+                if (pkOct != null) {
+                    pkOct.clear();
+                }
             }
         } catch (Exception e) {
             throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
@@ -80,7 +99,7 @@ final class PQCPrivateKey extends PKCS8Key {
             this.provider = provider;
             this.pqcKey = pqcKey;
 
-            //Check to determine if the key bytes have the Octet tag.
+            // Check to determine if the key bytes have the PQC private key choice tag.
             if (OctectStringEncoded(pqcKey.getPrivateKeyBytes())) {
                 this.privKeyMaterial = pqcKey.getPrivateKeyBytes();
             } else {
@@ -90,7 +109,9 @@ final class PQCPrivateKey extends PKCS8Key {
 
                     this.privKeyMaterial = pkOct.toByteArray();
                 } finally {
-                    pkOct.clear();
+                    if (pkOct != null) {
+                        pkOct.clear();
+                    }
                 }
             }
 
@@ -102,7 +123,7 @@ final class PQCPrivateKey extends PKCS8Key {
     }
 
     /**
-     * Create a private key from it's DER encoding (PKCS#8).
+     * Create a private key from its DER encoding (PKCS#8).
      *
      * @param encoded   the encoded PKCS#8 key
      */
@@ -112,20 +133,41 @@ final class PQCPrivateKey extends PKCS8Key {
 
         this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
 
-        //Check to determine if the key bytes have the Octet tag.
-        if (!(OctectStringEncoded(this.privKeyMaterial))) {
-            DerValue pkOct = null;
-            try {
-                pkOct = new DerValue(DerValue.tag_OctetString, this.privKeyMaterial);
+        byte[] key = null;
+        DerValue pkOct = null;
 
-                this.privKeyMaterial = pkOct.toByteArray();
-            } finally {
-                pkOct.clear();
-            }
-        }
+        /*
+         * super(encoded) parses the outer PKCS#8 structure.
+         * this.privKeyMaterial is the content inside the PKCS#8 privateKey
+         * OCTET STRING.
+         *
+         */
         try {
-            this.pqcKey = PQCKey.createPrivateKey(
-                                this.name, this.privKeyMaterial, provider);
+            try {
+                if (OctectStringEncoded(this.privKeyMaterial)) {
+                    // Keep this.privKeyMaterial unchanged for getEncoded().
+                    key = Arrays.copyOfRange(
+                            this.privKeyMaterial,
+                            getDerValueOffset(this.privKeyMaterial),
+                            this.privKeyMaterial.length);
+                } else {
+                    key = this.privKeyMaterial;
+                }
+
+                // Currently the ICC expects the raw keys in an OctetString.
+                pkOct = new DerValue(DerValue.tag_OctetString, key);
+
+                if (!(OctectStringEncoded(this.privKeyMaterial))) {
+                    this.privKeyMaterial = pkOct.toByteArray();
+                }
+
+                this.pqcKey = PQCKey.createPrivateKey(
+                                this.name, pkOct.toByteArray(), provider);
+            } finally {
+                if (pkOct != null) {
+                    pkOct.clear();
+                }
+            }
         } catch (Exception e) {
             throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
         }
@@ -165,10 +207,10 @@ final class PQCPrivateKey extends PKCS8Key {
             tmp.close();
             bytes.close();
         } catch (IOException ex) {
-            //System.out.println("Exception creating encoding - "+ex.getMessage());
+            //System.out.println("Exception creating encoding - " + ex.getMessage());
             return encodedKey;
         }
-        
+
         return encodedKey;
     }
 
@@ -180,7 +222,7 @@ final class PQCPrivateKey extends PKCS8Key {
     protected Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
         return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
-    } 
+    }
 
     /**
      * Destroys this key. A call to any of its other methods after this will
@@ -213,26 +255,102 @@ final class PQCPrivateKey extends PKCS8Key {
         }
     }
 
+    /**
+     * Determines if this key is already encoded as a PQC private key choice.
+     *
+     * Supported choices:
+     *
+     *   seed      [0] IMPLICIT OCTET STRING  => 0x80
+     *   expanded  OCTET STRING               => 0x04
+     *   both      SEQUENCE                   => 0x30
+     */
     private boolean OctectStringEncoded(byte[] key) {
         try {
-            //Check and see if this is an encoded OctetString
-            if (key[0] == 0x04) {
-                //This might be encoded
-                StringBuilder sb = new StringBuilder();
-                for (int i = 2; i < 4; i++) {
-                    sb.append(String.format("%02X", key[i]));
-                }
-                String s = sb.toString();
-                int b =  Integer.parseInt(s, 16);
-                if (b == (key.length - 4)) {
-                    //This is an encoding
-                    return true;
-                }
-            } 
-            return false;
+            if (key == null || key.length < 2) {
+                return false;
+            }
+
+            int tag = key[0] & 0xFF;
+
+            if (tag != 0x80 && tag != 0x04 && tag != 0x30) {
+                return false;
+            }
+
+            return validDerLength(key);
         } catch (Exception e) {
             return false;
         }
     }
 
+    /**
+     * Check that the DER length field matches the actual value length.
+     */
+    private boolean validDerLength(byte[] key) {
+        try {
+            if (key == null || key.length < 2) {
+                return false;
+            }
+
+            int firstLenByte = key[1] & 0xFF;
+
+            if ((firstLenByte & 0x80) == 0) {
+                int contentLength = firstLenByte;
+                return contentLength == (key.length - 2);
+            }
+
+            int numLengthBytes = firstLenByte & 0x7F;
+
+            if (numLengthBytes == 0 || numLengthBytes > 4) {
+                return false;
+            }
+
+            if (key.length < 2 + numLengthBytes) {
+                return false;
+            }
+
+            int contentLength = 0;
+            for (int i = 0; i < numLengthBytes; i++) {
+                contentLength = (contentLength << 8) | (key[2 + i] & 0xFF);
+            }
+
+            int headerLength = 2 + numLengthBytes;
+
+            return contentLength == (key.length - headerLength);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Return the offset where the DER value content starts.
+     *
+     * Examples:
+     *
+     *   80 20 <seed>                    => offset 2
+     *   04 82 0A 00 <2560-byte value>   => offset 4
+     *   30 82 xx xx <sequence-content>  => offset 4
+     */
+    private int getDerValueOffset(byte[] key) {
+        int offset = 0;
+
+        // Skip tag byte.
+        offset++;
+
+        int firstLenByte = key[offset] & 0xFF;
+
+        // Skip first length byte.
+        offset++;
+
+        // seed
+        if ((firstLenByte & 0x80) == 0) {
+            return offset;
+        }
+
+        int numLengthBytes = firstLenByte & 0x7F;
+
+        // Skip the actual length bytes.
+        offset += numLengthBytes;
+
+        return offset;
+    }
 }

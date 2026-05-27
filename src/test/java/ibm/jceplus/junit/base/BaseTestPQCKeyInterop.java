@@ -16,6 +16,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.EncodedKeySpec;
+import java.security.spec.KeySpec;
 import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -737,6 +739,78 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         
         assertArrayEquals(encapsulatedPlus.key().getEncoded(), decapKeyInterop.getEncoded(),
                 "Keys do not match for test 2 with " + parameterSet);
+    }
+
+    /**
+     * The PKCS8EncodedKeySpec is obtained from the SunJCE provider,
+     * then used by OpenJCEPlus KeyFactory.generatePrivate().
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
+    public void testMLKEMGetKeySpecPrivateInteropToPlus(String algorithm)
+            throws Exception {
+        // This is not in the FIPS provider yet.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
+        // This test is for SunJCE/OpenJCEPlus interop, not BC.
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        doGetKeySpecPrivateInteropToPlus(
+                algorithm, getInteropProviderName(), getProviderName());
+    }
+
+    /**
+     * JCK-style getKeySpec_private interop test for ML-DSA.
+     *
+     * The PKCS8EncodedKeySpec is obtained from the SUN provider,
+     * then used by OpenJCEPlus KeyFactory.generatePrivate().
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void testMLDSAGetKeySpecPrivateInteropToPlus(String algorithm)
+            throws Exception {
+        // This is not in the FIPS provider yet.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
+        // This test is for SunJCE/OpenJCEPlus interop, not BC.
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName2()));
+
+        doGetKeySpecPrivateInteropToPlus(
+                algorithm, getInteropProviderName2(), getProviderName());
+    }
+
+    private void doGetKeySpecPrivateInteropToPlus(String algorithm,
+            String interopProviderName, String openjceplusProviderName) throws Exception {
+        /*
+         * Same intent as JCK:
+         *
+         * KeyFactory keyFactory = KeyFactory.getInstance(getAlgorithm(),providerName);
+         * KeySpec expectedPrivKeySpec = getExpectedPrivKeySpec();
+         * PrivateKey expectedPrivateKey =  keyFactory.generatePrivate(expectedPrivKeySpec);
+         * KeySpec keySpec = keyFactory.getKeySpec(expectedPrivateKey, expectedPrivKeySpec.getClass());
+         * assertEquals(expectedPrivKeySpec.getClass(),keySpec.getClass());
+         * assertKeySpec(expectedPrivKeySpec,keySpec, true);
+         */
+        KeyFactory openjceplusKeyFactory = KeyFactory.getInstance(algorithm, openjceplusProviderName);
+        KeyPairGenerator interopKpg = KeyPairGenerator.getInstance(algorithm, interopProviderName);
+        KeyPair interopKeyPair = interopKpg.generateKeyPair();
+        PrivateKey interopPrivateKey = interopKeyPair.getPrivate();
+        KeySpec interopPrivKeySpec = new PKCS8EncodedKeySpec(interopPrivateKey.getEncoded());
+        PrivateKey openjceplusPrivateKey = openjceplusKeyFactory.generatePrivate(interopPrivKeySpec);
+        KeySpec keySpec = openjceplusKeyFactory.getKeySpec(openjceplusPrivateKey, interopPrivKeySpec.getClass());
+        assertEquals(interopPrivKeySpec.getClass(), keySpec.getClass());
+        assertPrivateKeySpecEquals(interopPrivKeySpec, keySpec);
+    }
+
+    private void assertPrivateKeySpecEquals(KeySpec expected, KeySpec actual) {
+        assertEquals(PKCS8EncodedKeySpec.class, actual.getClass());
+
+        PKCS8EncodedKeySpec expectedSpec = (PKCS8EncodedKeySpec) expected;
+        PKCS8EncodedKeySpec actualSpec = (PKCS8EncodedKeySpec) actual;
+
+        assertArrayEquals(expectedSpec.getEncoded(), actualSpec.getEncoded());
+        assertEquals(expectedSpec.getAlgorithm(), actualSpec.getAlgorithm());
+        assertEquals(expectedSpec.getFormat(), actualSpec.getFormat());
     }
 
 }
