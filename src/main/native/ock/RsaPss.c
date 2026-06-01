@@ -341,7 +341,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1signFinal(
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSAPSS_verifyFinal
- * Signature: (JJJ)Z
+ * Signature: (JJ[BI)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSAPSS_1verifyFinal(
