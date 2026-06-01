@@ -153,7 +153,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_CIPHER_1create(
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    CIPHER_init
- * Signature: (JJZ)V
+ * Signature: (JJII[B[B)V
  */
 JNIEXPORT void JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_CIPHER_1init(
@@ -263,7 +263,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_CIPHER_1init(
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    CIPHER_setPadding
- * Signature: (JJZ)V
+ * Signature: (JJI)V
  */
 JNIEXPORT void JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_CIPHER_1setPadding(
@@ -550,7 +550,7 @@ JNIEXPORT int CIPHER_encryptUpdate_internal(
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    CIPHER_encryptUpdate
- * Signature: (JJI[B[B)I
+ * Signature: (JJ[BII[BIZ)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_CIPHER_1encryptUpdate(
@@ -689,7 +689,7 @@ JNIEXPORT int CIPHER_encryptFinal_internal(
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    CIPHER_encryptFinal
- * Signature: (JJI[B[B)I
+ * Signature: (JJ[BII[BIZ)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_CIPHER_1encryptFinal(
@@ -796,7 +796,7 @@ JNIEXPORT int CIPHER_decryptUpdate_internal(
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    CIPHER_decryptUpdate
- * Signature: (JJI[B[B)I
+ * Signature: (JJ[BII[BIZ)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_CIPHER_1decryptUpdate(
@@ -935,7 +935,7 @@ JNIEXPORT int CIPHER_decryptFinal_internal(
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    CIPHER_decryptFinal
- * Signature: (JJI[B[B)I
+ * Signature: (JJ[BII[BIZ)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_CIPHER_1decryptFinal(
