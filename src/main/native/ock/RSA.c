@@ -25,7 +25,7 @@ static int setPadding(ICC_CTX *icc_ctx, ICC_EVP_PKEY_CTX *ctx, int rsaPaddingId,
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSACIPHER_public_encrypt
- * Signature: (JJI[BII[BI)I
+ * Signature: (JJIII[BII[BI)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSACIPHER_1public_1encrypt(
@@ -171,7 +171,7 @@ cleanup:
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSACIPHER_private_encrypt
- * Signature: (JJI[BII[BI)I
+ * Signature: (JJI[BII[BIZ)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSACIPHER_1private_1encrypt(
@@ -399,7 +399,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSACIPHER_1public_
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSACIPHER_private_decrypt
- * Signature: (JJI[BII[BI)I
+ * Signature: (JJIII[BII[BIZ)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSACIPHER_1private_1decrypt(
