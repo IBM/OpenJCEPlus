@@ -304,7 +304,6 @@ def getOpenSSL(hardware, software) {
             }
         } else {
             stage('Trigger Parameterized Job') {
-                steps {
                     build job: 'Security/job/OpenSSL-Build-Install-Compress',
                         wait: true, // Set to true if you want this stage to block until the child job finishes
                         propagate: true, // Set to false so the parent job doesn't fail if the child job fails
@@ -312,7 +311,6 @@ def getOpenSSL(hardware, software) {
                             string(name: 'TAGS', value: version),
                             booleanParam(name: 'PLATFORMS', value: platform)
                         ]
-                }
             }
             error("OpenSSL version ${version} does not exist. Need to build.")
         }
