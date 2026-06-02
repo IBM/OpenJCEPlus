@@ -638,6 +638,56 @@ public abstract class BaseTestRSA extends BaseTestCipher {
     }
 
     @Test
+    public void testRSACipherNoPaddingExceedInput() throws Exception {
+        // FIPS does not support non-OAEP paddings.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
+        rsaKeyPairGen.initialize(2048);
+        KeyPair rsaKeyPair = rsaKeyPairGen.generateKeyPair();
+        RSAPublicKey pubKey = (RSAPublicKey) rsaKeyPair.getPublic();
+        Cipher cp = Cipher.getInstance("RSA/ECB/NoPadding", getProviderName());
+
+        BigInteger modulus = ((RSAKey) pubKey).getModulus();
+        byte[] modulusPlusOne = modulus.add(BigInteger.ONE).toByteArray();
+        byte[] plaintext = Arrays.copyOfRange(modulusPlusOne, 1, modulusPlusOne.length); // BigInteger has an extra byte for sign.
+        try {
+            cp.init(Cipher.ENCRYPT_MODE, pubKey);
+            cp.doFinal(plaintext);
+
+            fail("Did not get expected BadPaddingException.");
+        } catch (BadPaddingException bpe) {
+            assertEquals("Message is larger than modulus", bpe.getMessage(), "Exception message is not what's expected.");
+        }
+
+        byte[] modulusArray = modulus.toByteArray();
+        plaintext = Arrays.copyOfRange(modulusArray, 1, modulusArray.length); // BigInteger has an extra byte for sign.
+        try {
+            cp.init(Cipher.ENCRYPT_MODE, pubKey);
+            cp.doFinal(plaintext);
+
+            fail("Did not get expected BadPaddingException.");
+        } catch (BadPaddingException bpe) {
+            assertEquals("Message is larger than modulus", bpe.getMessage(), "Exception message is not what's expected.");
+        }
+    }
+
+    @Test
+    public void testRSACipherSmallMessageLargeFirstByte() throws Exception {
+        // FIPS does not support non-OAEP paddings.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
+        rsaKeyPairGen.initialize(2048);
+        KeyPair rsaKeyPair = rsaKeyPairGen.generateKeyPair();
+        RSAPublicKey pubKey = (RSAPublicKey) rsaKeyPair.getPublic();
+        Cipher cp = Cipher.getInstance("RSA/ECB/NoPadding", getProviderName());
+        cp.init(Cipher.ENCRYPT_MODE, pubKey);
+
+        byte[] plaintext = {(byte) 0xFF, (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01};
+
+        cp.doFinal(plaintext);
+    }
+
+    @Test
     public void testRSACipher_init_cert() throws Exception {
         // FIXME
     }
