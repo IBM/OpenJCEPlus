@@ -457,7 +457,7 @@ char *getFFDHOption(int option) {
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    XECKEY_generate
- * Signature: (JLjava/lang/String;)J
+ * Signature: (JIJ)J
  */
 JNIEXPORT jlong JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_XECKEY_1generate(
@@ -1152,7 +1152,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_ECKEY_1createPriva
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    XECKEY_createPrivateKey
- * Signature: (J[B)J
+ * Signature: (J[BJ)J
  */
 JNIEXPORT jlong JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_XECKEY_1createPrivateKey(
@@ -1242,7 +1242,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_XECKEY_1createPriv
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    ECKEY_createPublicKey
- * Signature: (J[B)J
+ * Signature: (J[B[B)J
  */
 JNIEXPORT jlong JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_ECKEY_1createPublicKey(
@@ -2222,7 +2222,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_ECKEY_1computeECDH
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    XECKEY_computeECDHSecret
- * Signature: (JJJJ)[B
+ * Signature: (JJJJI)[B
  */
 JNIEXPORT jbyteArray JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_XECKEY_1computeECDHSecret(
