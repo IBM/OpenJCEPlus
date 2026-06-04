@@ -261,6 +261,7 @@
                       --add-opens=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
                       --add-opens=openjceplus/ibm.jceplus.junit.tests=ALL-UNNAMED
                       --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
+                      -Djava.security.auth.debug=${java.security.debug}
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
                     <groups>${groups}</groups>

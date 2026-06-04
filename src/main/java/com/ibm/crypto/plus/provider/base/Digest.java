@@ -10,8 +10,6 @@ package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -145,21 +143,46 @@ public final class Digest implements Cloneable {
     private static final String debPrefix = "DIGEST";
 
     private String digestAlgo;
+    private String configType = "MessageDigest";
 
     private long digestId = 0;
 
     private OpenJCEPlusProvider provider;
     private NativeInterface nativeInterface;
 
-    public static Digest getInstance(String digestAlgo, OpenJCEPlusProvider provider) throws NativeException {
+    public static Digest getInstance(String digestAlgo, OpenJCEPlusProvider provider, String configType, String configAlgName) throws NativeException {
         if (digestAlgo == null || digestAlgo.isEmpty()) {
             throw new IllegalArgumentException("digestAlgo is null/empty");
         }
 
-        return new Digest(digestAlgo, provider);
+        return new Digest(digestAlgo, provider, configType, configAlgName);
+    }
+    
+    public static Digest getInstance(String digestAlgo, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
+        if (digestAlgo == null || digestAlgo.isEmpty()) {
+            throw new IllegalArgumentException("digestAlgo is null/empty");
+        }
+
+        return new Digest(digestAlgo, provider, configAlgName);
     }
 
-    private Digest(String digestAlgo, OpenJCEPlusProvider provider) throws NativeException {
+    private Digest(String digestAlgo, OpenJCEPlusProvider provider, String configType, String configAlgName) throws NativeException {
+        if (provider == null) {
+            throw new IllegalArgumentException("Provider cannot be null.");
+        }
+
+        this.configType = configType;
+        this.digestAlgo = digestAlgo;
+        this.provider = provider;
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, configType, configAlgName);
+        getContext();
+        //OCKDebug.Msg(debPrefix, methodName,  "digestAlgo :" + digestAlgo);
+
+        this.provider.registerCleanable(this, cleanOCKResources(digestId, algIndx,
+            contextFromQueue, needsReinit, nativeInterface));
+    }
+
+    private Digest(String digestAlgo, OpenJCEPlusProvider provider, String configAlgname) throws NativeException {
         //final String methodName = "Digest(String)";
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null.");
@@ -167,7 +190,7 @@ public final class Digest implements Cloneable {
 
         this.digestAlgo = digestAlgo;
         this.provider = provider;
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, configType, configAlgname);
         getContext();
         //OCKDebug.Msg(debPrefix, methodName,  "digestAlgo :" + digestAlgo);
 

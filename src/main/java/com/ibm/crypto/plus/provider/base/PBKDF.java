@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 
 /**
  * Provides native implementations for password based key derivation related functions.
@@ -65,7 +63,8 @@ public final class PBKDF {
             throw new NativeException("Iterations is less then or equal to 0");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "SecretKeyFactory", 
+            "PBKDF2With" + algorithmName.replace("-", "/"));
         byte[] key = nativeInterface.PBKDF2_derive(algorithmHashName, password,
                 salt, iterations, keyLength);
 

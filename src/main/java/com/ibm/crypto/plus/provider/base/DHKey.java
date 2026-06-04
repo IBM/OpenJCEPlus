@@ -10,8 +10,6 @@ package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class DHKey implements AsymmetricKey {
@@ -44,7 +42,7 @@ public final class DHKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", "DiffieHellman");
         long dhKeyId = nativeInterface.DHKEY_generate(parameters);
         return new DHKey(nativeInterface, dhKeyId, parameters.clone(), unobtainedKeyBytes,
                 unobtainedKeyBytes, provider);
@@ -58,7 +56,7 @@ public final class DHKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", "DiffieHellman");
         long dhKeyId = nativeInterface.DHKEY_generate(numBits);
         return new DHKey(nativeInterface, dhKeyId, null, unobtainedKeyBytes, unobtainedKeyBytes, provider);
     }
@@ -67,7 +65,7 @@ public final class DHKey implements AsymmetricKey {
         if (numBits < 0) {
             throw new IllegalArgumentException("key length is invalid");
         }
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "AlgorithmParameterGenerator", "DiffieHellman");
         return nativeInterface.DHKEY_generateParameters(numBits);
     }
 
@@ -81,7 +79,7 @@ public final class DHKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", "DiffieHellman");
         long dhKeyId = nativeInterface.DHKEY_createPrivateKey(privateKeyBytes);
         return new DHKey(nativeInterface, dhKeyId, null, privateKeyBytes.clone(), null, provider);
     }
@@ -95,7 +93,7 @@ public final class DHKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", "DiffieHellman");
         long dhKeyId = nativeInterface.DHKEY_createPublicKey(publicKeyBytes);
         return new DHKey(nativeInterface, dhKeyId, null, null, publicKeyBytes.clone(), provider);
     }

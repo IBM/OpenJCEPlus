@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.security.InvalidKeyException;
 
 //------------------------------------------------------------------------------
@@ -44,7 +42,7 @@ public final class SignatureRSASSL {
     }
 
     private SignatureRSASSL(OpenJCEPlusProvider provider) throws NativeException {
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Signature", "RSAforSSL");
     }
 
     public void initialize(RSAKey key, boolean convert) throws InvalidKeyException, NativeException {

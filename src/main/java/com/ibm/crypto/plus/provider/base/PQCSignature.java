@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.security.InvalidKeyException;
 
 /**
@@ -27,6 +25,7 @@ public final class PQCSignature {
     private NativeInterface nativeInterface;
     private AsymmetricKey key = null;
     private boolean initialized = false;
+    private OpenJCEPlusProvider provider = null;
 
     public static PQCSignature getInstance(OpenJCEPlusProvider provider)
             throws NativeException {
@@ -34,12 +33,10 @@ public final class PQCSignature {
     }
 
     private PQCSignature(OpenJCEPlusProvider provider) throws NativeException {
-        //final String methodName = "Signature(String)";
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
-        //OCKDebug.Msg (debPrefix, methodName, "digestAlgo :" + digestAlgo);
+        this.provider = provider;
     }
 
-    public void initialize(AsymmetricKey key)
+    public void initialize(AsymmetricKey key, String algName)
             throws InvalidKeyException, NativeException {
         //final String methodName = "initialize";
         if (key == null) {
@@ -48,7 +45,7 @@ public final class PQCSignature {
 
         this.key = key;
         this.initialized = true;
-        //OCKDebug.Msg (debPrefix, methodName,  "this.key=" + key);
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Signature", algName);
     }
 
     public synchronized byte[] sign(byte[] data) throws NativeException {
@@ -56,12 +53,6 @@ public final class PQCSignature {
         if (!this.initialized) {
             throw new IllegalStateException("Signature not initialized");
         }
-
-        //OCKDebug.Msg (debPrefix, "sign"," pkeyId :" + this.key.getPKeyId());
-
-       // if (!validId(this.key.getPKeyId())) {
-       //     throw new NativeException(badIdMsg);
-       // }
 
         byte[] signature = null;
 
@@ -71,7 +62,6 @@ public final class PQCSignature {
 
         signature = this.nativeInterface.PQC_SIGNATURE_sign(this.key.getPKeyId(), data);
 
-        //OCKDebug.Msg (debPrefix, "sign",  "signature :" + signature);
         return signature;
     }
 
