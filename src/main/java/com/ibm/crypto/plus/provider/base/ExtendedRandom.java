@@ -21,6 +21,20 @@ public final class ExtendedRandom {
     private long ockPRNGContextId;
     private boolean usingThreadLocalContext = true;
 
+    // Defaults (in KB)
+    private static final int DEFAULT_RANDOM_BYTE_CACHE_SIZE_KB = 128;
+    private static final int DEFAULT_BYPASS_THRESHOLD_KB = 16;
+
+    private static final int RANDOM_BYTE_CACHE_SIZE = Integer.getInteger("openjceplus.randomcachesize",
+            DEFAULT_RANDOM_BYTE_CACHE_SIZE_KB) * 1024;
+
+    private static final int BYPASS_THRESHOLD = Integer.getInteger("openjceplus.randombypassthreshold",
+            DEFAULT_BYPASS_THRESHOLD_KB) * 1024;
+
+    private byte[] randomByteCache;
+    private int cachePos; // Next unread index in cache
+    private int randomByteCacheLength;
+
     private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha256 = new ThreadLocal<PRNGContextPointer>();
     private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha512 = new ThreadLocal<PRNGContextPointer>();
 
@@ -74,8 +88,39 @@ public final class ExtendedRandom {
             throw new IllegalArgumentException("bytes is null");
         }
 
-        if (bytes.length > 0) {
+        int len = bytes.length;
+        if (len == 0) {
+            return;
+        }
+
+        // 1) LARGE REQUEST BYPASS:
+        // Fill destination directly to avoid cache->dest copy cost.
+        if (len >= BYPASS_THRESHOLD) {
             this.nativeInterface.EXTRAND_nextBytes(ockPRNGContextId, bytes);
+            return;
+        }
+
+        // 2) SMALL/MEDIUM REQUEST:
+        // Serve from cache, refilling as needed.
+        int outPos = 0;
+        int needed = len;
+
+        while (needed > 0) {
+            int available = randomByteCacheLength - cachePos;
+
+            // If cache is empty (or not initialized), refill it.
+            if (available <= 0) {
+                refillRandomByteCache();
+                available = randomByteCacheLength - cachePos;
+            }
+
+            // Copy as much as we can from cache into output.
+            int toCopy = Math.min(available, needed);
+            System.arraycopy(randomByteCache, cachePos, bytes, outPos, toCopy);
+
+            cachePos += toCopy;
+            outPos += toCopy;
+            needed -= toCopy;
         }
     }
 
@@ -87,6 +132,7 @@ public final class ExtendedRandom {
         if (seed.length > 0) {
             createInstanceContextForReSeed();
             this.nativeInterface.EXTRAND_setSeed(ockPRNGContextId, seed);
+            clearRandomByteCache();
         }
     }
 
@@ -128,5 +174,25 @@ public final class ExtendedRandom {
         long getCtx() {
             return this.prngCtx;
         }
+    }
+
+    private void refillRandomByteCache() throws NativeException {
+        if (randomByteCache == null) {
+            randomByteCache = new byte[RANDOM_BYTE_CACHE_SIZE];
+        }
+
+        // Fill the entire cache from native.
+        this.nativeInterface.EXTRAND_nextBytes(ockPRNGContextId, randomByteCache);
+
+        cachePos = 0;
+        randomByteCacheLength = randomByteCache.length;
+    }
+
+    private void clearRandomByteCache() {
+        if (randomByteCache != null) {
+            java.util.Arrays.fill(randomByteCache, (byte) 0);
+        }
+        cachePos = 0;
+        randomByteCacheLength = 0;
     }
 }
