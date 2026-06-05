@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -15,11 +15,27 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.PBEParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class BaseTestPBMAC1Interop extends BaseTestJunit5Interop {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusOnly")
+public class TestPBMAC1Interop extends BaseTestInterop {
+
+    @Parameter(0)
+    TestProvider provider;
+
+    TestProvider interopProvider = TestProvider.SunJCE;
+
     private List<String> algorithms = Arrays.asList("PBEWithHmacSHA1", "PBEWithHmacSHA224", "PBEWithHmacSHA256", "PBEWithHmacSHA384", 
             "PBEWithHmacSHA512", "PBEWithHmacSHA512/224", "PBEWithHmacSHA512/256");
 
@@ -29,6 +45,13 @@ public class BaseTestPBMAC1Interop extends BaseTestJunit5Interop {
     private byte[] salt = new byte[20];
     private int iterationCount = 300000;
     
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
+        setInteropProviderName(interopProvider.name());
+    }
 
     @ParameterizedTest
     @FieldSource("algorithms")

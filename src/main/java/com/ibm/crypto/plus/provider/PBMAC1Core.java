@@ -107,20 +107,15 @@ abstract class PBMAC1Core extends HmacCore {
             } else {
                 PBEParameterSpec pbeParams = (PBEParameterSpec) params;
 
-                if (keySalt != null) {
-                    if (!Arrays.equals(keySalt, pbeParams.getSalt())) {
-                        throw new InvalidAlgorithmParameterException("Inconsistent value of salt between key and params");
-                    }
-                } else {
-                    keySalt = pbeParams.getSalt();
+                if (keySalt != null && (!Arrays.equals(pbeParams.getSalt(), keySalt))) {
+                    throw new InvalidAlgorithmParameterException("Inconsistent value of salt between key and params");
                 }
-                if (keyIterationCount != 0) {
-                    if (keyIterationCount != pbeParams.getIterationCount()) {
-                        throw new InvalidAlgorithmParameterException("Different iteration count between key and params");
-                    }
-                } else {
-                    keyIterationCount = pbeParams.getIterationCount();
+                keySalt = pbeParams.getSalt();
+
+                if (keyIterationCount != 0 && (keyIterationCount != pbeParams.getIterationCount())) {
+                    throw new InvalidAlgorithmParameterException("Different iteration count between key and params");
                 }
+                keyIterationCount = pbeParams.getIterationCount();
             }
 
             if (keySalt.length < 8) {

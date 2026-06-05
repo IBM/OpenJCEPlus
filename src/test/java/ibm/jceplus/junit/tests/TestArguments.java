@@ -77,6 +77,16 @@ public class TestArguments {
     }
 
     /**
+     * Returns only the OpenJCEPlus provider (non-FIPS).
+     * This is used for tests that are not supported in FIPS mode.
+     *
+     * @return A stream containing only the OpenJCEPlus TestProvider.
+     */
+    protected static Stream<TestProvider> getOpenJCEPlusOnly() {
+        return Stream.of(TestProvider.OpenJCEPlus);
+    }
+
+    /**
      * Resolves enabled OpenJCEPlus* providers from -Dgroups, defaulting to all when none are specified.
      *
      * @return A stream of enabled TestProvider.
