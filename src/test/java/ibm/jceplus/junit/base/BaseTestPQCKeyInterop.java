@@ -16,6 +16,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.EncodedKeySpec;
+import java.security.spec.KeySpec;
 import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -82,6 +84,8 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
         //This is not in the FIPS provider yet.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        // BC provider generates seed format privatekey
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
         keyFactoryPlus = KeyFactory.getInstance(pqcAlgorithm, getProviderName());
@@ -454,4 +458,76 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
                 "Keys do not match for test 2 with " + parameterSet);
     }
 
+    @ParameterizedTest
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
+    public void testMLKEMGetKeySpecPrivateInteropToPlus(String algorithm)
+            throws Exception {
+        // This is not in the FIPS provider yet.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        KeyFactory openjceplusKeyFactory = KeyFactory.getInstance(algorithm, getProviderName());
+        KeyPairGenerator interopKpg = KeyPairGenerator.getInstance(algorithm, getInteropProviderName());
+        KeyPair interopKeyPair = interopKpg.generateKeyPair();
+        PrivateKey interopPrivateKey = interopKeyPair.getPrivate();
+        KeySpec interopPrivKeySpec = new PKCS8EncodedKeySpec(interopPrivateKey.getEncoded());
+        PrivateKey openjceplusPrivateKey = openjceplusKeyFactory.generatePrivate(interopPrivKeySpec);
+
+        KEM interopKem = KEM.getInstance(algorithm, getInteropProviderName());
+        KEM.Encapsulator encapsulator =
+                interopKem.newEncapsulator(interopKeyPair.getPublic());
+
+        KEM.Encapsulated encapsulated = encapsulator.encapsulate();
+
+        KEM openjceplusKem = KEM.getInstance(algorithm, getProviderName());
+        KEM.Decapsulator decapsulator =
+                openjceplusKem.newDecapsulator(openjceplusPrivateKey);
+
+        SecretKey openjceplusSecret =
+                decapsulator.decapsulate(encapsulated.encapsulation());
+
+        assertArrayEquals(encapsulated.key().getEncoded(),
+            openjceplusSecret.getEncoded());
+
+        KeySpec keySpec = openjceplusKeyFactory.getKeySpec(openjceplusPrivateKey, interopPrivKeySpec.getClass());
+        assertEquals(interopPrivKeySpec.getClass(), keySpec.getClass());
+        assertPrivateKeyPKCS8SpecEquals(interopPrivKeySpec, keySpec);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void testMLDSAGetKeySpecPrivateInteropToPlus(String algorithm)
+            throws Exception {
+        // This is not in the FIPS provider yet.
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        KeyFactory openjceplusKeyFactory = KeyFactory.getInstance(algorithm, getProviderName());
+        KeyPairGenerator interopKpg = KeyPairGenerator.getInstance(algorithm, getInteropProviderName2());
+        KeyPair interopKeyPair = interopKpg.generateKeyPair();
+        PrivateKey interopPrivateKey = interopKeyPair.getPrivate();
+        KeySpec interopPrivKeySpec = new PKCS8EncodedKeySpec(interopPrivateKey.getEncoded());
+        PrivateKey openjceplusPrivateKey = openjceplusKeyFactory.generatePrivate(interopPrivKeySpec);
+
+        Signature signerPlus = Signature.getInstance(algorithm, getProviderName());
+        signerPlus.initSign(openjceplusPrivateKey);
+        signerPlus.update(origMsg);
+        byte[] signaturePlus = signerPlus.sign();
+
+        Signature verifierInterop = Signature.getInstance(algorithm, getInteropProviderName2());
+        verifierInterop.initVerify(interopKeyPair.getPublic());
+        verifierInterop.update(origMsg);
+        assertTrue(verifierInterop.verify(signaturePlus), "Signature verification failed");
+    }
+
+    private void assertPrivateKeyPKCS8SpecEquals(KeySpec expected, KeySpec actual) {
+        assertEquals(PKCS8EncodedKeySpec.class, actual.getClass());
+
+        PKCS8EncodedKeySpec expectedSpec = (PKCS8EncodedKeySpec) expected;
+        PKCS8EncodedKeySpec actualSpec = (PKCS8EncodedKeySpec) actual;
+
+        assertArrayEquals(expectedSpec.getEncoded(), actualSpec.getEncoded());
+        assertEquals(expectedSpec.getAlgorithm(), actualSpec.getAlgorithm());
+        assertEquals(expectedSpec.getFormat(), actualSpec.getFormat());
+    }
 }

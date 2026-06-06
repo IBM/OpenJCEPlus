@@ -11,6 +11,7 @@ package com.ibm.crypto.plus.provider;
 import com.ibm.crypto.plus.provider.base.PQCKey;
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.ProviderException;
 import java.util.Arrays;
 import javax.security.auth.DestroyFailedException;
 import sun.security.pkcs.PKCS8Key;
@@ -79,7 +80,13 @@ final class PQCPrivateKey extends PKCS8Key {
         try {
             this.provider = provider;
             this.pqcKey = pqcKey;
+            this.name = PQCKnownOIDs.findMatch(pqcKey.getAlgorithm()).stdName();
+            this.algid = new AlgorithmId(PQCAlgorithmId.getOID(name));
 
+            validateKeyLength(pqcKey.getPrivateKeyBytes());
+            if (!isExpandedChoice(this.name, pqcKey.getPrivateKeyBytes())) {
+                throw new InvalidKeyException("Only expanded keys are supported by OpenJCEPlus");
+            }
             //Check to determine if the key bytes have the Octet tag.
             if (OctectStringEncoded(pqcKey.getPrivateKeyBytes())) {
                 this.key = pqcKey.getPrivateKeyBytes();
@@ -93,9 +100,6 @@ final class PQCPrivateKey extends PKCS8Key {
                     pkOct.clear();
                 }
             }
-
-            this.name = PQCKnownOIDs.findMatch(pqcKey.getAlgorithm()).stdName();
-            this.algid = new AlgorithmId(PQCAlgorithmId.getOID(name));
         } catch (Exception exception) {
             throw provider.providerException("Failure in PQCPrivateKey" + exception.getMessage(), exception);
         }
@@ -111,7 +115,10 @@ final class PQCPrivateKey extends PKCS8Key {
         this.provider = provider;
 
         this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
-
+        validateKeyLength(this.key);
+        if (!isExpandedChoice(this.name, this.key)) {
+            throw new InvalidKeyException("Only expanded keys are supported by OpenJCEPlus");
+        }
         try {
             //Check to determine if the key bytes have the Octet tag.
             if (!(OctectStringEncoded(this.key))) {
@@ -236,4 +243,78 @@ final class PQCPrivateKey extends PKCS8Key {
         }
     }
 
+    /**
+     * Validates that the supplied key bytes are non-null and long enough to
+     * contain a valid DER-encoded expanded PQC private key (at least 4 bytes).
+     *
+     * @param key the raw key bytes to validate
+     * @throws InvalidKeyException if {@code key} is {@code null} or has fewer
+     *         than 4 bytes
+     */
+    private static void validateKeyLength(byte[] key) throws InvalidKeyException {
+        if (key == null) {
+            throw new InvalidKeyException("Private key material is null");
+        }
+        if (key.length < 4) {
+            throw new InvalidKeyException(
+                    "Private key material is too short: expected at least 4 bytes, got " + key.length);
+        }
+    }
+
+    /**
+     * Returns the expected byte length of the expanded private key for the
+     * given PQC algorithm name.
+     *
+     * @param algName the standard PQC algorithm name (e.g. {@code "ML-DSA-44"})
+     * @return the expected expanded private key length in bytes
+     * @throws ProviderException if {@code algName} is not a recognised PQC
+     *                           algorithm
+     */
+    private static int getExpandedKeyLength(String algName) {
+        if ("ML-DSA-44".equals(algName)) {
+            return 2560;
+        } else if ("ML-DSA-65".equals(algName)) {
+            return 4032;
+        } else if ("ML-DSA-87".equals(algName)) {
+            return 4896;
+        } else if ("ML-KEM-512".equals(algName)) {
+            return 1632;
+        } else if ("ML-KEM-768".equals(algName)) {
+            return 2400;
+        } else if ("ML-KEM-1024".equals(algName)) {
+            return 3168;
+        } else {
+            throw new ProviderException("Unexpected PQC algorithm: " + algName);
+        }
+    }
+
+    /**
+     * Determines whether the supplied private key material represents an
+     * expanded PQC private key.
+     *
+     * <p>RFC 9881 and RFC 9935 define PQC private key material as a CHOICE.
+     * An expanded key is encoded as an OCTET STRING. For the currently
+     * supported ML-DSA and ML-KEM parameter sets, the expanded key lengths
+     * are large enough that the DER OCTET STRING encoding uses long-form
+     * length encoding.</p>
+     *
+     * <p>This method checks the private key material contained in the PKCS#8
+     * privateKey OCTET STRING, not the complete PKCS#8 encoding.</p>
+     *
+     * @param algName the standard PQC algorithm name
+     * @param key the private key material to check
+     *
+     * @return true if the key material is an expanded private key encoding;
+     *         false otherwise
+     */
+    private boolean isExpandedChoice(String algName, byte[] key) {
+        int expandedLen = getExpandedKeyLength(algName);
+
+        int derLen = ((key[2] & 0xFF) << 8) | (key[3] & 0xFF);
+
+        return key.length == expandedLen + 4
+                && ((key[0] & 0xFF) == 0x04)
+                && ((key[1] & 0xFF) == 0x82)
+                && derLen == expandedLen;
+    }
 }

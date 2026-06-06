@@ -520,6 +520,8 @@ OpenJCEPlus provider enhances the security of Java applications by providing an 
 
 No keytool or certificate support was added other than what is already in a given Java runtime environment.
 
+OpenJCEPlus only accepts a `Expanded` Format of ML-KEM private key as defined in [RFC 9935](https://datatracker.ietf.org/doc/rfc9935/).
+
 ### ML-DSA
 
 Quantum-Resistant Module-Lattice-Based Digital Signature Algorithm (`ML-DSA`)
@@ -527,6 +529,8 @@ Quantum-Resistant Module-Lattice-Based Digital Signature Algorithm (`ML-DSA`)
 OpenJCEPlus provider enhances the security of Java applications by providing an implementation of quantum-resistant Module-Lattice-Based Digital Signature Algorithm (`ML-DSA`). Digital signatures are used to detect unauthorized modifications to data and to authenticate the identities of signatories. `ML-DSA` is designed to be secure against future quantum computing attacks and has been standardized by the United States National Institute of Standards and Technology (NIST) in [FIPS 204](https://csrc.nist.gov/pubs/fips/204/final).
 
 No keytool or certificate support was added other than what is already in a given Java runtime environment.
+
+OpenJCEPlus only accepts a `Expanded` Format of ML-DSA private key as defined in [RFC 9881](https://datatracker.ietf.org/doc/rfc9881/).
 
 ### ECKeyPairGenerator incorrect keysize
 
