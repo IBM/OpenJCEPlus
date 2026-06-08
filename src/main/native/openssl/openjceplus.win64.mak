@@ -7,7 +7,7 @@
 # this code, including the "Classpath" Exception described therein.
 ###############################################################################
 
-HOSTOUT = $(BUILDTOP)/host64
+HOSTOUT = $(BUILDTOP)/ojp-host64
 NATIVE_DIR = $(NATIVE_TOPDIR)/openssl
 NATIVE_LIB_HOME = $(OPENSSL_HOME)
 JNI_CLASS = $(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/openssl/NativeOpenSSLImplementation.java
