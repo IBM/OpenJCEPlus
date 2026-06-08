@@ -50,10 +50,10 @@ displaycompiler :
 	@echo "-------------------------------------"
 
 copy : $(TARGET)
-	-@mkdir -p $(HOSTOUT) 2>nul
+	mkdir -p $(HOSTOUT) 2>nul
 	-@cp *.obj $(HOSTOUT)
 	-@cp $(RC_OBJ) $(HOSTOUT)
-	-@cp $(TARGET) $(HOSTOUT)
+	cp $(TARGET) $(HOSTOUT)
 
 # Force BuildDate to be recompiled every time
 #
