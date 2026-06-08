@@ -17,7 +17,7 @@ OBJS= \
 	Digest.obj \
 	Utils.obj
 
-TARGET = openjceplus_64.dll
+TARGET = libopenjceplus_64.dll
 
 RC_SRC = openjceplus_resource.rc
 RC_OBJ = openjceplus_resource.res

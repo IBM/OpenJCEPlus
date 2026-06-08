@@ -17,7 +17,7 @@ OBJS= \
 	$(HOSTOUT)/Digest.obj \
 	$(HOSTOUT)/Utils.obj
 
-TARGET = $(HOSTOUT)/openjceplus_64.dll
+TARGET = $(HOSTOUT)/libopenjceplus_64.dll
 
 RC_SRC = openjceplus_resource.rc
 RC_OBJ = $(HOSTOUT)/openjceplus_resource.res
