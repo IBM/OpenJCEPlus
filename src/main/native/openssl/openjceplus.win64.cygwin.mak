@@ -22,7 +22,7 @@ TARGET = openjceplus_64.dll
 RC_SRC = openjceplus_resource.rc
 RC_OBJ = openjceplus_resource.res
 
-TARGET_LIBS = -LIBPATH:"$(NATIVE_LIB_HOME)\lib" -lcrypto
+TARGET_LIBS = -LIBPATH:"$(NATIVE_LIB_HOME)\lib" libcrypto.lib
 
 !INCLUDE ../share/common.win64.cygwin.mak
 

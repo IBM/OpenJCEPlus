@@ -22,6 +22,6 @@ TARGET = $(HOSTOUT)/openjceplus_64.dll
 RC_SRC = openjceplus_resource.rc
 RC_OBJ = $(HOSTOUT)/openjceplus_resource.res
 
-TARGET_LIBS = -LIBPATH:"$(NATIVE_LIB_HOME)/lib" -lcrypto
+TARGET_LIBS = -LIBPATH:"$(NATIVE_LIB_HOME)/lib" libcrypto.lib
 
 include ../share/common.win64.mak
