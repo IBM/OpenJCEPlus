@@ -38,6 +38,7 @@ $(RC_OBJ) : $(RC_SRC)
 		$(CFLAGS) \
 		-c \
 		-I"$(NATIVE_LIB_HOME)\inc" \
+		-I"$(NATIVE_LIB_HOME)\include" \
 		-I"$(JAVA_HOME)\include" \
 		-I"$(JAVA_HOME)\include\win32" \
 		$*.c
