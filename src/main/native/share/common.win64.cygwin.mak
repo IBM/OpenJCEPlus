@@ -22,6 +22,7 @@ CC = cl
 #DEBUG_FLAGS = -DDEBUG $(DEBUG_DETAIL)  $(DEBUG_DATA)
 
 BUILDTOP = $(TOPDIR)\target\build$(PLAT)
+NATIVE_TOPDIR = $(TOPDIR)/src/main/native
 JAVACLASSDIR = $(TOPDIR)\target\classes
 
 all : displaycompiler copy
