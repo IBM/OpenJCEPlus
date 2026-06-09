@@ -153,7 +153,7 @@
                 <build.native.file>${basedir}/buildNativeWin64.bat</build.native.file>
                 <build.platform.value>win</build.platform.value>
                 <build.target.jgskitlib.dir>${project.basedir}\target\buildwin\host64\</build.target.jgskitlib.dir>
-                <build.target.ojplib.dir>${project.basedir}\target\ojp-host64\</build.target.ojplib.dir>
+                <build.target.ojplib.dir>${project.basedir}\target\buildwin\ojp-host64\</build.target.ojplib.dir>
             </properties>
           </profile>
           <profile>
