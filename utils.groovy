@@ -309,7 +309,7 @@ def getOpenSSL(hardware, software) {
                         propagate: true, // Set to false so the parent job doesn't fail if the child job fails
                         parameters: [
                             string(name: 'TAGS', value: version),
-                            booleanParam(name: 'PLATFORMS', value: platform)
+                            string(name: 'PLATFORMS', value: platform)
                         ]
             }
             error("OpenSSL version ${version} does not exist. Need to build.")
