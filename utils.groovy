@@ -284,6 +284,38 @@ def getMaven(software) {
     }
 }
 
+def getOpenSSL(hardware, software) {
+    def version = "openssl-3.6.3"
+    def platform = "${hardware}_${software}"
+    //sh "git clone -b ${version} https://github.com/openssl/openssl.git"
+
+    openssl_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/OpenSSL_builds/${platform}/${version}/${platform}-${version}.tar.gz"
+    withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_USERNAME')]) {
+        // -s: silent, -o: output to null, -w: write-out the status code, -I: HEAD request
+        def status = sh(script: "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD -s -o /dev/null -w '%{http_code}' -I ${openssl_link}", returnStdout: true).trim()
+        if (status == "200") {
+            echo "OpenSSL version ${version} already exists."
+        } else {
+            echo "OpenSSL version ${version} does not exist. Need to build."
+            stage('Trigger Parameterized Job') {
+                    build job: 'OpenSSL-Build-Install-Compress',
+                        wait: true, // Set to true if you want this stage to block until the child job finishes
+                        propagate: true, // Set to false so the parent job doesn't fail if the child job fails
+                        parameters: [
+                            string(name: 'TAGS', value: version),
+                            string(name: 'PLATFORMS', value: platform)
+                        ]
+            }
+        }
+        sh "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD ${openssl_link} > openssl.tar.gz"
+        dir("openssl") {
+            sh "tar -xvf ../openssl.tar.gz --strip-components=2"
+            sh "ls -la"
+        }
+    }
+
+}
+
 /*
  * Export the appropriate environment variables
  * and run the requested maven commands.
@@ -310,12 +342,14 @@ def runOpenJCEPlus(command, software) {
 
         def java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
         def gskit_home = "export GSKIT_HOME=$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
+        def openssl_home = "export OPENSSL_HOME=$WORKSPACE/openssl;"
         def mavenPath = "$WORKSPACE/apache-maven-3.9.10/bin"
         def environment = "export PATH=${mavenPath}:\$PATH;"
 
         def additional_cmd_args = ADDITIONAL_CMD_ARGS
 
         def ock_path = "$WORKSPACE/openjceplus/OCK/"
+        def openssl_path = "$WORKSPACE/openssl/lib/"
         if (software == "windows") {
             ock_path = "$WORKSPACE\\openjceplus\\OCK\\"
             bat """
@@ -324,8 +358,10 @@ def runOpenJCEPlus(command, software) {
                set "JAVA_HOME=$WORKSPACE\\java\\jdk"
                set "PATH=$WORKSPACE\\apache-maven-3.9.10\\bin;%JAVA_HOME%;%PATH%"
                set "GSKIT_HOME=$WORKSPACE\\openjceplus\\OCK\\jgsk_sdk"
+               set "OPENSSL_HOME=$WORKSPACE\\openssl"
                echo PATH: %PATH%
                echo GSKIT_HOME: %GSKIT_HOME%
+               echo OPENSSL_HOME: %OPENSSL_HOME%
                echo JAVA_HOME: %JAVA_HOME%
                echo mvn -Dock.library.path=${ock_path} --batch-mode ${command}
                $WORKSPACE\\apache-maven-3.9.10\\bin\\mvn -Dock.library.path=${ock_path} ${additional_cmd_args} --batch-mode ${command}
@@ -337,7 +373,7 @@ def runOpenJCEPlus(command, software) {
         }
 
         if (software != "windows") {
-            sh "${java_home} ${gskit_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' ${additional_cmd_args} --batch-mode ${command}"
+            sh "${java_home} ${gskit_home} ${openssl_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' ${additional_cmd_args} --batch-mode ${command}"
         }
     }
 }
@@ -394,6 +430,7 @@ return [
     getBinaries: this.&getBinaries,
     getJava: this.&getJava,
     getMaven: this.&getMaven,
+    getOpenSSL: this.&getOpenSSL,
     cloneOpenJCEPlus: this.&cloneOpenJCEPlus,
     runOpenJCEPlus: this.&runOpenJCEPlus,
     upload_artifactory: this.&upload_artifactory,
