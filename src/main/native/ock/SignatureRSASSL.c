@@ -203,7 +203,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSASSL_1SIGNATURE_
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    RSASSL_SIGNATURE_verify
- * Signature: (J[BJ[B)Z
+ * Signature: (J[BJ[BZ)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_RSASSL_1SIGNATURE_1verify(
