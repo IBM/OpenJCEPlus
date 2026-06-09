@@ -287,7 +287,7 @@ def getMaven(software) {
 }
 
 def getOpenSSL(hardware, software) {
-    def version = "openssl-4.0.0"
+    def version = "openssl-3.6.3"
     def platform = "${hardware}_${software}"
     //sh "git clone -b ${version} https://github.com/openssl/openssl.git"
 
