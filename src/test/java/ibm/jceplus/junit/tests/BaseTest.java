@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -30,6 +30,19 @@ abstract public class BaseTest {
     public void setAndInsertProvider(TestProvider provider) throws Exception {
         this.providerName = provider.getProviderName();
         switch (provider) {
+            case OpenJCEPlus:
+                loadProvider(TestProvider.OpenJCEPlus);
+                break;
+            case OpenJCEPlusFIPS:
+                loadProvider(TestProvider.OpenJCEPlusFIPS);
+                break;
+            default:
+                throw new Exception("Provider not supported: " + provider.getProviderName());
+        }
+    }
+
+    public void setAndInsertInteropProvider(TestProvider interopProvider) throws Exception {
+        switch (interopProvider) {
             case BC:
                 loadProvider(TestProvider.BC);
                 break;
@@ -45,14 +58,8 @@ abstract public class BaseTest {
             case SunEC:
                 loadProvider(TestProvider.SunEC);
                 break;
-            case OpenJCEPlus:
-                loadProvider(TestProvider.OpenJCEPlus);
-                break;
-            case OpenJCEPlusFIPS:
-                loadProvider(TestProvider.OpenJCEPlusFIPS);
-                break;
             default:
-                throw new Exception("Provider not supported: " + provider.getProviderName());
+                throw new Exception("Provider not supported: " + interopProvider.getProviderName());
         }
     }
 
