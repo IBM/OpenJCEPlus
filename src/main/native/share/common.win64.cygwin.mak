@@ -54,6 +54,7 @@ copy : $(TARGET)
 	-@cp *.obj $(HOSTOUT)
 	-@cp $(RC_OBJ) $(HOSTOUT)
 	cp $(TARGET) $(HOSTOUT)
+	ls $(HOSTOUT)
 
 # Force BuildDate to be recompiled every time
 #
