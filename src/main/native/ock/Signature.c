@@ -22,7 +22,7 @@
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    SIGNATURE_sign
- * Signature: (JJJ)[B
+ * Signature: (JJJZ)[B
  */
 JNIEXPORT jbyteArray JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_SIGNATURE_1sign(
@@ -176,7 +176,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_SIGNATURE_1sign(
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    SIGNATURE_verify
- * Signature: (JJJ)Z
+ * Signature: (JJJ[B)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_SIGNATURE_1verify(
