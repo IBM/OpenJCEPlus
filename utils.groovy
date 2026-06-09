@@ -297,12 +297,8 @@ def getOpenSSL(hardware, software) {
         def status = sh(script: "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD -s -o /dev/null -w '%{http_code}' -I ${openssl_link}", returnStdout: true).trim()
         if (status == "200") {
             echo "OpenSSL version ${version} already exists."
-            sh "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD ${openssl_link} > openssl.tar.gz"
-            dir("openssl") {
-                sh "tar -xvf ../openssl.tar.gz --strip-components=2"
-                sh "ls -la"
-            }
         } else {
+            echo "OpenSSL version ${version} does not exist. Need to build."
             stage('Trigger Parameterized Job') {
                     build job: 'OpenSSL-Build-Install-Compress',
                         wait: true, // Set to true if you want this stage to block until the child job finishes
@@ -312,7 +308,11 @@ def getOpenSSL(hardware, software) {
                             string(name: 'PLATFORMS', value: platform)
                         ]
             }
-            error("OpenSSL version ${version} does not exist. Need to build.")
+        }
+        sh "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD ${openssl_link} > openssl.tar.gz"
+        dir("openssl") {
+            sh "tar -xvf ../openssl.tar.gz --strip-components=2"
+            sh "ls -la"
         }
     }
 
