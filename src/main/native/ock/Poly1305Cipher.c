@@ -110,7 +110,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1cr
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_init
- * Signature: (JJZ)V
+ * Signature: (JJI[B[B)V
  */
 JNIEXPORT void JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1init(
@@ -213,7 +213,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1cl
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_setPadding
- * Signature: (JJZ)V
+ * Signature: (JJI)V
  */
 JNIEXPORT void JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1setPadding(
@@ -395,7 +395,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1ge
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_encryptUpdate
- * Signature: (JJI[B[B)I
+ * Signature: (JJ[BII[BI)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1encryptUpdate(
@@ -500,7 +500,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1en
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_encryptFinal
- * Signature: (JJI[B[B)I
+ * Signature: (JJ[BII[BI[B)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1encryptFinal(
@@ -645,7 +645,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1en
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_decryptUpdate
- * Signature: (JJI[B[B)I
+ * Signature: (JJ[BII[BI)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1decryptUpdate(
@@ -746,7 +746,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1de
 /*
  * Class:     com_ibm_crypto_plus_provider_ock_NativeOCKImplementation
  * Method:    POLY1305CIPHER_decryptFinal
- * Signature: (JJI[B[B)I
+ * Signature: (JJ[BII[BI[B)I
  */
 JNIEXPORT jint JNICALL
 Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_POLY1305CIPHER_1decryptFinal(
