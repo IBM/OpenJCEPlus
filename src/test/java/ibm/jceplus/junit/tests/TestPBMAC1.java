@@ -34,8 +34,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @Tag(Tags.OPENJCEPLUS_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
@@ -57,6 +58,10 @@ public class TestPBMAC1 extends BaseTest {
     private byte[] salt = new byte[20];
     private int iterationCount = 300000;
 
+    /*
+    * The following p12 files are taken from RFC:
+    * https://www.rfc-editor.org/rfc/rfc9579.html
+    */
     private String p12file1 = "MIIKigIBAzCCCgUGCSqGSIb3DQEHAaCCCfYEggnyMIIJ7jCCBGIGCSqGSIb3DQEH" +                          
                             "BqCCBFMwggRPAgEAMIIESAYJKoZIhvcNAQcBMFcGCSqGSIb3DQEFDTBKMCkGCSqG" + 
                             "SIb3DQEFDDAcBAg9pxXxY2yscwICCAAwDAYIKoZIhvcNAgkFADAdBglghkgBZQME" + 
@@ -413,10 +418,9 @@ public class TestPBMAC1 extends BaseTest {
     @ParameterizedTest
     @FieldSource("algorithms")
     void testPBMACFunctionality(String alg) throws Exception {
-        if (getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS") && (alg.equalsIgnoreCase("PBEWithHmacSHA1") || 
-            alg.equalsIgnoreCase("PBEWithHmacSHA224") || alg.equalsIgnoreCase("PBEWithHmacSHA256"))) {
-            return;
-        }
+        assumeFalse(getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS") && (alg.equalsIgnoreCase("PBEWithHmacSHA1") || 
+             alg.equalsIgnoreCase("PBEWithHmacSHA224") || alg.equalsIgnoreCase("PBEWithHmacSHA256")));
+        
         secureRandom.nextBytes(salt);
         SecretKey key = new SecretKeySpec(PASSWORD.toString().getBytes(), alg);
         Mac mac = Mac.getInstance(alg, getProviderName());
@@ -430,10 +434,9 @@ public class TestPBMAC1 extends BaseTest {
     @ParameterizedTest
     @FieldSource("algorithms")
     void testPBMACReset(String alg) throws Exception {
-        if (getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS") && (alg.equalsIgnoreCase("PBEWithHmacSHA1") || 
-            alg.equalsIgnoreCase("PBEWithHmacSHA224") || alg.equalsIgnoreCase("PBEWithHmacSHA256"))) {
-            return;
-        }
+        assumeFalse(getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS") && (alg.equalsIgnoreCase("PBEWithHmacSHA1") || 
+             alg.equalsIgnoreCase("PBEWithHmacSHA224") || alg.equalsIgnoreCase("PBEWithHmacSHA256")));
+    
         secureRandom.nextBytes(salt);
         SecretKey key = new SecretKeySpec(PASSWORD.toString().getBytes(), alg);
         Mac mac = Mac.getInstance(alg, getProviderName());
@@ -450,10 +453,9 @@ public class TestPBMAC1 extends BaseTest {
     @ParameterizedTest
     @FieldSource("algorithms")
     void testPBMACUpdate(String alg) throws Exception {
-        if (getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS") && (alg.equalsIgnoreCase("PBEWithHmacSHA1") || 
-            alg.equalsIgnoreCase("PBEWithHmacSHA224") || alg.equalsIgnoreCase("PBEWithHmacSHA256"))) {
-            return;
-        }
+        assumeFalse(getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS") && (alg.equalsIgnoreCase("PBEWithHmacSHA1") || 
+             alg.equalsIgnoreCase("PBEWithHmacSHA224") || alg.equalsIgnoreCase("PBEWithHmacSHA256")));
+    
         secureRandom.nextBytes(salt);
         SecretKey key = new SecretKeySpec(PASSWORD.toString().getBytes(), alg);
         Mac mac = Mac.getInstance(alg, getProviderName());
@@ -476,9 +478,8 @@ public class TestPBMAC1 extends BaseTest {
     @ParameterizedTest
     @FieldSource("fipsalgorithms")
     void testPBMAC1FIPSExceptions(String alg) throws Exception {
-        if (!getProviderName().startsWith("OpenJCEPlusFIPS")) {
-            return;
-        }
+        assumeTrue(getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS"));
+        
         secureRandom.nextBytes(salt);
         SecretKey key = new SecretKeySpec(PASSWORD.toString().getBytes(), alg);
         Mac mac = Mac.getInstance(alg, getProviderName());
@@ -489,14 +490,14 @@ public class TestPBMAC1 extends BaseTest {
             mac.init(key, new PBEParameterSpec(smallSalt, iterationCount));
             fail("Expected InvalidKeyException not thrown, small salt length");
         } catch (InvalidKeyException e) {
-            assertTrue(true);
+            assertEquals("Cannot construct PBE key", e.getMessage());
         }
 
         try {
             mac.init(key, new PBEParameterSpec(salt, 100));
             fail("Expected InvalidKeyException not thrown, small iteration count");
         } catch (InvalidKeyException e) {
-            assertTrue(true);
+            assertEquals("Cannot construct PBE key", e.getMessage());
         }
 
         try {
@@ -504,14 +505,14 @@ public class TestPBMAC1 extends BaseTest {
             mac.init(smallPasswordKey, new PBEParameterSpec(salt, iterationCount));
             fail("Expected InvalidKeyException not thrown, small password length");
         } catch (InvalidKeyException e) {
-            assertTrue(true);
+            assertEquals("Cannot construct PBE key", e.getMessage());
         }
     }
 
     @Test
     void testPBMAC1WithPKCS12() throws Exception {
         /*
-         * The following test are adopted from RFC:
+         * The following tests are adopted from RFC:
          * https://www.rfc-editor.org/rfc/rfc9579.html
          */
         if (getProviderName().equals("OpenJCEPlus")) {
@@ -519,55 +520,34 @@ public class TestPBMAC1 extends BaseTest {
         } else {
             Security.insertProviderAt(new OpenJCEPlusFIPS(), 1);
         }
-        KeyStore ks = KeyStore.getInstance("PKCS12");
+        
+        loadP12(p12file1);
+        loadP12(p12file2);
+        loadP12(p12file3);
 
-        String cleanedBase64 = p12file1.replaceAll("\\s+", "");
-        byte[] decodedBytes = Base64.getDecoder().decode(cleanedBase64);
         try {
-            ks.load(new ByteArrayInputStream(decodedBytes), "1234".toCharArray());
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
-
-        cleanedBase64 = p12file2.replaceAll("\\s+", "");
-        decodedBytes = Base64.getDecoder().decode(cleanedBase64);
-        try {
-            ks.load(new ByteArrayInputStream(decodedBytes), "1234".toCharArray());
-        } catch (java.io.IOException e) {
-            fail(e.getMessage());
-        }
-
-        cleanedBase64 = p12file3.replaceAll("\\s+", "");
-        decodedBytes = Base64.getDecoder().decode(cleanedBase64);
-        try {
-            ks.load(new ByteArrayInputStream(decodedBytes), "1234".toCharArray());
-        } catch (java.io.IOException e) {
-            fail(e.getMessage());
-        }
-
-        cleanedBase64 = p12file4.replaceAll("\\s+", "");
-        decodedBytes = Base64.getDecoder().decode(cleanedBase64);
-        try {
-            ks.load(new ByteArrayInputStream(decodedBytes), "1234".toCharArray());
+            loadP12(p12file4);
         } catch (java.io.IOException e) {
             // Expected error (Incorrect iteration count)
         }
 
-        cleanedBase64 = p12file5.replaceAll("\\s+", "");
-        decodedBytes = Base64.getDecoder().decode(cleanedBase64);
         try {
-            ks.load(new ByteArrayInputStream(decodedBytes), "1234".toCharArray());
+            loadP12(p12file5);
         } catch (java.io.IOException e) {
             // Expected error (Incorrect salt)
         }
 
-        cleanedBase64 = p12file6.replaceAll("\\s+", "");
-        decodedBytes = Base64.getDecoder().decode(cleanedBase64);
         try {
-            ks.load(new ByteArrayInputStream(decodedBytes), "1234".toCharArray());
+            loadP12(p12file6);
         } catch (java.io.IOException e) {
             // Expected error (Missing key length)
         }
     }
-}
 
+    private void loadP12(String file) throws Exception {
+        KeyStore ks = KeyStore.getInstance("PKCS12");
+        String cleanedBase64 = file.replaceAll("\\s+", "");
+        byte[] decodedBytes = Base64.getDecoder().decode(cleanedBase64);
+        ks.load(new ByteArrayInputStream(decodedBytes), "1234".toCharArray());
+    }
+}
