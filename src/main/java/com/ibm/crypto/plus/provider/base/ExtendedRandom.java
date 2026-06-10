@@ -12,6 +12,10 @@ import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 
 public final class ExtendedRandom {
 
+    private static final boolean IS_ZOS = System.getProperty("os.name")
+                                                .toLowerCase()
+                                                .contains("z/os");
+
     private OpenJCEPlusProvider provider;
     private NativeInterface nativeInterface;
     private final String algName;
@@ -19,8 +23,10 @@ public final class ExtendedRandom {
     private long ockPRNGContextId;
     private boolean usingThreadLocalContext = true;
 
-    private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha256 = new ThreadLocal<PRNGContextPointer>();
-    private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha512 = new ThreadLocal<PRNGContextPointer>();
+    private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha256 =
+        IS_ZOS ? null : new ThreadLocal<PRNGContextPointer>();
+    private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha512 =
+        IS_ZOS ? null : new ThreadLocal<PRNGContextPointer>();
 
     public static ExtendedRandom getInstance(String algName, OpenJCEPlusProvider provider)
             throws NativeException {
@@ -43,6 +49,13 @@ public final class ExtendedRandom {
     }
 
     private long getPRNGContext(String algName) throws NativeException {
+        // On z/OS, create a new instance context without caching.
+        if (IS_ZOS) {
+            return createInstanceContext();
+        }
+
+        // On non-z/OS platforms, use the cached context if available,
+        // otherwise create and cache it.
         PRNGContextPointer prngCtx = null;
         ThreadLocal<PRNGContextPointer> prngCtxBuffer = null;
 
@@ -83,21 +96,19 @@ public final class ExtendedRandom {
         }
 
         if (seed.length > 0) {
-            createInstanceContextForReSeed();
+            // Switch from cached context to instance context for re-seeding
+            if (usingThreadLocalContext) {
+                this.ockPRNGContextId = createInstanceContext();
+            }
             this.nativeInterface.EXTRAND_setSeed(ockPRNGContextId, seed);
         }
     }
 
-    private void createInstanceContextForReSeed() throws NativeException {
-        if (!usingThreadLocalContext) {
-            return;
-        }
-
+    private long createInstanceContext() throws NativeException {
         long instanceCtx = this.nativeInterface.EXTRAND_create(algName);
-        this.ockPRNGContextId = instanceCtx;
         this.usingThreadLocalContext = false;
-
         this.provider.registerCleanable(this, cleanOCKResources(instanceCtx, nativeInterface));
+        return instanceCtx;
     }
 
     private static Runnable cleanOCKResources(long ockPRNGContextId, NativeInterface nativeInterface) {
