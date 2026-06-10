@@ -33,10 +33,10 @@ import org.openjdk.jmh.runner.options.Options;
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
 public class DHKeyExchangeBenchmark extends JMHBase {
 
-    @Param({"OpenJCEPlus", "SunJCE"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunJCE"})
     private String provider;
 
-    @Param({"1024", "4096"})
+    @Param({"2048", "4096"})
     private int keySize;
 
     private KeyPairGenerator dhKeyPairGenerator;

@@ -42,7 +42,7 @@ public class HmacBenchmark extends JMHBase {
     @Param({"16", "2048", "32768"})
     private int payloadSize;
 
-    @Param({"OpenJCEPlus", "SunJCE"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunJCE"})
     private String provider;
 
     private Mac mac;
@@ -53,6 +53,12 @@ public class HmacBenchmark extends JMHBase {
     @Setup(Level.Trial)
     public void setup() throws Exception {
         super.setup(provider);
+
+        // Skip non-FIPS compliant algorithms when using OpenJCEPlusFIPS provider
+        if (provider.equalsIgnoreCase("OpenJCEPlusFIPS")
+                && transformation.equalsIgnoreCase("HMACSHA1")) {
+            throw new RunnerException("Skipping HMACSHA1 for FIPS provider");
+        }
 
         KeyGenerator kg = KeyGenerator.getInstance("AES");
         kg.init(256);
