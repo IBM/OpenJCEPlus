@@ -33,6 +33,8 @@ final class PQCPrivateKey extends PKCS8Key {
 
     private transient boolean destroyed = false;
 
+    private boolean isSeed = false;
+
     /**
      * Create a PQC private key from the key data and the algorithm name.
      *
@@ -46,7 +48,9 @@ final class PQCPrivateKey extends PKCS8Key {
         this.provider = provider;
         byte[] key = null;
         DerValue pkOct = null;
-        
+
+        this.isSeed = isSeedOnly(this.name, keyBytes);
+
         //Check to determine if the key bytes already have the Octet tag.
         if (OctectStringEncoded(keyBytes)) {
             //Remove encoding OctetString encoding.
@@ -96,6 +100,7 @@ final class PQCPrivateKey extends PKCS8Key {
 
             this.name = PQCKnownOIDs.findMatch(pqcKey.getAlgorithm()).stdName();
             this.algid = new AlgorithmId(PQCAlgorithmId.getOID(name));
+            this.isSeed = isSeedOnly(this.name, pqcKey.getPrivateKeyBytes());
         } catch (Exception exception) {
             throw provider.providerException("Failure in PQCPrivateKey" + exception.getMessage(), exception);
         }
@@ -111,7 +116,7 @@ final class PQCPrivateKey extends PKCS8Key {
         this.provider = provider;
 
         this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
-
+        this.isSeed = isSeedOnly(this.name, this.privKeyMaterial);
         //Check to determine if the key bytes have the Octet tag.
         if (!(OctectStringEncoded(this.privKeyMaterial))) {
             DerValue pkOct = null;
@@ -159,7 +164,11 @@ final class PQCPrivateKey extends PKCS8Key {
             DerOutputStream bytes = new DerOutputStream();
             bytes.putOID(algid.getOID());
             tmp.write(DerValue.tag_Sequence, bytes);
-            tmp.putOctetString(this.privKeyMaterial);
+            if (isSeed) {
+                tmp.write(this.privKeyMaterial);
+            } else {
+                tmp.putOctetString(this.privKeyMaterial);
+            }
             DerValue out = DerValue.wrap(DerValue.tag_Sequence, tmp);
             encodedKey = out.toByteArray();
             tmp.close();
@@ -235,4 +244,38 @@ final class PQCPrivateKey extends PKCS8Key {
         }
     }
 
+    /**
+     * Determines whether the supplied private key material represents a
+     * seed-only PQC private key.
+     *
+     * <p>RFC 9881 and RFC 9935 define PQC private key material as a CHOICE.
+     * A seed-only key is encoded with the context-specific [0] tag. For
+     * ML-DSA, the seed length is 32 bytes. For ML-KEM, the seed length is
+     * 64 bytes.</p>
+     *
+     * @param algName the standard PQC algorithm name
+     * @param key the private key material to check
+     *
+     * @return true if the key material is a seed-only private key encoding;
+     *         false otherwise
+     */
+    private boolean isSeedOnly(String algName, byte[] key) {
+        if (key == null || key.length < 2) {
+            return false;
+        }
+
+        int seedLen;
+
+        if (algName.startsWith("ML-DSA")) {
+            seedLen = 32;
+        } else if (algName.startsWith("ML-KEM")) {
+            seedLen = 64;
+        } else {
+            return false;
+        }
+
+        return (key.length == seedLen + 2)
+                && ((key[0] & 0xFF) == 0x80)
+                && ((key[1] & 0xFF) == seedLen);
+    }
 }
