@@ -1223,8 +1223,25 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_XECKEY_1createPriv
                 gslogMessage("DETAIL_XEC returning xecKeyId=%lx", xecKeyId);
             }
 #endif
-            ICC_EVP_PKEY_get_raw_public_key(ockCtx, ockEVPKey,
+            int rc = ICC_EVP_PKEY_get_raw_public_key(ockCtx, ockEVPKey,
                                             (unsigned char *)bufferPtr, &size);
+            if (rc != ICC_OSSL_SUCCESS) {
+                ockCheckStatus(ockCtx);
+#ifdef DEBUG_EC_DETAIL
+                if (debug) {
+                    gslogMessage("DETAIL_XEC FAILURE ICC_EVP_PKEY_get_raw_public_key");
+                }
+#endif
+                throwOCKException(env, 0, "ICC_EVP_PKEY_get_raw_public_key failed");
+                if (keyBytesNative != NULL) {
+                    (*env)->ReleasePrimitiveArrayCritical(env, privateKeyBytes,
+                                                          keyBytesNative, 0);
+                }
+                if (debug) {
+                    gslogFunctionExit(functionName);
+                }
+                return 0;
+            }
         }
     }
 
@@ -1730,14 +1747,32 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_XECKEY_1getPrivate
         }
         return retKeyBytes;
     }
-    size     = ICC_i2d_PrivateKey(ockCtx, ockEVPKey, NULL);
+    size = ICC_i2d_PrivateKey(ockCtx, ockEVPKey, NULL);
+    if (size <= 0) {
+        ockCheckStatus(ockCtx);
+        throwOCKException(env, 0, "ICC_i2d_PrivateKey failed to get size");
+        if (debug) {
+            gslogFunctionExit(functionName);
+        }
+        return NULL;
+    }
     keyBytes = (*env)->NewByteArray(env, size);
     if (keyBytes != NULL) {
         keyBytesNative = (unsigned char *)((*env)->GetPrimitiveArrayCritical(
             env, keyBytes, &isCopy));
         if (keyBytesNative != NULL) {
-            pBytes      = (unsigned char *)keyBytesNative;
-            size        = ICC_i2d_PrivateKey(ockCtx, ockEVPKey, &pBytes);
+            pBytes = (unsigned char *)keyBytesNative;
+            size   = ICC_i2d_PrivateKey(ockCtx, ockEVPKey, &pBytes);
+            if (size <= 0) {
+                ockCheckStatus(ockCtx);
+                (*env)->ReleasePrimitiveArrayCritical(env, keyBytes, keyBytesNative, 0);
+                (*env)->DeleteLocalRef(env, keyBytes);
+                throwOCKException(env, 0, "ICC_i2d_PrivateKey failed");
+                if (debug) {
+                    gslogFunctionExit(functionName);
+                }
+                return NULL;
+            }
             retKeyBytes = keyBytes;
             (*env)->ReleasePrimitiveArrayCritical(env, keyBytes, keyBytesNative,
                                                   0);
@@ -1875,8 +1910,19 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_XECKEY_1getPublicK
     jbyteArray     keyBytes       = NULL;
     size_t         size;
     jboolean       isCopy = 0;
+    int            rc     = 0;
 
-    ICC_EVP_PKEY_get_raw_public_key(ockCtx, ockEVPKey, NULL, &size);
+    rc = ICC_EVP_PKEY_get_raw_public_key(ockCtx, ockEVPKey, NULL, &size);
+    if (rc != ICC_OSSL_SUCCESS) {
+#ifdef DEBUG_EC_DETAIL
+        if (debug) {
+            gslogMessage("DETAIL_EC FAILURE ICC_EVP_PKEY_get_raw_public_key");
+        }
+#endif
+        ockCheckStatus(ockCtx);
+        throwOCKException(env, 0, "ICC_EVP_PKEY_get_raw_public_key failed");
+        return NULL;
+    }
     keyBytes = (*env)->NewByteArray(env, size);
     if (keyBytes == NULL) {
 #ifdef DEBUG_EC_DETAIL
@@ -1897,10 +1943,16 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_XECKEY_1getPublicK
             throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical");
         } else {
             if (keyBytesNative != NULL) {
-                ICC_EVP_PKEY_get_raw_public_key(ockCtx, ockEVPKey,
+                rc = ICC_EVP_PKEY_get_raw_public_key(ockCtx, ockEVPKey,
                                                 keyBytesNative, &size);
                 (*env)->ReleasePrimitiveArrayCritical(env, keyBytes,
                                                       keyBytesNative, 0);
+                if (rc != ICC_OSSL_SUCCESS) {
+                    ockCheckStatus(ockCtx);
+                    (*env)->DeleteLocalRef(env, keyBytes);
+                    throwOCKException(env, 0, "ICC_EVP_PKEY_get_raw_public_key failed");
+                    return NULL;
+                }
             }
             if ((keyBytes != NULL)) {
                 (*env)->DeleteLocalRef(env, keyBytes);
