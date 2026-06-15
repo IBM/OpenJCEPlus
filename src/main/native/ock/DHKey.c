@@ -695,7 +695,24 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DHKEY_1getPrivateK
 #endif
         throwOCKException(env, 0, "ICC_EVP_PKEY_new failed");
     } else {
-        ICC_EVP_PKEY_set1_DH(ockCtx, ockPKey, ockDH);
+        int rc = ICC_EVP_PKEY_set1_DH(ockCtx, ockPKey, ockDH);
+        if (rc != ICC_OSSL_SUCCESS) {
+            ockCheckStatus(ockCtx);
+#ifdef DEBUG_DH_DETAIL
+            if (debug) {
+                gslogMessage("DETAIL_DH FAILURE ICC_EVP_PKEY_set1_DH");
+            }
+#endif
+            throwOCKException(env, 0, "ICC_EVP_PKEY_set1_DH failed");
+            if (ockPKey != NULL) {
+                ICC_EVP_PKEY_free(ockCtx, ockPKey);
+            }
+            if (debug) {
+                gslogFunctionExit(functionName);
+            }
+            return NULL;
+        }
+        
         size = ICC_i2d_PrivateKey(ockCtx, ockPKey, NULL);
 
         if (size <= 0) {
@@ -820,7 +837,24 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DHKEY_1getPublicKe
 #endif
         throwOCKException(env, 0, "ICC_EVP_PKEY_new failed");
     } else {
-        ICC_EVP_PKEY_set1_DH(ockCtx, ockPKey, ockDH);
+        int rc = ICC_EVP_PKEY_set1_DH(ockCtx, ockPKey, ockDH);
+        if (rc != ICC_OSSL_SUCCESS) {
+            ockCheckStatus(ockCtx);
+#ifdef DEBUG_DH_DETAIL
+            if (debug) {
+                gslogMessage("DETAIL_DH FAILURE ICC_EVP_PKEY_set1_DH");
+            }
+#endif
+            throwOCKException(env, 0, "ICC_EVP_PKEY_set1_DH failed");
+            if (ockPKey != NULL) {
+                ICC_EVP_PKEY_free(ockCtx, ockPKey);
+            }
+            if (debug) {
+                gslogFunctionExit(functionName);
+            }
+            return NULL;
+        }
+        
         size = ICC_i2d_PUBKEY(ockCtx, ockPKey, NULL);
 
         if (size <= 0) {
@@ -985,17 +1019,18 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DHKEY_1computeDHSe
     jlong privKeyId) {
     static const char *functionName = "NativeInterface.DHKEY_computeDHSecret";
 
-    ICC_CTX       *ockCtx            = (ICC_CTX *)((intptr_t)ockContextId);
-    ICC_DH        *ockPubDHKey       = (ICC_DH *)((intptr_t)pubKeyId);
-    ICC_DH        *ockPrivDHKey      = (ICC_DH *)((intptr_t)privKeyId);
-    ICC_BIGNUM    *ockPubDHKeyBN     = NULL;
-    jbyteArray     secretBytes       = NULL;
-    unsigned char *secretBytesNative = NULL;
-    jbyteArray     retSecretBytes    = NULL;
-    unsigned char *bbbuf             = NULL;
-    jboolean       isCopy            = 0;
-    int            lena              = 0;
-    int            keylen            = 0;
+    ICC_CTX             *ockCtx             = (ICC_CTX *)((intptr_t)ockContextId);
+    ICC_DH              *ockPubDHKey        = (ICC_DH *)((intptr_t)pubKeyId);
+    ICC_DH              *ockPrivDHKey       = (ICC_DH *)((intptr_t)privKeyId);
+    ICC_BIGNUM          *ockPubDHKeyBN      = NULL;
+    const ICC_BIGNUM    *ockPubKey          = NULL;
+    jbyteArray          secretBytes         = NULL;
+    unsigned char       *secretBytesNative  = NULL;
+    jbyteArray          retSecretBytes      = NULL;
+    unsigned char       *bbbuf              = NULL;
+    jboolean            isCopy              = 0;
+    int                 lena                = 0;
+    int                 keylen              = 0;
 
     if (debug) {
         gslogFunctionEntry(functionName);
@@ -1009,8 +1044,22 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DHKEY_1computeDHSe
         return retSecretBytes;
     }
 
-    keylen =
-        ICC_BN_num_bytes(ockCtx, ICC_DH_get_PublicKey(ockCtx, ockPubDHKey));
+    ockPubKey = ICC_DH_get_PublicKey(ockCtx, ockPubDHKey);
+    if (ockPubKey == NULL) {
+        ockCheckStatus(ockCtx);
+#ifdef DEBUG_DH_DETAIL
+        if (debug) {
+            gslogMessage("DETAIL_DH FAILURE ICC_DH_get_PublicKey");
+        }
+#endif
+        throwOCKException(env, 0, "ICC_DH_get_PublicKey failed");
+        if (debug) {
+            gslogFunctionExit(functionName);
+        }
+        return NULL;
+    }
+    
+    keylen = ICC_BN_num_bytes(ockCtx, ockPubKey);
     if (keylen <= 0) {
         ockCheckStatus(ockCtx);
 #ifdef DEBUG_DH_DETAIL
@@ -1022,9 +1071,20 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_DHKEY_1computeDHSe
         throwOCKException(env, 0, "ICC_BN_num_bytes failed");
     } else {
         bbbuf = (unsigned char *)malloc(keylen);
+        if (bbbuf == NULL) {
+#ifdef DEBUG_DH_DETAIL
+            if (debug) {
+                gslogMessage("DETAIL_DH FAILURE malloc keylen=%d", keylen);
+            }
+#endif
+            throwOCKException(env, 0, "malloc failed");
+            if (debug) {
+                gslogFunctionExit(functionName);
+            }
+            return NULL;
+        }
         /* Don't forget the save the REAL length of the buffer ... */
-        keylen = ICC_BN_bn2bin(
-            ockCtx, ICC_DH_get_PublicKey(ockCtx, ockPubDHKey), bbbuf);
+        keylen = ICC_BN_bn2bin(ockCtx, ockPubKey, bbbuf);
         if (keylen <= 0) {
             ockCheckStatus(ockCtx);
 #ifdef DEBUG_DH_DETAIL
