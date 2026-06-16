@@ -1,12 +1,12 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import com.ibm.crypto.plus.provider.ChaCha20Constants;
 import java.nio.ByteBuffer;
@@ -16,11 +16,24 @@ import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestChaCha20Poly1305ChunkUpdate extends BaseTestCipher
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusOnly")
+public class TestChaCha20Poly1305ChunkUpdate extends BaseTest
         implements ChaCha20Constants {
+
+    @Parameter(0)
+    TestProvider provider;
+
     static final String CHACHA20_POLY1305_ALGORITHM = "ChaCha20-Poly1305";
     static final String CHACHA20_ALGORITHM = "ChaCha20";
     static final int CHACHA20_MAC_SIZE = 16;
@@ -33,6 +46,7 @@ public class BaseTestChaCha20Poly1305ChunkUpdate extends BaseTestCipher
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         keyGen = KeyGenerator.getInstance(CHACHA20_ALGORITHM, getProviderName());
         if (specifiedKeySize > 0) {
             keyGen.init(specifiedKeySize);
