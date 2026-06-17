@@ -161,7 +161,7 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
 
     @Override
     protected int engineDoFinal(ByteBuffer inputByteBuffer, ByteBuffer outputByteBuffer)
-            throws IllegalBlockSizeException, BadPaddingException, AEADBadTagException {
+            throws IllegalBlockSizeException, BadPaddingException, AEADBadTagException, ShortBufferException {
         //final String methodName = "byte[] enginedoFinal";
 
         if (inputByteBuffer == null) {
@@ -177,37 +177,40 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
         checkReinit();
 
         try {
-            byte[] output = null;
+            // Find remaining data in input buffer. This will be the actual data length to process.
+            int inputLen = inputByteBuffer.remaining();
 
+            // Validate input length for decryption
+            if (!encrypting && inputLen < tagLenInBytes) {
+                throw new AEADBadTagException("Input too short - need tag");
+            }
+
+            // Calculate needed output length. This include the data we want
+            // to process and the auth tag.
+            int expectedOutputLen;
             if (encrypting) {
-                output = new byte[inputByteBuffer.array().length + tagLenInBytes];
-            } else { // decrypting
-                output = new byte[inputByteBuffer.array().length - tagLenInBytes];
-            }
-
-            byte[] input = inputByteBuffer.array();
-            int inputLen = input.length;
-            int inputOffset = 0;
-            int outputLen = engineDoFinal(input, inputOffset, inputLen, output, 0);
-
-            // Copy the data within output into the outputByteBuffer and return the number of bytes copied.
-            outputByteBuffer.put(output);
-            return outputLen;
-        } catch (ShortBufferException e) {
-            /*
-             * this exception shouldn't happen because the output buffer is allocated here
-             * but engineDoFinal(..) is declared to be able to throw it since it also
-             * handles user provided output buffers
-             */
-            // OCKDebug.Msg(debPrefix, methodName, "NativeException seen");
-            if (!encrypting) {
-                AEADBadTagException abte = new AEADBadTagException(
-                        "Uanble to perform engine doFinal; Possibly a bad tag or bad padding or illegalBlockSize");
-                provider.setExceptionCause(abte, e);
-                throw abte;
+                expectedOutputLen = inputLen + tagLenInBytes;
             } else {
-                throw provider.providerException("unable to perform to engineDoFinal ", e);
+                expectedOutputLen = inputLen - tagLenInBytes;
             }
+
+            // Check if output buffer has enough space
+            if (outputByteBuffer.remaining() < expectedOutputLen) {
+                throw new ShortBufferException("Output buffer too small. Need " + expectedOutputLen +
+                        " bytes but only " + outputByteBuffer.remaining() + " available.");
+            }
+
+            byte[] output = new byte[expectedOutputLen];
+
+            // Extract input data from the ByteBuffer's current position
+            byte[] input = new byte[inputLen];
+            inputByteBuffer.get(input);
+
+            int outputLen = engineDoFinal(input, 0, inputLen, output, 0);
+
+            // Copy only the actual output length into the outputByteBuffer
+            outputByteBuffer.put(output, 0, outputLen);
+            return outputLen;
         } catch (IllegalStateException ex) {
             requireReinit = true;
             throw ex;
