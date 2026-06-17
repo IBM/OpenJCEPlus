@@ -428,11 +428,13 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
 
                     ByteBuffer byteBuffer1 = ByteBuffer.allocate(plaintext.length);
                     byteBuffer1.put(plaintext);
+                    byteBuffer1.flip(); // Reset position to 0 for reading
                     int outputSizeNeeded = cipher.getOutputSize(plaintext.length);
                     ByteBuffer byteBuffer2 = ByteBuffer.allocate(outputSizeNeeded);
 
                     byteBuffer1 = ByteBuffer.allocate(plaintext.length);
                     byteBuffer1.put(plaintext);
+                    byteBuffer1.flip(); // Reset position to 0 for reading
                     outputSizeNeeded = cipher.getOutputSize(plaintext.length);
                     byteBuffer2 = ByteBuffer.allocate(outputSizeNeeded);
                     int cipherText2Length = cipher.doFinal(byteBuffer1, byteBuffer2);
@@ -677,6 +679,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
 
                     ByteBuffer byteBuffer1 = ByteBuffer.allocate(cipherText.length);
                     byteBuffer1.put(cipherText);
+                    byteBuffer1.flip(); // Reset position to 0 for reading
 
                     ByteBuffer byteBuffer2 = ByteBuffer.allocate(outputSizeNeeded);
 
