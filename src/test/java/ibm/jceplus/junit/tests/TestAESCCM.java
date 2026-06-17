@@ -471,6 +471,7 @@ public class TestAESCCM extends BaseTest {
 
                 ByteBuffer byteBuffer1 = ByteBuffer.allocate(plaintext.length);
                 byteBuffer1.put(plaintext);
+                byteBuffer1.flip(); // Reset position to 0 for reading
                 int outputSizeNeeded = cipher.getOutputSize(plaintext.length);
                 ByteBuffer byteBuffer2 = ByteBuffer.allocate(outputSizeNeeded);
                 try {
@@ -487,6 +488,7 @@ public class TestAESCCM extends BaseTest {
 
                 byteBuffer1 = ByteBuffer.allocate(plaintext.length);
                 byteBuffer1.put(plaintext);
+                byteBuffer1.flip(); // Reset position to 0 for reading
                 outputSizeNeeded = cipher.getOutputSize(plaintext.length);
                 byteBuffer2 = ByteBuffer.allocate(outputSizeNeeded);
                 int cipherText2Length = cipher.doFinal(byteBuffer1, byteBuffer2);
@@ -724,6 +726,7 @@ public class TestAESCCM extends BaseTest {
 
                 ByteBuffer byteBuffer1 = ByteBuffer.allocate(cipherText.length);
                 byteBuffer1.put(cipherText);
+                byteBuffer1.flip(); // Reset position to 0 for reading
 
                 ByteBuffer byteBuffer2 = ByteBuffer.allocate(outputSizeNeeded);
 
@@ -739,6 +742,11 @@ public class TestAESCCM extends BaseTest {
                     // Do nothing.  Cipher.update() for decryption is not supported.
                 }
 
+                byteBuffer1 = ByteBuffer.allocate(cipherText.length);
+                byteBuffer1.put(cipherText);
+                byteBuffer1.flip(); // Reset position to 0 for reading
+                outputSizeNeeded = cipher.getOutputSize(cipherText.length);
+                byteBuffer2 = ByteBuffer.allocate(outputSizeNeeded);
                 int decryptedText2Length = cipher.doFinal(byteBuffer1, byteBuffer2);
                 byte[] decryptedText2 = byteBuffer2.array();
 
