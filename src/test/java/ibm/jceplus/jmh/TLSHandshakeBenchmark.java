@@ -101,7 +101,7 @@ public class TLSHandshakeBenchmark extends JMHBase {
     @Param({"cached", "non-cached"})
     public String useCache;
 
-    @Param({"OpenJCEPlus", "SunJCE"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunJCE"})
     private String provider;
 
     private SSLServerSocket serverSocket;
