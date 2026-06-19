@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -20,10 +20,22 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestChaCha20Poly1305ByteBuffer extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusOnly")
+public class TestChaCha20Poly1305ByteBuffer extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     private static Random random = new SecureRandom();
     private static int dataSize = 4096; // see javax.crypto.CipherSpi
@@ -64,6 +76,7 @@ public class BaseTestChaCha20Poly1305ByteBuffer extends BaseTestJunit5 {
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         keyGen = KeyGenerator.getInstance(CHACHA20_ALGORITHM, getProviderName());
         if (specifiedKeySize > 0) {
             keyGen.init(specifiedKeySize);

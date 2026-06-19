@@ -1,12 +1,12 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import com.ibm.crypto.plus.provider.ChaCha20Constants;
 import java.security.InvalidKeyException;
@@ -21,9 +21,22 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.ChaCha20ParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20Constants {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusOnly")
+public class TestChaCha20NoReuse extends BaseTest implements ChaCha20Constants {
+
+    @Parameter(0)
+    TestProvider provider;
 
     private static final String ALG_CC20 = "ChaCha20";
     private static final String ALG_CC20_P1305 = "ChaCha20-Poly1305";
@@ -595,6 +608,11 @@ public class BaseTestChaCha20NoReuse extends BaseTestCipher implements ChaCha20C
     public final List<TestMethod> testMethodList = Arrays.asList(noInitTest, doubleInitTest,
             encTwiceNoInit, decTwiceNoInit, decFailNoInit, encTwiceInitSameParams,
             decTwiceInitSameParams);
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
 
     //    public static final List<String> algList = Arrays.asList(ALG_CC20_P1305);                //DEBUG ONLY
     //    public static final List<TestMethod> testMethodList = Arrays.asList(decFailNoInit);    //DEBUG ONLY
