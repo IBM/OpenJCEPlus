@@ -33,88 +33,51 @@ import org.openjdk.jmh.runner.options.Options;
 @Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
 public class PBKDF2Benchmark extends JMHBase {
-    private SecretKeyFactory pbkdf2Sha1Factory;
-    private SecretKeyFactory pbkdf2Sha256Factory;
-    private SecretKeyFactory pbkdf2Sha512Factory;
-    private SecretKeyFactory pbkdf2Sha512_224Factory;
-    private SecretKeyFactory pbkdf2Sha512_256Factory;
+
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunJCE"})
+    private String provider;
+
+    /**
+     * PBKDF2 algorithms to benchmark.
+     * Non-FIPS compliant algorithms (PBKDF2WithHmacSHA1, PBKDF2WithHmacSHA512/224, PBKDF2WithHmacSHA512/256)
+     * will be skipped when provider is OpenJCEPlusFIPS.
+     */
+    @Param({"PBKDF2WithHmacSHA1", "PBKDF2WithHmacSHA256", "PBKDF2WithHmacSHA512",
+            "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
+    private String algorithm;
+
+    /**
+     * Iteration counts for PBKDF2.
+     */
+    @Param({"1000", "300000"})
+    private int iterations;
+
+    private SecretKeyFactory factory;
     private char[] password;
     private byte[] salt = new byte[16];
     private SecureRandom random = new SecureRandom();
-
-    @Param({"OpenJCEPlus", "SunJCE"})
-    private String provider;
 
     @Setup
     public void setup() throws Exception {
         super.setup(provider);
 
-        pbkdf2Sha1Factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1", provider);
-        pbkdf2Sha256Factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256", provider);
-        pbkdf2Sha512Factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512", provider);
-        pbkdf2Sha512_224Factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512/224", provider);
-        pbkdf2Sha512_256Factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512/256", provider);
+        // Skip non-FIPS compliant algorithms when using OpenJCEPlusFIPS provider
+        if (provider.equalsIgnoreCase("OpenJCEPlusFIPS") &&
+            (algorithm.equals("PBKDF2WithHmacSHA1") ||
+             algorithm.equals("PBKDF2WithHmacSHA512/224") ||
+             algorithm.equals("PBKDF2WithHmacSHA512/256"))) {
+            throw new RunnerException("Skipping " + algorithm + " for FIPS provider");
+        }
+
+        factory = SecretKeyFactory.getInstance(algorithm, provider);
+
         password = "lazydogjumpedoverthemoon".toCharArray();
         random.nextBytes(salt);
     }
 
     @Benchmark
-    public byte[] pbkdf2Sha11000Iter() throws InvalidKeySpecException {
-        return pbkdf2Sha1Factory.generateSecret(new PBEKeySpec(password, salt, 1000, 256))
-                .getEncoded();
-    }
-
-    @Benchmark
-    public byte[] pbkdf2Sha1300000Iter() throws InvalidKeySpecException {
-        return pbkdf2Sha1Factory.generateSecret(new PBEKeySpec(password, salt, 300000, 256))
-                .getEncoded();
-    }
-
-    @Benchmark
-    public byte[] pbkdf2Sha2561000Iter() throws InvalidKeySpecException {
-        return pbkdf2Sha256Factory.generateSecret(new PBEKeySpec(password, salt, 1000, 256))
-                .getEncoded();
-    }
-
-    @Benchmark
-    public byte[] pbkdf2Sha256300000Iter() throws InvalidKeySpecException {
-        return pbkdf2Sha256Factory.generateSecret(new PBEKeySpec(password, salt, 300000, 256))
-                .getEncoded();
-    }
-
-    @Benchmark
-    public byte[] pbkdf2Sha5121000Iter() throws InvalidKeySpecException {
-        return pbkdf2Sha512Factory.generateSecret(new PBEKeySpec(password, salt, 1000, 256))
-                .getEncoded();
-    }
-
-    @Benchmark
-    public byte[] pbkdf2Sha512300000Iter() throws InvalidKeySpecException {
-        return pbkdf2Sha512Factory.generateSecret(new PBEKeySpec(password, salt, 300000, 256))
-                .getEncoded();
-    }
-
-    @Benchmark
-    public byte[] pbkdf2Sha512_2241000Iter() throws InvalidKeySpecException {
-        return pbkdf2Sha512_224Factory.generateSecret(new PBEKeySpec(password, salt, 1000, 256))
-                .getEncoded();
-    }
-
-    @Benchmark
-    public byte[] pbkdf2Sha512_224300000Iter() throws InvalidKeySpecException {
-        return pbkdf2Sha512_224Factory.generateSecret(new PBEKeySpec(password, salt, 300000, 256))
-                .getEncoded();
-    }
-
-    @Benchmark
-    public byte[] pbkdf2Sha512_2561000Iter() throws InvalidKeySpecException {
-        return pbkdf2Sha512_256Factory.generateSecret(new PBEKeySpec(password, salt, 1000, 256))
-                .getEncoded();
-    }
-
-    @Benchmark
-    public byte[] pbkdf2Sha512_256300000Iter() throws InvalidKeySpecException {
-        return pbkdf2Sha512_256Factory.generateSecret(new PBEKeySpec(password, salt, 300000, 256))
+    public byte[] pbkdf2() throws InvalidKeySpecException {
+        return factory.generateSecret(new PBEKeySpec(password, salt, iterations, 256))
                 .getEncoded();
     }
 

@@ -42,7 +42,7 @@ public class AESCipherBenchmark extends SymmetricCipherBase {
     @Param({"1024", "32768"})
     private int payloadSize;
 
-    @Param({"OpenJCEPlus", "SunJCE"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunJCE"})
     private String provider;
 
     @Setup

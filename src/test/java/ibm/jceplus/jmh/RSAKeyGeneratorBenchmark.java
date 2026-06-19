@@ -32,38 +32,32 @@ import org.openjdk.jmh.runner.options.Options;
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
 public class RSAKeyGeneratorBenchmark extends JMHBase {
 
-    @Param({"OpenJCEPlus", "SunRsaSign"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunRsaSign"})
     private String provider;
 
-    private KeyPairGenerator rsaKeyPairGenerator1024 = null;
-    private KeyPairGenerator rsaKeyPairGenerator2048 = null;
-    private KeyPairGenerator rsaKeyPairGenerator4096 = null;
+    @Param({"1024", "2048", "4096"})
+    private int keySize;
+
+    private KeyPairGenerator rsaKeyPairGenerator = null;
 
     @Setup
     public void setup() throws Exception {
         super.setup(provider);
 
-        rsaKeyPairGenerator1024 = KeyPairGenerator.getInstance("RSA", provider);
-        rsaKeyPairGenerator1024.initialize(1024);
-        rsaKeyPairGenerator2048 = KeyPairGenerator.getInstance("RSA", provider);
-        rsaKeyPairGenerator2048.initialize(2048);
-        rsaKeyPairGenerator4096 = KeyPairGenerator.getInstance("RSA", provider);
-        rsaKeyPairGenerator4096.initialize(4096);
+        // Skip 1024-bit RSA key generation for FIPS provider as it's not FIPS-approved
+        if (provider.equalsIgnoreCase("OpenJCEPlusFIPS") && keySize == 1024) {
+            throw new RuntimeException(
+                "Skipping 1024-bit RSA key generation: Not FIPS-approved for " + provider
+            );
+        }
+
+        rsaKeyPairGenerator = KeyPairGenerator.getInstance("RSA", provider);
+        rsaKeyPairGenerator.initialize(keySize);
     }
 
     @Benchmark
-    public KeyPair rsa1024KeyGeneration() throws Exception {
-        return rsaKeyPairGenerator1024.generateKeyPair();
-    }
-
-    @Benchmark
-    public KeyPair rsa2048KeyGeneration() throws Exception {
-        return rsaKeyPairGenerator2048.generateKeyPair();
-    }
-
-    @Benchmark
-    public KeyPair rsa4096KeyGeneration() throws Exception {
-        return rsaKeyPairGenerator4096.generateKeyPair();
+    public KeyPair rsaKeyGeneration() throws Exception {
+        return rsaKeyPairGenerator.generateKeyPair();
     }
 
     public static void main(String[] args) throws RunnerException {
