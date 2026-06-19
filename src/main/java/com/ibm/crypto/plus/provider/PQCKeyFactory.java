@@ -145,10 +145,10 @@ class PQCKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                X509EncodedKeySpec x509KeySpec = engineGetKeySpec(key,
-                        X509EncodedKeySpec.class);
+                PKCS8EncodedKeySpec pkcs8KeySpec = engineGetKeySpec(key,
+                        PKCS8EncodedKeySpec.class);
                 // Create key from spec, and return it
-                return engineGeneratePrivate(x509KeySpec);
+                return engineGeneratePrivate(pkcs8KeySpec);
             } else {
                 throw new InvalidKeyException("Wrong algorithm type");
             }
