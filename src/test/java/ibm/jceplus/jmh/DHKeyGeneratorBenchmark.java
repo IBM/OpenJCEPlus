@@ -32,30 +32,32 @@ import org.openjdk.jmh.runner.options.Options;
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
 public class DHKeyGeneratorBenchmark extends JMHBase {
 
-    @Param({"OpenJCEPlus", "SunJCE"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunJCE"})
     private String provider;
 
-    private KeyPairGenerator dhKeyPairGenerator1024 = null;
-    private KeyPairGenerator dhKeyPairGenerator2048 = null;
+    @Param({"1024", "2048"})
+    private int keySize;
+
+    private KeyPairGenerator dhKeyPairGenerator = null;
 
     @Setup
     public void setup() throws Exception {
         super.setup(provider);
 
-        dhKeyPairGenerator1024 = KeyPairGenerator.getInstance("DH", provider);
-        dhKeyPairGenerator1024.initialize(1024);
-        dhKeyPairGenerator2048 = KeyPairGenerator.getInstance("DH", provider);
-        dhKeyPairGenerator2048.initialize(2048);
+        // Skip 1024-bit DH key generation for FIPS provider as it's not FIPS-approved
+        if (provider.equalsIgnoreCase("OpenJCEPlusFIPS") && keySize == 1024) {
+            throw new RuntimeException(
+                "Skipping 1024-bit DH key generation: Not FIPS-approved for " + provider
+            );
+        }
+
+        dhKeyPairGenerator = KeyPairGenerator.getInstance("DH", provider);
+        dhKeyPairGenerator.initialize(keySize);
     }
 
     @Benchmark
-    public KeyPair dh1024KeyGeneration() throws Exception {
-        return dhKeyPairGenerator1024.generateKeyPair();
-    }
-
-    @Benchmark
-    public KeyPair dh2048KeyGeneration() throws Exception {
-        return dhKeyPairGenerator2048.generateKeyPair();
+    public KeyPair dhKeyGeneration() throws Exception {
+        return dhKeyPairGenerator.generateKeyPair();
     }
 
     public static void main(String[] args) throws RunnerException {

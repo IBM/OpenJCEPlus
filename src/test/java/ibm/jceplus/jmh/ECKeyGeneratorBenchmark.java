@@ -33,7 +33,7 @@ import org.openjdk.jmh.runner.options.Options;
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
 public class ECKeyGeneratorBenchmark extends JMHBase {
 
-    @Param({"OpenJCEPlus", "SunEC"})
+    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunEC"})
     private String provider;
 
     private KeyPairGenerator ecKeyPairGeneratorP256 = null;
