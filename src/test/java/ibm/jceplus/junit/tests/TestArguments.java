@@ -24,7 +24,7 @@ public class TestArguments {
      * 
      * @return Stream of Arguments containing AES key sizes and OpenJCEPlus* providers
      */ 
-    public static Stream<Arguments> aesKeySizesAndJCEPlusProviders() {
+    protected static Stream<Arguments> aesKeySizesAndJCEPlusProviders() {
         int[] aesKeySizes = {128, 192, 256};
         return keySizesAndJCEPlusProviders(aesKeySizes);
     }
@@ -34,7 +34,7 @@ public class TestArguments {
      *
      * @return Stream of Arguments containing RSA key sizes and OpenJCEPlus* providers
      */
-    public static Stream<Arguments> rsaKeySizesAndJCEPlusProviders() {
+    protected static Stream<Arguments> rsaKeySizesAndJCEPlusProviders() {
         int[] rsaKeySizes = {512, 1024, 2048, 3072, 4096};
         return keySizesAndJCEPlusProviders(rsaKeySizes);
     }
@@ -44,7 +44,7 @@ public class TestArguments {
      *
      * @return Stream of Arguments containing RSA key size and OpenJCEPlus* providers
      */
-    public static Stream<Arguments> rsaMultithreadKeySizesAndProviders() {
+    protected static Stream<Arguments> rsaMultithreadKeySizesAndProviders() {
         int[] rsaKeySizes = {2048};
         return keySizesAndJCEPlusProviders(rsaKeySizes);
     }
@@ -54,9 +54,25 @@ public class TestArguments {
      *
      * @return Stream of Arguments containing (JCEProviders, SUN) pairs
      */
-    public static Stream<Arguments> getOpenJCEPlusWithSUNInteropProvider() {
+    protected static Stream<Arguments> getOpenJCEPlusWithSUNInteropProvider() {
         return getOpenJCEPlusWithInteropProviders(TestProvider.SUN);
-    }    
+    }
+
+    /**
+     * Generates combination of only OpenJCEPlus (non-FIPS) provider
+     * with the BC provider for interoperability testing.
+     *
+     * @return Stream of Arguments containing (OpenJCEPlus, BC) pair
+     */
+    protected static Stream<Arguments> getOpenJCEPlusOnlyWithBCInteropProvider() {
+        List<Arguments> arguments = new ArrayList<>();
+
+        for (TestProvider provider : getOpenJCEPlusOnly().collect(Collectors.toList())) {
+            arguments.add(Arguments.of(provider, TestProvider.BC));
+        }
+
+        return arguments.stream();
+    }
 
     /**
      * Generates combinations of all key sizes and OpenJCEPlus* providers under test.
@@ -128,15 +144,26 @@ public class TestArguments {
         }
 
         return arguments.stream();
-    }    
+    }
 
     /**
-     * Returns only the OpenJCEPlus provider (non-FIPS).
-     * This is used for tests that are not supported in FIPS mode.
+     * Resolves enabled OpenJCEPlus (non-FIPS) provider from -Dgroups, defaulting to OpenJCEPlus when none are specified.
      *
-     * @return A stream containing only the OpenJCEPlus TestProvider.
+     * @return A stream of enabled TestProvider.
      */
     protected static Stream<TestProvider> getOpenJCEPlusOnly() {
-        return Stream.of(TestProvider.OpenJCEPlus);
+        String[] groupPropertyTags = BaseTest.getTagsPropertyAsArray();
+        if (groupPropertyTags.length == 0) {
+            return Stream.of(TestProvider.OpenJCEPlus);
+        }
+
+        List<TestProvider> enabledProviders = new ArrayList<>();
+        for (String tag : groupPropertyTags) {
+            if (TestProvider.OpenJCEPlus.getProviderName().equalsIgnoreCase(tag)) {
+                enabledProviders.add(TestProvider.OpenJCEPlus);
+            }
+        }
+
+        return enabledProviders.stream();
     }
 }
