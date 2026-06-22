@@ -16,13 +16,7 @@ public final class ExtendedRandom {
 
     private OpenJCEPlusProvider provider;
     private NativeInterface nativeInterface;
-    private final String algName;
-
-    private long ockPRNGContextId;
-    private boolean usingThreadLocalContext = true;
-
-    private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha256 = new ThreadLocal<PRNGContextPointer>();
-    private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha512 = new ThreadLocal<PRNGContextPointer>();
+    final long ockPRNGContextId;
 
     public static ExtendedRandom getInstance(String algName, OpenJCEPlusProvider provider)
             throws NativeException {
@@ -38,35 +32,11 @@ public final class ExtendedRandom {
     }
 
     private ExtendedRandom(String algName, OpenJCEPlusProvider provider) throws NativeException {
-        this.algName = algName;
         this.provider = provider;
         this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
-        this.ockPRNGContextId = getPRNGContext(algName);
-    }
+        this.ockPRNGContextId = this.nativeInterface.EXTRAND_create(algName);
 
-    private long getPRNGContext(String algName) throws NativeException {
-        PRNGContextPointer prngCtx = null;
-        ThreadLocal<PRNGContextPointer> prngCtxBuffer = null;
-
-        switch (algName) {
-            case "SHA256":
-                prngCtxBuffer = prngContextBufferSha256;
-                break;
-            case "SHA512":
-                prngCtxBuffer = prngContextBufferSha512;
-                break;
-            default:
-                throw new IllegalArgumentException(
-                        "Unsupported HASHDRBG algorithm: " + algName);
-        }
-
-        prngCtx = prngCtxBuffer.get();
-        if (prngCtx == null) {
-            prngCtx = new PRNGContextPointer(algName, this.nativeInterface, this.provider);
-            prngCtxBuffer.set(prngCtx);
-        }
-
-        return prngCtx.getCtx();
+        this.provider.registerCleanable(this, cleanOCKResources(ockPRNGContextId, nativeInterface));
     }
 
     public synchronized void nextBytes(byte[] bytes) throws NativeException {
@@ -85,24 +55,11 @@ public final class ExtendedRandom {
         }
 
         if (seed.length > 0) {
-            createInstanceContextForReSeed();
             this.nativeInterface.EXTRAND_setSeed(ockPRNGContextId, seed);
         }
     }
 
-    private void createInstanceContextForReSeed() throws NativeException {
-        if (!usingThreadLocalContext) {
-            return;
-        }
-
-        long instanceCtx = this.nativeInterface.EXTRAND_create(algName);
-        this.ockPRNGContextId = instanceCtx;
-        this.usingThreadLocalContext = false;
-
-        this.provider.registerCleanable(this, cleanOCKResources(instanceCtx, nativeInterface));
-    }
-
-    private static Runnable cleanOCKResources(long ockPRNGContextId, NativeInterface nativeInterface) {
+    private Runnable cleanOCKResources(long ockPRNGContextId, NativeInterface nativeInterface) {
         return () -> {
             try {
                 if (ockPRNGContextId != 0) {
@@ -110,23 +67,10 @@ public final class ExtendedRandom {
                 }
             } catch (Exception e) {
                 if (OpenJCEPlusProvider.getDebug() != null) {
-                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning: " + e.getMessage());
+                    OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
                     e.printStackTrace();
                 }
             }
         };
-    }
-
-    private static final class PRNGContextPointer {
-        final long prngCtx;
-
-        PRNGContextPointer(String algName, NativeInterface nativeInterface, OpenJCEPlusProvider provider) throws NativeException {
-            this.prngCtx = nativeInterface.EXTRAND_create(algName);
-            provider.registerCleanable(this, ExtendedRandom.cleanOCKResources(this.prngCtx, nativeInterface));
-        }
-
-        long getCtx() {
-            return this.prngCtx;
-        }
     }
 }
