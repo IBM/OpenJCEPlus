@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -29,6 +29,10 @@ abstract public class BaseTest {
 
     public void setAndInsertProvider(TestProvider provider) throws Exception {
         this.providerName = provider.getProviderName();
+        loadSupportedProvider(provider);
+    }
+
+    protected void loadSupportedProvider(TestProvider provider) throws Exception {
         switch (provider) {
             case BC:
                 loadProvider(TestProvider.BC);
