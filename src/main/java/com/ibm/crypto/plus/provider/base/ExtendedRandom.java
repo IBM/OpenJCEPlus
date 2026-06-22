@@ -22,6 +22,12 @@ public final class ExtendedRandom {
     private NativeInterface nativeInterface;
     private final String algName;
 
+    /*
+     * Used only when this ExtendedRandom instance owns its
+     * own PRNG context, for example on z/OS or after setSeed().
+     *
+     * ThreadLocal contexts are not stored.
+     */
     private long ockPRNGContextId;
     private boolean usingThreadLocalContext = true;
 
@@ -47,21 +53,24 @@ public final class ExtendedRandom {
         this.algName = algName;
         this.provider = provider;
         this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
-        this.ockPRNGContextId = getPRNGContext(algName);
+
+        /*
+         * On z/OS, create an instance-owned context without ThreadLocal
+         * caching.
+         *
+         * On non-z/OS, do not initialize the ThreadLocal context here.
+         * The ThreadLocal context is resolved in nextBytes().
+         */
+        if (IS_ZOS) {
+            this.ockPRNGContextId = createInstanceContext();
+        }
     }
 
-    private long getPRNGContext(String algName) throws NativeException {
-        // On z/OS, create a new instance context without caching.
-        if (IS_ZOS) {
-            return createInstanceContext();
-        }
-
-        // On non-z/OS platforms, use the cached context if available,
-        // otherwise create and cache it.
+    private PRNGContextPointer getThreadLocalPRNGContext() throws NativeException {
         PRNGContextPointer prngCtx = null;
         ThreadLocal<PRNGContextPointer> prngCtxBuffer = null;
 
-        switch (algName) {
+        switch (this.algName) {
             case "SHA256":
                 prngCtxBuffer = prngContextBufferSha256;
                 break;
@@ -70,16 +79,16 @@ public final class ExtendedRandom {
                 break;
             default:
                 throw new IllegalArgumentException(
-                        "Unsupported HASHDRBG algorithm: " + algName);
+                        "Unsupported HASHDRBG algorithm: " + this.algName);
         }
 
         prngCtx = prngCtxBuffer.get();
         if (prngCtx == null) {
-            prngCtx = new PRNGContextPointer(algName, this.nativeInterface, this.provider);
+            prngCtx = new PRNGContextPointer(this.algName, this.nativeInterface, this.provider);
             prngCtxBuffer.set(prngCtx);
         }
 
-        return prngCtx.getCtx();
+        return prngCtx;
     }
 
     public synchronized void nextBytes(byte[] bytes) throws NativeException {
@@ -88,7 +97,12 @@ public final class ExtendedRandom {
         }
 
         if (bytes.length > 0) {
-            this.nativeInterface.EXTRAND_nextBytes(ockPRNGContextId, bytes);
+            if (usingThreadLocalContext && !IS_ZOS) {
+                PRNGContextPointer prngCtx = getThreadLocalPRNGContext();
+                this.nativeInterface.EXTRAND_nextBytes(prngCtx.getCtx(), bytes);
+            } else {
+                this.nativeInterface.EXTRAND_nextBytes(ockPRNGContextId, bytes);
+            }
         }
     }
 
