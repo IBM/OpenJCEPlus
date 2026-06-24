@@ -29,6 +29,14 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
 
     private static final long serialVersionUID = 1L;
 
+    // Emergency fallback property to allow legacy key pair generation behavior
+    // when h parameter is null. This should only be used in emergency situations
+    // as generating a key pair in a private key constructor is not a valid scenario.
+    //
+    // TODO: Remove this property in the future
+    private static final boolean ALLOW_KEYPAIR_GENERATION_IN_CONSTRUCTOR =
+        Boolean.getBoolean("openjceplus.eddsa.allowKeyPairGenerationInConstructor");
+
     private static final byte TAG_PARAMETERS_ATTRS = 0x00;
     private OpenJCEPlusProvider provider = null;
     private transient byte[] h;
@@ -93,9 +101,16 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
             }
 
             if (this.key == null) {
-                int keySize = CurveUtil.getCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(
-                        this.curve.ordinal(), keySize, provider);
+                // Key pair generation in a private key constructor is not a valid scenario.
+                // This code path should never be reached in normal operation.
+                if (ALLOW_KEYPAIR_GENERATION_IN_CONSTRUCTOR) {
+                    int keySize = CurveUtil.getCurveSize(curve);
+                    this.xecKey = XECKey.generateKeyPair(
+                            this.curve.ordinal(), keySize, provider);
+                } else {
+                    throw new InvalidParameterException(
+                        "Cannot create EdDSA private key without key bytes parameter.");
+                }
             } else {
                 this.algid = CurveUtil.getAlgId(this.curve);
                 byte[] der = buildOCKPrivateKeyBytes();
