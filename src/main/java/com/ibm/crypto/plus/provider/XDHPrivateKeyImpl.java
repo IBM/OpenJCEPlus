@@ -38,6 +38,14 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
     // Field serialVersionUID per tag [SERIALIZATION] in DesignNotes.txt
     private static final long serialVersionUID = 6034044314589513430L;
 
+    // Emergency fallback property to allow legacy key pair generation behavior
+    // when scalar parameter is null. This should only be used in emergency situations
+    // as generating a key pair in a private key constructor is not a valid scenario.
+    //
+    // TODO: Remove this property in the future
+    private static final boolean ALLOW_KEYPAIR_GENERATION_IN_CONSTRUCTOR =
+        Boolean.getBoolean("openjceplus.xdh.allowKeyPairGenerationInConstructor");
+
     private OpenJCEPlusProvider provider = null;
     private transient NamedParameterSpec params;
     private CURVE curve;
@@ -136,8 +144,15 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             k = scalar.get();
         try {
             if (k == null) {
-                int keySize = CurveUtil.getCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(this.curve.ordinal(), keySize, provider);
+                // Key pair generation in a private key constructor is not a valid scenario.
+                // This code path should never be reached in normal operation.
+                if (ALLOW_KEYPAIR_GENERATION_IN_CONSTRUCTOR) {
+                    int keySize = CurveUtil.getCurveSize(curve);
+                    this.xecKey = XECKey.generateKeyPair(this.curve.ordinal(), keySize, provider);
+                } else {
+                    throw new InvalidParameterException(
+                        "Cannot create XDH private key without scalar parameter.");
+                }
             } else {
                 this.algid = CurveUtil.getAlgId(this.params.getName());
                 byte[] der = buildOCKPrivateKeyBytes();
