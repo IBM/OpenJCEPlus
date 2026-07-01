@@ -288,6 +288,200 @@ public class TestAESCCM extends BaseTest {
         }
     } // end testAESCCM()
 
+    /**
+     * Tests that engineDoFinal correctly uses inputLen (not input.length) when checking whether
+     * the output buffer is large enough to hold the encryption result.
+     *
+     * When the caller passes a large backing array with inputOffset > 0, the output buffer must
+     * only be large enough to hold inputLen bytes of ciphertext plus the tag, not input.length
+     * bytes plus the tag.
+     */
+    @Test
+    public void testDoFinalEncryptWithInputSlice() throws Exception {
+        // Use a fixed, known-good tag length (128 bits = 16 bytes) and IV.
+        int ccmTagLengthBits  = 128;
+        int tagLenInBytes     = ccmTagLengthBits / 8; // 16
+        byte[] iv = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
+                     (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08,
+                     (byte) 0x09, (byte) 0x0a, (byte) 0x0b, (byte) 0x0c,
+                     (byte) 0x0d};
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", getProviderName());
+        keyGenerator.init(128);
+        SecretKey key = keyGenerator.generateKey();
+        SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
+
+        // Build a large backing array with the plaintext starting at inputOffset.
+        // inputLen is intentionally much smaller than input.length.
+        int inputOffset = 40;
+        int inputLen    = 10;
+        byte[] input    = new byte[100]; // input.length >> inputLen
+        new java.security.SecureRandom().nextBytes(input);
+
+        CCMParameterSpec ccmParameterSpec = new CCMParameterSpec(ccmTagLengthBits, iv);
+        Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ccmParameterSpec);
+
+        // The output buffer is exactly the right size for the slice being encrypted:
+        // inputLen + tagLenInBytes = 26 bytes. Before the fix for issue #1564, this would
+        // throw a ShortBufferException because the check used input.length instead of inputLen.
+        // See: https://github.com/IBM/OpenJCEPlus/issues/1564 for more information on failing scenarios.
+        byte[] output = new byte[inputLen + tagLenInBytes]; // 26 bytes — correct
+        int bytesWritten = cipher.doFinal(input, inputOffset, inputLen, output, 0);
+
+        Assertions.assertEquals(inputLen + tagLenInBytes, bytesWritten,
+                "Encrypted output length should equal inputLen + tagLenInBytes");
+    }
+
+    /**
+     * Tests that engineDoFinal correctly uses inputLen (not input.length) when checking whether
+     * the output buffer is large enough to hold the decryption result.
+     *
+     * When the ciphertext backing array is larger than the slice being decrypted, the output
+     * buffer must only be large enough to hold inputLen - tagLenInBytes bytes, not
+     * input.length - tagLenInBytes bytes.
+     */
+    @Test
+    public void testDoFinalDecryptWithInputSlice() throws Exception {
+        int ccmTagLengthBits = 128;
+        int tagLenInBytes    = ccmTagLengthBits / 8; // 16
+        byte[] iv = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
+                     (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08,
+                     (byte) 0x09, (byte) 0x0a, (byte) 0x0b, (byte) 0x0c,
+                     (byte) 0x0d};
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", getProviderName());
+        keyGenerator.init(128);
+        SecretKey key = keyGenerator.generateKey();
+        SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
+
+        // First, encrypt a short plaintext to get valid ciphertext (plaintext + tag).
+        byte[] plaintext = "HelloWorld".getBytes(); // 10 bytes
+        CCMParameterSpec ccmParamEnc = new CCMParameterSpec(ccmTagLengthBits, iv);
+        Cipher encCipher = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
+        encCipher.init(Cipher.ENCRYPT_MODE, keySpec, ccmParamEnc);
+        byte[] ciphertext = encCipher.doFinal(plaintext); // 10 + 16 = 26 bytes
+
+        // Place the ciphertext (26 bytes) inside a larger backing array at an offset,
+        // so cipherInputArray.length (100) >> inputLen (26).
+        int inputOffset  = 40;
+        int inputLen     = ciphertext.length; // 26
+        byte[] cipherInputArray = new byte[100];
+        System.arraycopy(ciphertext, 0, cipherInputArray, inputOffset, inputLen);
+
+        CCMParameterSpec ccmParamDec = new CCMParameterSpec(ccmTagLengthBits, iv);
+        Cipher decCipher = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
+        decCipher.init(Cipher.DECRYPT_MODE, keySpec, ccmParamDec);
+
+        // The output buffer is exactly the right size for the decrypted plaintext:
+        // inputLen - tagLenInBytes = 10 bytes. Before the fix for issue #1564, this would
+        // throw a ShortBufferException because the check used input.length instead of inputLen.
+        // See: https://github.com/IBM/OpenJCEPlus/issues/1564 for more information on failing scenarios.
+        byte[] output = new byte[inputLen - tagLenInBytes]; // 10 bytes — correct
+        int bytesWritten = decCipher.doFinal(cipherInputArray, inputOffset, inputLen, output, 0);
+
+        Assertions.assertEquals(plaintext.length, bytesWritten,
+                "Decrypted output length should equal original plaintext length");
+        Assertions.assertArrayEquals(plaintext, output,
+                "Decrypted bytes should match original plaintext");
+    }
+
+    /**
+     * Negative test: verifies that a genuinely undersized output buffer still triggers a
+     * ShortBufferException when the input is a slice of a larger backing array.
+     *
+     * The input is a 10-byte slice of a 100-byte backing array. An output buffer one byte shorter
+     * than inputLen + tagLenInBytes must be rejected.
+     */
+    @Test
+    public void testDoFinalEncryptWithTrulyShortOutputBuffer() throws Exception {
+        int ccmTagLengthBits = 128;
+        int tagLenInBytes    = ccmTagLengthBits / 8; // 16
+        byte[] iv = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
+                     (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08,
+                     (byte) 0x09, (byte) 0x0a, (byte) 0x0b, (byte) 0x0c,
+                     (byte) 0x0d};
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", getProviderName());
+        keyGenerator.init(128);
+        SecretKey key = keyGenerator.generateKey();
+        SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
+
+        // Large backing array, only a 10-byte slice is being encrypted.
+        int inputOffset = 40;
+        int inputLen    = 10;
+        byte[] input    = new byte[100];
+        new java.security.SecureRandom().nextBytes(input);
+
+        CCMParameterSpec ccmParameterSpec = new CCMParameterSpec(ccmTagLengthBits, iv);
+        Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ccmParameterSpec);
+
+        // One byte short of what is needed: inputLen + tagLenInBytes - 1 = 25.
+        // The check uses inputLen (10), so 25 < 10+16 — ShortBufferException expected.
+        byte[] tooSmallOutput = new byte[inputLen + tagLenInBytes - 1]; // 25 bytes — one short
+
+        try {
+            cipher.doFinal(input, inputOffset, inputLen, tooSmallOutput, 0);
+            Assertions.fail("Expected ShortBufferException was not thrown for a genuinely undersized output buffer");
+        } catch (javax.crypto.ShortBufferException e) {
+            Assertions.assertEquals("The output buffer is too small to hold the encryption result.",
+                    e.getMessage(),
+                    "ShortBufferException should report that the output buffer is too small to hold the encryption result");
+        }
+    }
+
+    /**
+     * Negative test: mirrors testDoFinalEncryptWithTrulyShortOutputBuffer for the decrypt path.
+     *
+     * The ciphertext is a 26-byte slice inside a 100-byte backing array. An output buffer one
+     * byte shorter than inputLen - tagLenInBytes must be rejected.
+     */
+    @Test
+    public void testDoFinalDecryptWithTrulyShortOutputBuffer() throws Exception {
+        int ccmTagLengthBits = 128;
+        int tagLenInBytes    = ccmTagLengthBits / 8; // 16
+        byte[] iv = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
+                     (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08,
+                     (byte) 0x09, (byte) 0x0a, (byte) 0x0b, (byte) 0x0c,
+                     (byte) 0x0d};
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", getProviderName());
+        keyGenerator.init(128);
+        SecretKey key = keyGenerator.generateKey();
+        SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
+
+        // Encrypt a 10-byte plaintext to get 26-byte ciphertext.
+        byte[] plaintext = "HelloWorld".getBytes(); // 10 bytes
+        CCMParameterSpec ccmParamEnc = new CCMParameterSpec(ccmTagLengthBits, iv);
+        Cipher encCipher = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
+        encCipher.init(Cipher.ENCRYPT_MODE, keySpec, ccmParamEnc);
+        byte[] ciphertext = encCipher.doFinal(plaintext); // 26 bytes
+
+        // Place ciphertext in a larger backing array at an offset.
+        int inputOffset = 40;
+        int inputLen    = ciphertext.length; // 26
+        byte[] cipherInputArray = new byte[100];
+        System.arraycopy(ciphertext, 0, cipherInputArray, inputOffset, inputLen);
+
+        CCMParameterSpec ccmParamDec = new CCMParameterSpec(ccmTagLengthBits, iv);
+        Cipher decCipher = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
+        decCipher.init(Cipher.DECRYPT_MODE, keySpec, ccmParamDec);
+
+        // One byte short: inputLen - tagLenInBytes - 1 = 9.
+        // The check uses inputLen (26), so 9 < 26-16 — ShortBufferException expected.
+        byte[] tooSmallOutput = new byte[inputLen - tagLenInBytes - 1]; // 9 bytes — one short
+
+        try {
+            decCipher.doFinal(cipherInputArray, inputOffset, inputLen, tooSmallOutput, 0);
+            Assertions.fail("Expected ShortBufferException was not thrown for a genuinely undersized output buffer");
+        } catch (javax.crypto.ShortBufferException e) {
+            Assertions.assertEquals("The output buffer is too small to hold the decryption result.",
+                    e.getMessage(),
+                    "ShortBufferException should report that the output buffer is too small to hold the decryption result");
+        }
+    }
+
     private byte[] encrypt(byte[] plaintext, SecretKey key, byte[] IV, int ccmTagLength)
             throws Exception {
         synchronized (myMutexObject) {
