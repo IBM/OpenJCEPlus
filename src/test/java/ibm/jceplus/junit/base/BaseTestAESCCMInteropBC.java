@@ -289,6 +289,129 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
         }
     } // end testAESCCM()
 
+    /**
+     * Tests that engineDoFinal correctly uses inputLen (not input.length) for the output buffer
+     * size check during cross-provider interop with BouncyCastle.
+     *
+     * Exercises two cross-provider scenarios, each with a large input backing array where only a
+     * slice is passed via inputOffset + inputLen, and the output buffer is exactly the right size
+     * for that slice.
+     *
+     * Scenario A: OpenJCEPlus encrypts a slice → BC decrypts → plaintext verified.
+     * Scenario B: BC encrypts → OpenJCEPlus decrypts a slice → plaintext verified.
+     */
+    @Test
+    public void testAESCCMDoFinalWithInputSliceInterop() throws Exception {
+        // Fixed parameters for deterministic, readable test.
+        int ccmTagLengthBits = 128;
+        int tagLenInBytes    = ccmTagLengthBits / 8; // 16
+        byte[] iv = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
+                     (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08,
+                     (byte) 0x09, (byte) 0x0a, (byte) 0x0b, (byte) 0x0c,
+                     (byte) 0x0d};
+        byte[] aadBytes = {(byte) 0x09, (byte) 0x10, (byte) 0x11, (byte) 0x12,
+                           (byte) 0x13, (byte) 0x14, (byte) 0x15, (byte) 0x16};
+
+        // Generate a shared 128-bit AES key via OpenJCEPlus.
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", getProviderName());
+        keyGenerator.init(128);
+        SecretKey key = keyGenerator.generateKey();
+        byte[] aesKeyBytes = key.getEncoded();
+        SecretKeySpec keySpec = new SecretKeySpec(aesKeyBytes, "AES");
+
+        // The actual plaintext payload is 20 bytes, embedded inside a 100-byte backing array
+        // at offset 40. This exercises the fix for issue #1564 where engineDoFinal incorrectly
+        // used input.length instead of inputLen for the output buffer size check.
+        // See: https://github.com/IBM/OpenJCEPlus/issues/1564 for more information on failing scenarios.
+        byte[] plaintext = "InteropSliceTest1234".getBytes(); // exactly 20 bytes
+        int inputOffset = 40;
+        int inputLen    = plaintext.length; // 20
+        byte[] inputBacking = new byte[100];
+        System.arraycopy(plaintext, 0, inputBacking, inputOffset, inputLen);
+
+        // -----------------------------------------------------------------------
+        // Scenario A: OpenJCEPlus encrypts the slice → BC decrypts → verify
+        // -----------------------------------------------------------------------
+        ibm.security.internal.spec.CCMParameterSpec ccmParamEnc =
+                new ibm.security.internal.spec.CCMParameterSpec(ccmTagLengthBits, iv);
+        Cipher encCipherOJP = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
+        encCipherOJP.init(Cipher.ENCRYPT_MODE, keySpec, ccmParamEnc);
+        encCipherOJP.updateAAD(aadBytes);
+
+        // Output buffer sized exactly for the slice: inputLen + tagLenInBytes = 36 bytes.
+        // Before the fix for issue #1564, this would throw a ShortBufferException
+        // because the check incorrectly used input.length (100) instead of inputLen (20).
+        // See: https://github.com/IBM/OpenJCEPlus/issues/1564 for more information on failing scenarios.
+        int encOutputLen = inputLen + tagLenInBytes; // 36
+        byte[] ciphertextA = new byte[encOutputLen];
+        int bytesEncrypted = encCipherOJP.doFinal(inputBacking, inputOffset, inputLen, ciphertextA, 0);
+
+        Assertions.assertEquals(encOutputLen, bytesEncrypted,
+                "Scenario A: OpenJCEPlus encrypted byte count should equal inputLen + tagLenInBytes");
+
+        // BC decrypts the ciphertext produced by OpenJCEPlus.
+        org.bouncycastle.crypto.MultiBlockCipher bcEngine =
+                org.bouncycastle.crypto.engines.AESEngine.newInstance();
+        org.bouncycastle.crypto.params.AEADParameters bcParams =
+                new org.bouncycastle.crypto.params.AEADParameters(
+                        new org.bouncycastle.crypto.params.KeyParameter(aesKeyBytes),
+                        ccmTagLengthBits, iv, null);
+        org.bouncycastle.crypto.modes.CCMModeCipher bcDecCipher =
+                org.bouncycastle.crypto.modes.CCMBlockCipher.newInstance(bcEngine);
+        bcDecCipher.init(false, bcParams);
+        bcDecCipher.processAADBytes(aadBytes, 0, aadBytes.length);
+        byte[] decryptedA = new byte[bcDecCipher.getOutputSize(ciphertextA.length)];
+        int decLen = bcDecCipher.processBytes(ciphertextA, 0, ciphertextA.length, decryptedA, 0);
+        bcDecCipher.doFinal(decryptedA, decLen);
+
+        Assertions.assertArrayEquals(plaintext, decryptedA,
+                "Scenario A: BC-decrypted bytes must match original plaintext");
+
+        // -----------------------------------------------------------------------
+        // Scenario B: BC encrypts → OpenJCEPlus decrypts the slice → verify
+        // -----------------------------------------------------------------------
+        org.bouncycastle.crypto.MultiBlockCipher bcEngineB =
+                org.bouncycastle.crypto.engines.AESEngine.newInstance();
+        org.bouncycastle.crypto.params.AEADParameters bcParamsB =
+                new org.bouncycastle.crypto.params.AEADParameters(
+                        new org.bouncycastle.crypto.params.KeyParameter(aesKeyBytes),
+                        ccmTagLengthBits, iv, null);
+        org.bouncycastle.crypto.modes.CCMModeCipher bcEncCipher =
+                org.bouncycastle.crypto.modes.CCMBlockCipher.newInstance(bcEngineB);
+        bcEncCipher.init(true, bcParamsB);
+        bcEncCipher.processAADBytes(aadBytes, 0, aadBytes.length);
+        byte[] ciphertextB = new byte[bcEncCipher.getOutputSize(plaintext.length)];
+        int bcEncLen = bcEncCipher.processBytes(plaintext, 0, plaintext.length, ciphertextB, 0);
+        bcEncCipher.doFinal(ciphertextB, bcEncLen);
+
+        // Place BC's ciphertext (36 bytes) inside a large backing array at an offset,
+        // so the backing array length (100) >> the slice length (36).
+        int cipherInputOffset = 32;
+        int cipherInputLen    = ciphertextB.length; // 36
+        byte[] cipherBacking = new byte[100];
+        System.arraycopy(ciphertextB, 0, cipherBacking, cipherInputOffset, cipherInputLen);
+
+        ibm.security.internal.spec.CCMParameterSpec ccmParamDec =
+                new ibm.security.internal.spec.CCMParameterSpec(ccmTagLengthBits, iv);
+        Cipher decCipherOJP = Cipher.getInstance("AES/CCM/NoPadding", getProviderName());
+        decCipherOJP.init(Cipher.DECRYPT_MODE, keySpec, ccmParamDec);
+        decCipherOJP.updateAAD(aadBytes);
+
+        // Output buffer sized exactly for the decrypted plaintext: cipherInputLen - tagLenInBytes = 20.
+        // Before the fix for issue #1564, this would throw a ShortBufferException
+        // because the check incorrectly used input.length (100) instead of inputLen (36).
+        // See: https://github.com/IBM/OpenJCEPlus/issues/1564 for more information on failing scenarios.
+        int decOutputLen = cipherInputLen - tagLenInBytes; // 20
+        byte[] decryptedB = new byte[decOutputLen];
+        int bytesDecrypted = decCipherOJP.doFinal(cipherBacking, cipherInputOffset, cipherInputLen,
+                decryptedB, 0);
+
+        Assertions.assertEquals(plaintext.length, bytesDecrypted,
+                "Scenario B: OpenJCEPlus decrypted byte count should equal original plaintext length");
+        Assertions.assertArrayEquals(plaintext, decryptedB,
+                "Scenario B: OpenJCEPlus-decrypted bytes must match original plaintext");
+    }
+
     private static byte[] encrypt(byte[] plaintext, byte[] aesKeyBytes, byte[] IV, int ccmTagLength)
             throws Exception {
         synchronized (myMutexObject) {
