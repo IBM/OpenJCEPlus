@@ -114,7 +114,7 @@ abstract public class BaseUtils {
         String osArch;
 
         supportedPlatforms.put("Arch", List.of("amd64", "ppc64", "s390x"));
-        supportedPlatforms.put("OS", List.of("Linux", "AIX", "Windows"));
+        supportedPlatforms.put("OS", List.of("Linux", "AIX", "Windows", "z/OS"));
 
         osName = System.getProperty("os.name");
         osArch = System.getProperty("os.arch");;
