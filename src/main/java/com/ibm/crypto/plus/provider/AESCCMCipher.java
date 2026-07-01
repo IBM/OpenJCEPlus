@@ -223,12 +223,12 @@ public final class AESCCMCipher extends CipherSpi implements AESConstants, CCMCo
 
         // Force the doFinal caller to call getOutputSize( ) and add the length of the doFinal data to it.
         if (encrypting) {
-            if ((output.length - outputOffset) < (input.length + tagLenInBytes)) {
+            if ((output.length - outputOffset) < (inputLen + tagLenInBytes)) {
                 throw new ShortBufferException(
                         "The output buffer is too small to hold the encryption result.");
             }
         } else { // decrypting
-            if ((output.length - outputOffset) < (input.length - tagLenInBytes)) {
+            if ((output.length - outputOffset) < (inputLen - tagLenInBytes)) {
                 throw new ShortBufferException(
                         "The output buffer is too small to hold the decryption result.");
             }
