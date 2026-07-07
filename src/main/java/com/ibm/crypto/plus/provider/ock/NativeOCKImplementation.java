@@ -724,7 +724,7 @@ final class NativeOCKImplementation {
             long privEcKeyId) throws OCKException;
 
     static public native byte[] XECKEY_computeECDHSecret(long ockContextId, long genCtx,
-            long pubEcKeyId, long privEcKeyId, int secrectBufferSize) throws OCKException;
+            long pubEcKeyId, long privEcKeyId) throws OCKException;
 
 
     static public native byte[] ECKEY_signDatawithECDSA(long ockContextId, byte[] digestBytes,

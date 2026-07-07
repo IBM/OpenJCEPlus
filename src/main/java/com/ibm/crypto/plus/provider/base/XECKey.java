@@ -66,7 +66,7 @@ public final class XECKey implements AsymmetricKey {
     }
 
     public static byte[] computeECDHSecret(long genCtx, long pubId,
-            long privId, int secrectBufferSize, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
+            long privId, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
         if (pubId == 0)
             throw new IllegalArgumentException("The public key parameter is not valid");
         if (privId == 0)
@@ -74,7 +74,7 @@ public final class XECKey implements AsymmetricKey {
 
         NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyAgreement", configAlgName);
         byte[] sharedSecretBytes = nativeInterface.XECKEY_computeECDHSecret(
-                genCtx, pubId, privId, secrectBufferSize);
+                genCtx, pubId, privId);
         //OCKDebug.Msg (debPrefix, methodName,  "pubId :" + pubId + " privId :" + privId + " sharedSecretBytes :", sharedSecretBytes);
         return sharedSecretBytes;
     }
