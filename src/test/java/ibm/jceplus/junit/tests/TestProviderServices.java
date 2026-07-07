@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.security.InvalidParameterException;
 import java.security.Provider;
+import java.security.SecureRandom;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,8 +35,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag(Tags.OPENJCEPLUS_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
-@Tag(Tags.OPENJCEPLUS_MULTITHREAD_NAME)
-@Tag(Tags.OPENJCEPLUS_FIPS_MULTITHREAD_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
@@ -233,6 +232,84 @@ public class TestProviderServices extends BaseTest {
     }
 
     @Test
+    // This test does not play well in multi-thread. So, do not include this in those tests.
+    public void testDefaultSecureRandom() throws Exception {
+        
+        String config = "name = test\n"
+            + "description =  OpenJCEPlus-test Provider\n"
+            + "default = true\n"
+            + "securerandomdefault = SHA512DRBG";
+
+        SecureRandom secureRandom = new SecureRandom();
+
+        List<String> acceptableValues = List.of("NativePRNG", "NativePRNGBlocking", "NativePRNGNonBlocking", "DRBG");
+        assertTrue (acceptableValues.contains(secureRandom.getAlgorithm()), "SecureRandom not SunJCE - " + secureRandom.getAlgorithm());
+
+        //Now Put OpenJCEPlus first in the list.
+        Provider provider = (Provider) Class.forName("com.ibm.crypto.plus.provider.OpenJCEPlus").getDeclaredConstructor().newInstance();
+        if (provider == null) {
+            fail("Provider is null");
+        }
+        Security.removeProvider("OpenJCEPlus");
+        int position = Security.insertProviderAt(provider, 1);
+        if (position == -1) {
+            fail("Failed to insert provider");
+        }
+
+        secureRandom = new SecureRandom();
+
+        assertEquals("SHA256DRBG", secureRandom.getAlgorithm(), "SecureRandom not OpenJCEPlus SHA256DRBG");
+
+        //Use config file to change default SecureRandom
+        BufferedReader br = new BufferedReader(new StringReader(config));
+        Provider provider2 = ((OpenJCEPlus) provider).configure(br);
+
+        if (provider2 == null) {
+            fail("Provider is null");
+        }
+
+        position = Security.insertProviderAt(provider2, 1);
+        if (position == -1) {
+            fail("Failed to insert provider");
+        }
+
+        secureRandom = new SecureRandom();
+
+        assertEquals("SHA512DRBG", secureRandom.getAlgorithm(), "SecureRandom not OpenJCEPlus SHA512DRBG");
+
+        Security.removeProvider("OpenJCEPlus-test");
+        Security.removeProvider("OpenJCEPlus");
+    }
+
+    @Test
+    // This test does not play well in multi-thread. So, do not include this in those tests.
+    public void testDefaultSecureRandomFIPS() throws Exception {
+
+        SecureRandom secureRandom = new SecureRandom();
+
+        List<String> acceptableValues = List.of("NativePRNG", "NativePRNGBlocking", "NativePRNGNonBlocking", "DRBG");
+        assertTrue (acceptableValues.contains(secureRandom.getAlgorithm()), "SecureRandom not SunJCE");
+
+        //Now Put OpenJCEPlus first in the list.
+        Provider provider = (Provider) Class.forName("com.ibm.crypto.plus.provider.OpenJCEPlusFIPS").getDeclaredConstructor().newInstance();
+        if (provider == null) {
+            fail("Provider is null");
+        }
+        Security.removeProvider("OpenJCEPlusFIPS");
+        int position = Security.insertProviderAt(provider, 1);
+
+        if (position == -1) {
+            fail("Failed to insert provider");
+        }
+
+        secureRandom = new SecureRandom();
+
+        assertEquals("SHA256DRBG", secureRandom.getAlgorithm(), "SecureRandom not OpenJCEPlus SHA256DRBG");
+
+        Security.removeProvider("OpenJCEPlusFIPS");
+    }
+
+    @Test
     public void testCompareProviders() throws Exception {
         String configNonFIPS = "./src/test/ProviderDefAttrs.config";
         String configFIPS = "./src/test/ProviderFIPSDefAttrs.config";
@@ -308,7 +385,7 @@ public class TestProviderServices extends BaseTest {
 
         if (!result) {
             fail("File was expected to not be found");
-        }    
+        }
     }
 
     @Test

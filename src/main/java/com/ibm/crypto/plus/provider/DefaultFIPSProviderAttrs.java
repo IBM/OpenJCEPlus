@@ -209,6 +209,7 @@ class DefaultFIPSProviderAttrs {
         + " # SecureRandom\n"
         + " # =======================================================================\n"
         + " #\n"
+        + "securerandomdefault = SHA256DRBG\n"
         + "SecureRandom.SHA256DRBG.alias.add = HASHDRBG, SHA2DRBG\n"
         + "SecureRandom.SHA256DRBG.attr.add.ThreadSafe = true\n"
         + "Service.SecureRandom.SHA256DRBG = com.ibm.crypto.plus.provider.HASHDRBG$SHA256DRBG\n"

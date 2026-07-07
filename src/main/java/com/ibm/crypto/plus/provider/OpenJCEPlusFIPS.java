@@ -166,6 +166,10 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     // SecureRandom in FIPS mode.
     //
     java.security.SecureRandom getSecureRandom(java.security.SecureRandom userSecureRandom) {
+        /* Unlike OpenJCEPlus we do not want this algorithm set by the config file 
+         * this should only be updated manually in the provider to make sure we 
+         * are using the RNG that FIPS requires.
+         */
         try {
             return java.security.SecureRandom.getInstance("SHA256DRBG", this);
         } catch (NoSuchAlgorithmException e) {
