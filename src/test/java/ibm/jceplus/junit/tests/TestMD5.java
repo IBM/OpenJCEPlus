@@ -1,19 +1,33 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestMD5 extends BaseTestMessageDigest {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestMD5 extends BaseTestMessageDigest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     static byte[] each = {(byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x1, (byte) 0x0, (byte) 0x73,
             (byte) 0x0, (byte) 0x75, (byte) 0x0, (byte) 0x62, (byte) 0x0, (byte) 0x2d, (byte) 0x0,
@@ -113,6 +127,12 @@ public class BaseTestMD5 extends BaseTestMessageDigest {
     static final byte[] md5_G = {(byte) 0x57, (byte) 0xed, (byte) 0xf4, (byte) 0xa2, (byte) 0x2b,
             (byte) 0xe3, (byte) 0xc9, (byte) 0x55, (byte) 0xac, (byte) 0x49, (byte) 0xda,
             (byte) 0x2e, (byte) 0x21, (byte) 0x07, (byte) 0xb6, (byte) 0x7a};
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAlgorithm("MD5");
+    }
 
     @Test
     public void testMD5() throws Exception {
