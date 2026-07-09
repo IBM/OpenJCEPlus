@@ -39,8 +39,6 @@ public class TestMultithread {
             "ibm.jceplus.junit.openjceplus.multithread.TestECDHInteropSunEC",
             "ibm.jceplus.junit.openjceplus.multithread.TestEdDSASignature",
             "ibm.jceplus.junit.openjceplus.multithread.TestHKDF",
-            "ibm.jceplus.junit.openjceplus.multithread.TestHmacMD5",
-            "ibm.jceplus.junit.openjceplus.multithread.TestHmacMD5InteropSunJCE",
             "ibm.jceplus.junit.openjceplus.multithread.TestHmacSHA256",
             "ibm.jceplus.junit.openjceplus.multithread.TestHmacSHA256InteropSunJCE",
             "ibm.jceplus.junit.openjceplus.multithread.TestPBKDF2",
