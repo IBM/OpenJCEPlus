@@ -235,7 +235,11 @@ int HMAC_init(JNIEnv *env, jclass thisObj, jlong ockContextId, jlong hmacId,
             gslogMessage("DETAIL_HMAC FAILURE to allocate keyNative");
         }
 #endif
+        if (debug) {
+            gslogFunctionExit(functionName);
+        }
         throwOCKException(env, 0, "NULL from GetPrimitiveArrayCritical!");
+        return FAIL_HMAC_INTERNAL_INIT;
     }
 
     result = HMAC_init_internal(ockCtx, ockHMAC, keyNative, keySize);
