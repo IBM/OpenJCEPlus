@@ -39,6 +39,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
             + "Message authentication code (MAC)  :   HmacSHA224, HmacSHA256,\n"
             + "                                       HmacSHA384, HmacSHA512\n"
             + "                                                   HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512\n"
+            + "                                     PBEWithHmacSHA384, PBEWithHmacSHA512, PBEWithHmacSHA512/224, PBEWithHmacSHA512/256\n"
             + "Message digest                     : SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256, SHA3-224, SHA3-256, SHA3-384, SHA3-512\n"
             + "Secret key factory                 : AES, PBKDF2WithHmacSHA224, PBKDF2WithHmacSHA256, PBKDF2WithHmacSHA384, PBKDF2WithHmacSHA512\n"
             + "Secure random                      : HASHDRBG, SHA256DRBG, SHA512DRBG\n"
