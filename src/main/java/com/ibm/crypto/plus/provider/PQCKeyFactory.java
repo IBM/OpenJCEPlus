@@ -165,11 +165,8 @@ class PQCKeyFactory extends KeyFactorySpi {
      */
     private byte[] getRawBytes(KeySpec keySpec) throws InvalidKeySpecException {
         byte[] bytes = null;
-        if (keySpec instanceof ibm.security.internal.spec.RawKeySpec) {
-            bytes = ((ibm.security.internal.spec.RawKeySpec) keySpec).getKeyArr();
-        } else if (keySpec instanceof sun.security.util.RawKeySpec) {
-            bytes = ((sun.security.util.RawKeySpec) keySpec).getKeyArr();
-        } else if (keySpec instanceof EncodedKeySpec) {
+
+        if (keySpec instanceof EncodedKeySpec) {
             EncodedKeySpec eks = (EncodedKeySpec) keySpec;
             if ("RAW".equalsIgnoreCase(eks.getFormat())) {
                 bytes = eks.getEncoded();
