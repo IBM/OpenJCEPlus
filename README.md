@@ -442,6 +442,13 @@ Mac                         | HmacSHA3-384                    |X                
 Mac                         | HmacSHA3-512                    |X                |X             |              |
 Mac                         | HmacSHA384                      |X                |X             |              |
 Mac                         | HmacSHA512                      |X                |X             |              |
+Mac                         | PBEWithHmacSHA1                 |                 |X             |              |
+Mac                         | PBEWithHmacSHA224               |                 |X             |              |
+Mac                         | PBEWithHmacSHA256               |                 |X             |              |
+Mac                         | PBEWithHmacSHA384               |X                |X             |              |
+Mac                         | PBEWithHmacSHA512               |X                |X             |              |
+Mac                         | PBEWithHmacSHA512/224           |X                |X             |              |
+Mac                         | PBEWithHmacSHA512/256           |X                |X             |              |
 MessageDigest               | MD5                             |X                |X             |              |
 MessageDigest               | SHA-1                           |X                |X             |              |
 MessageDigest               | SHA-224                         |X                |X             |              |
