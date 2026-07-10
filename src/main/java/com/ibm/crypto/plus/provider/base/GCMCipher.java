@@ -9,11 +9,10 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.SystemAccessUtils;
 import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
 import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.nio.ByteBuffer;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +24,9 @@ import javax.crypto.ShortBufferException;
 @SuppressWarnings({"removal", "deprecation"})
 public final class GCMCipher {
 
-    private static final boolean disableGCMAcceleration;
     private static final String DISABLE_GCM_ACCELERATION = "com.ibm.crypto.provider.DisableGCMAcceleration";
+    private static final boolean disableGCMAcceleration = Boolean.parseBoolean(
+            SystemAccessUtils.doPrivileged(() -> System.getProperty(DISABLE_GCM_ACCELERATION, "false")));
     private static final String debPrefix = "GCMCipher";
 
     // This tracks if the HARDWARE actually supports GCM (Checked once)
@@ -43,15 +43,6 @@ public final class GCMCipher {
     static final int GCM_MODE_256 = 20;
     static final int GCM_MODE_DECRYPT = 128;
     static final int GCM_AUGMENTED_MODE = 768;
-
-    static {
-        disableGCMAcceleration = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-            public Boolean run() {
-                return ("true"
-                        .equalsIgnoreCase(System.getProperty(DISABLE_GCM_ACCELERATION, "false")));
-            }
-        });
-    }
 
     // Buffer to pass GCM input to native
     private static final ThreadLocal<FastJNIBuffer> inputBuffer = new ThreadLocal<FastJNIBuffer>() {

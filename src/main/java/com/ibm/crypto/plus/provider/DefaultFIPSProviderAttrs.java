@@ -9,8 +9,10 @@
 package com.ibm.crypto.plus.provider;
 
 class DefaultFIPSProviderAttrs {
-    static final boolean allowLegacyHKDF = Boolean.getBoolean("openjceplus.allowLegacyHKDF");
-    static final boolean allowNonOAEPFIPS = Boolean.parseBoolean(System.getProperty("com.ibm.openjceplusfips.allowNonOAEP", "false"));
+    static final boolean allowLegacyHKDF = Boolean.parseBoolean(
+            SystemAccessUtils.doPrivileged(() -> System.getProperty("openjceplus.allowLegacyHKDF", "false")));
+    static final boolean allowNonOAEPFIPS = Boolean.parseBoolean(
+            SystemAccessUtils.doPrivileged(() -> System.getProperty("com.ibm.openjceplusfips.allowNonOAEP", "false")));
     static String defaultFIPSProvAttrs = "Service.AlgorithmParameters.AES = com.ibm.crypto.plus.provider.AESParameters\n"
 
         + "AlgorithmParameters.DiffieHellman.alias.add = DH, OID.1.2.840.113549.1.3.1, 1.2.840.113549.1.3.1\n"

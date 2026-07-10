@@ -21,9 +21,11 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     // Field serialVersionUID per tag [SERIALIZATION] in DesignNotes.txt
     private static final long serialVersionUID = 929669768004683845L;
 
-    private static final boolean printFipsDeveloperModeWarning = Boolean.parseBoolean(System.getProperty("openjceplus.fips.devmodewarn", "true"));
+    private static final boolean printFipsDeveloperModeWarning = Boolean.parseBoolean(
+            SystemAccessUtils.doPrivileged(() -> System.getProperty("openjceplus.fips.devmodewarn", "true")));
 
-    private static final boolean allowNonOAEPFIPS = Boolean.parseBoolean(System.getProperty("com.ibm.openjceplusfips.allowNonOAEP", "false"));
+    private static final boolean allowNonOAEPFIPS = Boolean.parseBoolean(
+            SystemAccessUtils.doPrivileged(() -> System.getProperty("com.ibm.openjceplusfips.allowNonOAEP", "false")));
 
     private static final String info = "OpenJCEPlusFIPS Provider implements the following:\n" +
 
@@ -66,8 +68,8 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         supportedPlatforms.put("Arch", List.of("amd64", "ppc64", "s390x"));
         supportedPlatforms.put("OS", List.of("Linux", "AIX", "Windows", "z/OS"));
 
-        osName = System.getProperty("os.name");
-        osArch = System.getProperty("os.arch");;
+        osName = SystemAccessUtils.doPrivileged(() -> System.getProperty("os.name"));
+        osArch = SystemAccessUtils.doPrivileged(() -> System.getProperty("os.arch"));
 
         boolean isOsSupported, isArchSupported;
         // Check whether the OpenJCEPlus FIPS is supported.
@@ -94,6 +96,10 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         if (debug != null) {
             debug.println("New OpenJCEPlusFIPS instance");
         }
+        // Eagerly verify that the FIPS native adapter can be obtained.
+        // Without this check, the provider silently loads in a non-FIPS
+        // state when the SecurityManager blocks the OCK library from loading.
+        NativeOCKAdapterFIPS.getInstance();
 
         if (!isFIPSCertifiedPlatform) {
             if (printFipsDeveloperModeWarning) {
@@ -179,7 +185,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     private static String getDebugDate(String className) {
         String versionDate = "Unknown";
         try {
-            Class<?> thisClass = Class.forName(className);
+            Class<?> thisClass = SystemAccessUtils.doPrivilegedChecked(() -> Class.forName(className));
             Package thisPackage = thisClass.getPackage();
             String versionInfo = thisPackage.getImplementationVersion();
             int index = versionInfo.indexOf("_");

@@ -56,8 +56,10 @@ public final class RSA extends CipherSpi {
     private final static byte[] B0 = new byte[0];
 
     static {
-        doTypeChecking = Boolean.parseBoolean(System.getProperty(DO_TYPE_CHECKING, "true"));
-        allowNonOAEPFIPS = Boolean.parseBoolean(System.getProperty(ALLOW_NON_OAEP_FIPS, "false"));
+        doTypeChecking = Boolean.parseBoolean(
+                SystemAccessUtils.doPrivileged(() -> System.getProperty(DO_TYPE_CHECKING, "true")));
+        allowNonOAEPFIPS = Boolean.parseBoolean(
+                SystemAccessUtils.doPrivileged(() -> System.getProperty(ALLOW_NON_OAEP_FIPS, "false")));
     }
 
     public RSA(OpenJCEPlusProvider provider) {

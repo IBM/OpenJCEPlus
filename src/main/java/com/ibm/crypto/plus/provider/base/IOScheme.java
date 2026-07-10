@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.base;
 
+import com.ibm.crypto.plus.provider.SystemAccessUtils;
 import java.nio.ByteBuffer;
 
 class IOScheme {
@@ -20,7 +21,7 @@ class IOScheme {
     protected int threshold;
 
     IOScheme() {
-        String platform = System.getProperty("os.arch");
+        String platform = SystemAccessUtils.doPrivileged(() -> System.getProperty("os.arch"));
         if (platform.contains("x86") || platform.contains("amd")) {
             threshold = xthreshold;
         } else if (platform.contains("s390")) {

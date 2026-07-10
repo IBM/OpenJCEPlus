@@ -34,7 +34,8 @@ abstract class RSAKeyPairGenerator extends KeyPairGeneratorSpi {
     private AlgorithmId rsaId;
     public final static List<Integer> ALLOWABLE_MODLEN_FIPS_GENERATION = Arrays.asList(2048, 3072, 4096);
     private static final boolean ALLOW_LEGACY_RSA_KEYGEN_VALIDATION =
-        Boolean.getBoolean("com.ibm.openjceplusfips.allowLegacyRSAKeyGenValidation");
+        Boolean.parseBoolean(SystemAccessUtils.doPrivileged(
+                () -> System.getProperty("com.ibm.openjceplusfips.allowLegacyRSAKeyGenValidation", "false")));
 
     RSAKeyPairGenerator(OpenJCEPlusProvider provider, KeyType type, int keySize) {
         this.provider = provider;

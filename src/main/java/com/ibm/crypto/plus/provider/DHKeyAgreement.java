@@ -49,7 +49,8 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
 
         private static boolean getValue() {
             return Boolean.parseBoolean(
-                System.getProperty("jdk.crypto.KeyAgreement.legacyKDF", "false"));
+                SystemAccessUtils.doPrivileged(
+                        () -> System.getProperty("jdk.crypto.KeyAgreement.legacyKDF", "false")));
         }
     }
 

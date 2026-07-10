@@ -44,7 +44,8 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
     //
     // TODO: Remove this property in the future
     private static final boolean ALLOW_KEYPAIR_GENERATION_IN_CONSTRUCTOR =
-        Boolean.getBoolean("openjceplus.xdh.allowKeyPairGenerationInConstructor");
+        Boolean.parseBoolean(SystemAccessUtils.doPrivileged(
+                () -> System.getProperty("openjceplus.xdh.allowKeyPairGenerationInConstructor", "false")));
 
     private OpenJCEPlusProvider provider = null;
     private transient NamedParameterSpec params;

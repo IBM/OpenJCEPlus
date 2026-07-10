@@ -8,13 +8,15 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.SystemAccessUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import sun.security.util.Debug;
 
 public class NativeOCKAdapterFIPS extends NativeOCKAdapter {
-    private static final boolean printFipsDeveloperModeWarning = Boolean.parseBoolean(System.getProperty("openjceplus.fips.devmodewarn", "true"));
+    private static final boolean printFipsDeveloperModeWarning = Boolean.parseBoolean(
+                SystemAccessUtils.doPrivileged(() -> System.getProperty("openjceplus.fips.devmodewarn", "true")));
 
     // User enabled debugging
     private static final String DEBUG_VALUE = "jceplus";
@@ -29,8 +31,8 @@ public class NativeOCKAdapterFIPS extends NativeOCKAdapter {
         supportedPlatforms.put("Arch", List.of("amd64", "ppc64", "s390x"));
         supportedPlatforms.put("OS", List.of("Linux", "AIX", "Windows", "z/OS"));
 
-        osName = System.getProperty("os.name");
-        osArch = System.getProperty("os.arch");;
+        osName = SystemAccessUtils.doPrivileged(() -> System.getProperty("os.name"));
+        osArch = SystemAccessUtils.doPrivileged(() -> System.getProperty("os.arch"));
 
         boolean isOsSupported, isArchSupported;
         // Check whether the OpenJCEPlus FIPS is supported.

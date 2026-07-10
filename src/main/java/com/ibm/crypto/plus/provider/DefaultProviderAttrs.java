@@ -9,7 +9,8 @@
 package com.ibm.crypto.plus.provider;
 
 class DefaultProviderAttrs {
-    static final boolean allowLegacyHKDF = Boolean.getBoolean("openjceplus.allowLegacyHKDF");
+    static final boolean allowLegacyHKDF = Boolean.parseBoolean(
+            SystemAccessUtils.doPrivileged(() -> System.getProperty("openjceplus.allowLegacyHKDF", "false")));
     static String defaultProvAttrs = "Service.AlgorithmParameters.AES = com.ibm.crypto.plus.provider.AESParameters\n"
 
         + "AlgorithmParameters.DESede.alias.add = TripleDES, 3DES\n"
