@@ -10,8 +10,7 @@ package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import com.ibm.crypto.plus.provider.SystemAccessUtils;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,7 +38,7 @@ public final class Digest implements Cloneable {
     final static int[] digestLengths = {32, 48, 64, 28, 20};
 
     //disable caching mechanism for windows OS
-    final static private boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+    final static private boolean isWindows = SystemAccessUtils.getSystemProperty("os.name").startsWith("Windows");
 
     final static private int numContexts;
 
@@ -58,22 +57,18 @@ public final class Digest implements Cloneable {
 
     static {
         // Configurable number of cached contexts
-        numContexts = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
-            public Integer run() {
-                int numContexts;
-                if (isWindows) {
-                    return 0;
-                } else {
-                    try {
-                        numContexts = Integer
-                                .parseInt(System.getProperty(DIGEST_CONTEXT_CACHE_SIZE, "2048"));
-                    } catch (NumberFormatException e) {
-                        numContexts = 0;
-                    }
-                    return numContexts;
-                }
+        int num;
+        if (isWindows) {
+            num = 0;
+        } else {
+            try {
+                num = Integer.parseInt(SystemAccessUtils.getSystemProperty(
+                        DIGEST_CONTEXT_CACHE_SIZE, "2048"));
+            } catch (NumberFormatException e) {
+                num = 0;
             }
-        });
+        }
+        numContexts = num;
     }
 
     void getContext() throws NativeException {

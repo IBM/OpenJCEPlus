@@ -37,9 +37,9 @@ import sun.security.util.Debug;
 public abstract class OpenJCEPlusProvider extends java.security.Provider {
     private static final long serialVersionUID = 1L;
 
-    private static final String PROVIDER_VER = System.getProperty("java.specification.version");
+    private static final String PROVIDER_VER = SystemAccessUtils.getSystemProperty("java.specification.version");
 
-    private static final String JAVA_VER = System.getProperty("java.specification.version");
+    private static final String JAVA_VER = SystemAccessUtils.getSystemProperty("java.specification.version");
 
     static final String DEBUG_VALUE = "jceplus";
 
@@ -57,7 +57,9 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
     OpenJCEPlusProvider(String name, String info) {
         super(name, PROVIDER_VER, info);
 
-        numCleaners = Integer.getInteger("openjceplus.cleaners.num", DEFAULT_NUM_CLEANERS);
+        numCleaners = Integer.parseInt(
+                SystemAccessUtils.getSystemProperty("openjceplus.cleaners.num",
+                        String.valueOf(DEFAULT_NUM_CLEANERS)));
         if (numCleaners < 1) {
             throw new IllegalArgumentException(numCleaners + " is an invalid number of cleaner threads, must be at least 1.");
         }
@@ -194,7 +196,7 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
 
             Class<?> cls;
             try {
-                cls = Class.forName(className);
+                cls = SystemAccessUtils.forName(className);
             } catch (ClassNotFoundException e) {
                 throw new NoSuchAlgorithmException("class configured for " + type + " (provider: "
                         + provider.getName() + ") cannot be found.", e);
@@ -224,8 +226,8 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
                     parameters = new Class<?>[1];
                 }
                 if (openjceplusClass == null) {
-                    openjceplusClass = Class
-                            .forName("com.ibm.crypto.plus.provider.OpenJCEPlusProvider");
+                    openjceplusClass = SystemAccessUtils.forName(
+                            "com.ibm.crypto.plus.provider.OpenJCEPlusProvider");
                 }
                 parameters[0] = openjceplusClass;
                 Constructor<?> constr = cls.getConstructor(parameters);

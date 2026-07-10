@@ -21,9 +21,11 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     // Field serialVersionUID per tag [SERIALIZATION] in DesignNotes.txt
     private static final long serialVersionUID = 929669768004683845L;
 
-    private static final boolean printFipsDeveloperModeWarning = Boolean.parseBoolean(System.getProperty("openjceplus.fips.devmodewarn", "true"));
+    private static final boolean printFipsDeveloperModeWarning = Boolean.parseBoolean(
+            SystemAccessUtils.getSystemProperty("openjceplus.fips.devmodewarn", "true"));
 
-    private static final boolean allowNonOAEPFIPS = Boolean.parseBoolean(System.getProperty("com.ibm.openjceplusfips.allowNonOAEP", "false"));
+    private static final boolean allowNonOAEPFIPS = Boolean.parseBoolean(
+            SystemAccessUtils.getSystemProperty("com.ibm.openjceplusfips.allowNonOAEP", "false"));
 
     private static final String info = "OpenJCEPlusFIPS Provider implements the following:\n" +
 
@@ -67,8 +69,8 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         supportedPlatforms.put("Arch", List.of("amd64", "ppc64", "s390x"));
         supportedPlatforms.put("OS", List.of("Linux", "AIX", "Windows", "z/OS"));
 
-        osName = System.getProperty("os.name");
-        osArch = System.getProperty("os.arch");;
+        osName = SystemAccessUtils.getSystemProperty("os.name");
+        osArch = SystemAccessUtils.getSystemProperty("os.arch");
 
         boolean isOsSupported, isArchSupported;
         // Check whether the OpenJCEPlus FIPS is supported.
@@ -180,7 +182,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     private static String getDebugDate(String className) {
         String versionDate = "Unknown";
         try {
-            Class<?> thisClass = Class.forName(className);
+            Class<?> thisClass = SystemAccessUtils.forName(className);
             Package thisPackage = thisClass.getPackage();
             String versionInfo = thisPackage.getImplementationVersion();
             int index = versionInfo.indexOf("_");

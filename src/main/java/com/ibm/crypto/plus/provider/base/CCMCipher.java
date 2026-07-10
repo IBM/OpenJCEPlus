@@ -9,6 +9,7 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.SystemAccessUtils;
 import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -38,7 +39,7 @@ public final class CCMCipher {
 
     static {
         disableCCMAcceleration = Boolean.parseBoolean(
-            System.getProperty(DISABLE_CCM_ACCELERATION, "false"));
+            SystemAccessUtils.getSystemProperty(DISABLE_CCM_ACCELERATION, "false"));
     }
 
 
