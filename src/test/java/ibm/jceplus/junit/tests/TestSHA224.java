@@ -1,21 +1,35 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestSHA224 extends BaseTestMessageDigest {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestSHA224 extends BaseTestMessageDigest {
+
+    @Parameter(0)
+    TestProvider provider;
+
     static final byte[] input_1 = {(byte) 0x61, (byte) 0x62, (byte) 0x63};
     static final byte[] digest_1 = {(byte) 0x23, (byte) 0x09, (byte) 0x7d, (byte) 0x22, (byte) 0x34,
             (byte) 0x05, (byte) 0xd8, (byte) 0x22, (byte) 0x86, (byte) 0x42, (byte) 0xa4,
@@ -31,8 +45,9 @@ public class BaseTestSHA224 extends BaseTestMessageDigest {
             (byte) 0xc6, (byte) 0x45, (byte) 0x5c, (byte) 0xb4, (byte) 0xf5, (byte) 0x8b,
             (byte) 0x19, (byte) 0x52, (byte) 0x52, (byte) 0x25, (byte) 0x25, };
 
-    @BeforeAll
-    public void setUp() {
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         setAlgorithm("SHA-224");
     }
 

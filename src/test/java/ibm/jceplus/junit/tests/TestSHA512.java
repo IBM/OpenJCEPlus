@@ -1,20 +1,35 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestSHA512 extends BaseTestMessageDigest {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.OPENJCEPLUS_MULTITHREAD_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestSHA512 extends BaseTestMessageDigest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     final byte[] input_1 = {(byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61,
             (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61};
@@ -77,8 +92,9 @@ public class BaseTestSHA512 extends BaseTestMessageDigest {
             (byte) 0xdd, (byte) 0x26, (byte) 0x54, (byte) 0x5e, (byte) 0x96, (byte) 0xe5,
             (byte) 0x5b, (byte) 0x87, (byte) 0x4b, (byte) 0xe9, (byte) 0x09};
 
-    @BeforeAll
-    public void setUp() {
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         setAlgorithm("SHA-512");
     }
 

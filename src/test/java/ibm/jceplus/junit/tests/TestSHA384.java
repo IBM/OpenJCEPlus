@@ -1,20 +1,33 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestSHA384 extends BaseTestMessageDigest {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestSHA384 extends BaseTestMessageDigest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     final byte[] input_1 = {(byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61,
             (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61};
@@ -71,8 +84,9 @@ public class BaseTestSHA384 extends BaseTestMessageDigest {
             (byte) 0xc3, (byte) 0xe9, (byte) 0xfa, (byte) 0x91, (byte) 0x74, (byte) 0x60,
             (byte) 0x39};
 
-    @BeforeAll
-    public void setUp() {
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         setAlgorithm("SHA-384");
     }
 
