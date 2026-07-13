@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -8,6 +8,9 @@
 
 package ibm.jceplus.junit.suites;
 
+import ibm.jceplus.junit.tests.Tags;
+import org.junit.platform.suite.api.ExcludeClassNamePatterns;
+import org.junit.platform.suite.api.IncludeTags;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
@@ -17,5 +20,7 @@ import org.junit.platform.suite.api.Suite;
  */
 @Suite
 @SelectPackages("ibm.jceplus.junit.tests")
+@IncludeTags({Tags.OPENJCEPLUS_NAME, Tags.OPENJCEPLUS_FIPS_NAME})
+@ExcludeClassNamePatterns("^.*(?i)multithread.*$")
 public class TestAll {
 }

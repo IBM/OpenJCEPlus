@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Tag(Tags.OPENJCEPLUS_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
-@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusOnlyWithBCInteropProvider")
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithBCInteropProvider")
 public class TestDSASignatureInterop2 extends BaseTestSignatureInterop {
 
     @Parameter(0)

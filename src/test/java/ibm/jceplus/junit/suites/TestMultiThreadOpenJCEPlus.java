@@ -21,7 +21,7 @@ public class TestMultiThreadOpenJCEPlus extends BaseTestMultiThread {
     }
 
     @Override
-    protected String getTagName() {
-        return Tags.OPENJCEPLUS_MULTITHREAD.getTag();
+    protected String getTagExpression() {
+        return Tags.OPENJCEPLUS.getTag() + " & " + Tags.MULTITHREAD.getTag();
     }
 }

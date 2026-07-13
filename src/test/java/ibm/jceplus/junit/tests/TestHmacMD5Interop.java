@@ -23,10 +23,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag(Tags.OPENJCEPLUS_NAME)
-@Tag(Tags.OPENJCEPLUS_MULTITHREAD_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
-@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusOnlyWithSunJCEInteropProvider")
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithSunJCEInteropProvider")
 public class TestHmacMD5Interop extends BaseTestInterop {
 
     @Parameter(0)
