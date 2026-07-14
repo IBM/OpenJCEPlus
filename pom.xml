@@ -202,6 +202,15 @@
                 <jdk.build.target>26</jdk.build.target>
             </properties>
           </profile>
+          <profile>
+            <id>Profile for JDK 27 Build</id>
+            <activation>
+              <jdk>27</jdk>
+            </activation>
+            <properties>
+                <jdk.build.target>27</jdk.build.target>
+            </properties>
+          </profile>
           <!--
           Profile expected to be active most of the time whenever testing what was produced by
           this project. This includes the providers built and local test artifacts.
@@ -261,6 +270,8 @@
                       --add-opens=openjceplus/ibm.jceplus.junit.tests=ALL-UNNAMED
                       --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
                       -Djava.security.auth.debug=${java.security.auth.debug}
+                      -Djdk.mldsa.pkcs8.encoding=expandedKey
+                      -Djdk.mlkem.pkcs8.encoding=expandedKey
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
                     <groups>${groups}</groups>
@@ -401,6 +412,8 @@
                       --add-exports=java.base/sun.security.x509=ALL-UNNAMED
                       --add-exports openjceplus/com.ibm.crypto.plus.provider.base=ALL-UNNAMED
                       -Djava.security.auth.debug=${java.security.auth.debug}
+                      -Djdk.mldsa.pkcs8.encoding=expandedKey
+                      -Djdk.mlkem.pkcs8.encoding=expandedKey
                     </argLine>
                     <includes>
                       <include>
@@ -469,7 +482,7 @@
                         <message>"Property ock.library.path is not set, perhaps this required property is missing from the command line?"</message>
                       </requireProperty>
                       <requireJavaVersion>
-                        <version>[26,27]</version>
+                        <version>[26,28)</version>
                         <message>"Java 26 or 27 required to build OpenJCEPlus."</message>
                       </requireJavaVersion>
                       <requireEnvironmentVariable>
@@ -630,7 +643,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.14</version>
+                <version>0.8.15</version>
                 <executions>
                     <execution>
                         <id>start-agent</id>
@@ -882,7 +895,7 @@
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.14</version>
+            <version>0.8.15</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
