@@ -48,7 +48,6 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "                                       ML-KEM-512, ML-KEM-768, ML-KEM-1024\n"
             + "Message authentication code (MAC)  : HmacMD5, HmacSHA1, HmacSHA224, HmacSHA256, HmacSHA384, HmacSHA512\n"
             + "                                       , HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512\n"
-            + "                                     PBEWithHmacSHA1, PBEWithHmacSHA224, PBEWithHmacSHA256, PBEWithHmacSHA384, PBEWithHmacSHA512, PBEWithHmacSHA512/224, PBEWithHmacSHA512/256\n"
             + "Message digest                     : MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256, SHA3-224, SHA3-256, SHA3-384, SHA3-512\n"
             + "Secret key factory                 : AES, ChaCha20, DESede, PBKDF2WithHmacSHA1, PBKDF2WithHmacSHA224, PBKDF2WithHmacSHA256, PBKDF2WithHmacSHA384, PBKDF2WithHmacSHA512\n"
             + "                                       PBKDF2WithHmacSHA512/224, PBKDF2WithHmacSHA512/256\n"
