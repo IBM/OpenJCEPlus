@@ -40,6 +40,7 @@ abstract class AESKeyWrapCipher extends CipherSpi {
     private int bufSize = 0;
     private int opmode = 0;
     private boolean setPadding = false;
+    private String algName = null;
     static final byte[] ICV1 = {
         (byte) 0xA6, (byte) 0xA6, (byte) 0xA6, (byte) 0xA6,
         (byte) 0xA6, (byte) 0xA6, (byte) 0xA6, (byte) 0xA6
@@ -48,10 +49,12 @@ abstract class AESKeyWrapCipher extends CipherSpi {
         (byte) 0xA6, (byte) 0x59, (byte) 0x59, (byte) 0xA6
     };
 
-    public AESKeyWrapCipher(OpenJCEPlusProvider provider, boolean padding, int keySize) {
+    public AESKeyWrapCipher(OpenJCEPlusProvider provider, boolean padding, int keySize, String algNName) {
         this.provider = provider;
         this.setKeySize = keySize;
         this.setPadding = padding;
+        this.algName = algNName;
+
     }
 
     private void add2Buffer(byte[] data, int offSet, int len) {
@@ -257,7 +260,7 @@ abstract class AESKeyWrapCipher extends CipherSpi {
         }
 
         try {
-            this.cipher = new AESKeyWrap(this.provider, rawKey, setPadding);
+            this.cipher = new AESKeyWrap(this.provider, rawKey, setPadding, algName);
         } catch (Exception e) {
             throw new InvalidKeyException("OCKC context null or bad key.", e);
         } 
@@ -360,56 +363,56 @@ abstract class AESKeyWrapCipher extends CipherSpi {
     public static final class KW extends AESKeyWrapCipher {
 
         public KW(OpenJCEPlusProvider provider) {
-            super(provider, false, -1);
+            super(provider, false, -1, "AES/KW/NoPadding");
         }
     }
 
     public static final class KWP extends AESKeyWrapCipher {
 
         public KWP(OpenJCEPlusProvider provider) {
-            super(provider, true, -1);
+            super(provider, true, -1, "AES/KWP/NoPadding");
         }
     }
     
     public static final class KW_128 extends AESKeyWrapCipher {
 
         public KW_128(OpenJCEPlusProvider provider) {
-            super(provider, false, 16);
+            super(provider, false, 16, "AES_128/KW/NoPadding");
         }
     }
 
     public static final class KWP_128 extends AESKeyWrapCipher {
 
         public KWP_128(OpenJCEPlusProvider provider) {
-            super(provider, true, 16);
+            super(provider, true, 16, "AES_128/KWP/NoPadding");
         }
     }
         
     public static final class KW_192 extends AESKeyWrapCipher {
 
         public KW_192(OpenJCEPlusProvider provider) {
-            super(provider, false, 24);
+            super(provider, false, 24, "AES_192/KW/NoPadding");
         }
     }
 
     public static final class KWP_192 extends AESKeyWrapCipher {
 
         public KWP_192(OpenJCEPlusProvider provider) {
-            super(provider, true, 24);
+            super(provider, true, 24, "AES_192/KWP/NoPadding");
         }
     }
         
     public static final class KW_256 extends AESKeyWrapCipher {
 
         public KW_256(OpenJCEPlusProvider provider) {
-            super(provider, false, 32);
+            super(provider, false, 32, "AES_256/KW/NoPadding");
         }
     }
 
     public static final class KWP_256 extends AESKeyWrapCipher {
 
         public KWP_256(OpenJCEPlusProvider provider) {
-            super(provider, true, 32);
+            super(provider, true, 32, "AES_256/KWP/NoPadding");
         }
     }
 }
