@@ -28,16 +28,26 @@ public final class HKDF {
     private final String badIdMsg = "HKDF Identifier is not valid";
 
 
-    public static HKDF getInstance(String digestAlgo, OpenJCEPlusProvider provider) throws NativeException {
+    public static HKDF getInstance(String digestAlgo, OpenJCEPlusProvider provider, String type) throws NativeException {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        return new HKDF(digestAlgo, provider);
+        return new HKDF(digestAlgo, provider, type);
+
     }
 
-    private HKDF(String digestAlgo, OpenJCEPlusProvider provider) throws NativeException {
+    private HKDF(String digestAlgo, OpenJCEPlusProvider provider, String type) throws NativeException {
         //final String methodName = "HKDF (ockContext, String)";
         this.provider = provider;
+        String algo = null;
+
+        if (type.equals("KeyGenerator")) {
+            algo = "kda-hkdf-with-" + digestAlgo.toLowerCase();
+        } else {
+            algo = "HKDF-" + digestAlgo;
+        }
+
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, type, algo);
         this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
         this.hkdfId = this.nativeInterface.HKDF_create(digestAlgo);
         //OCKDebug.Msg (debPrefix, methodName,  "this.hkdfId :" + this.hkdfId );

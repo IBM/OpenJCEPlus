@@ -33,7 +33,7 @@ abstract class EdDSASignature extends SignatureSpi {
     EdDSASignature(OpenJCEPlusProvider provider) {
         try {
             this.provider = provider;
-            this.signature = SignatureEdDSA.getInstance(provider);
+            this.signature = SignatureEdDSA.getInstance(provider, null);
         } catch (Exception e) {
             throw provider.providerException("Failed to initialize EdDSA signature", e);
         }
@@ -42,7 +42,7 @@ abstract class EdDSASignature extends SignatureSpi {
     EdDSASignature(OpenJCEPlusProvider provider, String Alg) {
         try {
             this.provider = provider;
-            this.signature = SignatureEdDSA.getInstance(provider);
+            this.signature = SignatureEdDSA.getInstance(provider, Alg);
         } catch (Exception e) {
             throw provider.providerException("Failed to initialize EdDSA signature", e);
         }

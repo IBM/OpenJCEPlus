@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 
 public final class OJPKEM {
     /*
@@ -19,14 +17,14 @@ public final class OJPKEM {
      */
 
     public static void KEM_encapsulate(long ockPKeyId, byte[] encapsulatedKey,
-            byte[] keyMaterial, OpenJCEPlusProvider provider) throws NativeException {
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+            byte[] keyMaterial, OpenJCEPlusProvider provider, String algName) throws NativeException {
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KEM", algName);
         nativeInterface.KEM_encapsulate(ockPKeyId, encapsulatedKey, keyMaterial);
     }
 
-    public static byte[] KEM_decapsulate(long ockPKeyId, byte[] encapsulatedKey, OpenJCEPlusProvider provider)
-            throws NativeException {
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+    public static byte[] KEM_decapsulate(long ockPKeyId, byte[] encapsulatedKey, OpenJCEPlusProvider provider,
+            String algName) throws NativeException {
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KEM", algName);
         byte[] keyMaterial = nativeInterface.KEM_decapsulate(ockPKeyId, encapsulatedKey);
 
         return keyMaterial;

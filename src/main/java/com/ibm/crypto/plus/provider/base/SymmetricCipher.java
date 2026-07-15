@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -60,47 +58,47 @@ public final class SymmetricCipher {
     public static SymmetricCipher getInstanceChaCha20(Padding padding, OpenJCEPlusProvider provider)
             throws NativeException {
         String algName = "chacha20";
-        return getInstance(algName, padding, provider);
+        return getInstance(algName, padding, provider, "ChaCha20");
     }
 
     public static SymmetricCipher getInstanceChaCha20Poly1305(
             Padding padding, OpenJCEPlusProvider provider) throws NativeException {
         String algName = "chacha20-poly1305";
-        return getInstance(algName, padding, provider);
+        return getInstance(algName, padding, provider, "ChaCha20-Poly1305");
     }
 
     public static SymmetricCipher getInstanceAES(String mode,
-            Padding padding, int numKeyBytes, OpenJCEPlusProvider provider) throws NativeException {
+            Padding padding, int numKeyBytes, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
         String algName = "AES-" + Integer.toString(numKeyBytes * 8) + "-" + mode.toUpperCase();
-        return getInstance(algName, padding, provider);
+        return getInstance(algName, padding, provider, configAlgName);
     }
 
     public static SymmetricCipher getInstanceDESede(String mode,
-            Padding padding, OpenJCEPlusProvider provider) throws NativeException {
+            Padding padding, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
         String modeUpperCase = mode.toUpperCase();
         String algName = modeUpperCase.equals("ECB") ? "DES-EDE3" : "DES-EDE3-" + modeUpperCase;
-        return getInstance(algName, padding, provider);
+        return getInstance(algName, padding, provider, configAlgName);
     }
 
     public static SymmetricCipher getInstanceRC2(String mode,
-            Padding padding, int keysize, OpenJCEPlusProvider provider) throws NativeException {
+            Padding padding, int keysize, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
         String modeUpperCase = mode.toUpperCase();
         String algName;
         if (keysize == 16)
             algName = modeUpperCase.equals("ECB") ? "RC2" : "RC2-" + modeUpperCase;
         else
             algName = modeUpperCase.equals("ECB") ? "RC2" : "RC2-40-" + modeUpperCase;
-        return getInstance(algName, padding, provider);
+        return getInstance(algName, padding, provider, configAlgName);
     }
 
     public static SymmetricCipher getInstanceRC4(int keysize,
-            OpenJCEPlusProvider provider) throws NativeException {
+            OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
         String algName = keysize == 16 ? "RC4" : "RC4-40";
-        return getInstance(algName, Padding.NoPadding, provider);
+        return getInstance(algName, Padding.NoPadding, provider, configAlgName);
     }
 
     private static SymmetricCipher getInstance(String cipherName,
-            Padding padding, OpenJCEPlusProvider provider) throws NativeException {
+            Padding padding, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
         //final String methodName = "getInstance";
         if (cipherName == null || cipherName.isEmpty()) {
             throw new IllegalArgumentException("cipherName is null/empty");
@@ -115,7 +113,7 @@ public final class SymmetricCipher {
         }
         //OCKDebug.Msg(debPrefix, methodName, "cipherName :" + cipherName);
 
-        return new SymmetricCipher(cipherName, padding, provider);
+        return new SymmetricCipher(cipherName, padding, provider, configAlgName);
     }
 
     static void throwNativeException(int errorCode) throws BadPaddingException, NativeException {
@@ -135,11 +133,11 @@ public final class SymmetricCipher {
         }
     }
 
-    private SymmetricCipher(String cipherName, Padding padding, OpenJCEPlusProvider provider)
+    private SymmetricCipher(String cipherName, Padding padding, OpenJCEPlusProvider provider, String configAlgName)
             throws NativeException {
         // Check whether used algorithm is CBC and whether hardware supports
         this.provider = provider;
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Cipher", configAlgName);
         boolean isHardwareSupport = false;
         // The OS_Helper functions are not NIST certified, thus they can't be used in FIPS mode.
         if (!this.provider.isFIPS()) {

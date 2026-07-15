@@ -10,8 +10,6 @@ package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class DSAKey implements AsymmetricKey {
@@ -37,7 +35,7 @@ public final class DSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("key length is invalid");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", "DSA");
         long dsaKeyId = nativeInterface.DSAKEY_generate(numBits);
         if (!validId(dsaKeyId)) {
             throw new NativeException(badIdMsg);
@@ -58,7 +56,7 @@ public final class DSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("key length is invalid");
         }
         //OCKDebug.Msg (debPrefix, methodName, "numBits=" + numBits);
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "AlgorithmParameterGenerator", "DSA");
         paramBytes = nativeInterface.DSAKEY_generateParameters(numBits);
         if (paramBytes == null) {
             throw new NativeException("The generated DSA parameter bytes are incorrect.");
@@ -73,7 +71,7 @@ public final class DSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("DSA parameters are null/empty");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", "DSA");
         long dsaKeyId = nativeInterface.DSAKEY_generate(parameters);
         //OCKDebug.Msg (debPrefix, methodName, "dsaKeyId=" + dsaKeyId);
         if (!validId(dsaKeyId)) {
@@ -94,7 +92,7 @@ public final class DSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("key bytes is null");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", "DSA");
         long dsaKeyId = nativeInterface.DSAKEY_createPrivateKey(privateKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName,  "dsakKeyId=" + dsaKeyId);
         if (!validId(dsaKeyId)) {
@@ -114,7 +112,7 @@ public final class DSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("key bytes is null");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", "DSA");
         long dsaKeyId = nativeInterface.DSAKEY_createPublicKey(publicKeyBytes);
         if (!validId(dsaKeyId)) {
             throw new NativeException(badIdMsg);

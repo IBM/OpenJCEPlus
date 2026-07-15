@@ -9,7 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
 import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -193,7 +192,7 @@ public final class CCMCipher {
 
         int aadLen = authenticationData.length;
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "Cipher", "AES/CCM/NoPadding");
         if (CCMHardwareFunctionPtr == 0) {
             CCMHardwareFunctionPtr = nativeInterface.do_CCM_checkHardwareCCMSupport();
         }
@@ -333,7 +332,7 @@ public final class CCMCipher {
 
         int aadLen = authenticationData.length;
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "Cipher", "AES/CCM/NoPadding");
         if (CCMHardwareFunctionPtr == 0)
             CCMHardwareFunctionPtr = nativeInterface.do_CCM_checkHardwareCCMSupport();
 
@@ -441,7 +440,7 @@ public final class CCMCipher {
 
 
     public static void doCCM_cleanup(OpenJCEPlusProvider provider) throws NativeException {
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "Cipher", "AES/CCM/NoPadding");
         nativeInterface.do_CCM_delete();
     }
 
@@ -490,7 +489,7 @@ public final class CCMCipher {
         putLongtoByteArray(inputLen * 8, addedParams, TPCLOffset); // Add TPCL
         parameters.put(paramBlockOffset, addedParams, 0, addedParams.length);
 
-        NativeInterface nativeInterface = NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeOCKAdapterNonFIPS.getInstance(); // Need to look at this later <------------
         if (isEncrypt) { // encrypt
             rc = nativeInterface.do_CCM_encryptFastJNI_WithHardwareSupport(keyLen, ivLen, 0,
                     inputLen, 0, aadLen, tagLen, parameters.pointer(), input, inputOffset, output,
