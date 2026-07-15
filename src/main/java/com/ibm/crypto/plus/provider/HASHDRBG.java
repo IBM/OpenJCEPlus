@@ -16,7 +16,7 @@ import java.security.SecureRandomSpi;
 abstract class HASHDRBG extends SecureRandomSpi {
 
     /**
-     * 
+     *
      */
 
     private static final long serialVersionUID = 5913440825148411814L;

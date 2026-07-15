@@ -11,7 +11,7 @@ package ibm.jceplus.junit.tests;
 public class BaseUtils {
 
     /**
-     * Converts a byte array to a hex string.   
+     * Converts a byte array to a hex string.
      * @param input the byte array to convert
      * @return the hex string
      */
@@ -26,7 +26,7 @@ public class BaseUtils {
         }
 
         return sb.toString();
-    }    
+    }
 
     /**
      * Generates a byte array of the specified length, where each byte is set to its index modulo 256.

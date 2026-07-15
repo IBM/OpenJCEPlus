@@ -130,7 +130,7 @@ abstract class XDHKeyPairGenerator extends KeyPairGeneratorSpi {
             if (configAlgName == null) {
                 configAlgName = "XDH";
             }
-            
+
             int keySize = CurveUtil.getCurveSize(serviceCurve);
             XECKey xecKey = XECKey.generateKeyPair(this.serviceCurve.ordinal(), keySize, provider, configAlgName);
             XDHPrivateKeyImpl privKey = new XDHPrivateKeyImpl(provider, xecKey);

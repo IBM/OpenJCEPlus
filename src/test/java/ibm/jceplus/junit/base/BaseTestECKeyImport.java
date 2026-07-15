@@ -132,7 +132,7 @@ public class BaseTestECKeyImport extends BaseTestJunit5 {
                                                 "K7OvyaalUUdkOd6CrThHqenrfg==";
     private static final String public_secp256r1_no_parameters_no_public =
                                                 "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEG9JA6mkSGkIKBSsKxDDtmhHMEo+P" +
-                                                "MNHwWo60TKvsYpEWYqGLvaqmhwqIyf+qVQD5/9hU4WFiB/t3jV+sO2RuHA==";                                            
+                                                "MNHwWo60TKvsYpEWYqGLvaqmhwqIyf+qVQD5/9hU4WFiB/t3jV+sO2RuHA==";
 
     /**
      * Generate a KeyPair using ECGEenParam and then import the key pair

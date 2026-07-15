@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -49,19 +49,19 @@ class JCEPlusKeyRep implements Serializable {
 
     public JCEPlusKeyRep(Type type, String algorithm,
             String format, byte[] encoded, String oJcePlusProvider) {
- 
+
         if (oJcePlusProvider == null || type == null || algorithm == null ||
             format == null || encoded == null) {
             throw new NullPointerException("invalid null input(s)");
         }
-        
+
         this.keyType = type;
         this.keyAlg = algorithm;
         this.encodingFormat = format.toUpperCase(Locale.ENGLISH);
         this.encodedKey = encoded.clone();
         this.provider = oJcePlusProvider;
     }
-     
+
     protected Object readResolve() throws ObjectStreamException {
         try {
             if (keyType == Type.SECRET && RAW.equals(encodingFormat)) {
@@ -83,7 +83,7 @@ class JCEPlusKeyRep implements Serializable {
             NotSerializableException nse = new NotSerializableException("java.security.Key: " +
                 "[" + keyType + "] " +
                 "[" + keyAlg + "] " +
-                "[" + encodingFormat + 
+                "[" + encodingFormat +
                 "[" + provider + "]");
             nse.initCause(e);
             throw nse;

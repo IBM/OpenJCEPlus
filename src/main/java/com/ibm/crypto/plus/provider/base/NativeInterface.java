@@ -103,7 +103,7 @@ public interface NativeInterface {
 
     public void CIPHER_delete(long cipherId)
             throws NativeException;
-            
+
     public byte[] CIPHER_KeyWraporUnwrap(byte[] key, byte[] KEK, int type)
             throws NativeException;
 
