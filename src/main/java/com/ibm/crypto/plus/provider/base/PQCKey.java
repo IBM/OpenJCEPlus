@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class PQCKey implements AsymmetricKey {
@@ -36,7 +34,7 @@ public final class PQCKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", algName);
         try {
             String NoDashAlg = algName.replace('-', '_');
             keyId = nativeInterface.MLKEY_generate(NoDashAlg);
@@ -50,7 +48,7 @@ public final class PQCKey implements AsymmetricKey {
         return new PQCKey(nativeInterface, keyId, unobtainedKeyBytes, unobtainedKeyBytes, algName, provider);
     }
 
-    public static PQCKey createPrivateKey(String algName, byte[] privateKeyBytes, OpenJCEPlusProvider provider)
+    public static PQCKey createPrivateKey(String algName, byte[] privateKeyBytes, OpenJCEPlusProvider provider, String configType)
             throws NativeException {
         // final String methodName = "createPrivateKey ";
         if (privateKeyBytes == null) {
@@ -60,7 +58,7 @@ public final class PQCKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, configType, algName);
         long keyId = 0;
         String NoDashAlg = algName.replace('-', '_');
         keyId = nativeInterface.MLKEY_createPrivateKey(NoDashAlg, privateKeyBytes);
@@ -68,7 +66,7 @@ public final class PQCKey implements AsymmetricKey {
         return new PQCKey(nativeInterface, keyId, privateKeyBytes.clone(), null, algName, provider);
     }
 
-    public static PQCKey createPublicKey(String algName, byte[] publicKeyBytes, OpenJCEPlusProvider provider)
+    public static PQCKey createPublicKey(String algName, byte[] publicKeyBytes, OpenJCEPlusProvider provider, String configType)
             throws NativeException {
         // final String methodName = "createPublicKey ";
         if (publicKeyBytes == null) {
@@ -78,7 +76,7 @@ public final class PQCKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, configType, algName);
         long keyId = 0;
         String NoDashAlg = algName.replace('-', '_');
         keyId = nativeInterface.MLKEY_createPublicKey(NoDashAlg, publicKeyBytes);

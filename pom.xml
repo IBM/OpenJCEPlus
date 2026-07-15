@@ -233,7 +233,6 @@
                   <configuration>
                     <useModulePath>false</useModulePath>
                     <!-- Could add -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:8787 for debug -->
-                    <!-- Could add -Djava.security.auth.debug=all for debug -->
                     <argLine>
                       @{argLine}
                       --add-exports=java.base/sun.security.internal.interfaces=ALL-UNNAMED
@@ -261,6 +260,7 @@
                       --add-opens=openjceplus/ibm.jceplus.junit.base=ALL-UNNAMED
                       --add-opens=openjceplus/ibm.jceplus.junit.tests=ALL-UNNAMED
                       --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
+                      -Djava.security.auth.debug=${java.security.auth.debug}
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
                     <groups>${groups}</groups>
@@ -393,7 +393,6 @@
                   <configuration>
                     <useModulePath>false</useModulePath>
                     <trimStackTrace>false</trimStackTrace>
-                    <!-- Could add -Djava.security.auth.debug=all for debug -->
                     <argLine>
                       --add-exports=java.base/sun.security.internal.interfaces=ALL-UNNAMED
                       --add-exports=java.base/sun.security.internal.spec=ALL-UNNAMED
@@ -401,6 +400,7 @@
                       --add-exports=java.base/sun.security.util=ALL-UNNAMED
                       --add-exports=java.base/sun.security.x509=ALL-UNNAMED
                       --add-exports openjceplus/com.ibm.crypto.plus.provider.base=ALL-UNNAMED
+                      -Djava.security.auth.debug=${java.security.auth.debug}
                     </argLine>
                     <includes>
                       <include>

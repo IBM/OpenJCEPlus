@@ -29,11 +29,13 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
 
     private NamedParameterSpec params = null;
     private OpenJCEPlusProvider provider = null;
+    private String configAlgName = "EdDSA";
 
-    private EdDSAKeyFactory(OpenJCEPlusProvider provider, NamedParameterSpec paramSpec) {
+    private EdDSAKeyFactory(OpenJCEPlusProvider provider, NamedParameterSpec paramSpec, String algName) {
         super();
         this.params = paramSpec;
         this.provider = provider;
+        this.configAlgName = algName;
     }
 
     EdDSAKeyFactory(OpenJCEPlusProvider provider) {
@@ -56,7 +58,7 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
                 return key;
             } else {
                 try {
-                    return new EdDSAPublicKeyImpl(provider, params, publicKey.getPoint());
+                    return new EdDSAPublicKeyImpl(provider, params, publicKey.getPoint(), configAlgName);
                 } catch (InvalidAlgorithmParameterException iape) {
                     throw new InvalidKeyException(iape);
                 }
@@ -74,20 +76,20 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
                 privKey = (com.ibm.crypto.plus.provider.EdDSAPrivateKeyImpl) key;
             } else {
                 try {
-                    privKey = new EdDSAPrivateKeyImpl(provider, params, privateKeyBytes);
+                    privKey = new EdDSAPrivateKeyImpl(provider, params, privateKeyBytes, this.configAlgName);
                 } catch (InvalidAlgorithmParameterException iape) {
                     throw new InvalidKeyException(iape);
                 }
             }
             return privKey;
         } else if (key instanceof PublicKey && key.getFormat().equals("X.509")) {
-            EdDSAPublicKeyImpl result = new EdDSAPublicKeyImpl(provider, key.getEncoded());
+            EdDSAPublicKeyImpl result = new EdDSAPublicKeyImpl(provider, key.getEncoded(), configAlgName);
             checkLockedParams(result.getParams());
             return result;
         } else if (key instanceof PrivateKey && key.getFormat().equals("PKCS#8")) {
             byte[] encoded = key.getEncoded();
             try {
-                EdDSAPrivateKeyImpl result = new EdDSAPrivateKeyImpl(provider, encoded);
+                EdDSAPrivateKeyImpl result = new EdDSAPrivateKeyImpl(provider, encoded, this.configAlgName);
                 checkLockedParams(result.getParams());
                 return result;
             } catch (Exception e) {
@@ -132,7 +134,7 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
 
         if (keySpec instanceof X509EncodedKeySpec) {
             X509EncodedKeySpec x509Spec = (X509EncodedKeySpec) keySpec;
-            EdDSAPublicKeyImpl result = new EdDSAPublicKeyImpl(provider, x509Spec.getEncoded());
+            EdDSAPublicKeyImpl result = new EdDSAPublicKeyImpl(provider, x509Spec.getEncoded(), this.configAlgName);
             checkLockedParams(result.getParams());
             return result;
         } else if (keySpec instanceof EdECPublicKeySpec) {
@@ -140,7 +142,7 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
             NamedParameterSpec params = publicKeySpec.getParams();
             checkLockedParams(params);
             try {
-                return new EdDSAPublicKeyImpl(provider, params, publicKeySpec.getPoint());
+                return new EdDSAPublicKeyImpl(provider, params, publicKeySpec.getPoint(), this.configAlgName);
             } catch (InvalidAlgorithmParameterException iape) {
                 throw new InvalidKeySpecException(iape);
             }
@@ -157,7 +159,7 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
             PKCS8EncodedKeySpec pkcsSpec = (PKCS8EncodedKeySpec) keySpec;
             byte[] encoded = pkcsSpec.getEncoded();
             try {
-                EdDSAPrivateKeyImpl result = new EdDSAPrivateKeyImpl(provider, encoded);
+                EdDSAPrivateKeyImpl result = new EdDSAPrivateKeyImpl(provider, encoded, this.configAlgName);
                 checkLockedParams(result.getParams());
                 return result;
             } catch (Exception e) {
@@ -171,7 +173,7 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
             checkLockedParams(params);
             byte[] bytes = privateKeySpec.getBytes();
             try {
-                return new EdDSAPrivateKeyImpl(provider, params, bytes);
+                return new EdDSAPrivateKeyImpl(provider, params, bytes, this.configAlgName);
             } catch (InvalidAlgorithmParameterException iape) {
                 throw new InvalidKeySpecException(iape);
             } finally {
@@ -243,14 +245,16 @@ public class EdDSAKeyFactory extends KeyFactorySpi {
     public static final class Ed25519 extends EdDSAKeyFactory {
 
         public Ed25519(OpenJCEPlusProvider provider) {
-            super(provider, new NamedParameterSpec("Ed25519"));
+            super(provider, new NamedParameterSpec("Ed25519"), "Ed25519");
+
         }
     }
 
     public static final class Ed448 extends EdDSAKeyFactory {
 
         public Ed448(OpenJCEPlusProvider provider) {
-            super(provider, new NamedParameterSpec("Ed448"));
+            super(provider, new NamedParameterSpec("Ed448"), "Ed448");
+
         }
     }
 

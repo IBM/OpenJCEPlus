@@ -10,8 +10,6 @@ package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.Poly1305Constants;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import javax.crypto.BadPaddingException;
@@ -59,7 +57,7 @@ public final class Poly1305Cipher implements Poly1305Constants {
             throws NativeException {
         this.padding = padding;
         this.provider = provider;
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Cipher", "ChaCha20-Poly1305");
         this.ockCipherId = this.nativeInterface.POLY1305CIPHER_create(cipherName);
 
         this.provider.registerCleanable(this, cleanOCKResources(ockCipherId, reinitKey, nativeInterface));
@@ -360,7 +358,7 @@ public final class Poly1305Cipher implements Poly1305Constants {
                         tag);
             }
         } catch (NativeException e) {
-            if (e.getCode() == e.GKR_DECRYPT_FINAL_BAD_PADDING_ERROR) {
+            if (e.getCode() == NativeException.GKR_DECRYPT_FINAL_BAD_PADDING_ERROR) {
                 throw new BadPaddingException("Unexpected padding");
             } else {
                 throw e;
