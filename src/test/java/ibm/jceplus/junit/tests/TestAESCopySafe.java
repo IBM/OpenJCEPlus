@@ -55,7 +55,7 @@ public class TestAESCopySafe extends BaseTest {
     public void setUp() throws Exception {
         setAndInsertProvider(provider);
     }
-   
+
     @Test
     public void testOverlappingBuffer() throws Exception {
 
@@ -87,7 +87,7 @@ public class TestAESCopySafe extends BaseTest {
         Arrays.fill(clearText, 0, INPUT_LENGTH, (byte) 0x01);
         System.arraycopy(clearText, 0, workingBuffer, 0, INPUT_LENGTH);
 
-        // Get baseline encrypted value. This baseline will be used through the rest of the 
+        // Get baseline encrypted value. This baseline will be used through the rest of the
         // test to be a known answer for cipher text.
         initCipher(c, mode, true);
         if (DEBUG) {
@@ -128,7 +128,7 @@ public class TestAESCopySafe extends BaseTest {
         if (DEBUG) {
             System.out.println("workingBuffer:\n" + BaseUtils.bytesToHex(workingBuffer));
         }
-        
+
         assertArrayEquals(Arrays.copyOfRange(workingBuffer, outputOffset, outputOffset + cipherText.length), cipherText, "Encryption check failed.");
         if (DEBUG) {
             System.out.println("Encrypt check passed.");

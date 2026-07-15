@@ -295,9 +295,9 @@ class DefaultProviderAttrs {
         + "KeyGenerator.kda-hkdf-with-sha224.alias.add = kda-hkdf-with-sha-224\n"
         + "Service.KeyGenerator.kda-hkdf-with-sha224 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA224\n"
         + "KeyGenerator.kda-hkdf-with-sha256.alias.add = kda-hkdf-with-sha-256\n"
-        + "Service.KeyGenerator.kda-hkdf-with-sha256 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA256\n"          
+        + "Service.KeyGenerator.kda-hkdf-with-sha256 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA256\n"
         + "KeyGenerator.kda-hkdf-with-sha384.alias.add = kda-hkdf-with-sha-384\n"
-        + "Service.KeyGenerator.kda-hkdf-with-sha384 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA384\n"          
+        + "Service.KeyGenerator.kda-hkdf-with-sha384 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA384\n"
         + "KeyGenerator.kda-hkdf-with-sha512.alias.add = kda-hkdf-with-sha-512\n"
         + "Service.KeyGenerator.kda-hkdf-with-sha512 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA512\n"
         + "# =======================================================================\n"
@@ -466,7 +466,7 @@ class DefaultProviderAttrs {
         + "Service.Signature.ML-DSA-65 = com.ibm.crypto.plus.provider.PQCSignatureImpl$MLDSA65\n"
         + "Signature.ML-DSA-87.alias.add = ML_DSA_87, MLDSA87, OID.2.16.840.1.101.3.4.3.19, 2.16.840.1.101.3.4.3.19\n"
         + "Service.Signature.ML-DSA-87 = com.ibm.crypto.plus.provider.PQCSignatureImpl$MLDSA87\n";
-        
+
     public DefaultProviderAttrs() {
     }
 

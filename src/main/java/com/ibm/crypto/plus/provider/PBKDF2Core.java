@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -221,7 +221,7 @@ abstract class PBKDF2Core extends SecretKeyFactorySpi {
         public HmacSHA512_256(OpenJCEPlusProvider provider) {
             super(provider, "HmacSHA512/256", null, null);
         }
-        
+
         public HmacSHA512_256(OpenJCEPlusProvider provider, String beType, String beAlg) {
             super(provider, "HmacSHA512/256", beType, beAlg);
         }

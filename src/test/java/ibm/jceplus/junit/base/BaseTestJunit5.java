@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -18,7 +18,7 @@ abstract public class BaseTestJunit5 {
 
     /**
      * Sets the provider name that is to be used to execute this test.
-     * 
+     *
      * @param providerName the provider name associated with this test case for use.
      */
     public void setProviderName(String providerName) {
@@ -27,7 +27,7 @@ abstract public class BaseTestJunit5 {
 
     /**
      * Gets the provider name that is to be used to execute this test.
-     * 
+     *
      * @return The provider name associated with this test case for use.
      */
     public String getProviderName() {

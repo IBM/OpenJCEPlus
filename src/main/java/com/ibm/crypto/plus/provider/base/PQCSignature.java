@@ -13,11 +13,11 @@ import java.security.InvalidKeyException;
 
 /**
  * This code is used to do Signature Operations on ML-DSA and SLH-DSA keys.
- * These are both PQC algorithms and by definition do not support any kind 
+ * These are both PQC algorithms and by definition do not support any kind
  * of update operation.
- * 
+ *
  * Since, Java supports the idea of update as part of it's Signature framework
- * We will just save the data in a buffer if an update operation is performed and 
+ * We will just save the data in a buffer if an update operation is performed and
  * do the doFinal as one large buffer.
  */
 public final class PQCSignature {

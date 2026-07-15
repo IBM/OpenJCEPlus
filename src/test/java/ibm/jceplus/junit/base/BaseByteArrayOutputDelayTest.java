@@ -84,7 +84,7 @@ public class BaseByteArrayOutputDelayTest extends BaseTestPublicMethodsToMakeNon
     /**
      * Test using a single byte of input data. Test with no delay Test with 1 byte
      * delay Test with 2 byte delay
-     * 
+     *
      * @throws IOException
      */
     @Test
@@ -98,7 +98,7 @@ public class BaseByteArrayOutputDelayTest extends BaseTestPublicMethodsToMakeNon
 
     /**
      * Test with a negative byte delay
-     * 
+     *
      * @throws IOException
      */
     @Test
@@ -116,7 +116,7 @@ public class BaseByteArrayOutputDelayTest extends BaseTestPublicMethodsToMakeNon
      * Construct a ByteArrayOutputDelay of delayByte size. Write the next chopsize
      * number of bytes to the ByteArrayOutputDelay Verify that the byte array
      * returned from write is correctly delayed.
-     * 
+     *
      * @param delayByte - number of bytes to delay byte array by
      * @param chopSize  - number of bytes of input data to write at a time
      * @param testData  - data test with

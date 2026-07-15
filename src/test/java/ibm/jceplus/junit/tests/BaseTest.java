@@ -24,7 +24,7 @@ abstract public class BaseTest {
 
     /**
      * Sets the provider name that is to be used to execute this test.
-     * 
+     *
      * @param providerName the provider name associated with this test case for use.
      */
     public void setProviderName(String providerName) {
@@ -74,7 +74,7 @@ abstract public class BaseTest {
         String providerName = testProvider.getProviderName();
         String providerClassName = testProvider.getProviderClassName();
         String providerConfigFile = testProvider.getConfigFile();
-        
+
         Provider provider = java.security.Security.getProvider(providerName);
         if (provider == null) {
             provider = (Provider) Class.forName(providerClassName).getDeclaredConstructor().newInstance();
@@ -89,7 +89,7 @@ abstract public class BaseTest {
 
     /**
      * Gets the provider name that is to be used to execute this test.
-     * 
+     *
      * @return The provider name associated with this test case for use.
      */
     public String getProviderName() {

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -151,29 +151,29 @@ public final class PSSParameters extends AlgorithmParametersSpi {
 
     /**
      * Returns the parameters in encoded bytes.
-     * 
+     *
      * Only non default values will be encoded. With a single non default value, the encoding for hash looks as follows;
      * CONTEXT_CONSTRUCTED_0
      *         UNIVERSAL_CONSTRUCTED_SEQUENCE
      *             UNIVERSAL_PRIMITIVE_OBJECT_ID
      *          UNIVERSAL_PRIMITIVE_NULL
-     *      
+     *
      * CONTEXT_CONSTRUCTED_1
      *         UNIVERSAL_CONSTRUCTED_SEQUENCE
      *             UNIVERSAL_PRIMITIVE_OBJECT_ID
      *          UNIVERSAL_CONSTRUCTRED_SEQUENCE
      *              UNIVERSAL_PRIMITIVE_OBJECT_ID
      *              UNIVERSAL_PRIMITIVE_NULL
-     *      
+     *
      * CONTEXT_CONSTRUCTED_2
      *         UNIVERSAL_PRIMITIVE_INTEGER
-     *             
+     *
      * CONTEXT_CONSTRUCTED_3
      *         UNIVERSAL_PRIMITIVE_INTEGER
-     *      
-     *      
-     *      
-     *      
+     *
+     *
+     *
+     *
      * @return byte[] the encoded parameters
      */
     protected byte[] engineGetEncoded() throws IOException {
@@ -356,7 +356,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
 
     /**
      * Decodes the HashAlgorithm
-     * 
+     *
      * @param encodedHashAlg
      * @return
      * @throws IOException
@@ -393,7 +393,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
 
     /**
      * Decodes the salt Length
-     * 
+     *
      * @param encodedSaltLength
      * @return
      * @throws IOException
@@ -457,7 +457,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
      *          UNIVERSAL_CONSTRUCTRED_SEQUENCE
      *              UNIVERSAL_PRIMITIVE_OBJECT_ID
      *              UNIVERSAL_PRIMITIVE_NULL
-     *      
+     *
      * Encode MaskGenrationfunction and the digest algorithm used by mgf1
      * @param maskGenAlgorithm
      * @param mgf1ParameterSpec
@@ -501,7 +501,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
      *         UNIVERSAL_CONSTRUCTRED_SEQUENCE
      *              UNIVERSAL_PRIMITIVE_OBJECT_ID
      *              UNIVERSAL_PRIMITIVE_NULL
-     * 
+     *
      * @return
      * @throws IOException
      */
@@ -531,31 +531,31 @@ public final class PSSParameters extends AlgorithmParametersSpi {
     }
 
     /**
-     * Decode the asn.1 sequence 
+     * Decode the asn.1 sequence
      * Check for sequences and parse through each sequence.
      * @param encodedPSSParameters
      * @return
      * @throws IOException
-     * * 
+     * *
      * Only non default values will be encoded. With a single non default value, the encoding for hash looks as follows;
      * CONTEXT_CONSTRUCTED_0
      *         UNIVERSAL_CONSTRUCTED_SEQUENCE
      *             UNIVERSAL_PRIMITIVE_OBJECT_ID
      *          UNIVERSAL_PRIMITIVE_NULL
-     *      
+     *
      * CONTEXT_CONSTRUCTED_1
      *         UNIVERSAL_CONSTRUCTED_SEQUENCE
      *             UNIVERSAL_PRIMITIVE_OBJECT_ID
      *          UNIVERSAL_CONSTRUCTRED_SEQUENCE
      *              UNIVERSAL_PRIMITIVE_OBJECT_ID
      *              UNIVERSAL_PRIMITIVE_NULL
-     *      
+     *
      * CONTEXT_CONSTRUCTED_2
      *         UNIVERSAL_PRIMITIVE_INTEGER
-     *             
+     *
      * CONTEXT_CONSTRUCTED_3
      *         UNIVERSAL_PRIMITIVE_INTEGER
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      */
 
     private PSSParameterSpec decodePSSParameters(byte[] encodedPSSParameters) throws IOException {
@@ -727,7 +727,7 @@ public final class PSSParameters extends AlgorithmParametersSpi {
     //          this.saltLength = spec.getSaltLength();
     //          this.trailerField = spec.getTrailerField();
     //          this.mgfParameterSpec = spec.getMGFParameters();
-    //          
+    //
     //    }
 
     /*
