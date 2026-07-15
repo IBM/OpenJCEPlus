@@ -15,7 +15,7 @@ import java.util.Map;
 public class OCKException extends NativeException {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -3104732494450550839L;
 
@@ -59,5 +59,5 @@ public class OCKException extends NativeException {
         }
         return message;
     }
-    
+
 }
