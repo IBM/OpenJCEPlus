@@ -40,11 +40,17 @@ public final class RC2Cipher extends LegacyCipher {
     private byte[] iv = null;
     private boolean encrypting = true;
     private boolean initialized = false;
+    private String configAlgName = "RC2";
 
     static private final int RC2_BLOCK_SIZE = 8;
 
-    public RC2Cipher(OpenJCEPlusProvider provider) {
+    //public RC2Cipher(OpenJCEPlusProvider provider) {
+    //    this.provider = provider;
+    //}
+
+    public RC2Cipher(OpenJCEPlusProvider provider, String algName) {
         this.provider = provider;
+        this.configAlgName = algName;
     }
 
     @Override
@@ -179,7 +185,7 @@ public final class RC2Cipher extends LegacyCipher {
         try {
             if (symmetricCipher == null) {
                 symmetricCipher = SymmetricCipher.getInstanceRC2(mode,
-                        padding, rawKey.length, provider);
+                        padding, rawKey.length, provider, configAlgName);
             }
 
             if (isEncrypt) {
