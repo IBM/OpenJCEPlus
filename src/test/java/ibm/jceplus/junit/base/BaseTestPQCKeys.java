@@ -19,11 +19,17 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class BaseTestPQCKeys extends BaseTestJunit5 {
 
@@ -31,7 +37,47 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
     protected KeyPairGenerator pqcKeyPairGen;
     protected KeyFactory pqcKeyFactory;
 
+    private static final String RFC9881_ML_DSA_44_PRIVATE_KEY_SEED = """
+            -----BEGIN PRIVATE KEY-----
+            MDQCAQAwCwYJYIZIAWUDBAMRBCKAIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZ
+            GhscHR4f
+            -----END PRIVATE KEY-----
+            """;
 
+    private static final String RFC9881_ML_DSA_65_PRIVATE_KEY_SEED = """
+            -----BEGIN PRIVATE KEY-----
+            MDQCAQAwCwYJYIZIAWUDBAMSBCKAIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZ
+            GhscHR4f
+            -----END PRIVATE KEY-----
+            """;
+
+    private static final String RFC9881_ML_DSA_87_PRIVATE_KEY_SEED = """
+            -----BEGIN PRIVATE KEY-----
+            MDQCAQAwCwYJYIZIAWUDBAMTBCKAIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZ
+            GhscHR4f
+            -----END PRIVATE KEY-----
+            """;
+
+    private static final String RFC9935_ML_KEM_512_PRIVATE_KEY_SEED = """
+            -----BEGIN PRIVATE KEY-----
+            MFQCAQAwCwYJYIZIAWUDBAQBBEKAQAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZ
+            GhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=
+            -----END PRIVATE KEY-----
+            """;
+
+    private static final String RFC9935_ML_KEM_768_PRIVATE_KEY_SEED = """
+            -----BEGIN PRIVATE KEY-----
+            MFQCAQAwCwYJYIZIAWUDBAQCBEKAQAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZ
+            GhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=
+            -----END PRIVATE KEY-----
+            """;
+
+    private static final String RFC9935_ML_KEM_1024_PRIVATE_KEY_SEED = """
+            -----BEGIN PRIVATE KEY-----
+            MFQCAQAwCwYJYIZIAWUDBAQDBEKAQAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZ
+            GhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=
+            -----END PRIVATE KEY-----
+            """;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -115,6 +161,48 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
             // Expected
         }
 
+    }
+
+    @ParameterizedTest
+    @MethodSource("rfcSeedPrivateKeys")
+    public void testRFC9881MLDSARFC9935MLKEMKeyFactory(String algorithm, String privateKeyPem) throws Exception {
+
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        KeyFactory openjceplusKeyFactory = KeyFactory.getInstance(algorithm, getProviderName());
+        byte[] rfcPrivateKeyEncoded = decodePEM(privateKeyPem);
+
+        String expectedMessage = "Only expanded keys are supported by OpenJCEPlus";
+        try {
+            openjceplusKeyFactory.generatePrivate(new PKCS8EncodedKeySpec(rfcPrivateKeyEncoded));
+            fail("Expected InvalidKeySpecException for seed-only private key.");
+        } catch (InvalidKeySpecException e) {
+            assertEquals(expectedMessage, e.getCause().getMessage());
+        }
+    }
+
+    private static Stream<Arguments> rfcSeedPrivateKeys() {
+        return Stream.of(
+                Arguments.of("ML-DSA-44",
+                        RFC9881_ML_DSA_44_PRIVATE_KEY_SEED),
+                Arguments.of("ML-DSA-65",
+                        RFC9881_ML_DSA_65_PRIVATE_KEY_SEED),
+                Arguments.of("ML-DSA-87",
+                        RFC9881_ML_DSA_87_PRIVATE_KEY_SEED),
+                Arguments.of("ML-KEM-512",
+                        RFC9935_ML_KEM_512_PRIVATE_KEY_SEED),
+                Arguments.of("ML-KEM-768",
+                        RFC9935_ML_KEM_768_PRIVATE_KEY_SEED),
+                Arguments.of("ML-KEM-1024",
+                        RFC9935_ML_KEM_1024_PRIVATE_KEY_SEED)
+        );
+    }
+
+    private static byte[] decodePEM(String pem) {
+        String base64 = pem
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
+        return Base64.getDecoder().decode(base64);
     }
 
     protected KeyPair generateKeyPair(String Algorithm) throws Exception {
