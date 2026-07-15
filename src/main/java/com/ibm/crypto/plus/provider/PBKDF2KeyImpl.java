@@ -47,6 +47,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
     private final int iterCount;
     private byte[] key;
     private String prfAlgorithm;
+    private String BeType;
 
     private static byte[] getPasswordBytes(char[] passwd) {
         CharBuffer cb = CharBuffer.wrap(passwd);
@@ -66,7 +67,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
      * @param keySpec the given PBE key specification
      * @param prfAlgo the given PBE key algorithm 
      */
-    PBKDF2KeyImpl(OpenJCEPlusProvider provider, PBEKeySpec keySpec, String prfAlgo)
+    PBKDF2KeyImpl(OpenJCEPlusProvider provider, PBEKeySpec keySpec, String prfAlgo, String beType, String beAlg)
             throws InvalidKeySpecException {
         this.provider = provider;
         this.passwd = keySpec.getPassword();
@@ -118,7 +119,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
 
             // Convert key length to bytes and derive key using OCKC.
             try {
-                this.key = PBKDF.PBKDF2derive(this.prfAlgorithm,
+                this.key = PBKDF.PBKDF2derive(this.prfAlgorithm, beAlg, beType,
                         passwdBytes, salt, iterCount, keyLength / 8, provider);
             } catch (NativeException e) {
                 throw new InvalidKeySpecException(

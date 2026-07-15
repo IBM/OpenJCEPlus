@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.math.BigInteger;
 import java.util.Arrays;
 
@@ -41,7 +39,7 @@ public final class RSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", "RSA");
         long rsaKeyId = nativeInterface.RSAKEY_generate(numBits, e.longValue());
         //OCKDebug.Msg (debPrefix, methodName,  "numBits=" + numBits + " rsaKeyId=" + rsaKeyId);
         return new RSAKey(nativeInterface, rsaKeyId, unobtainedKeyBytes, unobtainedKeyBytes, provider);
@@ -58,7 +56,7 @@ public final class RSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", "RSA");
         long rsaKeyId = nativeInterface.RSAKEY_createPrivateKey(privateKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName,  "rsaKeyId :" + rsaKeyId);
         return new RSAKey(nativeInterface, rsaKeyId, privateKeyBytes.clone(), null, provider);
@@ -75,7 +73,7 @@ public final class RSAKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", "RSA");
         long rsaKeyId = nativeInterface.RSAKEY_createPublicKey(publicKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName,  "rsaKeyId :" + rsaKeyId);
         return new RSAKey(nativeInterface, rsaKeyId, null, publicKeyBytes.clone(), provider);

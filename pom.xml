@@ -242,7 +242,6 @@
                   <configuration>
                     <useModulePath>false</useModulePath>
                     <!-- Could add -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:8787 for debug -->
-                    <!-- Could add -Djava.security.auth.debug=all for debug -->
                     <argLine>
                       @{argLine}
                       --add-exports=java.base/sun.security.internal.interfaces=ALL-UNNAMED
@@ -272,6 +271,7 @@
                       --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
                       -Djdk.mldsa.pkcs8.encoding=expandedKey
                       -Djdk.mlkem.pkcs8.encoding=expandedKey
+                      -Djava.security.auth.debug=${java.security.auth.debug}
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
                     <groups>${groups}</groups>
@@ -404,7 +404,6 @@
                   <configuration>
                     <useModulePath>false</useModulePath>
                     <trimStackTrace>false</trimStackTrace>
-                    <!-- Could add -Djava.security.auth.debug=all for debug -->
                     <argLine>
                       --add-exports=java.base/sun.security.internal.interfaces=ALL-UNNAMED
                       --add-exports=java.base/sun.security.internal.spec=ALL-UNNAMED
@@ -414,6 +413,7 @@
                       --add-exports openjceplus/com.ibm.crypto.plus.provider.base=ALL-UNNAMED
                       -Djdk.mldsa.pkcs8.encoding=expandedKey
                       -Djdk.mlkem.pkcs8.encoding=expandedKey
+                      -Djava.security.auth.debug=${java.security.auth.debug}
                     </argLine>
                     <includes>
                       <include>

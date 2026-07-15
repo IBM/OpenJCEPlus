@@ -42,10 +42,17 @@ public final class AESCipher extends CipherSpi implements AESConstants {
     private boolean use_z_fast_command;
     private static int isHardwareSupport = 0;
     private SecureRandom cryptoRandom = null;
+    private String configAlgName = "AES";
 
     public AESCipher(OpenJCEPlusProvider provider) {
         buffer = new byte[engineGetBlockSize() * 3];
         this.provider = provider;
+    }
+
+    public AESCipher(OpenJCEPlusProvider provider, String configAlgName) {
+        buffer = new byte[engineGetBlockSize() * 3];
+        this.provider = provider;
+        this.configAlgName = configAlgName;
     }
 
     @Override
@@ -286,7 +293,7 @@ public final class AESCipher extends CipherSpi implements AESConstants {
         try {
             if ((symmetricCipher == null) || (symmetricCipher.getKeyLength() != rawKey.length)) {
                 symmetricCipher = SymmetricCipher.getInstanceAES(mode,
-                        padding, rawKey.length, provider);
+                        padding, rawKey.length, provider, configAlgName);
                 // Check whether used algorithm is CBC and whether hardware supports is available
                 use_z_fast_command = symmetricCipher.getHardwareSupportStatus();
             }
