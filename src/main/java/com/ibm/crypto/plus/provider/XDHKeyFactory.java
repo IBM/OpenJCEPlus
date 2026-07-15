@@ -54,6 +54,12 @@ class XDHKeyFactory extends KeyFactorySpi {
     @Override
     protected PublicKey engineGeneratePublic(KeySpec keySpec) throws InvalidKeySpecException {
         try {
+            String configAlgName = this.alg;
+
+            if (configAlgName == null) {
+                configAlgName = "XDH";
+            }
+
             if (keySpec instanceof XECPublicKeySpec) {
                 XECPublicKeySpec publicKeySpec = (XECPublicKeySpec) keySpec;
                 AlgorithmParameterSpec publicKeyParams = publicKeySpec.getParams();
@@ -70,13 +76,14 @@ class XDHKeyFactory extends KeyFactorySpi {
                 }
 
                 BigInteger u = publicKeySpec.getU();
+
                 try {
-                    return new XDHPublicKeyImpl(provider, params, u);
+                    return new XDHPublicKeyImpl(provider, params, u, configAlgName);
                 } catch (InvalidAlgorithmParameterException iape) {
                     throw new InvalidKeySpecException(iape);
                 }
             } else if (keySpec instanceof X509EncodedKeySpec) {
-                return new XDHPublicKeyImpl(provider, ((X509EncodedKeySpec) keySpec).getEncoded());
+                return new XDHPublicKeyImpl(provider, ((X509EncodedKeySpec) keySpec).getEncoded(), configAlgName);
             } else
                 throw new InvalidKeySpecException("Inappropriate key specification");
         } catch (InvalidKeyException e) {
@@ -90,6 +97,12 @@ class XDHKeyFactory extends KeyFactorySpi {
     @Override
     protected PrivateKey engineGeneratePrivate(KeySpec keySpec) throws InvalidKeySpecException {
         try {
+            String configAlgName = this.alg;
+
+            if (configAlgName == null) {
+                configAlgName = "XDH";
+            }
+
             if (keySpec instanceof XECPrivateKeySpec) {
                 XECPrivateKeySpec privateKeySpec = (XECPrivateKeySpec) keySpec;
                 AlgorithmParameterSpec privateKeyParams = privateKeySpec.getParams();
@@ -107,13 +120,13 @@ class XDHKeyFactory extends KeyFactorySpi {
 
                 Optional<byte[]> scalar = Optional.of(privateKeySpec.getScalar());
                 try {
-                    return new XDHPrivateKeyImpl(provider, params, scalar);
+                    return new XDHPrivateKeyImpl(provider, params, scalar, configAlgName);
                 } catch (InvalidAlgorithmParameterException iape) {
                     throw new InvalidKeySpecException(iape);
                 }
             } else if (keySpec instanceof PKCS8EncodedKeySpec) {
                 return new XDHPrivateKeyImpl(provider,
-                        ((PKCS8EncodedKeySpec) keySpec).getEncoded());
+                        ((PKCS8EncodedKeySpec) keySpec).getEncoded(), configAlgName);
             } else {
                 throw new InvalidKeySpecException("Inappropriate key specification");
             }

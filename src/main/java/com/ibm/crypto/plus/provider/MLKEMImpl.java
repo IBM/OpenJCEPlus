@@ -132,6 +132,7 @@ public class MLKEMImpl implements KEMSpi {
 
         PublicKey publicKey;
         int size = SECRETSIZE;
+        String algName = null;
 
         /*
          * spec - The AlgorithmParameterSpec is not used and should be null. 
@@ -141,6 +142,7 @@ public class MLKEMImpl implements KEMSpi {
         MLKEMEncapsulator(PublicKey publicKey, AlgorithmParameterSpec spec,
                 SecureRandom secureRandom) {
             this.publicKey = publicKey;
+            this.algName = ((PQCPublicKey) publicKey).getAlgorithm().replace('_', '-');
         }
 
         @Override
@@ -160,7 +162,7 @@ public class MLKEMImpl implements KEMSpi {
 
             try {
                 OJPKEM.KEM_encapsulate(((PQCPublicKey) publicKey).getPQCKey().getPKeyId(),
-                        encapsulation, secret, provider);
+                        encapsulation, secret, provider, algName);
             } catch (NativeException e) {
                 throw new ProviderException("OCK Exception: ", e);
             }
@@ -237,9 +239,11 @@ public class MLKEMImpl implements KEMSpi {
     class MLKEMDecapsulator implements KEMSpi.DecapsulatorSpi {
         PrivateKey privateKey;
         int size = SECRETSIZE;
+        String algName = null;
 
         MLKEMDecapsulator(PrivateKey privateKey, AlgorithmParameterSpec spec) {
             this.privateKey = privateKey;
+            this.algName = ((PQCPrivateKey) privateKey).getAlgorithm().replace('_', '-');
         }
 
         @Override
@@ -266,7 +270,7 @@ public class MLKEMImpl implements KEMSpi {
 
             try {
                 secret = OJPKEM.KEM_decapsulate(((PQCPrivateKey) this.privateKey).getPQCKey().getPKeyId(),
-                        cipherText, provider);
+                        cipherText, provider, algName);
 
             } catch (NativeException e) {
                 throw new DecapsulateException("Decapsulation Error: ", e);

@@ -28,15 +28,27 @@ import javax.crypto.spec.PBEKeySpec;
 abstract class PBKDF2Core extends SecretKeyFactorySpi {
 
     private final String prfAlgo;
+    private String beType = "SecretKeyFactory";
+    private String beAlg;
 
     /**
      * Provider associated with this service instance.
      */
     private OpenJCEPlusProvider provider = null;
 
-    PBKDF2Core(OpenJCEPlusProvider provider, String prfAlgo) {
+    PBKDF2Core(OpenJCEPlusProvider provider, String prfAlgo, String beType, String beAlg) {
         this.provider = provider;
         this.prfAlgo = prfAlgo;
+
+        if (beAlg != null) {
+            this.beAlg = beAlg;
+        } else {
+            this.beAlg = "PBKDF2With" + prfAlgo;
+        }
+
+        if (beType != null) {
+            this.beType = beType;
+        }
     }
 
     /**
@@ -52,7 +64,7 @@ abstract class PBKDF2Core extends SecretKeyFactorySpi {
      */
     protected SecretKey engineGenerateSecret(KeySpec keySpec) throws InvalidKeySpecException {
         if (keySpec instanceof PBEKeySpec ks) {
-            return new PBKDF2KeyImpl(this.provider, ks, prfAlgo);
+            return new PBKDF2KeyImpl(this.provider, ks, prfAlgo, beType, beAlg);
         } else {
             throw new InvalidKeySpecException("Only PBEKeySpec is accepted");
         }
@@ -127,7 +139,7 @@ abstract class PBKDF2Core extends SecretKeyFactorySpi {
                 PBEKeySpec spec = new PBEKeySpec(password, pKey.getSalt(), pKey.getIterationCount(),
                         encoding.length * 8);
                 try {
-                    return new PBKDF2KeyImpl(this.provider, spec, prfAlgo);
+                    return new PBKDF2KeyImpl(this.provider, spec, prfAlgo, beType, beAlg);
                 } catch (InvalidKeySpecException re) {
                     throw new InvalidKeyException("Invalid key component(s)", re);
                 } finally {
@@ -147,43 +159,71 @@ abstract class PBKDF2Core extends SecretKeyFactorySpi {
 
     public static final class HmacSHA1 extends PBKDF2Core {
         public HmacSHA1(OpenJCEPlusProvider provider) {
-            super(provider, "HmacSHA1");
+            super(provider, "HmacSHA1", null, null);
+        }
+
+        public HmacSHA1(OpenJCEPlusProvider provider, String beType, String beAlg) {
+            super(provider, "HmacSHA1", beType, beAlg);
         }
     }
 
     public static final class HmacSHA224 extends PBKDF2Core {
         public HmacSHA224(OpenJCEPlusProvider provider) {
-            super(provider, "HmacSHA224");
+            super(provider, "HmacSHA224", null, null);
+        }
+
+        public HmacSHA224(OpenJCEPlusProvider provider, String beType, String beAlg) {
+            super(provider, "HmacSHA224", beType, beAlg);
         }
     }
 
     public static final class HmacSHA256 extends PBKDF2Core {
         public HmacSHA256(OpenJCEPlusProvider provider) {
-            super(provider, "HmacSHA256");
+            super(provider, "HmacSHA256", null, null);
+        }
+
+        public HmacSHA256(OpenJCEPlusProvider provider, String beType, String beAlg) {
+            super(provider, "HmacSHA256", beType, beAlg);
         }
     }
 
     public static final class HmacSHA384 extends PBKDF2Core {
         public HmacSHA384(OpenJCEPlusProvider provider) {
-            super(provider, "HmacSHA384");
+            super(provider, "HmacSHA384", null, null);
+        }
+
+        public HmacSHA384(OpenJCEPlusProvider provider, String beType, String beAlg) {
+            super(provider, "HmacSHA384", beType, beAlg);
         }
     }
 
     public static final class HmacSHA512 extends PBKDF2Core {
         public HmacSHA512(OpenJCEPlusProvider provider) {
-            super(provider, "HmacSHA512");
+            super(provider, "HmacSHA512", null, null);
+        }
+
+        public HmacSHA512(OpenJCEPlusProvider provider, String beType, String beAlg) {
+            super(provider, "HmacSHA512", beType, beAlg);
         }
     }
 
     public static final class HmacSHA512_224 extends PBKDF2Core {
         public HmacSHA512_224(OpenJCEPlusProvider provider) {
-            super(provider, "HmacSHA512/224");
+            super(provider, "HmacSHA512/224", null, null);
+        }
+
+        public HmacSHA512_224(OpenJCEPlusProvider provider, String beType, String beAlg) {
+            super(provider, "HmacSHA512/224", beType, beAlg);
         }
     }
 
     public static final class HmacSHA512_256 extends PBKDF2Core {
         public HmacSHA512_256(OpenJCEPlusProvider provider) {
-            super(provider, "HmacSHA512/256");
+            super(provider, "HmacSHA512/256", null, null);
+        }
+        
+        public HmacSHA512_256(OpenJCEPlusProvider provider, String beType, String beAlg) {
+            super(provider, "HmacSHA512/256", beType, beAlg);
         }
     }
 }

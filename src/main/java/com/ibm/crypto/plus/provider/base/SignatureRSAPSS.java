@@ -10,8 +10,6 @@ package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
@@ -54,7 +52,7 @@ public final class SignatureRSAPSS {
         this.mgf1SpecAlgo = mgf1SpecAlgo;
         this.digestAlgo = digestAlgo;
         this.provider = provider;
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Signature", "RSAPSS");
 
         this.provider.registerCleanable(this, cleanOCKResources(rsaPssId, nativeInterface));
     }

@@ -36,7 +36,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
             this.provider = provider;
             this.signature = PQCSignature.getInstance(provider);
         } catch (Exception e) {
-            throw provider.providerException("Failed to initialize EdDSA signature", e);
+            throw provider.providerException("Failed to initialize PQC signature", e);
         }
     }
 
@@ -45,7 +45,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
             this.provider = provider;
             this.signature = PQCSignature.getInstance(provider);
         } catch (Exception e) {
-            throw provider.providerException("Failed to initialize EdDSA signature", e);
+            throw provider.providerException("Failed to initialize PQC signature", e);
         }
         this.alg = Alg; // Added to know difference between algorithms.
     }
@@ -92,7 +92,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         }
 
         try {
-            this.signature.initialize(keyPrivate.getPQCKey());
+            this.signature.initialize(keyPrivate.getPQCKey(), keyPrivate.getAlgorithm().replace('_', '-'));
         } catch (Exception e) {
             throw provider.providerException("Failure in engineInitSign", e);
         }
@@ -115,7 +115,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
             throw new InvalidKeyException("Expected algorithm " + this.alg + ", but got " + keyPublic.getAlgorithm());
         }
         try {
-            this.signature.initialize(keyPublic.getPQCKey());
+            this.signature.initialize(keyPublic.getPQCKey(), keyPublic.getAlgorithm().replace('_', '-'));
         } catch (Exception e) {
             throw provider.providerException("Failure in engineInitVerify", e);
         }
