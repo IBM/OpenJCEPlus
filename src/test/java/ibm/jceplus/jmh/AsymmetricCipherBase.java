@@ -42,7 +42,7 @@ abstract public class AsymmetricCipherBase extends JMHBase {
         } else {
             throw new InvalidParameterException("Benchmark not supported for: " + algorithm);
         }
-        
+
         kpg.initialize(keySize);
         KeyPair kp = kpg.generateKeyPair();
 

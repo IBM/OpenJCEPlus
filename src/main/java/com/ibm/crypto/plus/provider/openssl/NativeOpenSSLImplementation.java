@@ -159,7 +159,7 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     }
 
     static void preloadOpenSSL() {
-        
+
         File loadFile = getOSSLLoadFile();
         boolean osslLibraryPreloaded = loadIfExists(loadFile);
         if ((osslLibraryPreloaded == false) && requirePreloadOSSL) {
@@ -168,7 +168,7 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
         }
     }
 
-    
+
 
     // =========================================================================
     // General functions
@@ -767,9 +767,9 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     // =========================================================================
     // PQC Signture functions - for use with ML-DSA and ML-SLH
     // =========================================================================
-    static public native byte[] PQC_SIGNATURE_sign(long osslContextId,  long pKeyId, byte[] data) 
+    static public native byte[] PQC_SIGNATURE_sign(long osslContextId,  long pKeyId, byte[] data)
             throws OpenSSLException;
 
-    static public native boolean PQC_SIGNATURE_verify(long osslContextId, long pKeyId, byte[] sigBytes, byte[] data) 
+    static public native boolean PQC_SIGNATURE_verify(long osslContextId, long pKeyId, byte[] sigBytes, byte[] data)
             throws OpenSSLException;
 }

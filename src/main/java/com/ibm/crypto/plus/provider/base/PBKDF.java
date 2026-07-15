@@ -18,7 +18,7 @@ public final class PBKDF {
     /**
      * Derives a key from a password using PBKDF2 defined
      * in PKCS#5 v2.0.
-     * 
+     *
      * @param ockContext The OCKC context to use for deriving a key.
      * @param algorithmName The has to use in associated with PBDKF2, for example HmacSHA512.
      * @param password The password to derive a key from.
@@ -62,8 +62,8 @@ public final class PBKDF {
         if (iterations <= 0) {
             throw new NativeException("Iterations is less then or equal to 0");
         }
-        
-        //NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "SecretKeyFactory", 
+
+        //NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "SecretKeyFactory",
         //    "PBKDF2With" + algorithmName.replace("-", "/"));
         NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, beType, beAlg);
         byte[] key = nativeInterface.PBKDF2_derive(algorithmHashName, password,

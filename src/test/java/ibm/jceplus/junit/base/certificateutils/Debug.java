@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -44,7 +44,7 @@ public class Debug {
         }
 
         if (args != null) {
-            //The debug flag may look like java.security.debug = 
+            //The debug flag may look like java.security.debug =
             String[] tokens = args.split(",");
             for (int i = 0, len = tokens.length; i < len; ++i) {
                 if ("ibmpkcs".equalsIgnoreCase(tokens[i].trim())) {
@@ -66,8 +66,8 @@ public class Debug {
 
     /**
      * Defines an informational message.
-     * Use this type to indicate conditions that are worth noting but that 
-     * do not require a user to take any precautions or perform an action. 
+     * Use this type to indicate conditions that are worth noting but that
+     * do not require a user to take any precautions or perform an action.
      * Sparing use of this type is suggested.
      * An informational message is less severe than a warning message.
      * This value is the same as {@link #TYPE_INFORMATION TYPE_INFORMATION}.
@@ -84,7 +84,7 @@ public class Debug {
 
     /**
      * Defines a warning message.
-     * Use this type to inform a user that an abnormal condition has been 
+     * Use this type to inform a user that an abnormal condition has been
      * detected.  The particular condition will dictate whether the user has
      * to take any action.
      * A warning message is less severe than an error message.
@@ -107,8 +107,8 @@ public class Debug {
      * An error message is less severe than a fatal message.
      * This value is the same as {@link #TYPE_ERROR TYPE_ERROR}.
      * <p>
-     * Note:  <code>TYPE_ERR</code> is included in the default mask of a 
-     * Logger and should not be confused with 
+     * Note:  <code>TYPE_ERR</code> is included in the default mask of a
+     * Logger and should not be confused with
      * <code>TYPE_ERROR_EXC</code>, which is intended to be used for
      * trace records by Trace.
      */
@@ -119,8 +119,8 @@ public class Debug {
      * Defines an error message.
      * This value is the same as {@link #TYPE_ERR TYPE_ERR}.
      * <p>
-     * Note:  <code>TYPE_ERR</code> is included in the default mask of a 
-     * Logger and should not be confused with 
+     * Note:  <code>TYPE_ERR</code> is included in the default mask of a
+     * Logger and should not be confused with
      * <code>TYPE_ERROR_EXC</code>, which is intended to be used for
      * trace records by Trace.
      */
@@ -144,7 +144,7 @@ public class Debug {
     public static final long TYPE_DEFAULT_MESSAGE = TYPE_INFO | TYPE_WARN | TYPE_ERR | TYPE_FATAL;
 
     /**
-     * Defines an application programming interface (API) 
+     * Defines an application programming interface (API)
      * trace point.
      */
 
@@ -170,8 +170,8 @@ public class Debug {
     public static final long TYPE_ENTRY_EXIT = 0x000040;
 
     /**
-     * Defines method entry trace points.  
-     * An entry trace point should be added to every 
+     * Defines method entry trace points.
+     * An entry trace point should be added to every
      * significant method to track movement through an
      * application.  Trivial methods, such as getters and
      * setters, generally don't have entry or exit trace points
@@ -182,7 +182,7 @@ public class Debug {
 
     /**
      * Defines method exit trace points.
-     * An exit trace point should be added to every 
+     * An exit trace point should be added to every
      * significant method to track movement through an
      * application.  Trivial methods, such as getters and
      * setters, generally don't have entry or exit trace points
@@ -193,11 +193,11 @@ public class Debug {
 
     /**
      * Defines an error or exception condition trace point.
-     * This type can be used to trace any exceptional 
+     * This type can be used to trace any exceptional
      * condition.
      * <p>
-     * Note:  <code>TYPE_ERROR_EXC</code> is included in the default mask of a 
-     * Trace and should not be confused with 
+     * Note:  <code>TYPE_ERROR_EXC</code> is included in the default mask of a
+     * Trace and should not be confused with
      * <code>TYPE_ERROR</code>, which is intended to be used for
      * message records by Logger.
      */
@@ -237,7 +237,7 @@ public class Debug {
     /**
      * Defines a public method trace point.  This typically
      * includes <code>package</code> and <code>protected</code>
-     * scope, as all of these methods may be used by other 
+     * scope, as all of these methods may be used by other
      * classes.
      */
 
@@ -259,14 +259,14 @@ public class Debug {
 
     /**
      * Defines a performance-monitoring trace point.
-     * This type can be used to measure the execution time of 
+     * This type can be used to measure the execution time of
      * selected sections of an application.
      */
 
     public static final long TYPE_PERF = 0x020000;
 
     /**
-     * Defines a "low-detail" trace point.  Some trace implementations 
+     * Defines a "low-detail" trace point.  Some trace implementations
      * prefer the notion of a "trace level," in which level 1 implies
      * minimal detail, level 2 implies more detail and level 3 implies
      * the most detail.  In such a system, these three types would be
@@ -276,7 +276,7 @@ public class Debug {
     public static final long TYPE_LEVEL1 = 0x040000;
 
     /**
-     * Defines a "medium-detail" trace point.  Some trace implementations 
+     * Defines a "medium-detail" trace point.  Some trace implementations
      * prefer the notion of a "trace level," in which level 1 implies
      * minimal detail, level 2 implies more detail and level 3 implies
      * the most detail.  In such a system, these three types would be
@@ -286,7 +286,7 @@ public class Debug {
     public static final long TYPE_LEVEL2 = 0x080000;
 
     /**
-     * Defines a "high-detail" trace point.  Some trace implementations 
+     * Defines a "high-detail" trace point.  Some trace implementations
      * prefer the notion of a "trace level," in which level 1 implies
      * minimal detail, level 2 implies more detail and level 3 implies
      * the most detail.  In such a system, these three types would be

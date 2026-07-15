@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 /**
  * This class accepts byte array input and returns that input minus the last
- * number of bytes as defined by the size. 
+ * number of bytes as defined by the size.
  * It buffers the input until the delay size number of bytes is received and then outputs the bytes in the
  * same order they were received.
  * This class can be used to avoid processing data at the end of a byte array stream until required.
@@ -35,7 +35,7 @@ public final class ByteArrayOutputDelay {
     }
 
     /**
-     * @param byteDelay number of bytes to delay by; maximum is 65536 
+     * @param byteDelay number of bytes to delay by; maximum is 65536
      */
     public ByteArrayOutputDelay(int byteDelay) {
         super();

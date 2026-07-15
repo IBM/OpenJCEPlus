@@ -41,7 +41,7 @@ public final class PQCKey implements AsymmetricKey {
 
             if (keyId == 0) {
                 throw new NativeException("PQCKey.generateKeyPair: MLKEY_generate failed");
-            }    
+            }
         } catch (Exception e) {
             throw new NativeException("PQCKey.generateKeyPair: Exception " + e.getMessage(), e);
         }
@@ -151,7 +151,7 @@ public final class PQCKey implements AsymmetricKey {
             if (!validId(pkeyId)) {
                 throw new NativeException(badIdMsg);
             }
-        
+
             System.out.println("getPrivKeyBytes - pkeyId :" + pkeyId);
             this.privateKeyBytes = this.nativeInterface.MLKEY_getPrivateKeyBytes(pkeyId);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -220,7 +220,7 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
                     "================  BEGINNING OF testRSAPSS()  ================================");
 
         // Cannot do RSA 512 key size for SHA384 and others  due to the following exception from SunRSASign
-        //   testRSAPSS(ibm.jceplus.junit.openjceplus.TestRSAPSSInterop2)java.security.InvalidKeyException: java.security.SignatureException: Key is too short, need min 70 
+        //   testRSAPSS(ibm.jceplus.junit.openjceplus.TestRSAPSSInterop2)java.security.InvalidKeyException: java.security.SignatureException: Key is too short, need min 70
 
         //OpenJCEPlusFIPS and SunRsaSign does not support 512
         for (int ii = 1; ii <= 5; ii++) { // For each RSA key size

@@ -69,7 +69,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
         // The original and new keys are the same
         assertArrayEquals(publicKeyBytesPlus, publicKeyInterop.getEncoded());
-    } 
+    }
 
     @Test
     public void testPQCKeyGenKEMAutoKeyConvertion() throws Exception {
@@ -85,7 +85,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
         PublicKey publicKey = keyPair.getPublic();
         PrivateKey privateKey = keyPair.getPrivate();
-            
+
         KEM.Encapsulator encr = kemInterop.newEncapsulator(publicKey);
         KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
         if (enc == null) {
@@ -98,7 +98,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 32, "AES");
 
         assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
-    } 
+    }
 
     @Test
     public void testPQCKeyGenKEM_Interop() throws Exception {
@@ -149,7 +149,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         byte[] privateKeyBytesInterop = privateKeyInterop.getEncoded();
 
         EncodedKeySpec eksInterop = keyFactoryInterop.getKeySpec(publicKeyInterop, EncodedKeySpec.class);
-        PublicKey pub = keyFactoryPlus.generatePublic(eksInterop); 
+        PublicKey pub = keyFactoryPlus.generatePublic(eksInterop);
         EncodedKeySpec eksPrivInterop = keyFactoryInterop.getKeySpec(privateKeyInterop, EncodedKeySpec.class);
         PrivateKey priv = keyFactoryPlus.generatePrivate(eksPrivInterop);
         assertArrayEquals(privateKeyBytesInterop, priv.getEncoded());
@@ -285,7 +285,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
         return keyPair;
     }
- 
+
     @ParameterizedTest
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignInteropAndVerifyPlus(String algorithm) throws Exception {
@@ -431,7 +431,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
             PublicKey publicKeyPlus = keyPairPlus.getPublic();
             PrivateKey privateKeyPlus = keyPairPlus.getPrivate();
-            
+
             PKCS8EncodedKeySpec privateKeySpecPlus = new PKCS8EncodedKeySpec(privateKeyPlus.getEncoded());
             EncodedKeySpec publicKeySpecPlus = new X509EncodedKeySpec(publicKeyPlus.getEncoded());
             KeyFactory keyFactoryPlus = KeyFactory.getInstance(Algorithm, getInteropProviderName());
@@ -470,7 +470,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
             PublicKey publicKeyInterop = keyPairInterop.getPublic();
             PrivateKey privateKeyInterop = keyPairInterop.getPrivate();
-            
+
             PKCS8EncodedKeySpec privateKeySpecInterop = new PKCS8EncodedKeySpec(privateKeyInterop.getEncoded());
             EncodedKeySpec publicKeySpecInterop = new X509EncodedKeySpec(publicKeyInterop.getEncoded());
             KeyFactory keyFactoryPlus = KeyFactory.getInstance(Algorithm, getProviderName());
@@ -494,7 +494,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
             fail("KEMPlusCreatesInteropGet failed");
         }
     }
-        
+
     @ParameterizedTest
     @CsvSource({"ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
     public void testKEMPlusCreatesInteropGet(String Algorithm) {
@@ -507,7 +507,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
             PublicKey publicKeyPlus = keyPairPlus.getPublic();
             PrivateKey privateKeyPlus = keyPairPlus.getPrivate();
-            
+
             X509EncodedKeySpec publicKeySpecInterop = new X509EncodedKeySpec(publicKeyPlus.getEncoded());
             KeyFactory keyFactoryInterop = KeyFactory.getInstance(Algorithm, getInteropProviderName());
             PublicKey publicKeyInterop = keyFactoryInterop.generatePublic(publicKeySpecInterop);
@@ -579,20 +579,20 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         KeyPairGenerator keyPairGenPlus = KeyPairGenerator.getInstance("ML-KEM", getProviderName());
         keyPairGenPlus.initialize(new NamedParameterSpec(parameterSet));
         KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
-        
+
         // Encapsulate using provider
         KEM kemPlus = KEM.getInstance("ML-KEM", getProviderName());
         KEM.Encapsulator encapsulator = kemPlus.newEncapsulator(keyPairPlus.getPublic());
         KEM.Encapsulated encapsulated = encapsulator.encapsulate(0, 32, "AES");
-        
+
         SecretKey encapKey = encapsulated.key();
         byte[] encapsulation = encapsulated.encapsulation();
-        
+
         // Decapsulate using interop provider
         KEM kemInterop = KEM.getInstance("ML-KEM", getInteropProviderName());
         KEM.Decapsulator decapsulator = kemInterop.newDecapsulator(keyPairPlus.getPrivate());
         SecretKey decapKey = decapsulator.decapsulate(encapsulation, 0, 32, "AES");
-        
+
         // Verify that both keys match
         assertArrayEquals(encapKey.getEncoded(), decapKey.getEncoded(),
                 "Encapsulated and decapsulated keys do not match for " + parameterSet);
@@ -615,20 +615,20 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         KeyPairGenerator keyPairGenInterop = KeyPairGenerator.getInstance("ML-KEM", getInteropProviderName());
         keyPairGenInterop.initialize(new NamedParameterSpec(parameterSet));
         KeyPair keyPairInterop = generateKeyPair(keyPairGenInterop);
-        
+
         // Encapsulate using interop provider (no from/to parameters)
         KEM kemInterop = KEM.getInstance("ML-KEM", getInteropProviderName());
         KEM.Encapsulator encapsulator = kemInterop.newEncapsulator(keyPairInterop.getPublic());
         KEM.Encapsulated encapsulated = encapsulator.encapsulate();
-        
+
         SecretKey encapKey = encapsulated.key();
         byte[] encapsulation = encapsulated.encapsulation();
-        
+
         // Decapsulate using provider (no from/to parameters)
         KEM kemPlus = KEM.getInstance("ML-KEM", getProviderName());
         KEM.Decapsulator decapsulator = kemPlus.newDecapsulator(keyPairInterop.getPrivate());
         SecretKey decapKey = decapsulator.decapsulate(encapsulation);
-        
+
         // Verify that both keys match
         assertArrayEquals(encapKey.getEncoded(), decapKey.getEncoded(),
                 "Encapsulated and decapsulated keys do not match for " + parameterSet);
@@ -651,20 +651,20 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         KeyPairGenerator keyPairGenPlus = KeyPairGenerator.getInstance("ML-KEM", getProviderName());
         keyPairGenPlus.initialize(new NamedParameterSpec(parameterSet));
         KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
-        
+
         // Encapsulate using provider with smaller secret (16 bytes)
         KEM kemPlus = KEM.getInstance("ML-KEM", getProviderName());
         KEM.Encapsulator encapsulator = kemPlus.newEncapsulator(keyPairPlus.getPublic());
         KEM.Encapsulated encapsulated = encapsulator.encapsulate(0, 16, "AES");
-        
+
         SecretKey encapKey = encapsulated.key();
         byte[] encapsulation = encapsulated.encapsulation();
-        
+
         // Decapsulate using interop provider with same secret size
         KEM kemInterop = KEM.getInstance("ML-KEM", getInteropProviderName());
         KEM.Decapsulator decapsulator = kemInterop.newDecapsulator(keyPairPlus.getPrivate());
         SecretKey decapKey = decapsulator.decapsulate(encapsulation, 0, 16, "AES");
-        
+
         // Verify that both keys match
         assertArrayEquals(encapKey.getEncoded(), decapKey.getEncoded(),
                 "Encapsulated and decapsulated keys do not match for " + parameterSet);
@@ -687,29 +687,29 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         KeyPairGenerator keyPairGenPlus = KeyPairGenerator.getInstance("ML-KEM", getProviderName());
         keyPairGenPlus.initialize(new NamedParameterSpec(parameterSet));
         KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
-        
+
         KEM kemInterop = KEM.getInstance("ML-KEM", getInteropProviderName());
         KEM.Encapsulator encapsulatorInterop = kemInterop.newEncapsulator(keyPairPlus.getPublic());
         KEM.Encapsulated encapsulatedInterop = encapsulatorInterop.encapsulate(0, 32, "AES");
-        
+
         KEM kemPlus = KEM.getInstance("ML-KEM", getProviderName());
         KEM.Decapsulator decapsulatorPlus = kemPlus.newDecapsulator(keyPairPlus.getPrivate());
         SecretKey decapKeyPlus = decapsulatorPlus.decapsulate(encapsulatedInterop.encapsulation(), 0, 32, "AES");
-        
+
         assertArrayEquals(encapsulatedInterop.key().getEncoded(), decapKeyPlus.getEncoded(),
                 "Keys do not match for test 1 with " + parameterSet);
-        
+
         // Test 2: Generate with interop provider, encapsulate with provider, decapsulate with interop provider
         KeyPairGenerator keyPairGenInterop = KeyPairGenerator.getInstance("ML-KEM", getInteropProviderName());
         keyPairGenInterop.initialize(new NamedParameterSpec(parameterSet));
         KeyPair keyPairInterop = generateKeyPair(keyPairGenInterop);
-        
+
         KEM.Encapsulator encapsulatorPlus = kemPlus.newEncapsulator(keyPairInterop.getPublic());
         KEM.Encapsulated encapsulatedPlus = encapsulatorPlus.encapsulate(0, 32, "AES");
-        
+
         KEM.Decapsulator decapsulatorInterop = kemInterop.newDecapsulator(keyPairInterop.getPrivate());
         SecretKey decapKeyInterop = decapsulatorInterop.decapsulate(encapsulatedPlus.encapsulation(), 0, 32, "AES");
-        
+
         assertArrayEquals(encapsulatedPlus.key().getEncoded(), decapKeyInterop.getEncoded(),
                 "Keys do not match for test 2 with " + parameterSet);
     }

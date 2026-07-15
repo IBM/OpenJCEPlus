@@ -100,7 +100,7 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
 
         try {
             String configAlgName = this.alg;
-            
+
             if (configAlgName == null) {
                 configAlgName = "XDH";
             }
@@ -221,7 +221,7 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
     @Override
     protected void engineInit(Key key, AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        
+
         if (!(key instanceof XECPrivateKey)) {
             throw new InvalidKeyException("Unsupported key type");
         }

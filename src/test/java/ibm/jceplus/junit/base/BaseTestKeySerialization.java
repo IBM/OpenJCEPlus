@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BaseTestKeySerialization extends BaseTestJunit5Signature {
-    
+
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
     static final byte[] plainText = "123456781234567812345678123456781234567812345678123456781234567".getBytes();
 
@@ -56,19 +56,19 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
         serializeKey(keyPair.getPrivate(), privateKeyFile);
         PrivateKey deserializedPrivateKey = (PrivateKey) deserializeKey(privateKeyFile);
 
-        assertEquals(keyPair.getPublic().getClass().getName(), 
+        assertEquals(keyPair.getPublic().getClass().getName(),
             deserializedPublicKey.getClass().getName(),
             "Public deserialized class does not match original");
 
-        assertEquals(keyPair.getPrivate().getClass().getName(), 
+        assertEquals(keyPair.getPrivate().getClass().getName(),
             deserializedPrivateKey.getClass().getName(),
             "Private deserialized class does not match original");
 
-        assertArrayEquals(keyPair.getPublic().getEncoded(), 
+        assertArrayEquals(keyPair.getPublic().getEncoded(),
             deserializedPublicKey.getEncoded(),
             "Public deserialized key does not match original");
 
-        assertArrayEquals(keyPair.getPrivate().getEncoded(), 
+        assertArrayEquals(keyPair.getPrivate().getEncoded(),
             deserializedPrivateKey.getEncoded(),
             "Private deserialized key does not match original");
 
@@ -103,14 +103,14 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
         serializeKey(key, keyFile);
         SecretKey deserializedKey = (SecretKey) deserializeKey(keyFile);
 
-        assertArrayEquals(key.getEncoded(), 
+        assertArrayEquals(key.getEncoded(),
             deserializedKey.getEncoded(),
             "Key deserialized key does not match original");
 
         cp = Cipher.getInstance(cipherName, getProviderName());
         cp.init(Cipher.ENCRYPT_MODE, key);
         byte[] cipherText = cp.doFinal(plainText);
-        
+
         // ChaCha20 requires special handling since it uses ChaCha20ParameterSpec instead of AlgorithmParameters
         if (algorithm.equalsIgnoreCase("ChaCha20")) {
             byte[] nonce = cp.getIV();
@@ -120,7 +120,7 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
             AlgorithmParameters params = cp.getParameters();
             cp.init(Cipher.DECRYPT_MODE, deserializedKey, params);
         }
-        
+
         byte[] newPlainText = cp.doFinal(cipherText, 0, cipherText.length);
         assertArrayEquals(plainText, newPlainText, "Secret keys are different");
     }
@@ -138,7 +138,7 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
 
         SecretKey key = null;
         PBEKeySpec pbeks = new PBEKeySpec("ABCDEFGHIJ".toCharArray(), new byte[32], 10000, 512);
- 
+
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, this.getProviderName());
         key = skf.generateSecret(pbeks);
 
@@ -147,7 +147,7 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
         serializeKey(key, keyFile);
         SecretKey deserializedKey = (SecretKey) deserializeKey(keyFile);
 
-        assertArrayEquals(key.getEncoded(), 
+        assertArrayEquals(key.getEncoded(),
             deserializedKey.getEncoded(),
             "Key deserialized key does not match original");
 
@@ -179,19 +179,19 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
         serializeKey(keyPair.getPrivate(), privateKeyFile);
         PrivateKey deserializedPrivateKey = (PrivateKey) deserializeKey(privateKeyFile);
 
-        assertEquals(keyPair.getPublic().getClass().getName(), 
+        assertEquals(keyPair.getPublic().getClass().getName(),
             deserializedPublicKey.getClass().getName(),
             "Public deserialized class does not match original");
 
-        assertEquals(keyPair.getPrivate().getClass().getName(), 
+        assertEquals(keyPair.getPrivate().getClass().getName(),
             deserializedPrivateKey.getClass().getName(),
             "Private deserialized class does not match original");
 
-        assertArrayEquals(keyPair.getPublic().getEncoded(), 
+        assertArrayEquals(keyPair.getPublic().getEncoded(),
             deserializedPublicKey.getEncoded(),
             "Public deserialized key does not match original");
 
-        assertArrayEquals(keyPair.getPrivate().getEncoded(), 
+        assertArrayEquals(keyPair.getPrivate().getEncoded(),
             deserializedPrivateKey.getEncoded(),
             "Private deserialized key does not match original");
 
@@ -264,4 +264,4 @@ public class BaseTestKeySerialization extends BaseTestJunit5Signature {
         }
         return null;
     }
-}    
+}

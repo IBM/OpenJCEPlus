@@ -60,7 +60,7 @@ abstract class PBES1Core extends CipherSpi {
         } else {
             cipher = new RC4Cipher(provider, configAlgName);
         }
-        
+
         cipher.engineSetMode(mode);
         cipher.engineSetPadding(padding.toString());
         this.keysize = keysize;
@@ -135,10 +135,10 @@ abstract class PBES1Core extends CipherSpi {
         try {
             engineInit(opmode, key, (AlgorithmParameterSpec) null, random);
         } catch (InvalidAlgorithmParameterException e) {
-            /* 
+            /*
              * If initializing the Cipher in Decrypt mode without parameters
              * (neither passed directly or via the key), silence InvalidAlgorithmParameterException
-             * to match OpenJDK behavior. 
+             * to match OpenJDK behavior.
              */
         }
     }
@@ -239,7 +239,7 @@ abstract class PBES1Core extends CipherSpi {
         if (password.length == 1 && (password[0] & 0x7f) == 0) {
             return new byte[0];
         }
-        
+
         byte[] pass = new byte[(password.length * 2) + 2];
         for (int i = 0, j = 0; i < password.length; i++, j += 2) {
             char passwordChar = (char) (password[i] & 0x7f);

@@ -24,12 +24,12 @@ import sun.security.util.Debug;
 
 /**
  * A class to read and parse Provider.Service definitions from a file.
- * 
+ *
  * The format of these files is discussed in detail in PROVIDER_CONFIG_FORMAT.md
- * 
+ *
  */
 public class ProviderServiceReader {
-    
+
     private String filePath = null;
     private String name;
     private String description;
@@ -40,7 +40,7 @@ public class ProviderServiceReader {
     private boolean def = false;
     private String secureRandDef = null;
     private static Debug debug = Debug.getInstance("jceplus");
-    
+
     /**
      * Represents a single service definition parsed from the file.
      */
@@ -50,8 +50,8 @@ public class ProviderServiceReader {
         private final String className;
         private final List<String> aliases;
         private final Map<String, String> attributes;
-       
-        public ServiceDefinition(String type, String algorithm, String className, 
+
+        public ServiceDefinition(String type, String algorithm, String className,
                                List<String> aliases, Map<String, String> attributes) {
             this.type = type;
             this.algorithm = algorithm;
@@ -59,27 +59,27 @@ public class ProviderServiceReader {
             this.aliases = aliases != null ? new ArrayList<>(aliases) : new ArrayList<>();
             this.attributes = attributes != null ? new HashMap<>(attributes) : new HashMap<>();
         }
-        
+
         public String getType() {
             return type;
         }
-        
+
         public String getAlgorithm() {
             return algorithm;
         }
-        
+
         public String getClassName() {
             return className;
         }
-        
+
         public List<String> getAliases() {
             return new ArrayList<>(aliases);
         }
-        
+
         public Map<String, String> getAttributes() {
             return new HashMap<>(attributes);
         }
-        
+
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
@@ -94,26 +94,26 @@ public class ProviderServiceReader {
                 sb.append("    Attributes: ");
                 for (Map.Entry<String, String> en : attributes.entrySet()) {
                     sb.append("               key - " + en.getKey());
-                    sb.append("               value - " + en.getValue());                                  
+                    sb.append("               value - " + en.getValue());
                 }
             }
             sb.append("]");
             return sb.toString();
         }
     }
-    
+
     /**
      * Creates a new ProviderServiceReader for the specified file.
-     * 
+     *
      * @param filePath the path to the file containing service definitions
      */
     public ProviderServiceReader(String filePath) {
         this.filePath = filePath;
     }
-   
+
     /**
      * Creates a new ProviderServiceReader for the specified file.
-     * 
+     *
      * @param filePath the path to the file containing service definitions
      */
     public ProviderServiceReader(BufferedReader br) {
@@ -122,7 +122,7 @@ public class ProviderServiceReader {
 
     /**
      * Reads and parses all service definitions from the file.
-     * 
+     *
      * @return a list of ServiceDefinition objects
      * @throws IOException if an I/O error occurs reading the file
      */
@@ -199,7 +199,7 @@ public class ProviderServiceReader {
                         }
                     }
                 }
-  
+
                 def = true;
             }
 
@@ -221,10 +221,10 @@ public class ProviderServiceReader {
             }
             throw new IOException("File issue: " + e.getMessage());
         }
-       
+
         return orderServices(services);
     }
-       
+
     /**
      * Process the aliases array from a putService statement.
      * Assume that there is only ever one .add, .replace or .delete property.
@@ -279,7 +279,7 @@ public class ProviderServiceReader {
                     ali.remove(alias);
                 }
             }
-        
+
             value = configPr.getProperty(keyBase + ".replace");
             if (value != null) {
                 String[] aliases = value.split("\\s*,\\s*");
@@ -295,7 +295,7 @@ public class ProviderServiceReader {
 
         return ali;
     }
-    
+
     /**
      * Parses attributes from a putService statement.
      *
@@ -402,7 +402,7 @@ public class ProviderServiceReader {
 
     /**
      * Filters services by type.
-     * 
+     *
      * @param services the list of services to filter
      * @param type the service type to filter by
      * @return a list of services matching the specified type
@@ -416,10 +416,10 @@ public class ProviderServiceReader {
         }
         return filtered;
     }
-    
+
     /**
      * Filters services by algorithm.
-     * 
+     *
      * @param services the list of services to filter
      * @param algorithm the algorithm to filter by
      * @return a list of services matching the specified algorithm
@@ -433,10 +433,10 @@ public class ProviderServiceReader {
         }
         return filtered;
     }
-    
+
     /**
      * Gets all unique service types from the list.
-     * 
+     *
      * @param services the list of services
      * @return a list of unique service types
      */
@@ -452,7 +452,7 @@ public class ProviderServiceReader {
 
     /**
      * Gets the name of the provider that was read in from the config file.
-     * 
+     *
      * @return a String that contains the provider name
      */
     public String getName() {
@@ -461,7 +461,7 @@ public class ProviderServiceReader {
 
     /**
      * Gets the descripton that was read in from the config file.
-     * 
+     *
      * @return a String that contains the description
      */
     public String getDesc() {
@@ -470,7 +470,7 @@ public class ProviderServiceReader {
 
     /**
      * Gets the default Secure Random algorithm that was read in from the config file.
-     * 
+     *
      * @return a String that contains the default Secure Random algorithm
      */
     public String getDefSecRnd() {

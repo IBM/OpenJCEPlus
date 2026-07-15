@@ -69,7 +69,7 @@ public class ECSignatureBenchmark extends JMHBase {
 
         // Skip non-FIPS compliant algorithms when using OpenJCEPlusFIPS provider
         if (provider.equalsIgnoreCase("OpenJCEPlusFIPS") &&
-            (algorithm.equals("SHA1withECDSA") || 
+            (algorithm.equals("SHA1withECDSA") ||
              algorithm.equals("SHA224withECDSA") ||
              algorithm.equals("SHA3-224withECDSA") ||
              algorithm.equals("SHA3-2564withECDSA") ||

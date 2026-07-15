@@ -66,7 +66,7 @@ public class TestECDSASignature extends BaseTestSignature {
     @Test
     public void testEngineSetParameter_invalidSpec() throws Exception {
         KeyPair keyPair = generateKeyPair(256);
-        
+
         String sigAlgo = "SHA256withECDSA";
         PrivateKey privateKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
@@ -118,7 +118,7 @@ public class TestECDSASignature extends BaseTestSignature {
     @Test
     public void testEngineSetParameter_validSpec() throws Exception {
         KeyPair keyPair = generateKeyPair(256);
-        
+
         String sigAlgo = "SHA256withECDSA";
         PrivateKey privateKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();

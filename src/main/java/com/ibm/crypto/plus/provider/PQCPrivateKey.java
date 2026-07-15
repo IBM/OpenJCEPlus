@@ -49,7 +49,7 @@ final class PQCPrivateKey extends PKCS8Key {
         this.provider = provider;
         byte[] key = null;
         DerValue pkOct = null;
-        
+
         //Check to determine if the key bytes already have the Octet tag.
         if (OctectStringEncoded(keyBytes)) {
             //Remove encoding OctetString encoding.
@@ -182,7 +182,7 @@ final class PQCPrivateKey extends PKCS8Key {
             //System.out.println("Exception creating encoding - "+ex.getMessage());
             return encodedKey;
         }
-        
+
         return encodedKey;
     }
 
@@ -201,7 +201,7 @@ final class PQCPrivateKey extends PKCS8Key {
     protected Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
         return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
-    } 
+    }
 
     /**
      * Destroys this key. A call to any of its other methods after this will
@@ -271,7 +271,7 @@ final class PQCPrivateKey extends PKCS8Key {
                     //This is an encoding
                     return true;
                 }
-            } 
+            }
             return false;
         } catch (Exception e) {
             return false;

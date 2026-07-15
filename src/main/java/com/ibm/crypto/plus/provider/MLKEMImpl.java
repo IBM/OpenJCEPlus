@@ -37,7 +37,7 @@ public class MLKEMImpl implements KEMSpi {
         this.provider = provider;
         this.alg = alg;
     }
-    
+
     /**
      * Validates that the key's algorithm matches this KEM instance's algorithm.
      * The generic "ML-KEM" instance accepts keys from any ML-KEM variant.
@@ -53,14 +53,14 @@ public class MLKEMImpl implements KEMSpi {
         if (this.alg.equals("ML-KEM")) {
             return;
         }
-        
+
         // Specific instance accepts exact match or generic "ML-KEM"
         if (!this.alg.equals(keyAlgorithm) && !keyAlgorithm.equals("ML-KEM")) {
             throw new InvalidKeyException("Key algorithm " + keyAlgorithm +
                 " does not match KEM instance algorithm " + this.alg);
         }
     }
-    
+
     private int getEncapsulationLength(String algorithm) {
         int size = 0;
 
@@ -91,7 +91,7 @@ public class MLKEMImpl implements KEMSpi {
     public KEMSpi.EncapsulatorSpi engineNewEncapsulator(PublicKey publicKey,
             AlgorithmParameterSpec spec, SecureRandom secureRandom)
             throws InvalidAlgorithmParameterException, InvalidKeyException {
-        
+
         PublicKey pubKey = publicKey;
         if (pubKey == null) {
             throw new InvalidKeyException("Key is null.");
@@ -104,7 +104,7 @@ public class MLKEMImpl implements KEMSpi {
             if (keyAlgorithm == null || !keyAlgorithm.startsWith("ML-KEM")) {
                 throw new InvalidKeyException("unsupported key");
             }
-            
+
             // Use the key's actual algorithm, not the generic "ML-KEM"
             try {
                 KeyFactory kf = KeyFactory.getInstance(keyAlgorithm, this.provider.getName());
@@ -131,7 +131,7 @@ public class MLKEMImpl implements KEMSpi {
         String algName = null;
 
         /*
-         * spec - The AlgorithmParameterSpec is not used and should be null. 
+         * spec - The AlgorithmParameterSpec is not used and should be null.
          * secureRandom - This parameter is not used and should be null. If not null it
          * will be ignored.
          */
@@ -181,13 +181,13 @@ public class MLKEMImpl implements KEMSpi {
     }
 
     /*
-     * spec - The AlgorithmParameterSpec is not used and should be null. 
+     * spec - The AlgorithmParameterSpec is not used and should be null.
      */
     @Override
     public KEMSpi.DecapsulatorSpi engineNewDecapsulator(PrivateKey privateKey,
             AlgorithmParameterSpec spec)
             throws InvalidAlgorithmParameterException, InvalidKeyException {
- 
+
         PrivateKey privKey = privateKey;
 
         if (privKey == null) {
@@ -201,7 +201,7 @@ public class MLKEMImpl implements KEMSpi {
             if (keyAlgorithm == null || !keyAlgorithm.startsWith("ML-KEM")) {
                 throw new InvalidKeyException("unsupported key");
             }
-            
+
             // Use the key's actual algorithm, not the generic "ML-KEM"
             byte[] encoding = null;
             try {
@@ -226,7 +226,7 @@ public class MLKEMImpl implements KEMSpi {
     }
 
     /*
-     * spec - The AlgorithmParameterSpec is not used and should be null. 
+     * spec - The AlgorithmParameterSpec is not used and should be null.
      */
     class MLKEMDecapsulator implements KEMSpi.DecapsulatorSpi {
         PrivateKey privateKey;
@@ -311,5 +311,5 @@ public class MLKEMImpl implements KEMSpi {
         public MLKEM1024(OpenJCEPlusProvider provider) {
             super(provider, "ML-KEM-1024");
         }
-    }    
+    }
 }

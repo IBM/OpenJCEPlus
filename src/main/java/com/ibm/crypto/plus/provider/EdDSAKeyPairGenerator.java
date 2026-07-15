@@ -38,7 +38,7 @@ abstract class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
         } catch (Exception e) {
             throw new InvalidParameterException(e.getMessage());
         }
-        
+
     }
 
     private EdDSAKeyPairGenerator(OpenJCEPlusProvider provider, String Alg) {
@@ -107,7 +107,7 @@ abstract class EdDSAKeyPairGenerator extends KeyPairGeneratorSpi {
             if (configAlgName == null) {
                 configAlgName = "EdDSA";
             }
-            
+
             XECKey xecKey = XECKey.generateKeyPair(
                     this.curve.ordinal(), keySize, provider, configAlgName);
             EdDSAPublicKeyImpl pubKey = new EdDSAPublicKeyImpl(provider, xecKey,

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -53,7 +53,7 @@ public class BaseTestMemStressDHKeyFactory extends BaseTestJunit5 {
         long currentFreeMemory = 0;
         long currentUsedMemory = 0;
         long prevUsedMemory = 0;
- 
+
         for (int i = 0; i < numTimes; i++) {
             keyFactoryPublicTest(2048);
             keyFactoryPrivateTest(2048);

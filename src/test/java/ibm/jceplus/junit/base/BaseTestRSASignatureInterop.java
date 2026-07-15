@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -55,14 +55,14 @@ public class BaseTestRSASignatureInterop extends BaseTestSignatureInterop {
 
     /*
     RSAforSSL is not supported in other cryptographic providers in order to do interopt testing
-    
+
     @Test
     public void testRSAforSSL_hash1() throws Exception {
         KeyPair keyPair = generateKeyPair( getKeySize());
         byte[]  sslHash = Arrays.copyOf(origMsg, 1);
         doSignVerify("RSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
-    
+
 
     @Test
     public void testRSAforSSL_hash5() throws Exception {
@@ -70,7 +70,7 @@ public class BaseTestRSASignatureInterop extends BaseTestSignatureInterop {
         byte[]  sslHash = Arrays.copyOf(origMsg, 5);
         doSignVerify("RSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
-    
+
 
     @Test
     public void testRSAforSSL_hash20() throws Exception {
@@ -78,7 +78,7 @@ public class BaseTestRSASignatureInterop extends BaseTestSignatureInterop {
         byte[]  sslHash = Arrays.copyOf(origMsg, 20);
         doSignVerify("RSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
-     
+
 
     @Test
     public void testRSAforSSL_hash36() throws Exception {
@@ -86,7 +86,7 @@ public class BaseTestRSASignatureInterop extends BaseTestSignatureInterop {
         byte[]  sslHash = Arrays.copyOf(origMsg, 36);
         doSignVerify("RSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
     }
-    
+
 
     @Test
     public void testRSAforSSL_hash40() throws Exception {

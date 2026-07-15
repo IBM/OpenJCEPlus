@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
 public class TestProviderServices extends BaseTest {
-    
+
     @Parameter(0)
     TestProvider provider;
 
@@ -52,47 +52,47 @@ public class TestProviderServices extends BaseTest {
             ProviderServiceReader reader = new ProviderServiceReader("./src/test/ProviderDefAttrs.config");
             reader.readServices();
             List<ProviderServiceReader.ServiceDefinition> services = reader.readServices();
-            
+
             System.out.println("Found " + services.size() + " service definitions: for  " + reader.getName());
             System.out.println("Description: " + reader.getDesc());
             System.out.println();
-            
+
             // Group by type
             List<String> types = reader.getUniqueTypes(services);
             for (String type : types) {
                 List<ProviderServiceReader.ServiceDefinition> typeServices = reader.filterByType(services, type);
                 System.out.println(type + " (" + typeServices.size() + " services):");
                 for (ProviderServiceReader.ServiceDefinition service : typeServices) {
-                    System.out.println("  - " + service.getAlgorithm() + 
+                    System.out.println("  - " + service.getAlgorithm() +
                                      " -> " + service.getClassName());
                     if (!service.getAliases().isEmpty()) {
                         System.out.println("    Aliases: " + service.getAliases());
                     } else {
                         System.out.println("    Aliases: Empty");
-                    }                    
+                    }
                     if (!service.getAttributes().isEmpty()) {
                         Map<String, String> attributes = service.getAttributes();
                         System.out.println("    Attributes: ");
                         for (Map.Entry<String, String> en : attributes.entrySet()) {
                             System.out.println("               key - " + en.getKey());
-                            System.out.println("               value - " + en.getValue());                             
+                            System.out.println("               value - " + en.getValue());
                         }
                     }
                 }
                 System.out.println();
-            } 
-            
+            }
+
         } catch (Exception e) {
             System.err.println("Error reading file: " + e.getMessage());
             e.printStackTrace();
         }
 
         assertTrue(true);
-    } 
-   
+    }
+
     @Test
     public void testDefServicesAddAlias() throws Exception {
-        
+
         String config = "name = test\n"
             + "description =  OpenJCEPlus-test Provider\n"
             + "default = true\n"
@@ -101,7 +101,7 @@ public class TestProviderServices extends BaseTest {
         Provider provider1 = new OpenJCEPlus();
         BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
-             
+
         List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
         for (String alias : Alaises) {
             System.out.println(alias);
@@ -116,7 +116,7 @@ public class TestProviderServices extends BaseTest {
 
     @Test
     public void testDefServicesAddAliasNoAlias() throws Exception {
-        
+
         String config = "name = test\n"
             + "description =  OpenJCEPlus-test Provider\n"
             + "default = true\n"
@@ -125,7 +125,7 @@ public class TestProviderServices extends BaseTest {
         Provider provider1 = new OpenJCEPlus();
         BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
-             
+
         List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
         List<String> expected = Arrays.asList("AESCCM");
         assertEquals(expected, Alaises);
@@ -137,7 +137,7 @@ public class TestProviderServices extends BaseTest {
 
     @Test
     public void testDefServicesDelAlias() throws Exception {
-        
+
         String config = "name = test\n"
             + "description =  OpenJCEPlus-test Provider\n"
             + "default = true\n"
@@ -147,7 +147,7 @@ public class TestProviderServices extends BaseTest {
         Provider provider1 = new OpenJCEPlus();
         BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
-             
+
         List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
         List<String> expected = Arrays.asList("AESCCM", "JOHN");
         assertEquals(expected, Alaises);
@@ -159,7 +159,7 @@ public class TestProviderServices extends BaseTest {
 
     @Test
     public void testDefServicesReplaceAlias() throws Exception {
-        
+
         String config = "name = test\n"
             + "description =  OpenJCEPlus-test Provider\n"
             + "default = true\n"
@@ -168,7 +168,7 @@ public class TestProviderServices extends BaseTest {
         Provider provider1 = new OpenJCEPlus();
         BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
-             
+
         List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
         List<String> expected = Arrays.asList("TEST", "JOHN");
         assertEquals(expected, Alaises);
@@ -180,7 +180,7 @@ public class TestProviderServices extends BaseTest {
 
     @Test
     public void testDefServicesAddAttribute() throws Exception {
-        
+
         String config = "name = test\n"
             + "description =  OpenJCEPlus-test Provider\n"
             + "default = true\n"
@@ -190,14 +190,14 @@ public class TestProviderServices extends BaseTest {
         Provider provider1 = new OpenJCEPlus();
         BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
-             
+
         // Get the service
         Provider.Service service = provider2.getService("AlgorithmParameters", "CCM");
-        
+
         // Verify the added attributes exist
         String attr1 = service.getAttribute("TestAttr1");
         String attr2 = service.getAttribute("TestAttr2");
-        
+
         assertEquals("TestValue1", attr1, "TestAttr1 should have value TestValue1");
         assertEquals("TestValue2", attr2, "TestAttr2 should have value TestValue2");
 
@@ -207,7 +207,7 @@ public class TestProviderServices extends BaseTest {
 
     @Test
     public void testDefServicesDelAttribute() throws Exception {
-        
+
         String config = "name = test\n"
             + "description =  OpenJCEPlus-test Provider\n"
             + "default = true\n"
@@ -218,14 +218,14 @@ public class TestProviderServices extends BaseTest {
         Provider provider1 = new OpenJCEPlus();
         BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
-             
+
         // Get the service
         Provider.Service service = provider2.getService("AlgorithmParameters", "CCM");
-        
+
         // Verify TestAttr1 was deleted and TestAttr2 still exists
         String attr1 = service.getAttribute("TestAttr1");
         String attr2 = service.getAttribute("TestAttr2");
-        
+
         assertEquals(null, attr1, "TestAttr1 should be deleted (null)");
         assertEquals("TestValue2", attr2, "TestAttr2 should still have value TestValue2");
 
@@ -240,8 +240,8 @@ public class TestProviderServices extends BaseTest {
             + "description =  OpenJCEPlus-test Provider\n"
             + "default = true\n"
             + "securerandomdefault = SHA512DRBG";
-        
-        //Make sure SunJCE is first in the list.    
+
+        //Make sure SunJCE is first in the list.
         Provider SunJCE = java.security.Security.getProvider("SunJCE");
         Security.removeProvider("SunJCE");
         int position = Security.insertProviderAt(SunJCE, 1);
@@ -299,7 +299,7 @@ public class TestProviderServices extends BaseTest {
         String provName = getProviderName();
         assumeTrue(("OpenJCEPlusFIPS").equals(provName), "Aborting test: Not in FIPS provider.");
 
-        //Make sure SunJCE is first in the list.    
+        //Make sure SunJCE is first in the list.
         Provider SunJCE = java.security.Security.getProvider("SunJCE");
         Security.removeProvider("SunJCE");
         int position = Security.insertProviderAt(SunJCE, 1);
@@ -366,7 +366,7 @@ public class TestProviderServices extends BaseTest {
 
         //Check the number of entries in each provider they need to match
         assertEquals(services1.size(), services2.size(), "Providers have different number of entries");
-          
+
         assertTrue(compareServices(services1, provider1, provider2), "Providers have different services");
     }
 
@@ -375,7 +375,7 @@ public class TestProviderServices extends BaseTest {
         String config = null;
         BufferedReader rd = null;
         boolean result = false;
-        
+
         try {
             //No Name in config
             config = "description =  OpenJCEPlus-test Provider\n"
@@ -394,11 +394,11 @@ public class TestProviderServices extends BaseTest {
 
         if (!result) {
             fail("No Name was excepted");
-        }   
+        }
     }
 
     @Test
-    public void testProviderServicesFIleErrorTest() throws Exception { 
+    public void testProviderServicesFIleErrorTest() throws Exception {
         boolean result = false;
 
         try {
@@ -419,7 +419,7 @@ public class TestProviderServices extends BaseTest {
     public void testProviderServicesFileNullErrorTest() throws Exception {
         String config = null;
         boolean result = false;
-        
+
         try {
             //File null
             ProviderServiceReader reader = new ProviderServiceReader(config);
@@ -460,7 +460,7 @@ public class TestProviderServices extends BaseTest {
         boolean result = true;
 
         for (Provider.Service service1 : s1) {
-            
+
             Provider.Service service2 = pr2.getService(service1.getType(), service1.getAlgorithm());
 
             if (service2 == null) {
@@ -469,7 +469,7 @@ public class TestProviderServices extends BaseTest {
             }
 
             if (service1.getClassName().equals(service2.getClassName()) == false) {
-                result = false; 
+                result = false;
                 break;
             }
 
@@ -480,23 +480,23 @@ public class TestProviderServices extends BaseTest {
             Collections.sort(sortedList1);
             Collections.sort(sortedList2);
             if (sortedList1.equals(sortedList2) == false) {
-                result = false; 
+                result = false;
                 break;
             }
-             
+
             //There is no way to compare Attributes. Since you can not get a list from the Provider object.
             return result;
-        }   
-        
+        }
+
         return result;
     }
-    
+
     private List<String> getAliases(Provider provider, String type, String algorithm) {
         List<String> aliases = new ArrayList<>();
         // Iterate through all provider properties
         for (String key : provider.stringPropertyNames()) {
             // Check for alias properties specific to the type and algorithm
-            if (key.startsWith("Alg.Alias." + type + ".")) {               
+            if (key.startsWith("Alg.Alias." + type + ".")) {
                 String aliasAlgorithm = provider.getProperty(key);
                 if (algorithm.equals(aliasAlgorithm)) {
                     // Extract the alias name from the key

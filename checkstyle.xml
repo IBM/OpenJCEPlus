@@ -22,6 +22,11 @@
         <property name="fileExtensions" value="java"/>
         <property name="header" value="^\W.*\n^.*Copyright IBM Corp\. \d\d\d\d\n^\W.*\n^\W.*. This code is free software; you can redistribute it and/or modify it\n^\W.*. under the terms provided by IBM in the LICENSE file that accompanied\n^\W.*. this code, including the &quot;Classpath&quot; Exception described therein."/>
     </module>
+    <module name="RegexpSingleline">
+        <property name="format" value="\s+$"/>
+        <property name="message" value="Trailing whitespace"/>
+        <property name="severity" value="error"/>
+    </module>
     <module name="TreeWalker">
         <property name="fileExtensions" value="java"/>
         <module name="AvoidStarImport"/>

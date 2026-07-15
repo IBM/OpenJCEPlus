@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -134,7 +134,7 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
 
     @Test
     public void testRSAKeyFactoryCreateFromKeySpec() throws Exception {
-    
+
         RSAPrivateCrtKeySpec crtSpec = new RSAPrivateCrtKeySpec(
                 new BigInteger("00BF6097526F553D345A702A86DA69A3C98379EFC52BD9246DBDD7F75B17CA115"+
                 "102F379E5F59715D41F5A6FD5F8EE70E2ECD6813222FF1E45D7742C5E823C3BE382AFC564701B83D674F463"+
@@ -154,9 +154,9 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
                 "550E600BA1E34C508F2AD4088820E97762757B28CC0B59F67F8E2F893FEF88290204E4D88816ECF7A5",16),
                 new BigInteger("05A8AA2383DE604F6A77AFDBC88B517226434F2E331261484A11128F1D6ED29D068A20B7B1"+
                 "48219A23BD70BF9FAEE7AA795D5A8537C90E88D3E4F8CA146907CB",16));
-        
+
         RSAPrivateCrtKey rsaPriv = (RSAPrivateCrtKey) rsaKeyFactory.generatePrivate(crtSpec);
-        
+
         RSAPublicKeySpec rsaPublicSpec = new RSAPublicKeySpec(rsaPriv.getModulus(), rsaPriv.getPublicExponent());
         RSAPublicKey rsaPub = (RSAPublicKey) rsaKeyFactory.generatePublic(rsaPublicSpec);
     }
@@ -506,7 +506,7 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
         try {
 
             byte[] msgBytes = ("This is a short msg".getBytes());
-            //            public and Private key;" + 
+            //            public and Private key;" +
             //                "encrypt with BC and d/ecrypt with BCPlus and vice versa").getBytes();
             byte[] cipherText;
             int keySize = 1024;
@@ -548,7 +548,7 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
         byte[] msgBytes = ("This is a short message".getBytes());
-        //long message to be encrypted and decrypted using RSA public and Private key;" + 
+        //long message to be encrypted and decrypted using RSA public and Private key;" +
         //        "encrypt with BC and decrypt with BCPlus and vice versa").getBytes();
 
         try {

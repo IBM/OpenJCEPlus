@@ -57,7 +57,7 @@ public class TestAESGCMLong extends BaseTest {
     @BeforeEach
     public void setUp() throws Exception {
         setAndInsertProvider(provider);
-    }    
+    }
 
     @Test
     public void testWith128Times8() throws Exception {

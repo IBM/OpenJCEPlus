@@ -225,7 +225,7 @@ public class BaseTestHKDF extends BaseTestJunit5 {
             assertTrue(expectedMessage.equals(iape.getMessage()), "Exception doesn't have expected message");
         }
     }
-    
+
     private static class MyKDFParameters implements KDFParameters {
     }
 

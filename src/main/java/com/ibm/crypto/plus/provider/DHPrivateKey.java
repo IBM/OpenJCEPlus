@@ -30,7 +30,7 @@ import sun.security.x509.AlgorithmId;
 final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHPrivateKey {
 
     /**
-     * 
+     *
      */
 
     private static final long serialVersionUID = -9137894705065174379L;
@@ -134,7 +134,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
          * inputValue[0].getInteger(); BigInteger tempP = inputValue[1].getInteger();
          * BigInteger tempG = inputValue[2].getInteger(); BigInteger tempY =
          * inputValue[3].getInteger(); BigInteger tempX = inputValue[4].getInteger();
-         * 
+         *
          * DerValue outputValue = new DerValue(DerValue.tag_Integer,
          * tempX.toByteArray()); return outputValue.toByteArray();
          */
@@ -258,8 +258,8 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
     protected Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
         return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
-    } 
-    
+    }
+
     /**
      * Returns the encoding format of this key: "PKCS#8"
      */
@@ -432,9 +432,9 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
             // This additional check is/was needed as the equals(..) and hashCode()
             // methods of this class were updated prior to being able to update
             // the methods of the DHPrivateKey.
-            // Performing this additional check will ensure that we satisfy the 
+            // Performing this additional check will ensure that we satisfy the
             // contract for the Object.hashCode() method which states that if two
-            // objects are equal according to the equals(Object) method, then 
+            // objects are equal according to the equals(Object) method, then
             // calling the hashCode method on each of the two objects must produce
             // the same integer result.
             //

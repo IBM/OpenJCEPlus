@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -303,7 +303,7 @@ public class BaseTestDHKeyPairGenerator extends BaseTestJunit5 {
     /**
      * generate the DH keypair
      * assert keypair size generated equals the expectedKeySize
-     * assert that the private key exponent bit length is greater than or equal to the expectedprivate key exponent bit length 
+     * assert that the private key exponent bit length is greater than or equal to the expectedprivate key exponent bit length
      *
      * @param expectedKeySize
      * @param expectedMinimumPrivateKeyExponentBitLength
@@ -367,9 +367,9 @@ public class BaseTestDHKeyPairGenerator extends BaseTestJunit5 {
 
     /*
      * Test that invalid keypair sizes are rejected.
-     * Note: the keypair size may actually be able to be supported by underlying crypto but is rejected at 
+     * Note: the keypair size may actually be able to be supported by underlying crypto but is rejected at
      * KeyPairGenerator initialize time.
-     * Similar checks on keypair size may be found in other DH related classes as well.  
+     * Similar checks on keypair size may be found in other DH related classes as well.
      */
     @Test
     public void testInvalidDHKeySize() throws Exception {

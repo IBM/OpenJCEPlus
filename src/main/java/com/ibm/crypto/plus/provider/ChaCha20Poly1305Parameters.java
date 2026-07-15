@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -87,7 +87,7 @@ public final class ChaCha20Poly1305Parameters extends AlgorithmParametersSpi
 
     /*
      * Der-encode member variables
-     * 
+     *
      * @see java.security.AlgorithmParametersSpi#engineGetEncoded()
      */
     @Override
@@ -99,7 +99,7 @@ public final class ChaCha20Poly1305Parameters extends AlgorithmParametersSpi
 
     /*
      * Der-encode member variables
-     * 
+     *
      * @see
      * java.security.AlgorithmParametersSpi#engineGetEncoded(java.lang.String)
      */
@@ -114,7 +114,7 @@ public final class ChaCha20Poly1305Parameters extends AlgorithmParametersSpi
 
     /*
      * Returns a formatted String describing the parameters
-     * 
+     *
      * @see java.security.AlgorithmParametersSpi#engineToString()
      */
     @Override

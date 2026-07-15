@@ -26,11 +26,11 @@ abstract class LegacyCipher extends CipherSpi {
     @Override
     protected abstract byte[] engineDoFinal(byte[] input, int inputOffset, int inputLen)
         throws IllegalBlockSizeException, BadPaddingException;
-    
+
     @Override
     protected abstract int engineDoFinal(byte[] input, int inputOffset, int inputLen, byte[] output,
         int outputOffset) throws ShortBufferException, IllegalBlockSizeException, BadPaddingException;
-    
+
     @Override
     protected abstract int engineGetBlockSize();
 
@@ -55,7 +55,7 @@ abstract class LegacyCipher extends CipherSpi {
 
     @Override
     protected abstract void engineInit(int opmode, Key key, AlgorithmParameters params, SecureRandom random)
-        throws InvalidKeyException, InvalidAlgorithmParameterException; 
+        throws InvalidKeyException, InvalidAlgorithmParameterException;
 
     @Override
     protected abstract void engineSetMode(String mode) throws NoSuchAlgorithmException;

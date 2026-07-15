@@ -15,7 +15,7 @@ import java.util.Map;
 public class OpenSSLException extends NativeException {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -3104732494450550831L;
 
@@ -50,5 +50,5 @@ public class OpenSSLException extends NativeException {
         }
         return message;
     }
-    
+
 }

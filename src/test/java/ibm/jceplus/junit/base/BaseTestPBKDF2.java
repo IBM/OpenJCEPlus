@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests associated with PBKDF2 algorithms.
- * 
+ *
  */
 public class BaseTestPBKDF2 extends BaseTestJunit5Interop {
     List<String> allowableFIPSAlgorithms = new ArrayList<String>() {{
@@ -35,9 +35,9 @@ public class BaseTestPBKDF2 extends BaseTestJunit5Interop {
 
     /**
     * Official test vector from RFC 7914.
-    * 
+    *
     * 11.  Test Vectors for PBKDF2 with HMAC-SHA-256
-    * 
+    *
     * Below is a sequence of octets that illustrate input and output values
     * for PBKDF2-HMAC-SHA-256.  The octets are hex encoded and whitespace
     * is inserted for readability.  The test vectors below can be used to
@@ -106,7 +106,7 @@ public class BaseTestPBKDF2 extends BaseTestJunit5Interop {
     @CsvSource({"PBKDF2WithHmacSHA224", "PBKDF2WithHmacSHA256",
         "PBKDF2WithHmacSHA384", "PBKDF2WithHmacSHA512", "PBKDF2WithHmacSHA512/224", "PBKDF2WithHmacSHA512/256"})
     public void testSmallSalt(String algorithm) throws Exception {
-        
+
         PBEKeySpec pbeks = new PBEKeySpec("ABCDEFGHIJ".toCharArray(), "SmallSalt".getBytes(), 10000, 512);
         if (this.getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
             if (isSupportedByOpenJCEPlusFIPS(algorithm)) {
@@ -221,7 +221,7 @@ public class BaseTestPBKDF2 extends BaseTestJunit5Interop {
 
     /**
      * Method to help determine if the OpenJCEPlusFIPS provider supports an algorithm.
-     * 
+     *
      * @param algorithm
      * @return
      */
