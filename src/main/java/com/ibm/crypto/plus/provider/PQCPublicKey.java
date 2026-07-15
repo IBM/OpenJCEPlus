@@ -49,7 +49,7 @@ final class PQCPublicKey extends X509Key
             byte[] b = tmp.toByteArray();
             tmp.close();
 
-            this.pqcKey = PQCKey.createPublicKey(algName, b, provider);
+            this.pqcKey = PQCKey.createPublicKey(algName, b, provider, "KeyFactory");
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create public key", exception);
         }
@@ -84,7 +84,7 @@ final class PQCPublicKey extends X509Key
             byte[] b = tmp.toByteArray();
             tmp.close();
             
-            this.pqcKey = PQCKey.createPublicKey(name, b, provider);
+            this.pqcKey = PQCKey.createPublicKey(name, b, provider, "KeyFactory");
         } catch (Exception e) {
             throw new InvalidKeyException("Failure in PublicKey -" + e.getMessage(), e);
         }

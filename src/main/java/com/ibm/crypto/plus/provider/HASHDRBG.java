@@ -10,6 +10,7 @@ package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.base.BasicRandom;
 import com.ibm.crypto.plus.provider.base.ExtendedRandom;
+import com.ibm.crypto.plus.provider.base.NativeException;
 import java.security.SecureRandomSpi;
 
 abstract class HASHDRBG extends SecureRandomSpi {
@@ -27,11 +28,11 @@ abstract class HASHDRBG extends SecureRandomSpi {
     private transient BasicRandom basicRandom;
     private transient ExtendedRandom extendedRandom;
 
-    protected HASHDRBG(OpenJCEPlusProvider provider, String ockRandomAlgo) {
+    protected HASHDRBG(OpenJCEPlusProvider provider, String ockRandomAlgo) throws NativeException {
         this.provider = provider;
         this.providerContext = provider.getProviderContext();
         this.randomAlgo = ockRandomAlgo;
-        basicRandom = BasicRandom.getInstance(provider);
+        basicRandom = BasicRandom.getInstance(provider, ockRandomAlgo);
         try {
             extendedRandom = ExtendedRandom.getInstance(ockRandomAlgo, provider);
         } catch (Exception e) {
@@ -85,9 +86,10 @@ abstract class HASHDRBG extends SecureRandomSpi {
         //
         //System.out.println("Restoring SecureRandom for " + randomAlgo + " from provider " + provider.getName());
 
-        // Recreate OCK object per tag [SERIALIZATION] in DesignNotes.txt
-        basicRandom = BasicRandom.getInstance(provider);
         try {
+            // Recreate OCK object per tag [SERIALIZATION] in DesignNotes.txt
+            basicRandom = BasicRandom.getInstance(provider, randomAlgo);
+
             // Recreate OCK object per tag [SERIALIZATION] in DesignNotes.txt
             extendedRandom = ExtendedRandom.getInstance(randomAlgo, provider);
         } catch (Exception e) {
@@ -100,7 +102,7 @@ abstract class HASHDRBG extends SecureRandomSpi {
 
         private static final long serialVersionUID = 1035479890794113394L;
 
-        public SHA256DRBG(OpenJCEPlusProvider provider) {
+        public SHA256DRBG(OpenJCEPlusProvider provider) throws NativeException {
             super(provider, "SHA256");
         }
     }
@@ -110,7 +112,7 @@ abstract class HASHDRBG extends SecureRandomSpi {
 
         private static final long serialVersionUID = -7570316896850069363L;
 
-        public SHA512DRBG(OpenJCEPlusProvider provider) {
+        public SHA512DRBG(OpenJCEPlusProvider provider) throws NativeException {
             super(provider, "SHA512");
         }
     }

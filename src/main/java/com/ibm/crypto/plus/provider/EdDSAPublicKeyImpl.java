@@ -82,7 +82,7 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
 
 
     EdDSAPublicKeyImpl(OpenJCEPlusProvider provider,
-            NamedParameterSpec params, EdECPoint point)
+            NamedParameterSpec params, EdECPoint point, String configAlgName)
             throws InvalidAlgorithmParameterException, InvalidParameterException, InvalidKeyException {
 
         if (provider == null)
@@ -111,7 +111,7 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             byte[] der = buildOCKPublicKeyBytes();
             byte[] alteredEncoded = alterEncodedPublicKey(der); // Alters encoded to fit GSKit, and sets params
 
-            this.xecKey = XECKey.createPublicKey(alteredEncoded, provider);
+            this.xecKey = XECKey.createPublicKey(alteredEncoded, provider, configAlgName);
 
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create EdDSA public key", exception);
@@ -120,7 +120,7 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
         checkLength(this.curve);
     }
 
-    EdDSAPublicKeyImpl(OpenJCEPlusProvider provider, byte[] encoded)
+    EdDSAPublicKeyImpl(OpenJCEPlusProvider provider, byte[] encoded, String configAlgName)
             throws InvalidKeyException {
 
         if (provider == null)
@@ -141,7 +141,7 @@ final class EdDSAPublicKeyImpl extends X509Key implements EdECPublicKey {
             this.point = new EdECPoint(xOdd, y);
 
             byte[] der = buildOCKPublicKeyBytes();
-            this.xecKey = XECKey.createPublicKey(der, provider);
+            this.xecKey = XECKey.createPublicKey(der, provider, configAlgName);
 
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create EdDSA public key", exception);
