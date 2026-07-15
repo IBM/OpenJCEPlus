@@ -298,8 +298,8 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
             kpg.initialize(param);
             fail("Expected InvalidAlgorithmParameterException not thrown");
         } catch (InvalidAlgorithmParameterException e) {
-            assertTrue(e.getMessage().equals("Algorithm in AlgorithmParameterSpec: " + algParamSpecName + 
-                " must match the Algorithnm for this KeyPairGenerator: " + "ML-DSA-44"), 
+            assertTrue(e.getMessage().equals("Algorithm in AlgorithmParameterSpec: " + algParamSpecName +
+                " must match the Algorithnm for this KeyPairGenerator: " + "ML-DSA-44"),
                 "Different Message than expected: " + e.getMessage());
         }
     }
@@ -1218,7 +1218,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
     }
 
     protected void keyFactoryCreateFromStaticEncoded(String Algorithm) throws Exception {
-        
+
         String privBytes = null;
         String pubBytes = null;
 
@@ -1242,7 +1242,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         byte[] pubKey = HexFormat.of().parseHex(pubBytes);
 
         pqcKeyFactory = KeyFactory.getInstance(Algorithm, getProviderName());
-        
+
         RawKeySpec pubSpec = new RawKeySpec(pubKey);
         RawKeySpec privSpec = new RawKeySpec(privKey);
 
@@ -1322,6 +1322,6 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
             throw new InvalidKeyException("Extra bytes");
         } catch (IOException e) {
             throw new InvalidKeyException("Unable to decode key", e);
-        }  
+        }
     }
 }

@@ -122,7 +122,7 @@ final class PBEKey implements SecretKey {
     public void destroy() {
         if (this.key != null) {
             Arrays.fill(this.key, (byte) 0x00);
-            destroyed = true; 
+            destroyed = true;
         }
     }
 
@@ -173,7 +173,7 @@ final class PBEKey implements SecretKey {
     @java.io.Serial
     private Object writeReplace() throws java.io.ObjectStreamException {
         try {
-            return new JCEPlusKeyRep(JCEPlusKeyRep.Type.SECRET, 
+            return new JCEPlusKeyRep(JCEPlusKeyRep.Type.SECRET,
                 getAlgorithm(), getFormat(), getEncoded(), provider.getName());
         } finally {
             // prevent this from being cleaned for the above block

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -20,12 +20,12 @@ public class HKDFExpandParameterSpec implements AlgorithmParameterSpec {
     private byte[] info; // Optional and can be null
     private String keyAlgorithm; // Cannot be null
     long MAX_OKM_LENGTH = 255 * 64; // Max allowable OKM Material for a SHA512 digest
-    private long okmLength; //  Will be checked in HKDFGenerator.init that it 
+    private long okmLength; //  Will be checked in HKDFGenerator.init that it
                             // is less than 255 * digestLength (digest may be < SHA512)
 
 
     /**
-     * 
+     *
      * @param prk
      *            the Psuedo Random Key The contents of <code>prk</code> are
      *            copied to protect against subsequent modification.
@@ -36,7 +36,7 @@ public class HKDFExpandParameterSpec implements AlgorithmParameterSpec {
      *          output Key material length
      *@param keyAlgorithm
      *          The name of the algorithm to use when creating SecretKey.
-     * 
+     *
      */
     public HKDFExpandParameterSpec(byte[] prk, byte[] info, long okmLength, String keyAlgorithm) {
         if (prk == null) {

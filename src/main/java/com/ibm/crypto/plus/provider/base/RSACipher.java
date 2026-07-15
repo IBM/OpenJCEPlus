@@ -14,7 +14,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.ShortBufferException;
 
-/*From section 9.11 of GSKit_crypto.pdf 
+/*From section 9.11 of GSKit_crypto.pdf
 RSA keys contain a lot of internal state, and if a single key is used for multiple purposes (sign/verify with different
 algorithms) encrypt/decrypt retained internal state changes may make subsequent operations fail unexpectedly.
 
@@ -62,7 +62,7 @@ public final class RSACipher {
         this.convertKey = plainRSAKey;
     }
 
-    // Method not synchronized since ObtainKeySize method used getKeySize is synchronized 
+    // Method not synchronized since ObtainKeySize method used getKeySize is synchronized
     //
     public int getOutputSize() throws NativeException {
         checkInitialized();

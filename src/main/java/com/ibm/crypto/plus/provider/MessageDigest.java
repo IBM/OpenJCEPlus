@@ -76,7 +76,7 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
 
     /*
      * This method helps in deriving PKCS12 key by performing update and digest in C
-     * in an iteration count loop avoiding excess JNI calls. 
+     * in an iteration count loop avoiding excess JNI calls.
      */
     protected byte[] PKCS12KeyDeriveHelp(byte[] input, int offset, int length, int iterationCount) {
         try {
@@ -212,7 +212,7 @@ abstract class MessageDigest extends MessageDigestSpi implements Cloneable {
     public static final class SHAKE256 extends MessageDigest {
         public SHAKE_256(OpenJCEPlusProvider provider) {
             super(provider, "SHAKE256"); // OCK digest name
-        } 
+        }
     };*/
 
     @Override

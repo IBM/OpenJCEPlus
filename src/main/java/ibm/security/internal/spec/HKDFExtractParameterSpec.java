@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -23,7 +23,7 @@ public class HKDFExtractParameterSpec implements AlgorithmParameterSpec {
 
 
     /**
-     * 
+     *
      * @param inKeyMaterial
      *            the inKeyMaterial The contents of <code>inKeyMaterial</code> are
      *            copied to protect against subsequent modification.
@@ -32,7 +32,7 @@ public class HKDFExtractParameterSpec implements AlgorithmParameterSpec {
      *            against subsequent modification.
      *@param keyAlgorithm
      *          The name of the algorithm to use when creating SecretKey.
-     * 
+     *
      */
     public HKDFExtractParameterSpec(byte[] inKeyMaterial, byte[] salt, String keyAlgorithm) {
         if (inKeyMaterial == null) {

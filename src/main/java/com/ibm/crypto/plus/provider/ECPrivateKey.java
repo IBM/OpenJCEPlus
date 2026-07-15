@@ -26,7 +26,7 @@ import sun.security.x509.AlgorithmId;
 final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.ECPrivateKey {
 
     /**
-     * 
+     *
      */
 
     private static final long serialVersionUID = -7596809556341742543L;
@@ -45,7 +45,7 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
 
     /**
      * Construct a key from its components.
-     * 
+     *
      * @param s
      * @param params
      * @param publicKey
@@ -279,12 +279,12 @@ final class ECPrivateKey extends PKCS8Key implements java.security.interfaces.EC
     ECKey getOCKKey() {
         return this.ecKey;
     }
-    
+
     @java.io.Serial
     protected Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
         return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
-    } 
+    }
 
     /**
      * Destroys this key. A call to any of its other methods after this will
