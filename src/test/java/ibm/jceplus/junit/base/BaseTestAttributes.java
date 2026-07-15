@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025, 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestAttributes extends BaseTestJunit5 {
-    
+
     @Test
     public void testServices() throws Exception {
         Provider p = Security.getProvider(getProviderName());
@@ -30,7 +30,7 @@ public class BaseTestAttributes extends BaseTestJunit5 {
         // Check for ThreadSafe Attribute
         String attr = sr.getProvider().getProperty("SecureRandom."
                 + sr.getAlgorithm() + " ThreadSafe");
-        
+
         assertTrue("true".equals(attr), "Not ThreadSafe" + attr);
     }
 }

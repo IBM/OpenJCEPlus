@@ -282,8 +282,8 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
             kpg.initialize(param);
             fail("Expected InvalidAlgorithmParameterException not thrown");
         } catch (InvalidAlgorithmParameterException e) {
-            assertTrue(e.getMessage().equals("Algorithm in AlgorithmParameterSpec: " + algParamSpecName + 
-                " must match the Algorithnm for this KeyPairGenerator: " + "ML-DSA-44"), 
+            assertTrue(e.getMessage().equals("Algorithm in AlgorithmParameterSpec: " + algParamSpecName +
+                " must match the Algorithnm for this KeyPairGenerator: " + "ML-DSA-44"),
                 "Different Message than expected: " + e.getMessage());
         }
     }

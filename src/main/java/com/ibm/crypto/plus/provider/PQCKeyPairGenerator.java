@@ -40,26 +40,26 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
         if (params instanceof NamedParameterSpec spec) {
             String name = spec.getName();
             if (pqcAlg.equals("ML-KEM")) {
-                if (name.equalsIgnoreCase("ML-KEM-512") || 
+                if (name.equalsIgnoreCase("ML-KEM-512") ||
                     name.equalsIgnoreCase("ML-KEM-768") ||
                     name.equalsIgnoreCase("ML-KEM-1024")) {
                     pqcAlg = name;
-                } else {        
+                } else {
                     throw new InvalidAlgorithmParameterException(
                         "Unsupported parameter set name: " + name);
                 }
             } else if (pqcAlg.equals("ML-DSA")) {
-                if (name.equalsIgnoreCase("ML-DSA-44") || 
+                if (name.equalsIgnoreCase("ML-DSA-44") ||
                     name.equalsIgnoreCase("ML-DSA-65") ||
                     name.equalsIgnoreCase("ML-DSA-87")) {
                     pqcAlg = name;
-                } else {        
+                } else {
                     throw new InvalidAlgorithmParameterException(
                         "Unsupported parameter set name: " + name);
                 }
             } else if (!pqcAlg.equalsIgnoreCase(name)) {
                 throw new InvalidAlgorithmParameterException(
-                    "Algorithm in AlgorithmParameterSpec: " + spec.getName() + 
+                    "Algorithm in AlgorithmParameterSpec: " + spec.getName() +
                     " must match the Algorithnm for this KeyPairGenerator: " + pqcAlg);
             }
         } else {

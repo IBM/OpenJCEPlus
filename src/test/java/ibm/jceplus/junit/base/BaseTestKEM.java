@@ -43,10 +43,10 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM.Encapsulated enc = encr.encapsulate(0, 32, "AES");
 
         SecretKey keyE = enc.key();
-       
+
         KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
         SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 32, "AES");
-        
+
         assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
     }
 
@@ -62,10 +62,10 @@ public class BaseTestKEM extends BaseTestJunit5 {
         KEM.Encapsulated enc = encr.encapsulate();
 
         SecretKey keyE = enc.key();
-       
+
         KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
         SecretKey keyD = decr.decapsulate(enc.encapsulation());
-        
+
         assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
     }
 
@@ -114,7 +114,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
         }
 
         enc = encr.encapsulate(0, 32, "AES");
-       
+
         KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
         for (int i = 0; i < 4; i++) {
             int from = 0;
@@ -166,7 +166,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
 
         KEM.Decapsulator decr = kem.newDecapsulator(pqcKeyPair.getPrivate());
         SecretKey keyD = decr.decapsulate(enc.encapsulation(), 0, 16, "AES");
-        
+
         assertArrayEquals(keyE.getEncoded(), keyD.getEncoded(), "Secrets do NOT match");
     }
 
@@ -184,7 +184,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
         } catch (InvalidKeyException ike) {
             assertTrue(ike.getMessage().equals("unsupported key"));
         }
-  
+
         try {
             kem.newDecapsulator(pqcKeyPair.getPrivate());
             fail("testKEMKeys failed - RSA Private key did not cause an InvalidKeyException.");
@@ -202,7 +202,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
         } catch (InvalidKeyException ike) {
             assertTrue(ike.getMessage().equals("Key is null."));
         }
-  
+
         try {
             kem.newDecapsulator(priv);
             fail("testKEMKeys failed - NULL Private key did not cause an InvalidKeyException.");
@@ -240,17 +240,17 @@ public class BaseTestKEM extends BaseTestJunit5 {
     public void testKEMInvalidEncapsulationLength(String keyAlgorithm, String wrongAlgorithm) throws Exception {
         // Generate a key pair with one algorithm
         KeyPair keyPair = generateKeyPair(keyAlgorithm);
-        
+
         // Create encapsulation with a different algorithm (wrong length)
         KEM kemWrong = KEM.getInstance(wrongAlgorithm, getProviderName());
         KeyPair wrongKeyPair = generateKeyPair(wrongAlgorithm);
         KEM.Encapsulator encapsulator = kemWrong.newEncapsulator(wrongKeyPair.getPublic());
         KEM.Encapsulated encapsulated = encapsulator.encapsulate(0, 32, "AES");
-        
+
         // Try to decapsulate with the original key (wrong length)
         KEM kem = KEM.getInstance(keyAlgorithm, getProviderName());
         KEM.Decapsulator decapsulator = kem.newDecapsulator(keyPair.getPrivate());
-        
+
         try {
             decapsulator.decapsulate(encapsulated.encapsulation(), 0, 32, "AES");
             fail("testKEMInvalidEncapsulationLength failed - Invalid encapsulation length did not cause a DecapsulateException for " + keyAlgorithm + " with " + wrongAlgorithm + " encapsulation");
@@ -297,10 +297,10 @@ public class BaseTestKEM extends BaseTestJunit5 {
     public void testKEMAlgorithmMismatch(String kemAlgorithm, String keyAlgorithm) throws Exception {
         // Create KEM instance with one algorithm
         KEM kem = KEM.getInstance(kemAlgorithm, getProviderName());
-        
+
         // Generate key pair with a different algorithm
         KeyPair keyPair = generateKeyPair(keyAlgorithm);
-        
+
         // Test encapsulator - should fail with algorithm mismatch
         try {
             kem.newEncapsulator(keyPair.getPublic());
@@ -311,7 +311,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
                 " does not match KEM instance algorithm " + kemAlgorithm;
             assertEquals(expectedMessage, ike.getMessage());
         }
-        
+
         // Test decapsulator - should fail with algorithm mismatch
         try {
             kem.newDecapsulator(keyPair.getPrivate());
@@ -349,20 +349,20 @@ public class BaseTestKEM extends BaseTestJunit5 {
     public void testGenericMLKEMWithAllParameterSets(String keyAlgorithm) throws Exception {
         // Create generic ML-KEM instance
         KEM kem = KEM.getInstance("ML-KEM", getProviderName());
-        
+
         // Generate key pair with specific parameter set
         KeyPair keyPair = generateKeyPair(keyAlgorithm);
-        
+
         // Test encapsulation and decapsulation - should work with generic ML-KEM
         KEM.Encapsulator encapsulator = kem.newEncapsulator(keyPair.getPublic());
         KEM.Encapsulated encapsulated = encapsulator.encapsulate(0, 32, "AES");
-        
+
         SecretKey encapKey = encapsulated.key();
         byte[] encapsulation = encapsulated.encapsulation();
-        
+
         KEM.Decapsulator decapsulator = kem.newDecapsulator(keyPair.getPrivate());
         SecretKey decapKey = decapsulator.decapsulate(encapsulation, 0, 32, "AES");
-        
+
         assertArrayEquals(encapKey.getEncoded(), decapKey.getEncoded(),
             "Generic ML-KEM should work with " + keyAlgorithm + " keys - secrets do not match");
     }
@@ -396,7 +396,7 @@ public class BaseTestKEM extends BaseTestJunit5 {
 
         pqcKeyFactory = KeyFactory.getInstance(Algorithm, getProviderName());
         KeyPair pqcKeyPair = generateKeyPair(Algorithm);
-        
+
         X509EncodedKeySpec x509Spec = new X509EncodedKeySpec(pqcKeyPair.getPublic().getEncoded());
         PKCS8EncodedKeySpec pkcs8Spec = new PKCS8EncodedKeySpec(
                 pqcKeyPair.getPrivate().getEncoded());

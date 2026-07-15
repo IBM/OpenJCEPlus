@@ -345,6 +345,6 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
     @java.io.Serial
     protected Object writeReplace() throws java.io.ObjectStreamException {
         return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
-    } 
+    }
 }
 
