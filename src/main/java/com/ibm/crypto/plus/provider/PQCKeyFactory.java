@@ -186,22 +186,35 @@ class PQCKeyFactory extends KeyFactorySpi {
         if (keyAlg == null) {
             throw new InvalidKeyException("Algorithm associate with key is null.");
         }
-        
-        // Check if algorithms match exactly or via OID lookup
-        boolean matches = key.getAlgorithm().equalsIgnoreCase(this.algName) ||
-            (PQCKnownOIDs.findMatch(key.getAlgorithm()).stdName().equalsIgnoreCase(this.algName));
-        
-        // Special case for generic ML-KEM: Allow any ML-KEM parameter set variant
-        // (ML-KEM-512, ML-KEM-768, ML-KEM-1024) when using the generic "ML-KEM" KeyFactory.
-        // This enables interoperability with KEM.getInstance("ML-KEM", ...).
-        if (!matches && "ML-KEM".equals(this.algName) && keyAlg.startsWith("ML-KEM")) {
-            matches = true;
-        }
-        
-        if (!matches) {
-            throw new InvalidKeyException("Expected a " + this.algName + " key, but got " + keyAlg);
-        }
 
+        // Resolve the specific parameter-set name from the key.
+        String keyParamName = resolveParamName(key);
+
+        // Match on either the family name (e.g. "ML-DSA") or the specific param-set name
+        // (e.g. "ML-DSA-65"). keyAlg is the family name for all PQC keys; keyParamName
+        // is the specific param-set name.
+        boolean matches = keyAlg.equalsIgnoreCase(this.algName)
+            || keyParamName.equalsIgnoreCase(this.algName);
+
+        if (!matches) {
+            throw new InvalidKeyException("Expected a " + this.algName + " key, but got " + keyParamName);
+        }
+    }
+
+    /**
+     * Resolves the specific parameter-set name from a key.  For PQCPublicKey /
+     * PQCPrivateKey the concrete param-set name is exposed via {@code getParamName()}
+     * (e.g. "ML-DSA-65") even though {@code getAlgorithm()} now returns the family
+     * name "ML-DSA".  For other key types we fall back to {@code getAlgorithm()}.
+     */
+    private static String resolveParamName(Key key) {
+        if (key instanceof PQCPublicKey) {
+            return ((PQCPublicKey) key).getParamSetName();
+        }
+        if (key instanceof PQCPrivateKey) {
+            return ((PQCPrivateKey) key).getParamSetName();
+        }
+        return key.getAlgorithm();
     }
 
     private boolean checkEncoded(byte[] key, boolean pub) {
@@ -223,6 +236,13 @@ class PQCKeyFactory extends KeyFactorySpi {
             return false;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public static final class MLDSA extends PQCKeyFactory {
+
+        public MLDSA(OpenJCEPlusProvider provider) {
+            super(provider, "ML-DSA");
         }
     }
 

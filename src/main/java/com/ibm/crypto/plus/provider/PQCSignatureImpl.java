@@ -31,15 +31,6 @@ abstract class PQCSignatureImpl extends SignatureSpi {
     private final static String debPrefix = "PQCSIGNATUREImpl";
 
 
-    PQCSignatureImpl(OpenJCEPlusProvider provider) {
-        try {
-            this.provider = provider;
-            this.signature = PQCSignature.getInstance(provider);
-        } catch (Exception e) {
-            throw provider.providerException("Failed to initialize PQC signature", e);
-        }
-    }
-
     PQCSignatureImpl(OpenJCEPlusProvider provider, String Alg) {
         try {
             this.provider = provider;
@@ -86,13 +77,20 @@ abstract class PQCSignatureImpl extends SignatureSpi {
             throw new InvalidKeyException("Unsupported key type: ", e);
         }
 
-        // Validate that the alg of the key matches the alg specified on creation of this object.
-        if (this.alg != null && !((keyPrivate.getAlgorithm()).equalsIgnoreCase(this.alg))) {
+        // Validate that the key's param-set matches the algorithm for this Signature instance.
+        // Use getParamSetName() (e.g. "ML-DSA-65") rather than getAlgorithm() (which now returns
+        // the family name "ML-DSA" per JEP 497) so that specific instances (MLDSA44, etc.) still
+        // reject keys from the wrong parameter set.
+        // The generic "ML-DSA" instance accepts any ML-DSA parameter-set key.
+        String keyParam = keyPrivate.getParamSetName();
+        boolean paramMatches = keyParam.equalsIgnoreCase(this.alg)
+            || ("ML-DSA".equals(this.alg) && keyParam.startsWith("ML-DSA"));
+        if (!paramMatches) {
             throw new InvalidKeyException("Key must be of algorithm " + this.alg);
         }
 
         try {
-            this.signature.initialize(keyPrivate.getPQCKey(), keyPrivate.getAlgorithm().replace('_', '-'));
+            this.signature.initialize(keyPrivate.getPQCKey(), keyPrivate.getParamSetName().replace('_', '-'));
         } catch (Exception e) {
             throw provider.providerException("Failure in engineInitSign", e);
         }
@@ -110,12 +108,19 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         } catch (Exception e) {
             throw new InvalidKeyException("Unsupported key type: ", e);
         }
-        // Validate that the alg of the key matches the alg specified on creation of this object.
-        if (this.alg != null && !((keyPublic.getAlgorithm()).equalsIgnoreCase(this.alg))) {
-            throw new InvalidKeyException("Expected algorithm " + this.alg + ", but got " + keyPublic.getAlgorithm());
+        // Validate that the key's param-set matches the algorithm for this Signature instance.
+        // Use getParamSetName() (e.g. "ML-DSA-65") rather than getAlgorithm() (which now returns
+        // the family name "ML-DSA" per JEP 497) so that specific instances still reject
+        // keys from the wrong parameter set.
+        // The generic "ML-DSA" instance accepts any ML-DSA parameter-set key.
+        String keyParam = keyPublic.getParamSetName();
+        boolean paramMatches = keyParam.equalsIgnoreCase(this.alg)
+            || ("ML-DSA".equals(this.alg) && keyParam.startsWith("ML-DSA"));
+        if (!paramMatches) {
+            throw new InvalidKeyException("Expected algorithm " + this.alg + ", but got " + keyParam);
         }
         try {
-            this.signature.initialize(keyPublic.getPQCKey(), keyPublic.getAlgorithm().replace('_', '-'));
+            this.signature.initialize(keyPublic.getPQCKey(), keyPublic.getParamSetName().replace('_', '-'));
         } catch (Exception e) {
             throw provider.providerException("Failure in engineInitVerify", e);
         }
@@ -170,6 +175,13 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         } catch (Exception e) {
             // Return false rather than throwing exception.
             return false;
+        }
+    }
+
+    public static final class MLDSA extends PQCSignatureImpl {
+
+        public MLDSA(OpenJCEPlusProvider provider) {
+            super(provider, "ML-DSA");
         }
     }
 

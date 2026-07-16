@@ -118,8 +118,8 @@ public class MLKEMImpl implements KEMSpi {
                 throw new InvalidKeyException("unsupported key", e);
             }
         } else {
-            // Key is already a PQCPublicKey, validate algorithm match
-            validateKeyAlgorithm(pubKey.getAlgorithm());
+            // Key is already a PQCPublicKey, validate paraeter set matches.
+            validateKeyAlgorithm(((PQCPublicKey) pubKey).getParamSetName());
         }
 
         if (spec != null) {
@@ -142,13 +142,13 @@ public class MLKEMImpl implements KEMSpi {
         MLKEMEncapsulator(PublicKey publicKey, AlgorithmParameterSpec spec,
                 SecureRandom secureRandom) {
             this.publicKey = publicKey;
-            this.algName = ((PQCPublicKey) publicKey).getAlgorithm().replace('_', '-');
+            this.algName = ((PQCPublicKey) publicKey).getParamSetName().replace('_', '-');
         }
 
         @Override
         public KEM.Encapsulated engineEncapsulate(int from, int to, String algorithm) {
-            // Get the actual algorithm from the public key
-            String keyAlgorithm = publicKey.getAlgorithm();
+            // Get the concrete param-set name (e.g. "ML-KEM-512") for length lookup
+            String keyAlgorithm = ((PQCPublicKey) publicKey).getParamSetName();
             int encapLen = getEncapsulationLength(keyAlgorithm);
             byte[] encapsulation = new byte[encapLen];
             byte[] secret = new byte[SECRETSIZE];
@@ -174,7 +174,7 @@ public class MLKEMImpl implements KEMSpi {
 
         @Override
         public int engineEncapsulationSize() {
-            String keyAlgorithm = publicKey.getAlgorithm();
+            String keyAlgorithm = ((PQCPublicKey) publicKey).getParamSetName();
             return getEncapsulationLength(keyAlgorithm);
         }
 
@@ -223,8 +223,8 @@ public class MLKEMImpl implements KEMSpi {
             }
 
         } else {
-            // Key is already a PQCPrivateKey, validate algorithm match
-            validateKeyAlgorithm(privKey.getAlgorithm());
+            // Key is already a PQCPrivateKey, validate paraeter set matches.
+            validateKeyAlgorithm(((PQCPrivateKey) privKey).getParamSetName());
         }
 
         if (spec != null) {
@@ -243,7 +243,7 @@ public class MLKEMImpl implements KEMSpi {
 
         MLKEMDecapsulator(PrivateKey privateKey, AlgorithmParameterSpec spec) {
             this.privateKey = privateKey;
-            this.algName = ((PQCPrivateKey) privateKey).getAlgorithm().replace('_', '-');
+            this.algName = ((PQCPrivateKey) privateKey).getParamSetName().replace('_', '-');
         }
 
         @Override
@@ -258,8 +258,8 @@ public class MLKEMImpl implements KEMSpi {
                 throw new NullPointerException();
             }
 
-            // Validate encapsulation length matches the key's algorithm
-            String keyAlgorithm = privateKey.getAlgorithm();
+            // Validate encapsulation length using the concrete param-set name
+            String keyAlgorithm = ((PQCPrivateKey) privateKey).getParamSetName();
             int expectedEncapLen = getEncapsulationLength(keyAlgorithm);
             if (cipherText.length != expectedEncapLen) {
                 throw new DecapsulateException(
@@ -281,7 +281,7 @@ public class MLKEMImpl implements KEMSpi {
 
         @Override
         public int engineEncapsulationSize() {
-            String keyAlgorithm = privateKey.getAlgorithm();
+            String keyAlgorithm = ((PQCPrivateKey) privateKey).getParamSetName();
             return getEncapsulationLength(keyAlgorithm);
         }
 
