@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -13,5 +13,7 @@ module openjceplus {
     exports ibm.security.internal.spec;
     exports com.ibm.crypto.plus.provider;
 
-    provides java.security.Provider with com.ibm.crypto.plus.provider.OpenJCEPlus;
+    provides java.security.Provider with
+        com.ibm.crypto.plus.provider.OpenJCEPlus,
+        com.ibm.crypto.plus.provider.OpenJCEPlusFIPS;
 }
