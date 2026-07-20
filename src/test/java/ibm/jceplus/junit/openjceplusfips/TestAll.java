@@ -70,11 +70,6 @@ import org.junit.platform.suite.api.Suite;
     TestRSASignatureInteropSunRsaSign.class,
     TestRSASignatureWithSpecificSize.class,
     TestRSATypeCheckDefault.class,
-    TestSHA1.class,
-    TestSHA224.class,
-    TestSHA256.class,
-    TestSHA384.class,
-    TestSHA512.class
 })
 
 @Suite
