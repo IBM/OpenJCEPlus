@@ -27,7 +27,7 @@ public enum TestProvider {
     public static final String SUNRSASIGN_NAME = "SunRsaSign";
     public static final String SUNEC_NAME = "SunEC";
     public static final String OPENJCEPLUS_NAME = "OpenJCEPlus";
-    public static final String OPENJCEPLUS_FIPS_NAME = "OpenJCEPlusFIPS";    
+    public static final String OPENJCEPLUS_FIPS_NAME = "OpenJCEPlusFIPS";
 
     private final String providerName;
     private final String providerClassName;

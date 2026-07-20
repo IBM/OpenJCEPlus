@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -45,7 +45,7 @@ public abstract class BaseTestMultiThread {
      * Returns the tag name to filter tests by.
      * @return the tag name
      */
-    protected abstract String getTagName();
+    protected abstract String getTagExpression();
 
     /**
      * Returns the package name to search for tests in.
@@ -133,7 +133,7 @@ public abstract class BaseTestMultiThread {
         
         LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
             .selectors(selectPackage(getPackageName()))
-            .filters(includeTags(getTagName()))
+            .filters(includeTags(getTagExpression()))
             .build();
         
         Launcher launcher = LauncherFactory.create();
@@ -170,13 +170,13 @@ public abstract class BaseTestMultiThread {
     @Test
     public void testMultithread() {
         System.out.println("#threads=" + numThreads + " timeout=" + timeoutSec);
-        System.out.println("Discovering tests tagged with '" + getTagName() + "' in " + getPackageName() + " package...");
+        System.out.println("Discovering tests tagged with '" + getTagExpression() + "' in " + getPackageName() + " package...");
 
         List<String> testClasses = discoverTestClasses();
-        System.out.println("Found " + testClasses.size() + " test classes with " + getTagName() + " tag");
+        System.out.println("Found " + testClasses.size() + " test classes with " + getTagExpression() + " tag");
         
         if (testClasses.isEmpty()) {
-            fail("No test classes found with " + getTagName() + " tag");
+            fail("No test classes found with " + getTagExpression() + " tag");
         }
 
         List<String> failedTests = new ArrayList<>();

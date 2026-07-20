@@ -27,8 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag(Tags.OPENJCEPLUS_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
-@Tag(Tags.OPENJCEPLUS_MULTITHREAD_NAME)
-@Tag(Tags.OPENJCEPLUS_FIPS_MULTITHREAD_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")

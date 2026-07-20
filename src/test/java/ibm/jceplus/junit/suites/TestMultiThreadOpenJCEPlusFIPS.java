@@ -21,7 +21,7 @@ public class TestMultiThreadOpenJCEPlusFIPS extends BaseTestMultiThread {
     }
 
     @Override
-    protected String getTagName() {
-        return Tags.OPENJCEPLUS_FIPS_MULTITHREAD.getTag();
+    protected String getTagExpression() {
+        return Tags.OPENJCEPLUS_FIPS.getTag() + " & " + Tags.MULTITHREAD.getTag();
     }
 }

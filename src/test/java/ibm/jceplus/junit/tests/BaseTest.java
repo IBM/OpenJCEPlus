@@ -8,8 +8,11 @@
 
 package ibm.jceplus.junit.tests;
 
+import ibm.jceplus.junit.tests.parameters.resolvers.ProviderListParameterResolver;
 import java.security.Provider;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ProviderListParameterResolver.class)
 abstract public class BaseTest {
 
     private String providerName;
