@@ -74,6 +74,22 @@ public class TestArguments {
     }
 
     /**
+     * Generates combination of only OpenJCEPlus (non-FIPS) provider
+     * with the SunJCE provider for interoperability testing.
+     *
+     * @return Stream of Arguments containing (OpenJCEPlus, SunJCE) pair
+     */
+    protected static Stream<Arguments> getOpenJCEPlusOnlyWithSunJCEInteropProvider() {
+        List<Arguments> arguments = new ArrayList<>();
+
+        for (TestProvider provider : getOpenJCEPlusOnly().toList()) {
+            arguments.add(Arguments.of(provider, TestProvider.SunJCE));
+        }
+
+        return arguments.stream();
+    }
+
+    /**
      * Generates combinations of all key sizes and OpenJCEPlus* providers under test.
      * 
      * If no tags are found, all variations are returned.
