@@ -58,6 +58,15 @@ public class TestArguments {
     }
 
     /**
+     * Generates combinations of OpenJCEPlus* providers with the BC provider for interoperability testing.
+     *
+     * @return Stream of Arguments containing (JCEProviders, BC) pairs
+     */
+    protected static Stream<Arguments> getOpenJCEPlusWithBCInteropProvider() {
+        return getOpenJCEPlusWithInteropProviders(TestProvider.BC);
+    }
+
+    /**
      * Generates combination of only OpenJCEPlus (non-FIPS) provider
      * with the BC provider for interoperability testing.
      *
