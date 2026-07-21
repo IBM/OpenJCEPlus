@@ -101,7 +101,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
      *            the encoded bytes of the public key
      * @throws InvalidParameterSpecException
      */
-    public XDHPublicKeyImpl(OpenJCEPlusProvider provider, byte[] encoded)
+    public XDHPublicKeyImpl(OpenJCEPlusProvider provider, byte[] encoded, String configAlgName)
             throws InvalidKeyException {
         if (provider == null)
             throw new InvalidKeyException("provider cannot be null");
@@ -126,7 +126,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
             this.u = new BigInteger(1, reverseKey); // u is the public key reversed
 
             byte[] alteredEncoded = alterEncodedPublicKey(encoded); // Alters encoded to fit GSKit, and sets params
-            this.xecKey = XECKey.createPublicKey(alteredEncoded, provider);
+            this.xecKey = XECKey.createPublicKey(alteredEncoded, provider, configAlgName);
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create XEC public key", exception);
         }
@@ -141,7 +141,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
      * @throws InvalidParameterException
      */
     public XDHPublicKeyImpl(OpenJCEPlusProvider provider, AlgorithmParameterSpec params,
-            BigInteger u) throws InvalidAlgorithmParameterException, InvalidParameterException, InvalidKeyException {
+            BigInteger u, String configAlgName) throws InvalidAlgorithmParameterException, InvalidParameterException, InvalidKeyException {
 
         if (provider == null) {
             throw new InvalidParameterException("provider must not be null");
@@ -167,7 +167,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
         try {
             if (u == null) {
                 int keySize = CurveUtil.getCurveSize(curve);
-                this.xecKey = XECKey.generateKeyPair(curve.ordinal(), keySize, provider);
+                this.xecKey = XECKey.generateKeyPair(curve.ordinal(), keySize, provider, configAlgName);
                 setFieldsFromXeckey();
             } else {
 
@@ -201,7 +201,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
                 byte[] der = buildICCPublicKeyBytes();
                 checkKeySize();
 
-                this.xecKey = XECKey.createPublicKey(der, provider);
+                this.xecKey = XECKey.createPublicKey(der, provider, configAlgName);
             }
         } catch (InvalidKeyException ex) {
             throw ex;

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -30,7 +30,7 @@ public interface NativeInterface {
     // Static stub functions
     // =========================================================================
 
-    public long initializeOCK(boolean isFIPS) throws NativeException;
+    public long initialize(boolean isFIPS) throws NativeException;
 
     public String CTX_getValue(int valueId) throws NativeException;
 
@@ -52,13 +52,13 @@ public interface NativeInterface {
 
     public long EXTRAND_create(String algName) throws NativeException;
 
-    public void EXTRAND_nextBytes(long ockPRNGContextId,
+    public void EXTRAND_nextBytes(long PRNGContextId,
             byte[] buffer) throws NativeException;
 
-    public void EXTRAND_setSeed(long ockPRNGContextId, byte[] seed)
+    public void EXTRAND_setSeed(long PRNGContextId, byte[] seed)
             throws NativeException;
 
-    public void EXTRAND_delete(long ockPRNGContextId)
+    public void EXTRAND_delete(long PRNGContextId)
             throws NativeException;
 
     // =========================================================================
@@ -67,41 +67,41 @@ public interface NativeInterface {
 
     public long CIPHER_create(String cipher) throws NativeException;
 
-    public void CIPHER_init(long ockCipherId, int isEncrypt,
+    public void CIPHER_init(long cipherId, int isEncrypt,
             int paddingId, byte[] key, byte[] iv) throws NativeException;
 
-    public void CIPHER_clean(long ockCipherId) throws NativeException;
+    public void CIPHER_clean(long cipherId) throws NativeException;
 
-    public void CIPHER_setPadding(long ockCipherId, int paddingId)
+    public void CIPHER_setPadding(long cipherId, int paddingId)
             throws NativeException;
 
-    public int CIPHER_getBlockSize(long ockCipherId);
+    public int CIPHER_getBlockSize(long cipherId);
 
-    public int CIPHER_getKeyLength(long ockCipherId);
+    public int CIPHER_getKeyLength(long cipherId);
 
-    public int CIPHER_getIVLength(long ockCipherId);
+    public int CIPHER_getIVLength(long cipherId);
 
-    public int CIPHER_getOID(long ockCipherId);
+    public int CIPHER_getOID(long cipherId);
 
-    public int CIPHER_encryptUpdate(long ockCipherId,
+    public int CIPHER_encryptUpdate(long cipherId,
             byte[] plaintext, int plaintextOffset, int plaintextLen, byte[] ciphertext,
             int ciphertextOffset, boolean needsReinit) throws NativeException;
 
-    public int CIPHER_decryptUpdate(long ockCipherId,
+    public int CIPHER_decryptUpdate(long cipherId,
             byte[] ciphertext, int cipherOffset, int cipherLen, byte[] plaintext,
             int plaintextOffset, boolean needsReinit) throws NativeException;
 
-    public int CIPHER_encryptFinal(long ockCipherId, byte[] input,
+    public int CIPHER_encryptFinal(long cipherId, byte[] input,
             int inOffset, int inLen, byte[] ciphertext, int ciphertextOffset, boolean needsReinit)
             throws NativeException;
 
-    public int CIPHER_decryptFinal(long ockCipherId,
+    public int CIPHER_decryptFinal(long cipherId,
             byte[] ciphertext, int cipherOffset, int cipherLen, byte[] plaintext,
             int plaintextOffset, boolean needsReinit) throws NativeException;
 
     public long checkHardwareSupport();
 
-    public void CIPHER_delete(long ockCipherId)
+    public void CIPHER_delete(long cipherId)
             throws NativeException;
             
     public byte[] CIPHER_KeyWraporUnwrap(byte[] key, byte[] KEK, int type)
@@ -117,40 +117,40 @@ public interface NativeInterface {
     public long POLY1305CIPHER_create(String cipher)
             throws NativeException;
 
-    public void POLY1305CIPHER_init(long ockCipherId,
+    public void POLY1305CIPHER_init(long cipherId,
             int isEncrypt, byte[] key, byte[] iv) throws NativeException;
 
-    public void POLY1305CIPHER_clean(long ockCipherId)
+    public void POLY1305CIPHER_clean(long cipherId)
             throws NativeException;
 
-    public void POLY1305CIPHER_setPadding(long ockCipherId,
+    public void POLY1305CIPHER_setPadding(long cipherId,
             int paddingId) throws NativeException;
 
-    public int POLY1305CIPHER_getBlockSize(long ockCipherId);
+    public int POLY1305CIPHER_getBlockSize(long cipherId);
 
-    public int POLY1305CIPHER_getKeyLength(long ockCipherId);
+    public int POLY1305CIPHER_getKeyLength(long cipherId);
 
-    public int POLY1305CIPHER_getIVLength(long ockCipherId);
+    public int POLY1305CIPHER_getIVLength(long cipherId);
 
-    public int POLY1305CIPHER_getOID(long ockCipherId);
+    public int POLY1305CIPHER_getOID(long cipherId);
 
-    public int POLY1305CIPHER_encryptUpdate(long ockCipherId,
+    public int POLY1305CIPHER_encryptUpdate(long cipherId,
             byte[] plaintext, int plaintextOffset, int plaintextLen, byte[] ciphertext,
             int ciphertextOffset) throws NativeException;
 
-    public int POLY1305CIPHER_decryptUpdate(long ockCipherId,
+    public int POLY1305CIPHER_decryptUpdate(long cipherId,
             byte[] ciphertext, int cipherOffset, int cipherLen, byte[] plaintext,
             int plaintextOffset) throws NativeException;
 
-    public int POLY1305CIPHER_encryptFinal(long ockCipherId,
+    public int POLY1305CIPHER_encryptFinal(long cipherId,
             byte[] input, int inOffset, int inLen, byte[] ciphertext, int ciphertextOffset,
             byte[] tag) throws NativeException;
 
-    public int POLY1305CIPHER_decryptFinal(long ockCipherId,
+    public int POLY1305CIPHER_decryptFinal(long cipherId,
             byte[] ciphertext, int cipherOffset, int cipherLen, byte[] plaintext,
             int plaintextOffset, byte[] tag) throws NativeException;
 
-    public void POLY1305CIPHER_delete(long ockCipherId)
+    public void POLY1305CIPHER_delete(long cipherId)
             throws NativeException;
 
     // =========================================================================
@@ -213,7 +213,6 @@ public interface NativeInterface {
 
     public int do_GCM_InitForUpdateDecrypt(long gcmCtx, byte[] key,
             int keyLen, byte[] iv, int ivLen, byte[] aad, int aadLen) throws NativeException;
-
 
     public void do_GCM_delete() throws NativeException;
 

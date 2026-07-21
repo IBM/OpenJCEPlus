@@ -51,8 +51,8 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     NativeOCKAdapter(boolean useFIPSMode) {
         this.useFIPSMode = useFIPSMode;
 
-        AccessController.doPrivileged(new java.security.PrivilegedAction() {
-            public Object run() {
+        AccessController.doPrivileged(new java.security.PrivilegedAction<Void> () {
+            public Void run() {
                 if (!ockInitialized) {
                     initializeContext();
                 }
@@ -140,8 +140,8 @@ public abstract class NativeOCKAdapter implements NativeInterface {
         // deserialized in a JVM that has not instantiated the OpenJCEPlus
         // provider yet.
         //
-        AccessController.doPrivileged(new java.security.PrivilegedAction() {
-            public Object run() {
+        AccessController.doPrivileged(new java.security.PrivilegedAction<Void> () {
+            public Void run() {
                 if (!ockInitialized) {
                     initializeContext();
                 }
@@ -291,7 +291,7 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     }
 
     @Override
-    public long initializeOCK(boolean isFIPS) throws OCKException {
+    public long initialize(boolean isFIPS) throws OCKException {
         return NativeOCKImplementation.initializeOCK(isFIPS);
     }
 
@@ -326,18 +326,18 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     }
 
     @Override
-    public void EXTRAND_nextBytes(long ockPRNGContextId, byte[] buffer) throws OCKException {
-        NativeOCKImplementation.EXTRAND_nextBytes(ockContext.getId(), ockPRNGContextId, buffer);
+    public void EXTRAND_nextBytes(long PRNGContextId, byte[] buffer) throws OCKException {
+        NativeOCKImplementation.EXTRAND_nextBytes(ockContext.getId(), PRNGContextId, buffer);
     }
 
     @Override
-    public void EXTRAND_setSeed(long ockPRNGContextId, byte[] seed) throws OCKException {
-        NativeOCKImplementation.EXTRAND_setSeed(ockContext.getId(), ockPRNGContextId, seed);
+    public void EXTRAND_setSeed(long PRNGContextId, byte[] seed) throws OCKException {
+        NativeOCKImplementation.EXTRAND_setSeed(ockContext.getId(), PRNGContextId, seed);
     }
 
     @Override
-    public void EXTRAND_delete(long ockPRNGContextId) throws OCKException {
-        NativeOCKImplementation.EXTRAND_delete(ockContext.getId(), ockPRNGContextId);
+    public void EXTRAND_delete(long PRNGContextId) throws OCKException {
+        NativeOCKImplementation.EXTRAND_delete(ockContext.getId(), PRNGContextId);
     }
 
     @Override
@@ -346,65 +346,65 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     }
 
     @Override
-    public void CIPHER_init(long ockCipherId, int isEncrypt, int paddingId, byte[] key, byte[] iv) throws OCKException {
-        NativeOCKImplementation.CIPHER_init(ockContext.getId(), ockCipherId, isEncrypt, paddingId, key, iv);
+    public void CIPHER_init(long cipherId, int isEncrypt, int paddingId, byte[] key, byte[] iv) throws OCKException {
+        NativeOCKImplementation.CIPHER_init(ockContext.getId(), cipherId, isEncrypt, paddingId, key, iv);
     }
 
     @Override
-    public void CIPHER_clean(long ockCipherId) throws OCKException {
-        NativeOCKImplementation.CIPHER_clean(ockContext.getId(), ockCipherId);
+    public void CIPHER_clean(long cipherId) throws OCKException {
+        NativeOCKImplementation.CIPHER_clean(ockContext.getId(), cipherId);
     }
 
     @Override
-    public void CIPHER_setPadding(long ockCipherId, int paddingId) throws OCKException {
-        NativeOCKImplementation.CIPHER_setPadding(ockContext.getId(), ockCipherId, paddingId);
+    public void CIPHER_setPadding(long cipherId, int paddingId) throws OCKException {
+        NativeOCKImplementation.CIPHER_setPadding(ockContext.getId(), cipherId, paddingId);
     }
 
     @Override
-    public int CIPHER_getBlockSize(long ockCipherId) {
-        return NativeOCKImplementation.CIPHER_getBlockSize(ockContext.getId(), ockCipherId);
+    public int CIPHER_getBlockSize(long cipherId) {
+        return NativeOCKImplementation.CIPHER_getBlockSize(ockContext.getId(), cipherId);
     }
 
     @Override
-    public int CIPHER_getKeyLength(long ockCipherId) {
-        return NativeOCKImplementation.CIPHER_getKeyLength(ockContext.getId(), ockCipherId);
+    public int CIPHER_getKeyLength(long cipherId) {
+        return NativeOCKImplementation.CIPHER_getKeyLength(ockContext.getId(), cipherId);
     }
 
     @Override
-    public int CIPHER_getIVLength(long ockCipherId) {
-        return NativeOCKImplementation.CIPHER_getIVLength(ockContext.getId(), ockCipherId);
+    public int CIPHER_getIVLength(long cipherId) {
+        return NativeOCKImplementation.CIPHER_getIVLength(ockContext.getId(), cipherId);
     }
 
     @Override
-    public int CIPHER_getOID(long ockCipherId) {
-        return NativeOCKImplementation.CIPHER_getOID(ockContext.getId(), ockCipherId);
+    public int CIPHER_getOID(long cipherId) {
+        return NativeOCKImplementation.CIPHER_getOID(ockContext.getId(), cipherId);
     }
 
     @Override
-    public int CIPHER_encryptUpdate(long ockCipherId, byte[] plaintext, int plaintextOffset, int plaintextLen,
+    public int CIPHER_encryptUpdate(long cipherId, byte[] plaintext, int plaintextOffset, int plaintextLen,
             byte[] ciphertext, int ciphertextOffset, boolean needsReinit) throws OCKException {
-        return NativeOCKImplementation.CIPHER_encryptUpdate(ockContext.getId(), ockCipherId,
+        return NativeOCKImplementation.CIPHER_encryptUpdate(ockContext.getId(), cipherId,
             plaintext, plaintextOffset, plaintextLen, ciphertext, ciphertextOffset, needsReinit);
     }
 
     @Override
-    public int CIPHER_decryptUpdate(long ockCipherId, byte[] ciphertext, int cipherOffset, int cipherLen,
+    public int CIPHER_decryptUpdate(long cipherId, byte[] ciphertext, int cipherOffset, int cipherLen,
             byte[] plaintext, int plaintextOffset, boolean needsReinit) throws OCKException {
-        return NativeOCKImplementation.CIPHER_decryptUpdate(ockContext.getId(), ockCipherId,
+        return NativeOCKImplementation.CIPHER_decryptUpdate(ockContext.getId(), cipherId,
             ciphertext, cipherOffset, cipherLen, plaintext, plaintextOffset, needsReinit);
     }
 
     @Override
-    public int CIPHER_encryptFinal(long ockCipherId, byte[] input, int inOffset, int inLen, byte[] ciphertext,
+    public int CIPHER_encryptFinal(long cipherId, byte[] input, int inOffset, int inLen, byte[] ciphertext,
             int ciphertextOffset, boolean needsReinit) throws OCKException {
-        return NativeOCKImplementation.CIPHER_encryptFinal(ockContext.getId(), ockCipherId,
+        return NativeOCKImplementation.CIPHER_encryptFinal(ockContext.getId(), cipherId,
             input, inOffset, inLen, ciphertext, ciphertextOffset, needsReinit);
     }
 
     @Override
-    public int CIPHER_decryptFinal(long ockCipherId, byte[] ciphertext, int cipherOffset, int cipherLen,
+    public int CIPHER_decryptFinal(long cipherId, byte[] ciphertext, int cipherOffset, int cipherLen,
             byte[] plaintext, int plaintextOffset, boolean needsReinit) throws OCKException {
-        return NativeOCKImplementation.CIPHER_decryptFinal(ockContext.getId(), ockCipherId,
+        return NativeOCKImplementation.CIPHER_decryptFinal(ockContext.getId(), cipherId,
             ciphertext, cipherOffset, cipherLen, plaintext, plaintextOffset, needsReinit);
     }
 
@@ -414,8 +414,8 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     }
 
     @Override
-    public void CIPHER_delete(long ockCipherId) throws OCKException {
-        NativeOCKImplementation.CIPHER_delete(ockContext.getId(), ockCipherId);
+    public void CIPHER_delete(long cipherId) throws OCKException {
+        NativeOCKImplementation.CIPHER_delete(ockContext.getId(), cipherId);
     }
 
     @Override
@@ -436,71 +436,71 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     }
 
     @Override
-    public void POLY1305CIPHER_init(long ockCipherId, int isEncrypt, byte[] key, byte[] iv) throws OCKException {
-        NativeOCKImplementation.POLY1305CIPHER_init(ockContext.getId(), ockCipherId, isEncrypt, key, iv);
+    public void POLY1305CIPHER_init(long cipherId, int isEncrypt, byte[] key, byte[] iv) throws OCKException {
+        NativeOCKImplementation.POLY1305CIPHER_init(ockContext.getId(), cipherId, isEncrypt, key, iv);
     }
 
     @Override
-    public void POLY1305CIPHER_clean(long ockCipherId) throws OCKException {
-        NativeOCKImplementation.POLY1305CIPHER_clean(ockContext.getId(), ockCipherId);
+    public void POLY1305CIPHER_clean(long cipherId) throws OCKException {
+        NativeOCKImplementation.POLY1305CIPHER_clean(ockContext.getId(), cipherId);
     }
 
     @Override
-    public void POLY1305CIPHER_setPadding(long ockCipherId, int paddingId) throws OCKException {
-        NativeOCKImplementation.POLY1305CIPHER_setPadding(ockContext.getId(), ockCipherId, paddingId);
+    public void POLY1305CIPHER_setPadding(long cipherId, int paddingId) throws OCKException {
+        NativeOCKImplementation.POLY1305CIPHER_setPadding(ockContext.getId(), cipherId, paddingId);
     }
 
     @Override
-    public int POLY1305CIPHER_getBlockSize(long ockCipherId) {
-        return NativeOCKImplementation.POLY1305CIPHER_getBlockSize(ockContext.getId(), ockCipherId);
+    public int POLY1305CIPHER_getBlockSize(long cipherId) {
+        return NativeOCKImplementation.POLY1305CIPHER_getBlockSize(ockContext.getId(), cipherId);
     }
 
     @Override
-    public int POLY1305CIPHER_getKeyLength(long ockCipherId) {
-        return NativeOCKImplementation.POLY1305CIPHER_getKeyLength(ockContext.getId(), ockCipherId);
+    public int POLY1305CIPHER_getKeyLength(long cipherId) {
+        return NativeOCKImplementation.POLY1305CIPHER_getKeyLength(ockContext.getId(), cipherId);
     }
 
     @Override
-    public int POLY1305CIPHER_getIVLength(long ockCipherId) {
-        return NativeOCKImplementation.POLY1305CIPHER_getIVLength(ockContext.getId(), ockCipherId);
+    public int POLY1305CIPHER_getIVLength(long cipherId) {
+        return NativeOCKImplementation.POLY1305CIPHER_getIVLength(ockContext.getId(), cipherId);
     }
 
     @Override
-    public int POLY1305CIPHER_getOID(long ockCipherId) {
-        return NativeOCKImplementation.POLY1305CIPHER_getOID(ockContext.getId(), ockCipherId);
+    public int POLY1305CIPHER_getOID(long cipherId) {
+        return NativeOCKImplementation.POLY1305CIPHER_getOID(ockContext.getId(), cipherId);
     }
 
     @Override
-    public int POLY1305CIPHER_encryptUpdate(long ockCipherId, byte[] plaintext, int plaintextOffset, int plaintextLen,
+    public int POLY1305CIPHER_encryptUpdate(long cipherId, byte[] plaintext, int plaintextOffset, int plaintextLen,
             byte[] ciphertext, int ciphertextOffset) throws OCKException {
-        return NativeOCKImplementation.POLY1305CIPHER_encryptUpdate(ockContext.getId(), ockCipherId,
+        return NativeOCKImplementation.POLY1305CIPHER_encryptUpdate(ockContext.getId(), cipherId,
             plaintext, plaintextOffset, plaintextLen, ciphertext, ciphertextOffset);
     }
 
     @Override
-    public int POLY1305CIPHER_decryptUpdate(long ockCipherId, byte[] ciphertext, int cipherOffset, int cipherLen,
+    public int POLY1305CIPHER_decryptUpdate(long cipherId, byte[] ciphertext, int cipherOffset, int cipherLen,
             byte[] plaintext, int plaintextOffset) throws OCKException {
-        return NativeOCKImplementation.POLY1305CIPHER_decryptUpdate(ockContext.getId(), ockCipherId,
+        return NativeOCKImplementation.POLY1305CIPHER_decryptUpdate(ockContext.getId(), cipherId,
             ciphertext, cipherOffset, cipherLen, plaintext, plaintextOffset);
     }
 
     @Override
-    public int POLY1305CIPHER_encryptFinal(long ockCipherId, byte[] input, int inOffset, int inLen, byte[] ciphertext,
+    public int POLY1305CIPHER_encryptFinal(long cipherId, byte[] input, int inOffset, int inLen, byte[] ciphertext,
             int ciphertextOffset, byte[] tag) throws OCKException {
-        return NativeOCKImplementation.POLY1305CIPHER_encryptFinal(ockContext.getId(), ockCipherId,
+        return NativeOCKImplementation.POLY1305CIPHER_encryptFinal(ockContext.getId(), cipherId,
             input, inOffset, inLen, ciphertext, ciphertextOffset, tag);
     }
 
     @Override
-    public int POLY1305CIPHER_decryptFinal(long ockCipherId, byte[] ciphertext, int cipherOffset, int cipherLen,
+    public int POLY1305CIPHER_decryptFinal(long cipherId, byte[] ciphertext, int cipherOffset, int cipherLen,
             byte[] plaintext, int plaintextOffset, byte[] tag) throws OCKException {
-        return NativeOCKImplementation.POLY1305CIPHER_decryptFinal(ockContext.getId(), ockCipherId,
+        return NativeOCKImplementation.POLY1305CIPHER_decryptFinal(ockContext.getId(), cipherId,
             ciphertext, cipherOffset, cipherLen, plaintext, plaintextOffset, tag);
     }
 
     @Override
-    public void POLY1305CIPHER_delete(long ockCipherId) throws OCKException {
-        NativeOCKImplementation.POLY1305CIPHER_delete(ockContext.getId(), ockCipherId);
+    public void POLY1305CIPHER_delete(long cipherId) throws OCKException {
+        NativeOCKImplementation.POLY1305CIPHER_delete(ockContext.getId(), cipherId);
     }
 
     @Override
