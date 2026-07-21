@@ -103,7 +103,10 @@ jobs:
           '-Dock.library.path=${{ github.workspace }}/OCK/'
           '-Dopenssl.library.path=/usr/lib/x86_64-linux-gnu/'
           -Dtest='
-          ibm.jceplus.junit.openjceplus.TestSHA256
+          ibm.jceplus.junit.openjceplus.TestAll,
+          ibm.jceplus.junit.TestMemStressAll,
+          ibm.jceplus.junit.TestMultithread,
+          ibm.jceplus.junit.openjceplus.integration.TestAll
           '
           install
         env:
@@ -115,6 +118,7 @@ jobs:
           mvn
           --batch-mode
           '-Dock.library.path=${{ github.workspace }}/OCK/'
+          '-Dopenssl.library.path=/usr/lib/x86_64-linux-gnu/'
           '-Dgroups=OpenJCEPlus'
           -Dtest='
           ibm.jceplus.junit.suites.TestOpenJCEPlus,
