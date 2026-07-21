@@ -356,7 +356,7 @@ def runOpenJCEPlus(command, software) {
                dir "c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Auxiliary\\Build\\vcvarsall.bat"
                call "c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Auxiliary\\Build\\vcvarsall.bat" x86_amd64
                set "JAVA_HOME=$WORKSPACE\\java\\jdk"
-               set "PATH=$WORKSPACE\\apache-maven-3.9.10\\bin;%JAVA_HOME%;%PATH%"
+               set "PATH=$WORKSPACE\\apache-maven-3.9.10\\bin;%JAVA_HOME%;c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX86\\x64;%PATH%"
                set "GSKIT_HOME=$WORKSPACE\\openjceplus\\OCK\\jgsk_sdk"
                set "OPENSSL_HOME=$WORKSPACE\\openssl"
                echo PATH: %PATH%
