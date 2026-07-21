@@ -578,46 +578,4 @@ public interface NativeInterface {
 
     public byte[] PBKDF2_derive(String hashAlgorithm, byte[] password, byte[] salt,
             int iterations, int keyLength) throws NativeException;
-<<<<<<< HEAD
-=======
-
-    // =========================================================================
-    // ML-KEY key functions
-    // =========================================================================
-
-    public long MLKEY_generate(String cipherName)
-            throws NativeException;
-
-    public long MLKEY_createPrivateKey(String cipherName, byte[] privateKeyBytes)
-            throws NativeException;
-
-    public long MLKEY_createPublicKey(String cipherName, byte[] publicKeyBytes)
-            throws NativeException;
-
-    public byte[] MLKEY_getPrivateKeyBytes(long mlkeyId)
-            throws NativeException;
-
-    public byte[] MLKEY_getPublicKeyBytes(long mlkeyId)
-            throws NativeException;
-
-    public void MLKEY_delete(long mlkeyId);
-
-    // =========================================================================
-    // Key Encapsulation functions
-    // =========================================================================
-    public void KEM_encapsulate(long PKeyId, byte[] wrappedKey, byte[] randomKey)
-            throws NativeException;
-
-    public byte[] KEM_decapsulate(long PKeyId, byte[] wrappedKey)
-            throws NativeException;
-
-    // =========================================================================
-    // PQC Signture functions - for use with ML-DSA and ML-SLH
-    // =========================================================================
-    public byte[] PQC_SIGNATURE_sign(long PKeyId, byte[] data)
-            throws NativeException;
-
-    public boolean PQC_SIGNATURE_verify(long PKeyId, byte[] sigBytes, byte[] data)
-            throws NativeException;
->>>>>>> cb80aca7 (Add Support to Select native Crypto Provider (#1512))
 }

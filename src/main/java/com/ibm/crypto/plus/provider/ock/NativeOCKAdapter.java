@@ -51,8 +51,8 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     NativeOCKAdapter(boolean useFIPSMode) {
         this.useFIPSMode = useFIPSMode;
 
-        AccessController.doPrivileged(new java.security.PrivilegedAction() {
-            public Object run() {
+        AccessController.doPrivileged(new java.security.PrivilegedAction<Void> () {
+            public Void run() {
                 if (!ockInitialized) {
                     initializeContext();
                 }
@@ -140,8 +140,8 @@ public abstract class NativeOCKAdapter implements NativeInterface {
         // deserialized in a JVM that has not instantiated the OpenJCEPlus
         // provider yet.
         //
-        AccessController.doPrivileged(new java.security.PrivilegedAction() {
-            public Object run() {
+        AccessController.doPrivileged(new java.security.PrivilegedAction<Void> () {
+            public Void run() {
                 if (!ockInitialized) {
                     initializeContext();
                 }
