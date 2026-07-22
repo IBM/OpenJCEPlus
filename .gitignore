@@ -51,3 +51,7 @@
 
 # Igore JMH lock file
 jmh.lock
+
+# Ignore AI files
+.bob
+AGENTS.md

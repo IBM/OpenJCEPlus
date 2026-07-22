@@ -10,8 +10,6 @@ package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.security.spec.ECParameterSpec;
@@ -111,7 +109,7 @@ public final class ECKey implements AsymmetricKey {
     // concurrently by suitable locking.
     protected static byte[] getParametersBytes(long ecKeyId, OpenJCEPlusProvider provider)
             throws NativeException {
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "AlgorithmParameterGenerator", "EC");
         return nativeInterface.ECKEY_getParameters(ecKeyId);
     }
 
@@ -127,7 +125,7 @@ public final class ECKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", "EC");
         long ecKeyId;
         try {
             ecKeyId = nativeInterface.ECKEY_generate(size);
@@ -162,7 +160,7 @@ public final class ECKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", "EC");;
         long ecKeyId = nativeInterface.ECKEY_generate(soid);
         if (!validId(ecKeyId)) {
             throw new NativeException(badIdMsg);
@@ -186,7 +184,7 @@ public final class ECKey implements AsymmetricKey {
         }
 
         //OCKDebug.Msg (debPrefix, methodName, "paramBytes.length :" + parameterBytes.length,  parameterBytes);
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", "EC");
         long ecKeyId = nativeInterface.ECKEY_generate(parameterBytes);
         //OCKDebug.Msg (debPrefix, methodName, "ecKeyId :" + ecKeyId);
         return new ECKey(nativeInterface, ecKeyId, parameterBytes, unobtainedKeyBytes,
@@ -200,7 +198,7 @@ public final class ECKey implements AsymmetricKey {
         }
 
         //OCKDebug.Msg (debPrefix, methodName, "size :" + size);
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "AlgorithmParameterGenerator", "EC");
         return nativeInterface.ECKEY_generateParameters(size);
     }
 
@@ -213,7 +211,7 @@ public final class ECKey implements AsymmetricKey {
         }
 
         //OCKDebug.Msg (debPrefix, methodName, "soid :" + soid);
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "AlgorithmParameterGenerator", "EC");
         byte[] generatedParams = nativeInterface.ECKEY_generateParameters(soid);
         //OCKDebug.Msg (debPrefix, methodName,  "generatedParams :", generatedParams);
         return generatedParams;
@@ -338,7 +336,7 @@ public final class ECKey implements AsymmetricKey {
         }
 
         //OCKDebug.Msg (debPrefix, methodName,  "privateKeyBytes :", privateKeyBytes );
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", "EC" );
         long ecKeyId = nativeInterface.ECKEY_createPrivateKey(privateKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName, "ecPrivateKeyId :" + ecKeyId);
         if (!validId(ecKeyId)) {
@@ -371,7 +369,8 @@ public final class ECKey implements AsymmetricKey {
             throw new NativeException(badIdMsg);
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "Signature", "NONEwithECDSA");
+
         byte[] signedBytes;
         synchronized (ecPrivateKey) {
             //OCKDebug.Msg (debPrefix, methodName,  "digestBytesLen :" + digestBytesLen +  " digestActualBytes :", digestActualBytes);
@@ -419,7 +418,8 @@ public final class ECKey implements AsymmetricKey {
         }
         //OCKDebug.Msg (debPrefix, methodName, "diestBytesLen : " + digestBytesLen + " digestAcutalBytes : ", digestActualBytes);
         //OCKDebug.Msg (debPrefix, methodName, " sigActualBytes : ", sigActualBytes);
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "Signature", "NONEwithECDSA");
+
         synchronized (ecPublicKey) {
             verified = nativeInterface.ECKEY_verifyDatawithECDSA(
                     digestActualBytes, digestBytesLen, sigActualBytes, sigBytesLen,
@@ -442,7 +442,8 @@ public final class ECKey implements AsymmetricKey {
         
         //OCKDebug.Msg (debPrefix, methodName,  "publicKeyBytes :",  publicKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName,  "parameterBytes :", parameterBytes);
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", "EC");
+
         long ecKeyId = nativeInterface.ECKEY_createPublicKey(publicKeyBytes,
                 parameterBytes);
         //OCKDebug.Msg (debPrefix, methodName,  "ecKeyId :" + ecKeyId);
@@ -464,7 +465,7 @@ public final class ECKey implements AsymmetricKey {
             throw new IllegalArgumentException("The private key parameter is not valid");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyAgreement", "ECDH");
         byte[] sharedSecretBytes = nativeInterface.ECKEY_computeECDHSecret(pubEcKeyId, privEcKeyId);
         //OCKDebug.Msg (debPrefix, methodName,  "pubEcKeyId :" + pubEcKeyId + " privEcKeyId :" + privEcKeyId + " sharedSecretBytes :", sharedSecretBytes);
         return sharedSecretBytes;

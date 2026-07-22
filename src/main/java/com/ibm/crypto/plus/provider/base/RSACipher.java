@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.security.InvalidKeyException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -47,12 +45,12 @@ public final class RSACipher {
     private boolean convertKey = false; //Used to convert RSA Plain keys
     // private final String debPrefix = "RSACipher"; /* Adding DEBUG messes up encrypt/decrypt cases */
 
-    public static RSACipher getInstance(OpenJCEPlusProvider provider) {
+    public static RSACipher getInstance(OpenJCEPlusProvider provider) throws NativeException {
         return new RSACipher(provider);
     }
 
-    private RSACipher(OpenJCEPlusProvider provider) {
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+    private RSACipher(OpenJCEPlusProvider provider) throws NativeException {
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Cipher", "RSA");
     }
 
     public void initialize(RSAKey key, boolean plainRSAKey)

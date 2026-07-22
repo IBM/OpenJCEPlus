@@ -9,21 +9,20 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 
 public final class BasicRandom {
 
     private OpenJCEPlusProvider provider;
+    private String algName = null;
     private NativeInterface nativeInterface;
 
-    public static BasicRandom getInstance(OpenJCEPlusProvider provider) {
-        return new BasicRandom(provider);
+    public static BasicRandom getInstance(OpenJCEPlusProvider provider, String algName) throws NativeException {
+        return new BasicRandom(provider, algName);
     }
 
-    private BasicRandom(OpenJCEPlusProvider provider) {
+    private BasicRandom(OpenJCEPlusProvider provider, String algName) {
         this.provider = provider;
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "SecureRandom", algName + "DRBG");
     }
 
     public void nextBytes(byte[] bytes) throws NativeException {

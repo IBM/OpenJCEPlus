@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -116,9 +114,9 @@ public final class GCMCipher {
     private OpenJCEPlusProvider provider;
     private NativeInterface nativeInterface;
 
-    public GCMCipher(OpenJCEPlusProvider provider) {
+    public GCMCipher(OpenJCEPlusProvider provider) throws NativeException {
         this.provider = provider;
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Cipher", "AES/GCM/NoPadding");
     }
 
     // it is not synchronized since there are no shared OCK data structures used in the OCK call
@@ -954,7 +952,7 @@ public final class GCMCipher {
     }
 
     public static void doGCM_cleanup(OpenJCEPlusProvider provider) throws NativeException {
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "Cipher", "AES/GCM/NoPadding");
         nativeInterface.do_GCM_delete();
     }
 
@@ -1002,7 +1000,7 @@ public final class GCMCipher {
         putLongtoByteArray(inputLen * 8, addedParams, TPCLOffset); // Add TPCL
         parameters.put(paramBlockOffset, addedParams, 0, addedParams.length);
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "Cipher", "AES/GCM/NoPadding");
         if (isEncrypt) { // encrypt
             rc = nativeInterface.do_GCM_encryptFastJNI_WithHardwareSupport(keyLen, ivLen, 0,
                     inputLen, 0, aadLen, tagLen, parameters.pointer(), input, inputOffset, output,
