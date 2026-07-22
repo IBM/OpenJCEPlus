@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class AESKeyWrap {
@@ -19,12 +17,13 @@ public final class AESKeyWrap {
     private byte[] key = null;
     private boolean padding = false;
 
-    public AESKeyWrap(OpenJCEPlusProvider provider, byte[] key, boolean padding)
+    public AESKeyWrap(OpenJCEPlusProvider provider, byte[] key, boolean padding, String algName)
             throws NativeException {
         if (key == null) {
             throw new NativeException("Invalid input data");
         }
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Cipher", algName);
+
         this.key = key;
         this.padding = padding;
     }
