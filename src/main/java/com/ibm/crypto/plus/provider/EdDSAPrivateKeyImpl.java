@@ -79,7 +79,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
     }
 
     EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider,
-            NamedParameterSpec params, byte[] h)
+            NamedParameterSpec params, byte[] h, String configAlgName)
             throws InvalidAlgorithmParameterException, InvalidParameterException, InvalidKeyException {
 
         this.provider = provider;
@@ -106,7 +106,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
                 if (ALLOW_KEYPAIR_GENERATION_IN_CONSTRUCTOR) {
                     int keySize = CurveUtil.getCurveSize(curve);
                     this.xecKey = XECKey.generateKeyPair(
-                            this.curve.ordinal(), keySize, provider);
+                            this.curve.ordinal(), keySize, provider, configAlgName);
                 } else {
                     throw new InvalidParameterException(
                         "Cannot create EdDSA private key without key bytes parameter.");
@@ -116,7 +116,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
                 byte[] der = buildOCKPrivateKeyBytes();
                 int encodingSize = CurveUtil.getDEREncodingSize(curve);
                 this.xecKey = XECKey.createPrivateKey(der,
-                        encodingSize, provider);
+                        encodingSize, provider, configAlgName);
             }
         } catch (Exception exception) {
             InvalidParameterException ike = new InvalidParameterException(
@@ -127,7 +127,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
         checkLength(this.curve);
     }
 
-    EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider, byte[] encoded)
+    EdDSAPrivateKeyImpl(OpenJCEPlusProvider provider, byte[] encoded, String configAlgName)
             throws InvalidKeyException, IOException {
         super(encoded);
         this.provider = provider;
@@ -138,7 +138,7 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
             checkLength(this.curve);
             int encodingSize = CurveUtil.getDEREncodingSize(curve);
             this.xecKey = XECKey.createPrivateKey(alteredEncoded,
-                    encodingSize, provider);
+                    encodingSize, provider, configAlgName);
 
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create XEC private key", exception);

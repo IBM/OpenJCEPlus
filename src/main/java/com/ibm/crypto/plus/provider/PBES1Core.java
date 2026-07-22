@@ -38,25 +38,27 @@ abstract class PBES1Core extends CipherSpi {
     private byte[] salt;
     private int iterationCount;
     private OpenJCEPlusProvider provider = null;
+    private String configAlgName = null;
 
     private static final int DEFAULT_ITERATION_COUNT = 1024;
     private static final int DEFAULT_SALT_LENGTH = 20;
     private static final int CIPHER_KEY = 1;
     private static final int CIPHER_IV = 2;
 
-    PBES1Core(String cipheralgo, String mode, Padding padding, int keysize, OpenJCEPlusProvider provider)
+    PBES1Core(String cipheralgo, String mode, Padding padding, int keysize, OpenJCEPlusProvider provider, String configAlgName)
         throws NoSuchAlgorithmException, NoSuchPaddingException {
         this.provider = provider;
         this.cipheralgo = cipheralgo;
+        this.configAlgName = configAlgName;
         this.pbeAlgo = cipheralgo.equals("DESede") ? "PBEWithSHA1And" + cipheralgo :
             "PBEWithSHA1And" + cipheralgo + "_" + (keysize * 8);
 
         if (cipheralgo.equals("DESede")) {
-            cipher = new DESedeCipher(provider);
+            cipher = new DESedeCipher(provider, configAlgName);
         } else if (cipheralgo.equals("RC2")) {
-            cipher = new RC2Cipher(provider);
+            cipher = new RC2Cipher(provider, configAlgName);
         } else {
-            cipher = new RC4Cipher(provider);
+            cipher = new RC4Cipher(provider, configAlgName);
         }
         
         cipher.engineSetMode(mode);
@@ -250,7 +252,8 @@ abstract class PBES1Core extends CipherSpi {
 
     private byte[] deriveKey(int n, int type, byte[] pass) {
         byte[] res = new byte[n];
-        MessageDigest sha = new MessageDigest.SHA1(provider);
+        //Need to make sure that the backend specified for PBE used for digest.
+        MessageDigest sha = new MessageDigest.SHA1(provider, "SecretKeyFactory", configAlgName);
         int v = 64;
         int u = sha.engineGetDigestLength();
         int c = roundup(n, u) / u;
@@ -360,28 +363,28 @@ abstract class PBES1Core extends CipherSpi {
     public static final class PBEWithSHA1AndDESede extends PBES1Core {
         public PBEWithSHA1AndDESede(OpenJCEPlusProvider provider)
             throws NoSuchAlgorithmException, NoSuchPaddingException {
-            super("DESede", "CBC", Padding.PKCS5Padding, 24, provider);
+            super("DESede", "CBC", Padding.PKCS5Padding, 24, provider, "PBEWithSHA1AndDESede");
         }
     }
 
     public static final class PBEWithSHA1AndRC2_40 extends PBES1Core {
         public PBEWithSHA1AndRC2_40(OpenJCEPlusProvider provider)
             throws NoSuchAlgorithmException, NoSuchPaddingException {
-            super("RC2", "CBC", Padding.PKCS5Padding, 5, provider);
+            super("RC2", "CBC", Padding.PKCS5Padding, 5, provider, "PBEWithSHA1AndRC2_40");
         }
     }
 
     public static final class PBEWithSHA1AndRC2_128 extends PBES1Core {
         public PBEWithSHA1AndRC2_128(OpenJCEPlusProvider provider)
             throws NoSuchAlgorithmException, NoSuchPaddingException {
-            super("RC2", "CBC", Padding.PKCS5Padding, 16, provider);
+            super("RC2", "CBC", Padding.PKCS5Padding, 16, provider, "PBEWithSHA1AndRC2_128");
         }
     }
 
     public static final class PBEWithSHA1AndRC4_40 extends PBES1Core {
         public PBEWithSHA1AndRC4_40(OpenJCEPlusProvider provider)
             throws NoSuchAlgorithmException, NoSuchPaddingException {
-            super("RC4", "ECB", Padding.NoPadding, 5, provider);
+            super("RC4", "ECB", Padding.NoPadding, 5, provider, "PBEWithSHA1AndRC4_40");
         }
 
     }
@@ -389,7 +392,7 @@ abstract class PBES1Core extends CipherSpi {
     public static final class PBEWithSHA1AndRC4_128 extends PBES1Core {
         public PBEWithSHA1AndRC4_128(OpenJCEPlusProvider provider)
             throws NoSuchAlgorithmException, NoSuchPaddingException {
-            super("RC4", "ECB", Padding.NoPadding, 16, provider);
+            super("RC4", "ECB", Padding.NoPadding, 16, provider, "PBEWithSHA1AndRC4_128");
         }
     }
 }

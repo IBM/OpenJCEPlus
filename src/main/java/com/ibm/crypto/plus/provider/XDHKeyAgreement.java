@@ -111,8 +111,15 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
                     secrectBufferSize = SECRET_BUFFER_SIZE_X448; // X448 secret buffer size
                 }
             }
+
+            String configAlgName = this.alg;
+            
+            if (configAlgName == null) {
+                configAlgName = "XDH";
+            }
+
             this.secret = XECKey.computeECDHSecret(genCtx,
-                    ockXecKeyPub.getPKeyId(), ockXecKeyPriv.getPKeyId(), secrectBufferSize, provider);
+                    ockXecKeyPub.getPKeyId(), ockXecKeyPriv.getPKeyId(), secrectBufferSize, provider, configAlgName);
         } catch (NativeException e) {
             //Validate the secret value for a small order point condition.
             byte orValue = (byte) 0;
