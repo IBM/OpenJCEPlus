@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.security.InvalidKeyException;
 
 public final class Signature {
@@ -23,16 +21,16 @@ public final class Signature {
     private final String badIdMsg = "Digest Identifier or PKey Identifier is not valid";
     private final static String debPrefix = "SIGNATURE";
 
-    public static Signature getInstance(String digestAlgo, OpenJCEPlusProvider provider)
+    public static Signature getInstance(String digestAlgo, OpenJCEPlusProvider provider, String algName)
             throws NativeException {
-        return new Signature(digestAlgo, provider);
+        return new Signature(digestAlgo, provider, algName);
     }
 
 
-    private Signature(String digestAlgo, OpenJCEPlusProvider provider) throws NativeException {
-        //final String methodName = "Signature(String)";
-        this.nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
-        this.digest = Digest.getInstance(digestAlgo, provider);
+    private Signature(String digestAlgo, OpenJCEPlusProvider provider, String algName) throws NativeException {
+        //Need to make sure that the backend for signature also used for the digest
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Signature", algName);
+        this.digest = Digest.getInstance(digestAlgo, provider, "Signature", algName);
         //OCKDebug.Msg (debPrefix, methodName, "digestAlgo :" + digestAlgo);
     }
 

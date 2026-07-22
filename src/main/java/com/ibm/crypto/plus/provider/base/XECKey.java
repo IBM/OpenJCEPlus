@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
-import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
 import java.util.Arrays;
 
 public final class XECKey implements AsymmetricKey {
@@ -46,7 +44,7 @@ public final class XECKey implements AsymmetricKey {
     }
 
 
-    public static XECKey generateKeyPair(int curveNum, int pub_size, OpenJCEPlusProvider provider)
+    public static XECKey generateKeyPair(int curveNum, int pub_size, OpenJCEPlusProvider provider, String configAlgName)
             throws NativeException {
         //final String methodName = "generateKeyPair(NamedParameterSpec.CURVE) ";
         FastJNIBuffer buffer = XECKey.buffer.get();
@@ -55,7 +53,7 @@ public final class XECKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", configAlgName);
         long xecKeyId = nativeInterface.XECKEY_generate(curveNum,
                 buffer.pointer());
         if (!validId(xecKeyId))
@@ -68,13 +66,13 @@ public final class XECKey implements AsymmetricKey {
     }
 
     public static byte[] computeECDHSecret(long genCtx, long pubId,
-            long privId, int secrectBufferSize, OpenJCEPlusProvider provider) throws NativeException {
+            long privId, int secrectBufferSize, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
         if (pubId == 0)
             throw new IllegalArgumentException("The public key parameter is not valid");
         if (privId == 0)
             throw new IllegalArgumentException("The private key parameter is not valid");
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyAgreement", configAlgName);
         byte[] sharedSecretBytes = nativeInterface.XECKEY_computeECDHSecret(
                 genCtx, pubId, privId, secrectBufferSize);
         //OCKDebug.Msg (debPrefix, methodName,  "pubId :" + pubId + " privId :" + privId + " sharedSecretBytes :", sharedSecretBytes);
@@ -118,7 +116,7 @@ public final class XECKey implements AsymmetricKey {
     }
 
     public synchronized static XECKey createPrivateKey(
-            byte[] privateKeyBytes, int priv_size, OpenJCEPlusProvider provider) throws NativeException {
+            byte[] privateKeyBytes, int priv_size, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
         //final String methodName = "createPrivateKey";
         if (privateKeyBytes == null)
             throw new IllegalArgumentException("key bytes is null");
@@ -127,7 +125,7 @@ public final class XECKey implements AsymmetricKey {
 
         FastJNIBuffer buffer = XECKey.buffer.get();
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", configAlgName);
         long xecKeyId = nativeInterface.XECKEY_createPrivateKey(privateKeyBytes,
                 buffer.pointer());
         if (!validId(xecKeyId))
@@ -140,7 +138,7 @@ public final class XECKey implements AsymmetricKey {
         return new XECKey(nativeInterface, xecKeyId, privateKeyBytes.clone(), publicKeyBytes, provider);
     }
 
-    public static XECKey createPublicKey(byte[] publicKeyBytes, OpenJCEPlusProvider provider)
+    public static XECKey createPublicKey(byte[] publicKeyBytes, OpenJCEPlusProvider provider, String configAlgName)
             throws NativeException {
         //final String methodName = "createPublicKey";
         if (publicKeyBytes == null)
@@ -149,7 +147,7 @@ public final class XECKey implements AsymmetricKey {
             throw new IllegalArgumentException("provider is null");
         }
 
-        NativeInterface nativeInterface = provider.isFIPS() ? NativeOCKAdapterFIPS.getInstance() : NativeOCKAdapterNonFIPS.getInstance();
+        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", configAlgName);
         long xecKeyId = nativeInterface.XECKEY_createPublicKey(publicKeyBytes);
         return new XECKey(nativeInterface, xecKeyId, null, publicKeyBytes.clone(), provider);
     }
