@@ -103,7 +103,7 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
 
         try {
             int secrectBufferSize = 0;
-            if (System.getProperty("os.name").equals("z/OS")) {
+            if (SystemAccessUtils.doPrivileged(() -> System.getProperty("os.name")).equals("z/OS")) {
                 String curveName = ((NamedParameterSpec) xdhPublicKeyImpl.getParams()).getName();
                 if (NamedParameterSpec.X25519.getName().equalsIgnoreCase(curveName)) {
                     secrectBufferSize = SECRET_BUFFER_SIZE_X25519; // X25519 secret buffer size

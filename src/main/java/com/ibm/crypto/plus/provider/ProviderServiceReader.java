@@ -143,7 +143,7 @@ public class ProviderServiceReader {
                 throw new IOException("File not found: " + filePath);
             } else {
                 // this filePath != null && Files.exists(Paths.get(filePath))
-                rd = new BufferedReader(new FileReader(filePath));
+                rd = new BufferedReader(SystemAccessUtils.doPrivilegedChecked(() -> new FileReader(filePath)));
             }
 
             pr.load(rd);

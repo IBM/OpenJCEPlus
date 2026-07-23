@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider.ock;
 
+import com.ibm.crypto.plus.provider.SystemAccessUtils;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.ProviderException;
@@ -60,7 +61,7 @@ final class NativeOCKImplementation {
     }
 
     static String getOCKLoadPath() {
-        String ockOverridePath = System.getProperty("ock.library.path");
+        String ockOverridePath = SystemAccessUtils.doPrivileged(() -> System.getProperty("ock.library.path"));
         if (ockOverridePath != null) {
             if (debug != null) {
                 debug.println("Loading ock library using value in property ock.library.path: "
@@ -72,8 +73,8 @@ final class NativeOCKImplementation {
             debug.println("Library path not found for ock, use java home directory.");
         }
 
-        String javaHome = System.getProperty("java.home");
-        osName = System.getProperty("os.name");
+        String javaHome = SystemAccessUtils.doPrivileged(() -> System.getProperty("java.home"));
+        osName = SystemAccessUtils.doPrivileged(() -> System.getProperty("os.name"));
         String ockPath;
 
         if (osName.startsWith("Windows")) {
@@ -89,7 +90,7 @@ final class NativeOCKImplementation {
     }
 
     static String getJGskitLoadPath() {
-        String jgskitOverridePath = System.getProperty("jgskit.library.path");
+        String jgskitOverridePath = SystemAccessUtils.doPrivileged(() -> System.getProperty("jgskit.library.path"));
         if (jgskitOverridePath != null) {
             if (debug != null) {
                 debug.println("Loading jgskit library using value in property jgskit.library.path: " + jgskitOverridePath);
@@ -100,8 +101,8 @@ final class NativeOCKImplementation {
             debug.println("Libpath not found for jgskit, use java home directory.");
         }
 
-        String javaHome = System.getProperty("java.home");
-        osName = System.getProperty("os.name");
+        String javaHome = SystemAccessUtils.doPrivileged(() -> System.getProperty("java.home"));
+        osName = SystemAccessUtils.doPrivileged(() -> System.getProperty("os.name"));
         String jgskitPath;
 
         if (osName.startsWith("Windows")) {
@@ -117,8 +118,8 @@ final class NativeOCKImplementation {
     }
 
     static void preloadJGskit() {
-        osName = System.getProperty("os.name");
-        osArch = System.getProperty("os.arch");
+        osName = SystemAccessUtils.doPrivileged(() -> System.getProperty("os.name"));
+        osArch = SystemAccessUtils.doPrivileged(() -> System.getProperty("os.arch"));
         String jgskitPath = getJGskitLoadPath();
         File loadFile = null;
         if (osName.startsWith("Windows") && osArch.equals("amd64")) {
@@ -137,8 +138,8 @@ final class NativeOCKImplementation {
     }
 
     static void preloadOCK() {
-        osName = System.getProperty("os.name");
-        osArch = System.getProperty("os.arch");
+        osName = SystemAccessUtils.doPrivileged(() -> System.getProperty("os.name"));
+        osArch = SystemAccessUtils.doPrivileged(() -> System.getProperty("os.arch"));
         String ockPath = getOCKLoadPath();
         File loadFile = null;
 
@@ -170,31 +171,23 @@ final class NativeOCKImplementation {
         }
     }
 
-    @SuppressWarnings("restricted")
     private static boolean loadIfExists(File libraryFile) {
-        String libraryName = libraryFile.getAbsolutePath();
-
-        if (libraryFile.exists()) {
-            // Need a try/catch block in case the library has already been
-            // loaded by another ClassLoader
-            //
+        boolean loaded = SystemAccessUtils.doPrivileged(() -> {
+            if (!libraryFile.exists()) {
+                return false;
+            }
             try {
-                System.load(libraryName);
-                if (debug != null) {
-                    debug.println("Loaded : " + libraryName);
-                }
+                System.load(libraryFile.getAbsolutePath());
                 return true;
             } catch (Throwable t) {
-                if (debug != null) {
-                    debug.println("Failed to load : " + libraryName);
-                }
+                return false;
             }
-        } else {
-            if (debug != null) {
-                debug.println("Skipping load of " + libraryName);
-            }
+        });
+        if (debug != null) {
+            debug.println((loaded ? "Loaded : " : "Failed to load or skipped: ")
+                    + libraryFile.getAbsolutePath());
         }
-        return false;
+        return loaded;
     }
 
     // =========================================================================

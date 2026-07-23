@@ -226,7 +226,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
     private static String getDebugDate(String className) {
         String versionDate = "Unknown";
         try {
-            Class<?> thisClass = Class.forName(className);
+            Class<?> thisClass = SystemAccessUtils.doPrivilegedChecked(() -> Class.forName(className));
             Package thisPackage = thisClass.getPackage();
             String versionInfo = thisPackage.getImplementationVersion();
             int index = versionInfo.indexOf("_");

@@ -35,7 +35,8 @@ final class EdDSAPrivateKeyImpl extends PKCS8Key implements EdECPrivateKey {
     //
     // TODO: Remove this property in the future
     private static final boolean ALLOW_KEYPAIR_GENERATION_IN_CONSTRUCTOR =
-        Boolean.getBoolean("openjceplus.eddsa.allowKeyPairGenerationInConstructor");
+        Boolean.parseBoolean(SystemAccessUtils.doPrivileged(
+                () -> System.getProperty("openjceplus.eddsa.allowKeyPairGenerationInConstructor", "false")));
 
     private static final byte TAG_PARAMETERS_ATTRS = 0x00;
     private OpenJCEPlusProvider provider = null;

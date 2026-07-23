@@ -45,7 +45,9 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
     private ECPublicKey ecPublicKey = null;
     private ECPrivateKey ecPrivateKey = null;
     private int secretLen;
-    private static boolean disableSmallCurve = Boolean.parseBoolean(System.getProperty("openjceplus.disableSmallerECKeySizeForSharedKeyComputing", "true"));
+    private static boolean disableSmallCurve = Boolean.parseBoolean(
+            SystemAccessUtils.doPrivileged(
+                    () -> System.getProperty("openjceplus.disableSmallerECKeySizeForSharedKeyComputing", "true")));
 
     public ECDHKeyAgreement(OpenJCEPlusProvider provider) {
         // System.out.println ("In ECDHKeyAgreement");
