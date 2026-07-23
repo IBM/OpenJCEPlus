@@ -17,6 +17,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -39,6 +41,7 @@ public class ProviderServiceReader {
     private Set<String> setDefAttributes = null;
     private Properties defPr = null;
     private boolean def = false;
+    private String secureRandDef = null;
     private static Debug debug = Debug.getInstance("jceplus");
     
     /**
@@ -128,9 +131,9 @@ public class ProviderServiceReader {
      */
     public List<ServiceDefinition> readServices() throws IOException {
         List<ServiceDefinition> services = new ArrayList<>();
-        Set<String> setAliases = new HashSet<>();
-        Set<String> setAttributes = new HashSet<>();
-        Set<String> setServices = new HashSet<>();
+        Set<String> setAliases = new LinkedHashSet<>();
+        Set<String> setAttributes = new LinkedHashSet<>();
+        Set<String> setServices = new LinkedHashSet<>();
         BufferedReader rd = null;
         Properties pr = new Properties();
 
@@ -167,6 +170,8 @@ public class ProviderServiceReader {
                     description = pr.getProperty(key);
                 } else if (parts.length == 1 && parts[0].equalsIgnoreCase("default")) {
                     defaults = pr.getProperty(key);
+                } else if (parts.length == 1 && parts[0].equalsIgnoreCase("securerandomdefault")) {
+                    secureRandDef = pr.getProperty(key);
                 } else {
                     throw new IOException("Invalid key: " + key);
                 }
@@ -220,7 +225,7 @@ public class ProviderServiceReader {
             throw new IOException("File issue: " + e.getMessage());
         }
        
-        return services;
+        return orderServices(services);
     }
        
     /**
@@ -304,7 +309,7 @@ public class ProviderServiceReader {
      * @return a map of attribute key-value pairs
      */
     private Map<String, String> processAttributes(String[] parts, Set<String> configAttrs, Properties defaultPr, Properties configPr) {
-        Map<String, String> attributes = new HashMap<>();
+        Map<String, String> attributes = new LinkedHashMap<>();
         String search = parts[1] + "." + parts[2] + ".attr";
 
         //Only .add, and .delete are supported for Attributes
@@ -368,7 +373,36 @@ public class ProviderServiceReader {
         }
         return attributes;
     }
-    
+
+    /**
+     * Orders services so that the SecureRandom service whose algorithm matches
+     * {@code secureRandDef} is placed first, with all other services following
+     * in their original order.
+     *
+     * @param services the list of services to order
+     * @return a new list with the designated SecureRandom service placed first
+     */
+    public List<ServiceDefinition> orderServices(List<ServiceDefinition> services) {
+        List<ServiceDefinition> ordered = new ArrayList<>();
+        ServiceDefinition secureRandom = null;
+
+        for (ServiceDefinition service : services) {
+            if (secureRandDef != null
+                    && service.getType().equalsIgnoreCase("SecureRandom")
+                    && service.getAlgorithm().equalsIgnoreCase(secureRandDef)) {
+                secureRandom = service;
+            } else {
+                ordered.add(service);
+            }
+        }
+
+        if (secureRandom != null) {
+            ordered.add(0, secureRandom);
+        }
+
+        return ordered;
+    }
+
     /**
      * Filters services by type.
      * 
@@ -435,5 +469,14 @@ public class ProviderServiceReader {
      */
     public String getDesc() {
         return description;
-    }     
+    }
+
+    /**
+     * Gets the default Secure Random algorithm that was read in from the config file.
+     * 
+     * @return a String that contains the default Secure Random algorithm
+     */
+    public String getDefSecRnd() {
+        return secureRandDef;
+    }
 }

@@ -35,6 +35,7 @@ default = <true|false|1|0>
 - **name**: Unique identifier for the provider (required)
 - **description**: Human-readable description of the provider (required)
 - **default**: Whether to load default provider attributes (optional, values: `true`, `false`, `1`, `0`)
+- **securerandomdefault**: Determines which Secure Random Algorithm is the default one if this provider is first in the provider list
 
 #### Examples:
 ```properties
@@ -48,6 +49,9 @@ description = OpenJCEPlusFIPS-test Provider
 default = true
 ```
 
+# Set Default Secure Random algorithm
+securerandomdefault = SHA256DRBG
+```
 #### Parser Behavior:
 - Keys with exactly 1 part are checked for `name`, `description`, or `default`
 - Invalid single-part keys throw an `IOException`
@@ -114,7 +118,7 @@ Service.SecretKeyFactory.PBKDF2WithHmacSHA256 = com.ibm.crypto.plus.provider.PBK
 - **KeyFactory**: Key conversion and specification
 - **KeyGenerator**: Symmetric key generators
 - **KeyPairGenerator**: Asymmetric key pair generators
-- **MAC**: Message Authentication Code engines
+- **Mac**: Message Authentication Code engines
 - **MessageDigest**: Hash/digest algorithms
 - **SecretKeyFactory**: Secret key factories
 - **SecureRandom**: Random number generators
