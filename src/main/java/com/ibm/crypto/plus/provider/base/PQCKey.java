@@ -8,8 +8,9 @@
 
 package com.ibm.crypto.plus.provider.base;
 
-import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.Arrays;
+
+import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 
 public final class PQCKey implements AsymmetricKey {
 
