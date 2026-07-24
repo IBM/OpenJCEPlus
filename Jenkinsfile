@@ -24,6 +24,7 @@ import groovy.transform.Field;
 @Field JAVA_RELEASE
 @Field OCK_RELEASE
 @Field OCK_FULL_URL
+@Field OPENSSL_RELEASE
 @Field EXECUTE_TESTS
 @Field SPECIFIC_TEST
 @Field PARALLEL_ITERATIONS
@@ -191,7 +192,7 @@ def archive(platform, iteration) {
     def specs = []
     def spec = ["pattern": "$fileLocation/$filename",
                 "target": "$directory/$filename",
-                "props": "java_release=$JAVA_RELEASE;ock_release=$OCK_RELEASE;repo=$repo;branch=$branch"]
+                "props": "java_release=$JAVA_RELEASE;ock_release=$OCK_RELEASE;openssl_release=$OPENSSL_RELEASE;repo=$repo;branch=$branch"]
     specs.add(spec)
 
     def uploadFiles = [files : specs]
@@ -276,6 +277,8 @@ def run(platform) {
                     echo "Binaries fetched"
                     externalLibrary.getMaven(software)
                     echo "Maven fetched"
+                    externalLibrary.getOpenSSL(hardware, software)
+                    echo "OpenSSL cloned"
                     def command = "install"
                     command += getTestFlag(hardware, software)
                     externalLibrary.runOpenJCEPlus(command, software)
@@ -382,6 +385,12 @@ pipeline {
             This parameter can be used if one wants to specify the full URL from which to get OCK.<br> \
             BEWARE: This can only be used with a single platform and it overrides OCK_RELEASE. \
         ')
+        string(name: 'OPENSSL_RELEASE', defaultValue: '', description: '\
+            Indicate the specific release of OpenSSL that you want to use to build your branch.<br> \
+            If left empty, the latest release will be used.<br> \
+            Specify the full name of the release.<br> \
+            (i.e., openssl-&ltopenssl version&gt => eg., openssl-3.6.3) \
+        ')
         separator(name: "TestOptions", sectionHeader: "Test Options",
             separatorStyle: "border-width: 0",
             sectionHeaderStyle: """
@@ -461,6 +470,7 @@ pipeline {
                         JAVA_RELEASE="${params.JAVA_RELEASE}"
                         OCK_RELEASE="${params.OCK_RELEASE}"
                         OCK_FULL_URL="${params.OCK_FULL_URL}"
+                        OPENSSL_RELEASE="${params.OPENSSL_RELEASE}"
                         EXECUTE_TESTS="${params.EXECUTE_TESTS}"
                         SPECIFIC_TEST="${params.SPECIFIC_TEST}"
                         PARALLEL_ITERATIONS="${params.PARALLEL_ITERATIONS}"

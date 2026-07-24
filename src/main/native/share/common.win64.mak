@@ -41,6 +41,7 @@ $(HOSTOUT)/%.obj : %.c
 		$(CFLAGS) \
 		-c \
 		-I"$(NATIVE_LIB_HOME)/inc" \
+		-I"$(NATIVE_LIB_HOME)\include" \
 		-I"$(JAVA_HOME)/include" \
 		-I"$(JAVA_HOME)/include/win32" \
 		-I"$(OPENJCEPLUS_HEADER_FILES)" \
@@ -68,7 +69,7 @@ headers :
 		--add-exports java.base/sun.security.util=openjceplus \
 		--add-exports java.base/sun.security.util=ALL-UNNAMED \
 		-d $(JAVACLASSDIR) \
-		-h $(TOPDIR)/src/main/native/ock/ \
+		-h $(NATIVE_DIR)/ \
 		$(TOPDIR)/src/main/java/com/ibm/crypto/plus/provider/base/FastJNIBuffer.java \
 		$(JNI_CLASS)
 

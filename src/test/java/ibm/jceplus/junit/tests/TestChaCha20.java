@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Tag(Tags.OPENJCEPLUS_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
-@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusOnly")
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
 public class TestChaCha20 extends BaseTest implements ChaCha20Constants {
 
     @Parameter(0)

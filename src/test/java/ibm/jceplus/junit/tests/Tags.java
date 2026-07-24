@@ -14,15 +14,17 @@ package ibm.jceplus.junit.tests;
 public enum Tags {
 
     OPENJCEPLUS(TestProvider.OpenJCEPlus.getProviderName()),
+    OPENJCEPLUS_OPENSSL(TestProvider.OpenJCEPlus_OpenSSL.getProviderName()),
+    OPENJCEPLUS_OCK(TestProvider.OpenJCEPlus_OCK.getProviderName()),
     OPENJCEPLUS_FIPS(TestProvider.OpenJCEPlusFIPS.getProviderName()),
-    OPENJCEPLUS_MULTITHREAD("OpenJCEPlusMultithread"),
-    OPENJCEPLUS_FIPS_MULTITHREAD("OpenJCEPlusFIPSMultithread");
+    MULTITHREAD("Multithread");
 
     // Constants for tag names (can be used in annotations where compiler couldn't use a runtime method)
     public static final String OPENJCEPLUS_NAME = TestProvider.OPENJCEPLUS_NAME;
+    public static final String OPENJCEPLUS_OPENSSL_NAME = TestProvider.OPENJCEPLUS_OPENSSL_NAME;
+    public static final String OPENJCEPLUS_OCK_NAME = TestProvider.OPENJCEPLUS_OCK_NAME;
     public static final String OPENJCEPLUS_FIPS_NAME = TestProvider.OPENJCEPLUS_FIPS_NAME;
-    public static final String OPENJCEPLUS_MULTITHREAD_NAME = "OpenJCEPlusMultithread";
-    public static final String OPENJCEPLUS_FIPS_MULTITHREAD_NAME = "OpenJCEPlusFIPSMultithread";
+    public static final String MULTITHREAD_NAME = "Multithread";
 
     private final String tag;
 

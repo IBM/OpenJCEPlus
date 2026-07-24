@@ -10,6 +10,8 @@ package ibm.jceplus.junit.tests;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -19,42 +21,21 @@ import org.junit.jupiter.params.provider.Arguments;
 public class TestArguments {
 
     /**
-     * Generates test combinations for each AES key size with the active OpenJCEPlus* providers.
-     * 
-     * @return Stream of Arguments containing AES key sizes and OpenJCEPlus* providers
-     */ 
-    protected static Stream<Arguments> aesKeySizesAndJCEPlusProviders() {
-        int[] aesKeySizes = {128, 192, 256};
-        return keySizesAndJCEPlusProviders(aesKeySizes);
-    }
-
-    /**
-     * Generates test combinations for each RSA key size with the active OpenJCEPlus* providers.
-     *
-     * @return Stream of Arguments containing RSA key sizes and OpenJCEPlus* providers
-     */
-    protected static Stream<Arguments> rsaKeySizesAndJCEPlusProviders() {
-        int[] rsaKeySizes = {512, 1024, 2048, 3072, 4096};
-        return keySizesAndJCEPlusProviders(rsaKeySizes);
-    }
-
-    /**
-     * Generates test combinations for RSA key size with the active OpenJCEPlus* providers for multi-threading.
-     *
-     * @return Stream of Arguments containing RSA key size and OpenJCEPlus* providers
-     */
-    protected static Stream<Arguments> rsaMultithreadKeySizesAndProviders() {
-        int[] rsaKeySizes = {2048};
-        return keySizesAndJCEPlusProviders(rsaKeySizes);
-    }
-
-    /**
      * Generates combinations of OpenJCEPlus* providers with the SUN provider for interoperability testing.
      *
      * @return Stream of Arguments containing (JCEProviders, SUN) pairs
      */
-    protected static Stream<Arguments> getOpenJCEPlusWithSUNInteropProvider() {
-        return getOpenJCEPlusWithInteropProviders(TestProvider.SUN);
+    protected static Stream<Arguments> getOpenJCEPlusWithSUNInteropProvider(Set<String> providers) {
+        return getOpenJCEPlusWithInteropProviders(providers, TestProvider.SUN);
+    }
+
+    /**
+     * Generates combinations of OpenJCEPlus* providers with the SunJCE provider for interoperability testing.
+     *
+     * @return Stream of Arguments containing (JCEProviders, SunJCE) pairs
+     */
+    protected static Stream<Arguments> getOpenJCEPlusWithSunJCEInteropProvider(Set<String> providers) {
+        return getOpenJCEPlusWithInteropProviders(providers, TestProvider.SunJCE);
     }
 
     /**
@@ -63,81 +44,53 @@ public class TestArguments {
      *
      * @return Stream of Arguments containing (OpenJCEPlus, BC) pair
      */
-    protected static Stream<Arguments> getOpenJCEPlusOnlyWithBCInteropProvider() {
-        List<Arguments> arguments = new ArrayList<>();
-
-        for (TestProvider provider : getOpenJCEPlusOnly().toList()) {
-            arguments.add(Arguments.of(provider, TestProvider.BC));
-        }
-
-        return arguments.stream();
+    protected static Stream<Arguments> getOpenJCEPlusWithBCInteropProvider(Set<String> providers) {
+        return getOpenJCEPlusWithInteropProviders(providers, TestProvider.BC);
     }
 
-    /**
-     * Generates combination of only OpenJCEPlus (non-FIPS) provider
-     * with the SunJCE provider for interoperability testing.
-     *
-     * @return Stream of Arguments containing (OpenJCEPlus, SunJCE) pair
-     */
-    protected static Stream<Arguments> getOpenJCEPlusOnlyWithSunJCEInteropProvider() {
-        List<Arguments> arguments = new ArrayList<>();
-
-        for (TestProvider provider : getOpenJCEPlusOnly().toList()) {
-            arguments.add(Arguments.of(provider, TestProvider.SunJCE));
-        }
-
-        return arguments.stream();
-    }
-
-    /**
-     * Generates combinations of all key sizes and OpenJCEPlus* providers under test.
-     * 
-     * If no tags are found, all variations are returned.
-     * 
-     * @param keySizes Array of key sizes to combine with providers
-     * 
-     * @return Stream of Arguments containing key sizes and OpenJCEPlus* providers
-     */
-    private static Stream<Arguments> keySizesAndJCEPlusProviders(int[] keySizes) {
-
-        // Check if provider tags are present and build a list. Defaults to all providers.
-        List<TestProvider> activeProviders = getEnabledProviders().toList();
+    public static Stream<Arguments> keySizesAndProviders(Set<String> providers, List<Integer> keySizes) {
+        // Determine enabled providers.
+        List<TestProvider> enabledProviders = getEnabledProviders(providers).toList();
 
         // Generate all combinations of key sizes and providers determined above.
         List<Arguments> arguments = new ArrayList<>();
-        for (TestProvider provider : activeProviders) {
+        for (TestProvider provider : enabledProviders) {
             for (int keySize : keySizes) {
                 arguments.add(Arguments.of(keySize, provider));
             }
         }
 
         if (arguments.isEmpty()) {
-            throw new IllegalArgumentException("No test arguments, unlikey this is what was asked for.");
+            throw new IllegalArgumentException("No test arguments, unlikely this is what was asked for.");
         }
         return arguments.stream();
     }
 
     /**
-     * Resolves enabled OpenJCEPlus* providers from -Dgroups, defaulting to all when none are specified.
+     * Resolves enabled OpenJCEPlus* providers from -Dgroups, defaulting to all specified through tags, if none are specified.
      *
      * @return A stream of enabled TestProvider.
      */
-    protected static Stream<TestProvider> getEnabledProviders() {
+    protected static Stream<TestProvider> getEnabledProviders(Set<String> providers) {
 
         // Get active provider tags from -Dgroups system property
         String[] groupPropertyTags = BaseTest.getTagsPropertyAsArray();
 
         //retrieve enabled providers based on tags
-        List<TestProvider> enabledProviders = new ArrayList<>();
+        List<TestProvider> enabledProviders;
+        List<TestProvider> taggedProviders = providers.stream().map(pName -> TestProvider.valueOf(pName)).collect(Collectors.toList());
         if (groupPropertyTags.length == 0) {
-            enabledProviders.add(TestProvider.OpenJCEPlus);
-            enabledProviders.add(TestProvider.OpenJCEPlusFIPS);
+            enabledProviders = taggedProviders;
         } else {
+            enabledProviders = new ArrayList<>();
             for (String tag : groupPropertyTags) {
-                if (TestProvider.OpenJCEPlus.getProviderName().equalsIgnoreCase(tag)) {
-                    enabledProviders.add(TestProvider.OpenJCEPlus);
-                } else if (TestProvider.OpenJCEPlusFIPS.getProviderName().equalsIgnoreCase(tag)) {
-                    enabledProviders.add(TestProvider.OpenJCEPlusFIPS);
+                try {
+                    TestProvider tp = TestProvider.valueOf(tag);
+                    if (taggedProviders.contains(tp)) {
+                        enabledProviders.add(tp);
+                    }
+                } catch (IllegalArgumentException | NullPointerException e) {
+                    throw new IllegalStateException("The -Dgroup property values are incorrect", e);
                 }
             }
         }
@@ -150,8 +103,8 @@ public class TestArguments {
      * @param interopProvider The interoperability provider to combine with OpenJCEPlus* providers
      * @return Stream of Arguments containing (JCEProviders, interopProvider) pairs
      */
-    protected static Stream<Arguments> getOpenJCEPlusWithInteropProviders(TestProvider interopProvider) {
-        List<TestProvider> enabledProviders = getEnabledProviders().toList();
+    protected static Stream<Arguments> getOpenJCEPlusWithInteropProviders(Set<String> providers, TestProvider interopProvider) {
+        List<TestProvider> enabledProviders = getEnabledProviders(providers).toList();
 
         List<Arguments> arguments = new ArrayList<>();
         for (TestProvider jceProvider : enabledProviders) {
@@ -159,26 +112,5 @@ public class TestArguments {
         }
 
         return arguments.stream();
-    }
-
-    /**
-     * Resolves enabled OpenJCEPlus (non-FIPS) provider from -Dgroups, defaulting to OpenJCEPlus when none are specified.
-     *
-     * @return A stream of enabled TestProvider.
-     */
-    protected static Stream<TestProvider> getOpenJCEPlusOnly() {
-        String[] groupPropertyTags = BaseTest.getTagsPropertyAsArray();
-        if (groupPropertyTags.length == 0) {
-            return Stream.of(TestProvider.OpenJCEPlus);
-        }
-
-        List<TestProvider> enabledProviders = new ArrayList<>();
-        for (String tag : groupPropertyTags) {
-            if (TestProvider.OpenJCEPlus.getProviderName().equalsIgnoreCase(tag)) {
-                enabledProviders.add(TestProvider.OpenJCEPlus);
-            }
-        }
-
-        return enabledProviders.stream();
     }
 }

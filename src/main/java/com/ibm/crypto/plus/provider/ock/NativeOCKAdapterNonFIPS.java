@@ -16,6 +16,7 @@ public class NativeOCKAdapterNonFIPS extends NativeOCKAdapter {
     }
 
     public static NativeOCKAdapterNonFIPS getInstance() {
+        System.out.println("Using OCK non-FIPS adapter.");
         if (instance == null) {
             instance = new NativeOCKAdapterNonFIPS();
         }

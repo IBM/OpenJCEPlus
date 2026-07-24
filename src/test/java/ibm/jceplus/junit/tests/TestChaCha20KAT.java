@@ -31,7 +31,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 @Tag(Tags.OPENJCEPLUS_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
-@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusOnly")
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
 public class TestChaCha20KAT extends BaseTest {
 
     @Parameter(0)

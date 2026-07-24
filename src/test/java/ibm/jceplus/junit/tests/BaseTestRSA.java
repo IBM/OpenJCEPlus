@@ -296,7 +296,7 @@ public abstract class BaseTestRSA extends BaseTestCipher {
     @CsvSource({"NoPadding",
                 "PKCS1Padding",
                 "OAEPWithSHA1AndMGF1Padding",
-                "OAEPWithSHA-11AndMGF1Padding",
+                "OAEPWithSHA-1AndMGF1Padding",
     })
     public void testDisallowSHA1inFIPS_padding(String padding) throws Exception {
         assumeTrue("OpenJCEPlusFIPS".equals(getProviderName()));

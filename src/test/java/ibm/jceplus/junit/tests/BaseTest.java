@@ -8,8 +8,12 @@
 
 package ibm.jceplus.junit.tests;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlus;
+import ibm.jceplus.junit.tests.parameters.resolvers.ProviderListParameterResolver;
 import java.security.Provider;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ProviderListParameterResolver.class)
 abstract public class BaseTest {
 
     private String providerName;
@@ -52,6 +56,12 @@ abstract public class BaseTest {
             case OpenJCEPlus:
                 loadProvider(TestProvider.OpenJCEPlus);
                 break;
+            case OpenJCEPlus_OpenSSL:
+                loadProvider(TestProvider.OpenJCEPlus_OpenSSL);
+                break;
+            case OpenJCEPlus_OCK:
+                loadProvider(TestProvider.OpenJCEPlus_OCK);
+                break;
             case OpenJCEPlusFIPS:
                 loadProvider(TestProvider.OpenJCEPlusFIPS);
                 break;
@@ -63,10 +73,14 @@ abstract public class BaseTest {
     private static Provider loadProvider(TestProvider testProvider) throws Exception {
         String providerName = testProvider.getProviderName();
         String providerClassName = testProvider.getProviderClassName();
+        String providerConfigFile = testProvider.getConfigFile();
         
         Provider provider = java.security.Security.getProvider(providerName);
         if (provider == null) {
             provider = (Provider) Class.forName(providerClassName).getDeclaredConstructor().newInstance();
+            if ((providerConfigFile != null) && provider instanceof OpenJCEPlus ojpProvider) {
+                provider = ojpProvider.configure(providerConfigFile);
+            }
             java.security.Security.insertProviderAt(provider, 0);
         }
 

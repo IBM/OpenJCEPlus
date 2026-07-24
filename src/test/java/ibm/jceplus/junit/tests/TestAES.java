@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.tests;
 
+import ibm.jceplus.junit.tests.parameters.resolvers.AESKeySizeListParameterResolver;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -40,11 +42,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag(Tags.OPENJCEPLUS_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
-@Tag(Tags.OPENJCEPLUS_MULTITHREAD_NAME)
-@Tag(Tags.OPENJCEPLUS_FIPS_MULTITHREAD_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ExtendWith(AESKeySizeListParameterResolver.class)
 @ParameterizedClass
-@MethodSource("ibm.jceplus.junit.tests.TestArguments#aesKeySizesAndJCEPlusProviders")
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#keySizesAndProviders")
 public class TestAES extends BaseTestCipher {
 
     @Parameter(0)
@@ -1156,5 +1158,4 @@ public class TestAES extends BaseTestCipher {
 
         buffer.flip();
     }
-
 }

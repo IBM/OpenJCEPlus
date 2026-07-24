@@ -12,13 +12,16 @@ package ibm.jceplus.junit.tests;
  * Enumeration of security providers used through our various tests.
  */
 public enum TestProvider {
-    BC("BC", "org.bouncycastle.jce.provider.BouncyCastleProvider"),
-    SUN("SUN", null),
-    SunJCE("SunJCE", null),
-    SunRsaSign("SunRsaSign", null),
-    SunEC("SunEC", null),
-    OpenJCEPlus("OpenJCEPlus", "com.ibm.crypto.plus.provider.OpenJCEPlus"),
-    OpenJCEPlusFIPS("OpenJCEPlusFIPS", "com.ibm.crypto.plus.provider.OpenJCEPlusFIPS");
+    BC("BC", "org.bouncycastle.jce.provider.BouncyCastleProvider", null),
+    SUN("SUN", null, null),
+    SunJCE("SunJCE", null, null),
+    SunRsaSign("SunRsaSign", null, null),
+    SunEC("SunEC", null, null),
+    OpenJCEPlus("OpenJCEPlus", "com.ibm.crypto.plus.provider.OpenJCEPlus", null),
+    OpenJCEPlus_OpenSSL("OpenJCEPlus-OpenSSL", "com.ibm.crypto.plus.provider.OpenJCEPlus", "./src/test/OpenSSLOnly.config"),
+    OpenJCEPlus_OCK("OpenJCEPlus-OCK", "com.ibm.crypto.plus.provider.OpenJCEPlus", "./src/test/OCKOnly.config"),
+    OpenJCEPlusFIPS("OpenJCEPlusFIPS", "com.ibm.crypto.plus.provider.OpenJCEPlusFIPS", null);
+    
 
     // Constants for provider names (can be used in annotations where compiler couldn't use a runtime method)
     public static final String BC_NAME = "BC";
@@ -27,19 +30,23 @@ public enum TestProvider {
     public static final String SUNRSASIGN_NAME = "SunRsaSign";
     public static final String SUNEC_NAME = "SunEC";
     public static final String OPENJCEPLUS_NAME = "OpenJCEPlus";
-    public static final String OPENJCEPLUS_FIPS_NAME = "OpenJCEPlusFIPS";    
+    public static final String OPENJCEPLUS_OPENSSL_NAME = "OpenJCEPlus_OpenSSL";
+    public static final String OPENJCEPLUS_OCK_NAME = "OpenJCEPlus_OCK";
+    public static final String OPENJCEPLUS_FIPS_NAME = "OpenJCEPlusFIPS";
 
     private final String providerName;
     private final String providerClassName;
+    private final String configFile;
 
-    TestProvider(String providerName, String providerClassName) {
+    TestProvider(String providerName, String providerClassName, String configFile) {
         this.providerName = providerName;
         this.providerClassName = providerClassName;
+        this.configFile = configFile;
     }
 
     /**
      * Gets the provider name.
-     * 
+     *
      * @return the provider name
      */
     public String getProviderName() {
@@ -48,10 +55,19 @@ public enum TestProvider {
 
     /**
      * Gets the provider class name.
-     * 
+     *
      * @return the provider class name, or null
      */
     public String getProviderClassName() {
         return providerClassName;
+    }
+
+    /**
+     * Gets the config file associated with the provider.
+     *
+     * @return the config file path or null
+     */
+    public String getConfigFile() {
+        return configFile;
     }
 }

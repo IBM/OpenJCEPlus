@@ -11,7 +11,9 @@ package com.ibm.crypto.plus.provider.base;
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
 import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
+import com.ibm.crypto.plus.provider.openssl.NativeOpenSSLAdapterNonFIPS;
 import java.security.Provider;
+import java.security.ProviderException;
 import sun.security.util.Debug;
 
 /**
@@ -64,7 +66,11 @@ public class NativeCryptoSelector {
                 return ockBackend;
             }
         } else if (backend == Backend.OPENSSL) {
-            return opensslBackend;
+            if (isFIPS) {
+                throw new ProviderException("FIPS not supported through OpenSSL.");
+            } else {
+                return NativeOpenSSLAdapterNonFIPS.getInstance();
+            }
         }
         return null;
     }
