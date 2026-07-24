@@ -34,11 +34,17 @@ public final class RC4Cipher extends LegacyCipher {
     private SymmetricCipher symmetricCipher = null;
     private boolean encrypting = true;
     private boolean initialized = false;
+    private String configAlgName = "RC4";
 
     static private final int RC4_BLOCK_SIZE = 8;
 
-    public RC4Cipher(OpenJCEPlusProvider provider) {
+    //public RC4Cipher(OpenJCEPlusProvider provider) {
+    //    this.provider = provider;
+    //}
+
+    public RC4Cipher(OpenJCEPlusProvider provider, String configAlgName) {
         this.provider = provider;
+        this.configAlgName = configAlgName;
     }
 
     @Override
@@ -157,7 +163,7 @@ public final class RC4Cipher extends LegacyCipher {
 
         try {
             if (symmetricCipher == null) {
-                symmetricCipher = SymmetricCipher.getInstanceRC4(rawKey.length, provider);
+                symmetricCipher = SymmetricCipher.getInstanceRC4(rawKey.length, provider, configAlgName);
             }
 
             if (isEncrypt) {

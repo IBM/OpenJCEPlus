@@ -138,13 +138,16 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
 
     public AESGCMCipher(OpenJCEPlusProvider provider) {
         this.provider = provider;
-        this.gcmCipher = new GCMCipher(provider);
+
+        try {
+            this.gcmCipher = new GCMCipher(provider);
+        } catch (NativeException ne) {
+            throw provider.providerException("Failure in creating AESGCMCipher", ne);
+        }
 
         buffer = new byte[AES_BLOCK_SIZE * 2];
-
         this.provider.registerCleanable(this, cleanOCKResources(Key));
     }
-
 
     @Override
     protected byte[] engineDoFinal(byte[] input, int inputOffset, int inputLen)
