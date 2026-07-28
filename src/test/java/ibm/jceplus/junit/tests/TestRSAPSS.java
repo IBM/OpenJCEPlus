@@ -35,7 +35,9 @@ import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -397,6 +399,171 @@ public class TestRSAPSS extends BaseTest {
             e.printStackTrace();
             assertTrue(false);
         }
+    }
+
+    /**
+     * Each supported digest under every accepted spelling (canonical, no hyphen,
+     * lower/mixed case, underscore). Verifies that the name is normalized to the
+     * canonical name and that sign/verify works with the aliased parameters.
+     */
+    @ParameterizedTest
+    @CsvSource({
+        // alias,        canonical,     saltLength
+        "SHA-1,          SHA-1,         20",
+        "SHA1,           SHA-1,         20",
+        "SHA,            SHA-1,         20",
+        "sha-1,          SHA-1,         20",
+        "Sha1,           SHA-1,         20",
+        "SHA_1,          SHA-1,         20",
+        "SHA-224,        SHA-224,       28",
+        "SHA224,         SHA-224,       28",
+        "sha-224,        SHA-224,       28",
+        "SHA_224,        SHA-224,       28",
+        "SHA-256,        SHA-256,       32",
+        "SHA256,         SHA-256,       32",
+        "SHA2,           SHA-256,       32",
+        "sha-256,        SHA-256,       32",
+        "Sha256,         SHA-256,       32",
+        "SHA_256,        SHA-256,       32",
+        "SHA-384,        SHA-384,       48",
+        "SHA384,         SHA-384,       48",
+        "sha-384,        SHA-384,       48",
+        "SHA_384,        SHA-384,       48",
+        "SHA-512,        SHA-512,       64",
+        "SHA512,         SHA-512,       64",
+        "sha-512,        SHA-512,       64",
+        "SHA_512,        SHA-512,       64",
+        "SHA-512/224,    SHA-512/224,   28",
+        "SHA512/224,     SHA-512/224,   28",
+        "sha-512/224,    SHA-512/224,   28",
+        "SHA_512/224,    SHA-512/224,   28",
+        "SHA-512/256,    SHA-512/256,   32",
+        "SHA512/256,     SHA-512/256,   32",
+        "sha-512/256,    SHA-512/256,   32",
+        "SHA_512/256,    SHA-512/256,   32",
+        "SHA3-224,       SHA3-224,      28",
+        "sha3-224,       SHA3-224,      28",
+        "SHA3_224,       SHA3-224,      28",
+        "SHA3-256,       SHA3-256,      32",
+        "Sha3-256,       SHA3-256,      32",
+        "SHA3_256,       SHA3-256,      32",
+        "SHA3-384,       SHA3-384,      48",
+        "sha3-384,       SHA3-384,      48",
+        "SHA3_384,       SHA3-384,      48",
+        "SHA3-512,       SHA3-512,      64",
+        "sha3_512,       SHA3-512,      64",
+        "SHA3_512,       SHA3-512,      64"
+    })
+    public void testRSAPSSDigestAliases(String alias, String canonical, int saltLength)
+            throws Exception {
+        if (getProviderName().equals("OpenJCEPlusFIPS") && "SHA-1".equals(canonical)) {
+            // SHA-1 is not supported by OpenJCEPlusFIPS
+            return;
+        }
+
+        PSSParameterSpec spec = new PSSParameterSpec(alias, "MGF1",
+                new MGF1ParameterSpec(alias), saltLength, 1);
+
+        Signature sig = Signature.getInstance("RSASSA-PSS", getProviderName());
+        sig.setParameter(spec);
+        PSSParameterSpec got = sig.getParameters().getParameterSpec(PSSParameterSpec.class);
+        assertEquals(canonical, got.getDigestAlgorithm());
+        assertEquals(canonical, ((MGF1ParameterSpec) got.getMGFParameters()).getDigestAlgorithm());
+
+        dotestSignaturePSSParameterSpec(content, "RSASSA-PSS", 2048, spec);
+    }
+
+    /**
+     * The message digest and the MGF1 digest are given as different spellings of
+     * the same algorithm. They must be treated as matching.
+     */
+    @ParameterizedTest
+    @CsvSource({
+        // digest,       mgf1Digest,    canonical
+        "sha-256,        SHA256,        SHA-256",
+        "SHA2,           sha_256,       SHA-256",
+        "SHA_384,        sha-384,       SHA-384",
+        "Sha512,         SHA-512,       SHA-512",
+        "SHA512/224,     sha-512/224,   SHA-512/224",
+        "sha_512/256,    SHA-512/256,   SHA-512/256",
+        "SHA3-256,       sha3_256,      SHA3-256",
+        "sha3-512,       SHA3_512,      SHA3-512"
+    })
+    public void testRSAPSSDigestAndMGFDifferentSpelling(String digest, String mgf1Digest,
+            String canonical) throws Exception {
+        Signature sig = Signature.getInstance("RSASSA-PSS", getProviderName());
+        sig.setParameter(new PSSParameterSpec(digest, "MGF1",
+                new MGF1ParameterSpec(mgf1Digest), 32, 1));
+        PSSParameterSpec got = sig.getParameters().getParameterSpec(PSSParameterSpec.class);
+        assertEquals(canonical, got.getDigestAlgorithm());
+        assertEquals(canonical, ((MGF1ParameterSpec) got.getMGFParameters()).getDigestAlgorithm());
+    }
+
+    /**
+     * The message digest and the MGF1 digest are different algorithms, including
+     * pairs that share a digest length (SHA-256 vs SHA3-256). Must be rejected.
+     */
+    @ParameterizedTest
+    @CsvSource({
+        // digest,       mgf1Digest
+        "SHA-256,        SHA-384",
+        "sha256,         SHA-512",
+        "SHA3-256,       SHA3-384",
+        "SHA3-256,       SHA-256",
+        "sha3_512,       sha-512",
+        "SHA-512/256,    SHA-256",
+        "SHA-512/224,    SHA-224"
+    })
+    public void testRSAPSSDigestAndMGFMismatch(String digest, String mgf1Digest)
+            throws Exception {
+        Signature sig = Signature.getInstance("RSASSA-PSS", getProviderName());
+        PSSParameterSpec spec = new PSSParameterSpec(digest, "MGF1",
+                new MGF1ParameterSpec(mgf1Digest), 32, 1);
+        InvalidAlgorithmParameterException e = assertThrows(
+                InvalidAlgorithmParameterException.class, () -> sig.setParameter(spec));
+        assertTrue(e.getMessage().contains("does not match"), e.getMessage());
+    }
+
+    /**
+     * Ambiguous or unsupported digest names must be rejected.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"SHA3", "sha3", "SHA-3", "SHA5", "SHA-5", "SHA-2", "MD5", "md5",
+            "SHA3256", "NOT-A-DIGEST"})
+    public void testRSAPSSRejectedDigestNames(String name) throws Exception {
+        Signature sig = Signature.getInstance("RSASSA-PSS", getProviderName());
+        PSSParameterSpec spec = new PSSParameterSpec(name, "MGF1",
+                new MGF1ParameterSpec(name), 32, 1);
+        InvalidAlgorithmParameterException e = assertThrows(
+                InvalidAlgorithmParameterException.class, () -> sig.setParameter(spec));
+        assertTrue(e.getMessage().contains("Unsupported digest algorithm"), e.getMessage());
+    }
+
+    @Test
+    public void testSetParameterTakesEffect() throws Exception {
+        Signature sig = Signature.getInstance("RSASSA-PSS", getProviderName());
+        sig.setParameter(new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1));
+        sig.setParameter(new PSSParameterSpec("SHA3-256", "MGF1", MGF1ParameterSpec.SHA3_256, 32, 1));
+        PSSParameterSpec got = sig.getParameters().getParameterSpec(PSSParameterSpec.class);
+        assertEquals("SHA3-256", got.getDigestAlgorithm());
+    }
+
+    @Test
+    public void testNonCanonicalNameAfterInit() throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA", getProviderName());
+        kpg.initialize(2048);
+        KeyPair kp = kpg.generateKeyPair();
+        Signature sig = Signature.getInstance("RSASSA-PSS", getProviderName());
+        sig.setParameter(new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1));
+        sig.initSign(kp.getPrivate());
+        sig.setParameter(new PSSParameterSpec("sha3_256", "MGF1", new MGF1ParameterSpec("sha3_256"), 32, 1));
+        sig.update(content);
+        byte[] s = sig.sign();
+        Signature v = Signature.getInstance("RSASSA-PSS", "SunRsaSign");
+        v.setParameter(new PSSParameterSpec("SHA3-256", "MGF1", MGF1ParameterSpec.SHA3_256, 32, 1));
+        v.initVerify(kp.getPublic());
+        v.update(content);
+        assertTrue(v.verify(s));
     }
 
     /**

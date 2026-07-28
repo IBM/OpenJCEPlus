@@ -23,6 +23,8 @@ import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
@@ -109,6 +111,96 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
             e.printStackTrace();
             assertTrue(false);
         }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        // digest,       saltLength
+        "SHA-1,          20",
+        "SHA-224,        28",
+        "SHA-256,        32",
+        "SHA-384,        48",
+        "SHA-512,        64",
+        "SHA3-224,       28",
+        "SHA3-256,       32",
+        "SHA3-384,       48",
+        "SHA3-512,       64"
+    })
+    public void testRSAPSSInteropAllDigests(String digest, int saltLength) throws Exception {
+        if (getProviderName().equals("OpenJCEPlusFIPS") && "SHA-1".equals(digest)) {
+            // SHA-1 is not supported by OpenJCEPlusFIPS
+            return;
+        }
+        doRSAPSSInterop(digest, digest, saltLength);
+    }
+
+    /**
+     * OpenJCEPlus is given an alias or mixed-case name, the interop providers the
+     * standard name, since they do not necessarily accept OpenJCEPlus-specific
+     * aliases (e.g. SHA2).
+     */
+    @ParameterizedTest
+    @CsvSource({
+        // OpenJCEPlus name,  standard name,  saltLength
+        "SHA1,                SHA-1,          20",
+        "sha,                 SHA-1,          20",
+        "sha224,              SHA-224,        28",
+        "SHA2,                SHA-256,        32",
+        "Sha256,              SHA-256,        32",
+        "SHA_384,             SHA-384,        48",
+        "sha512,              SHA-512,        64",
+        "sha3-224,            SHA3-224,       28",
+        "SHA3_256,            SHA3-256,       32",
+        "Sha3-384,            SHA3-384,       48",
+        "sha3_512,            SHA3-512,       64"
+    })
+    public void testRSAPSSInteropAliases(String plusDigest, String standardDigest, int saltLength)
+            throws Exception {
+        if (getProviderName().equals("OpenJCEPlusFIPS") && "SHA-1".equals(standardDigest)) {
+            // SHA-1 is not supported by OpenJCEPlusFIPS
+            return;
+        }
+        doRSAPSSInterop(plusDigest, standardDigest, saltLength);
+    }
+
+    /**
+     * @param plusDigest  digest name given to OpenJCEPlus
+     * @param otherDigest digest name given to SunRsaSign and BC
+     */
+    private void doRSAPSSInterop(String plusDigest, String otherDigest, int saltLength)
+            throws Exception {
+        PSSParameterSpec plusSpec = new PSSParameterSpec(plusDigest, "MGF1",
+                new MGF1ParameterSpec(plusDigest), saltLength, 1);
+        PSSParameterSpec otherSpec = new PSSParameterSpec(otherDigest, "MGF1",
+                new MGF1ParameterSpec(otherDigest), saltLength, 1);
+
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
+        keyGen.initialize(2048, new java.security.SecureRandom());
+        KeyPair keyPair = keyGen.genKeyPair();
+
+        /*
+         * OpenJCEPlus sign -> SunRsaSign verify
+         */
+        dotestSignature(content, JCEPlus_ALG, SunJCE_ALG, keyPair, plusSpec, otherSpec,
+                getProviderName(), getInteropProviderName());
+
+        /*
+         * SunRsaSign sign -> OpenJCEPlus verify
+         */
+        dotestSignature(content, SunJCE_ALG, JCEPlus_ALG, keyPair, otherSpec, plusSpec,
+                getInteropProviderName(), getProviderName());
+
+        /*
+         * OpenJCEPlus sign -> BC verify
+         */
+        dotestSignature(content, JCEPlus_ALG, SunJCE_ALG, keyPair, plusSpec, otherSpec,
+                getProviderName(), getInteropProviderName2());
+
+        /*
+         * BC sign -> OpenJCEPlus verify
+         */
+        dotestSignature(content, SunJCE_ALG, JCEPlus_ALG, keyPair, otherSpec, plusSpec,
+                getInteropProviderName2(), getProviderName());
     }
 
     /**
@@ -542,6 +634,31 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
         boolean signatureVerified = sigB.verify(sigBytes);
 
         assertTrue(signatureVerified, "signature is invalid!!");
+    }
+
+    /**
+     * Same as dotestSignature(content, algorithmA, algorithmB, keyPair, pssParameterSpec,
+     * providerA, providerB), but the signing and verifying sides are given their own
+     * PSSParameterSpec, so each provider can be given its own spelling of the digest name.
+     */
+    protected void dotestSignature(byte[] content, String algorithmA, String algorithmB,
+            KeyPair keyPair, PSSParameterSpec pssParameterSpecA,
+            PSSParameterSpec pssParameterSpecB, String providerA, String providerB)
+            throws Exception {
+        Signature sigA = Signature.getInstance(algorithmA, providerA);
+        sigA.setParameter(pssParameterSpecA);
+        sigA.initSign(keyPair.getPrivate());
+        sigA.update(content);
+        byte[] sigBytes = sigA.sign();
+
+        Signature sigB = Signature.getInstance(algorithmB, providerB);
+        sigB.setParameter(pssParameterSpecB);
+        sigB.initVerify(keyPair.getPublic());
+        sigB.update(content);
+
+        assertTrue(sigB.verify(sigBytes), "signature is invalid!! " + providerA + " ("
+                + pssParameterSpecA.getDigestAlgorithm() + ") -> " + providerB + " ("
+                + pssParameterSpecB.getDigestAlgorithm() + ")");
     }
 
     /**
