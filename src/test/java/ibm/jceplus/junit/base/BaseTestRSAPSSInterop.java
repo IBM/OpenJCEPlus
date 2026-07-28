@@ -10,6 +10,7 @@
 
 package ibm.jceplus.junit.base;
 
+import ibm.jceplus.junit.openjceplus.Utils;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -22,6 +23,7 @@ import java.security.SignatureException;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -99,6 +101,11 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
     final int NONDEFAULT_PARAMS = 2;
     final int PARAMS_SALT40 = 3;
 
+    @BeforeEach
+    public void setUp() throws Exception {
+        setInteropProviderName2(Utils.PROVIDER_BC);
+    }
+
     @Test
     public void testRSASignatureWithPSS_SHA1() throws Exception {
         try {
@@ -109,6 +116,51 @@ public class BaseTestRSAPSSInterop extends BaseTestJunit5Interop {
             e.printStackTrace();
             assertTrue(false);
         }
+    }
+
+    @Test
+    public void testRSAPSSSHA3InteropWithBCAndOpenJDK() throws Exception {
+        doRSAPSSSHA3Interop("SHA3-224", 28);
+        doRSAPSSSHA3Interop("SHA3-256", 32);
+        doRSAPSSSHA3Interop("SHA3-384", 48);
+        doRSAPSSSHA3Interop("SHA3-512", 64);
+    }
+
+    private void doRSAPSSSHA3Interop(String digestName, int saltLength) throws Exception {
+        PSSParameterSpec pssParameterSpec = new PSSParameterSpec(
+                digestName,
+                "MGF1",
+                new MGF1ParameterSpec(digestName),
+                saltLength,
+                1);
+
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
+        keyGen.initialize(2048, new java.security.SecureRandom());
+        KeyPair keyPair = keyGen.genKeyPair();
+
+        /*
+        * OpenJCEPlus sign -> SunRsaSign verify
+        */
+        dotestSignature(content, JCEPlus_ALG, SunJCE_ALG, keyPair, pssParameterSpec,
+                getProviderName(), getInteropProviderName());
+
+        /*
+        * SunRsaSign sign -> OpenJCEPlus verify
+        */
+        dotestSignature(content, SunJCE_ALG, JCEPlus_ALG, keyPair, pssParameterSpec,
+                getInteropProviderName(), getProviderName());
+
+        /*
+        * OpenJCEPlus sign -> BC verify
+        */
+        dotestSignature(content, JCEPlus_ALG, SunJCE_ALG, keyPair, pssParameterSpec,
+                getProviderName(), getInteropProviderName2());
+
+        /*
+        * BC sign -> OpenJCEPlus verify
+        */
+        dotestSignature(content, SunJCE_ALG, JCEPlus_ALG, keyPair, pssParameterSpec,
+                getInteropProviderName2(), getProviderName());
     }
 
     /**
