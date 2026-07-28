@@ -379,6 +379,74 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
         }
     }
 
+    @Test
+    public void testRSAPSSSHA3224() throws Exception {
+        dotestSignaturePSSParameterSpec(content, "RSASSA-PSS", 2048,
+                new PSSParameterSpec("SHA3-224", "MGF1",
+                        new MGF1ParameterSpec("SHA3-224"), 28, 1));
+    }
+
+    @Test
+    public void testRSAPSSSHA3256() throws Exception {
+        dotestSignaturePSSParameterSpec(content, "RSASSA-PSS", 2048,
+                new PSSParameterSpec("SHA3-256", "MGF1",
+                        new MGF1ParameterSpec("SHA3-256"), 32, 1));
+    }
+
+    @Test
+    public void testRSAPSSSHA3384() throws Exception {
+        dotestSignaturePSSParameterSpec(content, "RSASSA-PSS", 2048,
+                new PSSParameterSpec("SHA3-384", "MGF1",
+                        new MGF1ParameterSpec("SHA3-384"), 48, 1));
+    }
+
+    @Test
+    public void testRSAPSSSHA3512() throws Exception {
+        dotestSignaturePSSParameterSpec(content, "RSASSA-PSS", 2048,
+                new PSSParameterSpec("SHA3-512", "MGF1",
+                        new MGF1ParameterSpec("SHA3-512"), 64, 1));
+    }
+
+    @Test
+    public void testRSAPSSSHA3DifferentMGFDigest() throws Exception {
+        Signature sig = Signature.getInstance("RSASSA-PSS", getProviderName());
+
+        PSSParameterSpec spec = new PSSParameterSpec(
+                "SHA3-256",
+                "MGF1",
+                new MGF1ParameterSpec("SHA3-384"),
+                32,
+                1);
+
+        try {
+            sig.setParameter(spec);
+            fail("Expected InvalidAlgorithmParameterException not thrown");
+        } catch (InvalidAlgorithmParameterException iape) {
+            assertEquals(
+                    "The message digest within the PSSParameterSpec does not match the MGF message digest.",
+                    iape.getMessage());
+        }
+    }
+
+    @Test
+    public void testRSAPSSAmbiguousSHA3() throws Exception {
+        Signature sig = Signature.getInstance("RSASSA-PSS", getProviderName());
+
+        PSSParameterSpec spec = new PSSParameterSpec(
+                "SHA3",
+                "MGF1",
+                new MGF1ParameterSpec("SHA3"),
+                32,
+                1);
+
+        try {
+            sig.setParameter(spec);
+            fail("Expected InvalidAlgorithmParameterException not thrown");
+        } catch (InvalidAlgorithmParameterException iape) {
+            assertTrue(iape.getMessage().contains("Unsupported digest algorithm"));
+        }
+    }
+
     /**
      * Helper method
      * @param content
