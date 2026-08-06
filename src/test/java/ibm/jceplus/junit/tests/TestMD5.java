@@ -10,12 +10,15 @@ package ibm.jceplus.junit.tests;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -150,81 +153,27 @@ public class TestMD5 extends BaseTestMessageDigest {
 
     }
 
-    @Test
-    public void testMD5_A() throws Exception {
-
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, md5_A), "Digest did not match expected");
-
+    static Stream<Arguments> md5VectorProvider() {
+        return Stream.of(
+                Arguments.of("MD5_A", (Object) null, md5_A),
+                Arguments.of("MD5_B", md5_B_input, md5_B),
+                Arguments.of("MD5_C", md5_C_input, md5_C),
+                Arguments.of("MD5_D", md5_D_input, md5_D),
+                Arguments.of("MD5_E", md5_E_input, md5_E),
+                Arguments.of("MD5_F", md5_F_input, md5_F),
+                Arguments.of("MD5_G", md5_G_input, md5_G));
     }
 
-    @Test
-    public void testMD5_B() throws Exception {
-
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource("md5VectorProvider")
+    public void testMD5_RFCVectors(String name, byte[] input, byte[] expected) throws Exception {
         MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(md5_B_input);
+        if (input != null) {
+            md.update(input);
+        }
         byte[] result = md.digest();
 
-        assertTrue(Arrays.equals(result, md5_B), "Digest did not match expected");
+        assertTrue(Arrays.equals(result, expected), "Digest did not match expected for input: " + name);
 
     }
-
-    @Test
-    public void testMD5_C() throws Exception {
-
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(md5_C_input);
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, md5_C), "Digest did not match expected");
-
-    }
-
-    @Test
-    public void testMD5_D() throws Exception {
-
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(md5_D_input);
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, md5_D), "Digest did not match expected");
-
-    }
-
-    @Test
-    public void testMD5_E() throws Exception {
-
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(md5_E_input);
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, md5_E), "Digest did not match expected");
-
-    }
-
-    @Test
-    public void testMD5_F() throws Exception {
-
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(md5_F_input);
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, md5_F), "Digest did not match expected");
-
-    }
-
-    @Test
-    public void testMD5_G() throws Exception {
-
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(md5_G_input);
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, md5_G), "Digest did not match expected");
-
-    }
-
 }
-
