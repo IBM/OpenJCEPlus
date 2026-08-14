@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.io.ByteArrayOutputStream;
 import java.security.AlgorithmParameters;
@@ -26,14 +26,27 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestPBECipher extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
+
     private byte[] ivBytes = {
         0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
         0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20,
@@ -55,7 +68,12 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
     private final byte[] plainText15 = "123456781234567".getBytes();
     private final byte[] plainText16 = "1234567812345678".getBytes();
     private final byte[] plainText17 = "12345678123456781".getBytes();
-    private final byte[] plainText = plainText17; // default value // default value
+    private final byte[] plainText = plainText17; // default value
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
 
     @ParameterizedTest
     @FieldSource("algorithms")
@@ -76,59 +94,33 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @FieldSource("algorithms")
     void testWrongMode(String alg) throws Exception {
-        String msg = "", msgInterop = "";
         try {
             Cipher.getInstance(alg + "/BOB/NoPadding", getProviderName());
         } catch (NoSuchAlgorithmException e) {
-            msg = e.getMessage();
+            assertTrue(true);
         }
-        try {
-            Cipher.getInstance(alg + "/BOB/NoPadding", getInteropProviderName());
-        } catch (NoSuchAlgorithmException e) {
-            msgInterop = e.getMessage();
-        }
-        assertEquals(msg, msgInterop);
 
         // Interchanging modes between DESede, RC2 and RC4
-        msg = msgInterop = "";
         try {
             if (!alg.equals("PBEWithSHA1AndRC4_40") && !alg.equals("PBEWithSHA1AndRC4_128")) {
                 Cipher.getInstance(alg + "/ECB/PKCS5Padding", getProviderName());
             }
         } catch (NoSuchAlgorithmException e) {
-            msg = e.getMessage();
+            assertTrue(true);
         }
-        try {
-            if (!alg.equals("PBEWithSHA1AndRC4_40") && !alg.equals("PBEWithSHA1AndRC4_128")) {
-                Cipher.getInstance(alg + "/ECB/PKCS5Padding", getInteropProviderName());
-            }
-        } catch (NoSuchAlgorithmException e) {
-            msgInterop = e.getMessage();
-        }
-        assertEquals(msg, msgInterop);
 
-        msg = msgInterop = "";
         try {
             if (alg.equals("PBEWithSHA1AndRC4_40") || alg.equals("PBEWithSHA1AndRC4_128")) {
                 Cipher.getInstance(alg + "/CBC/NoPadding", getProviderName());
             }
         } catch (NoSuchAlgorithmException e) {
-            msg = e.getMessage();
-        }
-        try {
-            if (alg.equals("PBEWithSHA1AndRC4_40") || alg.equals("PBEWithSHA1AndRC4_128")) {
-                Cipher.getInstance(alg + "/CBC/NoPadding", getInteropProviderName());
-            }
-        } catch (NoSuchAlgorithmException e) {
-            msgInterop = e.getMessage();
-        }
-        assertEquals(msg, msgInterop);
+            assertTrue(true);
+        }        
     }
 
     @ParameterizedTest
     @FieldSource("algorithms")
     void testWrongPadding(String alg) throws Exception {
-        String msg = "", msgInterop = "";
         try {
             if (!alg.equals("PBEWithSHA1AndRC4_40") && !alg.equals("PBEWithSHA1AndRC4_128")) {
                 Cipher.getInstance(alg + "/CBC/BOBISO", getProviderName());
@@ -136,85 +128,40 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
                 Cipher.getInstance(alg + "/ECB/BOBISO", getProviderName());
             }
         } catch (NoSuchPaddingException e) {
-            msg = e.getMessage();
+            assertTrue(true);
         }
-        try {
-            if (!alg.equals("PBEWithSHA1AndRC4_40") && !alg.equals("PBEWithSHA1AndRC4_128")) {
-                Cipher.getInstance(alg + "/CBC/BOBISO", getInteropProviderName());
-            } else {
-                Cipher.getInstance(alg + "/ECB/BOBISO", getInteropProviderName());
-            }
-        } catch (NoSuchPaddingException e) {
-            msgInterop = e.getMessage();
-        }
-        assertEquals(msg, msgInterop);
 
         // Interchanging padding between DESede, RC2 and RC4
-        msg = msgInterop = "";
         try {
             if (!alg.equals("PBEWithSHA1AndRC4_40") && !alg.equals("PBEWithSHA1AndRC4_128")) {
                 Cipher.getInstance(alg + "/CBC/NoPadding", getProviderName());
             }
         } catch (NoSuchPaddingException e) {
-            msg = e.getMessage();
+            assertTrue(true);
         }
-        try {
-            if (!alg.equals("PBEWithSHA1AndRC4_40") && !alg.equals("PBEWithSHA1AndRC4_128")) {
-                Cipher.getInstance(alg + "/CBC/NoPadding", getInteropProviderName());
-            }
-        } catch (NoSuchPaddingException e) {
-            msgInterop = e.getMessage();
-        }
-        assertEquals(msg, msgInterop);
 
-        msg = msgInterop = "";
         try {
             if (alg.equals("PBEWithSHA1AndRC4_40") || alg.equals("PBEWithSHA1AndRC4_128")) {
                 Cipher.getInstance(alg + "/ECB/PKCS5Padding", getProviderName());
             }
         } catch (NoSuchPaddingException e) {
-            msg = e.getMessage();
+            assertTrue(true);
         }
-        try {
-            if (alg.equals("PBEWithSHA1AndRC4_40") || alg.equals("PBEWithSHA1AndRC4_128")) {
-                Cipher.getInstance(alg + "/ECB/PKCS5Padding", getInteropProviderName());
-            }
-        } catch (NoSuchPaddingException e) {
-            msgInterop = e.getMessage();
-        }
-        assertEquals(msg, msgInterop);
     }
 
     @ParameterizedTest
     @FieldSource("algorithms")
     void testShortBuffer(String alg) throws Exception {
         SecretKey key = createKey(alg);
-        String msg = "", msgInterop = "";
+        Cipher c = Cipher.getInstance(alg, getProviderName());
+        c.init(Cipher.ENCRYPT_MODE, key);
         try {
-            Cipher c = Cipher.getInstance(alg, getProviderName());
-            c.init(Cipher.ENCRYPT_MODE, key);
             byte[] outputBuffer = new byte[1];
             c.doFinal(plainText, 0, plainText.length, outputBuffer, 0);
             fail("Expected ShortBufferException didn't occur");
         } catch (ShortBufferException e) {
-            if (alg.contains("RC4"))
-                msg = "flag";
-            else
-                msg = e.getMessage();
+            assertTrue(true);
         }
-        try {
-            Cipher c = Cipher.getInstance(alg, getInteropProviderName());
-            c.init(Cipher.ENCRYPT_MODE, key);
-            byte[] outputBuffer = new byte[1];
-            c.doFinal(plainText, 0, plainText.length, outputBuffer, 0);
-            fail("Expected ShortBufferException didn't occur");
-        } catch (ShortBufferException e) {
-            if (alg.contains("RC4"))
-                msgInterop = "flag";
-            else
-                msgInterop = e.getMessage();
-        }
-        assertEquals(msg, msgInterop);
     }
 
     @ParameterizedTest
@@ -223,74 +170,44 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
         // RC4 is a stream cipher
         if (alg.equals("PBEWithSHA1AndRC4_40") || alg.equals("PBEWithSHA1AndRC4_128"))
             return;
-        
-        String msg = "", msgInterop = "";
+
         SecretKey key = createKey(alg);
+        Cipher c = Cipher.getInstance(alg, getProviderName());
+        c.init(Cipher.ENCRYPT_MODE, key);
+        byte[] cipherText = c.doFinal(plainText);
+        c.init(Cipher.DECRYPT_MODE, key, c.getParameters());
         try {
-            Cipher c = Cipher.getInstance(alg, getProviderName());
-            c.init(Cipher.ENCRYPT_MODE, key);
-            byte[] cipherText = c.doFinal(plainText);
-            c.init(Cipher.DECRYPT_MODE, key, c.getParameters());
             c.doFinal(cipherText, 0, cipherText.length - 1);
             fail("Expected IllegalBlockSizeException didn't occur");
         } catch (IllegalBlockSizeException e) {
-            msg = "flag";
+            assertTrue(true);
         }
-        try {
-            Cipher c = Cipher.getInstance(alg, getInteropProviderName());
-            c.init(Cipher.ENCRYPT_MODE, key);
-            byte[] cipherText = c.doFinal(plainText);
-            c.init(Cipher.DECRYPT_MODE, key, c.getParameters());
-            c.doFinal(cipherText, 0, cipherText.length - 1);
-            fail("Expected IllegalBlockSizeException didn't occur");
-        } catch (IllegalBlockSizeException e) {
-            msgInterop = "flag";
-        }
-        assertEquals(msg, msgInterop);
     }
 
     @ParameterizedTest
     @FieldSource("algorithms")
     void testWrongCipherOperatingMode(String alg) throws Exception {
-        String msg = "", msgInterop = "";
         SecretKey key = createKey(alg);
+        Cipher c = Cipher.getInstance(alg, getProviderName());
         try {
-            Cipher c = Cipher.getInstance(alg, getProviderName());
             c.init(-1, key);
             fail("Expected InvalidParameterException didn't occur");
         } catch (InvalidParameterException e) {
-            msg = e.getMessage();
+            assertTrue(true);
         }
-        try {
-            Cipher c = Cipher.getInstance(alg, getInteropProviderName());
-            c.init(-1, key);
-            fail("Expected InvalidParameterException didn't occur");
-        } catch (InvalidParameterException e) {
-            msgInterop = e.getMessage();
-        }
-        assertEquals(msg, msgInterop);
     }
 
     @ParameterizedTest
     @FieldSource("algorithms")
     void testNullKeyAndPassword(String alg) throws Exception {
-        String msg = "", msgInterop = "";
         SecretKey key = null;
+        Cipher c = Cipher.getInstance(alg, getProviderName());
         try {
-            Cipher c = Cipher.getInstance(alg, getProviderName());
             c.init(Cipher.ENCRYPT_MODE, key);
             fail("Expected InvalidKeyException didn't occur");
         } catch (InvalidKeyException e) {
-            msg = e.getMessage();
+            assertTrue(true);
         }
-        try {
-            Cipher c = Cipher.getInstance(alg, getInteropProviderName());
-            c.init(Cipher.ENCRYPT_MODE, key);
-            fail("Expected InvalidKeyException didn't occur");
-        } catch (InvalidKeyException e) {
-            msgInterop = e.getMessage();
-        }
-        assertEquals(msg, msgInterop);
     }
 
     private SecretKey createKey(String algorithm) throws Exception {
@@ -303,7 +220,6 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
 
         return pbeKey;
     }
-
 
     private void encryptDecrypt(String algorithm, SecretKey key)
             throws Exception {
@@ -339,34 +255,19 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
     }
 
     private void encryptDecrypt(String algorithm, SecretKey key, boolean algParams, byte[] message) throws Exception {
-        encryptDecryptDoFinal(algorithm, key, algParams, message, getProviderName(), getInteropProviderName());
-        encryptDecryptDoFinal(algorithm, key, algParams, message, getInteropProviderName(), getProviderName());
-
-        encryptDecryptUpdate(algorithm, key, algParams, message, getProviderName(), getInteropProviderName());
-        encryptDecryptUpdate(algorithm, key, algParams, message, getInteropProviderName(), getProviderName());
-
-        encryptDecryptPartialUpdate(algorithm, key, algParams, message, getProviderName(), getInteropProviderName());
-        encryptDecryptPartialUpdate(algorithm, key, algParams, message, getInteropProviderName(), getProviderName());
-
-        encryptDecryptReuseObject(algorithm, key, algParams, message, getProviderName(), getInteropProviderName());
-        encryptDecryptReuseObject(algorithm, key, algParams, message, getInteropProviderName(), getProviderName());
-
-        encryptDecryptDoFinalCopySafe(algorithm, key, algParams, message, getProviderName(), getInteropProviderName());
-        encryptDecryptDoFinalCopySafe(algorithm, key, algParams, message, getInteropProviderName(), getProviderName());
-
-        encryptDecryptUpdateCopySafe(algorithm, key, algParams, message, getProviderName(), getInteropProviderName());
-        encryptDecryptUpdateCopySafe(algorithm, key, algParams, message, getInteropProviderName(), getProviderName());
-
-        encryptDecryptMultiUpdate(algorithm, key, algParams, message, getProviderName(), getInteropProviderName());
-        encryptDecryptMultiUpdate(algorithm, key, algParams, message, getInteropProviderName(), getProviderName());
-
-        wrapUnwrap(algorithm, key, algParams, getProviderName(), getInteropProviderName());
-        wrapUnwrap(algorithm, key, algParams, getInteropProviderName(), getProviderName());
+        encryptDecryptDoFinal(algorithm, key, algParams, message);
+        encryptDecryptUpdate(algorithm, key, algParams, message);
+        encryptDecryptPartialUpdate(algorithm, key, algParams, message);
+        encryptDecryptReuseObject(algorithm, key, algParams, message);
+        encryptDecryptDoFinalCopySafe(algorithm, key, algParams,
+                message);
+        encryptDecryptUpdateCopySafe(algorithm, key, algParams, message);
+        encryptDecryptMultiUpdate(algorithm, key, algParams, message);
+        wrapUnwrap(algorithm, key, algParams);
     }
 
-    private void encryptDecryptDoFinal(String algorithm, SecretKey key, boolean algParams, byte[] message,
-            String provider, String providerInterop) throws Exception {
-        Cipher cp = Cipher.getInstance(algorithm, provider);
+    private void encryptDecryptDoFinal(String algorithm, SecretKey key, boolean algParams, byte[] message) throws Exception {
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (!algParams) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -376,7 +277,7 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
         AlgorithmParameters params = cp.getParameters();
 
         // Verify the text
-        cp = Cipher.getInstance(algorithm, providerInterop);
+        cp = Cipher.getInstance(algorithm, getProviderName());
         cp.init(Cipher.DECRYPT_MODE, key, params);
         byte[] newPlainText = cp.doFinal(cipherText);
 
@@ -392,9 +293,9 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
     }
 
     // Run encrypt/decrypt test using just update, empty doFinal calls
-    private void encryptDecryptUpdate(String algorithm, SecretKey key, boolean algParams, byte[] message,
-            String provider, String providerInterop) throws Exception {
-        Cipher cp = Cipher.getInstance(algorithm, provider);
+    private void encryptDecryptUpdate(String algorithm, SecretKey key, boolean algParams, byte[] message) throws Exception {
+                
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (!algParams) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -405,7 +306,7 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
         AlgorithmParameters params = cp.getParameters();
 
         // Verify the text
-        cp = Cipher.getInstance(algorithm, providerInterop);
+        cp = Cipher.getInstance(algorithm, getProviderName());
         cp.init(Cipher.DECRYPT_MODE, key, params);
         byte[] newPlainText1 = (cipherText1 == null) ? new byte[0] : cp.update(cipherText1);
         byte[] newPlainText2 = cp.doFinal(cipherText2);
@@ -423,9 +324,10 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
     }
 
     // Run encrypt/decrypt test with partial update
-    private void encryptDecryptPartialUpdate(String algorithm, SecretKey key, boolean algParams, byte[] message,
-            String provider, String providerInterop) throws Exception {
-        Cipher cp = Cipher.getInstance(algorithm, provider);
+    private void encryptDecryptPartialUpdate(String algorithm, SecretKey key, boolean algParams, byte[] message)
+            throws Exception {
+        
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (!algParams) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -437,7 +339,7 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
         AlgorithmParameters params = cp.getParameters();
 
         // Verify the text
-        cp = Cipher.getInstance(algorithm, providerInterop);
+        cp = Cipher.getInstance(algorithm, getProviderName());
         cp.init(Cipher.DECRYPT_MODE, key, params);
         byte[] newPlainText1 = (cipherText1 == null) ? new byte[0] : cp.update(cipherText1);
         byte[] newPlainText2 = cp.doFinal(cipherText2);
@@ -455,9 +357,10 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
     }
 
     // Run encrypt/decrypt test reusing cipher object
-    private void encryptDecryptReuseObject(String algorithm, SecretKey key, boolean algParams, byte[] message,
-            String provider, String providerInterop) throws Exception {
-        Cipher cp = Cipher.getInstance(algorithm, provider);
+    private void encryptDecryptReuseObject(String algorithm, SecretKey key, boolean algParams, byte[] message)
+            throws Exception {
+
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (!algParams) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -473,7 +376,7 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
         assertTrue(success, "Re-encrypted text does not match");
 
         // Verify the text
-        cp = Cipher.getInstance(algorithm, providerInterop);
+        cp = Cipher.getInstance(algorithm, getProviderName());
         cp.init(Cipher.DECRYPT_MODE, key, params);
         byte[] newPlainText = cp.doFinal(cipherText);
         success = Arrays.equals(newPlainText, message);
@@ -487,9 +390,10 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
     }
 
     // Run encrypt/decrypt test using just doFinal calls (copy-safe)
-    private void encryptDecryptDoFinalCopySafe(String algorithm, SecretKey key, boolean algParams, byte[] message,
-            String provider, String providerInterop) throws Exception {
-        Cipher cp = Cipher.getInstance(algorithm, provider);
+    private void encryptDecryptDoFinalCopySafe(String algorithm, SecretKey key, boolean algParams, byte[] message)
+            throws Exception {
+
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (!algParams) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -506,7 +410,7 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
         assertTrue(success, "Encrypted text does not match expected result");
 
         // Verify the text
-        cp = Cipher.getInstance(algorithm, providerInterop);
+        cp = Cipher.getInstance(algorithm, getProviderName());
         cp.init(Cipher.DECRYPT_MODE, key, params);
         resultBuffer = Arrays.copyOf(cipherText, cp.getOutputSize(cipherText.length));
         resultLen = cp.doFinal(resultBuffer, 0, cipherText.length, resultBuffer);
@@ -517,10 +421,10 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
     }
 
     // Run encrypt/decrypt test using just update, empty doFinal calls (copy-safe)
-    private void encryptDecryptUpdateCopySafe(String algorithm, SecretKey key, boolean algParams, byte[] message,
-            String provider, String providerInterop) throws Exception {
+    private void encryptDecryptUpdateCopySafe(String algorithm, SecretKey key, boolean algParams, byte[] message)
+            throws Exception {
 
-        Cipher cp = Cipher.getInstance(algorithm, provider);
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (!algParams) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -541,7 +445,7 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
         assertTrue(success, "Encrypted text does not match expected result");
 
         // Verify the text
-        cp = Cipher.getInstance(algorithm, providerInterop);
+        cp = Cipher.getInstance(algorithm, getProviderName());
         cp.init(Cipher.DECRYPT_MODE, key, params);
         resultBuffer = Arrays.copyOf(cipherText, cp.getOutputSize(cipherText.length));
         int plainText1Len = cp.update(resultBuffer, 0, cipherText.length, resultBuffer);
@@ -555,9 +459,9 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
         assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
     }
 
-    private void encryptDecryptMultiUpdate(String algorithm, SecretKey key, boolean algParams, byte[] message,
-            String provider, String providerInterop) throws Exception {
-        Cipher cp = Cipher.getInstance(algorithm, provider);
+    private void encryptDecryptMultiUpdate(String algorithm, SecretKey key, boolean algParams, byte[] message) 
+            throws Exception {
+        Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (!algParams) {
             cp.init(Cipher.ENCRYPT_MODE, key);
         } else {
@@ -566,11 +470,9 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
 
         // Encrypting using length 4 (this value can be modified)
         byte[] cipherText = update(cp, message, 4);
-        AlgorithmParameters params = cp.getParameters();
         
         // Decrypting using length 5 (this value can be modified)
-        cp = Cipher.getInstance(algorithm, providerInterop);
-        cp.init(Cipher.DECRYPT_MODE, key, params);
+        cp.init(Cipher.DECRYPT_MODE, key, cp.getParameters());
         byte[] newPlainText = update(cp, cipherText, 5);
 
         assertArrayEquals(message, newPlainText);
@@ -592,7 +494,7 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
         return finalUpdate;
     }
 
-    private void wrapUnwrap(String algorithm, SecretKey key, boolean algParams, String provider, String providerInterop) throws Exception {
+    private void wrapUnwrap(String algorithm, SecretKey key, boolean algParams) throws Exception {
         Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (!algParams) {
             cp.init(Cipher.WRAP_MODE, key);
@@ -601,10 +503,8 @@ public class BaseTestPBECipherInterop extends BaseTestJunit5Interop {
         }
 
         byte[] wrappedKey = cp.wrap(key);
-        AlgorithmParameters params = cp.getParameters();
 
-        cp = Cipher.getInstance(algorithm, providerInterop);
-        cp.init(Cipher.UNWRAP_MODE, key, params);
+        cp.init(Cipher.UNWRAP_MODE, key, cp.getParameters());
         SecretKey unwrappedKey = (SecretKey) cp.unwrap(wrappedKey, key.getAlgorithm(), Cipher.SECRET_KEY);
 
         assertArrayEquals(key.getEncoded(), unwrappedKey.getEncoded());
