@@ -108,10 +108,10 @@ public class BaseTestXDH extends BaseTestJunit5 {
     @Test
     public void test_engineGenerateSecret() throws Exception {
         try {
-            KeyPairGenerator g = KeyPairGenerator.getInstance("DH", getProviderName());
+            KeyPairGenerator g = KeyPairGenerator.getInstance("XDH", getProviderName());
             KeyPair kp1 = g.generateKeyPair();
             KeyPair kp2 = g.generateKeyPair();
-            KeyAgreement ka = KeyAgreement.getInstance("DH", getProviderName());
+            KeyAgreement ka = KeyAgreement.getInstance("XDH", getProviderName());
             for (String alg : List.of("TlsPremasterSecret", "Generic")) {
                 ka.init(kp1.getPrivate());
                 ka.doPhase(kp2.getPublic(), true);
