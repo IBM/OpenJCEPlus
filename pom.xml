@@ -263,6 +263,8 @@
                       --add-opens=openjceplus/ibm.jceplus.junit.tests.parameters.resolvers=ALL-UNNAMED
                       --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
                       -Djava.security.auth.debug=${java.security.auth.debug}
+                      -Djdk.mldsa.pkcs8.encoding=expandedKey
+                      -Djdk.mlkem.pkcs8.encoding=expandedKey
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
                     <groups>${groups}</groups>
@@ -403,6 +405,8 @@
                       --add-exports=java.base/sun.security.x509=ALL-UNNAMED
                       --add-exports openjceplus/com.ibm.crypto.plus.provider.base=ALL-UNNAMED
                       -Djava.security.auth.debug=${java.security.auth.debug}
+                      -Djdk.mldsa.pkcs8.encoding=expandedKey
+                      -Djdk.mlkem.pkcs8.encoding=expandedKey
                     </argLine>
                     <includes>
                       <include>
