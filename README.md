@@ -6,6 +6,7 @@
   - [Run All Tests](#run-all-tests)
   - [Run Single Test](#run-single-test)
 - [OpenJCEPlus and OpenJCEPlusFIPS Provider SDK Installation](#openjceplus-and-openjceplusfips-provider-sdk-installation)
+- [Security Policy Configuration](#security-policy-configuration)
 - [Configuration Options](#configuration-options)
 - [Features and Algorithms](#features-and-algorithms)
 - [Contributions](#contributions)
@@ -288,6 +289,60 @@ take effect.
         ```console
         -Djgskit.library.path=$ANYDIRECTORY
         ```
+## Security Policy Configuration
+
+**NOTE**: This section applies only when the JVM Security Manager is enabled. The Security Manager was deprecated in Java 17 and removed in Java 24.
+
+When running on a JDK that does **not** bundle `OpenJCEPlus` (i.e., any JDK other than IBM Semeru), the JVM security manager requires an explicit policy grant so that the `openjceplus` can perform the operations it needs. Without this grant, you may encounter `AccessControlException` errors at runtime.
+
+IBM Semeru ships with this grant pre-configured in its `default.policy`. If you use any other JDK you must add it manually.
+
+### Step 1 – Locate your JDK policy file
+
+The system-wide policy file is located at:
+
+```console
+$JAVA_HOME/conf/security/default.policy
+```
+
+Alternatively, if your application uses a custom policy file (specified via `-Djava.security.policy`), add the grant block there instead.
+
+### Step 2 – Add the `openjceplus` grant block
+
+Open the policy file and append the following grant block, using a `file:` URL pointing to your `openjceplus.jar`:
+
+```console
+grant codeBase "file:$ANYDIRECTORY/openjceplus.jar" {
+    permission java.io.FilePermission "<<ALL FILES>>", "read";
+    permission java.lang.RuntimePermission "accessClassInPackage.sun.security.internal.interfaces";
+    permission java.lang.RuntimePermission "accessClassInPackage.sun.security.internal.spec";
+    permission java.lang.RuntimePermission "accessClassInPackage.sun.security.pkcs";
+    permission java.lang.RuntimePermission "accessClassInPackage.sun.security.util";
+    permission java.lang.RuntimePermission "accessClassInPackage.sun.security.x509";
+    permission java.lang.RuntimePermission "loadLibrary.*";
+    permission java.security.SecurityPermission "clearProviderProperties.*";
+    permission java.security.SecurityPermission "putProviderProperty.*";
+    permission java.security.SecurityPermission "removeProviderProperty.*";
+    permission java.util.PropertyPermission "*", "read";
+};
+```
+
+Replace `$ANYDIRECTORY` with the absolute path to the directory containing your `openjceplus.jar`. This grant is only evaluated when the Java Security Manager is active; it has no effect when the Security Manager is disabled.
+
+**NOTE:** IBM Semeru ships `openjceplus` as a built-in named module, so the `file:` URL above is not needed. Semeru's `default.policy` already includes this grant using the `jrt:` URI scheme:
+
+```console
+grant codeBase "jrt:/openjceplus" { ... };
+```
+
+### Step 3 – Verify the change
+
+Restart your application. If a `SecurityManager` is in use, the `AccessControlException` errors related to `openjceplus` should no longer appear. You can confirm the policy is being picked up with:
+
+```console
+java -Djava.security.debug=access,domain -version 2>&1 | grep openjceplus
+```
+
 ## Configuration Options
 
 The following properties can be used to configure application behavior at runtime.
