@@ -11,6 +11,8 @@ package com.ibm.crypto.plus.provider.base;
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
 import com.ibm.crypto.plus.provider.SystemAccessUtils;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,11 +46,9 @@ public final class Digest implements Cloneable {
     final static int numShaAlgos = 5;
     private static final String DIGEST_CONTEXT_CACHE_SIZE = "com.ibm.crypto.provider.DigestContextCacheSize";
 
-    private static boolean needsInit = true;
+    private static final Map<NativeInterface, ConcurrentLinkedQueueLong[]> contextsPerBackend = new HashMap<>();
 
-    static private ConcurrentLinkedQueueLong contexts[];
-
-    static private int runtimeContextNum[];
+    private static final Map<NativeInterface, Integer[]> runtimeContextNumPerBackend = new HashMap<>();
 
     class ConcurrentLinkedQueueLong extends ConcurrentLinkedQueue<Long> {
         private static final long serialVersionUID = 196745693267521676L;
@@ -71,17 +71,23 @@ public final class Digest implements Cloneable {
     }
 
     void getContext() throws NativeException {
-        if (needsInit) {
+        ConcurrentLinkedQueueLong[] contexts = contextsPerBackend.get(this.nativeInterface);
+        Integer[] runtimeContextNum = runtimeContextNumPerBackend.get(this.nativeInterface);
+        if (contexts == null) {
             synchronized (Digest.class) {
-                if (needsInit) {
+                contexts = contextsPerBackend.get(this.nativeInterface);
+                if (contexts == null) {
                     contexts = new ConcurrentLinkedQueueLong[numShaAlgos];
-                    runtimeContextNum = new int[numShaAlgos];
+                    runtimeContextNum = new Integer[numShaAlgos];
 
                     for (int i = 0; i < numShaAlgos; i++) {
                         contexts[i] = new ConcurrentLinkedQueueLong();
                         runtimeContextNum[i] = 0;
                     }
-                    needsInit = false;
+                    contextsPerBackend.put(this.nativeInterface, contexts);
+                    runtimeContextNumPerBackend.put(this.nativeInterface, runtimeContextNum);
+                } else {
+                    runtimeContextNum = runtimeContextNumPerBackend.get(this.nativeInterface);
                 }
             }
         }
@@ -400,7 +406,7 @@ public final class Digest implements Cloneable {
                         if (needsReinit.getValue()) {
                             nativeInterface.DIGEST_reset(digestId);
                         }
-                        Digest.contexts[algIndx].add(digestId);
+                        Digest.contextsPerBackend.get(nativeInterface)[algIndx].add(digestId);
                     } else {
                         nativeInterface.DIGEST_delete(digestId);
                     }

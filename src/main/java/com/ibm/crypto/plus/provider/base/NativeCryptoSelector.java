@@ -9,9 +9,12 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import com.ibm.crypto.plus.provider.SystemAccessUtils;
 import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterFIPS;
 import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
+import com.ibm.crypto.plus.provider.openssl.NativeOpenSSLAdapterNonFIPS;
 import java.security.Provider;
+import java.security.ProviderException;
 import sun.security.util.Debug;
 
 /**
@@ -36,7 +39,8 @@ public class NativeCryptoSelector {
     }
 
     static final String DEBUG_VALUE = "jceplus";
-    protected static final Debug debug = Debug.getInstance(DEBUG_VALUE); 
+    protected static final Debug debug = Debug.getInstance(DEBUG_VALUE);
+    private static final String osName = SystemAccessUtils.getSystemProperty("os.name", "");
 
     // Backend implementation instances (will be set by concrete implementations)
     private static volatile NativeInterface ockBackend = null;
@@ -64,7 +68,11 @@ public class NativeCryptoSelector {
                 return ockBackend;
             }
         } else if (backend == Backend.OPENSSL) {
-            return opensslBackend;
+            if (isFIPS) {
+                throw new ProviderException("FIPS not supported through OpenSSL.");
+            } else {
+                return NativeOpenSSLAdapterNonFIPS.getInstance();
+            }
         }
         return null;
     }
@@ -124,6 +132,11 @@ public class NativeCryptoSelector {
         
         switch (normalized) {
             case "OPENSSL":
+                if (osName.contains("z/OS")) {
+                    throw new ConfigurationException(
+                        "OpenSSL backend is not supported on z/OS. " +
+                        "Remove the NativeProvider=OPENSSL attribute or use the OCK backend instead.");
+                }
                 return Backend.OPENSSL;
             case "OCK":
                 return Backend.OCK;
