@@ -52,11 +52,7 @@ public class TestMultithread {
             //"ibm.jceplus.junit.openjceplus.multithread.TestRSAPSSInterop2",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSAPSSInterop3",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSASignatureInteropSunRsaSign",
-            "ibm.jceplus.junit.openjceplus.multithread.TestSHA256Clone_SharedMD",
-            "ibm.jceplus.junit.openjceplus.multithread.TestXDH",
-            "ibm.jceplus.junit.openjceplus.multithread.TestXDHKeyImport",
-            "ibm.jceplus.junit.openjceplus.multithread.TestXDHKeyPairGenerator",
-            "ibm.jceplus.junit.openjceplus.multithread.TestXDHMultiParty"};
+            "ibm.jceplus.junit.openjceplus.multithread.TestSHA256Clone_SharedMD"};
 
     public TestMultithread() {}
 

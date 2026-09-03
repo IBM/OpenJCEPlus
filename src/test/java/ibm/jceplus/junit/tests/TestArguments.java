@@ -48,6 +48,15 @@ public class TestArguments {
         return getOpenJCEPlusWithInteropProviders(providers, TestProvider.BC);
     }
 
+    /**
+     * Generates combinations of OpenJCEPlus* providers with the SunEC provider for interoperability testing.
+     *
+     * @return Stream of Arguments containing (JCEProviders, SunEC) pairs
+     */
+    protected static Stream<Arguments> getOpenJCEPlusWithSunECInteropProvider(Set<String> providers) {
+        return getOpenJCEPlusWithInteropProviders(providers, TestProvider.SunEC);
+    }
+
     public static Stream<Arguments> keySizesAndProviders(Set<String> providers, List<Integer> keySizes) {
         // Determine enabled providers.
         List<TestProvider> enabledProviders = getEnabledProviders(providers).toList();
