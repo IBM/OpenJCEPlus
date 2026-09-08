@@ -31,15 +31,15 @@ Build Status:
 `OpenJCEPlus` and `OpenJCEPlusFIPS` providers are currently supported on the following architectures and operating system combinations as reported by `mvn --version` in the values `OS name` and `arch` or `family` in the case of windows:
 | OS name ( or family )   | arch        |
 | ----------------------- | ----------- |
+| AIX                     | ppc64       |
 | linux                   | aarch64     |
 | linux                   | amd64       |
-| linux                   | s390x       |
 | linux                   | ppc64le     |
-| Windows (family)        | amd64       |
-| AIX                     | ppc64       |
-| z/OS                    | s390x       |
+| linux                   | s390x       |
 | Mac OS X                | aarch64     |
 | Mac OS X                | amd64       |
+| Windows (family)        | amd64       |
+| z/OS                    | s390x       |
 
 Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with a dependent Java Native Interface library. Keep in mind that `$PROJECT_HOME` can represent any directory on your system and will be referred to as such in the subsequent instructions. Also keep in mind that the value `$JAVA_VERSION` below must match the same version of the branch of OpenJCEPlus being built. For example if building the `java21` branch the `$JAVA_VERSION` must match the Java 21 SDK version such as `21.0.2+13`.
 
