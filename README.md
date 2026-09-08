@@ -33,21 +33,22 @@ Build Status:
 `OpenJCEPlus` and `OpenJCEPlusFIPS` providers are currently supported on the following architectures and operating system combinations as reported by `mvn --version` in the values `OS name` and `arch` or `family` in the case of windows:
 | OS name ( or family )   | arch        |
 | ----------------------- | ----------- |
+| AIX                     | ppc64       |
 | linux                   | aarch64     |
 | linux                   | amd64       |
-| linux                   | s390x       |
 | linux                   | ppc64le     |
-| Windows (family)        | amd64       |
-| AIX                     | ppc64       |
+| linux                   | s390x       |
 | Mac OS X                | aarch64     |
 | Mac OS X                | amd64       |
+| Windows (family)        | amd64       |
+| z/OS                    | s390x       |
 
-Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with a dependent Java Native Interface library. Keep in mind that `$PROJECT_HOME` can represent any directory on your system and will be referred to as such in the subsequent instructions. Also keep in mind that the value `$JAVA_VERSION` below must match the same version of the branch of OpenJCEPlus being built. For example if building the `java21` branch the `$JAVA_VERSION` must match the Java 21 SDK version such as `21.0.2+13`.
+Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with a dependent Java Native Interface library. Keep in mind that `$OPENJCEPLUS_PROJECT_HOME` refers to the root directory of the cloned `OpenJCEPlus` repository, and `$OCK_PROJECT_HOME` refers to the directory where OCK is extracted and set up. Both will be referred to as such in the subsequent instructions. Also keep in mind that the value `$JAVA_VERSION` below must match the same version of the branch of OpenJCEPlus being built. For example if building the `java21` branch the `$JAVA_VERSION` must match the Java 21 SDK version such as `21.0.2+13`.
 
-1. Create an OCK directory, for example:
+1. Create the OCK directory:
 
     ```console
-    mkdir $PROJECT_HOME/OCK
+    mkdir $OCK_PROJECT_HOME
     ```
 
 1. Follow instructions available in the project [OpenCryptographyKitC](https://github.com/IBM/OpenCryptographyKitC/) to build both the SDK tar file and the binary distribution tar file. You can also refer to this projects [github-actions.yml](.github/workflows/github-actions.yml) file for details on how this project incorporates and builds the [OpenCryptographyKitC](https://github.com/IBM/OpenCryptographyKitC/) project for testing purposes.
@@ -55,7 +56,7 @@ Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers al
 1. Extract the Java gskit SDK tar and gskit tar file into the directory previously created:
 
     ```console
-    cd $PROJECT_HOME/OCK
+    cd $OCK_PROJECT_HOME
     tar xvf jgsk_crypto_8_9_3_0_sdk.tar
     tar xvf jgsk_crypto_8_9_3_0.tar
     ```
@@ -63,7 +64,7 @@ Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers al
 1. Copy the OCK library referred to as ICC to the correct location:
 
     Based on the platform, the library file (i.e., `$LIBJGSKIT_LIBRARY`) is named differently. The  values are as follows:
-   * AIX/Linux: `libjgsk8iccs_64.so`
+   * AIX, Linux, z/OS: `libjgsk8iccs_64.so`
    * Mac OS X (aarch64): `libjgsk8iccs_64.dylib`
    * Mac OS X (x86-64): `libjgsk8iccs.dylib`
    * Windows: `jgsk8iccs_64.dll`
@@ -71,14 +72,14 @@ Follow these steps to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers al
    Create the `lib64` directory and copy the `$LIBJGSKIT_LIBRARY` library to that location:
 
    ```console
-   mkdir $PROJECT_HOME/OCK/jgsk_sdk/lib64
-   cp $PROJECT_HOME/OCK/$LIBJGSKIT_LIBRARY $PROJECT_HOME/OCK/jgsk_sdk/lib64
+   mkdir $OCK_PROJECT_HOME/jgsk_sdk/lib64
+   cp $OCK_PROJECT_HOME/$LIBJGSKIT_LIBRARY $OCK_PROJECT_HOME/jgsk_sdk/lib64
    ```
 
    On AIX also copy the library to the `jgsk_sdk` directory **in addition** to the `lib64` directory above.
 
    ```console
-   cp $PROJECT_HOME/OCK/$LIBJGSKIT_LIBRARY $PROJECT_HOME/OCK/jgsk_sdk
+   cp $OCK_PROJECT_HOME/$LIBJGSKIT_LIBRARY $OCK_PROJECT_HOME/jgsk_sdk
    ```
 
 1. Install `Maven` and place the command in your `PATH`. These instructions are OS dependant. It is recommended to make use of version `3.9.2`, although other versions of `Maven` are known to work.
@@ -98,7 +99,7 @@ You can test your installation by issuing `mvn --version`. For example:
 1. Change directory to the root directory where the `pom.xml` file exists.
 
     ```console
-    cd OpenJCEPlus
+    cd $OPENJCEPLUS_PROJECT_HOME
     ```
 
 1. Set your `JAVA_HOME` environment variable. This will be the SDK used to compile the project. You must set your JAVA_HOME value to the latest generally available version of Java when using code located in the `main` branch.
@@ -110,7 +111,7 @@ You can test your installation by issuing `mvn --version`. For example:
 1. Set the location of the variable `GSKIT_SDK` to the directory extracted in the above steps.
 
     ```console
-    export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
+    export GSKIT_HOME="$OCK_PROJECT_HOME/jgsk_sdk"
     ```
 
 1. **(Only for Windows)** Some additional environment variables need to be set in Windows. There are certain header files and libraries that are required to build the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers in a Windows environment and those files are found in the exported directories. It is assumed that you are running through a `CYGWIN` prompt.
@@ -127,16 +128,27 @@ You can test your installation by issuing `mvn --version`. For example:
 
     **NOTE 2**: You might have to adapt the exported environment variables, if the installation directory of `Visual Studio` is different on your machine, or the versions you have available for `Windows Kits` and `Visual Studio` are diffent (e.g., the `Windows Kits` version in the variables above is `10.0.19041.0`, but it might be different on your machine).
 
+1. **(Only for AIX and z/OS)** If you are using a JDK that bundles `OpenJCEPlus`, such as `Semeru` (expected JDK on z/OS), and want to use an `OCK` library and `OpenJCEPlus` native library (JGSKIT) different than the ones bundled with the JDK, you need to delete the bundled copies. More specifically you need to run:
+
+    ```console
+    rm $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/libjgsk8iccs_64.so
+    rm $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/libjgskit.so
+    rm -rf $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/C
+    rm -rf $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/N
+    ```
+
+    For z/OS, also remove `OpenJCEPlus` from the providers list in `$JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/conf/security/java.security`.
+
 1. Compile the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with the Java Native Interface library. This command intentionally skips test execution. See instructions below for [running tests](#Test-Execution).
 
     ```console
-    mvn '-Dock.library.path=$PROJECT_HOME/OCK/' install -DskipTests
+    mvn '-Dock.library.path=$OCK_PROJECT_HOME' install -DskipTests
     ```
 
     On Mac:
 
     ```console
-    mvn '-Dock.library.path=$PROJECT_HOME/OCK/jgsk_crypto' install -DskipTests
+    mvn '-Dock.library.path=$OCK_PROJECT_HOME/jgsk_crypto' install -DskipTests
     ```
 
 ## Test Execution
@@ -147,47 +159,53 @@ Tests are available within the `OpenJCEPlus` repository. These JUnit tests can b
 
 #### Run all tests
 
-On AIX:
+On AIX and z/OS, you must set an additional setting for the `LIBPATH` environment variable:
 
-   * You must set an additional setting for the `LIBPATH` environment variable:
+   * On AIX:
 
-   ```console
-    export LIBPATH="$PROJECT_HOME/OCK/:$PROJECT_HOME/OCK/jgsk_sdk"
-   ```
+     ```console
+     export LIBPATH="$OCK_PROJECT_HOME:$OCK_PROJECT_HOME/jgsk_sdk"
+     ```
 
-   * If you are using a JDK that bundles `OpenJCEPlus`, like `Semeru`, and you want to make sure that you use an `OCK` library different than the one bundled with the JDK, you need to delete the bundled one. More specifically you need to run:
+   * On z/OS:
 
-   ```console
-    rm $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/libjgsk8iccs_64.so
-    rm -rf $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/C
-    rm -rf $JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/lib/N
-   ```
+     ```console
+     export LIBPATH="$OCK_PROJECT_HOME:$OCK_PROJECT_HOME/jgsk_sdk:$OPENJCEPLUS_PROJECT_HOME/target/jgskit-mz-64:$LIBPATH"
+     ```
 
 On all platforms set the following environment variables and execute all the tests using `mvn`. You must set your JAVA_HOME value to the latest generally available version of Java when using code located in the `main` branch.
 
 ```console
 export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION"
-export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
-mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test
+export GSKIT_HOME="$OCK_PROJECT_HOME/jgsk_sdk"
+mvn '-Dock.library.path=$OCK_PROJECT_HOME' test
 ```
 
 **NOTE**: When using a JDK that doesn't have `OpenJCEPlus` bundled with it, you might notice a few warnings like `WARNING: Unknown module: openjceplus specified to --add-exports`. There is no need to worry as they do not affect execution of tests or the build itself.
 
 #### Run single test
 
-On AIX you must set an additional setting for the `LIBPATH` environment variable:
+On AIX and z/OS, you must set an additional setting for the `LIBPATH` environment variable:
 
-```console
-export LIBPATH="$PROJECT_HOME/OCK/:$PROJECT_HOME/OCK/jgsk_sdk"
-```
+   * On AIX:
+
+     ```console
+     export LIBPATH="$OCK_PROJECT_HOME:$OCK_PROJECT_HOME/jgsk_sdk"
+     ```
+
+   * On z/OS:
+
+     ```console
+     export LIBPATH="$OCK_PROJECT_HOME:$OCK_PROJECT_HOME/jgsk_sdk:$OPENJCEPLUS_PROJECT_HOME/target/jgskit-mz-64:$LIBPATH"
+     ```
 
 On all platforms change to the OpenJCEPlus directory and set the following environment variables and execute a specific test class using `mvn`. You must set your JAVA_HOME value to the latest generally available version of Java when using code located in the `main` branch.
 
 ```console
-cd OpenJCEPlus
+cd $OPENJCEPLUS_PROJECT_HOME
 export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION"
-export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
-mvn '-Dock.library.path=$PROJECT_HOME/OCK/' test -Dtest=TestClassName
+export GSKIT_HOME="$OCK_PROJECT_HOME/jgsk_sdk"
+mvn '-Dock.library.path=$OCK_PROJECT_HOME' test -Dtest=TestClassName
 ```
 
 #### Using the `-Dgroups` Property
@@ -205,13 +223,13 @@ The OpenJCEPlus project includes JMH performance tests that exercise various alg
 To run a single test for example the `SHA256Benchmark`:
 
 ```console
-mvn -Dock.library.path=$PROJECT_HOME/OCK/jgsk_crypto clean install -DskipTests -Djmh.benchmark.skip=false -Djmh.benchmark=ibm.jceplus.jmh.SHA256Benchmark
+mvn -Dock.library.path=$OCK_PROJECT_HOME/jgsk_crypto clean install -DskipTests -Djmh.benchmark.skip=false -Djmh.benchmark=ibm.jceplus.jmh.SHA256Benchmark
 ```
 
 To run all performance tests:
 
 ```console
-mvn -Dock.library.path=$PROJECT_HOME/OCK/jgsk_crypto clean install -DskipTests -Djmh.benchmark.skip=false
+mvn -Dock.library.path=$OCK_PROJECT_HOME/jgsk_crypto clean install -DskipTests -Djmh.benchmark.skip=false
 ```
 
 #### Using the `-Djmh.threads` Property
@@ -269,7 +287,7 @@ take effect.
         ```
 
         ```console
-        '-Dock.library.path=$PROJECT_HOME/OCK/'
+        '-Dock.library.path=$OCK_PROJECT_HOME'
         ```
 
         ```console
@@ -284,7 +302,7 @@ take effect.
         ```
 
         ```console
-        '-Dock.library.path=$PROJECT_HOME/OCK/'
+        '-Dock.library.path=$OCK_PROJECT_HOME'
         ```
 
         ```console
