@@ -175,32 +175,6 @@ class PQCKeyFactory extends KeyFactorySpi {
     }
 
     /**
-     * Extracts the raw byte array from the given {@code KeySpec}.
-     *
-     * @param keySpec the key specification to extract bytes from; may be {@code null}.
-     * @return the raw byte array if the spec is supported and valid; 
-     */
-    private byte[] getRawBytes(KeySpec keySpec) throws InvalidKeySpecException {
-        byte[] bytes = null;
-        if (keySpec instanceof ibm.security.internal.spec.RawKeySpec) {
-            bytes = ((ibm.security.internal.spec.RawKeySpec) keySpec).getKeyArr();
-        } else if (keySpec instanceof sun.security.util.RawKeySpec) {
-            bytes = ((sun.security.util.RawKeySpec) keySpec).getKeyArr();
-        } else if (keySpec instanceof EncodedKeySpec) {
-            EncodedKeySpec eks = (EncodedKeySpec) keySpec;
-            if ("RAW".equalsIgnoreCase(eks.getFormat())) {
-                bytes = eks.getEncoded();
-            }
-        }
-
-        if (bytes != null) {
-            return bytes;
-        }
-        throw new InvalidKeySpecException("Inappropriate key specification: " 
-            + (keySpec != null ? keySpec.getClass().getName() : "null"));
-    }
-
-    /**
      *  Internal utility method for checking key algorithm. Per JEP 497, getAlgorithm() always
      * returns the family name ("ML-DSA", "ML-KEM") for all PQC key types — both our own
      * and foreign providers (e.g. SUN).
