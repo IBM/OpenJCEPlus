@@ -146,9 +146,12 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
             throws IllegalStateException, NoSuchAlgorithmException, InvalidKeyException {
         if (algorithm == null)
             throw new NoSuchAlgorithmException("Algorithm must not be null");
-        if (!(algorithm.equals("TlsPremasterSecret")))
-            throw new NoSuchAlgorithmException("Only supported for algorithm TlsPremasterSecret");
-        return new SecretKeySpec(engineGenerateSecret(), "TlsPremasterSecret");
+        if (!(algorithm.equalsIgnoreCase("TlsPremasterSecret")
+                || algorithm.equalsIgnoreCase("Generic"))) {
+            throw new NoSuchAlgorithmException(
+                    "Unsupported secret key algorithm: " + algorithm);
+        }
+        return new SecretKeySpec(engineGenerateSecret(), algorithm);
     }
 
     @Override

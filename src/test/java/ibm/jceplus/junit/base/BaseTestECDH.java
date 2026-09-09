@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -31,10 +31,12 @@ import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import java.util.List;
 import javax.crypto.KeyAgreement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -321,6 +323,23 @@ public class BaseTestECDH extends BaseTestJunit5 {
         }
 
         fail("InvalidParameterSpecException expected but no exception was thrown");
+    }
+
+    @Test
+    public void test_engineGenerateSecret() throws Exception {
+        try {
+            KeyPairGenerator g = KeyPairGenerator.getInstance("DH", getProviderName());
+            KeyPair kp1 = g.generateKeyPair();
+            KeyPair kp2 = g.generateKeyPair();
+            KeyAgreement ka = KeyAgreement.getInstance("DH", getProviderName());
+            for (String alg : List.of("TlsPremasterSecret", "Generic")) {
+                ka.init(kp1.getPrivate());
+                ka.doPhase(kp2.getPublic(), true);
+                assertEquals(ka.generateSecret(alg).getAlgorithm(), alg);
+            }
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     void compute_ecdh_key_with_global_key(String idString, AlgorithmParameterSpec algParameterSpec)
