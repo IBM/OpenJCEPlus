@@ -63,13 +63,8 @@ final class PQCPrivateKey extends PKCS8Key {
             try {
                 pkOct = new DerValue(DerValue.tag_OctetString, key);
                 this.pqcKey = PQCKey.createPrivateKey(
-<<<<<<< HEAD
-                                this.name, pkOct.toByteArray(), provider, "KeyFactory");
-                this.key = pkOct.toByteArray();
-=======
                                 this.paramSetName, pkOct.toByteArray(), provider, "KeyFactory");
-                this.privKeyMaterial = pkOct.toByteArray();
->>>>>>> dbeb5e57 (Add generic ML-DSA KeyFactory and Signature)
+                this.key = pkOct.toByteArray();
             } finally {
                 pkOct.clear();
             }
@@ -125,16 +120,10 @@ final class PQCPrivateKey extends PKCS8Key {
         super(encoded);
         this.provider = provider;
 
-<<<<<<< HEAD
-        this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
-        validateKeyLength(this.key);
-        if (!isExpandedChoice(this.name, this.key)) {
-=======
         this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
         this.familyName = familyName(this.paramSetName);
-        validateKeyLength(this.privKeyMaterial);
-        if (!isExpandedChoice(this.paramSetName, this.privKeyMaterial)) {
->>>>>>> dbeb5e57 (Add generic ML-DSA KeyFactory and Signature)
+        validateKeyLength(this.key);
+        if (!isExpandedChoice(this.paramSetName, this.key)) {
             throw new InvalidKeyException("Only expanded keys are supported by OpenJCEPlus");
         }
         //Check to determine if the key bytes have the Octet tag.
@@ -150,11 +139,7 @@ final class PQCPrivateKey extends PKCS8Key {
         }
         try {
             this.pqcKey = PQCKey.createPrivateKey(
-<<<<<<< HEAD
-                                this.name, this.key, provider, "KeyFactory");
-=======
-                                this.paramSetName, this.privKeyMaterial, provider, "KeyFactory");
->>>>>>> dbeb5e57 (Add generic ML-DSA KeyFactory and Signature)
+                                this.paramSetName, this.key, provider, "KeyFactory");
         } catch (Exception e) {
             throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
         }
