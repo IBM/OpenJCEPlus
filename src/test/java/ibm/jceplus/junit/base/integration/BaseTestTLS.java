@@ -8,6 +8,8 @@
 
 package ibm.jceplus.junit.base.integration;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlus;
+import com.ibm.crypto.plus.provider.OpenJCEPlusFIPS;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,14 +35,23 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class BaseTestTLS {
     private volatile static boolean clientRenegoReady = false;
 
-    public static void insertProvider(String providerName, String providerClassName, int position) throws Exception {
+    public static void insertProvider(String providerName, int position) throws Exception {
         Provider provider = java.security.Security.getProvider(providerName);
         if (provider == null) {
-            provider = (Provider) Class.forName(providerClassName).getDeclaredConstructor().newInstance();
+            if ("OpenJCEPlus".equals(providerName)) {
+                provider = new OpenJCEPlus();
+            } else if ("OpenJCEPlusFIPS".equals(providerName)) {
+                provider = new OpenJCEPlusFIPS();
+            } else if ("BC".equals(providerName)) {
+                provider = new BouncyCastleProvider();
+            } else {
+                throw new RuntimeException("Provider not supported: " + providerName);
+            }
         }
         java.security.Security.insertProviderAt(provider, position);
     }
