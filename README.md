@@ -367,10 +367,10 @@ SecretKeyFactory            | AES                        |X                |X   
 SecretKeyFactory            | ChaCha20                   |                 |X             |              |
 SecretKeyFactory            | DESede                     |                 |X             |              |
 SecretKeyFactory            | PBKDF2WithHmacSHA1         |                 |X             |              |
-SecretKeyFactory            | PBKDF2WithHmacSHA224       |X                |X             |              |
-SecretKeyFactory            | PBKDF2WithHmacSHA256       |X                |X             |              |
-SecretKeyFactory            | PBKDF2WithHmacSHA384       |X                |X             |              |
-SecretKeyFactory            | PBKDF2WithHmacSHA512       |X                |X             |              |
+SecretKeyFactory            | PBKDF2WithHmacSHA224       |X                |X             |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
+SecretKeyFactory            | PBKDF2WithHmacSHA256       |X                |X             |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
+SecretKeyFactory            | PBKDF2WithHmacSHA384       |X                |X             |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
+SecretKeyFactory            | PBKDF2WithHmacSHA512       |X                |X             |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
 SecureRandom                | SHA256DRBG                 |X                |X             |              |
 SecureRandom                | SHA512DRBG                 |X                |X             |              |
 Signature                   | Ed25519                    |                 |X             |              |
@@ -431,6 +431,16 @@ OpenJCEPlus provider enhances the security of Java applications by providing an 
 No keytool or certificate support was added other than what is already in a given Java runtime environment.
 
 The `ML-DSA` algorithm is supported in all OpenJCEPlus environments listed in section [How to Build `OpenJCEPlus` and Java Native Interface Library](#how-to-build-openjceplus-and-java-native-interface-library) except for MacOS on x86.
+
+### PBKDF2 FIPS restrictions
+
+Password-Based Key Derivation Function 2 (`PBKDF2`) has additional restrictions when used with the `OpenJCEPlusFIPS` provider.
+
+The password or passphrase must be at least 10 characters long, and the derived key length must be at least 112 bits.
+
+The salt must be at least 128 bits and must be generated randomly using a DRBG specified in [NIST SP 800-90A Rev. 1](https://csrc.nist.gov/pubs/sp/800/90/a/r1/final). Only the salt length is verified.
+
+The iteration count must be at least 1000 and should be as large as possible while keeping key generation time acceptable for the application.
 
 # Contributions
 
