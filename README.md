@@ -465,10 +465,10 @@ SecretKeyFactory            | AES                             |X                
 SecretKeyFactory            | ChaCha20                        |                 |X             |              |
 SecretKeyFactory            | DESede                          |                 |X             |              |
 SecretKeyFactory            | PBKDF2WithHmacSHA1              |                 |X             |              |
-SecretKeyFactory            | PBKDF2WithHmacSHA224            |X                |X             |              |
-SecretKeyFactory            | PBKDF2WithHmacSHA256            |X                |X             |              |
-SecretKeyFactory            | PBKDF2WithHmacSHA384            |X                |X             |              |
-SecretKeyFactory            | PBKDF2WithHmacSHA512            |X                |X             |              |
+SecretKeyFactory            | PBKDF2WithHmacSHA224            |X                |X             |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
+SecretKeyFactory            | PBKDF2WithHmacSHA256            |X                |X             |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
+SecretKeyFactory            | PBKDF2WithHmacSHA384            |X                |X             |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
+SecretKeyFactory            | PBKDF2WithHmacSHA512            |X                |X             |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
 SecretKeyFactory            | PBKDF2WithHmacSHA512/224        |                 |X             |              |
 SecretKeyFactory            | PBKDF2WithHmacSHA512/256        |                 |X             |              |
 SecretKeyFactory            | PBEWithSHA1AndDESede            |                 |X             |              |
@@ -564,7 +564,17 @@ A `ProviderException` is thrown now if the user attempts to use an `ECKeyPairGen
 ### AESKW
 AES Key Wrap based on NIST SP800-38F.
 
-Code does not allow the specification of an IV. However, it will return the default ICV as defined in the NIST SP800-38F. 
+Code does not allow the specification of an IV. However, it will return the default ICV as defined in the NIST SP800-38F.
+
+### PBKDF2 FIPS restrictions
+
+Password-Based Key Derivation Function 2 (`PBKDF2`) has additional restrictions when used with the `OpenJCEPlusFIPS` provider.
+
+The password or passphrase must be at least 10 characters long, and the derived key length must be at least 112 bits.
+
+The salt must be at least 128 bits and must be generated randomly using a DRBG specified in [NIST SP 800-90A Rev. 1](https://csrc.nist.gov/pubs/sp/800/90/a/r1/final). Only the salt length is verified.
+
+The iteration count must be at least 1000 and should be as large as possible while keeping key generation time acceptable for the application.
 
 # Contributions
 
