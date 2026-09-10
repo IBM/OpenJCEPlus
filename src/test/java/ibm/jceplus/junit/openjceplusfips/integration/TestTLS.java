@@ -24,13 +24,13 @@ public class TestTLS extends BaseTestTLS {
             insertProviderUponCleanup = true;
             java.security.Security.removeProvider("OpenJCEPlus");
         }
-        insertProvider("OpenJCEPlusFIPS", "com.ibm.crypto.plus.provider.OpenJCEPlusFIPS", 1);
+        insertProvider("OpenJCEPlusFIPS", 1);
     }
 
     @AfterAll
     public static void cleanup() throws Exception {
         if (insertProviderUponCleanup) {
-            insertProvider("OpenJCEPlus", "com.ibm.crypto.plus.provider.OpenJCEPlus", 2);
+            insertProvider("OpenJCEPlus", 2);
         }
     }
     
