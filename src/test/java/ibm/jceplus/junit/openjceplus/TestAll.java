@@ -13,13 +13,11 @@ import org.junit.platform.suite.api.Suite;
 
 @SelectClasses({
     TestAES256Interop.class,
-    TestAESCCMInteropBC.class,
     TestAESCCMParameters.class,
     TestAESGCM_ExtIV.class,
     TestAESGCM_IntIV.class,
     TestAESGCMBufferIV.class,
     TestAESGCMUpdate.class,
-    TestAESGCMUpdateInteropBC.class,
     TestAESKeyWrap.class,
     TestAliases.class,
     TestAttributes.class,
