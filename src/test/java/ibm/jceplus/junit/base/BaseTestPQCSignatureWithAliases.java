@@ -93,12 +93,6 @@ public class BaseTestPQCSignatureWithAliases extends BaseTestJunit5Signature {
 
     public void testPQCSignature(String Algorithm, byte[] dataToBeSigned) throws Exception {
 
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            //FIPS does not support plain keys
-            System.out.println("FIPS does not support plain keys.  Returning to caller.");
-            return;
-        }
-
         //System.out.println("generateKeyPair( ):   The provider name is:  " + getProviderName( ) );
         //System.out.println("testPQCSignature( ):  Calling generateKeyPair( " + Algorithm + " ) ");
         KeyPair keyPair = generateKeyPair(Algorithm);
