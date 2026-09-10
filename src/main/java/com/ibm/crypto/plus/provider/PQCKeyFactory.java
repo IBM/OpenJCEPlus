@@ -174,39 +174,55 @@ class PQCKeyFactory extends KeyFactorySpi {
         }
     }
 
-    // Internal utility method for checking key algorithm
+    /**
+     *  Internal utility method for checking key algorithm. Per JEP 497, getAlgorithm() always
+     * returns the family name ("ML-DSA", "ML-KEM") for all PQC key types — both our own
+     * and foreign providers (e.g. SUN).
+     */
     private void checkKeyAlgo(Key key) throws InvalidKeyException {
         String keyAlg = key.getAlgorithm();
-        boolean matches = false;
 
         if (keyAlg == null) {
             throw new InvalidKeyException("Algorithm associate with key is null.");
         }
 
-        //Key is generic identified by generic family alg name
-        //This enables interoperability with getInstance using ML-KEM, ML-DSA, etc.
-        if (("ML-KEM".equalsIgnoreCase (this.algName) && (keyAlg.toUpperCase()).startsWith("ML-KEM-")) ||
-            ("ML-DSA".equalsIgnoreCase (this.algName) && (keyAlg.toUpperCase()).startsWith("ML-DSA-")) ||
-            ("ML-KEM".equalsIgnoreCase(keyAlg) && (this.algName.toUpperCase()).startsWith("ML-KEM-")) ||
-            ("ML-DSA".equalsIgnoreCase(keyAlg) && (this.algName.toUpperCase()).startsWith("ML-DSA-")) ) {
-            matches = true;
-        } else {
-            // Check if algorithms match exactly or via OID lookup
-            boolean lookup = false;
-            PQCKnownOIDs oid = PQCKnownOIDs.findMatch(key.getAlgorithm());
+        String keyParamName = resolveParamName(key);
 
-            if (oid != null ) {
-                lookup = oid.stdName().equalsIgnoreCase(this.algName);
-            }
+        // Accept if:
+        //   1. Exact match (e.g. "ML-DSA-65" factory + "ML-DSA-65" key, or "ML-DSA" + "ML-DSA")
+        //   2. Generic factory + our specific-param-set key
+        //      (e.g. "ML-DSA" factory, keyParamName="ML-DSA-87" → keyParamName starts with algName+"-")
+        //   3. Param-set factory + foreign key that carries only the family name
+        //      (e.g. "ML-DSA-65" factory, keyParamName="ML-DSA" → algName starts with keyParamName+"-")
+        String algNameUC  = this.algName.toUpperCase();
+        String keyParamUC = keyParamName.toUpperCase();
+        boolean matches = keyParamUC.equals(algNameUC)
+                || keyParamUC.startsWith(algNameUC + "-")
+                || algNameUC.startsWith(keyParamUC + "-");
 
-            matches = key.getAlgorithm().equalsIgnoreCase(this.algName) || lookup;
-        
-        }
-        
         if (!matches) {
-            throw new InvalidKeyException("Expected a " + this.algName + " key, but got " + keyAlg);
+            throw new InvalidKeyException("Expected a " + this.algName + " key, but got " + keyParamName);
         }
+    }
 
+    /**
+     * Returns the specific parameter-set name for a key.
+     * <p>
+     * For our own {@link PQCPublicKey}/{@link PQCPrivateKey} types the concrete
+     * param-set name (e.g. {@code "ML-DSA-65"}) is available directly, even though
+     * {@code getAlgorithm()} returns only the family name {@code "ML-DSA"} per JEP 497.
+     * For foreign key types from other providers only the family name is available
+     * via {@code getAlgorithm()}, so we fall back to that — a param-set factory will
+     * still accept such keys via the prefix check in {@link #checkKeyAlgo}.
+     */
+    private static String resolveParamName(Key key) {
+        if (key instanceof PQCPublicKey) {
+            return ((PQCPublicKey) key).getParamSetName();
+        }
+        if (key instanceof PQCPrivateKey) {
+            return ((PQCPrivateKey) key).getParamSetName();
+        }
+        return key.getAlgorithm(); // Foreign provider key, only family name is available
     }
 
     private boolean checkEncoded(byte[] key, boolean pub) {
@@ -228,6 +244,13 @@ class PQCKeyFactory extends KeyFactorySpi {
             return false;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public static final class MLDSA extends PQCKeyFactory {
+
+        public MLDSA(OpenJCEPlusProvider provider) {
+            super(provider, "ML-DSA");
         }
     }
 
