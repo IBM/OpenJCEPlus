@@ -1,12 +1,12 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
@@ -17,31 +17,44 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * This test case exercises the AES/CCM cipher using a CCMParameterSpec object.
  */
-public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithBCInteropProvider")
+public class TestAESCCMInteropBC extends BaseTestInterop {
 
-    public static int iterationLimit = 100;
-    public static int iterationCounter = 0;
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
+
+    public static final int iterationLimit = 100;
+    public int iterationCounter = 0;
 
     // The plainText string to be encrypted and decrypted will be selected randomly for each iteration.
-    public static String plainText = null;
+    public String plainText = null;
 
-    public static String plainTextShort = "A short text string to be encrypted.";
-    public static String plainTextMedium = "A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted.";
-    public static String plainTextLong = "A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted.";
+    public static final String plainTextShort = "A short text string to be encrypted.";
+    public static final String plainTextMedium = "A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted.";
+    public static final String plainTextLong = "A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted.";
 
     public static int AESKeySize = 0;
-    public static int AESKeySize128 = 128;
-    public static int AESKeySize192 = 192;
-    public static int AESKeySize256 = 256;
-
-    // This CCM TAG LENGTH is specified in bits.  Valid values are:  32, 48, 64, 80, 96, 112, 128
-    // Although initialized here, the ccmTagLength will actually be selected randomly for each iteration.
-    public static int ccmTagLength = 128;
+    public static final int AESKeySize128 = 128;
+    public static final int AESKeySize192 = 192;
+    public static final int AESKeySize256 = 256;
 
     // The size of the aad buffer will be selected randomly for each iteration.
     // The contents of the aad buffer will be random data for each iteration.
@@ -52,6 +65,13 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
     public static String encryptionProvider = null;
     public static String decryptionProvider = null;
     public static boolean printJunitTrace = false;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
+        iterationCounter = 0;
+    }
 
     @Test
     public void testAESCCM() throws Exception {
@@ -64,7 +84,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     System.out.println(
                             "\n=============================================================");
                 if (printJunitTrace)
-                    System.out.println("BaseTestInteropBC.java:  testAESCCM():  BEGIN TEST #"
+                    System.out.println("TestAESCCMInteropBC.java:  testAESCCM():  BEGIN TEST #"
                             + iterationCounter);
                 if (printJunitTrace)
                     System.out.println(
@@ -84,10 +104,10 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
 
             if (printJunitTrace) {
                 System.out.println(
-                        "BaseTestInteropBC.java:  testAESCCM():  The encryption provider is:  "
+                        "TestAESCCMInteropBC.java:  testAESCCM():  The encryption provider is:  "
                                 + encryptionProvider);
                 System.out.println(
-                        "BaseTestInteropBC.java:  testAESCCM():  The decryption provider is:  "
+                        "TestAESCCMInteropBC.java:  testAESCCM():  The decryption provider is:  "
                                 + decryptionProvider);
             }
 
@@ -107,7 +127,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
 
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  testAESCCM():  Original Text : " + plainText);
+                        "TestAESCCMInteropBC.java:  testAESCCM():  Original Text : " + plainText);
 
             // Select which AES key size to use.
             Random randomForKeySize = new Random();
@@ -116,23 +136,23 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                 AESKeySize = AESKeySize128;
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  testAESCCM():  The AES key size is 128.");
+                            "TestAESCCMInteropBC.java:  testAESCCM():  The AES key size is 128.");
             } else if (whichAESKeySize == 1) {
                 AESKeySize = AESKeySize192;
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  testAESCCM():  The AES key size is 192.");
+                            "TestAESCCMInteropBC.java:  testAESCCM():  The AES key size is 192.");
             } else if (whichAESKeySize == 2) {
                 AESKeySize = AESKeySize256;
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  testAESCCM():  The AES key size is 256.");
+                            "TestAESCCMInteropBC.java:  testAESCCM():  The AES key size is 256.");
             }
 
             KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", encryptionProvider);
             if (printJunitTrace)
                 System.out
-                        .println("BaseTestInteropBC.java:  testAESCCM():  The KeyGenerator is a:  "
+                        .println("TestAESCCMInteropBC.java:  testAESCCM():  The KeyGenerator is a:  "
                                 + keyGenerator.getClass().getName());
             keyGenerator.init(AESKeySize);
 
@@ -157,7 +177,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
 
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  testAESCCM():  The random IV bytes are:");
+                        "TestAESCCMInteropBC.java:  testAESCCM():  The random IV bytes are:");
             if (printJunitTrace)
                 System.out.println(toHexString(IV));
 
@@ -172,11 +192,11 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
             // aad=debugAAD;
 
             if (printJunitTrace)
-                System.out.println("BaseTestInteropBC.java:  testAESCCM():  There are "
+                System.out.println("TestAESCCMInteropBC.java:  testAESCCM():  There are "
                         + aadByteLength + " random 'aad' bytes for this iteration.");
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  testAESCCM():  The random 'aad' bytes for this iteration are:");
+                        "TestAESCCMInteropBC.java:  testAESCCM():  The random 'aad' bytes for this iteration are:");
             if (printJunitTrace)
                 System.out.println(toHexString(aad) + "\n");
 
@@ -187,7 +207,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
             // ccmTagLength = 64;  // DEBUG
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  testAESCCM():  The random 'tag length' is:  "
+                        "TestAESCCMInteropBC.java:  testAESCCM():  The random 'tag length' is:  "
                                 + ccmTagLength);
 
             // DO ENCRYPTION
@@ -195,12 +215,12 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
 
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  testAESCCM():  Encrypted Text (Final) : ");
+                        "TestAESCCMInteropBC.java:  testAESCCM():  Encrypted Text (Final) : ");
             if (cipherText != null) {
                 if (cipherText.length == 0) {
                     if (printJunitTrace)
                         System.out.println(
-                                "BaseTestInteropBC.java:  testAESCCM():  ERROR:  The encrypted text byte array is NOT NULL, but it has LENGTH = 0.    Iteration counter = "
+                                "TestAESCCMInteropBC.java:  testAESCCM():  ERROR:  The encrypted text byte array is NOT NULL, but it has LENGTH = 0.    Iteration counter = "
                                         + iterationCounter);
                     RuntimeException rtex = new RuntimeException();
                     rtex.printStackTrace(System.out);
@@ -212,7 +232,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
             } else { // else cipherText == null
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  testAESCCM():   ERROR:  The encrypted text is NULL.    Iteration counter = "
+                            "TestAESCCMInteropBC.java:  testAESCCM():   ERROR:  The encrypted text is NULL.    Iteration counter = "
                                     + iterationCounter);
                 RuntimeException rtex = new RuntimeException();
                 rtex.printStackTrace(System.out);
@@ -231,25 +251,25 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
             if (decryptedText.equals(plainText) == false) {
                 if (printJunitTrace)
                     System.out.println(
-                            "\nBaseTestInteropBC.java:  testAESCCM():  ERROR:   The decryptedText does NOT MATCH the plainText.    Iteration counter = "
+                            "\nTestAESCCMInteropBC.java:  testAESCCM():  ERROR:   The decryptedText does NOT MATCH the plainText.    Iteration counter = "
                                     + iterationCounter);
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  testAESCCM():   plainText String     =  "
+                            "TestAESCCMInteropBC.java:  testAESCCM():   plainText String     =  "
                                     + plainText);
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  testAESCCM():   decryptedText String =  "
+                            "TestAESCCMInteropBC.java:  testAESCCM():   decryptedText String =  "
                                     + decryptedText);
 
                 if (printJunitTrace)
                     System.out.println(
-                            "\nBaseTestInteropBC.java:  testAESCCM():   The plainText bytes are: ");
+                            "\nTestAESCCMInteropBC.java:  testAESCCM():   The plainText bytes are: ");
                 if (printJunitTrace)
                     System.out.println(toHexString(plainText.getBytes()));
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  testAESCCM():   The decryptedText bytes are: ");
+                            "TestAESCCMInteropBC.java:  testAESCCM():   The decryptedText bytes are: ");
                 if (printJunitTrace)
                     System.out.println(toHexString(decryptedText.getBytes()));
                 Assertions.fail();
@@ -263,7 +283,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     System.out.println(
                             "\n===========================================================");
                 if (printJunitTrace)
-                    System.out.println("BaseTestInteropBC.java:  testAESCCM():  END TEST #"
+                    System.out.println("TestAESCCMInteropBC.java:  testAESCCM():  END TEST #"
                             + iterationCounter);
                 if (printJunitTrace)
                     System.out.println(
@@ -277,11 +297,11 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                         "\n=======================================================================================================");
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  testAESCCM():  END OF SUCCESSFUL TESTS.  The iteration counter = "
+                        "TestAESCCMInteropBC.java:  testAESCCM():  END OF SUCCESSFUL TESTS.  The iteration counter = "
                                 + iterationCounter);
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  testAESCCM():  END OF SUCCESSFUL TESTS.  The iteration limit   = "
+                        "TestAESCCMInteropBC.java:  testAESCCM():  END OF SUCCESSFUL TESTS.  The iteration limit   = "
                                 + iterationLimit);
             if (printJunitTrace)
                 System.out.println(
@@ -420,7 +440,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                         "\n==========================================================================");
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  encrypt():  *****   BEGIN ENCRYPTION METHOD  *****");
+                        "TestAESCCMInteropBC.java:  encrypt():  *****   BEGIN ENCRYPTION METHOD  *****");
             if (printJunitTrace)
                 System.out.println(
                         "==========================================================================\n");
@@ -432,11 +452,11 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
             Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", encryptionProvider);
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  encrypt():  The encryption cipher is a:                "
+                        "TestAESCCMInteropBC.java:  encrypt():  The encryption cipher is a:                "
                                 + cipher.getClass().getName());
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  encrypt():  The provider of the encryption cipher is:  "
+                        "TestAESCCMInteropBC.java:  encrypt():  The provider of the encryption cipher is:  "
                                 + cipher.getProvider());
 
             // Create SecretKeySpec
@@ -445,11 +465,11 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
             // Create the ibm.security.internal.spec.CCMParameterSpec object
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  encrypt():  The encryption tag length (in bits)  is:  "
+                        "TestAESCCMInteropBC.java:  encrypt():  The encryption tag length (in bits)  is:  "
                                 + ccmTagLength);
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  encrypt():  The encryption IV length (in bytes) is:  "
+                        "TestAESCCMInteropBC.java:  encrypt():  The encryption IV length (in bytes) is:  "
                                 + IV.length);
             ibm.security.internal.spec.CCMParameterSpec ccmParameterSpec = new ibm.security.internal.spec.CCMParameterSpec(
                     ccmTagLength, IV); // ccmTagLength is specified in bits
@@ -462,7 +482,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
 
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  encrypt():  MAKING OCK ENCRYPTION CALL FROM encrypt() METHOD !!!");
+                        "TestAESCCMInteropBC.java:  encrypt():  MAKING OCK ENCRYPTION CALL FROM encrypt() METHOD !!!");
 
             // Perform Encryption
             byte[] cipherText = null;
@@ -473,7 +493,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                 if (whichMethod == 0) {
                     if (printJunitTrace)
                         System.out
-                                .println("BaseTestInteropBC.java:  encrypt():  METHOD CHOSEN = 0");
+                                .println("TestAESCCMInteropBC.java:  encrypt():  METHOD CHOSEN = 0");
 
                     byte[] cipherText2 = cipher.doFinal(plaintext);
 
@@ -483,7 +503,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                 } else if (whichMethod == 1) {
                     if (printJunitTrace)
                         System.out
-                                .println("BaseTestInteropBC.java:  encrypt():  METHOD CHOSEN = 1");
+                                .println("TestAESCCMInteropBC.java:  encrypt():  METHOD CHOSEN = 1");
 
                     byte[] cipherText2 = cipher.doFinal(plaintext, 0, plaintext.length);
 
@@ -493,11 +513,11 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                 } else if (whichMethod == 2) {
                     if (printJunitTrace)
                         System.out
-                                .println("BaseTestInteropBC.java:  encrypt():  METHOD CHOSEN = 2");
+                                .println("TestAESCCMInteropBC.java:  encrypt():  METHOD CHOSEN = 2");
                     int outputSizeNeeded = cipher.getOutputSize(plaintext.length);
                     if (printJunitTrace)
                         System.out.println(
-                                "BaseTestInteropBC.java:  encrypt():  The outputSizeNeeded is:                    "
+                                "TestAESCCMInteropBC.java:  encrypt():  The outputSizeNeeded is:                    "
                                         + outputSizeNeeded);
 
                     int outputLengthNeeded = cipher.getOutputSize(plaintext.length);
@@ -508,7 +528,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     if (cipherText2Length != cipherText2.length) {
                         if (printJunitTrace)
                             System.out.println(
-                                    "BaseTestInteropBC.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
+                                    "TestAESCCMInteropBC.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
                         Assertions.fail();
@@ -520,11 +540,11 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                 } else if (whichMethod == 3) {
                     if (printJunitTrace)
                         System.out
-                                .println("BaseTestInteropBC.java:  encrypt():  METHOD CHOSEN = 3");
+                                .println("TestAESCCMInteropBC.java:  encrypt():  METHOD CHOSEN = 3");
                     int outputSizeNeeded = cipher.getOutputSize(plaintext.length);
                     if (printJunitTrace)
                         System.out.println(
-                                "BaseTestInteropBC.java:  encrypt():  The outputSizeNeeded is:                    "
+                                "TestAESCCMInteropBC.java:  encrypt():  The outputSizeNeeded is:                    "
                                         + outputSizeNeeded);
 
                     int outputLengthNeeded = cipher.getOutputSize(plaintext.length);
@@ -535,7 +555,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     if (cipherText2Length != cipherText2.length) {
                         if (printJunitTrace)
                             System.out.println(
-                                    "BaseTestInteropBC.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
+                                    "TestAESCCMInteropBC.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
                         Assertions.fail();
@@ -547,7 +567,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                 } else if (whichMethod == 4) {
                     if (printJunitTrace)
                         System.out
-                                .println("BaseTestInteropBC.java:  encrypt():  METHOD CHOSEN = 4");
+                                .println("TestAESCCMInteropBC.java:  encrypt():  METHOD CHOSEN = 4");
 
                     ByteBuffer byteBuffer1 = ByteBuffer.allocate(plaintext.length);
                     byteBuffer1.put(plaintext);
@@ -566,7 +586,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     if (cipherText2Length != cipherText2.length) {
                         if (printJunitTrace)
                             System.out.println(
-                                    "BaseTestInteropBC.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
+                                    "TestAESCCMInteropBC.java:  encrypt():  ERROR:  cipherText2Length is not equal to cipherText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
                         Assertions.fail();
@@ -579,13 +599,13 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
             } catch (Exception ex) {
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  encrypt():  ERROR:  The following exception was thrown.  ");
+                            "TestAESCCMInteropBC.java:  encrypt():  ERROR:  The following exception was thrown.  ");
                 ex.printStackTrace(System.out);
                 Assertions.fail();
             }
 
             if (printJunitTrace)
-                System.out.println("BaseTestInteropBC.java:  encrypt():  The encrypted bytes are:");
+                System.out.println("TestAESCCMInteropBC.java:  encrypt():  The encrypted bytes are:");
             if (printJunitTrace)
                 System.out.println(toHexString(cipherText) + "\n");
 
@@ -595,7 +615,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                             "\n==========================================================================");
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  encrypt():  *****   END ENCRYPTION METHOD    *****");
+                            "TestAESCCMInteropBC.java:  encrypt():  *****   END ENCRYPTION METHOD    *****");
                 if (printJunitTrace)
                     System.out.println(
                             "==========================================================================\n");
@@ -641,7 +661,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                             "\n==========================================================================");
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  encrypt():  *****   END ENCRYPTION METHOD    *****");
+                            "TestAESCCMInteropBC.java:  encrypt():  *****   END ENCRYPTION METHOD    *****");
                 if (printJunitTrace)
                     System.out.println(
                             "==========================================================================\n");
@@ -662,7 +682,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                         "\n==========================================================================");
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  decrypt():  *****   BEGIN DECRYPTION METHOD  *****");
+                        "TestAESCCMInteropBC.java:  decrypt():  *****   BEGIN DECRYPTION METHOD  *****");
             if (printJunitTrace)
                 System.out.println(
                         "==========================================================================\n");
@@ -674,11 +694,11 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
             Cipher cipher = Cipher.getInstance("AES/CCM/NoPadding", decryptionProvider);
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  decrypt():  The decryption cipher is a:                "
+                        "TestAESCCMInteropBC.java:  decrypt():  The decryption cipher is a:                "
                                 + cipher.getClass().getName());
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  decrypt():  The provider of the decryption cipher is:  "
+                        "TestAESCCMInteropBC.java:  decrypt():  The provider of the decryption cipher is:  "
                                 + cipher.getProvider());
 
             // Create SecretKeySpec
@@ -687,11 +707,11 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
             // Create the ibm.security.internal.spec.CCMParameterSpec object
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  decrypt():  The decryption tag length (in bits)  is:  "
+                        "TestAESCCMInteropBC.java:  decrypt():  The decryption tag length (in bits)  is:  "
                                 + ccmTagLength);
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  decrypt():  The decryption IV length (in bytes) is:  "
+                        "TestAESCCMInteropBC.java:  decrypt():  The decryption IV length (in bytes) is:  "
                                 + IV.length);
             ibm.security.internal.spec.CCMParameterSpec ccmParameterSpec = new ibm.security.internal.spec.CCMParameterSpec(
                     ccmTagLength, IV); // ccmTagLength is specified in bits
@@ -704,7 +724,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
 
             if (printJunitTrace)
                 System.out.println(
-                        "BaseTestInteropBC.java:  decrypt():  MAKING OCK DECRYPTION CALL FROM decrypt() METHOD !!!");
+                        "TestAESCCMInteropBC.java:  decrypt():  MAKING OCK DECRYPTION CALL FROM decrypt() METHOD !!!");
 
             // Perform Decryption
             byte[] decryptedText = null;
@@ -715,7 +735,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                 if (whichMethod == 0) {
                     if (printJunitTrace)
                         System.out
-                                .println("BaseTestInteropBC.java:  decrypt():  METHOD CHOSEN = 0");
+                                .println("TestAESCCMInteropBC.java:  decrypt():  METHOD CHOSEN = 0");
 
                     // Decrypt the cipherText
 
@@ -727,7 +747,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                 } else if (whichMethod == 1) {
                     if (printJunitTrace)
                         System.out
-                                .println("BaseTestInteropBC.java:  decrypt():  METHOD CHOSEN = 1");
+                                .println("TestAESCCMInteropBC.java:  decrypt():  METHOD CHOSEN = 1");
 
                     // Decrypt the cipherText
 
@@ -739,11 +759,11 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                 } else if (whichMethod == 2) {
                     if (printJunitTrace)
                         System.out
-                                .println("BaseTestInteropBC.java:  decrypt():  METHOD CHOSEN = 2");
+                                .println("TestAESCCMInteropBC.java:  decrypt():  METHOD CHOSEN = 2");
                     int outputSizeNeeded = cipher.getOutputSize(cipherText.length);
                     if (printJunitTrace)
                         System.out.println(
-                                "BaseTestInteropBC.java:  decrypt():  The outputSizeNeeded is:                    "
+                                "TestAESCCMInteropBC.java:  decrypt():  The outputSizeNeeded is:                    "
                                         + outputSizeNeeded);
 
                     outputSizeNeeded = cipher.getOutputSize(cipherText.length);
@@ -754,7 +774,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     if (decryptedText2Length != decryptedText2.length) {
                         if (printJunitTrace)
                             System.out.println(
-                                    "BaseTestInteropBC.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
+                                    "TestAESCCMInteropBC.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
                         Assertions.fail();
@@ -765,12 +785,12 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     System.arraycopy(decryptedText2, 0, decryptedText, 0, decryptedText2.length);
                 } else if (whichMethod == 3) {
                     if (printJunitTrace) {
-                        System.out.println("BaseTestInteropBC.java:  decrypt():  METHOD CHOSEN = 3");
+                        System.out.println("TestAESCCMInteropBC.java:  decrypt():  METHOD CHOSEN = 3");
                     }
                     int outputSizeNeeded = cipher.getOutputSize(cipherText.length);
                     if (printJunitTrace)
                         System.out.println(
-                                "BaseTestInteropBC.java:  decrypt():  The outputSizeNeeded is:                    "
+                                "TestAESCCMInteropBC.java:  decrypt():  The outputSizeNeeded is:                    "
                                         + outputSizeNeeded);
 
                     outputSizeNeeded = cipher.getOutputSize(cipherText.length);
@@ -781,7 +801,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     if (decryptedText2Length != decryptedText2.length) {
                         if (printJunitTrace)
                             System.out.println(
-                                    "BaseTestInteropBC.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
+                                    "TestAESCCMInteropBC.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
                         Assertions.fail();
@@ -793,11 +813,11 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                 } else if (whichMethod == 4) {
                     if (printJunitTrace)
                         System.out
-                                .println("BaseTestInteropBC.java:  decrypt():  METHOD CHOSEN = 4");
+                                .println("TestAESCCMInteropBC.java:  decrypt():  METHOD CHOSEN = 4");
                     int outputSizeNeeded = cipher.getOutputSize(cipherText.length);
                     if (printJunitTrace)
                         System.out.println(
-                                "BaseTestInteropBC.java:  decrypt():  The outputSizeNeeded is:                    "
+                                "TestAESCCMInteropBC.java:  decrypt():  The outputSizeNeeded is:                    "
                                         + outputSizeNeeded);
 
                     ByteBuffer byteBuffer1 = ByteBuffer.allocate(cipherText.length);
@@ -812,7 +832,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                     if (decryptedText2Length != decryptedText2.length) {
                         if (printJunitTrace)
                             System.out.println(
-                                    "BaseTestInteropBC.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
+                                    "TestAESCCMInteropBC.java:  decrypt():  ERROR:  decryptedText2Length is not equal to decryptedText2.length.  ");
                         RuntimeException rtex = new RuntimeException();
                         rtex.printStackTrace(System.out);
                         Assertions.fail();
@@ -825,13 +845,13 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
             } catch (AEADBadTagException abte) {
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  decrypt():  ERROR:  The following AEADBadTagException was thrown on the cipher.doFinal() call.");
+                            "TestAESCCMInteropBC.java:  decrypt():  ERROR:  The following AEADBadTagException was thrown on the cipher.doFinal() call.");
                 abte.printStackTrace(System.out);
                 Assertions.fail();
             } catch (Exception ex) {
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  decrypt():  ERROR:  The following exception was thrown.  ");
+                            "TestAESCCMInteropBC.java:  decrypt():  ERROR:  The following exception was thrown.  ");
                 ex.printStackTrace(System.out);
                 Assertions.fail();
             }
@@ -842,7 +862,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                             "\n==========================================================================");
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  decrypt():  *****    END DECRYPTION METHOD   *****");
+                            "TestAESCCMInteropBC.java:  decrypt():  *****    END DECRYPTION METHOD   *****");
                 if (printJunitTrace)
                     System.out.println(
                             "==========================================================================\n");
@@ -889,7 +909,7 @@ public class BaseTestAESCCMInteropBC extends BaseTestJunit5Interop {
                             "\n==========================================================================");
                 if (printJunitTrace)
                     System.out.println(
-                            "BaseTestInteropBC.java:  decrypt():  *****    END DECRYPTION METHOD   *****");
+                            "TestAESCCMInteropBC.java:  decrypt():  *****    END DECRYPTION METHOD   *****");
                 if (printJunitTrace)
                     System.out.println(
                             "==========================================================================\n");
