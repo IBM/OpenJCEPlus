@@ -12,9 +12,10 @@ import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 
 public final class ExtendedRandom {
 
-    private static final boolean IS_ZOS = System.getProperty("os.name")
-                                                .toLowerCase()
-                                                .contains("z/os");
+    // private static final boolean IS_ZOS = System.getProperty("os.name")
+    //                                             .toLowerCase()
+    //                                             .contains("z/os");
+    private static final boolean IS_ZOS = false;
 
     private OpenJCEPlusProvider provider;
     private NativeInterface nativeInterface;
