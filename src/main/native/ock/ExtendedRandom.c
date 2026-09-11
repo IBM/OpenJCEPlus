@@ -136,7 +136,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_EXTRAND_1nextBytes
         if ((spState == (SP800_90STATE)ICC_FAILURE) ||
             (spState == SP800_90ERROR) || (spState == SP800_90CRIT)) {
             ockCheckStatus(ockCtx);
-            throwOCKException(env, 0, "ICC_RNG_CTX_Init() failed");
+            throwOCKException(env, 0, "ICC_RNG_Generate() failed");
         }
     }
 
@@ -191,7 +191,7 @@ Java_com_ibm_crypto_plus_provider_ock_NativeOCKImplementation_EXTRAND_1setSeed(
         if ((spState == (SP800_90STATE)ICC_FAILURE) ||
             (spState == SP800_90ERROR) || (spState == SP800_90CRIT)) {
             ockCheckStatus(ockCtx);
-            throwOCKException(env, 0, "ICC_RNG_CTX_Init() failed");
+            throwOCKException(env, 0, "ICC_RNG_ReSeed() failed");
         }
     }
 
