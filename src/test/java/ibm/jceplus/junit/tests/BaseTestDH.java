@@ -1,12 +1,12 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
@@ -23,10 +23,18 @@ import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestDH extends BaseTestJunit5 {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+public abstract class BaseTestDH extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
@@ -45,6 +53,7 @@ public class BaseTestDH extends BaseTestJunit5 {
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         generateParameters(getProviderName());
     }
 
@@ -57,10 +66,12 @@ public class BaseTestDH extends BaseTestJunit5 {
     }
 
     boolean generated = false;
+    String lastGeneratedProvider = null;
 
     synchronized void generateParameters(String provider_name) {
-        if (generated)
+        if (generated && provider_name.equals(lastGeneratedProvider))
             return;
+        generated = false;
         try {
             System.out.println("Provider name = " + provider_name);
             if (!provider_name.equals("OpenJCEPlusFIPS")) {
@@ -104,6 +115,7 @@ public class BaseTestDH extends BaseTestJunit5 {
             kpgB.initialize(algParameterSpec_8192);
             keyPairB_8192 = kpgB.generateKeyPair();
             generated = true;
+            lastGeneratedProvider = provider_name;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

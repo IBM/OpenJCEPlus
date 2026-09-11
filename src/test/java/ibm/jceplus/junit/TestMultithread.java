@@ -33,7 +33,6 @@ public class TestMultithread {
     private final String[] testList = {
             "ibm.jceplus.junit.openjceplus.multithread.TestAESGCMUpdate",
             "ibm.jceplus.junit.openjceplus.multithread.TestAliases",
-            "ibm.jceplus.junit.openjceplus.multithread.TestDH",
             "ibm.jceplus.junit.openjceplus.multithread.TestDSAKey",
             "ibm.jceplus.junit.openjceplus.multithread.TestECDH",
             "ibm.jceplus.junit.openjceplus.multithread.TestECDHInteropSunEC",
