@@ -28,6 +28,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.provider.MethodSource;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -105,8 +106,10 @@ public class TestProviderServices extends BaseTest {
         for (String alias : Alaises) {
             System.out.println(alias);
         }
-        List<String> expected = Arrays.asList("AESCCM", "TEST", "JOHN");
-        assertEquals(expected, Alaises);
+        String[] expected = {"AESCCM", "JOHN", "TEST"};
+        String[] al = Alaises.toArray(String[]::new);
+        Arrays.sort(al);
+        assertArrayEquals(expected, al);
 
         for (String alias : Alaises) {
             System.out.println(alias);
@@ -126,8 +129,10 @@ public class TestProviderServices extends BaseTest {
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
              
         List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
-        List<String> expected = Arrays.asList("AESCCM");
-        assertEquals(expected, Alaises);
+        String[] expected = {"AESCCM"};
+        String[] al = Alaises.toArray(String[]::new);
+        Arrays.sort(al);
+        assertArrayEquals(expected, al);
 
         for (String alias : Alaises) {
             System.out.println(alias);
@@ -148,8 +153,10 @@ public class TestProviderServices extends BaseTest {
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
              
         List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
-        List<String> expected = Arrays.asList("AESCCM", "JOHN");
-        assertEquals(expected, Alaises);
+        String[] expected = {"AESCCM", "JOHN"};
+        String[] al = Alaises.toArray(String[]::new);
+        Arrays.sort(al);
+        assertArrayEquals(expected, al);
 
         for (String alias : Alaises) {
             System.out.println(alias);
@@ -169,8 +176,10 @@ public class TestProviderServices extends BaseTest {
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
              
         List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
-        List<String> expected = Arrays.asList("TEST", "JOHN");
-        assertEquals(expected, Alaises);
+        String[] expected = {"JOHN", "TEST"};
+        String[] al = Alaises.toArray(String[]::new);
+        Arrays.sort(al);
+        assertArrayEquals(expected, al);
 
         for (String alias : Alaises) {
             System.out.println(alias);
