@@ -392,38 +392,43 @@ public class TestSHA3_512KAT extends BaseTestMessageDigest {
         }
     }
 
-    @Test
-    public void testSHA3_512_SingleBlock() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        byte[] digest = md.digest(BaseUtils.hexStringToByteArray(tests[0][0]));
-
-        assertTrue(Arrays.equals(digest, BaseUtils.hexStringToByteArray(tests[0][1])), "Digest did not match expected");
+    @Override
+    protected int expectedDigestLength() {
+        return 64;
     }
 
-    @Test
-    public void testSHA3_512_reset() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(BaseUtils.hexStringToByteArray(tests[0][0]));
-        md.reset();
-        md.update(BaseUtils.hexStringToByteArray(tests[1][0]));
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, BaseUtils.hexStringToByteArray(tests[1][1])), "Digest did not match expected");
+    @Override
+    protected byte[] getSingleBlockInput() {
+        return BaseUtils.hexStringToByteArray(tests[0][0]);
     }
 
-    @Test
-    public void testSHA3_512_MultiBlock() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        byte[] digest = md.digest(BaseUtils.hexStringToByteArray(tests[1][0]));
-
-        assertTrue(Arrays.equals(digest, BaseUtils.hexStringToByteArray(tests[1][1])), "Digest did not match expected");
+    @Override
+    protected byte[] getExpectedSingleBlockDigest() {
+        return BaseUtils.hexStringToByteArray(tests[0][1]);
     }
 
-    @Test
-    public void testSHA3_512_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        int digestLength = md.getDigestLength();
-        boolean isExpectedValue = (digestLength == 64);
-        assertTrue(isExpectedValue, "Unexpected digest length");
+    @Override
+    protected byte[] getMultiBlockInput() {
+        return BaseUtils.hexStringToByteArray(tests[1][0]);
+    }
+
+    @Override
+    protected byte[] getExpectedMultiBlockDigest() {
+        return BaseUtils.hexStringToByteArray(tests[1][1]);
+    }
+
+    @Override
+    protected byte[] getResetFirstInput() {
+        return BaseUtils.hexStringToByteArray(tests[0][0]);
+    }
+
+    @Override
+    protected byte[] getResetSecondInput() {
+        return BaseUtils.hexStringToByteArray(tests[1][0]);
+    }
+
+    @Override
+    protected byte[] getExpectedResetDigest() {
+        return BaseUtils.hexStringToByteArray(tests[1][1]);
     }
 }

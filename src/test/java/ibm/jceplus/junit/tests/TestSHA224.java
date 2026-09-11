@@ -9,16 +9,12 @@
 package ibm.jceplus.junit.tests;
 
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.provider.MethodSource;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag(Tags.OPENJCEPLUS_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
@@ -51,51 +47,43 @@ public class TestSHA224 extends BaseTestMessageDigest {
         setAlgorithm("SHA-224");
     }
 
-    @Test
-    public void testSHA224_1() throws Exception {
-        boolean result = checkDigest(input_1, digest_1);
-        assertTrue(result, "Digest did not match expected, testSHA224_1:");
-
+    @Override
+    protected int expectedDigestLength() {
+        return 28;
     }
 
-    @Test
-    public void testSHA224_2() throws Exception {
-        boolean result = checkDigest(input_2, digest_2);
-        assertTrue(result, "Digest did not match expected, testSHA224_2");
+    @Override
+    protected byte[] getSingleBlockInput() {
+        return input_1;
     }
 
-    @Test
-    public void testSHA224_reset() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(input_1);
-        md.reset();
-        md.update(input_2);
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, digest_2), "Digest did not match expected");
+    @Override
+    protected byte[] getExpectedSingleBlockDigest() {
+        return digest_1;
     }
 
-    @Test
-    public void testSHA224_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        int digestLength = md.getDigestLength();
-        boolean isExpectedValue = (digestLength == 28);
-        assertTrue(isExpectedValue, "Unexpected digest length");
+    @Override
+    protected byte[] getMultiBlockInput() {
+        return input_2;
     }
 
+    @Override
+    protected byte[] getExpectedMultiBlockDigest() {
+        return digest_2;
+    }
 
-    private boolean checkDigest(byte[] input, byte[] out) {
-        boolean result = false;
-        try {
-            MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-            byte[] digest = md.digest(input);
+    @Override
+    protected byte[] getResetFirstInput() {
+        return input_1;
+    }
 
-            result = Arrays.equals(digest, out);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
+    @Override
+    protected byte[] getResetSecondInput() {
+        return input_2;
+    }
 
+    @Override
+    protected byte[] getExpectedResetDigest() {
+        return digest_2;
     }
 }
-

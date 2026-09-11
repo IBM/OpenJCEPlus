@@ -85,38 +85,43 @@ public class TestSHA256 extends BaseTestMessageDigest {
         assertTrue(Arrays.equals(digest, result_1), "Digest did not match expected");
     }
 
-    @Test
-    public void testSHA256_SingleBlock() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        byte[] digest = md.digest(input_2);
-
-        assertTrue(Arrays.equals(digest, result_2), "Digest did not match expected");
+    @Override
+    protected int expectedDigestLength() {
+        return 32;
     }
 
-    @Test
-    public void testSHA256_reset() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(input_1);
-        md.reset();
-        md.update(input_2);
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, result_2), "Digest did not match expected");
+    @Override
+    protected byte[] getSingleBlockInput() {
+        return input_2;
     }
 
-    @Test
-    public void testSHA256_MultiBlock() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        byte[] digest = md.digest(input_3);
-
-        assertTrue(Arrays.equals(digest, result_3), "Digest did not match expected");
+    @Override
+    protected byte[] getExpectedSingleBlockDigest() {
+        return result_2;
     }
 
-    @Test
-    public void testSHA256_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        int digestLength = md.getDigestLength();
-        boolean isExpectedValue = (digestLength == 32);
-        assertTrue(isExpectedValue, "Unexpected digest length");
+    @Override
+    protected byte[] getMultiBlockInput() {
+        return input_3;
+    }
+
+    @Override
+    protected byte[] getExpectedMultiBlockDigest() {
+        return result_3;
+    }
+
+    @Override
+    protected byte[] getResetFirstInput() {
+        return input_1;
+    }
+
+    @Override
+    protected byte[] getResetSecondInput() {
+        return input_2;
+    }
+
+    @Override
+    protected byte[] getExpectedResetDigest() {
+        return result_2;
     }
 }

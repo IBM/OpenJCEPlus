@@ -108,41 +108,43 @@ public class TestSHA512 extends BaseTestMessageDigest {
 
     }
 
-    @Test
-    public void testSHA_reset() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(input_1);
-        md.reset();
-        md.update(input_2);
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, result_2), "Digest did not match expected");
-
+    @Override
+    protected int expectedDigestLength() {
+        return 64;
     }
 
-    @Test
-    public void testSHA512_SingleBlock() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        byte[] digest = md.digest(input_2);
-
-        assertTrue(Arrays.equals(digest, result_2), "Digest did not match expected");
-
+    @Override
+    protected byte[] getSingleBlockInput() {
+        return input_2;
     }
 
-    @Test
-    public void testSHA512_MultiBlock() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        byte[] digest = md.digest(input_3);
-
-        assertTrue(Arrays.equals(digest, result_3), "Digest did not match expected");
-
+    @Override
+    protected byte[] getExpectedSingleBlockDigest() {
+        return result_2;
     }
 
-    @Test
-    public void testSHA512_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        int digestLength = md.getDigestLength();
-        boolean isExpectedValue = (digestLength == 64);
-        assertTrue(isExpectedValue, "Unexpected digest length");
+    @Override
+    protected byte[] getMultiBlockInput() {
+        return input_3;
+    }
+
+    @Override
+    protected byte[] getExpectedMultiBlockDigest() {
+        return result_3;
+    }
+
+    @Override
+    protected byte[] getResetFirstInput() {
+        return input_1;
+    }
+
+    @Override
+    protected byte[] getResetSecondInput() {
+        return input_2;
+    }
+
+    @Override
+    protected byte[] getExpectedResetDigest() {
+        return result_2;
     }
 }
