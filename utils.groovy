@@ -285,10 +285,103 @@ def getMaven(software) {
 }
 
 /*
+ * Run the native OCKC self-tests (jcctest and jicc_perf) from the extracted OCK
+ * binaries directory. These tests exercise the OCKC native library directly and
+ * can expose platform-specific initialization or threading failures before the
+ * Java test suite is run.
+ *
+ * jcctest   - loads and initializes OCKC, exercises its built-in self-tests.
+ * jicc_perf - runs a multi-threaded digest/cipher performance sweep; the -t flag
+ *             stresses thread safety paths that have historically triggered issues.
+ *
+ * Both tests run with LIBPATH (AIX) / LD_LIBRARY_PATH (Linux) / DYLD_LIBRARY_PATH
+ * (macOS) pointing at the OCK directory so the shared library is found.
+ * Output is captured to ockctest-{iteration}-{platform}.log and jicc_perf-{iteration}-{platform}.log
+ * and archived as build
+ * artifacts. A non-zero exit code from either test fails the build.
+ */
+def runOckcTests(platform, iteration, software) {
+    if (RUN_OCKC_TESTS != "true") {
+        return
+    }
+    if (software == "windows" || software == "zos") {
+        echo "OCKC native tests are not supported on ${software}; skipping."
+        return
+    }
+
+    echo "Running native OCKC self-test (jcctest) in $WORKSPACE/openjceplus/OCK"
+
+    dir("openjceplus/OCK") {
+        // Set the library search path appropriate to the OS.
+        def libPathVar = "LD_LIBRARY_PATH"
+        if (software == "aix") {
+            libPathVar = "LIBPATH"
+        } else if (software == "mac") {
+            libPathVar = "DYLD_LIBRARY_PATH"
+        }
+        def libPathExport = "export ${libPathVar}=\$PWD:\$PWD/jgsk_sdk/lib64:\$${libPathVar};"
+
+        // jcctest — OCKC self-test
+        def ockcTestLog = "ockctest-${iteration}-${platform}.log"
+        sh "${libPathExport} ./jcctest > ${ockcTestLog} 2>&1"
+        echo "jcctest completed — output in ${ockcTestLog}"
+        archiveArtifacts artifacts: ockcTestLog, allowEmptyArchive: false
+    }
+}
+
+/*
+ * Run the native OCKC performance test (jicc_perf) from the extracted OCK binaries
+ * directory. jicc_perf benchmarks digest and cipher streaming speeds and, when run
+ * with multiple threads via the -t flag, stresses thread-safety paths that have
+ * historically exposed platform-specific failures.
+ *
+ * The number of threads is controlled by the OCKC_PERF_THREADS parameter. When
+ * empty, jicc_perf runs with its built-in default of 1 thread.
+ *
+ * Output is captured to jicc_perf-{iteration}-{platform}.log and archived as a
+ * build artifact. A non-zero exit code fails the build.
+ */
+def runOckcPerf(platform, iteration, software) {
+    if (RUN_OCKC_PERF != "true") {
+        return
+    }
+    if (software == "windows" || software == "zos") {
+        echo "OCKC perf test is not supported on ${software}; skipping."
+        return
+    }
+
+    dir("openjceplus/OCK") {
+        // Set the library search path appropriate to the OS.
+        def libPathVar = "LD_LIBRARY_PATH"
+        if (software == "aix") {
+            libPathVar = "LIBPATH"
+        } else if (software == "mac") {
+            libPathVar = "DYLD_LIBRARY_PATH"
+        }
+        def libPathExport = "export ${libPathVar}=\$PWD:\$PWD/jgsk_sdk/lib64:\$${libPathVar};"
+
+        // Build the jicc_perf command, appending -t <n> only when the user supplied a value.
+        def threads = OCKC_PERF_THREADS?.trim()
+        def threadFlag = threads ? " -t ${threads}" : ""
+        def jiccPerfLog = "ockctest_perf-${iteration}-${platform}.log"
+
+        echo "Running jicc_perf${threadFlag} — output in ${jiccPerfLog}"
+        // Use returnStatus so a non-zero exit does not abort before the log is archived.
+        // A non-zero result is itself diagnostic output — we warn and continue so Maven
+        // tests still run and the log is always captured as a build artifact.
+        def perfRC = sh(script: "${libPathExport} ./jgsk_sdk/bin/jicc_perf${threadFlag} > ${jiccPerfLog} 2>&1", returnStatus: true)
+        archiveArtifacts artifacts: jiccPerfLog, allowEmptyArchive: false
+        if (perfRC != 0) {
+            echo "WARNING: jicc_perf exited with code ${perfRC} — see ${jiccPerfLog} for details"
+        }
+    }
+}
+
+/*
  * Export the appropriate environment variables
  * and run the requested maven commands.
  */
-def runOpenJCEPlus(command, software) {
+def runOpenJCEPlus(command, platform, iteration, software) {
     dir("openjceplus/OpenJCEPlus") {
         def additional_exports = ""
         if (software == "aix" || software == "zos") {
@@ -336,8 +429,31 @@ def runOpenJCEPlus(command, software) {
             environment = "export PATH=/opt/IBM/openxlC/17.1.3/bin:/opt/IBM/openxlC/17.1.3/tools:/opt/IBM/openxlC/17.1.3/compat/llvm:${mavenPath}:\$PATH;"
         }
 
+        // Prepare OCKC trace file before running Maven.
+        // The OCKC native library detects the fixed filename GSKIT_CRYPTO.log in the
+        // current working directory and appends startup/loading diagnostics to it.
+        // After the run we rename it to follow the platform-iteration archive pattern.
+        def captureOckcTrace = CAPTURE_OCKC_TRACE == "true"
+        def ockcTraceLog = "GSKIT_CRYPTO-${iteration}-${platform}.log"
+        if (captureOckcTrace && software != "windows" && software != "zos") {
+            sh "rm -f GSKIT_CRYPTO.log && touch GSKIT_CRYPTO.log"
+            echo "OCKC trace enabled: GSKIT_CRYPTO.log created"
+        }
+
         if (software != "windows") {
             sh "${java_home} ${gskit_home} ${additional_exports} ${environment} mvn '-Dock.library.path=${ock_path}' ${additional_cmd_args} --batch-mode ${command}"
+        }
+
+        // Rename and archive the OCKC trace log so it is accessible from the Jenkins build page.
+        if (captureOckcTrace && software != "windows" && software != "zos") {
+            def logExists = sh(script: "test -s GSKIT_CRYPTO.log && echo yes || echo no", returnStdout: true).trim()
+            if (logExists == "yes") {
+                sh "mv GSKIT_CRYPTO.log ${ockcTraceLog}"
+                archiveArtifacts artifacts: ockcTraceLog, allowEmptyArchive: true
+                echo "OCKC trace archived: ${ockcTraceLog}"
+            } else {
+                echo "OCKC trace enabled but GSKIT_CRYPTO.log is empty or was not written — the OCKC library may not support tracing on this platform."
+            }
         }
     }
 }
@@ -395,6 +511,8 @@ return [
     getJava: this.&getJava,
     getMaven: this.&getMaven,
     cloneOpenJCEPlus: this.&cloneOpenJCEPlus,
+    runOckcTests: this.&runOckcTests,
+    runOckcPerf: this.&runOckcPerf,
     runOpenJCEPlus: this.&runOpenJCEPlus,
     upload_artifactory: this.&upload_artifactory,
     getSanitizedBranchName: this.&getSanitizedBranchName,
