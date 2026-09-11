@@ -94,6 +94,13 @@ public class TestArguments {
                 }
             }
         }
+
+        // z/OS does not build an OpenSSL native library, so OpenSSL-backed provider
+        // tests must never run there regardless of how the suite was invoked.
+        if (System.getProperty("os.name", "").contains("z/OS")) {
+            enabledProviders.removeIf(tp -> tp == TestProvider.OpenJCEPlus_OpenSSL);
+        }
+
         return enabledProviders.stream();
     }
 
