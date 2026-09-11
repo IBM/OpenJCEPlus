@@ -185,7 +185,7 @@ class PQCKeyFactory extends KeyFactorySpi {
 
     /**
      *  Internal utility method for checking key algorithm. Per JEP 497, getAlgorithm() always
-     * returns the family name ("ML-DSA", "ML-KEM") for all PQC key types — both our own
+     * returns the family name ("ML-DSA", "ML-KEM") for all PQC key types - both our own
      * and foreign providers (e.g. SUN).
      */
     private void checkKeyAlgo(Key key) throws InvalidKeyException {
@@ -200,9 +200,9 @@ class PQCKeyFactory extends KeyFactorySpi {
         // Accept if:
         //   1. Exact match (e.g. "ML-DSA-65" factory + "ML-DSA-65" key, or "ML-DSA" + "ML-DSA")
         //   2. Generic factory + our specific-param-set key
-        //      (e.g. "ML-DSA" factory, keyParamName="ML-DSA-87" → keyParamName starts with algName+"-")
+        //      (e.g. "ML-DSA" factory, keyParamName="ML-DSA-87" -> keyParamName starts with algName+"-")
         //   3. Param-set factory + foreign key that carries only the family name
-        //      (e.g. "ML-DSA-65" factory, keyParamName="ML-DSA" → algName starts with keyParamName+"-")
+        //      (e.g. "ML-DSA-65" factory, keyParamName="ML-DSA" -> algName starts with keyParamName+"-")
         String algNameUC  = this.algName.toUpperCase();
         String keyParamUC = keyParamName.toUpperCase();
         boolean matches = keyParamUC.equals(algNameUC)
@@ -221,7 +221,7 @@ class PQCKeyFactory extends KeyFactorySpi {
      * param-set name (e.g. {@code "ML-DSA-65"}) is available directly, even though
      * {@code getAlgorithm()} returns only the family name {@code "ML-DSA"} per JEP 497.
      * For foreign key types from other providers only the family name is available
-     * via {@code getAlgorithm()}, so we fall back to that — a param-set factory will
+     * via {@code getAlgorithm()}, so we fall back to that - a param-set factory will
      * still accept such keys via the prefix check in {@link #checkKeyAlgo}.
      */
     private static String resolveParamName(Key key) {
