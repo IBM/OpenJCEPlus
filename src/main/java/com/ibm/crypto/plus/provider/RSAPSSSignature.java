@@ -27,6 +27,7 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Locale;
 
 /**
  * PKCS#1 RSA-PSS signatures with the various message digest algorithms. This
@@ -65,6 +66,10 @@ public final class RSAPSSSignature extends SignatureSpi {
         DIGEST_LENGTHS.put("SHA512/224", 28);
         DIGEST_LENGTHS.put("SHA-512/256", 32);
         DIGEST_LENGTHS.put("SHA512/256", 32);
+        DIGEST_LENGTHS.put("SHA3-224", 28);
+        DIGEST_LENGTHS.put("SHA3-256", 32);
+        DIGEST_LENGTHS.put("SHA3-384", 48);
+        DIGEST_LENGTHS.put("SHA3-512", 64);
     }
 
     // private key, if initialized for signing
@@ -150,6 +155,22 @@ public final class RSAPSSSignature extends SignatureSpi {
                     // case "SHA-512/256":
                     //         pssParameterSpec = new PSSParameterSpec(ockDigestAlgo, "MGF1", MGF1ParameterSpec.SHA512_256, 32, 1);
                     //         break;
+                    case "SHA3-224":
+                        pssParameterSpec = new PSSParameterSpec(ockDigestAlgo, "MGF1",
+                                MGF1ParameterSpec.SHA3_224, 28, 1);
+                        break;
+                    case "SHA3-256":
+                        pssParameterSpec = new PSSParameterSpec(ockDigestAlgo, "MGF1",
+                                MGF1ParameterSpec.SHA3_256, 32, 1);
+                        break;
+                    case "SHA3-384":
+                        pssParameterSpec = new PSSParameterSpec(ockDigestAlgo, "MGF1",
+                                MGF1ParameterSpec.SHA3_384, 48, 1);
+                        break;
+                    case "SHA3-512":
+                        pssParameterSpec = new PSSParameterSpec(ockDigestAlgo, "MGF1",
+                                MGF1ParameterSpec.SHA3_512, 64, 1);
+                        break;
                     default:
                         if (provider.isFIPS()) {
                             pssParameterSpec = new PSSParameterSpec(ockDigestAlgo, "MGF1",
@@ -358,87 +379,35 @@ public final class RSAPSSSignature extends SignatureSpi {
 
         //Thread.dumpStack();
         pssParameterSpec = validateSigParams(params);
-        MGF1ParameterSpec mgf1ParamSpec = (MGF1ParameterSpec) pssParameterSpec.getMGFParameters();
 
-        // If the message digest specified within the params is not the same as the MGF message digest
-        // then throw an InvalidAlgorithmParameterException.
-        String messageDigest = pssParameterSpec.getDigestAlgorithm();
-        if ((messageDigest != null) && (mgf1ParamSpec != null)) {
-            String mgfMessageDigest = mgf1ParamSpec.getDigestAlgorithm();
+        String messageDigest = normalizeDigestNameForComparison(pssParameterSpec.getDigestAlgorithm());
 
-            if (mgfMessageDigest != null) {
-                boolean throwException = true;
-                if ((messageDigest.equalsIgnoreCase("SHA1")
-                        || messageDigest.equalsIgnoreCase("SHA-1")
-                        || messageDigest.equalsIgnoreCase("SHA")) && (!provider.isFIPS())) {
-                    if (mgfMessageDigest.equalsIgnoreCase("SHA1")
-                            || mgfMessageDigest.equalsIgnoreCase("SHA-1")
-                            || mgfMessageDigest.equalsIgnoreCase("SHA")) {
-                        throwException = false;
-                    }
-                } else if (messageDigest.equalsIgnoreCase("SHA224")
-                        || messageDigest.equalsIgnoreCase("SHA-224")) {
-                    if (mgfMessageDigest.equalsIgnoreCase("SHA224")
-                            || mgfMessageDigest.equalsIgnoreCase("SHA-224")) {
-                        throwException = false;
-                    }
-                } else if (messageDigest.equalsIgnoreCase("SHA256")
-                        || messageDigest.equalsIgnoreCase("SHA-256")
-                        || messageDigest.equalsIgnoreCase("SHA2")) {
-                    if (mgfMessageDigest.equalsIgnoreCase("SHA256")
-                            || mgfMessageDigest.equalsIgnoreCase("SHA-256")
-                            || mgfMessageDigest.equalsIgnoreCase("SHA2")) {
-                        throwException = false;
-                    }
-                } else if (messageDigest.equalsIgnoreCase("SHA384")
-                        || messageDigest.equalsIgnoreCase("SHA-384")
-                        || messageDigest.equalsIgnoreCase("SHA3")) {
-                    if (mgfMessageDigest.equalsIgnoreCase("SHA384")
-                            || mgfMessageDigest.equalsIgnoreCase("SHA-384")
-                            || mgfMessageDigest.equalsIgnoreCase("SHA3")) {
-                        throwException = false;
-                    }
-                } else if (messageDigest.equalsIgnoreCase("SHA512")
-                        || messageDigest.equalsIgnoreCase("SHA-512")
-                        || messageDigest.equalsIgnoreCase("SHA5")) {
-                    if (mgfMessageDigest.equalsIgnoreCase("SHA512")
-                            || mgfMessageDigest.equalsIgnoreCase("SHA-512")
-                            || mgfMessageDigest.equalsIgnoreCase("SHA5")) {
-                        throwException = false;
-                    }
-                } else if (messageDigest.equalsIgnoreCase("SHA512/224")
-                        || messageDigest.equalsIgnoreCase("SHA-512/224")) {
-                    if (mgfMessageDigest.equalsIgnoreCase("SHA512/224")
-                            || mgfMessageDigest.equalsIgnoreCase("SHA-512/224")) {
-                        throwException = false;
-                    }
-                } else if (messageDigest.equalsIgnoreCase("SHA512/256")
-                        || messageDigest.equalsIgnoreCase("SHA-512/256")) {
-                    if (mgfMessageDigest.equalsIgnoreCase("SHA512/256")
-                            || mgfMessageDigest.equalsIgnoreCase("SHA-512/256")) {
-                        throwException = false;
-                    }
-                }
-
-                // No need to check other messageDigest Strings since
-                // mgfMessageDigest can only assume values of SHA-1, SHA-224, SHA-256, SHA-384, and SHA-512, or variations those.
-                /*
-                 * According to [PKCS#1v2.1] the mask generation function (MGF)
-                 * if based on a hash algo is recommended to use the same hash 
-                 * function as the hash function fingerprinting the message. 
-                 * 
-                 * However the structures in [PKCS#1v2.1] allow for separate 
-                 * parameterization of the MGF and the message digest.
-                 * 
-                 * https://datatracker.ietf.org/doc/html/rfc3447#page-29
-                 */
-                if (throwException) {
-                    InvalidAlgorithmParameterException ex = new InvalidAlgorithmParameterException(
-                            "The message digest within the PSSParameterSpec does not match the MGF message digest.");
-                    throw ex;
-                }
-            }
+        AlgorithmParameterSpec mgfParameters = pssParameterSpec.getMGFParameters();
+        if (!(mgfParameters instanceof MGF1ParameterSpec)) {
+            throw new InvalidAlgorithmParameterException(
+                    "MGF parameters must be an instance of MGF1ParameterSpec");
         }
+
+        String mgfMessageDigest = normalizeDigestNameForComparison(
+                ((MGF1ParameterSpec) mgfParameters).getDigestAlgorithm());
+
+        if (!messageDigest.equals(mgfMessageDigest)) {
+            throw new InvalidAlgorithmParameterException(
+                    "The message digest within the PSSParameterSpec "
+                            + "does not match the MGF message digest.");
+        }
+
+        messageDigest = canonicalDigestName(pssParameterSpec.getDigestAlgorithm());
+        mgfMessageDigest = canonicalDigestName(((MGF1ParameterSpec) mgfParameters).getDigestAlgorithm());
+
+        MGF1ParameterSpec mgf1ParamSpec = new MGF1ParameterSpec(mgfMessageDigest);
+
+        pssParameterSpec = new PSSParameterSpec(
+                messageDigest,
+                "MGF1",
+                mgf1ParamSpec,
+                pssParameterSpec.getSaltLength(),
+                pssParameterSpec.getTrailerField());
 
         this.signature.setParameter(pssParameterSpec.getDigestAlgorithm(),
                 pssParameterSpec.getSaltLength(), pssParameterSpec.getTrailerField(),
@@ -642,5 +611,76 @@ public final class RSAPSSSignature extends SignatureSpi {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private static String normalizeDigestNameForComparison(String digestName)
+        throws InvalidAlgorithmParameterException {
+
+        if (digestName == null) {
+            throw new InvalidAlgorithmParameterException(
+                    "Digest algorithm cannot be null");
+        }
+
+        String normalized = digestName.toUpperCase(Locale.ROOT).replace('_', '-');
+
+        switch (normalized) {
+            case "SHA":
+            case "SHA1":
+            case "SHA-1":
+                return "SHA-1";
+
+            case "SHA224":
+            case "SHA-224":
+                return "SHA-224";
+
+            case "SHA2":
+            case "SHA256":
+            case "SHA-256":
+                return "SHA-256";
+
+            case "SHA384":
+            case "SHA-384":
+                return "SHA-384";
+
+            case "SHA512":
+            case "SHA-512":
+                return "SHA-512";
+
+            case "SHA512/224":
+            case "SHA-512/224":
+                return "SHA-512/224";
+
+            case "SHA512/256":
+            case "SHA-512/256":
+                return "SHA-512/256";
+
+            case "SHA3-224":
+                return "SHA3-224";
+
+            case "SHA3-256":
+                return "SHA3-256";
+
+            case "SHA3-384":
+                return "SHA3-384";
+
+            case "SHA3-512":
+                return "SHA3-512";
+
+            default:
+                return normalized;
+        }
+    }
+
+    private static String canonicalDigestName(String digestName)
+            throws InvalidAlgorithmParameterException {
+
+        String canonicalName = normalizeDigestNameForComparison(digestName);
+
+        if (!DIGEST_LENGTHS.containsKey(canonicalName)) {
+            throw new InvalidAlgorithmParameterException(
+                    "Unsupported digest algorithm: " + digestName);
+        }
+
+        return canonicalName;
     }
 }
