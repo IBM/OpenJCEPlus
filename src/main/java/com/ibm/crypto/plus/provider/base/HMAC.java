@@ -22,20 +22,20 @@ public final class HMAC {
     private final String badIdMsg = "HMAC Identifier is not valid";
     private static final String debPrefix = "HAMC";
 
-    public static HMAC getInstance(String digestAlgo, OpenJCEPlusProvider provider) throws NativeException {
+    public static HMAC getInstance(String requesterOCKDigestAlgo, OpenJCEPlusProvider provider) throws NativeException {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
 
-        return new HMAC(digestAlgo, provider);
+        return new HMAC(requesterOCKDigestAlgo, provider);
     }
 
-    public static HMAC getInstance(String digestAlgo, String ockAlgo, OpenJCEPlusProvider provider) throws NativeException {
+    public static HMAC getInstance(String requesterHashAlgo, String requesterOCKDigestAlgo, OpenJCEPlusProvider provider) throws NativeException {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
 
-        return new HMAC(digestAlgo, ockAlgo, provider);
+        return new HMAC(requesterHashAlgo, requesterOCKDigestAlgo, provider);
     }
 
     static void throwNativeException(int errorCode) throws NativeException {
@@ -51,27 +51,27 @@ public final class HMAC {
         }
     }
 
-    private HMAC(String digestAlgo, OpenJCEPlusProvider provider) throws NativeException {
+    private HMAC(String requesterOCKDigestAlgo, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "HMAC (String)";
         this.provider = provider;
-        String algo = "Hmac" + digestAlgo;
+        String backendOCKDigestAlgo = "Hmac" + requesterOCKDigestAlgo;
 
-        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Mac", algo);
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Mac", backendOCKDigestAlgo);
 
-        this.hmacId = this.nativeInterface.HMAC_create(digestAlgo);
+        this.hmacId = this.nativeInterface.HMAC_create(requesterOCKDigestAlgo);
         //OCKDebug.Msg (debPrefix, methodName,  "this.hmacId :" + this.hmacId + " digestAlgo :" + digestAlgo);
 
         this.provider.registerCleanable(this, cleanOCKResources(hmacId, reinitKey, nativeInterface));
     }
 
-    private HMAC(String digestAlgo, String ockAlgo, OpenJCEPlusProvider provider) throws NativeException {
+    private HMAC(String requesterHashAlgo, String requesterOCKDigestAlgo, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "HMAC (String)";
         this.provider = provider;
-        String algo = ockAlgo;
+        String backendOCKDigestAlgo = requesterOCKDigestAlgo;
 
-        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Mac", algo);
+        this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Mac", backendOCKDigestAlgo);
 
-        this.hmacId = this.nativeInterface.HMAC_create(digestAlgo);
+        this.hmacId = this.nativeInterface.HMAC_create(requesterHashAlgo);
         //OCKDebug.Msg (debPrefix, methodName,  "this.hmacId :" + this.hmacId + " digestAlgo :" + digestAlgo);
 
         this.provider.registerCleanable(this, cleanOCKResources(hmacId, reinitKey, nativeInterface));
