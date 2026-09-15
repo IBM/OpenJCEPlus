@@ -9,8 +9,8 @@
 
 TOPDIR=../../../..
 
-CFLAGS= -fPIC -DMAC -Werror -std=gnu99 -pedantic -Wall -fstack-protector -m64
-LDFLAGS= -shared -m64
+CFLAGS= -fPIC -DMAC -Werror -std=gnu99 -pedantic -Wall -fstack-protector -m64 -mmacosx-version-min=10.15
+LDFLAGS= -shared -m64 -mmacosx-version-min=10.15
 CC ?= clang
 
 ifeq (${PLATFORM},x86_64-mac)
