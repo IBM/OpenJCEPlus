@@ -23,9 +23,12 @@ import groovy.transform.Field;
 @Field JAVA_RELEASE
 @Field OCK_RELEASE
 @Field OCK_FULL_URL
+@Field OPENSSL_RELEASE
 @Field PARALLEL_ITERATIONS
 @Field BENCHMARK
 @Field boolean PROVIDER_OPENJCEPLUS
+@Field boolean PROVIDER_OPENJCEPLUS_OCK
+@Field boolean PROVIDER_OPENJCEPLUS_OPENSSL
 @Field boolean PROVIDER_OPENJCEPLUSFIPS
 @Field boolean PROVIDER_SUN
 @Field ADDITIONAL_NODE_LABELS
@@ -134,7 +137,7 @@ def archive(platform, iteration) {
     def specs = []
     def spec = ["pattern": "$fileLocation/$filename",
                 "target": "$directory/$filename",
-                "props": "java_release=$JAVA_RELEASE;ock_release=$OCK_RELEASE;repo=$repo;branch=$branch"]
+                "props": "java_release=$JAVA_RELEASE;ock_release=$OCK_RELEASE;openssl_release=$OPENSSL_RELEASE;repo=$repo;branch=$branch"]
     specs.add(spec)
 
     def uploadFiles = [files : specs]
@@ -226,9 +229,19 @@ def run(platform) {
                     echo "Binaries fetched"
                     externalLibrary.getMaven(software)
                     echo "Maven fetched"
+                    if (software != "zos") {
+                        externalLibrary.getOpenSSL(hardware, software)
+                        echo "OpenSSL fetched"
+                    }
                     def allowedProviders = []
                     if (PROVIDER_OPENJCEPLUS == "true") {
                         allowedProviders.add("OpenJCEPlus")
+                    }
+                    if (PROVIDER_OPENJCEPLUS_OCK == "true") {
+                        allowedProviders.add("OpenJCEPlus-OCK")
+                    }
+                    if (PROVIDER_OPENJCEPLUS_OPENSSL == "true") {
+                        allowedProviders.add("OpenJCEPlus-OpenSSL")
                     }
                     if (PROVIDER_OPENJCEPLUSFIPS == "true") {
                         allowedProviders.add("OpenJCEPlusFIPS")
@@ -239,7 +252,7 @@ def run(platform) {
 
                     if (!allowedProviders.isEmpty()) {
                         def command = "clean install -DskipTests -Djmh.benchmark.skip=false -Djmh.benchmark=" + BENCHMARK + " -Djmh.allowedProviders=" + allowedProviders.join(",")
-                        externalLibrary.runOpenJCEPlus(command, software)
+                        externalLibrary.runOpenJCEPlus(command, hardware, software)
                         echo "OpenJCEPlus built"
                     } else {
                         echo "No providers specified. Nothing to run."
@@ -344,6 +357,12 @@ pipeline {
             This parameter can be used if one wants to specify the full URL from which to get OCK.<br> \
             BEWARE: This can only be used with a single platform and it overrides OCK_RELEASE. \
         ')
+        string(name: 'OPENSSL_RELEASE', defaultValue: '', description: '\
+            Indicate the specific release of OpenSSL that you want to use to build your branch.<br> \
+            If left empty, the latest release will be used.<br> \
+            Specify the full name of the release.<br> \
+            (i.e., &ltrelease date(YYYYMMDD)&gt_&ltOpenSSL version&gt => eg., 20240409_3.3.0) \
+        ')
         separator(name: "TestOptions", sectionHeader: "Test Options",
             separatorStyle: "border-width: 0",
             sectionHeaderStyle: """
@@ -399,6 +418,10 @@ pipeline {
             Specify the performance benchmark you would like to run.')
         booleanParam(name: 'OpenJCEPlus', defaultValue: true, description: '\
             Run benchmarks with OpenJCEPlus provider')
+        booleanParam(name: 'OpenJCEPlus_OCK', defaultValue: true, description: '\
+            Run benchmarks with OpenJCEPlus-OCK provider')
+        booleanParam(name: 'OpenJCEPlus_OpenSSL', defaultValue: true, description: '\
+            Run benchmarks with OpenJCEPlus-OpenSSL provider')
         booleanParam(name: 'OpenJCEPlusFIPS', defaultValue: false, description: '\
             Run benchmarks with OpenJCEPlusFIPS provider')
         booleanParam(name: 'Sun', defaultValue: true, description: '\
@@ -460,9 +483,12 @@ pipeline {
                         JAVA_RELEASE="${params.JAVA_RELEASE}"
                         OCK_RELEASE="${params.OCK_RELEASE}"
                         OCK_FULL_URL="${params.OCK_FULL_URL}"
+                        OPENSSL_RELEASE="${params.OPENSSL_RELEASE}"
                         PARALLEL_ITERATIONS="${params.PARALLEL_ITERATIONS}"
                         BENCHMARK="${params.BENCHMARK}"
                         PROVIDER_OPENJCEPLUS="${params.OpenJCEPlus}"
+                        PROVIDER_OPENJCEPLUS_OCK="${params.OpenJCEPlus_OCK}"
+                        PROVIDER_OPENJCEPLUS_OPENSSL="${params.OpenJCEPlus_OpenSSL}"
                         PROVIDER_OPENJCEPLUSFIPS="${params.OpenJCEPlusFIPS}"
                         PROVIDER_SUN="${params.Sun}"
                         ADDITIONAL_NODE_LABELS="${params.ADDITIONAL_NODE_LABELS}"
