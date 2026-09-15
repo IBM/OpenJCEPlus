@@ -93,7 +93,7 @@ abstract public class BaseTest {
                 throw new RuntimeException("Provider not supported: " + testProvider);
             }
 
-            java.security.Security.insertProviderAt(provider, 0);
+            java.security.Security.insertProviderAt(provider, 1);
         }
 
         return provider;

@@ -45,6 +45,8 @@ abstract public class JMHBase {
         String projectHomeDir = System.getProperty("jmh.project.dir");
         String ockLibraryPath = System.getProperty("ock.library.path");
         String jgskitLibraryPath = System.getProperty("jgskit.library.path");
+        String opensslLibraryPath = System.getProperty("openssl.library.path");
+        String openjceplusLibraryPath = System.getProperty("openjceplus.library.path");
         String osArch = System.getProperty("os.arch", "").toLowerCase();
         String osName = System.getProperty("os.name").toLowerCase();
         String threadsProperty = System.getProperty("jmh.threads", "1");
@@ -59,7 +61,10 @@ abstract public class JMHBase {
             throw new IllegalArgumentException("Invalid thread count <" + threadsProperty + ">. Must be an integer.", e);
         }
         System.out.println("Home dir: " + projectHomeDir);
+        System.out.println("OCK Library Path: " + ockLibraryPath);
         System.out.println("JGSkit Library Path: " + jgskitLibraryPath);
+        System.out.println("OpenSSL Library Path: " + opensslLibraryPath);
+        System.out.println("OpenJCEPlus Library Path: " + openjceplusLibraryPath);
         System.out.println("Regex of classes to run: " + regexClassName);
         System.out.println("OS Arch: " + osArch);
         System.out.println("OS Name: " + osName);
@@ -95,7 +100,9 @@ abstract public class JMHBase {
                 "--add-exports=java.base/sun.security.pkcs=ALL-UNNAMED",
                 "--add-exports=java.base/sun.security.x509=ALL-UNNAMED",
                 "-Dock.library.path=" + ockLibraryPath,
-                "-Djgskit.library.path=" + jgskitLibraryPath));
+                "-Djgskit.library.path=" + jgskitLibraryPath,
+                "-Dopenssl.library.path=" + opensslLibraryPath,
+                "-Dopenjceplus.library.path=" + openjceplusLibraryPath));
         if (allowedProv != null) {
             jvmArgs.add("-Djmh.allowedProviders=" + allowedProv);
         }
@@ -171,30 +178,46 @@ abstract public class JMHBase {
     }
 
     protected void insertProvider(String provider) throws Exception {
+        Provider myProvider;
         if (provider.equalsIgnoreCase("OpenJCEPlus")) {
-            Provider myProvider = Security.getProvider("OpenJCEPlus");
+            myProvider = Security.getProvider("OpenJCEPlus");
             if (myProvider == null) {
                 myProvider = new OpenJCEPlus();
             } else {
                 Security.removeProvider("OpenJCEPlus");
             }
-            Security.insertProviderAt(myProvider, 1);
+        } else if (provider.equalsIgnoreCase("OpenJCEPlus-OpenSSL")) {
+            myProvider = Security.getProvider("OpenJCEPlus-OpenSSL");
+            if (myProvider == null) {
+                myProvider = new OpenJCEPlus().configure("./src/test/OpenSSLOnly.config");
+            } else {
+                Security.removeProvider("OpenJCEPlus-OpenSSL");
+            }
+        } else if (provider.equalsIgnoreCase("OpenJCEPlus-OCK")) {
+            myProvider = Security.getProvider("OpenJCEPlus-OCK");
+            if (myProvider == null) {
+                myProvider = new OpenJCEPlus().configure("./src/test/OCKOnly.config");
+            } else {
+                Security.removeProvider("OpenJCEPlus-OCK");
+            }
         } else if (provider.equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            Provider myProvider = Security.getProvider("OpenJCEPlusFIPS");
+            myProvider = Security.getProvider("OpenJCEPlusFIPS");
             if (myProvider == null) {
                 myProvider = new OpenJCEPlusFIPS();
             } else {
                 Security.removeProvider("OpenJCEPlusFIPS");
             }
-            Security.insertProviderAt(myProvider, 1);
         } else if (provider.equalsIgnoreCase("BC")) {
-            Provider myProvider = Security.getProvider("BC");
+            myProvider = Security.getProvider("BC");
             if (myProvider == null) {
                 myProvider = new BouncyCastleProvider();
             } else {
                 Security.removeProvider("BC");
             }
-            Security.insertProviderAt(myProvider, 1);
+        } else {
+            throw new RuntimeException("Provider not supported: " + provider);
         }
+
+        Security.insertProviderAt(myProvider, 1);
     }
 }
