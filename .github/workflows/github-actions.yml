@@ -82,6 +82,16 @@ jobs:
           java-version: '27-ea'
           distribution: 'temurin'
           architecture: 'x64'
+      - name: Install OpenSSL Headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev
+          mkdir ${{ github.workspace }}/openssl
+          cd ${{ github.workspace }}/openssl
+          mkdir ${{ github.workspace }}/openssl/include
+          cd ${{ github.workspace }}/openssl/include
+          cp /usr/include/openssl/* .
+          cp /usr/include/x86_64-linux-gnu/openssl/* .
       # Uncomment to capture all files in the runner for debugging purposes.          
       # - name: List Files In Entire Runner
       #   run: |
@@ -91,6 +101,7 @@ jobs:
           mvn
           --batch-mode
           '-Dock.library.path=${{ github.workspace }}/OCK/'
+          '-Dopenssl.library.path=/usr/lib/x86_64-linux-gnu/'
           -Dtest='
           ibm.jceplus.junit.openjceplus.TestAll,
           ibm.jceplus.junit.TestMemStressAll,
@@ -100,11 +111,14 @@ jobs:
           install
         env:
           GSKIT_HOME: ${{ github.workspace }}/OCK/jgsk_sdk
+          OPENSSL_HOME: ${{ github.workspace }}/openssl
+          OPENSSL_LIB_LOCATION: /usr/lib/x86_64-linux-gnu/
       - name: Execute Migrated Maven Install Target And OpenJCEPlus Provider Tests
         run: > 
           mvn
           --batch-mode
           '-Dock.library.path=${{ github.workspace }}/OCK/'
+          '-Dopenssl.library.path=/usr/lib/x86_64-linux-gnu/'
           '-Dgroups=OpenJCEPlus'
           -Dtest='
           ibm.jceplus.junit.suites.TestOpenJCEPlus,
