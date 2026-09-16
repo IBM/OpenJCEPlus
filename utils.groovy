@@ -121,7 +121,7 @@ def getJavaDownloadUrl(javaVersion, hardware, software, javaRelease) {
         // Use latest GA version
         java_link = "https://api.adoptopenjdk.net/v3/binary/latest/${javaVersion}/ga/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
         if (software == "zos") {
-            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/hyc-runtimes-jenkins.swg-devops.com/Build_JDK25_s390x_zos_Nightly/278/ibm-semeru-certified-jdk_s390x_zos_25.0.2.0-20260225-080405.pax.Z"
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/hyc-runtimes-jenkins.swg-devops.com/Build_JDK25_s390x_zos_Nightly/461/ibm-semeru-certified-jdk_s390x_zos_25.0.5.0-20260916-010846.pax.Z"
         }
     } else {
         // Use specific version
