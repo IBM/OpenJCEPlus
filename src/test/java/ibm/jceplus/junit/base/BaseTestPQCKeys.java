@@ -288,6 +288,36 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         }
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "ML-KEM,      ML-KEM-768",
+            "ML-KEM-512,  ML-KEM-512",
+            "ML-KEM-768,  ML-KEM-768",
+            "ML-KEM-1024, ML-KEM-1024",
+            "ML-DSA,      ML-DSA-65",
+            "ML-DSA-44,   ML-DSA-44",
+            "ML-DSA-65,   ML-DSA-65",
+            "ML-DSA-87,   ML-DSA-87"
+    })
+    public void testPQCKeyGetParams(String algorithm, String expectedParamSet)
+            throws Exception {
+
+        KeyPairGenerator keyPairGenerator =
+                KeyPairGenerator.getInstance(algorithm, getProviderName());
+
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        assertTrue(keyPair.getPrivate().getParams() instanceof NamedParameterSpec);
+        NamedParameterSpec privateParams =
+                (NamedParameterSpec) keyPair.getPrivate().getParams();
+        assertEquals(expectedParamSet, privateParams.getName());
+
+        assertTrue(keyPair.getPublic().getParams() instanceof NamedParameterSpec);
+        NamedParameterSpec publicParams =
+                (NamedParameterSpec) keyPair.getPublic().getParams();
+        assertEquals(expectedParamSet, publicParams.getName());
+    }
+
     /**
      * Tests that the generic "ML-DSA" KeyFactory can decode public and private
      * keys originally generated with any specific ML-DSA parameter set.
