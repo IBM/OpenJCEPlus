@@ -238,7 +238,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
     public void generatePrivateWithInvalidKeySpec(String algorithm) throws Exception {
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
 
-        // Pass public key bytes to PKCS8 spec — wrong content for a private key
+        // Pass public key bytes to PKCS8 spec - wrong content for a private key
         byte[] publicKeyBytes = generateKeyPair(algorithm).getPublic().getEncoded();
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(publicKeyBytes);
         try {
@@ -428,7 +428,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
 
     /**
      * Tests that {@code KeyPairGenerator.getInstance("ML-DSA")} produces an
-     * ML-DSA-65 key by default — i.e. when no {@code AlgorithmParameterSpec} is
+     * ML-DSA-65 key by default - i.e. when no {@code AlgorithmParameterSpec} is
      * passed to {@code initialize()}.
      *
      * <p>This matches the SUN provider behaviour (comment in ML_DSA_Impls.KPG:
@@ -449,7 +449,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
     public void testMLDSADefaultParamSetIsML_DSA_65() throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
-        // Generate without calling initialize() — should silently default to ML-DSA-65
+        // Generate without calling initialize() - should silently default to ML-DSA-65
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-DSA", getProviderName());
         KeyPair defaultKp = kpg.generateKeyPair();
 
@@ -485,7 +485,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
             specificKF.generatePrivate(
                     new PKCS8EncodedKeySpec(defaultKp.getPrivate().getEncoded()));
         } catch (Exception e) {
-            fail("ML-DSA-65 specific KeyFactory rejected the default ML-DSA key — "
+            fail("ML-DSA-65 specific KeyFactory rejected the default ML-DSA key - "
                     + "default param set is not ML-DSA-65: " + e.getMessage());
         }
     }
@@ -884,12 +884,12 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
      *
      * <p>OID values are from NIST FIPS 203/204/205:
      * <ul>
-     *   <li>ML-KEM-512:  2.16.840.1.101.3.4.4.1  → 6086480165030404 01</li>
-     *   <li>ML-KEM-768:  2.16.840.1.101.3.4.4.2  → 6086480165030404 02</li>
-     *   <li>ML-KEM-1024: 2.16.840.1.101.3.4.4.3  → 6086480165030404 03</li>
-     *   <li>ML-DSA-44:   2.16.840.1.101.3.4.3.17 → 6086480165030403 11</li>
-     *   <li>ML-DSA-65:   2.16.840.1.101.3.4.3.18 → 6086480165030403 12</li>
-     *   <li>ML-DSA-87:   2.16.840.1.101.3.4.3.19 → 6086480165030403 13</li>
+     *   <li>ML-KEM-512:  2.16.840.1.101.3.4.4.1  -> 6086480165030404 01</li>
+     *   <li>ML-KEM-768:  2.16.840.1.101.3.4.4.2  -> 6086480165030404 02</li>
+     *   <li>ML-KEM-1024: 2.16.840.1.101.3.4.4.3  -> 6086480165030404 03</li>
+     *   <li>ML-DSA-44:   2.16.840.1.101.3.4.3.17 -> 6086480165030403 11</li>
+     *   <li>ML-DSA-65:   2.16.840.1.101.3.4.3.18 -> 6086480165030403 12</li>
+     *   <li>ML-DSA-87:   2.16.840.1.101.3.4.3.19 -> 6086480165030403 13</li>
      * </ul>
      */
     @ParameterizedTest
@@ -923,10 +923,10 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         //   <9 bytes>    -- OID value starting at byte offset 8
         byte[] x509 = kp.getPublic().getEncoded();
         String x509hex = BaseUtils.bytesToHex(x509);
-        // hex chars: each byte = 2 chars; OID tag+len at hex offset 12 (bytes 6–7)
+        // hex chars: each byte = 2 chars; OID tag+len at hex offset 12 (bytes 6-7)
         assertEquals("0609", x509hex.substring(12, 16),
                 "X.509 encoding for " + algorithm + " should contain OID tag 06, length 09");
-        String actualPublicOid = x509hex.substring(16, 34); // 9 bytes × 2 hex chars = 18 chars
+        String actualPublicOid = x509hex.substring(16, 34); // 9 bytes * 2 hex chars = 18 chars
         assertEquals(expectedOidHex, actualPublicOid,
                 "X.509 OID mismatch for " + algorithm);
 
@@ -942,7 +942,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         // hex offset 18 = byte offset 9 (OID tag+len)
         assertEquals("0609", pkcs8hex.substring(18, 22),
                 "PKCS#8 encoding for " + algorithm + " should contain OID tag 06, length 09");
-        String actualPrivateOid = pkcs8hex.substring(22, 40); // 9 bytes × 2 hex chars = 18 chars
+        String actualPrivateOid = pkcs8hex.substring(22, 40); // 9 bytes * 2 hex chars = 18 chars
         assertEquals(expectedOidHex, actualPrivateOid,
                 "PKCS#8 OID mismatch for " + algorithm);
 
@@ -970,10 +970,10 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
      * <p>For each param-set the provider registers four alias forms in addition to
      * the canonical hyphenated name:
      * <ul>
-     *   <li>Underscore name  — e.g. {@code ML_KEM_512}</li>
-     *   <li>Compact name     — e.g. {@code MLKEM512}</li>
-     *   <li>{@code OID.xxx}  — e.g. {@code OID.2.16.840.1.101.3.4.4.1}</li>
-     *   <li>Bare OID string  — e.g. {@code 2.16.840.1.101.3.4.4.1}</li>
+     *   <li>Underscore name  - e.g. {@code ML_KEM_512}</li>
+     *   <li>Compact name     - e.g. {@code MLKEM512}</li>
+     *   <li>{@code OID.xxx}  - e.g. {@code OID.2.16.840.1.101.3.4.4.1}</li>
+     *   <li>Bare OID string  - e.g. {@code 2.16.840.1.101.3.4.4.1}</li>
      * </ul>
      * Each alias is used as the argument to {@code KeyFactory.getInstance()} and
      * the resulting factory must correctly decode an encoded key previously
@@ -994,7 +994,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
         byte[] x509bytes  = kp.getPublic().getEncoded();
         byte[] pkcs8bytes = kp.getPrivate().getEncoded();
 
-        // Obtain a KeyFactory through the alias name — this is what we are testing
+        // Obtain a KeyFactory through the alias name - this is what we are testing
         KeyFactory kf = KeyFactory.getInstance(alias, getProviderName());
 
         PublicKey pub = kf.generatePublic(new X509EncodedKeySpec(x509bytes));
@@ -1109,7 +1109,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
 
         KeyPair kp = generateKeyPair(canonicalParamSet);
 
-        // Sign using the alias name — verifies getInstance() resolves correctly
+        // Sign using the alias name - verifies getInstance() resolves correctly
         Signature signer = Signature.getInstance(alias, getProviderName());
         signer.initSign(kp.getPrivate());
         signer.update(msg);
