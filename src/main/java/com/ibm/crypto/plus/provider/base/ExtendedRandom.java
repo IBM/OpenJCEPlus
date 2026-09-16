@@ -12,17 +12,13 @@ import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 
 public final class ExtendedRandom {
 
-    private static final boolean IS_ZOS = System.getProperty("os.name")
-                                                .toLowerCase()
-                                                .contains("z/os");
-
     private OpenJCEPlusProvider provider;
     private NativeInterface nativeInterface;
     private final String algName;
 
     /*
      * Used only when this ExtendedRandom instance owns its
-     * own PRNG context, for example on z/OS or after setSeed().
+     * own PRNG context, for example after setSeed().
      *
      * ThreadLocal contexts are not stored.
      */
@@ -30,9 +26,9 @@ public final class ExtendedRandom {
     private boolean usingThreadLocalContext = true;
 
     private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha256 =
-        IS_ZOS ? null : new ThreadLocal<PRNGContextPointer>();
+        new ThreadLocal<PRNGContextPointer>();
     private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha512 =
-        IS_ZOS ? null : new ThreadLocal<PRNGContextPointer>();
+        new ThreadLocal<PRNGContextPointer>();
 
     public static ExtendedRandom getInstance(String algName, OpenJCEPlusProvider provider)
             throws NativeException {
@@ -51,17 +47,6 @@ public final class ExtendedRandom {
         this.algName = algName;
         this.provider = provider;
         this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "SecureRandom", algName + "DRBG");
-
-        /*
-         * On z/OS, create an instance-owned context without ThreadLocal
-         * caching.
-         *
-         * On non-z/OS, do not initialize the ThreadLocal context here.
-         * The ThreadLocal context is resolved in nextBytes().
-         */
-        if (IS_ZOS) {
-            this.ockPRNGContextId = createInstanceContext();
-        }
     }
 
     private PRNGContextPointer getThreadLocalPRNGContext() throws NativeException {
@@ -95,7 +80,7 @@ public final class ExtendedRandom {
         }
 
         if (bytes.length > 0) {
-            if (usingThreadLocalContext && !IS_ZOS) {
+            if (usingThreadLocalContext) {
                 PRNGContextPointer prngCtx = getThreadLocalPRNGContext();
                 this.nativeInterface.EXTRAND_nextBytes(prngCtx.getCtx(), bytes);
             } else {
