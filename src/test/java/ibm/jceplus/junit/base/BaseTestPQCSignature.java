@@ -58,8 +58,8 @@ public class BaseTestPQCSignature extends BaseTestJunit5Signature {
     }
 
     /**
-     * Tests that Signature.getInstance("ML-DSA") — the generic family-name
-     * signature instance — can sign and verify with keys from each of the three
+     * Tests that Signature.getInstance("ML-DSA") - the generic family-name
+     * signature instance - can sign and verify with keys from each of the three
      * ML-DSA parameter sets (ML-DSA-44, ML-DSA-65, ML-DSA-87).
      * <p>
      * Per JEP 497, the generic "ML-DSA" Signature must be flexible and accept
@@ -79,7 +79,7 @@ public class BaseTestPQCSignature extends BaseTestJunit5Signature {
         // Obtain a GENERIC "ML-DSA" Signature instance
         Signature sig = Signature.getInstance("ML-DSA", getProviderName());
 
-        // Sign — initSign must accept any ML-DSA parameter-set private key
+        // Sign - initSign must accept any ML-DSA parameter-set private key
         try {
             sig.initSign(kp.getPrivate());
         } catch (InvalidKeyException e) {
@@ -90,7 +90,7 @@ public class BaseTestPQCSignature extends BaseTestJunit5Signature {
         sig.update(origMsg);
         byte[] sigBytes = sig.sign();
 
-        // Verify — initVerify must accept any ML-DSA parameter-set public key
+        // Verify - initVerify must accept any ML-DSA parameter-set public key
         try {
             sig.initVerify(kp.getPublic());
         } catch (InvalidKeyException e) {
@@ -104,8 +104,8 @@ public class BaseTestPQCSignature extends BaseTestJunit5Signature {
     }
 
     /**
-     * Tests that a key generated with KeyPairGenerator("ML-DSA") — which by
-     * default produces an ML-DSA-65 key — can be used directly with the generic
+     * Tests that a key generated with KeyPairGenerator("ML-DSA") - which by
+     * default produces an ML-DSA-65 key - can be used directly with the generic
      * Signature.getInstance("ML-DSA") without any parameter mismatch error.
      */
     @Test
