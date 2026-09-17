@@ -55,10 +55,6 @@ public class TestAESCCM2 extends BaseTest {
     public int AESKeySize192 = 192;
     public int AESKeySize256 = 256;
 
-    // This CCM TAG LENGTH is specified in bits.  Valid values are:  32, 48, 64, 60, 96, 112, and 128
-    // Although initialized here, the ccmTagLength will actually be selected randomly for each iteration.
-    public int ccmTagLength = 128;
-
     // The size of the aad buffer will be selected randomly for each iteration.
     // The contents of the aad buffer will be random data for each iteration.
     public byte[] aad = null;
