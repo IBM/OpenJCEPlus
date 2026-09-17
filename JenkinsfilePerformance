@@ -386,6 +386,7 @@ pipeline {
                                             'ibm.jceplus.jmh.PBKDF2Benchmark', \
                                             'ibm.jceplus.jmh.PBMAC1Benchmark', \
                                             'ibm.jceplus.jmh.RandomBenchmark', \
+                                            'ibm.jceplus.jmh.RandomNewInstanceBenchmark', \
                                             'ibm.jceplus.jmh.RSACipherBenchmark', \
                                             'ibm.jceplus.jmh.RSAKeyGeneratorBenchmark', \
                                             'ibm.jceplus.jmh.RSASignatureBenchmark', \
