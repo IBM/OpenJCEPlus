@@ -39,28 +39,24 @@ public class TestAESCCM extends BaseTest {
     @Parameter(0)
     TestProvider provider;
 
-    public static int iterationLimit = 100;
-    public static int iterationCounter = 0;
+    public static final int iterationLimit = 100;
+    public int iterationCounter = 0;
 
     // The plainText string to be encrypted and decrypted will be selected randomly for each iteration.
-    public static String plainText = null;
+    public String plainText = null;
 
-    public static String plainTextShort = "A short text string to be encrypted.";
-    public static String plainTextMedium = "A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted.";
-    public static String plainTextLong = "A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted.";
+    public static final String plainTextShort = "A short text string to be encrypted.";
+    public static final String plainTextMedium = "A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted. A medium text string to be encrypted.";
+    public static final String plainTextLong = "A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted. A long text string to be encrypted.";
 
     public static int AESKeySize = 0;
-    public static int AESKeySize128 = 128;
-    public static int AESKeySize192 = 192;
-    public static int AESKeySize256 = 256;
-
-    // This CCM TAG LENGTH is specified in bits.  Valid values are:  32, 48, 64, 60, 96, 112, and 128
-    // Although initialized here, the ccmTagLength will actually be selected randomly for each iteration.
-    public static int ccmTagLength = 128;
+    public static final int AESKeySize128 = 128;
+    public static final int AESKeySize192 = 192;
+    public static final int AESKeySize256 = 256;
 
     // The size of the aad buffer will be selected randomly for each iteration.
     // The contents of the aad buffer will be random data for each iteration.
-    public static byte[] aad = null;
+    public byte[] aad = null;
 
     private static Object myMutexObject = new Object();
 
