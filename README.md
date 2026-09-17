@@ -7,6 +7,7 @@
   - [Run Single Test](#run-single-test)
 - [OpenJCEPlus and OpenJCEPlusFIPS Provider SDK Installation](#openjceplus-and-openjceplusfips-provider-sdk-installation)
 - [Security Policy Configuration](#security-policy-configuration)
+  - [Custom Policy Files and AccessControlException](#custom-policy-files-and-accesscontrolexception)
 - [Configuration Options](#configuration-options)
 - [Features and Algorithms](#features-and-algorithms)
 - [Contributions](#contributions)
@@ -295,7 +296,7 @@ take effect.
 
 When running on a JDK that does **not** bundle `OpenJCEPlus` (i.e., any JDK other than IBM Semeru), the JVM security manager requires an explicit policy grant so that the `openjceplus` can perform the operations it needs. Without this grant, you may encounter `AccessControlException` errors at runtime.
 
-IBM Semeru ships with this grant pre-configured in its `default.policy`. If you use any other JDK you must add it manually.
+IBM Semeru ships with this grant pre-configured in its `default.policy`. If you use any other JDK you must add it manually. Additionally, if your application code directly uses any of the internal JDK classes that `OpenJCEPlus` itself depends on (such as those in `sun.security.util`), you must also add corresponding `RuntimePermission` grants for those classes in your own policy file — see [Custom Policy Files and AccessControlException](#custom-policy-files-and-accesscontrolexception) for guidance.
 
 ### Step 1 – Locate your JDK policy file
 
@@ -342,6 +343,31 @@ Restart your application. If a `SecurityManager` is in use, the `AccessControlEx
 ```console
 java -Djava.security.debug=access,domain -version 2>&1 | grep openjceplus
 ```
+
+### Custom Policy Files and AccessControlException
+
+If your application or test uses a **custom security policy file** (specified via `-Djava.security.policy=<file>` or `-Djava.security.policy==<file>`), you may still encounter an `AccessControlException` even after adding the grant to `default.policy`. This happens because `AccessController.checkPermission` walks every frame on the call stack - **every caller frame on the stack must hold the permission**, not just the `openjceplus` frame that directly needs it.
+
+**Symptom:** An error like the following:
+
+```
+java.security.AccessControlException: Access denied ("java.lang.RuntimePermission" "accessClassInPackage.sun.security.util")
+    ...
+    at com.ibm.crypto.plus.provider.ECParameters.internalInit(ECParameters.java:...)
+```
+
+**Root cause:** `openjceplus` itself holds the required permission (via `default.policy`), but a caller frame higher on the stack - such as your application or test class - does not. The permission check fails at that caller's frame before it ever reaches the `openjceplus` domain.
+
+**Resolution:** Grant the missing permission to the **calling code** in its own policy grant block. For example, if a test class is loaded from `${test.classes}`, add the permission there:
+
+```console
+grant codeBase "file:${test.classes}/*" {
+    permission java.lang.RuntimePermission "accessClassInPackage.sun.security.util";
+    // ... other permissions your code already needs
+};
+```
+
+More generally, identify the unprivileged frame in the stack trace (the frame just above the `openjceplus` frames) and add the required permission to that codebase's grant block in your custom policy file.
 
 ## Configuration Options
 
