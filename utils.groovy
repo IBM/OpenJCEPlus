@@ -239,10 +239,10 @@ def getJava(hardware, software) {
  * Get the Maven tool and extract it.
  */
 def getMaven(software) {
-    sh "curl -kLO https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.10/apache-maven-3.9.10-bin.tar.gz"
-    untar file: "apache-maven-3.9.10-bin.tar.gz"
+    sh "curl -kLO https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.16/apache-maven-3.9.16-bin.tar.gz"
+    untar file: "apache-maven-3.9.16-bin.tar.gz"
     if (software == "zos") {
-        sh "chtag -tR -c ISO8859-1 apache-maven-3.9.10"
+        sh "chtag -tR -c ISO8859-1 apache-maven-3.9.16"
     }
 }
 
@@ -272,7 +272,7 @@ def runOpenJCEPlus(command, software) {
 
         def java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
         def gskit_home = "export GSKIT_HOME=$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
-        def mavenPath = "$WORKSPACE/apache-maven-3.9.10/bin"
+        def mavenPath = "$WORKSPACE/apache-maven-3.9.16/bin"
         def environment = "export PATH=${mavenPath}:\$PATH;"
 
         def additional_cmd_args = ADDITIONAL_CMD_ARGS
@@ -284,13 +284,13 @@ def runOpenJCEPlus(command, software) {
                dir "c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Auxiliary\\Build\\vcvarsall.bat"
                call "c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Auxiliary\\Build\\vcvarsall.bat" x86_amd64
                set "JAVA_HOME=$WORKSPACE\\java\\jdk"
-               set "PATH=$WORKSPACE\\apache-maven-3.9.10\\bin;%JAVA_HOME%;%PATH%"
+               set "PATH=$WORKSPACE\\apache-maven-3.9.16\\bin;%JAVA_HOME%;%PATH%"
                set "GSKIT_HOME=$WORKSPACE\\openjceplus\\OCK\\jgsk_sdk"
                echo PATH: %PATH%
                echo GSKIT_HOME: %GSKIT_HOME%
                echo JAVA_HOME: %JAVA_HOME%
                echo mvn -Dock.library.path=${ock_path} --batch-mode ${command}
-               $WORKSPACE\\apache-maven-3.9.10\\bin\\mvn -Dock.library.path=${ock_path} ${additional_cmd_args} --batch-mode ${command}
+               $WORKSPACE\\apache-maven-3.9.16\\bin\\mvn -Dock.library.path=${ock_path} ${additional_cmd_args} --batch-mode ${command}
                """
         } else if (software == "mac") {
             java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
