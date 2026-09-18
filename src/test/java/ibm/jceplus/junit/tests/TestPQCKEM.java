@@ -33,7 +33,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
+@Tag(Tags.OPENJCEPLUS_OCK_NAME)
 @Tag(Tags.MULTITHREAD_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
@@ -197,7 +198,11 @@ public class TestPQCKEM extends BaseTest {
 
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
-        KeyPair pqcKeyPair = generateKeyPair("RSA");
+        // RSA key generation must use the JDK default provider; neither OpenSSL
+        // nor OCK registers a KeyPairGenerator for RSA.
+        KeyPairGenerator rsaGen = KeyPairGenerator.getInstance("RSA");
+        rsaGen.initialize(2048);
+        KeyPair pqcKeyPair = rsaGen.generateKeyPair();
 
         try {
             kem.newEncapsulator(pqcKeyPair.getPublic());
@@ -386,6 +391,115 @@ public class TestPQCKEM extends BaseTest {
 
         assertArrayEquals(encapKey.getEncoded(), decapKey.getEncoded(),
             "Generic ML-KEM should work with " + keyAlgorithm + " keys - secrets do not match");
+    }
+
+    private static PublicKey stubPublicKey(String algorithm, byte[] encoded) {
+        return new PublicKey() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public String getAlgorithm() {
+                return algorithm;
+            }
+
+            @Override
+            public String getFormat() {
+                return "X.509";
+            }
+
+            @Override
+            public byte[] getEncoded() {
+                return encoded;
+            }
+        };
+    }
+
+    private static PrivateKey stubPrivateKey(String algorithm, byte[] encoded) {
+        return new PrivateKey() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public String getAlgorithm() {
+                return algorithm;
+            }
+
+            @Override
+            public String getFormat() {
+                return "PKCS#8";
+            }
+
+            @Override
+            public byte[] getEncoded() {
+                return encoded;
+            }
+        };
+    }
+
+    /**
+     * A key whose getAlgorithm() returns null must be rejected by the algorithm
+     * check itself, not by the key translation that follows it.
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    public void testKEMKeyWithNullAlgorithm(String Algorithm) throws Exception {
+        KEM kem = KEM.getInstance(Algorithm, getProviderName());
+        byte[] encoded = new byte[] {1, 2, 3};
+
+        try {
+            kem.newEncapsulator(stubPublicKey(null, encoded));
+            fail("testKEMKeyWithNullAlgorithm failed - public key with null algorithm did not cause an InvalidKeyException.");
+        } catch (InvalidKeyException ike) {
+            assertEquals("unsupported key", ike.getMessage());
+        }
+
+        try {
+            kem.newDecapsulator(stubPrivateKey(null, encoded));
+            fail("testKEMKeyWithNullAlgorithm failed - private key with null algorithm did not cause an InvalidKeyException.");
+        } catch (InvalidKeyException ike) {
+            assertEquals("unsupported key", ike.getMessage());
+        }
+    }
+
+    /**
+     * A foreign key that reports the "ML-KEM" algorithm but cannot be translated
+     * (undecodable or null encoding) must be rejected with an InvalidKeyException
+     * that wraps the underlying failure.
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML_KEM_768", "ML_KEM_1024"})
+    public void testKEMKeyTranslationFailure(String Algorithm) throws Exception {
+        KEM kem = KEM.getInstance(Algorithm, getProviderName());
+        byte[] garbage = new byte[] {0x01, 0x02, 0x03, 0x04};
+
+        // Undecodable encoding
+        try {
+            kem.newEncapsulator(stubPublicKey("ML-KEM", garbage));
+            fail("testKEMKeyTranslationFailure failed - undecodable public key did not cause an InvalidKeyException.");
+        } catch (InvalidKeyException ike) {
+            assertEquals("unsupported key", ike.getMessage());
+        }
+
+        try {
+            kem.newDecapsulator(stubPrivateKey("ML-KEM", garbage));
+            fail("testKEMKeyTranslationFailure failed - undecodable private key did not cause an InvalidKeyException.");
+        } catch (InvalidKeyException ike) {
+            assertEquals("unsupported key", ike.getMessage());
+        }
+
+        // Null encoding
+        try {
+            kem.newEncapsulator(stubPublicKey("ML-KEM", null));
+            fail("testKEMKeyTranslationFailure failed - public key with null encoding did not cause an InvalidKeyException.");
+        } catch (InvalidKeyException ike) {
+            assertEquals("unsupported key", ike.getMessage());
+        }
+
+        try {
+            kem.newDecapsulator(stubPrivateKey("ML-KEM", null));
+            fail("testKEMKeyTranslationFailure failed - private key with null encoding did not cause an InvalidKeyException.");
+        } catch (InvalidKeyException ike) {
+            assertEquals("unsupported key", ike.getMessage());
+        }
     }
 
     protected KeyPair generateKeyPair(String Algorithm) throws Exception {
