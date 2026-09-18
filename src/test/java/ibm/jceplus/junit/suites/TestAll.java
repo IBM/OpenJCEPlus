@@ -20,7 +20,7 @@ import org.junit.platform.suite.api.Suite;
  */
 @Suite
 @SelectPackages("ibm.jceplus.junit.tests")
-@IncludeTags({Tags.OPENJCEPLUS_NAME, Tags.OPENJCEPLUS_FIPS_NAME})
+@IncludeTags({Tags.OPENJCEPLUS_NAME, Tags.OPENJCEPLUS_OPENSSL_NAME, Tags.OPENJCEPLUS_OCK_NAME, Tags.OPENJCEPLUS_FIPS_NAME})
 @ExcludeClassNamePatterns("^.*(?i)multithread.*$")
 public class TestAll {
 }
