@@ -76,7 +76,12 @@ final class PQCPublicKey extends X509Key
         }
     }
 
-    PQCPublicKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
+    /**
+     * @param configType  the service type used to select the native backend
+     *                    (e.g. {@code "KeyFactory"}, {@code "Signature"}, {@code "KEM"})
+     * @param encoded     the encoded X.509 key
+     */
+    PQCPublicKey(OpenJCEPlusProvider provider, String configType, byte[] encoded) throws InvalidKeyException {
         this.provider = provider;
 
         try {
@@ -89,7 +94,7 @@ final class PQCPublicKey extends X509Key
             byte[] b = tmp.toByteArray();
             tmp.close();
 
-            this.pqcKey = PQCKey.createPublicKey(this.paramSetName, b, provider, "KeyFactory");
+            this.pqcKey = PQCKey.createPublicKey(this.paramSetName, b, provider, configType);
         } catch (Exception e) {
             throw new InvalidKeyException("Failure in PublicKey -" + e.getMessage(), e);
         }

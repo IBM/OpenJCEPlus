@@ -13,7 +13,8 @@ import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
+@Tag(Tags.OPENJCEPLUS_OCK_NAME)
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithSunJCEAndSUNInteropProviders")
 @EnabledForJreRange(min = JRE.JAVA_24)
 public class TestPQCKeyInteropOracle extends BaseTestPQCKeyInterop {
