@@ -33,7 +33,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
+@Tag(Tags.OPENJCEPLUS_OCK_NAME)
 @Tag(Tags.MULTITHREAD_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
@@ -197,7 +198,11 @@ public class TestPQCKEM extends BaseTest {
 
         KEM kem = KEM.getInstance(Algorithm, getProviderName());
 
-        KeyPair pqcKeyPair = generateKeyPair("RSA");
+        // RSA key generation must use the JDK default provider; neither OpenSSL
+        // nor OCK registers a KeyPairGenerator for RSA.
+        KeyPairGenerator rsaGen = KeyPairGenerator.getInstance("RSA");
+        rsaGen.initialize(2048);
+        KeyPair pqcKeyPair = rsaGen.generateKeyPair();
 
         try {
             kem.newEncapsulator(pqcKeyPair.getPublic());

@@ -37,7 +37,7 @@ public class MLDSABenchmark extends JMHBase {
     @Param({"64", "1024", "8192", "32768"})
     private int payloadSize;
 
-    @Param({"OpenJCEPlus", "SUN"})
+    @Param({"OpenJCEPlus-OCK", "OpenJCEPlus-OpenSSL", "SUN"})
     private String provider;
 
     private KeyPairGenerator mldsa44KeyPairGenerator;
