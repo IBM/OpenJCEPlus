@@ -227,6 +227,84 @@ void throwOSSLException(JNIEnv *env, int code, const char *msg) {
     }
 }
 
+//============================================================================
+//
+// DER OctetString helpers
+//
+unsigned char *encode_octet_string(const unsigned char *raw, size_t rawLen, size_t *outLen) {
+    if (rawLen > 0xFFFF) {
+        return NULL;
+    }
+    *outLen = rawLen + 4;
+    unsigned char *buf = (unsigned char *)malloc(*outLen);
+    if (buf == NULL) {
+        return NULL;
+    }
+    buf[0] = 0x04;  /* OctetString tag */
+    buf[1] = 0x82;  /* long-form length, 2 bytes follow */
+    buf[2] = (unsigned char)((rawLen >> 8) & 0xFF);
+    buf[3] = (unsigned char)(rawLen & 0xFF);
+    memcpy(buf + 4, raw, rawLen);
+    return buf;
+}
+
+unsigned char *decode_octet_string(const unsigned char *enc, size_t encLen, size_t *rawLen) {
+    if (encLen < 4 || enc[0] != 0x04 || enc[1] != 0x82) {
+        return NULL;
+    }
+    *rawLen = ((size_t)(enc[2]) << 8) | (size_t)(enc[3]);
+    if (*rawLen + 4 != encLen) {
+        return NULL;
+    }
+    unsigned char *buf = (unsigned char *)malloc(*rawLen);
+    if (buf == NULL) {
+        return NULL;
+    }
+    memcpy(buf, enc + 4, *rawLen);
+    return buf;
+}
+
+//============================================================================
+//
+// DER BitString helpers
+//
+unsigned char *encode_bit_string(const unsigned char *raw, size_t rawLen, size_t *outLen) {
+    /* BitString payload = 0x00 (unused bits) + raw */
+    size_t payload = rawLen + 1;
+    if (payload > 0xFFFF) {
+        return NULL;
+    }
+    *outLen = payload + 4; /* tag + 0x82 + 2 length bytes + payload */
+    unsigned char *buf = (unsigned char *)malloc(*outLen);
+    if (buf == NULL) {
+        return NULL;
+    }
+    buf[0] = 0x03;  /* BitString tag */
+    buf[1] = 0x82;  /* long-form length, 2 bytes follow */
+    buf[2] = (unsigned char)((payload >> 8) & 0xFF);
+    buf[3] = (unsigned char)(payload & 0xFF);
+    buf[4] = 0x00;  /* unused bits = 0 */
+    memcpy(buf + 5, raw, rawLen);
+    return buf;
+}
+
+unsigned char *decode_bit_string(const unsigned char *enc, size_t encLen, size_t *rawLen) {
+    if (encLen < 5 || enc[0] != 0x03 || enc[1] != 0x82) {
+        return NULL;
+    }
+    size_t payload = ((size_t)(enc[2]) << 8) | (size_t)(enc[3]);
+    if (payload < 1 || payload + 4 != encLen || enc[4] != 0x00) {
+        return NULL;
+    }
+    *rawLen = payload - 1;
+    unsigned char *buf = (unsigned char *)malloc(*rawLen);
+    if (buf == NULL) {
+        return NULL;
+    }
+    memcpy(buf, enc + 5, *rawLen);
+    return buf;
+}
+
 #ifdef __MVS__
 #include "closed_Utils_c.h"
 #endif

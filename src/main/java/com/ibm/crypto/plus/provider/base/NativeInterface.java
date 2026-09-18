@@ -12,6 +12,8 @@ import java.nio.ByteBuffer;
 import java.security.ProviderException;
 
 public interface NativeInterface {
+    public NativeCryptoSelector.Backend getBackendType();
+
     public String getLibraryVersion() throws NativeException;
 
     public String getLibraryInstallPath() throws NativeException;

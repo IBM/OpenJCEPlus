@@ -9,6 +9,7 @@
 package com.ibm.crypto.plus.provider.ock;
 
 import com.ibm.crypto.plus.provider.SystemAccessUtils;
+import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
 import com.ibm.crypto.plus.provider.base.NativeInterface;
 import java.io.BufferedReader;
 import java.io.File;
@@ -136,6 +137,11 @@ public abstract class NativeOCKAdapter implements NativeInterface {
         }
 
         return ockContext;
+    }
+
+    @Override
+    public NativeCryptoSelector.Backend getBackendType() {
+        return NativeCryptoSelector.Backend.OCK;
     }
 
     @Override
@@ -1173,19 +1179,20 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     @Override
     public long MLKEY_generate(String cipherName)
             throws OCKException {
-        return NativeOCKImplementation.MLKEY_generate(ockContext.getId(), cipherName);
+        // ICC_OBJ_txt2nid requires underscore form (e.g. ML_DSA_44, not ML-DSA-44)
+        return NativeOCKImplementation.MLKEY_generate(ockContext.getId(), cipherName.replace('-', '_'));
     }
 
     @Override
     public long MLKEY_createPrivateKey(String cipherName, byte[] privateKeyBytes)
             throws OCKException {
-        return NativeOCKImplementation.MLKEY_createPrivateKey(ockContext.getId(), cipherName, privateKeyBytes);
+        return NativeOCKImplementation.MLKEY_createPrivateKey(ockContext.getId(), cipherName.replace('-', '_'), privateKeyBytes);
     }
 
     @Override
     public long MLKEY_createPublicKey(String cipherName, byte[] publicKeyBytes)
             throws OCKException {
-        return NativeOCKImplementation.MLKEY_createPublicKey(ockContext.getId(), cipherName, publicKeyBytes);
+        return NativeOCKImplementation.MLKEY_createPublicKey(ockContext.getId(), cipherName.replace('-', '_'), publicKeyBytes);
     }
 
     @Override
