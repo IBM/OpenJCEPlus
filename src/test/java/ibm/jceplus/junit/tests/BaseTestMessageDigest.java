@@ -14,7 +14,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 abstract public class BaseTestMessageDigest extends BaseTest {
 
@@ -33,6 +35,38 @@ abstract public class BaseTestMessageDigest extends BaseTest {
             (byte) 0x6c, (byte) 0x6d, (byte) 0x6e, (byte) 0x6c, (byte) 0x6d, (byte) 0x6e,
             (byte) 0x6f, (byte) 0x6d, (byte) 0x6e, (byte) 0x6f, (byte) 0x70, (byte) 0x6e,
             (byte) 0x6f, (byte) 0x70, (byte) 0x71};
+
+    protected int expectedDigestLength() {
+        return -1;
+    }
+
+    protected byte[] getSingleBlockInput() {
+        return null;
+    }
+
+    protected byte[] getExpectedSingleBlockDigest() {
+        return null;
+    }
+
+    protected byte[] getMultiBlockInput() {
+        return null;
+    }
+
+    protected byte[] getExpectedMultiBlockDigest() {
+        return null;
+    }
+
+    protected byte[] getResetFirstInput() {
+        return null;
+    }
+
+    protected byte[] getResetSecondInput() {
+        return null;
+    }
+
+    protected byte[] getExpectedResetDigest() {
+        return null;
+    }
 
     @Test
     public void testUpdateCloneSameUpdate() throws Exception {
@@ -129,5 +163,45 @@ abstract public class BaseTestMessageDigest extends BaseTest {
         } catch (IllegalArgumentException e) {
             assertEquals("Input buffer too short", e.getMessage());
         }
+    }
+
+    @Test
+    public void test_DigestLength() throws Exception {
+        assumeTrue(expectedDigestLength() >= 0, "Skipping test: not applicable for this algorithm.");
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
+        assertTrue(md.getDigestLength() == expectedDigestLength(), "Unexpected digest length");
+    }
+
+    @Test
+    public void test_SingleBlock() throws Exception {
+        byte[] input = getSingleBlockInput();
+        assumeTrue(input != null, "Skipping test: not applicable for this algorithm.");
+
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
+        byte[] digest = md.digest(input);
+        assertTrue(Arrays.equals(digest, getExpectedSingleBlockDigest()), "Digest did not match expected");
+    }
+
+    @Test
+    public void test_MultiBlock() throws Exception {
+        byte[] input = getMultiBlockInput();
+        assumeTrue(input != null, "Skipping test: not applicable for this algorithm.");
+
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
+        byte[] digest = md.digest(input);
+        assertTrue(Arrays.equals(digest, getExpectedMultiBlockDigest()), "Digest did not match expected");
+    }
+
+    @Test
+    public void test_Reset() throws Exception {
+        byte[] first = getResetFirstInput();
+        assumeTrue(first != null, "Skipping test: not applicable for this algorithm.");
+
+        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
+        md.update(first);
+        md.reset();
+        md.update(getResetSecondInput());
+        byte[] result = md.digest();
+        assertTrue(Arrays.equals(result, getExpectedResetDigest()), "Digest did not match expected");
     }
 }

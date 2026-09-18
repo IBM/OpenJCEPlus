@@ -106,26 +106,44 @@ public class TestSHA1 extends BaseTestMessageDigest {
 
     }
 
-    @Test
-    public void testSHA1_A() throws Exception {
-
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(sha_A_input);
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, sha_A), "Digest did not match expected");
-
+    @Override
+    protected int expectedDigestLength() {
+        return 20;
     }
 
-    @Test
-    public void testSHA1_B() throws Exception {
+    @Override
+    protected byte[] getSingleBlockInput() {
+        return sha_A_input;
+    }
 
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(sha_B_input);
-        byte[] result = md.digest();
+    @Override
+    protected byte[] getExpectedSingleBlockDigest() {
+        return sha_A;
+    }
 
-        assertTrue(Arrays.equals(result, sha_B), "Digest did not match expected");
+    @Override
+    protected byte[] getMultiBlockInput() {
+        return sha_B_input;
+    }
 
+    @Override
+    protected byte[] getExpectedMultiBlockDigest() {
+        return sha_B;
+    }
+
+    @Override
+    protected byte[] getResetFirstInput() {
+        return sha_A_input;
+    }
+
+    @Override
+    protected byte[] getResetSecondInput() {
+        return sha_B_input;
+    }
+
+    @Override
+    protected byte[] getExpectedResetDigest() {
+        return sha_B;
     }
 
     @Test
@@ -143,27 +161,6 @@ public class TestSHA1 extends BaseTestMessageDigest {
     }
 
     @Test
-    public void testSHA1_reset() throws Exception {
-
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        md.update(sha_A_input);
-        md.reset();
-        md.update(sha_B_input);
-        byte[] result = md.digest();
-
-        assertTrue(Arrays.equals(result, sha_B), "Digest did not match expected");
-
-    }
-
-    @Test
-    public void testSHA1_digestLength() throws Exception {
-        MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
-        int digestLength = md.getDigestLength();
-        boolean isExpectedValue = (digestLength == 20);
-        assertTrue(isExpectedValue, "Unexpected digest length");
-    }
-
-    @Test
     public void testSHA1_ArrayOutofBoundsException() throws Exception {
         MessageDigest md = MessageDigest.getInstance(getAlgorithm(), getProviderName());
         byte[] bytes = new byte[] {1, 1, 1, 1, 1};
@@ -176,4 +173,3 @@ public class TestSHA1 extends BaseTestMessageDigest {
 
     }
 }
-
