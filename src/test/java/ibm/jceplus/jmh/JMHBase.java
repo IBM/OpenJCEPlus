@@ -41,6 +41,8 @@ abstract public class JMHBase {
         String projectHomeDir = System.getProperty("jmh.project.dir");
         String ockLibraryPath = System.getProperty("ock.library.path");
         String jgskitLibraryPath = System.getProperty("jgskit.library.path");
+        String opensslLibraryPath = System.getProperty("openssl.library.path");
+        String openjceplusLibraryPath = System.getProperty("openjceplus.library.path");
         String osArch = System.getProperty("os.arch", "").toLowerCase();
         String osName = System.getProperty("os.name").toLowerCase();
         String threadsProperty = System.getProperty("jmh.threads", "1");
@@ -55,7 +57,10 @@ abstract public class JMHBase {
             throw new IllegalArgumentException("Invalid thread count <" + threadsProperty + ">. Must be an integer.", e);
         }
         System.out.println("Home dir: " + projectHomeDir);
+        System.out.println("OCK Library Path: " + ockLibraryPath);
         System.out.println("JGSkit Library Path: " + jgskitLibraryPath);
+        System.out.println("OpenSSL Library Path: " + opensslLibraryPath);
+        System.out.println("OpenJCEPlus Library Path: " + openjceplusLibraryPath);
         System.out.println("Regex of classes to run: " + regexClassName);
         System.out.println("OS Arch: " + osArch);
         System.out.println("OS Name: " + osName);
@@ -91,7 +96,9 @@ abstract public class JMHBase {
                 "--add-exports=java.base/sun.security.pkcs=ALL-UNNAMED",
                 "--add-exports=java.base/sun.security.x509=ALL-UNNAMED",
                 "-Dock.library.path=" + ockLibraryPath,
-                "-Djgskit.library.path=" + jgskitLibraryPath));
+                "-Djgskit.library.path=" + jgskitLibraryPath,
+                "-Dopenssl.library.path=" + opensslLibraryPath,
+                "-Dopenjceplus.library.path=" + openjceplusLibraryPath));
         if (allowedProv != null) {
             jvmArgs.add("-Djmh.allowedProviders=" + allowedProv);
         }
@@ -174,6 +181,28 @@ abstract public class JMHBase {
                         .getDeclaredConstructor().newInstance();
             } else {
                 java.security.Security.removeProvider("OpenJCEPlus");
+            }
+            java.security.Security.insertProviderAt(myProvider, 1);
+        } else if (provider.equalsIgnoreCase("OpenJCEPlus-OpenSSL")) {
+            Provider myProvider = java.security.Security.getProvider("OpenJCEPlus-OpenSSL");
+            if (myProvider == null) {
+                Object ojp = Class.forName("com.ibm.crypto.plus.provider.OpenJCEPlus")
+                        .getDeclaredConstructor().newInstance();
+                myProvider = (Provider) ojp.getClass().getMethod("configure", String.class)
+                        .invoke(ojp, "./src/test/OpenSSLOnly.config");
+            } else {
+                java.security.Security.removeProvider("OpenJCEPlus-OpenSSL");
+            }
+            java.security.Security.insertProviderAt(myProvider, 1);
+        } else if (provider.equalsIgnoreCase("OpenJCEPlus-OCK")) {
+            Provider myProvider = java.security.Security.getProvider("OpenJCEPlus-OCK");
+            if (myProvider == null) {
+                Object ojp = Class.forName("com.ibm.crypto.plus.provider.OpenJCEPlus")
+                        .getDeclaredConstructor().newInstance();
+                myProvider = (Provider) ojp.getClass().getMethod("configure", String.class)
+                        .invoke(ojp, "./src/test/OCKOnly.config");
+            } else {
+                java.security.Security.removeProvider("OpenJCEPlus-OCK");
             }
             java.security.Security.insertProviderAt(myProvider, 1);
         } else if (provider.equalsIgnoreCase("OpenJCEPlusFIPS")) {

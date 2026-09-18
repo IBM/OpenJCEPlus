@@ -19,6 +19,10 @@ IF NOT DEFINED GSKIT_HOME (
 	echo "GSKIT_HOME must be set"
 	goto :eof
 )
+IF NOT DEFINED OPENSSL_HOME (
+	echo "OPENSSL_HOME must be set"
+	goto :eof
+)
 
 :: This check for the presence of the VCVARS_64_SCRIPT was commented out since the github
 :: action being used calls the equivilant of the vcvars64.bat file prior to 
@@ -35,5 +39,10 @@ cd src/main/native/ock
 
 @call nmake -nologo -f jgskit.win64.cygwin.mak clean
 @call nmake -nologo -f jgskit.win64.cygwin.mak
+
+cd ../openssl
+
+@call nmake -nologo -f openjceplus.win64.cygwin.mak clean
+@call nmake -nologo -f openjceplus.win64.cygwin.mak
 
 @endlocal
