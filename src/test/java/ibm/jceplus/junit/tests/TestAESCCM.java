@@ -323,7 +323,7 @@ public class TestAESCCM extends BaseTest {
         // inputLen + tagLenInBytes = 26 bytes. Before the fix for issue #1564, this would
         // throw a ShortBufferException because the check used input.length instead of inputLen.
         // See: https://github.com/IBM/OpenJCEPlus/issues/1564 for more information on failing scenarios.
-        byte[] output = new byte[inputLen + tagLenInBytes]; // 26 bytes — correct
+        byte[] output = new byte[inputLen + tagLenInBytes]; // 26 bytes - correct
         int bytesWritten = cipher.doFinal(input, inputOffset, inputLen, output, 0);
 
         Assertions.assertEquals(inputLen + tagLenInBytes, bytesWritten,
@@ -374,7 +374,7 @@ public class TestAESCCM extends BaseTest {
         // inputLen - tagLenInBytes = 10 bytes. Before the fix for issue #1564, this would
         // throw a ShortBufferException because the check used input.length instead of inputLen.
         // See: https://github.com/IBM/OpenJCEPlus/issues/1564 for more information on failing scenarios.
-        byte[] output = new byte[inputLen - tagLenInBytes]; // 10 bytes — correct
+        byte[] output = new byte[inputLen - tagLenInBytes]; // 10 bytes - correct
         int bytesWritten = decCipher.doFinal(cipherInputArray, inputOffset, inputLen, output, 0);
 
         Assertions.assertEquals(plaintext.length, bytesWritten,
@@ -415,8 +415,8 @@ public class TestAESCCM extends BaseTest {
         cipher.init(Cipher.ENCRYPT_MODE, keySpec, ccmParameterSpec);
 
         // One byte short of what is needed: inputLen + tagLenInBytes - 1 = 25.
-        // The check uses inputLen (10), so 25 < 10+16 — ShortBufferException expected.
-        byte[] tooSmallOutput = new byte[inputLen + tagLenInBytes - 1]; // 25 bytes — one short
+        // The check uses inputLen (10), so 25 < 10+16 - ShortBufferException expected.
+        byte[] tooSmallOutput = new byte[inputLen + tagLenInBytes - 1]; // 25 bytes - one short
 
         try {
             cipher.doFinal(input, inputOffset, inputLen, tooSmallOutput, 0);
@@ -466,8 +466,8 @@ public class TestAESCCM extends BaseTest {
         decCipher.init(Cipher.DECRYPT_MODE, keySpec, ccmParamDec);
 
         // One byte short: inputLen - tagLenInBytes - 1 = 9.
-        // The check uses inputLen (26), so 9 < 26-16 — ShortBufferException expected.
-        byte[] tooSmallOutput = new byte[inputLen - tagLenInBytes - 1]; // 9 bytes — one short
+        // The check uses inputLen (26), so 9 < 26-16 - ShortBufferException expected.
+        byte[] tooSmallOutput = new byte[inputLen - tagLenInBytes - 1]; // 9 bytes - one short
 
         try {
             decCipher.doFinal(cipherInputArray, inputOffset, inputLen, tooSmallOutput, 0);
