@@ -317,8 +317,8 @@ public class TestAESCCMInteropBC extends BaseTestInterop {
      * slice is passed via inputOffset + inputLen, and the output buffer is exactly the right size
      * for that slice.
      *
-     * Scenario A: OpenJCEPlus encrypts a slice → BC decrypts → plaintext verified.
-     * Scenario B: BC encrypts → OpenJCEPlus decrypts a slice → plaintext verified.
+     * Scenario A: OpenJCEPlus encrypts a slice -> BC decrypts -> plaintext verified.
+     * Scenario B: BC encrypts -> OpenJCEPlus decrypts a slice -> plaintext verified.
      */
     @Test
     public void testAESCCMDoFinalWithInputSliceInterop() throws Exception {
@@ -350,7 +350,7 @@ public class TestAESCCMInteropBC extends BaseTestInterop {
         System.arraycopy(plaintext, 0, inputBacking, inputOffset, inputLen);
 
         // -----------------------------------------------------------------------
-        // Scenario A: OpenJCEPlus encrypts the slice → BC decrypts → verify
+        // Scenario A: OpenJCEPlus encrypts the slice -> BC decrypts -> verify
         // -----------------------------------------------------------------------
         ibm.security.internal.spec.CCMParameterSpec ccmParamEnc =
                 new ibm.security.internal.spec.CCMParameterSpec(ccmTagLengthBits, iv);
@@ -388,7 +388,7 @@ public class TestAESCCMInteropBC extends BaseTestInterop {
                 "Scenario A: BC-decrypted bytes must match original plaintext");
 
         // -----------------------------------------------------------------------
-        // Scenario B: BC encrypts → OpenJCEPlus decrypts the slice → verify
+        // Scenario B: BC encrypts -> OpenJCEPlus decrypts the slice -> verify
         // -----------------------------------------------------------------------
         org.bouncycastle.crypto.MultiBlockCipher bcEngineB =
                 org.bouncycastle.crypto.engines.AESEngine.newInstance();
