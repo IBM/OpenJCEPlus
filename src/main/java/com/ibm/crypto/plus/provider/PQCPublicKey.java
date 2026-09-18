@@ -11,6 +11,7 @@ package com.ibm.crypto.plus.provider;
 import com.ibm.crypto.plus.provider.base.PQCKey;
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.spec.NamedParameterSpec;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 import sun.security.util.BitArray;
@@ -33,6 +34,7 @@ final class PQCPublicKey extends X509Key
     private String familyName;       // algorithm family name returned by getAlgorithm()
     private String paramSetName;  // specific parameter-set name (e.g. "ML-DSA-65")
 
+    private transient NamedParameterSpec params;
     private transient boolean destroyed = false;
     private transient PQCKey pqcKey = null; // Transient per tag [SERIALIZATION] in DesignNotes.txt
 
@@ -42,6 +44,7 @@ final class PQCPublicKey extends X509Key
         this.provider = provider;
         this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
         this.familyName = familyName(this.paramSetName);
+        this.params = new NamedParameterSpec(this.paramSetName);
 
         setKey(new BitArray(rawKey.length * 8, rawKey));
         try {
@@ -65,6 +68,7 @@ final class PQCPublicKey extends X509Key
 
             this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
             this.familyName = familyName(this.paramSetName);
+            this.params = new NamedParameterSpec(this.paramSetName);
 
             //OCKC puts the BITSTRING on the key. Need to remove it.
             setKey(new BitArray((rawKey.length - 5) * 8, rawKey, 5));
@@ -83,6 +87,7 @@ final class PQCPublicKey extends X509Key
 
             this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
             this.familyName = familyName(this.paramSetName);
+            this.params = new NamedParameterSpec(this.paramSetName);
             DerOutputStream tmp = new DerOutputStream();
             tmp.putUnalignedBitString(getKey());
             byte[] b = tmp.toByteArray();
@@ -123,6 +128,17 @@ final class PQCPublicKey extends X509Key
     public String getAlgorithm() {
         checkDestroyed();
         return familyName;
+    }
+
+    /**
+     * Returns the parameters associated with this key.
+     *
+     * @return the parameter set as a {@code NamedParameterSpec}
+     */
+    @Override
+    public NamedParameterSpec getParams() {
+        checkDestroyed();
+        return params;
     }
 
     /**
@@ -186,6 +202,7 @@ final class PQCPublicKey extends X509Key
         if (!destroyed) {
             destroyed = true;
             setKey(new BitArray(0));
+            this.params = null;
         }
     }
 

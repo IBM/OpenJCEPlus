@@ -12,6 +12,7 @@ import com.ibm.crypto.plus.provider.base.PQCKey;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.ProviderException;
+import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
 import javax.security.auth.DestroyFailedException;
 import sun.security.pkcs.PKCS8Key;
@@ -31,8 +32,8 @@ final class PQCPrivateKey extends PKCS8Key {
     private String familyName;      // algorithm family name returned by getAlgorithm()
     private String paramSetName; // specific parameter-set name (e.g. "ML-DSA-65")
 
+    private transient NamedParameterSpec params;
     private transient PQCKey pqcKey;
-
     private transient boolean destroyed = false;
 
     /**
@@ -46,6 +47,7 @@ final class PQCPrivateKey extends PKCS8Key {
         this.algid = new AlgorithmId(PQCAlgorithmId.getOID(algName));
         this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
         this.familyName = familyName(this.paramSetName);
+        this.params = new NamedParameterSpec(this.paramSetName);
         this.provider = provider;
         byte[] key = null;
         DerValue pkOct = null;
@@ -87,6 +89,7 @@ final class PQCPrivateKey extends PKCS8Key {
             // not the family name "ML-KEM".
             this.paramSetName = PQCKnownOIDs.findMatch(pqcKey.getAlgorithm()).stdName();
             this.familyName = familyName(this.paramSetName);
+            this.params = new NamedParameterSpec(this.paramSetName);
             this.algid = new AlgorithmId(PQCAlgorithmId.getOID(this.paramSetName));
 
             validateKeyLength(pqcKey.getPrivateKeyBytes());
@@ -122,6 +125,7 @@ final class PQCPrivateKey extends PKCS8Key {
 
         this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
         this.familyName = familyName(this.paramSetName);
+        this.params = new NamedParameterSpec(this.paramSetName);
         validateKeyLength(this.privKeyMaterial);
         if (!isExpandedChoice(this.paramSetName, this.privKeyMaterial)) {
             throw new InvalidKeyException("Only expanded keys are supported by OpenJCEPlus");
@@ -193,6 +197,17 @@ final class PQCPrivateKey extends PKCS8Key {
         return paramSetName;
     }
 
+    /**
+     * Returns the parameters associated with this key.
+     *
+     * @return the parameter set as a {@code NamedParameterSpec}
+     */
+    @Override
+    public NamedParameterSpec getParams() {
+        checkDestroyed();
+        return params;
+    }
+
     PQCKey getPQCKey() {
         return this.pqcKey;
     }
@@ -219,6 +234,7 @@ final class PQCPrivateKey extends PKCS8Key {
             this.privKeyMaterial = null;
             this.encodedKey = null;
             this.pqcKey = null;
+            this.params = null;
         }
     }
 

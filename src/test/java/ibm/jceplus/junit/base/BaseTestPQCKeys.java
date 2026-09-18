@@ -29,6 +29,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -286,6 +287,33 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
                 " must match the Algorithnm for this KeyPairGenerator: " + "ML-DSA-44"), 
                 "Different Message than expected: " + e.getMessage());
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "ML-KEM-512",
+            "ML-KEM-768",
+            "ML-KEM-1024",
+            "ML-DSA-44",
+            "ML-DSA-65",
+            "ML-DSA-87"
+    })
+    public void testPQCKeyGetParams(String algorithm) throws Exception {
+
+        KeyPairGenerator keyPairGenerator =
+                KeyPairGenerator.getInstance(algorithm, getProviderName());
+
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        assertTrue(keyPair.getPrivate().getParams() instanceof NamedParameterSpec);
+        NamedParameterSpec privateParams =
+                (NamedParameterSpec) keyPair.getPrivate().getParams();
+        assertEquals(algorithm, privateParams.getName());
+
+        assertTrue(keyPair.getPublic().getParams() instanceof NamedParameterSpec);
+        NamedParameterSpec publicParams =
+                (NamedParameterSpec) keyPair.getPublic().getParams();
+        assertEquals(algorithm, publicParams.getName());
     }
 
     /**
