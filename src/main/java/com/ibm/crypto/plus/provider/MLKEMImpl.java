@@ -113,6 +113,13 @@ public class MLKEMImpl implements KEMSpi {
             } catch (Exception e) {
                 throw new InvalidKeyException("unsupported key", e);
             }
+        } else {
+            // Key is already a PQCPublicKey - re-translate to ensure it is on this provider's backend.
+            try {
+                pubKey = (PublicKey) PQCKeyFactory.toPQCKey(provider, pubKey, "KEM");
+            } catch (Exception e) {
+                throw new InvalidKeyException("unsupported key", e);
+            }
         }
 
         // Validate against the concrete parameter set name.
@@ -213,6 +220,13 @@ public class MLKEMImpl implements KEMSpi {
                 throw new InvalidKeyException("unsupported key", e);
             } finally {
                 Arrays.fill(encoding, (byte) 0);
+            }
+        } else {
+            // Key is already a PQCPrivateKey - re-translate to ensure it is on this provider's backend.
+            try {
+                privKey = (PrivateKey) PQCKeyFactory.toPQCKey(provider, privKey, "KEM");
+            } catch (Exception e) {
+                throw new InvalidKeyException("unsupported key", e);
             }
         }
 

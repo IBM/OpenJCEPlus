@@ -8,6 +8,9 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
+import com.ibm.crypto.plus.provider.base.NativeInterface;
+import com.ibm.crypto.plus.provider.base.PQCKey;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactorySpi;
@@ -24,14 +27,33 @@ class PQCKeyFactory extends KeyFactorySpi {
 
     private OpenJCEPlusProvider provider;
     private String algName = null;
+    private String serviceType = "KeyFactory";
 
     static Key toPQCKey(OpenJCEPlusProvider provider, Key key) throws InvalidKeyException {
         return (new PQCKeyFactory(provider, key.getAlgorithm())).engineTranslateKey(key);
     }
 
+    /**
+     * Translates {@code key} to a {@link PQCKey} whose native handle belongs to the
+     * backend that {@code serviceType} would select. Callers that are about to use
+     * the key for a specific operation (e.g. {@code "Signature"}, {@code "KEM"}) pass
+     * that service type so the translated key lands on the same backend, avoiding a
+     * pointer mismatch at the native layer.
+     */
+    static Key toPQCKey(OpenJCEPlusProvider provider, Key key, String serviceType)
+            throws InvalidKeyException {
+        return (new PQCKeyFactory(provider, key.getAlgorithm(), serviceType)).engineTranslateKey(key);
+    }
+
     private PQCKeyFactory(OpenJCEPlusProvider provider, String name) {
         this.provider = provider;
         this.algName = name;
+    }
+
+    private PQCKeyFactory(OpenJCEPlusProvider provider, String name, String serviceType) {
+        this.provider = provider;
+        this.algName = name;
+        this.serviceType = serviceType;
     }
 
     @Override
@@ -40,7 +62,7 @@ class PQCKeyFactory extends KeyFactorySpi {
         try {
             if (keySpec instanceof PKCS8EncodedKeySpec) {
                 PrivateKey generated = new PQCPrivateKey(provider,
-                        ((PKCS8EncodedKeySpec) keySpec).getEncoded());
+                        serviceType, ((PKCS8EncodedKeySpec) keySpec).getEncoded());
                 checkKeyAlgo(generated);
                 return generated;
             }
@@ -67,7 +89,7 @@ class PQCKeyFactory extends KeyFactorySpi {
         try {
             if (keySpec instanceof X509EncodedKeySpec) {
                 PQCPublicKey generated = new PQCPublicKey(provider,
-                        ((X509EncodedKeySpec) keySpec).getEncoded());
+                        serviceType, ((X509EncodedKeySpec) keySpec).getEncoded());
                 checkKeyAlgo(generated);
                 return generated;
             }
@@ -93,28 +115,23 @@ class PQCKeyFactory extends KeyFactorySpi {
             throws InvalidKeySpecException {
         try {
             if (key instanceof PublicKey) {
-                // Determine valid key specs
-                Class<?> x509KeySpec = Class.forName("java.security.spec.X509EncodedKeySpec");
-
-                if (x509KeySpec.isAssignableFrom(keySpec)) {
+                // Accept X509EncodedKeySpec or any supertype (e.g. EncodedKeySpec)
+                if (keySpec.isAssignableFrom(X509EncodedKeySpec.class)) {
                     return keySpec.cast(new X509EncodedKeySpec(key.getEncoded()));
                 } else {
                     throw new InvalidKeySpecException("Inappropriate key specification");
                 }
             } else if (key instanceof PrivateKey) {
-                // Determine valid key specs
-                Class<?> pkcs8KeySpec = Class.forName("java.security.spec.PKCS8EncodedKeySpec");
-
-                if (pkcs8KeySpec.isAssignableFrom(keySpec)) {
+                // Accept PKCS8EncodedKeySpec or any supertype (e.g. EncodedKeySpec)
+                if (keySpec.isAssignableFrom(PKCS8EncodedKeySpec.class)) {
                     return keySpec.cast(new PKCS8EncodedKeySpec(key.getEncoded()));
                 } else {
                     throw new InvalidKeySpecException("Inappropriate key specification");
                 }
-
             } else {
                 throw new InvalidKeySpecException("Inappropriate key type");
             }
-        } catch (ClassNotFoundException | ClassCastException e) {
+        } catch (ClassCastException e) {
             throw new InvalidKeySpecException("Unsupported key specification: ", e);
         }
     }
@@ -130,30 +147,47 @@ class PQCKeyFactory extends KeyFactorySpi {
 
         try {
             if (key instanceof java.security.PublicKey) {
-                // Check if key originates from this factory
-                if (key instanceof com.ibm.crypto.plus.provider.PQCPublicKey) {
+                // Return as-is only if already our type AND on the same backend
+                if ((key instanceof PQCPublicKey pub)
+                        && keyMatchesProvider(pub.getPQCKey(), pub.getParamSetName())) {
                     return key;
                 }
-                // Convert key to spec
+                // Convert key to spec and re-create on the correct backend
                 X509EncodedKeySpec x509KeySpec = engineGetKeySpec(key,
                         X509EncodedKeySpec.class);
-                // Create key from spec, and return it
                 return engineGeneratePublic(x509KeySpec);
             } else if (key instanceof PrivateKey) {
-                // Check if key originates from this factory
-                if (key instanceof com.ibm.crypto.plus.provider.PQCPrivateKey) {
+                // Return as-is only if already our type AND on the same backend
+                if ((key instanceof PQCPrivateKey priv)
+                        && keyMatchesProvider(priv.getPQCKey(), priv.getParamSetName())) {
                     return key;
                 }
-                // Convert key to spec
+                // Convert key to spec and re-create on the correct backend
                 PKCS8EncodedKeySpec pkcs8KeySpec = engineGetKeySpec(key,
                         PKCS8EncodedKeySpec.class);
-                // Create key from spec, and return it
                 return engineGeneratePrivate(pkcs8KeySpec);
             } else {
                 throw new InvalidKeyException("Wrong algorithm type");
             }
         } catch (InvalidKeySpecException e) {
             throw new InvalidKeyException("Cannot translate key: ", e);
+        }
+    }
+
+    /**
+     * Returns {@code true} if the given {@link PQCKey}'s backend matches the
+     * backend this factory's provider would select for {@code paramSetName} under
+     * {@code serviceType}. Falls back to {@code false} on any error so translation
+     * is attempted rather than silently skipped.
+     */
+    private boolean keyMatchesProvider(PQCKey pqcKey, String paramSetName) {
+        try {
+            NativeInterface expected = NativeCryptoSelector.selectBackend(
+                    provider, serviceType, paramSetName);
+            NativeInterface actual = pqcKey.getBackendInterface();
+            return expected.getBackendType() == actual.getBackendType();
+        } catch (Exception e) {
+            return false;
         }
     }
 
