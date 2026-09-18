@@ -19,6 +19,7 @@ public abstract class NativeImplementation {
     @SuppressWarnings("restricted")
     protected static boolean loadIfExists(File libraryFile) {
         String libraryName = libraryFile.getAbsolutePath();
+        System.out.println("Attempting to load: " + libraryName);
 
         if (SystemAccessUtils.fileExists(libraryName)) {
             // Need a try/catch block in case the library has already been
@@ -26,16 +27,19 @@ public abstract class NativeImplementation {
             //
             try {
                 SystemAccessUtils.loadLibrary(libraryName);
+                System.out.println("Loaded : " + libraryName);
                 if (debug != null) {
                     debug.println("Loaded : " + libraryName);
                 }
                 return true;
             } catch (Throwable t) {
+                System.out.println("Failed to load : " + libraryName);
                 if (debug != null) {
                     debug.println("Failed to load : " + libraryName);
                 }
             }
         } else {
+            System.out.println("Skipping load of " + libraryName);
             if (debug != null) {
                 debug.println("Skipping load of " + libraryName);
             }
