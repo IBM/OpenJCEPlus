@@ -423,9 +423,17 @@ public final class RSA extends CipherSpi {
         } else if (padding.equalsIgnoreCase("OAEPWithSHA-512AndMGF1Padding")
                 || padding.equalsIgnoreCase("OAEPWithSHA512AndMGF1Padding")) {
             this.padding = RSAPadding.OAEPPaddingSHA512();
+<<<<<<< HEAD
         } else if (padding.equalsIgnoreCase("OAEPWithSHA-512/224AndMGF1Padding")) {
             this.padding = RSAPadding.OAEPPaddingSHA512_224();
         } else if (padding.equalsIgnoreCase("OAEPWithSHA-512/256AndMGF1Padding")) {
+=======
+        } else if (padding.equalsIgnoreCase("OAEPWithSHA-512/224AndMGF1Padding")
+                || padding.equalsIgnoreCase("OAEPWithSHA512/224AndMGF1Padding")) {
+            this.padding = RSAPadding.OAEPPaddingSHA512_224();
+        } else if (padding.equalsIgnoreCase("OAEPWithSHA-512/256AndMGF1Padding")
+                || padding.equalsIgnoreCase("OAEPWithSHA512/256AndMGF1Padding")) {
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
             this.padding = RSAPadding.OAEPPaddingSHA512_256();
         } else {
             if (provider.isFIPS() && !allowNonOAEPFIPS) {

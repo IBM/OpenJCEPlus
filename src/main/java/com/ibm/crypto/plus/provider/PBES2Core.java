@@ -42,7 +42,11 @@ abstract class PBES2Core extends CipherSpi {
      */
     PBES2Core(String kdfAlgo, String cipherAlgo, int keySize, OpenJCEPlusProvider provider)
         throws NoSuchAlgorithmException, NoSuchPaddingException {
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         blkSize = AESCipher.AES_BLOCK_SIZE;
         this.cipherAlgo = cipherAlgo;
         keyLength = keySize * 8;
@@ -50,6 +54,7 @@ abstract class PBES2Core extends CipherSpi {
         this.provider = provider;
 
         if (cipherAlgo.equalsIgnoreCase("AES")) {
+<<<<<<< HEAD
             cipher = new AESCipher(provider);
 
             switch (kdfAlgo.toLowerCase()) {
@@ -73,6 +78,31 @@ abstract class PBES2Core extends CipherSpi {
                     break;
                 case "hmacsha512/256":
                     kdf = new PBKDF2Core.HmacSHA512_256(provider);
+=======
+            cipher = new AESCipher(provider, pbeAlgo);
+
+            switch (kdfAlgo.toLowerCase()) {
+                case "hmacsha1":
+                    kdf = new PBKDF2Core.HmacSHA1(provider, "Cipher", pbeAlgo);
+                    break;
+                case "hmacsha224":
+                    kdf = new PBKDF2Core.HmacSHA224(provider, "Cipher", pbeAlgo);
+                    break;
+                case "hmacsha256":
+                    kdf = new PBKDF2Core.HmacSHA256(provider, "Cipher", pbeAlgo);
+                    break;
+                case "hmacsha384":
+                    kdf = new PBKDF2Core.HmacSHA384(provider, "Cipher", pbeAlgo);
+                    break;
+                case "hmacsha512":
+                    kdf = new PBKDF2Core.HmacSHA512(provider, "Cipher", pbeAlgo);
+                    break;
+                case "hmacsha512/224":
+                    kdf = new PBKDF2Core.HmacSHA512_224(provider, "Cipher", pbeAlgo);
+                    break;
+                case "hmacsha512/256":
+                    kdf = new PBKDF2Core.HmacSHA512_256(provider, "Cipher", pbeAlgo);
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
                     break;
                 default:
                     throw new NoSuchAlgorithmException(

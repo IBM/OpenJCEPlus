@@ -110,6 +110,44 @@ def getBinaries(hardware, software) {
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Returns the Artifactory URL for a custom/workaround JDK build. This method serves as
+ * an alternative method for bootstrapping our builds when official builds wont work
+ * from official GA releases from AdoptOpenJDK API.
+ */
+def getJavaWorkaroundUrl(artifactoryPath, hardware, software, javaRelease) {
+    def java_link = ""
+    def baseUrl = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/${artifactoryPath}"
+
+    def filename = ""
+    if (software == "windows") {
+        filename = "ibm-semeru-open-jdk_x64_windows_${javaRelease}JDK26U_2026-01-02-02-41.zip"
+    } else if ((software == "linux") && (hardware == "aarch64")) {
+        filename = "ibm-semeru-open-jdk_aarch64_linux_${javaRelease}JDK26U_2026-01-03-18-27.tar.gz"
+    } else if ((software == "linux") && (hardware == "ppc64le")) {
+        filename = "ibm-semeru-open-jdk_ppc64le_linux_${javaRelease}JDK26U_2026-01-03-18-27.tar.gz"
+    } else if ((software == "linux") && (hardware == "x64")) {
+        filename = "ibm-semeru-open-jdk_x64_linux_${javaRelease}JDK26U_2026-01-02-02-41.tar.gz"
+    } else if ((software == "linux") && (hardware == "s390x")) {
+        filename = "ibm-semeru-open-jdk_s390x_linux_${javaRelease}JDK26U_2026-01-03-18-27.tar.gz"
+    } else if ((software == "mac") && (hardware == "aarch64")) {
+        filename = "ibm-semeru-open-jdk_aarch64_mac_${javaRelease}JDK26U_2026-01-03-18-27.tar.gz"
+    } else if ((software == "mac") && (hardware == "x64")) {
+        filename = "ibm-semeru-open-jdk_x64_mac_${javaRelease}JDK26U_2026-01-03-18-27.tar.gz"
+    } else if (software == "aix") {
+        filename = "ibm-semeru-open-jdk_ppc64_aix_${javaRelease}JDK26U_2026-01-03-18-27.tar.gz"
+    }
+
+    if (filename != "") {
+        java_link = "${baseUrl}/${filename}"
+    }
+
+    return java_link
+}
+
+/*
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
  * Constructs the appropriate Semeru JDK download URL based on the Java version,
  * hardware platform, and software OS. Supports both latest GA releases and
  * specific version releases using the AdoptOpenJDK API.
@@ -169,6 +207,12 @@ def getJava(hardware, software) {
         file_extension = "zip"
     }
 
+<<<<<<< HEAD
+=======
+    // Use workaround URL from Artifactory, if official builds don't work
+    //def java_link = getJavaWorkaroundUrl("openjceplusworkaround050126", hardware, software, JAVA_RELEASE)
+
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     dir("java") {
         def java_file = ""
         // Download Java - use credentials if it's an Artifactory URL

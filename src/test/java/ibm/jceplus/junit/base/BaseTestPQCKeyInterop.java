@@ -20,7 +20,10 @@ import java.security.spec.KeySpec;
 import java.security.spec.NamedParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+<<<<<<< HEAD
 import java.util.Arrays;
+=======
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
 import javax.crypto.KEM;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.Test;
@@ -45,10 +48,14 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @Test
     public void testPQCKeyGenKEM_PlusToInterop() throws Exception {
         String pqcAlgorithm = "ML-KEM-512";
+<<<<<<< HEAD
         boolean same = false;
 
         //This is not in the FIPS provider yet.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
         keyFactoryPlus = KeyFactory.getInstance(pqcAlgorithm, getProviderName());
         keyPairGenInterop = KeyPairGenerator.getInstance(pqcAlgorithm, getInteropProviderName());
@@ -68,6 +75,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         // BC private keys do not currently conform to the Draft standard for these keys
         // So we know the keys will not compare
         if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
+<<<<<<< HEAD
             same = Arrays.equals(privateKeyBytesPlus, privateKeyInterop.getEncoded());
             assertTrue(same);
         }
@@ -75,14 +83,25 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         // The original and new keys are the same
         same = Arrays.equals(publicKeyBytesPlus, publicKeyInterop.getEncoded());
         assertTrue(same);
+=======
+            assertArrayEquals(privateKeyBytesPlus, privateKeyInterop.getEncoded());
+        }
+
+        // The original and new keys are the same
+        assertArrayEquals(publicKeyBytesPlus, publicKeyInterop.getEncoded());
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     } 
 
     @Test
     public void testPQCKeyGenKEMAutoKeyConvertion() throws Exception {
         String pqcAlgorithm = "ML-KEM-512";
 
+<<<<<<< HEAD
         //This is not in the FIPS provider yet and BouncyCastle  does not support this test.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        // BouncyCastle  does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         KEM kemInterop = KEM.getInstance(pqcAlgorithm, getProviderName());
@@ -110,10 +129,13 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @Test
     public void testPQCKeyGenKEM_Interop() throws Exception {
         String pqcAlgorithm = "ML-KEM-512";
+<<<<<<< HEAD
         boolean same = false;
 
         //This is not in the FIPS provider yet.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         // BC provider generates seed format privatekey
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
@@ -135,22 +157,33 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         // BC private keys do not currently conform to the Draft standard for these keys
         // So we know the keys will not compare
         if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
+<<<<<<< HEAD
             same = Arrays.equals(privateKeyBytesInterop, privateKeyPlus.getEncoded());
             assertTrue(same);
         }
 
         same = Arrays.equals(publicKeyBytesInterop, publicKeyPlus.getEncoded());
         assertTrue(same);
+=======
+            assertArrayEquals(privateKeyBytesInterop, privateKeyPlus.getEncoded());
+        }
+
+        assertArrayEquals(publicKeyBytesInterop, publicKeyPlus.getEncoded());
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
 
     }
 
     @Test
     public void testPQCKeyGenKEM_PlusToInteropRAW() throws Exception {
         String pqcAlgorithm = "ML-KEM-512";
+<<<<<<< HEAD
         boolean same = false;
 
         //This is not in the FIPS provider yet and Bouncy Castle does not support this test.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        // Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
@@ -168,6 +201,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         PublicKey pub = keyFactoryPlus.generatePublic(eksInterop); 
         EncodedKeySpec eksPrivInterop = keyFactoryInterop.getKeySpec(privateKeyInterop, EncodedKeySpec.class);
         PrivateKey priv = keyFactoryPlus.generatePrivate(eksPrivInterop);
+<<<<<<< HEAD
         same = Arrays.equals(privateKeyBytesInterop, priv.getEncoded());
         assertTrue(same);
         
@@ -184,6 +218,24 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         //This is not in the FIPS provider yet.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
+=======
+        assertArrayEquals(privateKeyBytesInterop, priv.getEncoded());
+
+        // The original and new keys are the same
+        assertArrayEquals(publicKeyBytesInterop, pub.getEncoded());
+    }
+
+    /**
+     * Tests ML-DSA key interoperability (OpenJCEPlus → interop provider) for all
+     * three parameter sets.  A key pair is generated by OpenJCEPlus, encoded, and
+     * then imported by the interop provider.  Public-key byte equality is verified;
+     * private-key byte equality is only checked against SunJCE because BC uses a
+     * different private-key encoding.
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void testPQCKeyGenMLDSA_PlusToInterop(String pqcAlgorithm) throws Exception {
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
         keyFactoryPlus = KeyFactory.getInstance(pqcAlgorithm, getProviderName());
         keyPairGenInterop = KeyPairGenerator.getInstance(pqcAlgorithm, getInteropProviderName2());
@@ -198,6 +250,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         PKCS8EncodedKeySpec privateKeySpecPlus = new PKCS8EncodedKeySpec(privateKeyBytesPlus);
         EncodedKeySpec publicKeySpecPlus = new X509EncodedKeySpec(publicKeyBytesPlus);
         PublicKey publicKeyInterop = keyFactoryInterop.generatePublic(publicKeySpecPlus);
+<<<<<<< HEAD
         //BC is using a different encoding today for thier ML-DSA private keys.
         // So we can not compare these today.
         if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
@@ -218,6 +271,29 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
         //This is not in the FIPS provider yet.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        //BC is using a different encoding today for their ML-DSA private keys.
+        // So we cannot compare these today.
+        if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
+            PrivateKey privateKeyInterop = keyFactoryInterop.generatePrivate(privateKeySpecPlus);
+            assertArrayEquals(privateKeyBytesPlus, privateKeyInterop.getEncoded(),
+                    "Private key bytes differ for " + pqcAlgorithm);
+        }
+
+        // The original and new keys are the same
+        assertArrayEquals(publicKeyBytesPlus, publicKeyInterop.getEncoded(),
+                "Public key bytes differ for " + pqcAlgorithm);
+    }
+
+    /**
+     * Tests ML-DSA key interoperability (interop provider → OpenJCEPlus) for all
+     * three parameter sets.  A key pair is generated by the interop provider,
+     * encoded, and imported by OpenJCEPlus.  Public-key byte equality is verified.
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void testPQCKeyGenMLDSA_Interop(String pqcAlgorithm) throws Exception {
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         // BC provider generates seed format privatekey
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
@@ -237,6 +313,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         PublicKey publicKeyPlus = keyFactoryPlus.generatePublic(publicKeySpecInterop);
         PrivateKey privateKeyPlus = keyFactoryPlus.generatePrivate(privateKeySpecInterop);
 
+<<<<<<< HEAD
         //BC is using a different encoding today for thier ML-DSA private keys.
         // So we can not compare these today.
         if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
@@ -255,6 +332,28 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
 
         //This is not in the FIPS provider yet and Bouncy Castle does not support this test.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        //BC is using a different encoding today for their ML-DSA private keys.
+        // So we cannot compare these today.
+        if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
+            assertArrayEquals(privateKeyBytesInterop, privateKeyPlus.getEncoded(),
+                    "Private key bytes differ for " + pqcAlgorithm);
+        }
+
+        assertArrayEquals(publicKeyBytesInterop, publicKeyPlus.getEncoded(),
+                "Public key bytes differ for " + pqcAlgorithm);
+    }
+
+    /**
+     * Tests ML-DSA RAW key-spec interoperability (interop provider → OpenJCEPlus) for all
+     * three parameter sets.  Uses {@code getKeySpec(key, EncodedKeySpec.class)} to obtain
+     * the raw encoding from the interop provider then imports it into OpenJCEPlus.
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void testPQCKeyGenMLDSA_PlusToInteropRAW(String pqcAlgorithm) throws Exception {
+        // Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
@@ -269,6 +368,7 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         byte[] privateKeyBytesInterop = privateKeyInterop.getEncoded();
 
         EncodedKeySpec eksInterop = keyFactoryInterop.getKeySpec(publicKeyInterop, EncodedKeySpec.class);
+<<<<<<< HEAD
         PublicKey pub = keyFactoryPlus.generatePublic(eksInterop); 
         EncodedKeySpec eksPrivInterop = keyFactoryInterop.getKeySpec(privateKeyInterop, EncodedKeySpec.class);
         PrivateKey priv = keyFactoryPlus.generatePrivate(eksPrivInterop);
@@ -283,6 +383,22 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         // The original and new keys are the same
         same = Arrays.equals(publicKeyBytesInterop, pub.getEncoded());
         assertTrue(same);
+=======
+        PublicKey pub = keyFactoryPlus.generatePublic(eksInterop);
+        EncodedKeySpec eksPrivInterop = keyFactoryInterop.getKeySpec(privateKeyInterop, EncodedKeySpec.class);
+        PrivateKey priv = keyFactoryPlus.generatePrivate(eksPrivInterop);
+
+        //BC is using a different encoding today for their ML-DSA private keys.
+        // So we cannot compare these today.
+        if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
+            assertArrayEquals(privateKeyBytesInterop, priv.getEncoded(),
+                    "Private key bytes differ for " + pqcAlgorithm);
+        }
+
+        // The original and new keys are the same
+        assertArrayEquals(publicKeyBytesInterop, pub.getEncoded(),
+                "Public key bytes differ for " + pqcAlgorithm);
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     }
 
     protected KeyPair generateKeyPair(KeyPairGenerator keyPairGen) throws Exception {
@@ -302,8 +418,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignInteropAndVerifyPlus(String algorithm) throws Exception {
+<<<<<<< HEAD
         //This is not in the FIPS provider yet.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        // Boucncy Castle does not support this test when ML-DSA is specified.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(algorithm.equalsIgnoreCase("ML-DSA") && getInteropProviderName2().equalsIgnoreCase("BC"));
 
         try {
@@ -337,8 +457,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignInteropKeysPlusSignVerify(String algorithm) {
+<<<<<<< HEAD
         //This is not in the FIPS provider yet.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        //Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName2()));
 
         try {
@@ -371,8 +495,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignPlusKeysInteropSignVerify(String algorithm) {
+<<<<<<< HEAD
         //This is not in the FIPS provider yet.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        //Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName2()));
 
         try {
@@ -406,9 +534,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testSignPlusAndVerifyInterop(String algorithm) {
         try {
+<<<<<<< HEAD
             //This is not in the FIPS provider yet.
             assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
+=======
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
             keyPairGenPlus = KeyPairGenerator.getInstance(algorithm, getProviderName());
             KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
 
@@ -439,8 +570,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
     public void testKEMPlusKeyInteropAll(String Algorithm) {
+<<<<<<< HEAD
         //This is not in the FIPS provider yet and Oracle Private keys have an extra Octet in them.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        //Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         try {
@@ -479,8 +614,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
     public void testKEMInteropKeyPlusAll(String Algorithm) {
+<<<<<<< HEAD
         //This is not in the FIPS provider yet and Oracle Private keys have an extra Octet in them.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        //Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         try {
@@ -520,9 +659,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @CsvSource({"ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
     public void testKEMPlusCreatesInteropGet(String Algorithm) {
         try {
+<<<<<<< HEAD
             //This is not in the FIPS provider yet and Oracle Private keys have an extra Octet in them.
             assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
+=======
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
             KEM kemPlus = KEM.getInstance(Algorithm, getProviderName());
             KEM kemInterop = KEM.getInstance("ML-KEM", getInteropProviderName());
 
@@ -558,9 +700,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @CsvSource({"ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
     public void testKEMInteropCreatesPlusGet(String Algorithm) {
         try {
+<<<<<<< HEAD
             //This is not in the FIPS provider yet and Oracle Private keys have an extra Octet in them.
             assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
+=======
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
             KEM kemPlus = KEM.getInstance(Algorithm, getProviderName());
             KEM kemInterop = KEM.getInstance("ML-KEM", getInteropProviderName());
 
@@ -599,8 +744,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
     public void testMLKEMInteropWithNamedParameterSpec(String parameterSet) throws Exception {
+<<<<<<< HEAD
         // Not in FIPS provider yet and BC doesn't support this test
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        //Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         // Generate key pair using NamedParameterSpec with provider
@@ -636,8 +785,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
     public void testMLKEMInteropEmptyParamsWithNamedParameterSpec(String parameterSet) throws Exception {
+<<<<<<< HEAD
         // Not in FIPS provider yet and BC doesn't support this test
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        //Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         // Generate key pair using NamedParameterSpec with interop provider
@@ -673,8 +826,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
     public void testMLKEMInteropSmallerSecretWithNamedParameterSpec(String parameterSet) throws Exception {
+<<<<<<< HEAD
         // Not in FIPS provider yet and BC doesn't support this test
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        // Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         // Generate key pair using NamedParameterSpec with provider
@@ -710,8 +867,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @ParameterizedTest
     @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
     public void testMLKEMBidirectionalInteropWithNamedParameterSpec(String parameterSet) throws Exception {
+<<<<<<< HEAD
         // Not in FIPS provider yet and BC doesn't support this test
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        // Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         // Test 1: Generate with provider, encapsulate with interop provider, decapsulate with provider
@@ -749,8 +910,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @CsvSource({"ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
     public void testMLKEMGetKeySpecPrivateInteropToPlus(String algorithm)
             throws Exception {
+<<<<<<< HEAD
         // This is not in the FIPS provider yet.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        // Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         KeyFactory openjceplusKeyFactory = KeyFactory.getInstance(algorithm, getProviderName());
@@ -785,8 +950,12 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
     public void testMLDSAGetKeySpecPrivateInteropToPlus(String algorithm)
             throws Exception {
+<<<<<<< HEAD
         // This is not in the FIPS provider yet.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+=======
+        // Bouncy Castle does not support this test.
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         KeyFactory openjceplusKeyFactory = KeyFactory.getInstance(algorithm, getProviderName());
@@ -807,6 +976,65 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         assertTrue(verifierInterop.verify(signaturePlus), "Signature verification failed");
     }
 
+<<<<<<< HEAD
+=======
+    @Test
+    public void testKeyFactoryWithOthersMLDSAKeys() throws Exception {
+
+        // Bouncy Castle does not support this test.
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        KeyPairGenerator kpgDSA = KeyPairGenerator.getInstance("ML-DSA", getInteropProviderName2());
+        kpgDSA.initialize(NamedParameterSpec.ML_DSA_65);
+        KeyPair keyPairDSA = kpgDSA.generateKeyPair();
+
+        KeyFactory keyFactory = KeyFactory.getInstance("ML-DSA-65", getProviderName());
+        PublicKey pubK = (PublicKey) keyFactory.translateKey(keyPairDSA.getPublic());
+        PrivateKey privK = (PrivateKey) keyFactory.translateKey(keyPairDSA.getPrivate());
+
+        Signature signerPlus = Signature.getInstance("ML-DSA", getProviderName());
+        signerPlus.initSign(privK);
+        signerPlus.update(origMsg);
+        byte[] signaturePlus = signerPlus.sign();
+
+        Signature verifierInterop = Signature.getInstance("ML-DSA", getProviderName());
+        verifierInterop.initVerify(pubK);
+        verifierInterop.update(origMsg);
+        assertTrue(verifierInterop.verify(signaturePlus), "Signature verification failed");
+
+    }
+
+    @Test
+    public void testKeyFactoryWithOthersMLKEMKeys() throws Exception {
+
+        // Bouncy Castle does not support this test.
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        KeyPairGenerator kpgKEM = KeyPairGenerator.getInstance("ML-KEM", getInteropProviderName());
+        kpgKEM.initialize(NamedParameterSpec.ML_KEM_768);
+        KeyPair keyPairKEM = kpgKEM.generateKeyPair();
+
+        KeyFactory keyFactory = KeyFactory.getInstance("ML-KEM-768", getProviderName());
+        PublicKey pubK = (PublicKey) keyFactory.translateKey(keyPairKEM.getPublic());
+        PrivateKey privK = (PrivateKey) keyFactory.translateKey(keyPairKEM.getPrivate());
+
+        KEM interopKem = KEM.getInstance("ML-KEM", getProviderName());
+        KEM.Encapsulator encapsulator =
+                interopKem.newEncapsulator(pubK);
+
+        KEM.Encapsulated encapsulated = encapsulator.encapsulate();
+
+        KEM.Decapsulator decapsulator =
+                interopKem.newDecapsulator(privK);
+
+        SecretKey openjceplusSecret =
+                decapsulator.decapsulate(encapsulated.encapsulation());
+
+        assertArrayEquals(encapsulated.key().getEncoded(),
+            openjceplusSecret.getEncoded());
+    }
+
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     private void assertPrivateKeyPKCS8SpecEquals(KeySpec expected, KeySpec actual) {
         assertEquals(PKCS8EncodedKeySpec.class, actual.getClass());
 
@@ -817,4 +1045,247 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
         assertEquals(expectedSpec.getAlgorithm(), actualSpec.getAlgorithm());
         assertEquals(expectedSpec.getFormat(), actualSpec.getFormat());
     }
+<<<<<<< HEAD
+=======
+
+    /**
+     * Tests that OpenJCEPlus' generic {@code KeyFactory.getInstance("ML-DSA")} can
+     * import public and private keys generated by the interop provider with any
+     * ML-DSA parameter set.  The re-encoded public-key bytes must be identical.
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void testGenericMLDSAKeyFactoryImportsInteropKeys(String paramSetName) throws Exception {
+
+        // Generate a key pair with the interop provider using the specific param set
+        keyPairGenInterop = KeyPairGenerator.getInstance(paramSetName, getInteropProviderName2());
+        KeyPair keyPairInterop = generateKeyPair(keyPairGenInterop);
+
+        byte[] x509Bytes  = keyPairInterop.getPublic().getEncoded();
+        byte[] pkcs8Bytes = keyPairInterop.getPrivate().getEncoded();
+
+        // Import via the GENERIC "ML-DSA" KeyFactory on the OpenJCEPlus side
+        KeyFactory genericKF = KeyFactory.getInstance("ML-DSA", getProviderName());
+
+        PublicKey pub = genericKF.generatePublic(new X509EncodedKeySpec(x509Bytes));
+        assertArrayEquals(x509Bytes, pub.getEncoded(),
+                "Generic ML-DSA KF: re-encoded public key bytes differ for " + paramSetName);
+
+        // BC private-key encoding differs; only compare against SunJCE
+        if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
+            PrivateKey priv = genericKF.generatePrivate(new PKCS8EncodedKeySpec(pkcs8Bytes));
+            assertArrayEquals(pkcs8Bytes, priv.getEncoded(),
+                    "Generic ML-DSA KF: re-encoded private key bytes differ for " + paramSetName);
+        }
+    }
+
+    /**
+     * Tests that keys generated by OpenJCEPlus' generic {@code KeyPairGenerator("ML-DSA")}
+     * (which defaults to ML-DSA-65) can be imported by the interop provider and used
+     * for a successful sign/verify round-trip.
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void testMLDSAInteropWithNamedParameterSpec(String paramSetName) throws Exception {
+
+        // Generate a key pair on the OpenJCEPlus side using generic KPG + NamedParameterSpec
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-DSA", getProviderName());
+        kpg.initialize(new NamedParameterSpec(paramSetName));
+        KeyPair keyPairPlus = generateKeyPair(kpg);
+
+        // Import public key into the interop provider
+        KeyFactory kfInterop = KeyFactory.getInstance(paramSetName, getInteropProviderName2());
+        PublicKey pubInterop = kfInterop.generatePublic(
+                new X509EncodedKeySpec(keyPairPlus.getPublic().getEncoded()));
+
+        assertArrayEquals(keyPairPlus.getPublic().getEncoded(), pubInterop.getEncoded(),
+                "Public key bytes differ after import into interop provider for " + paramSetName);
+
+        // Sign with OpenJCEPlus generic "ML-DSA" Signature
+        Signature sigPlus = Signature.getInstance("ML-DSA", getProviderName());
+        sigPlus.initSign(keyPairPlus.getPrivate());
+        sigPlus.update(origMsg);
+        byte[] sigBytes = sigPlus.sign();
+
+        // Verify with interop provider using the param-set-specific Signature
+        Signature sigInterop = Signature.getInstance(paramSetName, getInteropProviderName2());
+        sigInterop.initVerify(pubInterop);
+        sigInterop.update(origMsg);
+        assertTrue(sigInterop.verify(sigBytes),
+                "Interop verify failed for signature produced by generic ML-DSA / " + paramSetName);
+    }
+
+    /**
+     * Tests that a signature produced by the interop provider can be verified by
+     * OpenJCEPlus' generic {@code Signature.getInstance("ML-DSA")} instance using a
+     * key imported via the generic {@code KeyFactory.getInstance("ML-DSA")}.
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void testGenericMLDSASignatureInteropSignsPlusVerifies(String paramSetName) throws Exception {
+
+        // Generate and sign with the interop provider
+        keyPairGenInterop = KeyPairGenerator.getInstance(paramSetName, getInteropProviderName2());
+        KeyPair keyPairInterop = generateKeyPair(keyPairGenInterop);
+
+        Signature sigInterop = Signature.getInstance(paramSetName, getInteropProviderName2());
+        sigInterop.initSign(keyPairInterop.getPrivate());
+        sigInterop.update(origMsg);
+        byte[] sigBytes = sigInterop.sign();
+
+        // Import public key into OpenJCEPlus via generic "ML-DSA" KeyFactory
+        KeyFactory genericKF = KeyFactory.getInstance("ML-DSA", getProviderName());
+        PublicKey pubPlus = genericKF.generatePublic(
+                new X509EncodedKeySpec(keyPairInterop.getPublic().getEncoded()));
+
+        // Verify with OpenJCEPlus generic "ML-DSA" Signature
+        Signature sigPlus = Signature.getInstance("ML-DSA", getProviderName());
+        sigPlus.initVerify(pubPlus);
+        sigPlus.update(origMsg);
+        assertTrue(sigPlus.verify(sigBytes),
+                "Generic ML-DSA Signature failed to verify interop signature for " + paramSetName);
+    }
+
+    /**
+     * Tests a full cross-provider sign/verify round-trip using the generic
+     * "ML-DSA" API on the OpenJCEPlus side and the param-set-specific API on the
+     * interop side, for all three ML-DSA parameter sets.
+     *
+     * <p>OpenJCEPlus signs → interop verifies, then interop signs → OpenJCEPlus verifies.
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void testGenericMLDSASignatureBidirectionalInterop(String paramSetName) throws Exception {
+
+        // --- Direction 1: OpenJCEPlus signs, interop verifies ---
+
+        // Generate on OpenJCEPlus with specific param-set KPG
+        keyPairGenPlus = KeyPairGenerator.getInstance(paramSetName, getProviderName());
+        KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
+
+        // Sign with OpenJCEPlus generic "ML-DSA" Signature
+        Signature sigPlus = Signature.getInstance("ML-DSA", getProviderName());
+        sigPlus.initSign(keyPairPlus.getPrivate());
+        sigPlus.update(origMsg);
+        byte[] sigFromPlus = sigPlus.sign();
+
+        // Import public key into interop via specific param-set KF, then verify
+        KeyFactory kfInterop = KeyFactory.getInstance(paramSetName, getInteropProviderName2());
+        PublicKey pubInterop = kfInterop.generatePublic(
+                new X509EncodedKeySpec(keyPairPlus.getPublic().getEncoded()));
+        Signature sigInteropVerify = Signature.getInstance(paramSetName, getInteropProviderName2());
+        sigInteropVerify.initVerify(pubInterop);
+        sigInteropVerify.update(origMsg);
+        assertTrue(sigInteropVerify.verify(sigFromPlus),
+                "Interop failed to verify OpenJCEPlus generic ML-DSA signature for " + paramSetName);
+
+        // --- Direction 2: interop signs, OpenJCEPlus verifies ---
+
+        // Generate on interop with specific param-set KPG
+        keyPairGenInterop = KeyPairGenerator.getInstance(paramSetName, getInteropProviderName2());
+        KeyPair keyPairInterop = generateKeyPair(keyPairGenInterop);
+
+        Signature sigInteropSign = Signature.getInstance(paramSetName, getInteropProviderName2());
+        sigInteropSign.initSign(keyPairInterop.getPrivate());
+        sigInteropSign.update(origMsg);
+        byte[] sigFromInterop = sigInteropSign.sign();
+
+        // Import public key into OpenJCEPlus via generic "ML-DSA" KF, then verify with generic Sig
+        KeyFactory genericKF = KeyFactory.getInstance("ML-DSA", getProviderName());
+        PublicKey pubPlus = genericKF.generatePublic(
+                new X509EncodedKeySpec(keyPairInterop.getPublic().getEncoded()));
+        Signature sigPlusVerify = Signature.getInstance("ML-DSA", getProviderName());
+        sigPlusVerify.initVerify(pubPlus);
+        sigPlusVerify.update(origMsg);
+        assertTrue(sigPlusVerify.verify(sigFromInterop),
+                "OpenJCEPlus generic ML-DSA failed to verify interop signature for " + paramSetName);
+    }
+
+    /**
+     * Asserts that {@code key.getAlgorithm()} returns {@code "ML-DSA"} for every
+     * ML-DSA parameter set on both the interop provider and on OpenJCEPlus after
+     * round-tripping through encoded form.
+     *
+     * <p>Both providers must agree on the family name per JEP 497.  The BC
+     * provider is excluded because it intentionally returns the param-set name
+     * (e.g. {@code "ML-DSA-65"}) rather than the family name.
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    public void testMLDSAGetAlgorithmConsistentAcrossProviders(String paramSetName)
+            throws Exception {
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        // Generate with the interop provider (SUN)
+        KeyPair interopKP = KeyPairGenerator.getInstance(paramSetName, getInteropProviderName2())
+                                            .generateKeyPair();
+        String interopPubAlg  = interopKP.getPublic().getAlgorithm();
+        String interopPrivAlg = interopKP.getPrivate().getAlgorithm();
+
+        // Import into OpenJCEPlus via the generic "ML-DSA" KeyFactory
+        KeyFactory kf = KeyFactory.getInstance("ML-DSA", getProviderName());
+        PublicKey  plusPub  = kf.generatePublic(
+                new X509EncodedKeySpec(interopKP.getPublic().getEncoded()));
+        PrivateKey plusPriv = kf.generatePrivate(
+                new PKCS8EncodedKeySpec(interopKP.getPrivate().getEncoded()));
+
+        // Both providers must return the same algorithm name
+        assertEquals(interopPubAlg, plusPub.getAlgorithm(),
+                "Public key getAlgorithm() mismatch between " + getInteropProviderName2()
+                + " and " + getProviderName() + " for " + paramSetName);
+        assertEquals(interopPrivAlg, plusPriv.getAlgorithm(),
+                "Private key getAlgorithm() mismatch between " + getInteropProviderName2()
+                + " and " + getProviderName() + " for " + paramSetName);
+
+        // OpenJCEPlus must return the canonical family name
+        assertEquals("ML-DSA", plusPub.getAlgorithm(),
+                "OpenJCEPlus public key should return family name \"ML-DSA\" for " + paramSetName);
+        assertEquals("ML-DSA", plusPriv.getAlgorithm(),
+                "OpenJCEPlus private key should return family name \"ML-DSA\" for " + paramSetName);
+    }
+
+    /**
+     * Asserts that {@code key.getAlgorithm()} returns {@code "ML-KEM"} for every
+     * ML-KEM parameter set on both the interop provider and on OpenJCEPlus after
+     * round-tripping through encoded form.
+     *
+     * <p>Both providers must agree on the family name per JEP 497.  The BC
+     * provider is excluded because it intentionally returns the param-set name
+     * (e.g. {@code "ML-KEM-512"}) rather than the family name.
+     */
+    @ParameterizedTest
+    @CsvSource({"ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
+    public void testMLKEMGetAlgorithmConsistentAcrossProviders(String paramSetName)
+            throws Exception {
+        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+
+        // Generate with the interop provider (SunJCE)
+        KeyPair interopKP = KeyPairGenerator.getInstance(paramSetName, getInteropProviderName())
+                                            .generateKeyPair();
+        String interopPubAlg  = interopKP.getPublic().getAlgorithm();
+        String interopPrivAlg = interopKP.getPrivate().getAlgorithm();
+
+        // Import into OpenJCEPlus
+        KeyFactory kf = KeyFactory.getInstance(paramSetName, getProviderName());
+        PublicKey  plusPub  = kf.generatePublic(
+                new X509EncodedKeySpec(interopKP.getPublic().getEncoded()));
+        PrivateKey plusPriv = kf.generatePrivate(
+                new PKCS8EncodedKeySpec(interopKP.getPrivate().getEncoded()));
+
+        // Both providers must return the same algorithm name
+        assertEquals(interopPubAlg, plusPub.getAlgorithm(),
+                "Public key getAlgorithm() mismatch between " + getInteropProviderName()
+                + " and " + getProviderName() + " for " + paramSetName);
+        assertEquals(interopPrivAlg, plusPriv.getAlgorithm(),
+                "Private key getAlgorithm() mismatch between " + getInteropProviderName()
+                + " and " + getProviderName() + " for " + paramSetName);
+
+        // OpenJCEPlus must return the canonical family name
+        assertEquals("ML-KEM", plusPub.getAlgorithm(),
+                "OpenJCEPlus public key should return family name \"ML-KEM\" for " + paramSetName);
+        assertEquals("ML-KEM", plusPriv.getAlgorithm(),
+                "OpenJCEPlus private key should return family name \"ML-KEM\" for " + paramSetName);
+    }
+
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
 }

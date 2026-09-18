@@ -30,7 +30,12 @@ final class PQCPublicKey extends X509Key
     private static final long serialVersionUID = -7291096793479000585L;
 
     private OpenJCEPlusProvider provider = null;
+<<<<<<< HEAD
     private String name;
+=======
+    private String familyName;       // algorithm family name returned by getAlgorithm()
+    private String paramSetName;  // specific parameter-set name (e.g. "ML-DSA-65")
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
 
     private transient boolean destroyed = false;
     private transient PQCKey pqcKey = null; // Transient per tag [SERIALIZATION] in DesignNotes.txt
@@ -39,7 +44,12 @@ final class PQCPublicKey extends X509Key
             throws InvalidKeyException {
         this.algid = new AlgorithmId(PQCAlgorithmId.getOID(algName));
         this.provider = provider;
+<<<<<<< HEAD
         this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
+=======
+        this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
+        this.familyName = familyName(this.paramSetName);
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
 
         setKey(new BitArray(rawKey.length * 8, rawKey));
         try {
@@ -49,7 +59,11 @@ final class PQCPublicKey extends X509Key
             byte[] b = tmp.toByteArray();
             tmp.close();
 
+<<<<<<< HEAD
             this.pqcKey = PQCKey.createPublicKey(algName, b, provider, "KeyFactory");
+=======
+            this.pqcKey = PQCKey.createPublicKey(this.paramSetName, b, provider, "KeyFactory");
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         } catch (Exception exception) {
             throw new InvalidKeyException("Failed to create public key", exception);
         }
@@ -61,7 +75,12 @@ final class PQCPublicKey extends X509Key
             byte[] rawKey = pqcKey.getPublicKeyBytes();
             this.algid = new AlgorithmId(PQCAlgorithmId.getOID(pqcKey.getAlgorithm()));
 
+<<<<<<< HEAD
             this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
+=======
+            this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
+            this.familyName = familyName(this.paramSetName);
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
 
             //OCKC puts the BITSTRING on the key. Need to remove it.
             setKey(new BitArray((rawKey.length - 5) * 8, rawKey, 5));
@@ -78,25 +97,63 @@ final class PQCPublicKey extends X509Key
         try {
             decode(encoded);
 
+<<<<<<< HEAD
             this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
+=======
+            this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
+            this.familyName = familyName(this.paramSetName);
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
             DerOutputStream tmp = new DerOutputStream();
             tmp.putUnalignedBitString(getKey());
             byte[] b = tmp.toByteArray();
             tmp.close();
             
+<<<<<<< HEAD
             this.pqcKey = PQCKey.createPublicKey(name, b, provider, "KeyFactory");
+=======
+            this.pqcKey = PQCKey.createPublicKey(this.paramSetName, b, provider, "KeyFactory");
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         } catch (Exception e) {
             throw new InvalidKeyException("Failure in PublicKey -" + e.getMessage(), e);
         }
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Returns the family name for a known PQC algorithm.
+     * <ul>
+     *   <li>ML-DSA-44/65/87 all map to "ML-DSA"</li>
+     *   <li>ML-KEM-512/768/1024 all map to "ML-KEM"</li>
+     * </ul>
+     * This matches the behaviour of the SUN provider, where {@code getAlgorithm()}
+     * on a {@code NamedX509Key} always returns the family name (the {@code fname}
+     * field set from the constructor of {@code NamedKeyPairGenerator} /
+     * {@code NamedKeyFactory}).
+     */
+    private static String familyName(String paramSetName) {
+        if (paramSetName.startsWith("ML-DSA-")) {
+            return "ML-DSA";
+        }
+        if (paramSetName.startsWith("ML-KEM-")) {
+            return "ML-KEM";
+        }
+        throw new IllegalArgumentException(
+                "Unrecognized PQC algorithm family for parameter set: " + paramSetName);
+    }
+
+    /**
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
      * Returns the name of the algorithm associated with this key
      */
     @Override
     public String getAlgorithm() {
         checkDestroyed();
+<<<<<<< HEAD
         return name;
+=======
+        return familyName;
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     }
 
     /**
@@ -131,6 +188,16 @@ final class PQCPublicKey extends X509Key
         return encodedKey;
     }
 
+<<<<<<< HEAD
+=======
+    /**
+     * Returns the specific parameter-set name (e.g. "ML-DSA-65") for this key.
+     */
+    String getParamSetName() {
+        return paramSetName;
+    }
+
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     PQCKey getPQCKey() {
         return this.pqcKey;
     }

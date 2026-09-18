@@ -241,8 +241,13 @@ public abstract class BaseTestRSA extends BaseTestCipher {
                 "RSA/ECB/OAEPWithSHA-256AndMGF1Padding", "RSA/ECB/OAEPWithSHA256AndMGF1Padding",
                 "RSA/ECB/OAEPWithSHA-384AndMGF1Padding", "RSA/ECB/OAEPWithSHA384AndMGF1Padding",
                 "RSA/ECB/OAEPWithSHA-512AndMGF1Padding", "RSA/ECB/OAEPWithSHA512AndMGF1Padding",
+<<<<<<< HEAD
                 "RSA/ECB/OAEPWithSHA-512/224AndMGF1Padding",
                 "RSA/ECB/OAEPWithSHA-512/256AndMGF1Padding",
+=======
+                "RSA/ECB/OAEPWithSHA-512/224AndMGF1Padding", "RSA/ECB/OAEPWithSHA512/224AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-512/256AndMGF1Padding", "RSA/ECB/OAEPWithSHA512/256AndMGF1Padding"
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     })
     public void testRSACipher_NoSpec(String algorithm) throws Exception {
         // OAEP from OpenJCEPlusFIPS only works with spec initialization.
@@ -266,7 +271,13 @@ public abstract class BaseTestRSA extends BaseTestCipher {
                 "SHA-512, SHA-512",
                 "SHA512, SHA512",
                 "SHA-512/224, SHA-512/224",
+<<<<<<< HEAD
                 "SHA-512/256, SHA-512/256",
+=======
+                "SHA512/224, SHA512/224",
+                "SHA-512/256, SHA-512/256",
+                "SHA512/256, SHA512/256",
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
                 "SHA-224, SHA-1",
                 "SHA-256, SHA-1",
                 "SHA-384, SHA-1",
@@ -515,8 +526,13 @@ public abstract class BaseTestRSA extends BaseTestCipher {
                 "RSA/ECB/OAEPWithSHA-256AndMGF1Padding", "RSA/ECB/OAEPWithSHA256AndMGF1Padding",
                 "RSA/ECB/OAEPWithSHA-384AndMGF1Padding", "RSA/ECB/OAEPWithSHA384AndMGF1Padding",
                 "RSA/ECB/OAEPWithSHA-512AndMGF1Padding", "RSA/ECB/OAEPWithSHA512AndMGF1Padding",
+<<<<<<< HEAD
                 "RSA/ECB/OAEPWithSHA-512/224AndMGF1Padding",
                 "RSA/ECB/OAEPWithSHA-512/256AndMGF1Padding",
+=======
+                "RSA/ECB/OAEPWithSHA-512/224AndMGF1Padding", "RSA/ECB/OAEPWithSHA512/224AndMGF1Padding",
+                "RSA/ECB/OAEPWithSHA-512/256AndMGF1Padding", "RSA/ECB/OAEPWithSHA512/256AndMGF1Padding"
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     })
     public void testRSACipherWithOAEPPaddingWithSHA_NoSpec_getParams(String algorithm) throws Exception {
         // OAEP in OpenJCEPlusFIPS only works when initialized with an OAEPParameterSpec.
@@ -539,7 +555,13 @@ public abstract class BaseTestRSA extends BaseTestCipher {
                 "SHA-512, SHA-512",
                 "SHA512, SHA512",
                 "SHA-512/224, SHA-512/224",
+<<<<<<< HEAD
                 "SHA-512/256, SHA-512/256",
+=======
+                "SHA512/224, SHA512/224",
+                "SHA-512/256, SHA-512/256",
+                "SHA512/256, SHA512/256",
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
                 "SHA-224, SHA-1",
                 "SHA-256, SHA-1",
                 "SHA-384, SHA-1",
@@ -888,8 +910,15 @@ public abstract class BaseTestRSA extends BaseTestCipher {
             case "RSA/ECB/OAEPWithSHA512AndMGF1Padding":
                 return getMessage_OAEP_SHA512();
             case "RSA/ECB/OAEPWithSHA-512/224AndMGF1Padding":
+<<<<<<< HEAD
                 return getMessage_OAEP_SHA512_224();
             case "RSA/ECB/OAEPWithSHA-512/256AndMGF1Padding":
+=======
+            case "RSA/ECB/OAEPWithSHA512/224AndMGF1Padding":
+                return getMessage_OAEP_SHA512_224();
+            case "RSA/ECB/OAEPWithSHA-512/256AndMGF1Padding":
+            case "RSA/ECB/OAEPWithSHA512/256AndMGF1Padding":
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
                 return getMessage_OAEP_SHA512_256();
             default:
                 return plainText;

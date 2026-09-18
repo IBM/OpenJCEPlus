@@ -28,7 +28,12 @@ final class PQCPrivateKey extends PKCS8Key {
     private static final long serialVersionUID = -3168962080315231494L;
 
     private OpenJCEPlusProvider provider = null;
+<<<<<<< HEAD
     private final String name;
+=======
+    private String familyName;      // algorithm family name returned by getAlgorithm()
+    private String paramSetName; // specific parameter-set name (e.g. "ML-DSA-65")
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
 
     private transient PQCKey pqcKey;
 
@@ -43,7 +48,12 @@ final class PQCPrivateKey extends PKCS8Key {
     PQCPrivateKey(OpenJCEPlusProvider provider, byte[] keyBytes, String algName)
             throws InvalidKeyException {
         this.algid = new AlgorithmId(PQCAlgorithmId.getOID(algName));
+<<<<<<< HEAD
         this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
+=======
+        this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
+        this.familyName = familyName(this.paramSetName);
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         this.provider = provider;
         byte[] key = null;
         DerValue pkOct = null;
@@ -61,7 +71,11 @@ final class PQCPrivateKey extends PKCS8Key {
             try {
                 pkOct = new DerValue(DerValue.tag_OctetString, key);
                 this.pqcKey = PQCKey.createPrivateKey(
+<<<<<<< HEAD
                                 this.name, pkOct.toByteArray(), provider, "KeyFactory");
+=======
+                                this.paramSetName, pkOct.toByteArray(), provider, "KeyFactory");
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
                 this.privKeyMaterial = pkOct.toByteArray();
             } finally {
                 pkOct.clear();
@@ -80,11 +94,23 @@ final class PQCPrivateKey extends PKCS8Key {
         try {
             this.provider = provider;
             this.pqcKey = pqcKey;
+<<<<<<< HEAD
             this.name = PQCKnownOIDs.findMatch(pqcKey.getAlgorithm()).stdName();
             this.algid = new AlgorithmId(PQCAlgorithmId.getOID(name));
 
             validateKeyLength(pqcKey.getPrivateKeyBytes());
             if (!isExpandedChoice(this.name, pqcKey.getPrivateKeyBytes())) {
+=======
+            // Resolve the specific param-set name first so that isExpandedChoice
+            // and getExpandedKeyLength receive a concrete name like "ML-KEM-512",
+            // not the family name "ML-KEM".
+            this.paramSetName = PQCKnownOIDs.findMatch(pqcKey.getAlgorithm()).stdName();
+            this.familyName = familyName(this.paramSetName);
+            this.algid = new AlgorithmId(PQCAlgorithmId.getOID(this.paramSetName));
+
+            validateKeyLength(pqcKey.getPrivateKeyBytes());
+            if (!isExpandedChoice(this.paramSetName, pqcKey.getPrivateKeyBytes())) {
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
                 throw new InvalidKeyException("Only expanded keys are supported by OpenJCEPlus");
             }
             //Check to determine if the key bytes have the Octet tag.
@@ -114,9 +140,16 @@ final class PQCPrivateKey extends PKCS8Key {
         super(encoded);
         this.provider = provider;
 
+<<<<<<< HEAD
         this.name = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
         validateKeyLength(this.privKeyMaterial);
         if (!isExpandedChoice(this.name, this.privKeyMaterial)) {
+=======
+        this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
+        this.familyName = familyName(this.paramSetName);
+        validateKeyLength(this.privKeyMaterial);
+        if (!isExpandedChoice(this.paramSetName, this.privKeyMaterial)) {
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
             throw new InvalidKeyException("Only expanded keys are supported by OpenJCEPlus");
         }
         //Check to determine if the key bytes have the Octet tag.
@@ -132,7 +165,11 @@ final class PQCPrivateKey extends PKCS8Key {
         }
         try {
             this.pqcKey = PQCKey.createPrivateKey(
+<<<<<<< HEAD
                                 this.name, this.privKeyMaterial, provider, "KeyFactory");
+=======
+                                this.paramSetName, this.privKeyMaterial, provider, "KeyFactory");
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         } catch (Exception e) {
             throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
         }
@@ -141,7 +178,11 @@ final class PQCPrivateKey extends PKCS8Key {
     @Override
     public String getAlgorithm() {
         checkDestroyed();
+<<<<<<< HEAD
         return name;
+=======
+        return familyName;
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     }
 
     @Override
@@ -179,6 +220,16 @@ final class PQCPrivateKey extends PKCS8Key {
         return encodedKey;
     }
 
+<<<<<<< HEAD
+=======
+    /**
+     * Returns the specific parameter-set name (e.g. "ML-DSA-65") for this key.
+     */
+    String getParamSetName() {
+        return paramSetName;
+    }
+
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     PQCKey getPQCKey() {
         return this.pqcKey;
     }
@@ -220,6 +271,31 @@ final class PQCPrivateKey extends PKCS8Key {
         }
     }
 
+<<<<<<< HEAD
+=======
+    /**
+     * Returns the family name for a known PQC algorithm.
+     * <ul>
+     *   <li>ML-DSA-44/65/87 all map to "ML-DSA"</li>
+     *   <li>ML-KEM-512/768/1024 all map to "ML-KEM"</li>
+     * </ul>
+     * This matches the behaviour of the SUN provider, where {@code getAlgorithm()}
+     * on a {@code NamedPKCS8Key} always returns the family name (the {@code fname}
+     * field set from the constructor of {@code NamedKeyPairGenerator} /
+     * {@code NamedKeyFactory}).
+     */
+    private static String familyName(String paramSetName) {
+        if (paramSetName.startsWith("ML-DSA-")) {
+            return "ML-DSA";
+        }
+        if (paramSetName.startsWith("ML-KEM-")) {
+            return "ML-KEM";
+        }
+        throw new IllegalArgumentException(
+                "Unrecognized PQC algorithm family for parameter set: " + paramSetName);
+    }
+
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     private boolean OctectStringEncoded(byte[] key) {
         try {
             //Check and see if this is an encoded OctetString

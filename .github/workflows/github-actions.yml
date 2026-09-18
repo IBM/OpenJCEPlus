@@ -79,7 +79,11 @@ jobs:
       - name: Setup Temurin JDK
         uses: actions/setup-java@v4
         with:
+<<<<<<< HEAD
           java-version: '25.0.2+10.0.LTS'
+=======
+          java-version: '27-ea'
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
           distribution: 'temurin'
           architecture: 'x64'
       # Uncomment to capture all files in the runner for debugging purposes.          

@@ -557,6 +557,7 @@ public class TestPBMAC1 extends BaseTest {
             Security.insertProviderAt(new OpenJCEPlusFIPS(), 1);
         }
         
+<<<<<<< HEAD
         /*
         * A change in openjdk hasn't been backported to java versions 25 and less
         * which prevents loading pkcs12 files. When the required fix is updated in openjdk
@@ -603,6 +604,31 @@ public class TestPBMAC1 extends BaseTest {
             fail("Keystore unexpectedly loaded successfully with missing key length");
         } catch (java.io.IOException e) {
             // Expected error (Missing key length)
+=======
+        loadP12(p12file1);
+        loadP12(p12file2);
+        loadP12(p12file3);
+
+        try {
+            loadP12(p12file4);
+        } catch (java.io.IOException e) {
+            // Expected error (Incorrect iteration count)
+            assertEquals("Integrity check failed: java.security.UnrecoverableKeyException: Failed PKCS12 integrity checking", e.getMessage());
+        }
+
+        try {
+            loadP12(p12file5);
+        } catch (java.io.IOException e) {
+            // Expected error (Incorrect salt)
+            assertEquals("Integrity check failed: java.security.UnrecoverableKeyException: Failed PKCS12 integrity checking", e.getMessage());
+        }
+
+        try {
+            loadP12(p12file6);
+        } catch (java.io.IOException e) {
+            // Expected error (Missing key length)
+            assertEquals("error: missing keyLength field", e.getMessage());
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         }
     }
 

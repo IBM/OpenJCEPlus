@@ -12,7 +12,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>OpenJCEPlus</artifactId>
-    <version>25</version>
+    <version>26</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -194,12 +194,30 @@
             </properties>
           </profile>
           <profile>
+<<<<<<< HEAD
             <id>Profile for JDK 25 Build</id>
             <activation>
               <jdk>25</jdk>
             </activation>
             <properties>
                 <jdk.build.target>25</jdk.build.target>
+=======
+            <id>Profile for JDK 26 Build</id>
+            <activation>
+              <jdk>26</jdk>
+            </activation>
+            <properties>
+                <jdk.build.target>26</jdk.build.target>
+            </properties>
+          </profile>
+          <profile>
+            <id>Profile for JDK 27 Build</id>
+            <activation>
+              <jdk>27</jdk>
+            </activation>
+            <properties>
+                <jdk.build.target>27</jdk.build.target>
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
             </properties>
           </profile>
           <!--
@@ -262,9 +280,15 @@
                       --add-opens=openjceplus/ibm.jceplus.junit.tests=ALL-UNNAMED
                       --add-opens=openjceplus/ibm.jceplus.junit.tests.parameters.resolvers=ALL-UNNAMED
                       --patch-module openjceplus="target${file.separator}classes${path.separator}target${file.separator}test-classes"
+<<<<<<< HEAD
                       -Djava.security.auth.debug=${java.security.auth.debug}
                       -Djdk.mldsa.pkcs8.encoding=expandedKey
                       -Djdk.mlkem.pkcs8.encoding=expandedKey
+=======
+                      -Djdk.mldsa.pkcs8.encoding=expandedKey
+                      -Djdk.mlkem.pkcs8.encoding=expandedKey
+                      -Djava.security.auth.debug=${java.security.auth.debug}
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
                     </argLine>
                     <trimStackTrace>false</trimStackTrace>
                     <groups>${groups}</groups>
@@ -404,9 +428,15 @@
                       --add-exports=java.base/sun.security.util=ALL-UNNAMED
                       --add-exports=java.base/sun.security.x509=ALL-UNNAMED
                       --add-exports openjceplus/com.ibm.crypto.plus.provider.base=ALL-UNNAMED
+<<<<<<< HEAD
                       -Djava.security.auth.debug=${java.security.auth.debug}
                       -Djdk.mldsa.pkcs8.encoding=expandedKey
                       -Djdk.mlkem.pkcs8.encoding=expandedKey
+=======
+                      -Djdk.mldsa.pkcs8.encoding=expandedKey
+                      -Djdk.mlkem.pkcs8.encoding=expandedKey
+                      -Djava.security.auth.debug=${java.security.auth.debug}
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
                     </argLine>
                     <includes>
                       <include>
@@ -475,8 +505,13 @@
                         <message>"Property ock.library.path is not set, perhaps this required property is missing from the command line?"</message>
                       </requireProperty>
                       <requireJavaVersion>
+<<<<<<< HEAD
                         <version>25</version>
                         <message>"Java 25 required to build OpenJCEPlus."</message>
+=======
+                        <version>[26,28)</version>
+                        <message>"Java 26 or 27 required to build OpenJCEPlus."</message>
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
                       </requireJavaVersion>
                       <requireEnvironmentVariable>
                         <variableName>JAVA_HOME</variableName>

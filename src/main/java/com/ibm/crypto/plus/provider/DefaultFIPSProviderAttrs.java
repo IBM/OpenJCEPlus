@@ -279,6 +279,10 @@ class DefaultFIPSProviderAttrs {
                 + "KeyGenerator.kda-hkdf-with-sha512.alias.add = kda-hkdf-with-sha-512\n"
                 + "Service.KeyGenerator.kda-hkdf-with-sha512 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA512\n";
         }
+<<<<<<< HEAD
+=======
+        
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
         String supportedPaddings = "OAEPPADDING"
                 + "|OAEPWITHSHA224ANDMGF1PADDING"
                 + "|OAEPWITHSHA-224ANDMGF1PADDING"
@@ -288,7 +292,13 @@ class DefaultFIPSProviderAttrs {
                 + "|OAEPWITHSHA-384ANDMGF1PADDING"
                 + "|OAEPWITHSHA512ANDMGF1PADDING"
                 + "|OAEPWITHSHA-512ANDMGF1PADDING"
+<<<<<<< HEAD
                 + "|OAEPWITHSHA-512/224ANDMGF1PADDING"
+=======
+                + "|OAEPWITHSHA512/224ANDMGF1PADDING"
+                + "|OAEPWITHSHA-512/224ANDMGF1PADDING"
+                + "|OAEPWITHSHA512/256ANDMGF1PADDING"
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
                 + "|OAEPWITHSHA-512/256ANDMGF1PADDING";
         if (allowNonOAEPFIPS) {
             supportedPaddings += "|OAEPWITHSHA1ANDMGF1PADDING"

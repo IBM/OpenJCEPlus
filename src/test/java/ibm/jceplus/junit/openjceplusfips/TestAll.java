@@ -13,7 +13,10 @@ import org.junit.platform.suite.api.Suite;
 
 @SelectClasses({
     TestAES256Interop.class,
+<<<<<<< HEAD
     TestAESCCMInteropBC.class,
+=======
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
     TestAESCCMParameters.class,
     TestAESGCM_ExtIV.class,
     TestAESGCM_IntIV.class,

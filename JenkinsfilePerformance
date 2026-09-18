@@ -218,7 +218,13 @@ def run(platform) {
                         }
                     }
 
+<<<<<<< HEAD
                     externalLibrary.getJava(hardware, software)
+=======
+                    withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_USERNAME')]) {
+                        externalLibrary.getJava(hardware, software)
+                    }
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
                     echo "Java fetched"
                     externalLibrary.getBinaries(hardware, software)
                     echo "Binaries fetched"
@@ -319,7 +325,11 @@ pipeline {
             Typically this will use https://github.com/IBM/OpenJCEPlus')
         string(name: 'OPENJCEPLUS_BRANCH', defaultValue: '', description: '\
             The OpenJCEPlus branch to be used. When not specified this will default to the branch scanned by this multibranch pipeline.')
+<<<<<<< HEAD
         string(name: 'JAVA_VERSION', defaultValue: '25', description: '\
+=======
+        string(name: 'JAVA_VERSION', defaultValue: '26', description: '\
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
             Specify the Java version your branch uses to build.')
         string(name: 'JAVA_RELEASE', defaultValue: '', description: '\
             Indicate a specific Java release that you want to use to build your branch.<br> \

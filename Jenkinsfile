@@ -360,7 +360,11 @@ pipeline {
             Typically this will use https://github.com/IBM/OpenJCEPlus. For z/OS, this requires the SSH URL e.g. git@github.com:IBM/OpenJCEPlus.git.')
         string(name: 'OPENJCEPLUS_BRANCH', defaultValue: '', description: '\
             The OpenJCEPlus branch to be used. When not specified this will default to the branch scanned by this multibranch pipeline.')
+<<<<<<< HEAD
         string(name: 'JAVA_VERSION', defaultValue: '25', description: '\
+=======
+        string(name: 'JAVA_VERSION', defaultValue: '26', description: '\
+>>>>>>> 92c5ee4058c50a1d461792d080bb72c3597787ef
             Specify the Java version your branch uses to build.')
         string(name: 'JAVA_RELEASE', defaultValue: '', description: '\
             Indicate a specific Java release that you want to use to build your branch.<br> \
