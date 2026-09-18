@@ -1,12 +1,12 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import sun.security.util.InternalPrivateKey;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class BaseTestXDHInterop extends BaseTestJunit5Interop {
+public abstract class BaseTestXDHInterop extends BaseTestInterop {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
     // The below strings are base64 encoded X25519/X448 public/private keys generated using OpenJDK
