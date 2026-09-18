@@ -8,6 +8,8 @@
 
 package ibm.jceplus.jmh;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlus;
+import com.ibm.crypto.plus.provider.OpenJCEPlusFIPS;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.openjdk.jmh.profile.ClassloaderProfiler;
 import org.openjdk.jmh.profile.CompilerProfiler;
 import org.openjdk.jmh.profile.GCProfiler;
@@ -170,8 +173,7 @@ abstract public class JMHBase {
         if (provider.equalsIgnoreCase("OpenJCEPlus")) {
             Provider myProvider = java.security.Security.getProvider("OpenJCEPlus");
             if (myProvider == null) {
-                myProvider = (Provider) Class.forName("com.ibm.crypto.plus.provider.OpenJCEPlus")
-                        .getDeclaredConstructor().newInstance();
+                myProvider = new OpenJCEPlus();
             } else {
                 java.security.Security.removeProvider("OpenJCEPlus");
             }
@@ -179,8 +181,7 @@ abstract public class JMHBase {
         } else if (provider.equalsIgnoreCase("OpenJCEPlusFIPS")) {
             Provider myProvider = java.security.Security.getProvider("OpenJCEPlusFIPS");
             if (myProvider == null) {
-                myProvider = (Provider) Class.forName("com.ibm.crypto.plus.provider.OpenJCEPlusFIPS")
-                        .getDeclaredConstructor().newInstance();
+                myProvider = new OpenJCEPlusFIPS();
             } else {
                 java.security.Security.removeProvider("OpenJCEPlusFIPS");
             }
@@ -188,9 +189,7 @@ abstract public class JMHBase {
         } else if (provider.equalsIgnoreCase("BC")) {
             Provider myProvider = java.security.Security.getProvider("BC");
             if (myProvider == null) {
-                myProvider = (Provider) Class
-                        .forName("org.bouncycastle.jce.provider.BouncyCastleProvider")
-                        .getDeclaredConstructor().newInstance();
+                myProvider = new BouncyCastleProvider();
             } else {
                 java.security.Security.removeProvider("BC");
             }
