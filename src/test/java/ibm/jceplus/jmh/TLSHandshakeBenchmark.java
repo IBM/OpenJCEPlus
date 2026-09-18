@@ -85,7 +85,7 @@ public class TLSHandshakeBenchmark extends JMHBase {
      *  privateKeyAlgorithm AlgorithmIdentifier SEQUENCE (2 elem)
      *    algorithm OBJECT IDENTIFIER 1.2.840.10045.2.1 ecPublicKey (ANSI X9.62 public key type)
      *    parameters ANY OBJECT IDENTIFIER 1.2.840.10045.3.1.7 prime256v1 (ANSI X9.62 named elliptic curve)
-     * privateKey PrivateKey OCTET STRING (39 byte) 302502010104203D213BFBE2FEFC92DBB6957DF5B42B922894A5123C7B441951560968…
+     * privateKey PrivateKey OCTET STRING (39 byte) 302502010104203D213BFBE2FEFC92DBB6957DF5B42B922894A5123C7B441951560968...
      *    SEQUENCE (2 elem)
      *        INTEGER 1
      *        OCTET STRING (32 byte) 3D213BFBE2FEFC92DBB6957DF5B42B922894A5123C7B441951560968C5E6347C
