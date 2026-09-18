@@ -32,6 +32,10 @@ import groovy.transform.Field;
 @Field ADDITIONAL_ENVARS
 @Field ADDITIONAL_CMD_ARGS
 @Field TIMEOUT_TIME
+@Field CAPTURE_OCKC_TRACE
+@Field RUN_OCKC_TESTS
+@Field RUN_OCKC_PERF
+@Field OCKC_PERF_THREADS
 @Field externalLibrary
 
 GIT_BRANCH_NAME = ""
@@ -278,7 +282,9 @@ def run(platform) {
                     echo "Maven fetched"
                     def command = "install"
                     command += getTestFlag(hardware, software)
-                    externalLibrary.runOpenJCEPlus(command, software)
+                    externalLibrary.runOckcTests(platform, iteration + 1, software)
+                    externalLibrary.runOckcPerf(platform, iteration + 1, software)
+                    externalLibrary.runOpenJCEPlus(command, platform, iteration + 1, software)
                     echo "OpenJCEPlus built"
                 } finally {
                     iteration++
@@ -398,10 +404,29 @@ pipeline {
             """
         )
         booleanParam(name: 'EXECUTE_TESTS', defaultValue: true, description:'\
-            Execute tests during the build')
+            Execute Maven tests during the build')
         string(name: 'SPECIFIC_TEST', defaultValue: '', description: '\
             Set this to only execute a specific test, instead of the whole test suite.<br> \
             Keep in mind that EXECUTE_TESTS has to be set too for this to work.')
+        booleanParam(name: 'RUN_OCKC_TESTS', defaultValue: false, description: '\
+            Run the native OCKC self-test (jcctest) before executing the Maven test suite.<br> \
+            jcctest loads and initializes the OCKC library and exercises its built-in self-tests.<br> \
+            Output is archived as ockctest-{iteration}-{platform}.log.')
+        booleanParam(name: 'RUN_OCKC_PERF', defaultValue: false, description: '\
+            Run the native OCKC performance test (jicc_perf) before executing the Maven test suite.<br> \
+            jicc_perf benchmarks digest and cipher streaming speeds and stresses threading paths.<br> \
+            Use OCKC_PERF_THREADS to control the number of threads (default: 4).<br> \
+            Output is archived as ockctest_perf-{iteration}-{platform}.log.<br>')
+        string(name: 'OCKC_PERF_THREADS', defaultValue: '4', description: '\
+            Number of threads to pass to jicc_perf via the -t flag (default: 4).<br> \
+            Setting a higher thread count stresses thread-safety paths that may expose platform-specific failures.<br> \
+            Only used when RUN_OCKC_PERF is enabled.')
+        booleanParam(name: 'CAPTURE_OCKC_TRACE', defaultValue: false, description: '\
+            Capture an OCKC (GSKit) startup trace during the test run.<br> \
+            When enabled, a GSKIT_CRYPTO.log file is created in the build directory before Maven \
+            runs, which causes the OCKC native library to log its initialization and module loading.<br> \
+            The log is renamed and archived as GSKIT_CRYPTO-{iteration}-{platform}.log after the run.<br> \
+            Any existing log from a prior run is removed first so captured output is always fresh.')
         string(name: 'PARALLEL_ITERATIONS', defaultValue: '', description: '\
             Number of iterations to run all stages for each of the specified platforms. The iterations will run in parallel.')
         separator(name: "ExtendedOptions", sectionHeader: "Extended Options",
@@ -463,6 +488,10 @@ pipeline {
                         OCK_FULL_URL="${params.OCK_FULL_URL}"
                         EXECUTE_TESTS="${params.EXECUTE_TESTS}"
                         SPECIFIC_TEST="${params.SPECIFIC_TEST}"
+                        RUN_OCKC_TESTS="${params.RUN_OCKC_TESTS}"
+                        RUN_OCKC_PERF="${params.RUN_OCKC_PERF}"
+                        OCKC_PERF_THREADS="${params.OCKC_PERF_THREADS}"
+                        CAPTURE_OCKC_TRACE="${params.CAPTURE_OCKC_TRACE}"
                         PARALLEL_ITERATIONS="${params.PARALLEL_ITERATIONS}"
                         ADDITIONAL_NODE_LABELS="${params.ADDITIONAL_NODE_LABELS}"
                         OVERRIDE_NODE_LABELS="${params.OVERRIDE_NODE_LABELS}"
