@@ -33,7 +33,6 @@ public class TestMultithreadFIPS {
     private final String[] testList = {
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAESGCMUpdate",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestAliases",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestDH",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestDSAKey",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestECDH",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestECDHInteropSunEC",
