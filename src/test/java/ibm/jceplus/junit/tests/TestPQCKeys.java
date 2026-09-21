@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import ibm.security.internal.spec.RawKeySpec;
 import java.io.IOException;
@@ -28,7 +28,11 @@ import java.util.Base64;
 import java.util.HexFormat;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -43,8 +47,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-public class BaseTestPQCKeys extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestPQCKeys extends BaseTest {
 
+    @Parameter(0)
+    TestProvider provider;
 
     protected KeyPairGenerator pqcKeyPairGen;
     protected KeyFactory pqcKeyFactory;
@@ -93,6 +103,7 @@ public class BaseTestPQCKeys extends BaseTestJunit5 {
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
     }
 
     /**
