@@ -1,12 +1,12 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -20,16 +20,34 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import javax.crypto.KEM;
 import javax.crypto.SecretKey;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestPQCKEMMultiThread extends BaseTest {
 
-public class BaseTestPQCKEMMultiThread extends BaseTestJunit5 {
+    @Parameter(0)
+    TestProvider provider;
 
     private static final int THREAD_COUNT = 100;
     private static final int THREAD_POOL_SIZE = 20;
     private KEM kem = null;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
 
     /*
      * As per JavaDoc API,
