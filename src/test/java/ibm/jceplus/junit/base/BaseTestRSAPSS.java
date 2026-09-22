@@ -322,7 +322,7 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
     /**
      * PSSParameterSpec with different message digest and MGF1
      * According to [PKCS#1v2.1] the mask generation function (MGF) 
-     * – if based on a hash algo is recommended to use the same hash 
+     * - if based on a hash algo is recommended to use the same hash
      * function as the hash function fingerprinting the message. 
      * 
      * However the structures in [PKCS#1v2.1] allow for separate 
