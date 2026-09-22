@@ -71,6 +71,8 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
     private static boolean ockInitialized = false;
 
+    private String defSecureRandAlg = "SHA256DRBG";
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     public OpenJCEPlus() {
         super("OpenJCEPlus", info);
@@ -148,6 +150,12 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             instance = this;
         }
         
+        String temp = config.getDefSecRnd();
+
+        if (temp != null) {
+            defSecureRandAlg = temp;
+        }
+
         for (ProviderServiceReader.ServiceDefinition service : services) {
             putService(new OpenJCEPlusService(this, service.getType(), service.getAlgorithm(),
                 service.getClassName(), service.getAliases().toArray(new String[service.getAliases().size()]), service.getAttributes()));
@@ -211,7 +219,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
     //
     java.security.SecureRandom getSecureRandom(java.security.SecureRandom userSecureRandom) {
         try {
-            return java.security.SecureRandom.getInstance("SHA256DRBG", this);
+            return java.security.SecureRandom.getInstance(defSecureRandAlg, this);
         } catch (NoSuchAlgorithmException e) {
             throw new ProviderException("SecureRandom not available");
         }
