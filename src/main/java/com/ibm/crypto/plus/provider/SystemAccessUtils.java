@@ -158,4 +158,42 @@ public final class SystemAccessUtils {
         }
     }
 
+    /**
+     * Pre-loads all {@code sun.security.util} classes used by the OpenJCEPlus
+     * provider under {@code doPrivileged} during static initialisation.
+     * This prevents {@code SecurityManager.checkPackageAccess} from failing
+     * later when an unprivileged frame (e.g. a jtreg test class) is on the
+     * call stack during first class load. Load failures are silently ignored.
+     */
+    @SuppressWarnings("removal")
+    public static void preloadSunSecurityUtilClasses() {
+        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+            String[] classes = {
+                // sun.security.util
+                "sun.security.util.BitArray",
+                "sun.security.util.CurveDB",
+                "sun.security.util.Debug",
+                "sun.security.util.DerInputStream",
+                "sun.security.util.DerOutputStream",
+                "sun.security.util.DerValue",
+                "sun.security.util.ECKeySizeParameterSpec",
+                "sun.security.util.ECUtil",
+                "sun.security.util.HexDumpEncoder",
+                "sun.security.util.KeyUtil",
+                "sun.security.util.KnownOIDs",
+                "sun.security.util.NamedCurve",
+                "sun.security.util.ObjectIdentifier",
+                "sun.security.util.PBEUtil",
+                "sun.security.util.RawKeySpec"
+            };
+            for (String cls : classes) {
+                try {
+                    Class.forName(cls);
+                } catch (ClassNotFoundException ignored) {
+                    // not available on this JDK, harmless
+                }
+            }
+            return null;
+        });
+    }
 }

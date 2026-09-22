@@ -52,7 +52,11 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
     private AtomicInteger count = new AtomicInteger(0);
 
     @SuppressWarnings("exports")
-    protected static final Debug debug = Debug.getInstance(DEBUG_VALUE); 
+    protected static final Debug debug = Debug.getInstance(DEBUG_VALUE);
+
+    static {
+        SystemAccessUtils.preloadSunSecurityUtilClasses();
+    }
 
     OpenJCEPlusProvider(String name, String info) {
         super(name, PROVIDER_VER, info);
