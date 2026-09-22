@@ -13,6 +13,11 @@
 <module name="Checker">
     <module name="FileTabCharacter"/>
     <module name="NewlineAtEndOfFile"/>
+    <module name="RegexpSingleline">
+        <property name="format" value="[^\x00-\x7F]"/>
+        <property name="message" value="Non-ASCII character found. Use ASCII equivalents in source files (e.g. use '-' instead of em-dash, '->' instead of arrow characters)."/>
+        <property name="fileExtensions" value="java"/>
+    </module>
     <module name="RegexpHeader">
         <property name="fileExtensions" value="java"/>
         <property name="header" value="^\W.*\n^.*Copyright IBM Corp\. \d\d\d\d\n^\W.*\n^\W.*. This code is free software; you can redistribute it and/or modify it\n^\W.*. under the terms provided by IBM in the LICENSE file that accompanied\n^\W.*. this code, including the &quot;Classpath&quot; Exception described therein."/>
