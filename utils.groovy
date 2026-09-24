@@ -270,6 +270,27 @@ def getJava(hardware, software) {
                             folderDeleteOperation('jdk/lib/C'),
                             folderDeleteOperation('jdk/lib/N')])
         }
+
+        if (software == "zos") {
+            sh """
+                sed -i \\
+                  -e '/security\\.provider\\..*OpenJCEPlus/d' \\
+                  -e 's/^security\\.provider\\.2=/security.provider.1=/' \\
+                  -e 's/^security\\.provider\\.3=/security.provider.2=/' \\
+                  -e 's/^security\\.provider\\.4=/security.provider.3=/' \\
+                  -e 's/^security\\.provider\\.5=/security.provider.4=/' \\
+                  -e 's/^security\\.provider\\.6=/security.provider.5=/' \\
+                  -e 's/^security\\.provider\\.7=/security.provider.6=/' \\
+                  -e 's/^security\\.provider\\.8=/security.provider.7=/' \\
+                  -e 's/^security\\.provider\\.9=/security.provider.8=/' \\
+                  -e 's/^security\\.provider\\.10=/security.provider.9=/' \\
+                  -e 's/^security\\.provider\\.11=/security.provider.10=/' \\
+                  -e 's/^security\\.provider\\.12=/security.provider.11=/' \\
+                  -e 's/^security\\.provider\\.13=/security.provider.12=/' \\
+                  -e 's/^security\\.provider\\.14=/security.provider.13=/' \\
+                  jdk/conf/security/java.security
+            """
+        }
     }
 }
 
