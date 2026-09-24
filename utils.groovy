@@ -121,7 +121,7 @@ def getJavaDownloadUrl(javaVersion, hardware, software, javaRelease) {
         // Use latest GA version
         java_link = "https://api.adoptopenjdk.net/v3/binary/latest/${javaVersion}/ga/${software}/${hardware}/jdk/openj9/normal/ibm?project=jdk"
         if (software == "zos") {
-            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/hyc-runtimes-jenkins.swg-devops.com/Build_JDK25_s390x_zos_Nightly/278/ibm-semeru-certified-jdk_s390x_zos_25.0.2.0-20260225-080405.pax.Z"
+            java_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/hyc-runtimes-jenkins.swg-devops.com/Build_JDK25_s390x_zos_Nightly/461/ibm-semeru-certified-jdk_s390x_zos_25.0.5.0-20260916-010846.pax.Z"
         }
     } else {
         // Use specific version
@@ -232,6 +232,27 @@ def getJava(hardware, software) {
                             folderDeleteOperation('jdk/lib/C'),
                             folderDeleteOperation('jdk/lib/N')])
         }
+
+        if (software == "zos") {
+            sh """
+                sed -i \\
+                  -e '/security\\.provider\\..*OpenJCEPlus/d' \\
+                  -e 's/^security\\.provider\\.2=/security.provider.1=/' \\
+                  -e 's/^security\\.provider\\.3=/security.provider.2=/' \\
+                  -e 's/^security\\.provider\\.4=/security.provider.3=/' \\
+                  -e 's/^security\\.provider\\.5=/security.provider.4=/' \\
+                  -e 's/^security\\.provider\\.6=/security.provider.5=/' \\
+                  -e 's/^security\\.provider\\.7=/security.provider.6=/' \\
+                  -e 's/^security\\.provider\\.8=/security.provider.7=/' \\
+                  -e 's/^security\\.provider\\.9=/security.provider.8=/' \\
+                  -e 's/^security\\.provider\\.10=/security.provider.9=/' \\
+                  -e 's/^security\\.provider\\.11=/security.provider.10=/' \\
+                  -e 's/^security\\.provider\\.12=/security.provider.11=/' \\
+                  -e 's/^security\\.provider\\.13=/security.provider.12=/' \\
+                  -e 's/^security\\.provider\\.14=/security.provider.13=/' \\
+                  jdk/conf/security/java.security
+            """
+        }
     }
 }
 
@@ -253,10 +274,11 @@ def getMaven(software) {
 def runOpenJCEPlus(command, software) {
     dir("openjceplus/OpenJCEPlus") {
         def additional_exports = ""
-        if (software == "aix" || software == "zos") {
+        if (software == "aix") {
             additional_exports = "export LIBPATH=$WORKSPACE/openjceplus/OCK/:$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
         }
         if (software == "zos") {
+            additional_exports = "export LIBPATH=$WORKSPACE/openjceplus/OCK/:$WORKSPACE/openjceplus/OCK/jgsk_sdk:$WORKSPACE/openjceplus/OpenJCEPlus/target/jgskit-mz-64:\$LIBPATH;"
             additional_exports += "export JAVA_TOOL_OPTIONS=\"-Dstdout.encoding=IBM-1047 " +
                                             "-Dstderr.encoding=IBM-1047 " +
                                             "--patch-module=java.base=\"$WORKSPACE/java/java.base.jar\" " +
