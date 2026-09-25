@@ -59,7 +59,7 @@ public class RSACipherBenchmark extends AsymmetricCipherBase {
         super.setup(keySize, "RSA", provider);
 
         boolean isFIPS = provider.equalsIgnoreCase("OpenJCEPlusFIPS");
-        
+
         // Skip non-FIPS compliant paddings when using OpenJCEPlusFIPS provider
         if (isFIPS && (padding.equals("NoPadding") || padding.equals("PKCS1Padding") || padding.equals("OAEPPadding"))) {
             throw new RunnerException("Skipping " + padding + " for FIPS provider (not FIPS compliant)");
@@ -126,7 +126,7 @@ public class RSACipherBenchmark extends AsymmetricCipherBase {
             // For non-OAEP padding, no parameters needed
             encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
         }
-        
+
         if (plaintext.length > 0) {
             ciphertext = encryptCipher.doFinal(plaintext);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -799,11 +799,11 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         secondCipher.doFinal(text, (blocklength * numUpdTimes),
                 text.length - (blocklength * numUpdTimes), destText, total_offset);
 
-        //System.out.println ("Exiting " + modeStr + " " + bytesToHex(destText)); 
+        //System.out.println ("Exiting " + modeStr + " " + bytesToHex(destText));
         // check if two resutls are equal
         //if (mode == Cipher.DECRYPT_MODE) {
-            //System.out.println ("========outputText " + new String (outputText, "UTF8")); 
-            //System.out.println ("========destText " + new String(destText, "UTF8")); 
+            //System.out.println ("========outputText " + new String (outputText, "UTF8"));
+            //System.out.println ("========destText " + new String(destText, "UTF8"));
         //}
 
         boolean result = java.util.Arrays.equals(destText, outputText);
@@ -895,7 +895,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         //System.out.println ("=======part71 length=" + part71.length);
         int offset = dataText.length > ARRAY_OFFSET ? ARRAY_OFFSET : 0;
         //System.out.println ("=======offset " + offset);
-        //System.out.println ("======= arguments to Ci.update= 0 " + "dataText.length=" + dataText.length 
+        //System.out.println ("======= arguments to Ci.update= 0 " + "dataText.length=" + dataText.length
         //+ " (dataText.length - offset) passed = " + (dataText.length - offset) + " " + 0);
         int len = ci.update(dataText, 0, dataText.length - offset, part71, 0);
         //System.out.println ("======== len " + len );
@@ -948,7 +948,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             //System.out.println ("=======part71 length=" + part71.length);
             int offset = dataText.length > ARRAY_OFFSET ? ARRAY_OFFSET : 0;
             //System.out.println ("=======offset " + offset);
-            //System.out.println ("======= arguments to Ci.update= 0 " + "dataText.length=" + dataText.length 
+            //System.out.println ("======= arguments to Ci.update= 0 " + "dataText.length=" + dataText.length
             //+ " (dataText.length - offset) passed = " + (dataText.length - offset) + " " + 0);
             int len = ci.update(dataText, 0, dataText.length - offset, part71, 0);
             //System.out.println ("======= arguments to 3rd call  Ci.updateAAD = 0 " + "AAD.length=" + AAD.length);
@@ -1014,7 +1014,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
             e.printStackTrace();
             fail("Unexpected Exception occurred " + e.getMessage());
         }
-        // try retry with a larger buffer 
+        // try retry with a larger buffer
         try {
             byte[] largerCipherTextBuffer = new byte[plainText128.length * 2 + 16];
             cpl.doFinal(plainText128, 0, plainText128.length, largerCipherTextBuffer);
@@ -1085,7 +1085,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
                 assertTrue(true);
             }
             try {
-                //expected it to fail 
+                //expected it to fail
                 cpl.update(plainText128, 0, plainText128.length);
                 cpl.doFinal(plainText128, 0, plainText128.length);
                 fail("Did not get the expected failure");
@@ -1156,7 +1156,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         SecureRandom random = new SecureRandom();
         random.nextBytes(IV);
 
-        //When i =0; the buffer sizes are same as failure reported in Jira-48. 
+        //When i =0; the buffer sizes are same as failure reported in Jira-48.
         //Other iterations are to test additional buffer sizes.
         for (int i = 0; i < 18899; i++) {
 

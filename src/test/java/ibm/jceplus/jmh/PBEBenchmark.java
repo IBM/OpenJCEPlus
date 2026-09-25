@@ -36,7 +36,7 @@ import org.openjdk.jmh.runner.options.Options;
 @Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
 public class PBEBenchmark extends JMHBase {
-    
+
     private Cipher pbeEncrypt, pbeDecrypt, pbeInitEncrypt;
 
     private byte[] salt = new byte[16];
@@ -87,7 +87,7 @@ public class PBEBenchmark extends JMHBase {
         return pbeDecrypt.doFinal(cipherText);
     }
 
-    @Benchmark 
+    @Benchmark
     public byte[] initEncrypt() throws Exception {
         pbeInitEncrypt.init(Cipher.ENCRYPT_MODE, pbeKey, new PBEParameterSpec(salt, iterationCount,
                     new IvParameterSpec(ivBytes)));

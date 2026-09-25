@@ -77,8 +77,8 @@ public class TestXDHKeyImport extends BaseTest {
     //    }
 
     /**
-     * Generate a KeyPair using NamedParam, convert the keys to 
-     * PKCS8EncodedKeySpec/X509EncodedKeySpec, and then import 
+     * Generate a KeyPair using NamedParam, convert the keys to
+     * PKCS8EncodedKeySpec/X509EncodedKeySpec, and then import
      * them
      * (this tests constructing the keys from encoded byte[])
      *
@@ -136,7 +136,7 @@ public class TestXDHKeyImport extends BaseTest {
      * </pre>
      * The `parameters` specified in this case are defined as OPTIONAL.
      * <p>
-     * These values in this test are different between Java 11 and Java 17 due to the subtle difference 
+     * These values in this test are different between Java 11 and Java 17 due to the subtle difference
      * in the DER representation of the values.
      * <p>
      * Java 11 represents the DER encoding as follows for the X25519 test value below:
@@ -166,7 +166,7 @@ public class TestXDHKeyImport extends BaseTest {
      *     }
      * </pre>
      * Notice there is no `NULL` value for the nested sequence for the OPTIONAL `parameters` value.
-     * 
+     *
      * @throws Exception thrown when alg is not `X25519` or `X448`.
      * @param alg The algorithm to test either `X25519` or `X448` value are accepted.
      *
@@ -213,8 +213,8 @@ public class TestXDHKeyImport extends BaseTest {
     }
 
     /**
-     * Generate a KeyPair using NamedParam, convert the keys to 
-     * XECPrivateKeySpec/XECPublicKeySpec, and then import 
+     * Generate a KeyPair using NamedParam, convert the keys to
+     * XECPrivateKeySpec/XECPublicKeySpec, and then import
      * them
      * (this tests creating the keys from parameters)
      *

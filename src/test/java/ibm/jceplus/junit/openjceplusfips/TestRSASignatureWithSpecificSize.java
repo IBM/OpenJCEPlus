@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2024
+ * Copyright IBM Corp. 2024, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(Lifecycle.PER_CLASS)
-public class TestRSASignatureWithSpecificSize extends BaseTestJunit5 { 
+public class TestRSASignatureWithSpecificSize extends BaseTestJunit5 {
 
     static final byte[] origMsg = "this is the original message to be signed I changed to a very long message to make sure enough bytes are there for copying."
             .getBytes();
@@ -61,7 +61,7 @@ public class TestRSASignatureWithSpecificSize extends BaseTestJunit5 {
     }
 
     // RSA signature verify allows at least 2048 bits of RSA key to be used for sign a signature.
-    private void doVerify(String sigAlgo, byte[] message, PublicKey publicKey, 
+    private void doVerify(String sigAlgo, byte[] message, PublicKey publicKey,
             byte[] signedBytes) throws Exception {
         Signature verify = Signature.getInstance(sigAlgo, Utils.TEST_SUITE_PROVIDER_NAME);
         try {
@@ -90,7 +90,7 @@ public class TestRSASignatureWithSpecificSize extends BaseTestJunit5 {
 
     /**
      * Use a non FIPS provider to get a 1024 bits of RSA key.
-     * 
+     *
      * @param keysize
      * @return
      * @throws Exception
@@ -135,7 +135,7 @@ public class TestRSASignatureWithSpecificSize extends BaseTestJunit5 {
 
     /**
      * Check large size
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -148,7 +148,7 @@ public class TestRSASignatureWithSpecificSize extends BaseTestJunit5 {
 
     /**
      * Check small size
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -161,7 +161,7 @@ public class TestRSASignatureWithSpecificSize extends BaseTestJunit5 {
 
     /**
      * Check size not in the list
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -174,7 +174,7 @@ public class TestRSASignatureWithSpecificSize extends BaseTestJunit5 {
 
     /**
      * Check size not in the list
-     * 
+     *
      * @throws Exception
      */
     @Test

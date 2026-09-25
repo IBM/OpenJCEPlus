@@ -109,7 +109,7 @@ public final class Signature {
         }
 
         //        if (!verified) {
-        //            OCKDebug.Msg (debPrefix, methodName,  "Failed to verify Signature."); 
+        //            OCKDebug.Msg (debPrefix, methodName,  "Failed to verify Signature.");
         //        }
 
         return verified;

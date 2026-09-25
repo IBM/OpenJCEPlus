@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -159,13 +159,13 @@ public final class CertificationRequestInfo extends PKCSDerObject implements Clo
         try {
         this.spki = new X509Key();
         byte[] bytes = key.getEncoded();
-        
+
         // DEBUG BEGIN
         //HexDumpEncoder h = new HexDumpEncoder();
         //System.out.println("CertificationRequestInfo(...) key.getEncoded() =\r\n"
         //   + h.encode(bytes));
         // DEBUG END
-        
+
         this.spki.decode(bytes);
         } catch (InvalidKeyException e) {
         throw new IllegalArgumentException(
@@ -229,13 +229,13 @@ public final class CertificationRequestInfo extends PKCSDerObject implements Clo
         try {
         this.spki = new X509Key();
         byte[] bytes = key.getEncoded();
-        
+
         // DEBUG BEGIN
         //HexDumpEncoder h = new HexDumpEncoder();
         //System.out.println("CertificationRequestInfo(...) key.getEncoded() =\r\n"
         //   + h.encode(bytes));
         // DEBUG END
-        
+
         this.spki.decode(bytes);
         } catch (InvalidKeyException e) {
         throw new IllegalArgumentException(

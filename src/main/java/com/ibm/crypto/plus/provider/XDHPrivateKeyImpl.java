@@ -356,10 +356,10 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
 
     /**
      * Determines if a given array is a properly formed DER octet string.
-     * 
+     *
      * @param keyBytes The byte array to check for a complete octet.
      * @return Returns true if the first byte of the array indicates an octet ( 0x04 ) and the
-     * value continues to the end of the array indicating a complete octet filling the 
+     * value continues to the end of the array indicating a complete octet filling the
      * given byte array. Returns false otherwise.
      * @throws IOException Throws an IOException when a failure occurs decoding the DER encoded bytes.
      */
@@ -377,7 +377,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         DerInputStream derStream = new DerInputStream(keyBytes);
         byte[] keyValue = derStream.getOctetString();
 
-        // We know we are able to DER decode the bytes, lets now check that the private 
+        // We know we are able to DER decode the bytes, lets now check that the private
         // key bytes are the correct length for the curve in use.
         if (CurveUtil.getCurveSize(this.curve) != keyValue.length) {
             return false;
@@ -570,9 +570,9 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
 
     /**
      * Set the PKCS8Key key object.
-     * 
+     *
      * @param k The raw key bytes, without OctetString or DER encoded.
-     * @throws IOException 
+     * @throws IOException
      */
     private void setPKCS8KeyByte(byte[] k) throws IOException {
         if (Integer.parseInt(provider.getJavaVersionStr()) <= 11) {

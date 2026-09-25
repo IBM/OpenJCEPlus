@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -321,13 +321,13 @@ public class BaseTestRSAPSS extends BaseTestJunit5 {
 
     /**
      * PSSParameterSpec with different message digest and MGF1
-     * According to [PKCS#1v2.1] the mask generation function (MGF) 
+     * According to [PKCS#1v2.1] the mask generation function (MGF)
      * - if based on a hash algo is recommended to use the same hash
-     * function as the hash function fingerprinting the message. 
-     * 
-     * However the structures in [PKCS#1v2.1] allow for separate 
+     * function as the hash function fingerprinting the message.
+     *
+     * However the structures in [PKCS#1v2.1] allow for separate
      * parameterization of the MGF and the message digest.
-     * 
+     *
      * OpenJCEPlus uses the same message digest, this test aims to
      * check if RSAPSSSignature will fail if different MD is used.
      * @throws Exception

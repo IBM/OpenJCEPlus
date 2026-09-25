@@ -117,7 +117,7 @@ public class TestPBECipher extends BaseTest {
             }
         } catch (NoSuchAlgorithmException e) {
             assertTrue(true);
-        }        
+        }
     }
 
     @ParameterizedTest
@@ -296,7 +296,7 @@ public class TestPBECipher extends BaseTest {
 
     // Run encrypt/decrypt test using just update, empty doFinal calls
     private void encryptDecryptUpdate(String algorithm, SecretKey key, boolean algParams, byte[] message) throws Exception {
-                
+
         Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (!algParams) {
             cp.init(Cipher.ENCRYPT_MODE, key);
@@ -328,7 +328,7 @@ public class TestPBECipher extends BaseTest {
     // Run encrypt/decrypt test with partial update
     private void encryptDecryptPartialUpdate(String algorithm, SecretKey key, boolean algParams, byte[] message)
             throws Exception {
-        
+
         Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (!algParams) {
             cp.init(Cipher.ENCRYPT_MODE, key);
@@ -461,7 +461,7 @@ public class TestPBECipher extends BaseTest {
         assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
     }
 
-    private void encryptDecryptMultiUpdate(String algorithm, SecretKey key, boolean algParams, byte[] message) 
+    private void encryptDecryptMultiUpdate(String algorithm, SecretKey key, boolean algParams, byte[] message)
             throws Exception {
         Cipher cp = Cipher.getInstance(algorithm, getProviderName());
         if (!algParams) {
@@ -472,13 +472,13 @@ public class TestPBECipher extends BaseTest {
 
         // Encrypting using length 4 (this value can be modified)
         byte[] cipherText = update(cp, message, 4);
-        
+
         // Decrypting using length 5 (this value can be modified)
         cp.init(Cipher.DECRYPT_MODE, key, cp.getParameters());
         byte[] newPlainText = update(cp, cipherText, 5);
 
         assertArrayEquals(message, newPlainText);
-       
+
     }
 
     private byte[] update(Cipher c, byte[] text, int updateLen) throws Exception {

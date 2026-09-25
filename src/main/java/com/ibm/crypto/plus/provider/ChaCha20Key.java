@@ -41,7 +41,7 @@ final class ChaCha20Key implements SecretKey, ChaCha20Constants {
         if ((key == null) || (key.length != ChaCha20_KEY_SIZE)) {
             throw new InvalidKeyException("Wrong key size");
         }
-        
+
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }

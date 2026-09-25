@@ -58,13 +58,13 @@ public class TestAESCipherInputStreamExceptions extends BaseTest {
 
     /**
      * Attempt to create a bad auth tag.
-     * 
+     *
      * This test:
      *    1) Encrypts 100 bytes.
      *    2) Intentionally corrupts the encrypted data.
      *    3) Ensures that the correct length of data is read after
      *       all available whole blocks of data are read from the
-     *       stream. 
+     *       stream.
      *    4) Reads the last bit of data from the stream to trigger
      *       the AAD calculation. This is expected to fail due to
      *       the corrupt data.
@@ -85,13 +85,13 @@ public class TestAESCipherInputStreamExceptions extends BaseTest {
 
         int amountRead = in.read(read);
 
-        // Expect 96 bytes since this is closest block 
+        // Expect 96 bytes since this is closest block
         // size we can read without going over.
         assertEquals(96, amountRead);
 
         // Read one more time to read the rest of the data in
-        // the stream. This will trigger the AAD calculation 
-        // and cause an intentional exception due to above data 
+        // the stream. This will trigger the AAD calculation
+        // and cause an intentional exception due to above data
         // manipulation.
         try {
             in.read(read);
@@ -105,7 +105,7 @@ public class TestAESCipherInputStreamExceptions extends BaseTest {
     /**
      * Make use of a short read stream buffer to partially decrypt
      * a buffer.
-     * 
+     *
      * This test
      *   1) Encrypt 600 bytes with AES/GCM/NoPadding
      *   2) Reads 100 bytes from stream to decrypt the message and closes the stream.
@@ -162,7 +162,7 @@ public class TestAESCipherInputStreamExceptions extends BaseTest {
     /**
      * Verify no exception is thrown when 1 byte is read from a GCM stream
      * and then closed.
-     * 
+     *
      * This test:
      *   1) Encrypt 100 bytes with AES/GCM/NoPadding
      *   2) Read one byte from the stream, expect no exception thrown.

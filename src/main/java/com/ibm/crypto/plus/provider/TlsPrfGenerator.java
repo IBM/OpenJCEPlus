@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -274,19 +274,19 @@ abstract class TlsPrfGenerator extends KeyGeneratorSpi {
 
     /*
      * @param digest the MessageDigest to produce the HMAC
-     * 
+     *
      * @param hmacSize the HMAC size
-     * 
+     *
      * @param secret the secret
-     * 
+     *
      * @param secOff the offset into the secret
-     * 
+     *
      * @param secLen the secret length
-     * 
+     *
      * @param label the label
-     * 
+     *
      * @param seed the seed
-     * 
+     *
      * @param output the output array
      */
     private static void expand(MessageDigest digest, int hmacSize, byte[] secret, int secOff,

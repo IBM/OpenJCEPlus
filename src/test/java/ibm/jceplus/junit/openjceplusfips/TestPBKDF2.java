@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -24,7 +24,7 @@ public class TestPBKDF2 extends BaseTestPBKDF2 {
     }
 
     @Override
-    @Disabled("The KAT published salt value is not acceptable for FIPS, disable this test.")  
+    @Disabled("The KAT published salt value is not acceptable for FIPS, disable this test.")
     public void testPBKDF2KAT() throws Exception {
     }
 }

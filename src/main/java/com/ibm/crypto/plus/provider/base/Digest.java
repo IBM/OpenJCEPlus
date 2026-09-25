@@ -163,7 +163,7 @@ public final class Digest implements Cloneable {
 
         return new Digest(digestAlgo, provider, configType, configAlgName);
     }
-    
+
     public static Digest getInstance(String digestAlgo, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
         if (digestAlgo == null || digestAlgo.isEmpty()) {
             throw new IllegalArgumentException("digestAlgo is null/empty");
@@ -344,7 +344,7 @@ public final class Digest implements Cloneable {
         copy.nativeInterface = this.nativeInterface;
 
         // Allocate a new context for the digestId and copy all state information from our
-        // original context into the copy. 
+        // original context into the copy.
         try {
             copy.digestId = this.nativeInterface.DIGEST_copy(getId());
             if (0 == copy.digestId) {

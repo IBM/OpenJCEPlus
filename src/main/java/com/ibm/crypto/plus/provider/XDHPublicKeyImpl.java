@@ -146,7 +146,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
         if (provider == null) {
             throw new InvalidParameterException("provider must not be null");
         }
-        
+
         if (params instanceof NamedParameterSpec) {
             this.params = (NamedParameterSpec) params;
         } else {
@@ -226,7 +226,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
     /**
      * Builds DER from public key to be used to build EVP_PKEY in GSKit
      * DER form: SEQUENCE: [SEQUENCE[OID], BITSTRING]
-     * 
+     *
      * @param rawPublicKey
      * @return
      * @throws IOException
@@ -294,12 +294,12 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
     /**
      * Takes a DER encoded key of the following format: SEQUENCE: [SEQUENCE[OID, NULL], BITSTRING]
-     * Returns a similar DER with the first part of the sequence changed to: 
+     * Returns a similar DER with the first part of the sequence changed to:
      * SEQUENCE[OID] (sequence of 1 element)
      * It's weird, no idea why it is this way but that's what GSKit/OpenSSL accepts
-     * 
+     *
      * The function also sets the params field
-     * 
+     *
      * @param encoded
      * @return
      * @throws IOException
@@ -347,7 +347,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
 
     /**
      * Reverses a byte array (in place)
-     * 
+     *
      * @param array
      * @return
      * @throws IOException

@@ -175,7 +175,7 @@ final class DSAPrivateKey extends PKCS8Key
     private byte[] convertOCKPrivateKeyBytes(byte[] privateKeyBytes) throws IOException {
         DerInputStream in = new DerInputStream(privateKeyBytes);
         DerValue[] inputValue = in.getSequence(6);
-        /* The first 5 values are there but we do need to use them 
+        /* The first 5 values are there but we do need to use them
          * BigInteger tempVersion = inputValue[0].getInteger();
         BigInteger tempP = inputValue[1].getInteger();
         BigInteger tempQ = inputValue[2].getInteger();
@@ -246,8 +246,8 @@ final class DSAPrivateKey extends PKCS8Key
     protected Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
         return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
-    } 
-    
+    }
+
     public static boolean equals(DSAParams spec1, DSAParams spec2) {
         if (spec1 == spec2) {
             return true;

@@ -264,7 +264,7 @@ public final class SignatureRSAPSS {
                     OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
                     e.printStackTrace();
                 }
-            } 
+            }
         };
     }
 }

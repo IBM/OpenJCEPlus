@@ -273,8 +273,8 @@ public final class ChaCha20Poly1305Cipher extends CipherSpi
             throw new InvalidKeyException("Key missing");
         }
 
-        // NOTE: By definition, both the Oracle and IBM "ChaCha20" and "ChaCha20-Poly1305" cipher implementations use the "ChaCha20" SecretKey 
-        // algorithm name...  "ChaCha20-Poly1305" was added here to satisfy the Oracle TLS1.3 implementation, which generates 
+        // NOTE: By definition, both the Oracle and IBM "ChaCha20" and "ChaCha20-Poly1305" cipher implementations use the "ChaCha20" SecretKey
+        // algorithm name...  "ChaCha20-Poly1305" was added here to satisfy the Oracle TLS1.3 implementation, which generates
         // SecretKeys with that name "under the covers" instead of using the KeyGenerator framework API.
 
         if (!(((newKey.getAlgorithm().equalsIgnoreCase("ChaCha20")))

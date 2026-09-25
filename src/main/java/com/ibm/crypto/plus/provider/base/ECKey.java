@@ -81,8 +81,8 @@ public final class ECKey implements AsymmetricKey {
         this.publicKeyBytes = publicKeyBytes;
         this.provider = provider;
         this.nativeInterface = nativeInterface;
-        //OCKDebug.Msg (debPrefix, methodName, "privateKeyBytes :", privateKeyBytes); 
-        //OCKDebug.Msg (debPrefix, methodName, "publicKeyBytes :", publicKeyBytes);  
+        //OCKDebug.Msg (debPrefix, methodName, "privateKeyBytes :", privateKeyBytes);
+        //OCKDebug.Msg (debPrefix, methodName, "publicKeyBytes :", publicKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName, "parameterBytes :", parameterBytes);
 
         this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, ecKeyId, pkeyId, nativeInterface));
@@ -140,7 +140,7 @@ public final class ECKey implements AsymmetricKey {
                 throw oe;
             }
         }
-        
+
         if (!validId(ecKeyId)) {
             throw new NativeException(badIdMsg);
         }
@@ -442,7 +442,7 @@ public final class ECKey implements AsymmetricKey {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
-        
+
         //OCKDebug.Msg (debPrefix, methodName,  "publicKeyBytes :",  publicKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName,  "parameterBytes :", parameterBytes);
         NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", "EC");

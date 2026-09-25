@@ -55,7 +55,7 @@ public class TestAESGCMNonExpanding extends BaseTest {
     public void setUp() throws Exception {
         setAndInsertProvider(provider);
     }
-        
+
     @Test
     public void testNonExpanding() throws Exception {
 

@@ -120,7 +120,7 @@ public final class XECKey implements AsymmetricKey {
         //final String methodName = "createPrivateKey";
         if (privateKeyBytes == null)
             throw new IllegalArgumentException("key bytes is null");
-        if (provider == null) 
+        if (provider == null)
             throw new IllegalArgumentException("provider is null");
 
         FastJNIBuffer buffer = XECKey.buffer.get();

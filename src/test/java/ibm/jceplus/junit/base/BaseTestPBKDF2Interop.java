@@ -231,7 +231,7 @@ public class BaseTestPBKDF2Interop extends BaseTestJunit5Interop {
 
     /**
      * Method to help determine if the OpenJCEPlusFIPS provider supports an algorithm.
-     * 
+     *
      * @param algorithm
      * @return
      */

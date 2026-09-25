@@ -87,7 +87,7 @@ final class PQCPublicKey extends X509Key
             tmp.putUnalignedBitString(getKey());
             byte[] b = tmp.toByteArray();
             tmp.close();
-            
+
             this.pqcKey = PQCKey.createPublicKey(this.paramSetName, b, provider, "KeyFactory");
         } catch (Exception e) {
             throw new InvalidKeyException("Failure in PublicKey -" + e.getMessage(), e);
@@ -172,7 +172,7 @@ final class PQCPublicKey extends X509Key
         checkDestroyed();
         return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PUBLIC, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
     }
-    
+
     /**
      * Destroys this key. A call to any of its other methods after this will cause
      * an IllegalStateException to be thrown.

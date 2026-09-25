@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -816,15 +816,15 @@ public final class CertAndKeyGen {
      * Returns a PKCS #10 certificate request. The caller uses either
      * <code>PKCS10.print</code> or <code>PKCS10.toByteArray</code> operations
      * on the result, to get the request in an appropriate transmission format.
-     * 
+     *
      * <P>PKCS #10 certificate requests are sent, along with some proof of
      * identity, to Certificate Authorities (CAs) which then issue X.509 public
      * key certificates.
-     * 
+     *
      * @param myname X.500 name of the subject
-     * 
+     *
      * @exception InvalidKeyException on key handling errors.
-     * 
+     *
      * @exception SignatureException on signature handling errors.
      */
     public CertificationRequest getCertRequest(X500Name myname) throws NoSuchAlgorithmException,

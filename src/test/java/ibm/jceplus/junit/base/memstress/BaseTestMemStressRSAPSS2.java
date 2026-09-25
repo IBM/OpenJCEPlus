@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -68,7 +68,7 @@ public class BaseTestMemStressRSAPSS2 extends BaseTestJunit5 {
      * Change the keysize in steps of 32 or 512 to speed up the test case Generate a
      * key once and use it for multiple tests - The OpenJCEPlusFIPS does not allow
      * keysize < 1024
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -117,7 +117,7 @@ public class BaseTestMemStressRSAPSS2 extends BaseTestJunit5 {
 
     /**
      * Helper method
-     * 
+     *
      * @param content
      * @param algorithm
      * @param keyPair

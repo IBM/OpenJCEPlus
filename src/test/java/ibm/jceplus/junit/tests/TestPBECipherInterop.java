@@ -248,7 +248,7 @@ public class TestPBECipherInterop extends BaseTestInterop {
         // RC4 is a stream cipher
         if (alg.equals("PBEWithSHA1AndRC4_40") || alg.equals("PBEWithSHA1AndRC4_128"))
             return;
-        
+
         String msg = "", msgInterop = "";
         SecretKey key = createKey(alg);
         try {
@@ -592,14 +592,14 @@ public class TestPBECipherInterop extends BaseTestInterop {
         // Encrypting using length 4 (this value can be modified)
         byte[] cipherText = update(cp, message, 4);
         AlgorithmParameters params = cp.getParameters();
-        
+
         // Decrypting using length 5 (this value can be modified)
         cp = Cipher.getInstance(algorithm, providerInterop);
         cp.init(Cipher.DECRYPT_MODE, key, params);
         byte[] newPlainText = update(cp, cipherText, 5);
 
         assertArrayEquals(message, newPlainText);
-       
+
     }
 
     private byte[] update(Cipher c, byte[] text, int updateLen) throws Exception {

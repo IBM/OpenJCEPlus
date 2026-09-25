@@ -62,7 +62,7 @@ abstract class ECDSASignature extends SignatureSpi {
 
             oid = ECNamedCurve.getOIDFromName(ecNamedCurve.getName());
 
-            // P-192 not allowed for signature generation. Only allowed for verification 
+            // P-192 not allowed for signature generation. Only allowed for verification
             if (!ECNamedCurve.isFIPS(oid.toString())
                     || ((oid.toString()).equals("1.2.840.10045.3.1.1"))) {
                 throw new InvalidKeyException("Key too small, not supported in FIPS");

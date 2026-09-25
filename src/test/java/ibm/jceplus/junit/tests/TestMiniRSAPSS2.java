@@ -113,7 +113,7 @@ public class TestMiniRSAPSS2 extends BaseTest {
             // KeyPairs for OpenJCEPlus
             rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlus");
             rsaKeyPairGen.initialize(3072, null);
-            rsaKeyPair_OpenJCEPlus[0] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlus[0] = RSA 3072 
+            rsaKeyPair_OpenJCEPlus[0] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlus[0] = RSA 3072
         }
 
         //================================================================
@@ -154,7 +154,7 @@ public class TestMiniRSAPSS2 extends BaseTest {
         for (; ii < 1; ii++) { // For each RSA key size
             if (signingProviderName.equalsIgnoreCase("OpenJCEPlus")) {
                 if (ii == 0) {
-                    rsaKeyPair = rsaKeyPair_OpenJCEPlus[0]; // RSA keylength 3072 
+                    rsaKeyPair = rsaKeyPair_OpenJCEPlus[0]; // RSA keylength 3072
                     System.out.println(
                             "TestRSAPSS():  Initializing rsaKeyPair with rsaKeyPair_OpenJCEPlus[0] ");
                 }

@@ -165,7 +165,7 @@ public abstract class BaseTestRSA extends BaseTestCipher {
 
         RSAPrivateKeySpec privSpec = new RSAPrivateKeySpec(N, D);
         PrivateKey privateKey = kf.generatePrivate(privSpec);
-        
+
         // blocktype 2
         plainKeyEncDec("RSA/ECB/PKCS1Padding", 96, publicKey, privateKey);
         // blocktype 1
@@ -179,7 +179,7 @@ public abstract class BaseTestRSA extends BaseTestCipher {
 
         plainKeyCipher("RSA/ECB/NoPadding", Cipher.ENCRYPT_MODE, publicKey, rin1, rout1, true);
         plainKeyCipher("RSA/ECB/NoPadding", Cipher.DECRYPT_MODE, privateKey, rout1, rin1, true);
-        
+
         try {
             // decrypt something not PKCS#1 formatted
             plainKeyCipher("RSA/ECB/PKCS1Padding", Cipher.DECRYPT_MODE, privateKey, rout1, rin1,
@@ -1003,8 +1003,8 @@ public abstract class BaseTestRSA extends BaseTestCipher {
 
     /*
      * Checks if the given portion of b1 and b2 are equal.
-     * 
-     * @return true if they are equal, false if they are not equal or if the specified offsets and lengths are out of bounds. 
+     *
+     * @return true if they are equal, false if they are not equal or if the specified offsets and lengths are out of bounds.
      */
     private boolean byteEqual(byte[] b1, int offset1, byte[] b2, int offset2, int len) {
         if ((b1.length - offset1) >= len && (b2.length - offset2) >= len) {
@@ -1192,8 +1192,8 @@ public abstract class BaseTestRSA extends BaseTestCipher {
 
     /**
      * Test that FIPS provider rejects some non-FIPS-compliant RSA key sizes.
-     * @throws NoSuchProviderException 
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchProviderException
+     * @throws NoSuchAlgorithmException
      */
     @ParameterizedTest
     @CsvSource({"512", "1024", "1536", "5120", "6144", "7680", "8192"})

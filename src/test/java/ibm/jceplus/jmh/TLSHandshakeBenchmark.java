@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2026, 2026
+ * Copyright IBM Corp. 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -79,7 +79,7 @@ public class TLSHandshakeBenchmark extends JMHBase {
 
     /**
      * EC Private Key (P-256)
-     * 
+     *
      * PrivateKeyInfo SEQUENCE (3 elem)
      * version Version INTEGER 0
      *  privateKeyAlgorithm AlgorithmIdentifier SEQUENCE (2 elem)
@@ -89,7 +89,7 @@ public class TLSHandshakeBenchmark extends JMHBase {
      *    SEQUENCE (2 elem)
      *        INTEGER 1
      *        OCTET STRING (32 byte) 3D213BFBE2FEFC92DBB6957DF5B42B922894A5123C7B441951560968C5E6347C
-     * 
+     *
      */
     private static final String EC_PRIVATE_KEY =
             "MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCA9ITv74v78ktu2lX31\n"
@@ -116,33 +116,33 @@ public class TLSHandshakeBenchmark extends JMHBase {
 
         // Create keystore and truststore programmatically using hardcoded EC certificate
         char[] passphrase = "passphrase".toCharArray();
-        
+
         // Generate certificate from cert string
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         Certificate cert = cf.generateCertificate(
                 new ByteArrayInputStream(EC_CERT.getBytes()));
-        
+
         // Generate the private key
         PKCS8EncodedKeySpec priKeySpec = new PKCS8EncodedKeySpec(
                 Base64.getMimeDecoder().decode(EC_PRIVATE_KEY));
         KeyFactory kf = KeyFactory.getInstance("EC");
         PrivateKey privateKey = kf.generatePrivate(priKeySpec);
-        
+
         // Create keystore with the EC certificate and private key
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         keyStore.load(null, null);
         Certificate[] chain = new Certificate[]{cert};
         keyStore.setKeyEntry("ec-cert", privateKey, passphrase, chain);
-        
+
         // Create truststore with the same certificate
         KeyStore trustStore = KeyStore.getInstance("PKCS12");
         trustStore.load(null, null);
         trustStore.setCertificateEntry("trusted-ec-cert", cert);
-        
+
         // Initialize KeyManagerFactory
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(keyStore, passphrase);
-        
+
         // Initialize TrustManagerFactory
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         tmf.init(trustStore);
@@ -150,20 +150,20 @@ public class TLSHandshakeBenchmark extends JMHBase {
         // Create SSLContext with the key and trust managers
         sslContext = SSLContext.getInstance("TLS");
         sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-        
+
         SSLServerSocketFactory ssf = sslContext.getServerSocketFactory();
         serverSocket = (SSLServerSocket) ssf.createServerSocket(0);
 
         serverSocket.setEnabledCipherSuites(new String[]{cipherSuite});
         serverSocket.setEnabledProtocols(new String[]{"TLSv1.3"});
-        
+
         port = serverSocket.getLocalPort();
         clientFactory = sslContext.getSocketFactory();
 
         // Capture the current namedGroup and payload values for this trial
         final String currentNamedGroup = namedGroup;
         final int currentPayload = payload;
-        
+
         serverThread = new Thread(() -> {
             while (!Thread.interrupted()) {
                 try {
@@ -182,7 +182,7 @@ public class TLSHandshakeBenchmark extends JMHBase {
         });
         serverThread.setDaemon(true);
         serverThread.start();
-        
+
         Thread.sleep(500); // Wait for server to bind
     }
 
@@ -191,7 +191,7 @@ public class TLSHandshakeBenchmark extends JMHBase {
         try (SSLSocket clientSocket = (SSLSocket) clientFactory.createSocket("localhost", port)) {
             // Set socket timeout to prevent hanging (5 minutes)
             clientSocket.setSoTimeout(300000);
-            
+
             clientSocket.setEnabledProtocols(new String[]{"TLSv1.3"});
             clientSocket.setEnabledCipherSuites(new String[]{cipherSuite});
 
@@ -200,7 +200,7 @@ public class TLSHandshakeBenchmark extends JMHBase {
             clientSocket.setSSLParameters(params);
 
             clientSocket.startHandshake();
-            
+
             OutputStream os = clientSocket.getOutputStream();
             InputStream is = clientSocket.getInputStream();
 
@@ -208,12 +208,12 @@ public class TLSHandshakeBenchmark extends JMHBase {
             os.flush();
 
             byte[] response = is.readNBytes(payload);
-            
+
             if ("non-cached".equals(useCache)) {
                 // Invalidate the session to force full handshake
                 clientSocket.getSession().invalidate();
             }
-            
+
             return response; // Prevents Dead Code Elimination
         } catch (SocketTimeoutException e) {
             System.err.println("ERROR: Client socket timeout occurred after 5 minutes - this is unexpected!");
@@ -226,26 +226,26 @@ public class TLSHandshakeBenchmark extends JMHBase {
         try {
             // Set socket timeout to prevent hanging (5 minutes)
             socket.setSoTimeout(300000);
-            
+
             socket.setEnabledProtocols(new String[]{"TLSv1.3"});
             socket.setEnabledCipherSuites(new String[]{cipherSuite});
-            
+
             // Set named groups if the method is available (Java 19+)
             SSLParameters params = socket.getSSLParameters();
             params.setNamedGroups(new String[]{currentNamedGroup});
             socket.setSSLParameters(params);
-            
+
             socket.startHandshake();
 
             // Read exactly 'payload' bytes
             InputStream is = socket.getInputStream();
             byte[] buffer = is.readNBytes(currentPayload);
-            
+
             // Write back the response
             OutputStream os = socket.getOutputStream();
             os.write(buffer);
             os.flush();
-            
+
             socket.close();
         } catch (SocketTimeoutException e) {
             System.err.println("ERROR: Server socket timeout occurred after 5 minutes - this is unexpected!");
