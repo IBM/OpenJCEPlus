@@ -25,6 +25,7 @@ import javax.crypto.SecretKey;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -1078,6 +1079,44 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
                 "OpenJCEPlus public key should return family name \"ML-KEM\" for " + paramSetName);
         assertEquals("ML-KEM", plusPriv.getAlgorithm(),
                 "OpenJCEPlus private key should return family name \"ML-KEM\" for " + paramSetName);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "ML-KEM",
+            "ML-KEM-512",
+            "ML-KEM-768",
+            "ML-KEM-1024",
+            "ML-DSA",
+            "ML-DSA-44",
+            "ML-DSA-65",
+            "ML-DSA-87"
+    })
+    public void testPQCGetParamsInterop(String algorithm) throws Exception {
+
+        String interopProvider = algorithm.startsWith("ML-KEM")
+                ? getInteropProviderName()
+                : getInteropProviderName2();
+
+        // BC currently does not override AsymmetricKey.getParams()
+        // for its ML-KEM/ML-DSA key classes.
+        assumeFalse(Utils.PROVIDER_BC.equals(interopProvider));
+
+        KeyPair openjceplusKeyPair =
+                KeyPairGenerator.getInstance(algorithm, getProviderName())
+                        .generateKeyPair();
+
+        KeyPair interopKeyPair =
+                KeyPairGenerator.getInstance(algorithm, interopProvider)
+                        .generateKeyPair();
+
+        assertEquals(
+                ((NamedParameterSpec) interopKeyPair.getPrivate().getParams()).getName(),
+                ((NamedParameterSpec) openjceplusKeyPair.getPrivate().getParams()).getName());
+
+        assertEquals(
+                ((NamedParameterSpec) interopKeyPair.getPublic().getParams()).getName(),
+                ((NamedParameterSpec) openjceplusKeyPair.getPublic().getParams()).getName());
     }
 
 }
