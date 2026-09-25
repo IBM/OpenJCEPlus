@@ -9,8 +9,10 @@
 package ibm.jceplus.junit.tests;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlus;
+import com.ibm.crypto.plus.provider.OpenJCEPlusFIPS;
 import ibm.jceplus.junit.tests.parameters.resolvers.ProviderListParameterResolver;
 import java.security.Provider;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(ProviderListParameterResolver.class)
@@ -72,15 +74,25 @@ abstract public class BaseTest {
 
     private static Provider loadProvider(TestProvider testProvider) throws Exception {
         String providerName = testProvider.getProviderName();
-        String providerClassName = testProvider.getProviderClassName();
         String providerConfigFile = testProvider.getConfigFile();
-        
+
         Provider provider = java.security.Security.getProvider(providerName);
         if (provider == null) {
-            provider = (Provider) Class.forName(providerClassName).getDeclaredConstructor().newInstance();
-            if ((providerConfigFile != null) && provider instanceof OpenJCEPlus ojpProvider) {
-                provider = ojpProvider.configure(providerConfigFile);
+            if (testProvider == TestProvider.OpenJCEPlus
+                    || testProvider == TestProvider.OpenJCEPlus_OpenSSL
+                    || testProvider == TestProvider.OpenJCEPlus_OCK) {
+                provider = new OpenJCEPlus();
+                if (providerConfigFile != null) {
+                    provider = ((OpenJCEPlus) provider).configure(providerConfigFile);
+                }
+            } else if (testProvider == TestProvider.OpenJCEPlusFIPS) {
+                provider = new OpenJCEPlusFIPS();
+            } else if (testProvider == TestProvider.BC) {
+                provider = new BouncyCastleProvider();
+            } else {
+                throw new RuntimeException("Provider not supported: " + testProvider);
             }
+
             java.security.Security.insertProviderAt(provider, 0);
         }
 
