@@ -336,12 +336,15 @@ abstract class PBES2Parameters extends AlgorithmParametersSpi {
             pBKDF2_params.putInteger(keysize / 8); // derived key length (in octets)
         }
 
-        DerOutputStream prf = new DerOutputStream();
-        // algorithm is id-hmacWith<MD>
-        prf.putOID(kdfAlgo_OID);
-        // parameters is 'NULL'
-        prf.putNull();
-        pBKDF2_params.write(DerValue.tag_Sequence, prf);
+        // HmacSHA1 is the default and must not be encoded.
+        if (!kdfAlgo_OID.equals(ObjectIdentifier.of(KnownOIDs.HmacSHA1))) {
+            DerOutputStream prf = new DerOutputStream();
+            // algorithm is id-hmacWith<MD>
+            prf.putOID(kdfAlgo_OID);
+            // parameters is 'NULL'
+            prf.putNull();
+            pBKDF2_params.write(DerValue.tag_Sequence, prf);
+        }
 
         keyDerivationFunc.write(DerValue.tag_Sequence, pBKDF2_params);
         pBES2_params.write(DerValue.tag_Sequence, keyDerivationFunc);
