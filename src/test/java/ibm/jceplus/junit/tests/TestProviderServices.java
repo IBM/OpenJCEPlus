@@ -236,11 +236,19 @@ public class TestProviderServices extends BaseTest {
     @Test
     // This test does not play well in multi-thread. So, do not include this in those tests.
     public void testDefaultSecureRandom() throws Exception {
-        
         String config = "name = test\n"
             + "description =  OpenJCEPlus-test Provider\n"
             + "default = true\n"
             + "securerandomdefault = SHA512DRBG";
+        
+        //Make sure SunJCE is first in the list.    
+        Provider SunJCE = java.security.Security.getProvider("SunJCE");
+        Security.removeProvider("SunJCE");
+        int position = Security.insertProviderAt(SunJCE, 1);
+
+        if (position == -1) {
+            fail("Failed to insert SunJCE provider");
+        }
 
         SecureRandom secureRandom = new SecureRandom();
 
@@ -253,7 +261,7 @@ public class TestProviderServices extends BaseTest {
             fail("Provider is null");
         }
         Security.removeProvider("OpenJCEPlus");
-        int position = Security.insertProviderAt(provider, 1);
+        position = Security.insertProviderAt(provider, 1);
         if (position == -1) {
             fail("Failed to insert provider");
         }
@@ -291,6 +299,15 @@ public class TestProviderServices extends BaseTest {
         String provName = getProviderName();
         assumeTrue(("OpenJCEPlusFIPS").equals(provName), "Aborting test: Not in FIPS provider.");
 
+        //Make sure SunJCE is first in the list.    
+        Provider SunJCE = java.security.Security.getProvider("SunJCE");
+        Security.removeProvider("SunJCE");
+        int position = Security.insertProviderAt(SunJCE, 1);
+
+        if (position == -1) {
+            fail("Failed to insert SunJCE provider");
+        }
+
         SecureRandom secureRandom = new SecureRandom();
 
         List<String> acceptableValues = List.of("NativePRNG", "NativePRNGBlocking", "NativePRNGNonBlocking", "DRBG");
@@ -306,7 +323,7 @@ public class TestProviderServices extends BaseTest {
         }
 
         Security.removeProvider("OpenJCEPlusFIPS");
-        int position = Security.insertProviderAt(provider, 1);
+        position = Security.insertProviderAt(provider, 1);
 
         if (position == -1) {
             fail("Failed to insert provider");
