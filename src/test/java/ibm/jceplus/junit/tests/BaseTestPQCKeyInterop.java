@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import ibm.jceplus.junit.openjceplus.Utils;
 import java.security.KeyFactory;
@@ -22,7 +22,11 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.KEM;
 import javax.crypto.SecretKey;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -31,8 +35,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
 
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
+
+    @Parameter(2)
+    TestProvider interopProvider2;
 
     protected KeyPairGenerator keyPairGenPlus;
     protected KeyFactory keyFactoryPlus;
@@ -40,6 +54,13 @@ public class BaseTestPQCKeyInterop extends BaseTestJunit5Interop {
     protected KeyFactory keyFactoryInterop;
 
     byte[] origMsg = "this is the original message to be signed".getBytes();
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
+        setAndInsertInteropProvider2(interopProvider2);
+    }
 
     @Test
     public void testPQCKeyGenKEM_PlusToInterop() throws Exception {

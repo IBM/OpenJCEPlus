@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,9 +28,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import sun.security.x509.CertificateSerialNumber;
 import sun.security.x509.CertificateValidity;
 import sun.security.x509.CertificateVersion;
@@ -40,7 +45,15 @@ import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestPQCKeystore extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestPQCKeystore extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
+
     String ksName = "tmpPQCKS.pkcs12";
     File ksFile = null;
     String alias = "myalias";
@@ -49,8 +62,9 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
     KeyStore ks = null;
     KeyPair kp = null;
 
-    @BeforeAll
+    @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         try {
             ksFile = new File(ksName);
             os = new FileOutputStream(ksFile);
