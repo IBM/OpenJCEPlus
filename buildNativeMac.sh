@@ -22,7 +22,18 @@ if [ -z "$GSKIT_HOME" ];
   exit;
 fi
 
+if [ -z "$OPENSSL_HOME" ];
+  then
+  echo "Error: OPENSSL_HOME is not defined or is empty";
+  exit;
+fi
+
 cd src/main/native/ock
 
 make -f jgskit.mac.mak clean
 make -f jgskit.mac.mak
+
+cd ../openssl
+
+make -f openjceplus.mac.mak clean
+make -f openjceplus.mac.mak
