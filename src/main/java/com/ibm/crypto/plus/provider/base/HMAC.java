@@ -30,12 +30,12 @@ public final class HMAC {
         return new HMAC(digestAlgo, provider);
     }
 
-    public static HMAC getInstance(String digestAlgo, String ockAlgo, OpenJCEPlusProvider provider) throws NativeException {
+    public static HMAC getInstance(String digestAlgo, String requesterDigestAlgo, OpenJCEPlusProvider provider) throws NativeException {
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
 
-        return new HMAC(digestAlgo, ockAlgo, provider);
+        return new HMAC(digestAlgo, requesterDigestAlgo, provider);
     }
 
     static void throwNativeException(int errorCode) throws NativeException {
@@ -64,10 +64,10 @@ public final class HMAC {
         this.provider.registerCleanable(this, cleanOCKResources(hmacId, reinitKey, nativeInterface));
     }
 
-    private HMAC(String digestAlgo, String ockAlgo, OpenJCEPlusProvider provider) throws NativeException {
+    private HMAC(String digestAlgo, String requesterDigestAlgo, OpenJCEPlusProvider provider) throws NativeException {
         //final String methodName = "HMAC (String)";
         this.provider = provider;
-        String algo = ockAlgo;
+        String algo = requesterDigestAlgo;
 
         this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Mac", algo);
 
