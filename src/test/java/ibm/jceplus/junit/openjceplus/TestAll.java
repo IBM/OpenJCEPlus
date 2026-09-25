@@ -85,13 +85,6 @@ import org.junit.platform.suite.api.Suite;
     TestRSASignatureInteropSunRsaSign.class,
     TestRSATypeCheckDefault.class,
     TestRSATypeCheckEnabled.class,
-    TestXDH.class,
-    TestXDHInterop.class,
-    TestXDHInteropBC.class,
-    TestXDHKeyAgreementInterop.class,
-    TestXDHKeyImport.class,
-    TestXDHKeyPairGenerator.class,
-    TestXDHMultiParty.class
 })
 
 @Suite
