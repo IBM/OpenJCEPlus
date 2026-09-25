@@ -6,15 +6,20 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.SecureRandom;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -25,15 +30,29 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * typically OpenJCEPlus or OpenJCEPlusFIPS and another provider for
  * PBE supported algorithms.
  */
-public class BaseTestPBEKeyFactoryInterop extends BaseTestJunit5Interop {
+
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithSunJCEInteropProvider")
+public class TestPBEKeyFactoryInterop extends BaseTestInterop {
+
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
 
     final String PASSWORD = "Thequickbrownfoxjumpsoverthelazydog";
     byte[] randomSalt = new byte[32];
     SecureRandom random = new SecureRandom();
     PBEKeySpec pbeks = null;
 
-    @BeforeAll
-    public void setUp() {
+    @BeforeEach
+    public void setUp() throws Exception {
+
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
         random.nextBytes(randomSalt);
         this.pbeks = new PBEKeySpec(PASSWORD.toCharArray());
     }
