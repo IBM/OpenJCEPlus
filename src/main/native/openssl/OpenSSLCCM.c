@@ -473,28 +473,27 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CCM_1encry
         }
 #endif
         // For CCM with zero-length plaintext, skip EVP_CipherFinal_ex (not
-        // supported by CCM mode) and go directly to tag retrieval.
+        // supported by CCM mode) and proceed directly to tag retrieval.
         totalOutLen += outLen;
-        goto get_tag;
     }
 
-    // Finalize cipher (CCM: this is a no-op but required for non-zero input)
-    finalLen = 0;
+    // Finalize cipher for non-zero input (EVP_CipherFinal_ex is not supported for zero-length CCM)
+    if (inputLen > 0) {
+        finalLen = 0;
 
-    if (EVP_CipherFinal_ex(
-            ctx, (unsigned char*)(outputBytes + outputOffset + totalOutLen),
-            &finalLen) != 1) {
-        (*env)->ReleaseByteArrayElements(env, output, outputBytes, JNI_ABORT);
-        setPendingOpenSSLException(env, OPENSSL_CIPHER_FINAL_FAILED,
-                              "Failed to finalize CCM cipher");
-        logOpenSSLError("EVP_CipherFinal_ex");
-        logFunctionExit(functionName);
-        return -1;
+        if (EVP_CipherFinal_ex(
+                ctx, (unsigned char*)(outputBytes + outputOffset + totalOutLen),
+                &finalLen) != 1) {
+            (*env)->ReleaseByteArrayElements(env, output, outputBytes, JNI_ABORT);
+            setPendingOpenSSLException(env, OPENSSL_CIPHER_FINAL_FAILED,
+                                  "Failed to finalize CCM cipher");
+            logOpenSSLError("EVP_CipherFinal_ex");
+            logFunctionExit(functionName);
+            return -1;
+        }
+
+        totalOutLen += finalLen;
     }
-
-    totalOutLen += finalLen;
-
-get_tag:
 
     // Get the tag and append it to the output
     totalOutLen =

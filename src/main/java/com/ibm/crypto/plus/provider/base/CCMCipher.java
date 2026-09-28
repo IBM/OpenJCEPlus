@@ -51,6 +51,7 @@ public final class CCMCipher {
         }
     };
 
+
     // Buffer to get CCM output from native
     private static final ThreadLocal<FastJNIBuffer> outputBuffer = new ThreadLocal<FastJNIBuffer>() {
         @Override
@@ -58,6 +59,7 @@ public final class CCMCipher {
             return FastJNIBuffer.create(FastJNIOutputBufferSize);
         }
     };
+
 
     // ByteArray buffer to pass/get errCode key, IV, AAD, tag
     private static final ThreadLocal<FastJNIBuffer> parameterBuffer = new ThreadLocal<FastJNIBuffer>() {
@@ -196,14 +198,7 @@ public final class CCMCipher {
             CCMHardwareFunctionPtr = nativeInterface.do_CCM_checkHardwareCCMSupport();
         }
 
-        // The FastJNI / hardware path is only valid when the backend actually supports it.
-        // CCMHardwareFunctionPtr == -1 for the OpenSSL backend (do_CCM_checkHardwareCCMSupport
-        // returns -1), so this entire branch is skipped and we fall through to the generic
-        // do_CCM_decrypt path below.  Without the leading guard the inner
-        // do_CCM_decryptFastJNI call would be invoked on the OpenSSL adapter, which throws
-        // UnsupportedOperationException.
-        if (CCMHardwareFunctionPtr != -1
-                && iv.length + key.length + aadLen <= FastJNIParameterBufferSize && !disableCCMAcceleration
+        if (iv.length + key.length + aadLen <= FastJNIParameterBufferSize && !disableCCMAcceleration
                 && (inputLen <= FastJNIInputBufferSize || CCMHardwareFunctionPtr != -1)) {
             FastJNIBuffer parameters = CCMCipher.parameterBuffer.get();
             parameters.put(0, iv, 0, iv.length);
@@ -342,10 +337,7 @@ public final class CCMCipher {
         if (CCMHardwareFunctionPtr == 0)
             CCMHardwareFunctionPtr = nativeInterface.do_CCM_checkHardwareCCMSupport();
 
-        // Same guard as in doCCMFinal_Decrypt: skip the FastJNI / hardware path entirely
-        // when CCMHardwareFunctionPtr == -1 (i.e., the OpenSSL backend).
-        if (CCMHardwareFunctionPtr != -1
-                && iv.length + key.length + aadLen + tagLen <= FastJNIParameterBufferSize
+        if (iv.length + key.length + aadLen + tagLen <= FastJNIParameterBufferSize
                 && (inputLen <= FastJNIInputBufferSize || CCMHardwareFunctionPtr != -1)) {
 
             FastJNIBuffer parameters = CCMCipher.parameterBuffer.get();
@@ -376,21 +368,16 @@ public final class CCMCipher {
 
         } else {
 
-            // Create tempInput sized to inputLen, not input.length - inputOffset.
-            // On OCK this else branch is never reached (CCMHardwareFunctionPtr != -1 takes
-            // the FastJNI path above). On OpenSSL (CCMHardwareFunctionPtr == -1) this is
-            // the only path. pr-1492 uses input.length - inputOffset here, which is wrong
-            // when inputLen < input.length - inputOffset (pooled/sliced buffer): the native
-            // call would encrypt extra trailing bytes, overrunning the output buffer.
-            byte[] tempInput = new byte[inputLen];
+            // Create tempInput
+            byte[] tempInput = new byte[input.length - inputOffset];
             // Copy contents of input from inputOffset for length inputLen into tempInput
-            System.arraycopy(input, inputOffset, tempInput, 0, inputLen);
+            System.arraycopy(input, inputOffset, tempInput, 0, input.length - inputOffset);
 
             // Create tempOutput
             byte[] tempOutput = new byte[len + outputOffset]; // len from call to getOutputSizeLegacy() above
 
             rc = nativeInterface.do_CCM_encrypt(iv, iv.length, key, key.length,
-                    authenticationData, aadLen, tempInput, inputLen, tempOutput,
+                    authenticationData, aadLen, tempInput, tempInput.length, tempOutput,
                     tempOutput.length, tagLen);
 
             if (rc != 0) {
