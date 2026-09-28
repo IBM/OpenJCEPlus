@@ -107,4 +107,14 @@ public final class SystemAccessUtils {
         return Class.forName(className);
     }
 
+    /**
+     * No-op on JDK 25 and later: {@code SecurityManager} and
+     * {@code AccessController} have been removed, so pre-loading
+     * {@code sun.security.util} classes under {@code doPrivileged} is no
+     * longer necessary.  The method is retained so that existing call sites
+     * require no changes.
+     */
+    public static void preloadSunSecurityUtilClasses() {
+        // no-op: SecurityManager removed in JDK 25
+    }
 }

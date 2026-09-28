@@ -1,12 +1,12 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
@@ -23,10 +23,29 @@ import java.security.spec.XECPrivateKeySpec;
 import java.security.spec.XECPublicKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestXDHKeyImport extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestXDHKeyImport extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
 
     @Test
     public void testCreateKeyPairNamedParamImport_X25519() throws Exception {

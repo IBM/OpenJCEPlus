@@ -8,10 +8,14 @@
 
 package ibm.jceplus.junit.base;
 
+import com.ibm.crypto.plus.provider.OpenJCEPlus;
+import com.ibm.crypto.plus.provider.OpenJCEPlusFIPS;
 import java.security.Provider;
+import java.security.Security;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 abstract public class BaseUtils {
 
@@ -67,50 +71,31 @@ abstract public class BaseUtils {
     }
 
 
-    public static Provider loadProvider(String providerName, String providerClassName)
-            throws Exception {
-        return loadProvider(providerName, providerClassName, true);
-    }
-
-
-    public static Provider loadProvider(String providerName, String providerClassName,
-            boolean addToProviderList) throws Exception {
-        Provider provider = java.security.Security.getProvider(providerName);
+    public static Provider loadProviderBC() throws Exception {
+        Provider provider = Security.getProvider(PROVIDER_BC);
         if (provider == null) {
-            provider = (Provider) Class.forName(providerClassName).getDeclaredConstructor().newInstance();
-            if (addToProviderList) {
-                java.security.Security.addProvider(provider);
-            }
+            provider = new BouncyCastleProvider();
+            Security.addProvider(provider);
         }
-
         return provider;
     }
 
 
-    public static Provider loadProviderBC() throws Exception {
-        return loadProvider(PROVIDER_BC, "org.bouncycastle.jce.provider.BouncyCastleProvider");
-    }
-
-
     public static Provider loadProviderOpenJCEPlus() throws Exception {
-        String providerName = PROVIDER_OpenJCEPlus;
-        String providerClassName = "com.ibm.crypto.plus.provider.OpenJCEPlus";
-
         // Check if OpenSSL backend should be used via system property
         String useOpenSSL = System.getProperty("openjceplus.useOpenSSL");
         boolean needsOpenSSLConfig = "true".equalsIgnoreCase(useOpenSSL);
 
         // If OpenSSL config is needed, remove any existing provider to force reconfiguration
-        Provider provider = java.security.Security.getProvider(providerName);
+        Provider provider = Security.getProvider(PROVIDER_OpenJCEPlus);
         if (provider != null && needsOpenSSLConfig) {
             System.out.println("Removing existing provider to apply OpenSSL configuration");
-            java.security.Security.removeProvider(providerName);
+            Security.removeProvider(PROVIDER_OpenJCEPlus);
             provider = null;
         }
 
         if (provider == null) {
-            com.ibm.crypto.plus.provider.OpenJCEPlus jceProvider =
-                (com.ibm.crypto.plus.provider.OpenJCEPlus) Class.forName(providerClassName).getDeclaredConstructor().newInstance();
+            OpenJCEPlus jceProvider = new OpenJCEPlus();
 
             if (needsOpenSSLConfig) {
                 String configPath = System.getProperty("openjceplus.openssl.config",
@@ -121,7 +106,7 @@ abstract public class BaseUtils {
                     provider = jceProvider.configure(configPath);
                     System.out.println("OpenSSL backend configuration loaded successfully");
                     // Insert at position 1 (highest priority) for OpenSSL configuration
-                    java.security.Security.insertProviderAt(provider, 1);
+                    Security.insertProviderAt(provider, 1);
                 } catch (Exception e) {
                     System.err.println("Failed to load OpenSSL configuration: " + e.getMessage());
                     e.printStackTrace();
@@ -129,7 +114,7 @@ abstract public class BaseUtils {
                 }
             } else {
                 provider = jceProvider;
-                java.security.Security.addProvider(provider);
+                Security.addProvider(provider);
             }
         }
 
@@ -138,24 +123,20 @@ abstract public class BaseUtils {
 
 
     public static Provider loadProviderOpenJCEPlusFIPS() throws Exception {
-        String providerName = PROVIDER_OpenJCEPlusFIPS;
-        String providerClassName = "com.ibm.crypto.plus.provider.OpenJCEPlusFIPS";
-
         // Check if OpenSSL backend should be used via system property
         String useOpenSSL = System.getProperty("openjceplus.useOpenSSL");
         boolean needsOpenSSLConfig = "true".equalsIgnoreCase(useOpenSSL);
 
         // If OpenSSL config is needed, remove any existing provider to force reconfiguration
-        Provider provider = java.security.Security.getProvider(providerName);
+        Provider provider = Security.getProvider(PROVIDER_OpenJCEPlusFIPS);
         if (provider != null && needsOpenSSLConfig) {
             System.out.println("Removing existing provider to apply OpenSSL configuration");
-            java.security.Security.removeProvider(providerName);
+            Security.removeProvider(PROVIDER_OpenJCEPlusFIPS);
             provider = null;
         }
 
         if (provider == null) {
-            com.ibm.crypto.plus.provider.OpenJCEPlusFIPS fipsProvider =
-                (com.ibm.crypto.plus.provider.OpenJCEPlusFIPS) Class.forName(providerClassName).getDeclaredConstructor().newInstance();
+            OpenJCEPlusFIPS fipsProvider = new OpenJCEPlusFIPS();
 
             if (needsOpenSSLConfig) {
                 String configPath = System.getProperty("openjceplus.openssl.config",
@@ -166,7 +147,7 @@ abstract public class BaseUtils {
                     provider = fipsProvider.configure(configPath);
                     System.out.println("OpenSSL backend configuration loaded successfully");
                     // Insert at position 1 (highest priority) for OpenSSL configuration
-                    java.security.Security.insertProviderAt(provider, 1);
+                    Security.insertProviderAt(provider, 1);
                 } catch (Exception e) {
                     System.err.println("Failed to load OpenSSL configuration: " + e.getMessage());
                     e.printStackTrace();
@@ -174,7 +155,7 @@ abstract public class BaseUtils {
                 }
             } else {
                 provider = fipsProvider;
-                java.security.Security.addProvider(provider);
+                Security.addProvider(provider);
             }
         }
 

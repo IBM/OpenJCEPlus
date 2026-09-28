@@ -61,11 +61,6 @@ import org.junit.platform.suite.api.Suite;
     TestKeyEncodings.class,
     TestKeySerialization.class,
     TestOAEPOrderCheck.class,
-    TestPBEKeyFactory.class,
-    TestPBEKeyFactoryInterop.class,
-    TestPBEParameters.class,
-    TestPBECipher.class,
-    TestPBECipherInterop.class,
     TestPBKDF2.class,
     TestPBKDF2Interop.class,
     TestPQCKEM.class,
@@ -90,13 +85,6 @@ import org.junit.platform.suite.api.Suite;
     TestRSASignatureInteropSunRsaSign.class,
     TestRSATypeCheckDefault.class,
     TestRSATypeCheckEnabled.class,
-    TestXDH.class,
-    TestXDHInterop.class,
-    TestXDHInteropBC.class,
-    TestXDHKeyAgreementInterop.class,
-    TestXDHKeyImport.class,
-    TestXDHKeyPairGenerator.class,
-    TestXDHMultiParty.class
 })
 
 @Suite

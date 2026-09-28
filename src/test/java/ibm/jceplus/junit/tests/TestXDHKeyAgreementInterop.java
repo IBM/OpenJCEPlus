@@ -1,22 +1,37 @@
 /*
- * Copyright IBM Corp. 2025, 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import javax.crypto.KeyAgreement;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class BaseTestXDHKeyAgreementInterop extends BaseTestJunit5Interop {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithSunECInteropProvider")
+public class TestXDHKeyAgreementInterop extends BaseTestInterop {
     
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
+
     protected KeyPairGenerator kpg1;
     protected KeyPairGenerator kpg2;
     protected KeyAgreement ka1;
@@ -24,6 +39,9 @@ public class BaseTestXDHKeyAgreementInterop extends BaseTestJunit5Interop {
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
+
         kpg1 = KeyPairGenerator.getInstance("XDH", getInteropProviderName());
         kpg2 = KeyPairGenerator.getInstance("XDH", getProviderName());
         ka1 = KeyAgreement.getInstance("XDH", getInteropProviderName());

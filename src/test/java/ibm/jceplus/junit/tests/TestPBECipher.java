@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.io.ByteArrayOutputStream;
 import java.security.AlgorithmParameters;
@@ -26,13 +26,27 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestPBECipher extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestPBECipher extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
+
     private byte[] ivBytes = {
         0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
         0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20,
@@ -58,6 +72,11 @@ public class BaseTestPBECipher extends BaseTestJunit5 {
     private final byte[] plainText17 = "12345678123456781".getBytes();
     private final byte[] plainText = plainText17; // default value
 
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
+
     @ParameterizedTest
     @FieldSource("algorithms")
     void testPBEFunctionality(String alg) throws Exception {
@@ -65,7 +84,7 @@ public class BaseTestPBECipher extends BaseTestJunit5 {
         encryptDecrypt(alg, key);
         encryptDecrypt(alg, key, true);
     }
-    
+
     @ParameterizedTest
     @FieldSource("algorithmsModePadding")
     void testPBEFunctionalityModePadding(String alg) throws Exception {
