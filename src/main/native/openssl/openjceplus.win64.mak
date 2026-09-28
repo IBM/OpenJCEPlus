@@ -20,12 +20,6 @@ OBJS= \
 	$(HOSTOUT)/OpenSSLCCM.obj \
 	$(HOSTOUT)/OpenSSLKeyWrap.obj \
 	$(HOSTOUT)/OpenSSLRandom.obj \
-	$(HOSTOUT)/OpenSSLSignature.obj \
-	$(HOSTOUT)/OpenSSLRSAPSS.obj \
-	$(HOSTOUT)/OpenSSLECKey.obj \
-	$(HOSTOUT)/OpenSSLXECKey.obj \
-	$(HOSTOUT)/OpenSSLRSAKey.obj \
-	$(HOSTOUT)/OpenSSLDSAKey.obj \
 	$(HOSTOUT)/OpenSSLUtils.obj \
 	$(HOSTOUT)/OpenSSLHelpers.obj \
 	$(HOSTOUT)/Digest.obj \

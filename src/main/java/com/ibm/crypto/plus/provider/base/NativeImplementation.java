@@ -20,7 +20,7 @@ public abstract class NativeImplementation {
     protected static boolean loadIfExists(File libraryFile) {
         String libraryName = libraryFile.getAbsolutePath();
 
-        if (libraryFile.exists()) {
+        if (SystemAccessUtils.fileExists(libraryName)) {
             // Need a try/catch block in case the library has already been
             // loaded by another ClassLoader
             //

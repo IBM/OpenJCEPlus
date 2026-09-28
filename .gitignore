@@ -79,7 +79,6 @@ src/main/native/openssl/openssl.win64.mak
 internal-monologue/
 
 # Dev-local docs
-docs/
 
 # Test keystore artifact
 tmpPQCKS.pkcs12
