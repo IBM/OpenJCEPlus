@@ -42,7 +42,7 @@ ifndef OPENSSL_LIB_VERSION
 	OPENSSL_LIB_VERSION = 3
 endif
 
-TARGET = ${HOSTOUT}/libopenjceplus.so
+TARGET = ${HOSTOUT}/libjgskit_openssl_64.so
 ifeq (${PLATFORM},ppc-aix64)
 	TARGET_LIBS := ${OPENSSL_LIB_LOCATION}/libcrypto64.so.${OPENSSL_LIB_VERSION}
 else

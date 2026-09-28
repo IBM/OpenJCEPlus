@@ -35,6 +35,6 @@ OBJS = \
 	${HOSTOUT}/Digest.o \
 	${HOSTOUT}/BuildDate.o
 
-TARGET = ${HOSTOUT}/libopenjceplus.dylib
+TARGET = ${HOSTOUT}/libjgskit_openssl_64.dylib
 
 include ../share/common.mac.mak

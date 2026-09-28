@@ -99,7 +99,7 @@ abstract public class BaseUtils {
 
             if (needsOpenSSLConfig) {
                 String configPath = System.getProperty("openjceplus.openssl.config",
-                                                      "./src/test/ProviderOpenSSLAttrs.config");
+                                                      "./src/test/OpenSSLOnly.config");
                 System.out.println("Loading OpenSSL configuration from: " + configPath);
 
                 try {
@@ -140,7 +140,7 @@ abstract public class BaseUtils {
 
             if (needsOpenSSLConfig) {
                 String configPath = System.getProperty("openjceplus.openssl.config",
-                                                      "./src/test/ProviderOpenSSLAttrs.config");
+                                                      "./src/test/OpenSSLOnly.config");
                 System.out.println("Loading OpenSSL configuration from: " + configPath);
 
                 try {
