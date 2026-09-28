@@ -471,7 +471,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     }
 
     // =========================================================================
-    // GCM Functions — implemented in Java over thin JNI primitives
+    // GCM Functions - implemented in Java over thin JNI primitives
     // =========================================================================
 
     @Override
@@ -556,7 +556,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
         }
         try {
             // Native GCM_init requires tagLen >= 4 bytes. Clamp up; only tagLen bytes of
-            // ciphertext are the actual tag — pad with zeros if the tag is short.
+            // ciphertext are the actual tag - pad with zeros if the tag is short.
             int nativeTagLen = Math.max(tagLen, 4);
             byte[] combinedInput = new byte[cipherLen + nativeTagLen];
             System.arraycopy(ciphertext, cipherOffset, combinedInput, 0, cipherLen);
@@ -607,7 +607,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     /**
      * Completes a multi-part GCM decryption (the "FinalForUpdate" path).
      *
-     * <p>The {@code aad} parameter is intentionally ignored here — see
+     * <p>The {@code aad} parameter is intentionally ignored here - see
      * {@link #do_GCM_FinalForUpdateEncrypt} for the rationale.
      *
      * <p>Tag-mismatch detection: the OCK backend returned a negative {@code rc} which
@@ -724,7 +724,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
 
     @Override
     public void do_GCM_delete() throws OpenSSLException {
-        // No-op for OpenSSL backend — GCM contexts are managed explicitly via create/free.
+        // No-op for OpenSSL backend - GCM contexts are managed explicitly via create/free.
     }
 
     @Override
@@ -751,7 +751,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     }
 
     // =========================================================================
-    // CCM Functions — implemented in Java over thin JNI primitives
+    // CCM Functions - implemented in Java over thin JNI primitives
     // =========================================================================
 
     @Override
@@ -840,7 +840,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
 
     @Override
     public void do_CCM_delete() throws OpenSSLException {
-        // No-op for OpenSSL backend — contexts are managed per-operation.
+        // No-op for OpenSSL backend - contexts are managed per-operation.
     }
 
     @Override
