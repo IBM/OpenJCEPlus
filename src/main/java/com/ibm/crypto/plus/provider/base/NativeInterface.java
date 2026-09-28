@@ -222,8 +222,18 @@ public interface NativeInterface {
 
     //public int get_GCM_TLSEnabled() throws NativeException;
 
+    /**
+     * Creates a GCM context without a key-size hint (OCK backend).
+     * The OpenSSL backend does not use this overload - call
+     * {@link #create_GCM_context(int)} for backend-agnostic code.
+     */
     public long create_GCM_context() throws NativeException;
 
+    /**
+     * Creates a GCM context pre-configured for the given key size (16, 24, or 32 bytes).
+     * The OCK backend ignores {@code keySize} and delegates to the no-arg overload.
+     * The OpenSSL backend uses it to select the correct EVP cipher up front.
+     */
     public long create_GCM_context(int keySize) throws NativeException;
 
     // =========================================================================

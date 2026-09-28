@@ -10,6 +10,10 @@ package com.ibm.crypto.plus.provider.openssl;
 
 import com.ibm.crypto.plus.provider.base.NativeException;
 
+/**
+ * Exception thrown by OpenSSL native operations.
+ * Error codes mirror the constants defined in {@code OpenSSLExceptionCodes.h}.
+ */
 public class OpenSSLException extends NativeException {
     private static final long serialVersionUID = 1L;
 
