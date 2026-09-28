@@ -379,8 +379,8 @@ public final class CCMCipher {
             // Create tempInput sized to inputLen, not input.length - inputOffset.
             // On OCK this else branch is never reached (CCMHardwareFunctionPtr != -1 takes
             // the FastJNI path above). On OpenSSL (CCMHardwareFunctionPtr == -1) this is
-            // the only path. pr-1492 uses input.length - inputOffset here, which is wrong
-            // when inputLen < input.length - inputOffset (pooled/sliced buffer): the native
+            // the only path. Using input.length - inputOffset here is wrong when
+            // inputLen < input.length - inputOffset (pooled/sliced buffer): the native
             // call would encrypt extra trailing bytes, overrunning the output buffer.
             byte[] tempInput = new byte[inputLen];
             // Copy contents of input from inputOffset for length inputLen into tempInput
