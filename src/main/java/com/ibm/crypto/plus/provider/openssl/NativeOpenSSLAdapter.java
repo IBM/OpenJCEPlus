@@ -229,7 +229,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     }
 
     private String getExpectedLibraryVersion() {
-        return "3.0.0";
+        return "3.5.0";
     }
 
     @Override

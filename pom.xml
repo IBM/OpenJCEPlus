@@ -19,7 +19,7 @@
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <jmh.benchmark>ibm.jceplus.jmh.RunAll</jmh.benchmark>
         <jmh.benchmark.skip>true</jmh.benchmark.skip>
-        <consoleOutputReporter.disable>false</consoleOutputReporter.disable>
+        <consoleOutputReporter.disable>true</consoleOutputReporter.disable>
     </properties>
         <profiles>
           <profile>

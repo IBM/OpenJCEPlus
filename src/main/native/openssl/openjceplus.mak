@@ -30,6 +30,10 @@ ifeq (${PLATFORM},x86-linux64)
 	LIB_FOLDER = lib64
 endif
 
+ifeq (${PLATFORM},s390-linux64)
+	LIB_FOLDER = lib64
+endif
+
 ifndef OPENSSL_LIB_LOCATION
 	OPENSSL_LIB_LOCATION = ${OPENSSL_HOME}/${LIB_FOLDER}
 endif

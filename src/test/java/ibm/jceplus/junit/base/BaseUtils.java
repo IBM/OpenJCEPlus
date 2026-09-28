@@ -82,83 +82,21 @@ abstract public class BaseUtils {
 
 
     public static Provider loadProviderOpenJCEPlus() throws Exception {
-        // Check if OpenSSL backend should be used via system property
-        String useOpenSSL = System.getProperty("openjceplus.useOpenSSL");
-        boolean needsOpenSSLConfig = "true".equalsIgnoreCase(useOpenSSL);
-
-        // If OpenSSL config is needed, remove any existing provider to force reconfiguration
         Provider provider = Security.getProvider(PROVIDER_OpenJCEPlus);
-        if (provider != null && needsOpenSSLConfig) {
-            System.out.println("Removing existing provider to apply OpenSSL configuration");
-            Security.removeProvider(PROVIDER_OpenJCEPlus);
-            provider = null;
-        }
-
         if (provider == null) {
-            OpenJCEPlus jceProvider = new OpenJCEPlus();
-
-            if (needsOpenSSLConfig) {
-                String configPath = System.getProperty("openjceplus.openssl.config",
-                                                      "./src/test/OpenSSLOnly.config");
-                System.out.println("Loading OpenSSL configuration from: " + configPath);
-
-                try {
-                    provider = jceProvider.configure(configPath);
-                    System.out.println("OpenSSL backend configuration loaded successfully");
-                    // Insert at position 1 (highest priority) for OpenSSL configuration
-                    Security.insertProviderAt(provider, 1);
-                } catch (Exception e) {
-                    System.err.println("Failed to load OpenSSL configuration: " + e.getMessage());
-                    e.printStackTrace();
-                    throw e;
-                }
-            } else {
-                provider = jceProvider;
-                Security.addProvider(provider);
-            }
+            provider = new OpenJCEPlus();
+            Security.addProvider(provider);
         }
-
         return provider;
     }
 
 
     public static Provider loadProviderOpenJCEPlusFIPS() throws Exception {
-        // Check if OpenSSL backend should be used via system property
-        String useOpenSSL = System.getProperty("openjceplus.useOpenSSL");
-        boolean needsOpenSSLConfig = "true".equalsIgnoreCase(useOpenSSL);
-
-        // If OpenSSL config is needed, remove any existing provider to force reconfiguration
         Provider provider = Security.getProvider(PROVIDER_OpenJCEPlusFIPS);
-        if (provider != null && needsOpenSSLConfig) {
-            System.out.println("Removing existing provider to apply OpenSSL configuration");
-            Security.removeProvider(PROVIDER_OpenJCEPlusFIPS);
-            provider = null;
-        }
-
         if (provider == null) {
-            OpenJCEPlusFIPS fipsProvider = new OpenJCEPlusFIPS();
-
-            if (needsOpenSSLConfig) {
-                String configPath = System.getProperty("openjceplus.openssl.config",
-                                                      "./src/test/OpenSSLOnly.config");
-                System.out.println("Loading OpenSSL configuration from: " + configPath);
-
-                try {
-                    provider = fipsProvider.configure(configPath);
-                    System.out.println("OpenSSL backend configuration loaded successfully");
-                    // Insert at position 1 (highest priority) for OpenSSL configuration
-                    Security.insertProviderAt(provider, 1);
-                } catch (Exception e) {
-                    System.err.println("Failed to load OpenSSL configuration: " + e.getMessage());
-                    e.printStackTrace();
-                    throw e;
-                }
-            } else {
-                provider = fipsProvider;
-                Security.addProvider(provider);
-            }
+            provider = new OpenJCEPlusFIPS();
+            Security.addProvider(provider);
         }
-
         return provider;
     }
 

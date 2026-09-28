@@ -18,7 +18,7 @@ import org.junit.platform.suite.api.Suite;
  * in the ibm.jceplus.junit.tests package.
  */
 @Suite
-@SelectPackages({"ibm.jceplus.junit.tests", "ibm.jceplus.junit.openjceplus"})
+@SelectPackages("ibm.jceplus.junit.tests")
 @IncludeTags({Tags.OPENJCEPLUS_NAME, Tags.OPENJCEPLUS_OPENSSL_NAME, Tags.OPENJCEPLUS_OCK_NAME})
 public class TestOpenJCEPlus {
 }
