@@ -221,7 +221,8 @@ The `-Dgroups` property allows you to filter and run tests based on JUnit tags. 
 
 The OpenSSL backend test suite uses the `OpenJCEPlus_OpenSSL` tag. These tests require an
 OpenSSL installation and the `jgskit` native library built against OpenSSL (see
-[compile_openssl.bat](compile_openssl.bat) / `buildNative.sh` for the native build step).
+[`openjceplus.win64.cygwin.mak`](src/main/native/openssl/openjceplus.win64.cygwin.mak) on Windows
+or [`openjceplus.mak`](src/main/native/openssl/openjceplus.mak) / [`openjceplus.mac.mak`](src/main/native/openssl/openjceplus.mac.mak) on Linux/Mac for the native build step).
 
 The suite is driven by [`suites/TestOpenJCEPlus.java`](src/test/java/ibm/jceplus/junit/suites/TestOpenJCEPlus.java).
 Specify `-Dtest=ibm.jceplus.junit.suites.TestOpenJCEPlus` together with `-Dgroups=OpenJCEPlus_OpenSSL`
