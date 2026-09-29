@@ -252,7 +252,7 @@ public class TestProviderServices extends BaseTest {
 
         SecureRandom secureRandom = new SecureRandom();
 
-        List<String> acceptableValues = List.of("NativePRNG", "NativePRNGBlocking", "NativePRNGNonBlocking", "DRBG", "SHA512DRBG", "SHA256DRBG", "Windows-PRNG");
+        List<String> acceptableValues = List.of("NativePRNG", "NativePRNGBlocking", "NativePRNGNonBlocking", "DRBG");
         assertTrue (acceptableValues.contains(secureRandom.getAlgorithm()), "SecureRandom not SunJCE - " + secureRandom.getAlgorithm());
 
         //Now Put OpenJCEPlus first in the list.
@@ -310,7 +310,7 @@ public class TestProviderServices extends BaseTest {
 
         SecureRandom secureRandom = new SecureRandom();
 
-        List<String> acceptableValues = List.of("NativePRNG", "NativePRNGBlocking", "NativePRNGNonBlocking", "DRBG", "SHA512DRBG", "SHA256DRBG", "Windows-PRNG");
+        List<String> acceptableValues = List.of("NativePRNG", "NativePRNGBlocking", "NativePRNGNonBlocking", "DRBG");
         assertTrue (acceptableValues.contains(secureRandom.getAlgorithm()), "SecureRandom not SunJCE");
 
         //Now Put OpenJCEPlus first in the list.

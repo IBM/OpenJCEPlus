@@ -297,7 +297,6 @@
                         **/ibm/jceplus/junit/TestMultithread.java,
                         **/ibm/jceplus/junit/TestMultithreadFIPS.java,
                         **/ibm/jceplus/junit/suites/TestAll.java,
-                        **/ibm/jceplus/junit/suites/TestOpenJCEPlus.java,
                         **/ibm/jceplus/junit/suites/TestMultiThreadOpenJCEPlus.java,
                         **/ibm/jceplus/junit/suites/TestMultiThreadOpenJCEPlusFIPS.java
                       </include>

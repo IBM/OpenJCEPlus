@@ -42,7 +42,6 @@ $(RC_OBJ) : $(RC_SRC)
 		-I"$(NATIVE_LIB_HOME)\include" \
 		-I"$(JAVA_HOME)\include" \
 		-I"$(JAVA_HOME)\include\win32" \
-		-I. \
 		$*.c
 
 displaycompiler :

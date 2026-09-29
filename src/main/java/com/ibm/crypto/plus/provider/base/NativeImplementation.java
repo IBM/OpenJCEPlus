@@ -31,6 +31,7 @@ public abstract class NativeImplementation {
                 }
                 return true;
             } catch (Throwable t) {
+                t.printStackTrace();
                 if (debug != null) {
                     debug.println("Failed to load : " + libraryName);
                 }
