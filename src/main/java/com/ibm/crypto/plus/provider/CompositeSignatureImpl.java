@@ -8,8 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.base.Digest;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -23,10 +23,7 @@ import java.security.SignatureSpi;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
-import java.util.HexFormat;
-
-import sun.security.util.DerOutputStream;
-import sun.security.util.DerValue;
+import java.util.Arrays;
 
 /**
  * Composite signature engine for draft-ietf-lamps-pq-composite-sigs.
@@ -63,9 +60,22 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
     private final String compositeAlg;
     private final String mldsaSigAlg;
     private final String tradSigAlg;
-    /** Per-algorithm label bytes (ASCII), e.g. "COMPSIG-MLDSA44-RSA2048-PSS-SHA256". */
+    /**
+     * Per-algorithm label bytes (ASCII) used in M' construction per §2.2,
+     * e.g. {@code "COMPSIG-MLDSA44-RSA2048-PSS-SHA256"}.
+     * For most algorithms this is {@code "COMPSIG-" + compositeAlg}, but
+     * brainpool algorithms use abbreviated labels per §6
+     * (e.g. {@code "COMPSIG-MLDSA65-ECDSA-BP256-SHA512"}).
+     */
     private final byte[] label;
-    /** JCA name of the pre-hash function PH (either "SHA-256" or "SHA-512"). */
+    /**
+     * JCA name or sentinel for the pre-hash function PH per draft §6.
+     * Standard values: {@code "SHA-256"}, {@code "SHA-512"}.
+     * Special sentinel: {@code "SHAKE256-64"} indicates SHAKE256 with 64-byte
+     * output, used for {@code MLDSA87-Ed448-SHAKE256}.  This sentinel triggers
+     * the OCK Digest path in {@link #buildDomainSeparatedMessage} because
+     * SHAKE256 is not registered as a JCA {@code MessageDigest} in OpenJCEPlus.
+     */
     private final String phAlg;
 
     /** Buffered message bytes accumulated via {@code engineUpdate}. */
@@ -87,16 +97,57 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
      * @param phAlg        the JCA name of the pre-hash function PH per draft §6
      *                     (either {@code "SHA-256"} or {@code "SHA-512"})
      */
+    /** Convenience constructor for non-RSA, non-PSS algorithms. */
     CompositeSignatureImpl(OpenJCEPlusProvider provider,
             String compositeAlg, String mldsaSigAlg, String tradSigAlg, String phAlg) {
+        this(provider, compositeAlg, mldsaSigAlg, tradSigAlg, phAlg, null, 0);
+    }
+
+    /**
+     * Extended constructor for algorithms with a label override (e.g. brainpool).
+     *
+     * @param labelOverride the ASCII label string to use in M' construction,
+     *                      or {@code null} to derive it as
+     *                      {@code "COMPSIG-" + compositeAlg}
+     */
+    CompositeSignatureImpl(OpenJCEPlusProvider provider,
+            String compositeAlg, String mldsaSigAlg, String tradSigAlg, String phAlg,
+            String labelOverride) {
+        this(provider, compositeAlg, mldsaSigAlg, tradSigAlg, phAlg, labelOverride, 0);
+    }
+
+    /**
+     * Extended constructor for RSA-PSS algorithms that need an explicit key size
+     * to select the correct PSS hash per draft §6.1 Tables 2 and 3.
+     *
+     * @param rsaKeyBits RSA modulus size in bits (e.g. 2048, 3072, 4096)
+     */
+    CompositeSignatureImpl(OpenJCEPlusProvider provider,
+            String compositeAlg, String mldsaSigAlg, String tradSigAlg, String phAlg,
+            int rsaKeyBits) {
+        this(provider, compositeAlg, mldsaSigAlg, tradSigAlg, phAlg, null, rsaKeyBits);
+    }
+
+    /**
+     * Full constructor.
+     *
+     * @param labelOverride the ASCII label override, or {@code null} for default
+     * @param rsaKeyBits    RSA key size in bits used to select the PSS hash per
+     *                      draft §6.1 Tables 2 and 3; {@code 0} for non-PSS
+     *                      algorithms (value is ignored)
+     */
+    CompositeSignatureImpl(OpenJCEPlusProvider provider,
+            String compositeAlg, String mldsaSigAlg, String tradSigAlg, String phAlg,
+            String labelOverride, int rsaKeyBits) {
         this.provider = provider;
         this.compositeAlg = compositeAlg;
         this.mldsaSigAlg = mldsaSigAlg;
         this.tradSigAlg = tradSigAlg;
-        this.label = ("COMPSIG-" + compositeAlg).getBytes(StandardCharsets.US_ASCII);
+        this.label = (labelOverride != null ? labelOverride : "COMPSIG-" + compositeAlg)
+                .getBytes(StandardCharsets.US_ASCII);
         this.phAlg = phAlg;
-        this.tradPssParams = buildPssParams(tradSigAlg);
-        if (null != tradPssParams ) {
+        this.tradPssParams = buildPssParams(tradSigAlg, rsaKeyBits);
+        if (null != tradPssParams) {
             tradSigAlg = "RSAPSS";
         }
 
@@ -111,45 +162,30 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
 
     /**
      * Builds the {@link PSSParameterSpec} required by the traditional RSA-PSS
-     * component, following the same pattern used in BaseTestRSAPSS2:
-     * <pre>
-     * new PSSParameterSpec(hashName, "MGF1", new MGF1ParameterSpec(hashName), saltLen, 1)
-     * </pre>
+     * component per draft §6.1 Tables 2 and 3:
+     * <ul>
+     *   <li>2048-bit and 3072-bit keys → SHA-256, MGF1(SHA-256), saltLen=32</li>
+     *   <li>4096-bit keys              → SHA-384, MGF1(SHA-384), saltLen=48</li>
+     * </ul>
      * Returns {@code null} for non-PSS algorithms.
+     *
+     * @param tradSigAlg the traditional signature algorithm name
+     * @param rsaKeyBits RSA modulus size in bits (2048, 3072, or 4096)
      */
-    private static PSSParameterSpec buildPssParams(String tradSigAlg) {
+    private static PSSParameterSpec buildPssParams(String tradSigAlg, int rsaKeyBits) {
         String up = tradSigAlg.toUpperCase(java.util.Locale.ROOT);
         if (!up.contains("PSS")) {
             return null;
         }
-        // Derive the hash algorithm name from the signature algorithm name.
-        // Recognized forms: "SHA256withRSASSA-PSS", "SHA512withRSASSA-PSS".
-        String hashName;
-        if (up.contains("SHA-512") || up.startsWith("SHA512")) {
-            hashName = "SHA-512";
-        } else if (up.contains("SHA-384") || up.startsWith("SHA384")) {
-            hashName = "SHA-384";
-        } else if (up.contains("SHA-256") || up.startsWith("SHA256")) {
-            hashName = "SHA-256";
-        } else if (up.contains("SHA-224") || up.startsWith("SHA224")) {
-            hashName = "SHA-224";
-        } else {
-            // Default to SHA-256 for unrecognized PSS variants
-            hashName = "SHA-256";
-        }
-        // Salt length matches the hash output length (recommended by FIPS 186-5)
-        int saltLen;
-        switch (hashName) {
-            case "SHA-512": saltLen = 64; break;
-            case "SHA-384": saltLen = 48; break;
-            case "SHA-224": saltLen = 28; break;
-            default:        saltLen = 32; break; // SHA-256
-        }
+        // Select hash and salt length from the RSA key size per draft §6.1 Tables 2 & 3.
+        // 4096-bit keys use SHA-384; all others (2048, 3072) use SHA-256.
+        String hashName = (rsaKeyBits >= 4096) ? "SHA-384" : "SHA-256";
+        int saltLen = (rsaKeyBits >= 4096) ? 48 : 32;
         return new PSSParameterSpec(
-                hashName,                       // mdName
-                "MGF1",                         // mgfName
-                new MGF1ParameterSpec(hashName), // MGFParameterSpec
-                saltLen,                        // saltLen
+                hashName,                        // mdName
+                "MGF1",                          // mgfName
+                new MGF1ParameterSpec(hashName),  // MGFParameterSpec
+                saltLen,                         // saltLen
                 PSSParameterSpec.TRAILER_FIELD_BC); // trailerField = 1
     }
 
@@ -171,8 +207,8 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
                             + " does not match signature algorithm " + compositeAlg);
         }
         try {
-            PrivateKey mldsaKey = decodePrivateKey(mldsaSigAlg, ck.getMLDSAEncoded());
-            PrivateKey tradKey = decodePrivateKey(tradSigAlg, ck.getTraditionalEncoded());
+            PrivateKey mldsaKey = decodeMLDSAPrivateKey(ck.getMLDSASeed());
+            PrivateKey tradKey = decodeTradPrivateKey(tradSigAlg, ck.getTradRaw());
             mldsaSig.initSign(mldsaKey);
             tradSig.initSign(tradKey);
             if (tradPssParams != null) {
@@ -200,8 +236,8 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
                             + " does not match signature algorithm " + compositeAlg);
         }
         try {
-            PublicKey mldsaKey = decodePublicKey(mldsaSigAlg, ck.getMLDSAEncoded());
-            PublicKey tradKey = decodePublicKey(tradSigAlg, ck.getTraditionalEncoded());
+            PublicKey mldsaKey = decodeMLDSAPublicKey(ck.getMLDSARaw());
+            PublicKey tradKey = decodeTradPublicKey(tradSigAlg, ck.getTradRaw());
             mldsaSig.initVerify(mldsaKey);
             tradSig.initVerify(tradKey);
             if (tradPssParams != null) {
@@ -233,7 +269,17 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
         try {
             byte[] domainMsg = buildDomainSeparatedMessage(message.toByteArray());
             message.reset();
-            System.out.println(" Message - \n" +  HexFormat.of().formatHex(domainMsg));
+
+            // WI-5 (NOT YET IMPLEMENTED): Draft §3.2 step 4 requires:
+            //   mldsaSig = ML-DSA.Sign(mldsaSK, M', mldsa_ctx=Label)
+            // i.e. the per-algorithm Label must be passed as the internal ML-DSA
+            // context string.  The underlying PQCSignature / OCK native interface
+            // currently exposes PQC_SIGNATURE_sign(pkeyId, data) with no ctx
+            // parameter.  A new JNI method
+            //   PQC_SIGNATURE_sign_with_ctx(pkeyId, data, ctx)
+            // must be added to NativeOCKImplementation and NativeInterface before
+            // this step can be implemented.  Until then, ML-DSA signs M' with an
+            // empty context (mldsa_ctx=""), which diverges from the draft.
             mldsaSig.update(domainMsg);
             tradSig.update(domainMsg);
 
@@ -241,8 +287,6 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
             byte[] tradSigBytes = tradSig.sign();
 
             return encodeCompositeSignature(mldsaSigBytes, tradSigBytes);
-        } catch (IOException e) {
-            throw new SignatureException("Failed to encode composite signature", e);
         } catch (Exception e) {
             throw new SignatureException("Composite sign failed", e);
         }
@@ -264,6 +308,8 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
             byte[] domainMsg = buildDomainSeparatedMessage(message.toByteArray());
             message.reset();
 
+            // WI-5 (NOT YET IMPLEMENTED): same native gap as in engineSign() —
+            // ML-DSA verification must use mldsa_ctx=Label.
             mldsaSig.update(domainMsg);
             tradSig.update(domainMsg);
 
@@ -314,12 +360,32 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
      * {@code ctx} is treated as empty (len = 0) since this API does not
      * expose a context parameter.  {@code PH} is the per-algorithm pre-hash
      * function stored in {@link #phAlg}.
+     *
+     * <p>When {@link #phAlg} is the sentinel {@code "SHAKE256-64"} (used by
+     * {@code MLDSA87-Ed448-SHAKE256}), the OCK {@link Digest} facility is
+     * used directly to compute 64 bytes of SHAKE256 output, because SHAKE256
+     * is not registered as a JCA {@code MessageDigest} service in OpenJCEPlus.
      */
     private byte[] buildDomainSeparatedMessage(byte[] msg) throws SignatureException {
         try {
-            java.security.MessageDigest md =
-                    java.security.MessageDigest.getInstance(phAlg);
-            byte[] ph = md.digest(msg);
+            final byte[] ph;
+            if ("SHAKE256-64".equals(phAlg)) {
+                // SHAKE256 is not available via MessageDigest.getInstance() in
+                // OpenJCEPlus (the provider registration is commented out).
+                // Use the OCK Digest layer directly with the OCK algorithm name
+                // "SHAKE256" and truncate the output to 64 bytes as specified
+                // by draft §6 for MLDSA87-Ed448-SHAKE256.
+                Digest shake = Digest.getInstance("SHAKE256", provider, "SHAKE256-64");
+                shake.update(msg, 0, msg.length);
+                byte[] raw = shake.digest();
+                // SHAKE256 is an XOF; OCK may return its internal block size.
+                // The draft specifies exactly 64 bytes of output.
+                ph = (raw.length >= 64) ? Arrays.copyOf(raw, 64) : raw;
+            } else {
+                java.security.MessageDigest md =
+                        java.security.MessageDigest.getInstance(phAlg);
+                ph = md.digest(msg);
+            }
 
             ByteArrayOutputStream buf = new ByteArrayOutputStream(
                     DOMAIN_PREFIX.length + label.length + 1 + ph.length);
@@ -332,51 +398,47 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new SignatureException(
                     "Pre-hash algorithm not available: " + phAlg, e);
+        } catch (Exception e) {
+            throw new SignatureException(
+                    "Pre-hash computation failed for: " + phAlg, e);
         }
     }
 
     // -----------------------------------------------------------------------
-    // Composite signature encoding / decoding
+    // Composite signature encoding / decoding (draft §4.3)
     // -----------------------------------------------------------------------
 
     /**
-     * Encodes the two component signature bytes as:
+     * Serializes two component signature values as raw concatenation per §4.3:
      * <pre>
-     * CompositeSignatureValue ::= SEQUENCE SIZE (2) OF BIT STRING
+     * CompositeSignatureValue = mldsaSig || tradSig
      * </pre>
      */
-    private static byte[] encodeCompositeSignature(byte[] mldsaSig, byte[] tradSig)
-            throws IOException {
-        DerOutputStream inner = new DerOutputStream();
-        inner.putBitString(mldsaSig);
-        inner.putBitString(tradSig);
-
-        DerOutputStream out = new DerOutputStream();
-        out.write(DerValue.tag_Sequence, inner);
-        return out.toByteArray();
+    private static byte[] encodeCompositeSignature(byte[] mldsaSig, byte[] tradSig) {
+        byte[] out = new byte[mldsaSig.length + tradSig.length];
+        System.arraycopy(mldsaSig, 0, out, 0, mldsaSig.length);
+        System.arraycopy(tradSig,  0, out, mldsaSig.length, tradSig.length);
+        return out;
     }
 
     /**
-     * Decodes a {@code CompositeSignatureValue SEQUENCE SIZE (2) OF BIT STRING}.
+     * Deserializes a composite signature value by splitting at the fixed
+     * ML-DSA signature length per §4.3.
      *
      * @return two-element array {@code {mldsaSigBytes, tradSigBytes}}
-     * @throws SignatureException if the encoding is malformed
+     * @throws SignatureException if the encoding is too short
      */
-    private static byte[][] decodeCompositeSignature(byte[] encoded)
+    private byte[][] decodeCompositeSignature(byte[] encoded)
             throws SignatureException {
-        try {
-            DerValue seq = new DerValue(encoded);
-            if (seq.tag != DerValue.tag_Sequence) {
-                throw new SignatureException(
-                        "CompositeSignatureValue is not a SEQUENCE");
-            }
-            byte[] mldsa = seq.data.getBitString();
-            byte[] trad = seq.data.getBitString();
-            return new byte[][] {mldsa, trad};
-        } catch (IOException e) {
+        int mldsaLen = CompositeSignatureUtils.mldsaSignatureLen(compositeAlg);
+        if (encoded.length < mldsaLen) {
             throw new SignatureException(
-                    "Failed to decode composite signature", e);
+                    "Composite signature too short: " + encoded.length
+                            + " < " + mldsaLen);
         }
+        byte[] mldsa = Arrays.copyOfRange(encoded, 0, mldsaLen);
+        byte[] trad  = Arrays.copyOfRange(encoded, mldsaLen, encoded.length);
+        return new byte[][] {mldsa, trad};
     }
 
     // -----------------------------------------------------------------------
@@ -384,29 +446,95 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
     // -----------------------------------------------------------------------
 
     /**
-     * Decodes a PKCS#8 byte array into a PrivateKey using the JCA algorithm
-     * name of the component (resolved to a KeyFactory algorithm string).
+     * Reconstructs an ML-DSA PrivateKey from the raw 32-byte seed by wrapping
+     * it in a minimal PKCS#8 structure that the ML-DSA KeyFactory can parse.
      */
-    private PrivateKey decodePrivateKey(String sigAlg, byte[] pkcs8Bytes)
+    private PrivateKey decodeMLDSAPrivateKey(byte[] mldsaSeed) throws Exception {
+        java.security.KeyFactory kf =
+                java.security.KeyFactory.getInstance(mldsaSigAlg, provider);
+        return kf.generatePrivate(
+                new java.security.spec.PKCS8EncodedKeySpec(
+                        wrapSeedAsPkcs8(mldsaSeed)));
+    }
+
+    /**
+     * Reconstructs a traditional PrivateKey from its raw bytes.
+     * The raw bytes are wrapped in the appropriate PKCS#8 / DER structure
+     * before being handed to the component KeyFactory.
+     */
+    private PrivateKey decodeTradPrivateKey(String sigAlg, byte[] rawBytes)
             throws Exception {
         String kfAlg = keyFactoryAlg(sigAlg);
         java.security.KeyFactory kf =
                 java.security.KeyFactory.getInstance(kfAlg, provider);
         return kf.generatePrivate(
-                new java.security.spec.PKCS8EncodedKeySpec(pkcs8Bytes));
+                new java.security.spec.PKCS8EncodedKeySpec(rawBytes));
     }
 
     /**
-     * Decodes an X.509 byte array into a PublicKey using the JCA algorithm
-     * name of the component (resolved to a KeyFactory algorithm string).
+     * Reconstructs an ML-DSA PublicKey from the raw public key bytes by
+     * wrapping them in a minimal SubjectPublicKeyInfo structure.
      */
-    private PublicKey decodePublicKey(String sigAlg, byte[] x509Bytes)
+    private PublicKey decodeMLDSAPublicKey(byte[] mldsaRaw) throws Exception {
+        java.security.KeyFactory kf =
+                java.security.KeyFactory.getInstance(mldsaSigAlg, provider);
+        return kf.generatePublic(
+                new java.security.spec.X509EncodedKeySpec(
+                        wrapRawAsSpki(mldsaSigAlg, mldsaRaw)));
+    }
+
+    /**
+     * Reconstructs a traditional PublicKey from the raw public key bytes by
+     * wrapping them in a minimal SubjectPublicKeyInfo structure.
+     */
+    private PublicKey decodeTradPublicKey(String sigAlg, byte[] rawBytes)
             throws Exception {
         String kfAlg = keyFactoryAlg(sigAlg);
         java.security.KeyFactory kf =
                 java.security.KeyFactory.getInstance(kfAlg, provider);
         return kf.generatePublic(
-                new java.security.spec.X509EncodedKeySpec(x509Bytes));
+                new java.security.spec.X509EncodedKeySpec(rawBytes));
+    }
+
+    /**
+     * Wraps a raw ML-DSA seed in a minimal OneAsymmetricKey (PKCS#8) structure
+     * so the ML-DSA KeyFactory can parse it.
+     */
+    private byte[] wrapSeedAsPkcs8(byte[] seed) throws java.io.IOException {
+        sun.security.util.DerOutputStream algId = new sun.security.util.DerOutputStream();
+        algId.putOID(
+                sun.security.util.ObjectIdentifier.of(
+                        com.ibm.crypto.plus.provider.PQCKnownOIDs
+                                .findMatch(mldsaSigAlg).value()));
+
+        sun.security.util.DerOutputStream pkcs8 = new sun.security.util.DerOutputStream();
+        pkcs8.putInteger(0);
+        pkcs8.write(sun.security.util.DerValue.tag_Sequence, algId);
+        pkcs8.putOctetString(seed);
+
+        sun.security.util.DerOutputStream out = new sun.security.util.DerOutputStream();
+        out.write(sun.security.util.DerValue.tag_Sequence, pkcs8);
+        return out.toByteArray();
+    }
+
+    /**
+     * Wraps raw public key bytes in a minimal SubjectPublicKeyInfo so the
+     * ML-DSA KeyFactory can parse them.
+     */
+    private byte[] wrapRawAsSpki(String algName, byte[] raw) throws java.io.IOException {
+        sun.security.util.DerOutputStream algId = new sun.security.util.DerOutputStream();
+        algId.putOID(
+                sun.security.util.ObjectIdentifier.of(
+                        com.ibm.crypto.plus.provider.PQCKnownOIDs
+                                .findMatch(algName).value()));
+
+        sun.security.util.DerOutputStream spki = new sun.security.util.DerOutputStream();
+        spki.write(sun.security.util.DerValue.tag_Sequence, algId);
+        spki.putBitString(raw);
+
+        sun.security.util.DerOutputStream out = new sun.security.util.DerOutputStream();
+        out.write(sun.security.util.DerValue.tag_Sequence, spki);
+        return out.toByteArray();
     }
 
     /**
@@ -435,9 +563,17 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
     // Concrete inner classes — one per composite algorithm combination
     // -----------------------------------------------------------------------
 
+    // WI-7: PSS algorithms pass rsaKeyBits so buildPssParams() can select the
+    // correct hash and salt length per draft §6.1 Tables 2 and 3.
+    // WI-9: PKCS1 algorithms use the correct inner hash per draft §6.
+    // WI-8: MLDSA65-ECDSA-P256-SHA512 uses SHA256withECDSA (not SHA512).
+    // WI-4: MLDSA87-Ed448-SHAKE256 passes "SHAKE256-64" sentinel for PH.
+
     public static final class MLDSA44RSA2048PSSSHA256 extends CompositeSignatureImpl {
         public MLDSA44RSA2048PSSSHA256(OpenJCEPlusProvider p) {
-            super(p, "MLDSA44-RSA2048-PSS-SHA256", "ML-DSA-44", "SHA256withRSASSA-PSS", "SHA-256");
+            // 2048-bit → SHA-256/salt32 per Table 2
+            super(p, "MLDSA44-RSA2048-PSS-SHA256", "ML-DSA-44",
+                    "SHA256withRSASSA-PSS", "SHA-256", 2048);
         }
     }
 
@@ -447,9 +583,9 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
         }
     }
 
-    public static final class MLDSA44Ed25519 extends CompositeSignatureImpl {
-        public MLDSA44Ed25519(OpenJCEPlusProvider p) {
-            super(p, "MLDSA44-Ed25519", "ML-DSA-44", "Ed25519", "SHA-512");
+    public static final class MLDSA44Ed25519SHA512 extends CompositeSignatureImpl {
+        public MLDSA44Ed25519SHA512(OpenJCEPlusProvider p) {
+            super(p, "MLDSA44-Ed25519-SHA512", "ML-DSA-44", "Ed25519", "SHA-512");
         }
     }
 
@@ -461,31 +597,38 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
 
     public static final class MLDSA65RSA3072PSSSHA512 extends CompositeSignatureImpl {
         public MLDSA65RSA3072PSSSHA512(OpenJCEPlusProvider p) {
-            super(p, "MLDSA65-RSA3072-PSS-SHA512", "ML-DSA-65", "SHA512withRSASSA-PSS", "SHA-512");
+            // 3072-bit → SHA-256/salt32 per Table 2 (WI-7)
+            super(p, "MLDSA65-RSA3072-PSS-SHA512", "ML-DSA-65",
+                    "SHA256withRSASSA-PSS", "SHA-512", 3072);
         }
     }
 
     public static final class MLDSA65RSA3072PKCS15SHA512 extends CompositeSignatureImpl {
         public MLDSA65RSA3072PKCS15SHA512(OpenJCEPlusProvider p) {
-            super(p, "MLDSA65-RSA3072-PKCS15-SHA512", "ML-DSA-65", "SHA512withRSA", "SHA-512");
+            // 3072-bit PKCS1 uses SHA-256 inner hash per draft §6 (WI-9)
+            super(p, "MLDSA65-RSA3072-PKCS15-SHA512", "ML-DSA-65", "SHA256withRSA", "SHA-512");
         }
     }
 
     public static final class MLDSA65RSA4096PSSSHA512 extends CompositeSignatureImpl {
         public MLDSA65RSA4096PSSSHA512(OpenJCEPlusProvider p) {
-            super(p, "MLDSA65-RSA4096-PSS-SHA512", "ML-DSA-65", "SHA512withRSASSA-PSS", "SHA-512");
+            // 4096-bit → SHA-384/salt48 per Table 3 (WI-7)
+            super(p, "MLDSA65-RSA4096-PSS-SHA512", "ML-DSA-65",
+                    "SHA384withRSASSA-PSS", "SHA-512", 4096);
         }
     }
 
     public static final class MLDSA65RSA4096PKCS15SHA512 extends CompositeSignatureImpl {
         public MLDSA65RSA4096PKCS15SHA512(OpenJCEPlusProvider p) {
-            super(p, "MLDSA65-RSA4096-PKCS15-SHA512", "ML-DSA-65", "SHA512withRSA", "SHA-512");
+            // 4096-bit PKCS1 uses SHA-384 inner hash per draft §6 (WI-9)
+            super(p, "MLDSA65-RSA4096-PKCS15-SHA512", "ML-DSA-65", "SHA384withRSA", "SHA-512");
         }
     }
 
     public static final class MLDSA65ECDSAP256SHA512 extends CompositeSignatureImpl {
         public MLDSA65ECDSAP256SHA512(OpenJCEPlusProvider p) {
-            super(p, "MLDSA65-ECDSA-P256-SHA512", "ML-DSA-65", "SHA512withECDSA", "SHA-512");
+            // P-256 uses SHA256withECDSA, not SHA512withECDSA (WI-8)
+            super(p, "MLDSA65-ECDSA-P256-SHA512", "ML-DSA-65", "SHA256withECDSA", "SHA-512");
         }
     }
 
@@ -498,13 +641,14 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
     public static final class MLDSA65ECDSABrainpoolP256r1SHA512 extends CompositeSignatureImpl {
         public MLDSA65ECDSABrainpoolP256r1SHA512(OpenJCEPlusProvider p) {
             super(p, "MLDSA65-ECDSA-brainpoolP256r1-SHA512", "ML-DSA-65",
-                    "SHA256withECDSA", "SHA-512");
+                    "SHA256withECDSA", "SHA-512",
+                    "COMPSIG-MLDSA65-ECDSA-BP256-SHA512");
         }
     }
 
-    public static final class MLDSA65Ed25519 extends CompositeSignatureImpl {
-        public MLDSA65Ed25519(OpenJCEPlusProvider p) {
-            super(p, "MLDSA65-Ed25519", "ML-DSA-65", "Ed25519", "SHA-512");
+    public static final class MLDSA65Ed25519SHA512 extends CompositeSignatureImpl {
+        public MLDSA65Ed25519SHA512(OpenJCEPlusProvider p) {
+            super(p, "MLDSA65-Ed25519-SHA512", "ML-DSA-65", "Ed25519", "SHA-512");
         }
     }
 
@@ -517,25 +661,31 @@ abstract class CompositeSignatureImpl extends SignatureSpi {
     public static final class MLDSA87ECDSABrainpoolP384r1SHA512 extends CompositeSignatureImpl {
         public MLDSA87ECDSABrainpoolP384r1SHA512(OpenJCEPlusProvider p) {
             super(p, "MLDSA87-ECDSA-brainpoolP384r1-SHA512", "ML-DSA-87",
-                    "SHA384withECDSA", "SHA-512");
+                    "SHA384withECDSA", "SHA-512",
+                    "COMPSIG-MLDSA87-ECDSA-BP384-SHA512");
         }
     }
 
-    public static final class MLDSA87Ed448 extends CompositeSignatureImpl {
-        public MLDSA87Ed448(OpenJCEPlusProvider p) {
-            super(p, "MLDSA87-Ed448", "ML-DSA-87", "Ed448", "SHA-512");
+    public static final class MLDSA87Ed448SHAKE256 extends CompositeSignatureImpl {
+        public MLDSA87Ed448SHAKE256(OpenJCEPlusProvider p) {
+            // PH = SHAKE256(M, 64) — use sentinel "SHAKE256-64" (WI-4)
+            super(p, "MLDSA87-Ed448-SHAKE256", "ML-DSA-87", "Ed448", "SHAKE256-64");
         }
     }
 
     public static final class MLDSA87RSA3072PSSSHA512 extends CompositeSignatureImpl {
         public MLDSA87RSA3072PSSSHA512(OpenJCEPlusProvider p) {
-            super(p, "MLDSA87-RSA3072-PSS-SHA512", "ML-DSA-87", "SHA512withRSASSA-PSS", "SHA-512");
+            // 3072-bit → SHA-256/salt32 per Table 2 (WI-7)
+            super(p, "MLDSA87-RSA3072-PSS-SHA512", "ML-DSA-87",
+                    "SHA256withRSASSA-PSS", "SHA-512", 3072);
         }
     }
 
     public static final class MLDSA87RSA4096PSSSHA512 extends CompositeSignatureImpl {
         public MLDSA87RSA4096PSSSHA512(OpenJCEPlusProvider p) {
-            super(p, "MLDSA87-RSA4096-PSS-SHA512", "ML-DSA-87", "SHA512withRSASSA-PSS", "SHA-512");
+            // 4096-bit → SHA-384/salt48 per Table 3 (WI-7)
+            super(p, "MLDSA87-RSA4096-PSS-SHA512", "ML-DSA-87",
+                    "SHA384withRSASSA-PSS", "SHA-512", 4096);
         }
     }
 

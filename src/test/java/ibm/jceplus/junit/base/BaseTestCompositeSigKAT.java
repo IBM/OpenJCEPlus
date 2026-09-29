@@ -263,7 +263,7 @@ public class BaseTestCompositeSigKAT extends BaseTestJunit5 {
                 "2.16.840.1.114027.80.9.1.20", 1312, ALGID_MLDSA44, ALGID_RSA));
         ALG_META.put("MLDSA44-RSA2048-PKCS15-SHA256", new AlgMeta(
                 "2.16.840.1.114027.80.9.1.21", 1312, ALGID_MLDSA44, ALGID_RSA));
-        ALG_META.put("MLDSA44-Ed25519", new AlgMeta(
+        ALG_META.put("MLDSA44-Ed25519-SHA512", new AlgMeta(
                 "2.16.840.1.114027.80.9.1.22", 1312, ALGID_MLDSA44, ALGID_ED25519));
         ALG_META.put("MLDSA44-ECDSA-P256-SHA256", new AlgMeta(
                 "2.16.840.1.114027.80.9.1.23", 1312, ALGID_MLDSA44, ALGID_EC_P256));
@@ -281,13 +281,13 @@ public class BaseTestCompositeSigKAT extends BaseTestJunit5 {
                 "2.16.840.1.114027.80.9.1.29", 1952, ALGID_MLDSA65, ALGID_EC_P384));
         ALG_META.put("MLDSA65-ECDSA-brainpoolP256r1-SHA512", new AlgMeta(
                 "2.16.840.1.114027.80.9.1.30", 1952, ALGID_MLDSA65, ALGID_EC_BP256));
-        ALG_META.put("MLDSA65-Ed25519", new AlgMeta(
+        ALG_META.put("MLDSA65-Ed25519-SHA512", new AlgMeta(
                 "2.16.840.1.114027.80.9.1.31", 1952, ALGID_MLDSA65, ALGID_ED25519));
         ALG_META.put("MLDSA87-ECDSA-P384-SHA512", new AlgMeta(
                 "2.16.840.1.114027.80.9.1.32", 2592, ALGID_MLDSA87, ALGID_EC_P384));
         ALG_META.put("MLDSA87-ECDSA-brainpoolP384r1-SHA512", new AlgMeta(
                 "2.16.840.1.114027.80.9.1.33", 2592, ALGID_MLDSA87, ALGID_EC_BP384));
-        ALG_META.put("MLDSA87-Ed448", new AlgMeta(
+        ALG_META.put("MLDSA87-Ed448-SHAKE256", new AlgMeta(
                 "2.16.840.1.114027.80.9.1.34", 2592, ALGID_MLDSA87, ALGID_ED448));
         ALG_META.put("MLDSA87-RSA3072-PSS-SHA512", new AlgMeta(
                 "2.16.840.1.114027.80.9.1.35", 2592, ALGID_MLDSA87, ALGID_RSA));
@@ -983,15 +983,15 @@ public class BaseTestCompositeSigKAT extends BaseTestJunit5 {
     /** KAT: MLDSA44-Ed25519 - verify draft test vector with empty context. 
     @Test
     public void testKAT_Ed25519() throws Exception {
-        PublicKey pub = loadPublicKey("MLDSA44-Ed25519", PK_Ed25519);
-        PrivateKey priv = loadPrivateKey("MLDSA44-Ed25519", SK_Ed25519);
+        PublicKey pub = loadPublicKey("MLDSA44-Ed25519-SHA512", PK_Ed25519);
+        PrivateKey priv = loadPrivateKey("MLDSA44-Ed25519-SHA512", SK_Ed25519);
         // The draft reference signature format does not currently match the provider's
         // composite signature encoding/domain separation implementation, so keep the
         // interoperability check focused on round-trip sign/verify.
 
         // Sign and verify round-trip with the reference private key
-        byte[] newSig = sign("MLDSA44-Ed25519", MSG, priv);
-        assertTrue(verify("MLDSA44-Ed25519", MSG, newSig, pub),
+        byte[] newSig = sign("MLDSA44-Ed25519-SHA512", MSG, priv);
+        assertTrue(verify("MLDSA44-Ed25519-SHA512", MSG, newSig, pub),
                 "Round-trip verify failed for MLDSA44-Ed25519");
     } */
 
@@ -1013,15 +1013,15 @@ public class BaseTestCompositeSigKAT extends BaseTestJunit5 {
     /** KAT: MLDSA65-Ed25519 - verify draft test vector with empty context. 
     @Test
     public void testKAT_Ed25519_65() throws Exception {
-        PublicKey pub = loadPublicKey("MLDSA65-Ed25519", PK_Ed25519_65);
-        PrivateKey priv = loadPrivateKey("MLDSA65-Ed25519", SK_Ed25519_65);
+        PublicKey pub = loadPublicKey("MLDSA65-Ed25519-SHA512", PK_Ed25519_65);
+        PrivateKey priv = loadPrivateKey("MLDSA65-Ed25519-SHA512", SK_Ed25519_65);
         // The draft reference signature format does not currently match the provider's
         // composite signature encoding/domain separation implementation, so keep the
         // interoperability check focused on round-trip sign/verify.
 
         // Sign and verify round-trip with the reference private key
-        byte[] newSig = sign("MLDSA65-Ed25519", MSG, priv);
-        assertTrue(verify("MLDSA65-Ed25519", MSG, newSig, pub),
+        byte[] newSig = sign("MLDSA65-Ed25519-SHA512", MSG, priv);
+        assertTrue(verify("MLDSA65-Ed25519-SHA512", MSG, newSig, pub),
                 "Round-trip verify failed for MLDSA65-Ed25519");
     }*/
 
@@ -1126,7 +1126,7 @@ public class BaseTestCompositeSigKAT extends BaseTestJunit5 {
         switch (algorithm) {
             case "MLDSA44-RSA2048-PSS-SHA256":           return ALGID_COMPOSITE_MLDSA44_RSA2048_PSS;
             case "MLDSA44-RSA2048-PKCS15-SHA256":        return ALGID_COMPOSITE_MLDSA44_RSA2048_PKCS15;
-            case "MLDSA44-Ed25519":                      return ALGID_COMPOSITE_MLDSA44_ED25519;
+            case "MLDSA44-Ed25519-SHA512":                      return ALGID_COMPOSITE_MLDSA44_ED25519;
             case "MLDSA44-ECDSA-P256-SHA256":            return ALGID_COMPOSITE_MLDSA44_P256;
             case "MLDSA65-RSA3072-PSS-SHA512":           return ALGID_COMPOSITE_MLDSA65_RSA3072_PSS;
             case "MLDSA65-RSA3072-PKCS15-SHA512":        return ALGID_COMPOSITE_MLDSA65_RSA3072_PKCS15;
@@ -1135,10 +1135,10 @@ public class BaseTestCompositeSigKAT extends BaseTestJunit5 {
             case "MLDSA65-ECDSA-P256-SHA512":            return ALGID_COMPOSITE_MLDSA65_P256;
             case "MLDSA65-ECDSA-P384-SHA512":            return ALGID_COMPOSITE_MLDSA65_P384;
             case "MLDSA65-ECDSA-brainpoolP256r1-SHA512": return ALGID_COMPOSITE_MLDSA65_BP256;
-            case "MLDSA65-Ed25519":                      return ALGID_COMPOSITE_MLDSA65_ED25519;
+            case "MLDSA65-Ed25519-SHA512":                      return ALGID_COMPOSITE_MLDSA65_ED25519;
             case "MLDSA87-ECDSA-P384-SHA512":            return ALGID_COMPOSITE_MLDSA87_P384;
             case "MLDSA87-ECDSA-brainpoolP384r1-SHA512": return ALGID_COMPOSITE_MLDSA87_BP384;
-            case "MLDSA87-Ed448":                        return ALGID_COMPOSITE_MLDSA87_ED448;
+            case "MLDSA87-Ed448-SHAKE256":                        return ALGID_COMPOSITE_MLDSA87_ED448;
             case "MLDSA87-RSA3072-PSS-SHA512":           return ALGID_COMPOSITE_MLDSA87_RSA3072_PSS;
             case "MLDSA87-RSA4096-PSS-SHA512":           return ALGID_COMPOSITE_MLDSA87_RSA4096_PSS;
             case "MLDSA87-ECDSA-P521-SHA512":            return ALGID_COMPOSITE_MLDSA87_P521;

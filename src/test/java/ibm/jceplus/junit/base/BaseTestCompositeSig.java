@@ -49,11 +49,11 @@ public class BaseTestCompositeSig extends BaseTestJunit5 {
     @ParameterizedTest
     @CsvSource({
         "MLDSA44-ECDSA-P256-SHA256",
-        "MLDSA44-Ed25519",
+        "MLDSA44-Ed25519-SHA512",
         "MLDSA65-ECDSA-P384-SHA512",
-        "MLDSA65-Ed25519",
+        "MLDSA65-Ed25519-SHA512",
         "MLDSA87-ECDSA-P521-SHA512",
-        "MLDSA87-Ed448"
+        "MLDSA87-Ed448-SHAKE256"
     })
     public void testKeyGen(String algorithm) throws Exception {
         KeyPair kp = generateKeyPair(algorithm);
@@ -68,11 +68,11 @@ public class BaseTestCompositeSig extends BaseTestJunit5 {
     @ParameterizedTest
     @CsvSource({
         "MLDSA44-ECDSA-P256-SHA256",
-        "MLDSA44-Ed25519",
+        "MLDSA44-Ed25519-SHA512",
         "MLDSA65-ECDSA-P384-SHA512",
-        "MLDSA65-Ed25519",
+        "MLDSA65-Ed25519-SHA512",
         "MLDSA87-ECDSA-P521-SHA512",
-        "MLDSA87-Ed448"
+        "MLDSA87-Ed448-SHAKE256"
     })
     public void testSignVerify(String algorithm) throws Exception {
         KeyPair kp = generateKeyPair(algorithm);
@@ -88,11 +88,11 @@ public class BaseTestCompositeSig extends BaseTestJunit5 {
     @ParameterizedTest
     @CsvSource({
         "MLDSA44-ECDSA-P256-SHA256",
-        "MLDSA44-Ed25519",
+        "MLDSA44-Ed25519-SHA512",
         "MLDSA65-ECDSA-P384-SHA512",
-        "MLDSA65-Ed25519",
+        "MLDSA65-Ed25519-SHA512",
         "MLDSA87-ECDSA-P521-SHA512",
-        "MLDSA87-Ed448"
+        "MLDSA87-Ed448-SHAKE256"
     })
     public void testTamperedMessageFails(String algorithm) throws Exception {
         KeyPair kp = generateKeyPair(algorithm);
@@ -112,11 +112,11 @@ public class BaseTestCompositeSig extends BaseTestJunit5 {
     @ParameterizedTest
     @CsvSource({
         "MLDSA44-ECDSA-P256-SHA256",
-        "MLDSA44-Ed25519",
+        "MLDSA44-Ed25519-SHA512",
         "MLDSA65-ECDSA-P384-SHA512",
-        "MLDSA65-Ed25519",
+        "MLDSA65-Ed25519-SHA512",
         "MLDSA87-ECDSA-P521-SHA512",
-        "MLDSA87-Ed448"
+        "MLDSA87-Ed448-SHAKE256"
     })
     public void testKeyEncodingRoundTrip(String algorithm) throws Exception {
         KeyPair kp = generateKeyPair(algorithm);
@@ -144,11 +144,11 @@ public class BaseTestCompositeSig extends BaseTestJunit5 {
     @ParameterizedTest
     @CsvSource({
         "MLDSA44-ECDSA-P256-SHA256",
-        "MLDSA44-Ed25519",
+        "MLDSA44-Ed25519-SHA512",
         "MLDSA65-ECDSA-P384-SHA512",
-        "MLDSA65-Ed25519",
+        "MLDSA65-Ed25519-SHA512",
         "MLDSA87-ECDSA-P521-SHA512",
-        "MLDSA87-Ed448"
+        "MLDSA87-Ed448-SHAKE256"
     })
     public void testSigningIsRandomized(String algorithm) throws Exception {
         KeyPair kp = generateKeyPair(algorithm);
@@ -169,11 +169,11 @@ public class BaseTestCompositeSig extends BaseTestJunit5 {
     @ParameterizedTest
     @CsvSource({
         "MLDSA44-ECDSA-P256-SHA256",
-        "MLDSA44-Ed25519",
+        "MLDSA44-Ed25519-SHA512",
         "MLDSA65-ECDSA-P384-SHA512",
-        "MLDSA65-Ed25519",
+        "MLDSA65-Ed25519-SHA512",
         "MLDSA87-ECDSA-P521-SHA512",
-        "MLDSA87-Ed448"
+        "MLDSA87-Ed448-SHAKE256"
     })
     public void testWrongKeyFails(String algorithm) throws Exception {
         KeyPair kp1 = generateKeyPair(algorithm);

@@ -61,7 +61,7 @@ public class TestCompositeSignature extends BaseTestSignature {
     @ValueSource(strings = {
         "MLDSA44-RSA2048-PSS-SHA256",
         "MLDSA44-RSA2048-PKCS15-SHA256",
-        "MLDSA44-Ed25519",
+        "MLDSA44-Ed25519-SHA512",
         "MLDSA44-ECDSA-P256-SHA256",
         "MLDSA65-RSA3072-PSS-SHA512",
         "MLDSA65-RSA3072-PKCS15-SHA512",
@@ -70,11 +70,11 @@ public class TestCompositeSignature extends BaseTestSignature {
         "MLDSA65-ECDSA-P256-SHA512",
         "MLDSA65-ECDSA-P384-SHA512",
         "MLDSA65-ECDSA-brainpoolP256r1-SHA512",
-        "MLDSA65-Ed25519",
+        "MLDSA65-Ed25519-SHA512",
         "MLDSA87-ECDSA-P384-SHA512",
         "MLDSA87-ECDSA-brainpoolP384r1-SHA512",
         "MLDSA87-ECDSA-P521-SHA512",
-        "MLDSA87-Ed448",
+        "MLDSA87-Ed448-SHAKE256",
         "MLDSA87-RSA3072-PSS-SHA512",
         "MLDSA87-RSA4096-PSS-SHA512"
     })
@@ -91,7 +91,7 @@ public class TestCompositeSignature extends BaseTestSignature {
     @ValueSource(strings = {
         "MLDSA44-RSA2048-PSS-SHA256",
         "MLDSA44-RSA2048-PKCS15-SHA256",
-        "MLDSA44-Ed25519",
+        "MLDSA44-Ed25519-SHA512",
         "MLDSA44-ECDSA-P256-SHA256",
         "MLDSA65-RSA3072-PSS-SHA512",
         "MLDSA65-RSA3072-PKCS15-SHA512",
@@ -100,11 +100,11 @@ public class TestCompositeSignature extends BaseTestSignature {
         "MLDSA65-ECDSA-P256-SHA512",
         "MLDSA65-ECDSA-P384-SHA512",
         "MLDSA65-ECDSA-brainpoolP256r1-SHA512",
-        "MLDSA65-Ed25519",
+        "MLDSA65-Ed25519-SHA512",
         "MLDSA87-ECDSA-P384-SHA512",
         "MLDSA87-ECDSA-brainpoolP384r1-SHA512",
         "MLDSA87-ECDSA-P521-SHA512",
-        "MLDSA87-Ed448",
+        "MLDSA87-Ed448-SHAKE256",
         "MLDSA87-RSA3072-PSS-SHA512",
         "MLDSA87-RSA4096-PSS-SHA512"
     })
@@ -129,7 +129,7 @@ public class TestCompositeSignature extends BaseTestSignature {
     @ValueSource(strings = {
         "MLDSA44-RSA2048-PSS-SHA256",
         "MLDSA44-RSA2048-PKCS15-SHA256",
-        "MLDSA44-Ed25519",
+        "MLDSA44-Ed25519-SHA512",
         "MLDSA44-ECDSA-P256-SHA256",
         "MLDSA65-RSA3072-PSS-SHA512",
         "MLDSA65-RSA3072-PKCS15-SHA512",
@@ -138,11 +138,11 @@ public class TestCompositeSignature extends BaseTestSignature {
         "MLDSA65-ECDSA-P256-SHA512",
         "MLDSA65-ECDSA-P384-SHA512",
         "MLDSA65-ECDSA-brainpoolP256r1-SHA512",
-        "MLDSA65-Ed25519",
+        "MLDSA65-Ed25519-SHA512",
         "MLDSA87-ECDSA-P384-SHA512",
         "MLDSA87-ECDSA-brainpoolP384r1-SHA512",
         "MLDSA87-ECDSA-P521-SHA512",
-        "MLDSA87-Ed448",
+        "MLDSA87-Ed448-SHAKE256",
         "MLDSA87-RSA3072-PSS-SHA512",
         "MLDSA87-RSA4096-PSS-SHA512"
     })
@@ -173,7 +173,7 @@ public class TestCompositeSignature extends BaseTestSignature {
     @ValueSource(strings = {
         "MLDSA44-RSA2048-PSS-SHA256",
         "MLDSA44-RSA2048-PKCS15-SHA256",
-        "MLDSA44-Ed25519",
+        "MLDSA44-Ed25519-SHA512",
         "MLDSA44-ECDSA-P256-SHA256",
         "MLDSA65-RSA3072-PSS-SHA512",
         "MLDSA65-RSA3072-PKCS15-SHA512",
@@ -182,11 +182,11 @@ public class TestCompositeSignature extends BaseTestSignature {
         "MLDSA65-ECDSA-P256-SHA512",
         "MLDSA65-ECDSA-P384-SHA512",
         "MLDSA65-ECDSA-brainpoolP256r1-SHA512",
-        "MLDSA65-Ed25519",
+        "MLDSA65-Ed25519-SHA512",
         "MLDSA87-ECDSA-P384-SHA512",
         "MLDSA87-ECDSA-brainpoolP384r1-SHA512",
         "MLDSA87-ECDSA-P521-SHA512",
-        "MLDSA87-Ed448",
+        "MLDSA87-Ed448-SHAKE256",
         "MLDSA87-RSA3072-PSS-SHA512",
         "MLDSA87-RSA4096-PSS-SHA512"
     })

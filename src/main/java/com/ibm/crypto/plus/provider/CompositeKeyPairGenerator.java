@@ -88,15 +88,34 @@ abstract class CompositeKeyPairGenerator extends KeyPairGeneratorSpi {
             // Ed25519 / Ed448 need no further initialization
             KeyPair tradKp = tradKpg.generateKeyPair();
 
-            CompositePublicKey pubKey = new CompositePublicKey(
-                    compositeAlg,
-                    mldsaKp.getPublic().getEncoded(),
+            // Extract raw public key bytes from each component's SPKI encoding
+            // per §4.1: mldsaPK || tradPK (raw concatenation)
+            byte[] mldsaPubRaw = CompositeSignatureUtils.rawPublicKeyFromSpki(
+                    mldsaKp.getPublic().getEncoded());
+            byte[] tradPubRaw  = CompositeSignatureUtils.rawPublicKeyFromSpki(
                     tradKp.getPublic().getEncoded());
 
-            CompositePrivateKey privKey = new CompositePrivateKey(
-                    compositeAlg,
-                    mldsaKp.getPrivate().getEncoded(),
+            // Extract raw private key bytes per §4.2:
+            // mldsaSeed (32 bytes) || tradSK
+            //
+            // WI-6 (NOT YET IMPLEMENTED): Draft §4.2 requires the ML-DSA component
+            // to be stored as the 32-byte keygen seed (mldsaSeed), not the expanded
+            // private key. OCK's MLKEY_generate() produces and stores the expanded
+            // key only. A new JNI method MLKEY_getSeedBytes(pkeyId) must be added to
+            // NativeInterface and NativeOCKImplementation before the seed can be
+            // retrieved. Until then, mldsaPrivRaw contains the DER-wrapped expanded
+            // key bytes from the PKCS#8 payload (2560/4032/4896 bytes), which is
+            // non-interoperable with other implementations.
+            byte[] mldsaPrivRaw = CompositeSignatureUtils.rawPrivateKeyFromPkcs8(
+                    mldsaKp.getPrivate().getEncoded());
+            byte[] tradPrivRaw  = CompositeSignatureUtils.rawPrivateKeyFromPkcs8(
                     tradKp.getPrivate().getEncoded());
+
+            CompositePublicKey pubKey = new CompositePublicKey(
+                    compositeAlg, mldsaPubRaw, tradPubRaw);
+
+            CompositePrivateKey privKey = new CompositePrivateKey(
+                    compositeAlg, mldsaPrivRaw, tradPrivRaw);
 
             return new KeyPair(pubKey, privKey);
         } catch (Exception e) {
@@ -121,9 +140,9 @@ abstract class CompositeKeyPairGenerator extends KeyPairGeneratorSpi {
         }
     }
 
-    public static final class MLDSA44Ed25519 extends CompositeKeyPairGenerator {
-        public MLDSA44Ed25519(OpenJCEPlusProvider p) {
-            super(p, "MLDSA44-Ed25519", "ML-DSA-44", "Ed25519", null, 0);
+    public static final class MLDSA44Ed25519SHA512 extends CompositeKeyPairGenerator {
+        public MLDSA44Ed25519SHA512(OpenJCEPlusProvider p) {
+            super(p, "MLDSA44-Ed25519-SHA512", "ML-DSA-44", "Ed25519", null, 0);
         }
     }
 
@@ -176,9 +195,9 @@ abstract class CompositeKeyPairGenerator extends KeyPairGeneratorSpi {
         }
     }
 
-    public static final class MLDSA65Ed25519 extends CompositeKeyPairGenerator {
-        public MLDSA65Ed25519(OpenJCEPlusProvider p) {
-            super(p, "MLDSA65-Ed25519", "ML-DSA-65", "Ed25519", null, 0);
+    public static final class MLDSA65Ed25519SHA512 extends CompositeKeyPairGenerator {
+        public MLDSA65Ed25519SHA512(OpenJCEPlusProvider p) {
+            super(p, "MLDSA65-Ed25519-SHA512", "ML-DSA-65", "Ed25519", null, 0);
         }
     }
 
@@ -195,9 +214,9 @@ abstract class CompositeKeyPairGenerator extends KeyPairGeneratorSpi {
         }
     }
 
-    public static final class MLDSA87Ed448 extends CompositeKeyPairGenerator {
-        public MLDSA87Ed448(OpenJCEPlusProvider p) {
-            super(p, "MLDSA87-Ed448", "ML-DSA-87", "Ed448", null, 0);
+    public static final class MLDSA87Ed448SHAKE256 extends CompositeKeyPairGenerator {
+        public MLDSA87Ed448SHAKE256(OpenJCEPlusProvider p) {
+            super(p, "MLDSA87-Ed448-SHAKE256", "ML-DSA-87", "Ed448", null, 0);
         }
     }
 
