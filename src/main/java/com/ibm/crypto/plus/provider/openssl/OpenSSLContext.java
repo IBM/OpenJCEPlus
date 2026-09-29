@@ -8,11 +8,12 @@
 
 package com.ibm.crypto.plus.provider.openssl;
 
-class OpenSSLContext {
+public class OpenSSLContext {
     private long osslContextId;
     private boolean isFIPS;
 
-    public static OpenSSLContext createContext(long osslContextId, boolean isFIPS) {
+    public static OpenSSLContext createContext(long osslContextId, boolean isFIPS) throws OpenSSLException {
+
         return new OpenSSLContext(osslContextId, isFIPS);
     }
 
