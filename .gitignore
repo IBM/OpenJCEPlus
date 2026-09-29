@@ -57,28 +57,3 @@ jmh.lock
 # Ignore AI files
 .bob
 AGENTS.md
-
-# Dev-local convenience build scripts (not tracked)
-buildNativeWin64OpenSSL.bat
-run_all_tests.bat
-
-# Dev-local standalone makefile (not tracked)
-src/main/native/openssl/openssl.win64.mak
-
-# Native build artifacts
-*.obj
-*.dll
-*.lib
-*.exp
-*.res
-
-# IDE files
-.idea/
-
-# Session / internal monologue logs
-internal-monologue/
-
-# Dev-local docs
-
-# Test keystore artifact
-tmpPQCKS.pkcs12
