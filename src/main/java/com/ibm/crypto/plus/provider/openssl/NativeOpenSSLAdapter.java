@@ -33,6 +33,8 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     private boolean osslInitialized = false;
     private boolean useFIPSMode;
 
+    private static final String minOpenSSLVersion = "3.5.0";
+
     // unobtainedValue sentinel: identity (==) comparison detects "not yet fetched".
     // Some values may be null once fetched, so we cannot use null as the sentinel.
     private String osslVersion = unobtainedValue;
@@ -191,45 +193,39 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
         }
     }
 
-    /**
-     * Validates that the OpenSSL version meets the minimum required version.
-     * Not called during normal initialisation; retained to satisfy the
-     * {@link com.ibm.crypto.plus.provider.base.NativeInterface} contract.
-     */
-
     @Override
     public void validateLibraryVersion() throws ProviderException, OpenSSLException {
-        String[] expectedVersion = getExpectedLibraryVersion().split("\\.");
+        String[] minimumVersion = getMinimumLibraryVersion().split("\\.");
         String[] actualVersion = getLibraryVersion().split("\\.");
 
         if (debug != null) {
-            debug.println("Expected OpenSSL version : " + getExpectedLibraryVersion());
+            debug.println("Minimum OpenSSL version : " + getMinimumLibraryVersion());
             debug.println("Actual OpenSSL version : " + getLibraryVersion());
         }
 
-        int majorExpected = Integer.parseInt(expectedVersion[0]);
+        int majorExpected = Integer.parseInt(minimumVersion[0]);
         int majorActual = Integer.parseInt(actualVersion[0]);
-        int minorExpected = Integer.parseInt(expectedVersion[1]);
+        int minorExpected = Integer.parseInt(minimumVersion[1]);
         int minorActual = Integer.parseInt(actualVersion[1]);
-        int patchExpected = Integer.parseInt(expectedVersion[2]);
+        int patchExpected = Integer.parseInt(minimumVersion[2]);
         int patchActual = Integer.parseInt(actualVersion[2]);
 
         if (majorExpected > majorActual) {
-            throw new ProviderException("Expected OpenSSL library version greater than " + expectedVersion
+            throw new ProviderException("Expected OpenSSL library version greater than " + minimumVersion
                     + ", got " + actualVersion);
         } else if (majorExpected == majorActual) {
             if (minorExpected > minorActual) {
-                throw new ProviderException("Expected OpenSSL library version greater than " + expectedVersion
+                throw new ProviderException("Expected OpenSSL library version greater than " + minimumVersion
                     + ", got " + actualVersion);
             } else if ((minorExpected == minorActual) && (patchExpected > patchActual)) {
-                throw new ProviderException("Expected OpenSSL library version greater than " + expectedVersion
+                throw new ProviderException("Expected OpenSSL library version greater than " + minimumVersion
                         + ", got " + actualVersion);
             }
         }
     }
 
-    private String getExpectedLibraryVersion() {
-        return "3.5.0";
+    private String getMinimumLibraryVersion() {
+        return minOpenSSLVersion;
     }
 
     @Override
