@@ -1168,6 +1168,7 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
             throw new IllegalStateException(
                     "AAD must be supplied before encryption/decryption starts");
         }
+
         this.authData = new byte[len];
         System.arraycopy(src, offset, authData, 0, len);
     }
@@ -1179,14 +1180,15 @@ public final class AESGCMCipher extends CipherSpi implements AESConstants, GCMCo
         if (!initialized) {
             throw new IllegalStateException("Cipher has not been initialized");
         }
+        // OCKDebug.Msg(debPrefix, methodName, "engingeUpdateAAD called with ByteBuffer"
+        // + src);
         checkReinit();
         if (updateCalled) {
             throw new IllegalStateException(
                     "AAD must be supplied before encryption/decryption starts");
         }
-        int remaining = src.remaining();
-        this.authData = new byte[remaining];
-        src.get(authData, 0, remaining);
+        this.authData = new byte[src.remaining()];
+        src.get(authData, 0, authData.length);
     }
 
     private int fillOutputBuffer(byte[] finalBuf, int finalOffset, byte[] output, int outOfs,
