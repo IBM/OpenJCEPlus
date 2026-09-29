@@ -18,7 +18,7 @@ public class TestAESCCMParameters extends BaseTestAESCCMParameters {
 
     @BeforeAll
     public void beforeAll() {
-        Utils.loadProviderOpenSSL();
-        setProviderName(Utils.OPENSSL_PROVIDER_NAME);
+        Utils.loadProviderTestSuite();
+        setProviderName(Utils.TEST_SUITE_PROVIDER_NAME);
     }
 }

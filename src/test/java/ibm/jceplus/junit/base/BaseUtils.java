@@ -28,7 +28,6 @@ abstract public class BaseUtils {
     public static final String PROVIDER_OpenJCEPlusFIPS = "OpenJCEPlusFIPS";
 
 
-
     // --------------------------------------------------------------------------------------
     //
     //
