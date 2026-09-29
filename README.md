@@ -213,55 +213,8 @@ mvn '-Dock.library.path=$OCK_PROJECT_HOME' test -Dtest=TestClassName
 The `-Dgroups` property allows you to filter and run tests based on JUnit tags. This is useful when you want to run tests for a specific set of tags without specifying individual test classes. This value is a comma deliminated list of tags.
 
 **Available Groups/Tags:**
-- `OpenJCEPlus` - Run tests tagged for the OpenJCEPlus provider (OCK backend)
+- `OpenJCEPlus` - Run tests tagged for the OpenJCEPlus provider
 - `OpenJCEPlusFIPS` - Run tests tagged for the OpenJCEPlusFIPS provider
-- `OpenJCEPlus_OpenSSL` - Run tests tagged for the OpenSSL backend
-
-#### Run OpenSSL backend tests
-
-The OpenSSL backend test suite uses the `OpenJCEPlus_OpenSSL` tag. These tests require an
-OpenSSL installation and the `jgskit` native library built against OpenSSL (see
-[`openjceplus.win64.cygwin.mak`](src/main/native/openssl/openjceplus.win64.cygwin.mak) on Windows
-or [`openjceplus.mak`](src/main/native/openssl/openjceplus.mak) / [`openjceplus.mac.mak`](src/main/native/openssl/openjceplus.mac.mak) on Linux/Mac for the native build step).
-
-The suite is driven by [`suites/TestOpenJCEPlus.java`](src/test/java/ibm/jceplus/junit/suites/TestOpenJCEPlus.java).
-Specify `-Dtest=ibm.jceplus.junit.suites.TestOpenJCEPlus` together with `-Dgroups=OpenJCEPlus_OpenSSL`
-to run only the OpenSSL tests without noise from OCK-only suites:
-
-**Linux/Mac:**
-
-```console
-export JAVA_HOME="$JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION"
-export GSKIT_HOME="$PROJECT_HOME/OCK/jgsk_sdk"
-mvn -Dock.library.path=$PROJECT_HOME/OCK/ \
-    -Djgskit.library.path=/path/to/openssl-jgskit/lib \
-    -Dtest=ibm.jceplus.junit.suites.TestOpenJCEPlus \
-    -Dgroups=OpenJCEPlus_OpenSSL \
-    test
-```
-
-**Windows:**
-
-```console
-set JAVA_HOME=C:\path\to\jdk
-set GSKIT_HOME=C:\path\to\OCK\jgsk_sdk
-mvn -Dock.library.path=C:\path\to\OCK ^
-    -Djgskit.library.path=C:\path\to\openssl-jgskit\bin ^
-    -Dtest=ibm.jceplus.junit.suites.TestOpenJCEPlus ^
-    -Dgroups=OpenJCEPlus_OpenSSL ^
-    test
-```
-
-To run OpenSSL tests together with the standard OCK tests in one pass, provide both
-`-Djgskit.library.path` and `-Dock.library.path` and omit `-Dtest` and `-Dgroups`.
-`suites/TestOpenJCEPlus.java` is already included in the default surefire run alongside
-the existing `TestAll` / `TestMultithread` suites:
-
-```console
-mvn -Dock.library.path=$PROJECT_HOME/OCK/ \
-    -Djgskit.library.path=/path/to/openssl-jgskit/lib \
-    test
-```
 
 ### Run performance tests
 
