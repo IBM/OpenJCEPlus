@@ -46,7 +46,7 @@ class PQCKeyFactory extends KeyFactorySpi {
             }
 
             bytes = getRawBytes(keySpec);
-            
+
             if (!(keySpec instanceof EncodedKeySpec) && checkEncoded(bytes, false)) {
                 throw new InvalidKeySpecException("Key spec does not match Spec indicated");
             }
@@ -161,7 +161,7 @@ class PQCKeyFactory extends KeyFactorySpi {
      * Extracts the raw byte array from the given {@code KeySpec}.
      *
      * @param keySpec the key specification to extract bytes from; may be {@code null}.
-     * @return the raw byte array if the spec is supported and valid; 
+     * @return the raw byte array if the spec is supported and valid;
      */
     private byte[] getRawBytes(KeySpec keySpec) throws InvalidKeySpecException {
         byte[] bytes = null;
@@ -176,7 +176,7 @@ class PQCKeyFactory extends KeyFactorySpi {
         if (bytes != null) {
             return bytes;
         }
-        throw new InvalidKeySpecException("Inappropriate key specification: " 
+        throw new InvalidKeySpecException("Inappropriate key specification: "
             + (keySpec != null ? keySpec.getClass().getName() : "null"));
     }
 
@@ -246,7 +246,7 @@ class PQCKeyFactory extends KeyFactorySpi {
                     //This is an encoding
                     return true;
                 }
-            } 
+            }
             return false;
         } catch (Exception e) {
             return false;

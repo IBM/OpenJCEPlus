@@ -19,9 +19,9 @@ import sun.security.util.Debug;
 
 /**
  * NativeCryptoSelector manages the selection and initialization of cryptographic backends.
- * It uses the NativeProvider attribute from Provider services to determine which backend 
+ * It uses the NativeProvider attribute from Provider services to determine which backend
  * to use (OCK or OpenSSL), and delegates all cryptographic operations to the selected backend.
- * 
+ *
  * Rules:
  * - No value, blank, or missing NativeProvider attribute defaults to OCK
  * - "OCK" explicitly selects OCK backend (case-insensitive)
@@ -29,7 +29,7 @@ import sun.security.util.Debug;
  * - Each backend is initialized only once, on first use via initialize() method
  */
 public class NativeCryptoSelector {
-    
+
     /**
      * Enum representing the available cryptographic backends
      */
@@ -47,10 +47,10 @@ public class NativeCryptoSelector {
     private static volatile NativeInterface opensslBackend = null;
     private static volatile NativeInterface ockBackendFIPS = null;
     private static volatile NativeInterface opensslBackendFIPS = null;
-    
+
     /**
      * Gets the backend implementation for the specified backend type.
-     * 
+     *
      * @param backend the backend type
      * @return the backend implementation, or null if not set
      */
@@ -59,12 +59,12 @@ public class NativeCryptoSelector {
             if (isFIPS) {
                 if (ockBackendFIPS == null) {
                     ockBackendFIPS = NativeOCKAdapterFIPS.getInstance();
-                } 
+                }
                 return ockBackendFIPS;
             } else {
                 if (ockBackend == null) {
                     ockBackend = NativeOCKAdapterNonFIPS.getInstance();
-                } 
+                }
                 return ockBackend;
             }
         } else if (backend == Backend.OPENSSL) {
@@ -76,11 +76,11 @@ public class NativeCryptoSelector {
         }
         return null;
     }
-    
+
     /**
      * Determines which backend to use by querying the Provider service attribute.
      * Retrieves the NativeProvider attribute from provider.getService(type, algorithm).
-     * 
+     *
      * @param provider the security provider
      * @param type the service type (e.g., "Cipher", "MessageDigest")
      * @param algorithm the algorithm name (e.g., "AES", "SHA-256")
@@ -91,7 +91,7 @@ public class NativeCryptoSelector {
         Provider.Service service = null;
 
         if (provider != null && type != null && algorithm != null) {
-            
+
             if (debug != null) {
                 debug.println("Service - " + type + "\nAlg - " + algorithm);
             }
@@ -115,10 +115,10 @@ public class NativeCryptoSelector {
 
         return getBackend(bked, provider.isFIPS());
     }
-    
+
     /**
      * Determines which backend to use based on the NativeProvider attribute value.
-     * 
+     *
      * @param nativeProviderValue the value of the NativeProvider attribute
      * @return the Backend to use
      */
@@ -127,9 +127,9 @@ public class NativeCryptoSelector {
             // Default to OCK when no value or blank
             return Backend.OCK;
         }
-        
+
         String normalized = nativeProviderValue.trim().toUpperCase();
-        
+
         switch (normalized) {
             case "OPENSSL":
                 if (osName.contains("z/OS")) {

@@ -39,7 +39,7 @@ public abstract class BaseTestXDHInterop extends BaseTestInterop {
             doCreateKeyPairXDHGenParamImportCalculatePublic(getProviderName(), getInteropProviderName());
             doCreateKeyPairXDHGenParamImportCalculatePublic(getInteropProviderName(), getProviderName());
         }
-        
+
     }
 
     private void doCreateKeyPairXDHGenParamImportCalculatePublic(String generateProviderName,

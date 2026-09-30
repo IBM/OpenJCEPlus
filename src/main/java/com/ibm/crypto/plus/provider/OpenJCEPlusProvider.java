@@ -30,7 +30,7 @@ import javax.crypto.SecretKey;
 import sun.security.util.Debug;
 
 // Internal interface for OpenJCEPlus and OpenJCEPlus implementation classes.
-// Implemented as an abstract class rather than an interface so that 
+// Implemented as an abstract class rather than an interface so that
 // methods can be package protected, as interfaces have only public methods.
 // Code is not implemented in this class to ensure that any thread call
 // stacks show it originating in the specific provider class.
@@ -138,9 +138,9 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
         if (configName.indexOf('\\') != -1) {
             throw new InvalidParameterException("configName contains '\\'");
         }
-        
+
         try {
-            ProviderServiceReader config = new ProviderServiceReader(new BufferedReader(new StringReader(configName)));  
+            ProviderServiceReader config = new ProviderServiceReader(new BufferedReader(new StringReader(configName)));
             List<ProviderServiceReader.ServiceDefinition> services = config.readServices();
             if (debug != null) {
                 debug.println("Provider Name - " + config.getName());
@@ -157,10 +157,10 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
                 }
             }
         } catch (IOException e) {
-            throw new InvalidParameterException("Error configuring OpenJCEPlus provider - ", e); 
-        }  
-        
-    }    
+            throw new InvalidParameterException("Error configuring OpenJCEPlus provider - ", e);
+        }
+
+    }
 
     protected static class OpenJCEPlusService extends Service {
         private static Class<?> openjceplusClass;
@@ -188,7 +188,7 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
             if ("KDF".equalsIgnoreCase(type)) {
                 return KDFParameters.class;
             }
-            
+
             return null;
         }
 
@@ -224,7 +224,7 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
                 }
                 if (ctrParamClz != null) {
                     parameters = new Class<?>[2];
-                    
+
                     Class<?> argClass = constructorParameter.getClass();
                     if (!ctrParamClz.isAssignableFrom(argClass)) {
                         throw new InvalidParameterException("constructorParameter must be "

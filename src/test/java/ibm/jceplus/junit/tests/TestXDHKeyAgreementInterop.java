@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithSunECInteropProvider")
 public class TestXDHKeyAgreementInterop extends BaseTestInterop {
-    
+
     @Parameter(0)
     TestProvider provider;
 
@@ -55,7 +55,7 @@ public class TestXDHKeyAgreementInterop extends BaseTestInterop {
 
         ka1.init(kp1.getPrivate());
         ka1.doPhase(kp2.getPublic(), true);
-        
+
         ka2.init(kp2.getPrivate());
         ka2.doPhase(kp1.getPublic(), true);
 

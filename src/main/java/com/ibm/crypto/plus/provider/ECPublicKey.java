@@ -189,7 +189,7 @@ final class ECPublicKey extends X509Key
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.security.Key#getFormat()
      */
     @Override
@@ -200,7 +200,7 @@ final class ECPublicKey extends X509Key
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.security.Key#getEncoded()
      */
     @Override
@@ -211,7 +211,7 @@ final class ECPublicKey extends X509Key
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.security.interfaces.ECPublicKey#getW()
      */
     @Override
@@ -222,7 +222,7 @@ final class ECPublicKey extends X509Key
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.security.interfaces.ECKey#getParams()
      */
     @Override

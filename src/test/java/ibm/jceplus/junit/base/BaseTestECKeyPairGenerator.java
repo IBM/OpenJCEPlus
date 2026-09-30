@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -81,7 +81,7 @@ public class BaseTestECKeyPairGenerator extends BaseTestJunit5 {
         ECParameterSpec publicKeyParams = ((ECPublicKey) kp.getPublic()).getParams();
         // The order of the curve's base point determines the key size
         assertEquals(384, publicKeyParams.getOrder().bitLength(), "Default keysize is not as expected.");
-    
+
         ECParameterSpec privateKeyParams = ((ECPrivateKey) kp.getPrivate()).getParams();
         // The order of the curve's base point determines the key size
         assertEquals(384, privateKeyParams.getOrder().bitLength(), "Default keysize is not as expected.");
