@@ -65,7 +65,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
      * Creates a PBE key from a given PBE key specification.
      *
      * @param keySpec the given PBE key specification
-     * @param prfAlgo the given PBE key algorithm 
+     * @param prfAlgo the given PBE key algorithm
      */
     PBKDF2KeyImpl(OpenJCEPlusProvider provider, PBEKeySpec keySpec, String prfAlgo, String beType, String beAlg)
             throws InvalidKeySpecException {

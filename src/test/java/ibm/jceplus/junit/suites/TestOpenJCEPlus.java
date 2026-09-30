@@ -14,7 +14,7 @@ import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
 /**
- * Test suite that executes all tests tagged with "OpenJCEPlus" 
+ * Test suite that executes all tests tagged with "OpenJCEPlus"
  * in the ibm.jceplus.junit.tests package.
  */
 @Suite

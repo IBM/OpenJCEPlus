@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2024
+ * Copyright IBM Corp. 2024, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -62,7 +62,7 @@ public class BaseTestResetByteBuffer extends BaseTestJunit5 {
         String a[] = algo.split("/");
         KeyGenerator kg = KeyGenerator.getInstance(a[0], getProviderName());
         key = kg.generateKey();
-        
+
         // Create encrypted data.
         c.init(Cipher.ENCRYPT_MODE, key, c.getParameters());
         encrypted = new byte[c.getOutputSize(data.length)];

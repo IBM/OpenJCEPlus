@@ -412,7 +412,7 @@ public final class Poly1305Cipher implements Poly1305Constants {
                     OpenJCEPlusProvider.getDebug().println("An error occurred while cleaning : " + e.getMessage());
                     e.printStackTrace();
                 }
-            } 
+            }
         };
     }
 }

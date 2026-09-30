@@ -67,13 +67,13 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
     public void KeystoreTest(String algname) throws Exception {
         try {
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(algname, getProviderName());
-            kp = keyPairGen.generateKeyPair(); 
-    
+            kp = keyPairGen.generateKeyPair();
+
             X509Certificate cert[] = {getSelfCertificate(algname)};
 
             // Add the key pair to the keystore
             ks.setKeyEntry(algname, kp.getPrivate(), password.toCharArray(), cert);
-                    
+
             // Save the keystore to a file
             ks.store(os, password.toCharArray());
             os.close();
@@ -123,7 +123,7 @@ public class BaseTestPQCKeystore extends BaseTestJunit5 {
             // Add all mandatory attributes
             info.setVersion(new CertificateVersion(CertificateVersion.V3));
             prng = new SecureRandom();
-            
+
             X500Name myname = new X500Name("EMAIL=sample@example.com");
             info.setSerialNumber(CertificateSerialNumber.newRandom64bit(prng));
             info.setSubject(myname);

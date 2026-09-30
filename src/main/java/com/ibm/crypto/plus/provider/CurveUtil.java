@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -179,7 +179,7 @@ class CurveUtil {
 
     /**
      * Gets the AlgorithmID correlating to the input curve name
-     * 
+     *
      * @param curveName
      * @return algId
      * @throws IOException
@@ -208,7 +208,7 @@ class CurveUtil {
 
     /**
      * Gets the AlgorithmID correlating to the input curve type
-     * 
+     *
      * @param curve
      * @return algId
      * @throws IOException
@@ -239,7 +239,7 @@ class CurveUtil {
 
     /**
      * Checks whether a curve is of XEC algorithm or not
-     * 
+     *
      * @param curve
      * @return boolean
      * @throws IOException
@@ -260,7 +260,7 @@ class CurveUtil {
 
     /**
      * Checks whether a curve is of FFDHE algorithm or not
-     * 
+     *
      * @param curve
      * @return boolean
      * @throws IOException
@@ -285,5 +285,5 @@ class CurveUtil {
                     "This curve does not seem to be an X25519, X448, Ed25519, Ed448 or FFDHE curve");
     }
 
-    
+
 }

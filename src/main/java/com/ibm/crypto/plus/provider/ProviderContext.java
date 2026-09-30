@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -10,8 +10,8 @@ package com.ibm.crypto.plus.provider;
 
 import java.io.Serializable;
 
-// This class is used as a means of serializing information about the 
-// OpenJCEPlus provider and being able to re-obtain the provider 
+// This class is used as a means of serializing information about the
+// OpenJCEPlus provider and being able to re-obtain the provider
 // reference during deserialization
 //
 @SuppressWarnings("serial")

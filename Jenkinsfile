@@ -445,7 +445,7 @@ pipeline {
             Additional command line arguments that one might want to add to the mvn command.<br> \
             The contents of this will directly be appended to the mvn command, so write exactly as \
             you would if running this manually in a command line (e.g., -Dflag1=true -Dflag2=false ...).')
-        string(name: 'TIMEOUT_TIME', defaultValue: '6', description: '\
+        string(name: 'TIMEOUT_TIME', defaultValue: '24', description: '\
             Overall build timeout (HOURS)')
     }
 
