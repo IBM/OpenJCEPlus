@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2026
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -26,14 +26,14 @@ BEGIN
         BLOCK "00000000"
         BEGIN
             VALUE "CompanyName", "IBM\0"
-            VALUE "FileDescription", "Native OpenJCEPlus runtime library\0"
-            VALUE "FileVersion", "26\0"
+            VALUE "FileDescription", "Native OpenSSL runtime library\0"
+            VALUE "FileVersion", "23\0"
 	        VALUE "Build Increment", "0\0"
-            VALUE "InternalName", "openjceplus.dll\0"
-            VALUE "LegalCopyright", "(C) Copyright IBM Corp. 2026. Licensed under the GLP v2 plus classpath exception. See LICENSE file associated with source.\0"
-            VALUE "OriginalFilename", "openjceplus.dll\0"
-            VALUE "ProductName", "OpenJCEPlus Crypto Provider for Windows, 26.0\0"
-            VALUE "ProductVersion", "26.0\0"
+            VALUE "InternalName", "libopenjceplus_64.dll\0"
+            VALUE "LegalCopyright", "(C) Copyright IBM Corp. 2023, 2026. Licensed under the GLP v2 plus classpath exception. See LICENSE file associated with source.\0"
+            VALUE "OriginalFilename", "libopenjceplus_64.dll\0"
+            VALUE "ProductName", "OpenJCEPlus OpenSSL Crypto Provider for Windows, 23.0\0"
+            VALUE "ProductVersion", "23.0\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -41,5 +41,3 @@ BEGIN
         VALUE "Translation", 0x0000, 0000
     END
 END
-
-

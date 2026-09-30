@@ -6,11 +6,6 @@
 # under the terms provided by IBM in the LICENSE file that accompanied
 # this code, including the "Classpath" Exception described therein.
 ###############################################################################
-#
-# Self-contained nmake makefile for the OpenSSL native DLL.
-# Builds all 10 OpenSSL objects into libjgskit_openssl_64.dll.
-# Called from buildNativeWin64.bat alongside jgskit.win64.cygwin.mak.
-#
 
 TOPDIR       = $(MAKEDIR)\..\..\..\..
 PLAT         = opensslwin
@@ -39,10 +34,10 @@ OBJS = \
 	Digest.obj \
 	BuildDate.obj
 
-TARGET = libjgskit_openssl_64.dll
+TARGET = libopenjceplus_64.dll
 
-RC_SRC = jgskit_resource.rc
-RC_OBJ = jgskit_resource.res
+RC_SRC = openjceplus_resource.rc
+RC_OBJ = openjceplus_resource.res
 
 TARGET_LIBS = -LIBPATH:"$(OPENSSL_HOME)\lib" libcrypto.lib libssl.lib ws2_32.lib crypt32.lib advapi32.lib user32.lib
 

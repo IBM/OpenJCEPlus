@@ -33,7 +33,7 @@ ifndef OPENSSL_LIB
 	OPENSSL_LIB = crypto
 endif
 
-TARGET = $(HOSTOUT)/libjgskit_openssl_64.dll
+TARGET = $(HOSTOUT)/libopenjceplus_64.dll
 
 RC_SRC = openjceplus_resource.rc
 RC_OBJ = $(HOSTOUT)/openjceplus_resource.res

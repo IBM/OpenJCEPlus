@@ -33,7 +33,7 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     // Default library names
     //
     private static final String OPENSSL_CORE_LIBRARY_NAME = "crypto";
-    private static final String JGSKIT_LIBRARY_NAME = "libjgskit_openssl_64";
+    private static final String OPENJCEPLUS_CORE_LIBRARY_NAME = "openjceplus";
     private static String osName = null;
     private static String osArch = null;
 
@@ -109,50 +109,50 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
         return loadFile;
     }
 
-    static String getJGskitLoadPath() {
-        String jgskitOverridePath = System.getProperty("jgskit.library.path");
-        if (jgskitOverridePath != null) {
+    static String getOpenJCEPlusNativeLoadPath() {
+        String ojpOverridePath = System.getProperty("openjceplus.library.path");
+        if (ojpOverridePath != null) {
             if (debug != null) {
-                debug.println("Loading jgskit native library using value in property jgskit.library.path: " + jgskitOverridePath);
+                debug.println("Loading openjceplus native library using value in property openjceplus.library.path: " + ojpOverridePath);
             }
-            return jgskitOverridePath;
+            return ojpOverridePath;
         }
         if (debug != null) {
-            debug.println("Libpath not found for jgskit native library, use java home directory.");
+            debug.println("Libpath not found for openjceplus native library, use java home directory.");
         }
 
         String javaHome = System.getProperty("java.home");
         osName = System.getProperty("os.name");
-        String jgskitPath;
+        String ojpPath;
 
         if (osName.startsWith("Windows")) {
-            jgskitPath = javaHome + File.separator + "bin";
+            ojpPath = javaHome + File.separator + "bin";
         } else {
-            jgskitPath = javaHome + File.separator + "lib";
+            ojpPath = javaHome + File.separator + "lib";
         }
 
         if (debug != null) {
-            debug.println("Loading jgskit native library using value: " + jgskitPath);
+            debug.println("Loading openjceplus native library using value: " + ojpPath);
         }
-        return jgskitPath;
+        return ojpPath;
     }
 
     static void preloadOpenJCEPlusNative() {
         osName = System.getProperty("os.name");
         osArch = System.getProperty("os.arch");
-        String jgskitPath = getJGskitLoadPath();
+        String ojpPath = getOpenJCEPlusNativeLoadPath();
         File loadFile = null;
         if (osName.startsWith("Windows") && osArch.equals("amd64")) {
-            loadFile = new File(jgskitPath, JGSKIT_LIBRARY_NAME + ".dll");
+            loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + "_64.dll");
         } else if (osName.equals("Mac OS X")) {
-            loadFile = new File(jgskitPath, JGSKIT_LIBRARY_NAME + ".dylib");
+            loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + ".dylib");
         } else {
-            loadFile = new File(jgskitPath, JGSKIT_LIBRARY_NAME + ".so");
+            loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + ".so");
         }
 
-        boolean jgskitLoaded = loadIfExists(loadFile);
-        if (!jgskitLoaded) {
-            throw new ProviderException("Could not load dependent " + JGSKIT_LIBRARY_NAME + " library for os.name=" + osName
+        boolean ojpLibraryPreloaded = loadIfExists(loadFile);
+        if (ojpLibraryPreloaded == false) {
+            throw new ProviderException("Could not load dependent " + OPENJCEPLUS_CORE_LIBRARY_NAME + " library for os.name=" + osName
                         + ", os.arch=" + osArch);
         }
     }
