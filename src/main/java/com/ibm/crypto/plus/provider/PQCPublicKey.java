@@ -11,6 +11,7 @@ package com.ibm.crypto.plus.provider;
 import com.ibm.crypto.plus.provider.base.PQCKey;
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.spec.NamedParameterSpec;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 import sun.security.util.BitArray;
@@ -123,6 +124,17 @@ final class PQCPublicKey extends X509Key
     public String getAlgorithm() {
         checkDestroyed();
         return familyName;
+    }
+
+    /**
+     * Returns the parameters associated with this key.
+     *
+     * @return the parameter set as a {@code NamedParameterSpec}
+     */
+    @Override
+    public NamedParameterSpec getParams() {
+        checkDestroyed();
+        return new NamedParameterSpec(this.paramSetName);
     }
 
     /**
