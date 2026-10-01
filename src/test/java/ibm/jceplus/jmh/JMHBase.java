@@ -178,44 +178,26 @@ abstract public class JMHBase {
     }
 
     protected void insertProvider(String provider) throws Exception {
-        Provider myProvider;
-        if (provider.equalsIgnoreCase("OpenJCEPlus")) {
-            myProvider = Security.getProvider("OpenJCEPlus");
-            if (myProvider == null) {
-                myProvider = new OpenJCEPlus();
-            } else {
-                Security.removeProvider("OpenJCEPlus");
-            }
-        } else if (provider.equalsIgnoreCase("OpenJCEPlus-OpenSSL")) {
-            myProvider = Security.getProvider("OpenJCEPlus-OpenSSL");
-            if (myProvider == null) {
-                myProvider = new OpenJCEPlus().configure("./src/test/OpenSSLOnly.config");
-            } else {
-                Security.removeProvider("OpenJCEPlus-OpenSSL");
-            }
-        } else if (provider.equalsIgnoreCase("OpenJCEPlus-OCK")) {
-            myProvider = Security.getProvider("OpenJCEPlus-OCK");
-            if (myProvider == null) {
-                myProvider = new OpenJCEPlus().configure("./src/test/OCKOnly.config");
-            } else {
-                Security.removeProvider("OpenJCEPlus-OCK");
-            }
-        } else if (provider.equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            myProvider = Security.getProvider("OpenJCEPlusFIPS");
-            if (myProvider == null) {
+        Provider myProvider = Security.getProvider(provider);
+        if (myProvider == null) {
+            if (provider.startsWith("OpenJCEPlusFIPS")) {
                 myProvider = new OpenJCEPlusFIPS();
-            } else {
-                Security.removeProvider("OpenJCEPlusFIPS");
-            }
-        } else if (provider.equalsIgnoreCase("BC")) {
-            myProvider = Security.getProvider("BC");
-            if (myProvider == null) {
+            } else if (provider.startsWith("OpenJCEPlus")) {
+                myProvider = new OpenJCEPlus();
+                if (provider.endsWith("-OpenSSL")) {
+                    myProvider = ((OpenJCEPlus) myProvider).configure("./src/test/OpenSSLOnly.config");
+                } else if (provider.endsWith("-OCK")) {
+                    myProvider = ((OpenJCEPlus) myProvider).configure("./src/test/OCKOnly.config");
+                } else {
+                    throw new RuntimeException("Provider not supported: " + provider);
+                }
+            } else if (provider.equals("BC")) {
                 myProvider = new BouncyCastleProvider();
             } else {
-                Security.removeProvider("BC");
+                throw new RuntimeException("Provider not supported: " + provider);
             }
         } else {
-            throw new RuntimeException("Provider not supported: " + provider);
+            Security.removeProvider(provider);
         }
 
         Security.insertProviderAt(myProvider, 1);
