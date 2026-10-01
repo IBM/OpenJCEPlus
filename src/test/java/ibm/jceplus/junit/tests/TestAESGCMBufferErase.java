@@ -57,7 +57,7 @@ public class TestAESGCMBufferErase extends BaseTest {
     private static final int    PT_MAX_LEN     = 1028;
     private static final byte   SENTINEL       = (byte) 0xAA;
 
-    // Shared across all test instances — initialised once in @BeforeAll
+    // Shared across all test instances - initialised once in @BeforeAll
     private static SecretKey        KEY;
     private static GCMParameterSpec SPEC;
     private static byte[]           PT;   // plaintext filled with 0x06
@@ -77,7 +77,7 @@ public class TestAESGCMBufferErase extends BaseTest {
     }
 
     // -----------------------------------------------------------------------
-    // One-time setup — mirrors the original static initialiser
+    // One-time setup - mirrors the original static initialiser
     // -----------------------------------------------------------------------
     @BeforeEach
     protected void setUp() throws Exception {
@@ -104,7 +104,7 @@ public class TestAESGCMBufferErase extends BaseTest {
         Cipher c = Cipher.getInstance(TRANSFORMATION, provider.getProviderName());
         c.init(Cipher.ENCRYPT_MODE, KEY, SPEC);
         byte[] ct = c.doFinal(PT, 0, len);
-        ct[ct.length - 1] ^= 0x01; // flip last tag bit → forces AEADBadTagException
+        ct[ct.length - 1] ^= 0x01; // flip last tag bit -> forces AEADBadTagException
         return new TestVector(len, ct);
     }
 
@@ -118,7 +118,7 @@ public class TestAESGCMBufferErase extends BaseTest {
             dec.doFinal(src, dst);
             assertTrue(false, "Failed - AEADBadTagException was not thrown:\n");
         } catch (AEADBadTagException e) {
-            // expected — tag is intentionally corrupted
+            // expected - tag is intentionally corrupted
         }
     }
 
@@ -161,34 +161,34 @@ public class TestAESGCMBufferErase extends BaseTest {
     }
 
     // -----------------------------------------------------------------------
-    // Test 2: MappedByteBuffer backed by a real file → checks on-disk erasure
+    // Test 2: MappedByteBuffer backed by a real file -> checks on-disk erasure
     // -----------------------------------------------------------------------
     @Test
     public void testMapped() throws Exception {
         for (int plainTextLen = 1; plainTextLen <= PT.length; plainTextLen++) {
             TestVector tv = setupTestVector(plainTextLen);
-    
+
             File f = File.createTempFile("gcm_buffer_erase", ".bin");
             f.deleteOnExit();
-    
+
             try (FileOutputStream fos = new FileOutputStream(f)) {
                 fos.write(DST);
             }
-    
+
             try (RandomAccessFile raf = new RandomAccessFile(f, "rw");
                  FileChannel ch = raf.getChannel()) {
-    
+
                 MappedByteBuffer dst = ch.map(FileChannel.MapMode.READ_WRITE, 0, DST.length);
                 dst.position(EXTRA);
-    
+
                 ByteBuffer src = ByteBuffer.wrap(tv.ct);
                 doDecrypt(src, dst);
-    
+
                 try {
                     dst.force();
                 } catch (Throwable ignore) { }
             }
-    
+
             // Re-read from disk independently to confirm on-disk erasure
             try (FileInputStream fis = new FileInputStream(f)) {
                 for (int i = 0; i < EXTRA; i++) {
