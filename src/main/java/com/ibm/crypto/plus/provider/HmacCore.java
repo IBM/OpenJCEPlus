@@ -31,10 +31,10 @@ abstract class HmacCore extends MacSpi {
         }
     }
 
-    HmacCore(OpenJCEPlusProvider provider, String ockDigestAlgo, String hashAlgo, int blockLength) {
+    HmacCore(OpenJCEPlusProvider provider, String requesterDigestAlgo, String hashAlgo, int blockLength) {
         try {
             this.provider = provider;
-            this.hmac = HMAC.getInstance(hashAlgo, ockDigestAlgo, provider);
+            this.hmac = HMAC.getInstance(hashAlgo, requesterDigestAlgo, provider);
         } catch (Exception e) {
             throw provider.providerException("Failure in HmacCore", e);
         }
