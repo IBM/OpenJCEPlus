@@ -110,6 +110,14 @@ public class TestArguments {
             enabledProviders.removeIf(tp -> tp == TestProvider.OpenJCEPlus_OpenSSL);
         }
 
+        // OpenSSL-backed tests require the OpenSSL native library (libopenjceplus_64)
+        // to be deployed alongside the JRE.  Skip them when the openjceplus.library.path
+        // system property is absent, since that is the reliable signal Jenkins and
+        // local runners use to advertise that the OpenSSL build has been deployed.
+        if (System.getProperty("openjceplus.library.path") == null) {
+            enabledProviders.removeIf(tp -> tp == TestProvider.OpenJCEPlus_OpenSSL);
+        }
+
         return enabledProviders.stream();
     }
 
