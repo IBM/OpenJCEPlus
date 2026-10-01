@@ -32,6 +32,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  * Test case for AES/CCM cipher ByteBuffer operations.
  */
 @Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass

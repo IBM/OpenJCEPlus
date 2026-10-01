@@ -13,7 +13,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.Optional;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.ShortBufferException;
@@ -42,9 +41,7 @@ public final class SymmetricCipher {
     private long outputPointer; // Pointer to memory that has the output to the encrypted text by z_kmc
     private long outputOffset; // Offset, in the buffer, to where the output is stored, used to retrieve output after z_kmc call
     private long paramPointer; // Pointer to memory that has the parameters/state keeping used by z_kmc
-    private static long hardwareFunctionPtr = 0;
     private final boolean use_z_fast_command;
-    private static Optional<Boolean> hardwareEnabled = Optional.empty();
     private static final String badIdMsg = "Cipher Identifier is not valid";
     /* private final static String debPrefix = "SymCipher"; Adding Debug causes test cases to fail */
     int paramOffset;
@@ -140,14 +137,12 @@ public final class SymmetricCipher {
         this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "Cipher", configAlgName);
         boolean isHardwareSupport = false;
         // The OS_Helper functions are not NIST certified, thus they can't be used in FIPS mode.
+        // checkHardwareSupport is called per instance so that each backend (OCK vs OpenSSL)
+        // returns its own result; a shared static cache would poison the OpenSSL adapter with
+        // the OCK result on z/arch hardware platforms (ppc64le, s390x, etc.).
         if (!this.provider.isFIPS()) {
-            if (hardwareEnabled.isPresent())
-                isHardwareSupport = hardwareEnabled.get();
-            else {
-                hardwareFunctionPtr = checkHardwareSupport(nativeInterface);
-                isHardwareSupport = (hardwareFunctionPtr == 1) ? true : false;
-                hardwareEnabled = Optional.of(isHardwareSupport);
-            }
+            long ptr = checkHardwareSupport(nativeInterface);
+            isHardwareSupport = (ptr == 1);
         }
 
         use_z_fast_command = "AES".equals(cipherName.substring(0, 3))

@@ -31,6 +31,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 // This test case exercises the AES/CCM cipher using a CCMParameters object
 
 @Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass

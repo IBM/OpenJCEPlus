@@ -13,7 +13,7 @@
 #include <openssl/evp.h>
 
 #include "com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation.h"
-#include "Utils.h"
+#include "OpenSSLUtils.h"
 #include <stdint.h>
 
 //============================================================================
@@ -33,30 +33,30 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1cr
     int         rc               = 1;
 
     if (NULL == digestAlgo) {
-        throwOSSLException(env, 0, "DIGEST_create: The specified digest algorithm is null");
+        setPendingOpenSSLException(env, 0, "DIGEST_create: The specified digest algorithm is null");
         return 0;
     }
 
     if (!(digestAlgoChars = (const char *)(*env)->GetStringUTFChars(env, digestAlgo, NULL))) {
-        throwOSSLException(env, 0, "DIGEST_create: GetStringUTFChars() failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_create: GetStringUTFChars() failed");
         return 0;
     }
 
     md = EVP_MD_fetch(NULL, digestAlgoChars, NULL);
     if (NULL == md) {
-        throwOSSLException(env, 0, "DIGEST_create: EVP_MD_fetch failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_create: EVP_MD_fetch failed");
         goto cleanup;
     }
 
     mdCtx = EVP_MD_CTX_new();
     if (NULL == mdCtx) {
-        throwOSSLException(env, 0, "DIGEST_create: EVP_MD_CTX_new failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_create: EVP_MD_CTX_new failed");
         goto cleanup;
     }
 
     rc = EVP_DigestInit_ex2(mdCtx, md, NULL);
     if (1 != rc) {
-        throwOSSLException(env, 0, "DIGEST_create: EVP_DigestInit_ex2 failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_create: EVP_DigestInit_ex2 failed");
         goto cleanup;
     }
 
@@ -101,19 +101,19 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1co
     jlong      digestCopyId = 0;
 
     if (NULL == mdCtx) {
-        throwOSSLException(env, 0, "DIGEST_copy: The specified mdCtx is null");
+        setPendingOpenSSLException(env, 0, "DIGEST_copy: The specified mdCtx is null");
         return 0;
     }
 
     mdCtxCopy = EVP_MD_CTX_new();
     if (NULL == mdCtxCopy) {
         //osslCheckStatus(osslCtx);
-        throwOSSLException(env, 0, "DIGEST_copy: EVP_MD_CTX_new failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_copy: EVP_MD_CTX_new failed");
         goto cleanup;
     }
 
     if (1 != EVP_MD_CTX_copy(mdCtxCopy, mdCtx)) {
-        throwOSSLException(env, 0, "DIGEST_copy: EVP_MD_CTX_copy failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_copy: EVP_MD_CTX_copy failed");
         goto cleanup;
     }
 
@@ -135,18 +135,18 @@ static int DIGEST_update_internal(JNIEnv *env, EVP_MD_CTX *mdCtx, unsigned char 
     int rc = 0;
 
     if (NULL == mdCtx) {
-        throwOSSLException(env, 0, "DIGEST_update_internal: The specified mdCtx is null");
+        setPendingOpenSSLException(env, 0, "DIGEST_update_internal: The specified mdCtx is null");
         return 0;
     }
 
     if (dataLen < 0) {
-        throwOSSLException(env, 0, "DIGEST_update_internal: The specified data length is negative");
+        setPendingOpenSSLException(env, 0, "DIGEST_update_internal: The specified data length is negative");
         return 0;
     }
 
     rc = EVP_DigestUpdate(mdCtx, dataNative, dataLen);
     if (1 != rc) {
-        throwOSSLException(env, 0, "DIGEST_update_internal: EVP_DigestUpdate failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_update_internal: EVP_DigestUpdate failed");
     }
 
     return rc;
@@ -169,18 +169,18 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1up
     int            returnResult = 0;
 
     if (NULL == data) {
-        throwOSSLException(env, 0, "DIGEST_update: The specified data array is null");
+        setPendingOpenSSLException(env, 0, "DIGEST_update: The specified data array is null");
         return 0;
     }
 
     if (offset < 0) {
-        throwOSSLException(env, 0, "DIGEST_update: The specified offset is negative");
+        setPendingOpenSSLException(env, 0, "DIGEST_update: The specified offset is negative");
         return 0;
     }
 
     dataNative = (unsigned char *)((*env)->GetPrimitiveArrayCritical(env, data, &isCopy));
     if (NULL == dataNative) {
-        throwOSSLException(env, 0, "DIGEST_update: GetPrimitiveArrayCritical failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_update: GetPrimitiveArrayCritical failed");
         return 0;
     }
 
@@ -205,7 +205,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1up
     unsigned char   *dataNative = (unsigned char *)dataBuffer;
 
     if (dataNative == NULL) {
-        throwOSSLException(env, 0, "DIGEST_updateFastJNI: The pointer to the specified data buffer is null");
+        setPendingOpenSSLException(env, 0, "DIGEST_updateFastJNI: The pointer to the specified data buffer is null");
         return;
     }
 
@@ -232,26 +232,26 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1di
     jbyteArray     retDigestBytes    = NULL;
 
     if (NULL == mdCtx) {
-        throwOSSLException(env, 0, "DIGEST_digest: The specified mdCtx is null");
+        setPendingOpenSSLException(env, 0, "DIGEST_digest: The specified mdCtx is null");
         return 0;
     }
 
     signedDigestLen = EVP_MD_CTX_get_size(mdCtx);
     if (0 >= signedDigestLen) {
         //osslCheckStatus(osslCtx);
-        throwOSSLException(env, 0, "DIGEST_digest: EVP_MD_CTX_get_size failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_digest: EVP_MD_CTX_get_size failed");
         return 0;
     }
 
     digestBytes = (*env)->NewByteArray(env, signedDigestLen);
     if (NULL == digestBytes) {
-        throwOSSLException(env, 0, "DIGEST_digest: NewByteArray failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_digest: NewByteArray failed");
         return 0;
     }
 
     digestBytesNative = (unsigned char *)((*env)->GetPrimitiveArrayCritical(env, digestBytes, &isCopy));
     if (NULL == digestBytesNative) {
-        throwOSSLException(env, 0, "DIGEST_digest: GetPrimitiveArrayCritical failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_digest: GetPrimitiveArrayCritical failed");
         goto cleanup;
     }
 
@@ -260,7 +260,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1di
     rc = EVP_DigestFinal_ex(mdCtx, digestBytesNative, (unsigned int *)&digestLen);
     if (1 != rc) {
         //osslCheckStatus(osslCtx);
-        throwOSSLException(env, 0, "DIGEST_digest: EVP_DigestFinal_ex failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_digest: EVP_DigestFinal_ex failed");
         goto cleanup;
     }
 
@@ -285,19 +285,19 @@ DIGEST_digest_and_reset_internal(JNIEnv *env, jlong osslContextId, EVP_MD_CTX *m
     int rc = 0;
 
     if (NULL == mdCtx) {
-        throwOSSLException(env, 0, "DIGEST_digest_and_reset_internal: The specified mdCtx is null");
+        setPendingOpenSSLException(env, 0, "DIGEST_digest_and_reset_internal: The specified mdCtx is null");
         return 0;
     }
 
     if (NULL == digestBytesNative) {
-        throwOSSLException(env, 0, "DIGEST_digest_and_reset_internal: The pointer to the specified data array is null");
+        setPendingOpenSSLException(env, 0, "DIGEST_digest_and_reset_internal: The pointer to the specified data array is null");
         return 0;
     }
 
     rc = EVP_DigestFinal_ex(mdCtx, digestBytesNative, &digestLen);
     if (1 != rc) {
         //osslCheckStatus(osslCtx);
-        throwOSSLException(env, 0, "DIGEST_digest_and_reset_internal: EVP_DigestFinal_ex failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_digest_and_reset_internal: EVP_DigestFinal_ex failed");
         return rc;
     }
 
@@ -305,7 +305,7 @@ DIGEST_digest_and_reset_internal(JNIEnv *env, jlong osslContextId, EVP_MD_CTX *m
     rc = EVP_DigestInit_ex2(mdCtx, NULL, NULL);
     if (1 != rc) {
         //osslCheckStatus(osslCtx);
-        throwOSSLException(env, 0, "DIGEST_digest_and_reset_internal: EVP_DigestInit_ex2 failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_digest_and_reset_internal: EVP_DigestInit_ex2 failed");
     }
 
     return rc;
@@ -344,13 +344,13 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1di
     unsigned int  digestLen          = 0;
 
     if (NULL == digestBytes) {
-        throwOSSLException(env, 0, "DIGEST_digest_and_reset: The specified data array is null");
+        setPendingOpenSSLException(env, 0, "DIGEST_digest_and_reset: The specified data array is null");
         return 0;
     }
 
     digestBytesNative = (unsigned char *)((*env)->GetPrimitiveArrayCritical(env, digestBytes, &isCopy));
     if (digestBytesNative == NULL) {
-        throwOSSLException(env, 0, "DIGEST_digest_and_reset: GetPrimitiveArrayCritical failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_digest_and_reset: GetPrimitiveArrayCritical failed");
         goto cleanup;
     }
 
@@ -378,14 +378,14 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1si
     int        digestLen = 0;
 
     if (NULL == mdCtx) {
-        throwOSSLException(env, 0, "DIGEST_size: The specified mdCtx is null");
+        setPendingOpenSSLException(env, 0, "DIGEST_size: The specified mdCtx is null");
         return 0;
     }
 
     digestLen = EVP_MD_CTX_get_size(mdCtx);
     if (0 >= digestLen) {
         //osslCheckStatus(osslCtx);
-        throwOSSLException(env, 0, "DIGEST_size: EVP_MD_CTX_get_size failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_size: EVP_MD_CTX_get_size failed");
     }
 
     return digestLen;
@@ -405,14 +405,14 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1re
     int        rc        = 0;
 
     if (NULL == mdCtx) {
-        throwOSSLException(env, 0, "DIGEST_size: The specified mdCtx is null");
+        setPendingOpenSSLException(env, 0, "DIGEST_size: The specified mdCtx is null");
         return;
     }
 
     rc = EVP_DigestInit_ex2(mdCtx, NULL, NULL);
     if (1 != rc) {
         //osslCheckStatus(osslCtx);
-        throwOSSLException(env, 0, "DIGEST_reset: EVP_DigestInit_ex2 failed");
+        setPendingOpenSSLException(env, 0, "DIGEST_reset: EVP_DigestInit_ex2 failed");
     }
 }
 

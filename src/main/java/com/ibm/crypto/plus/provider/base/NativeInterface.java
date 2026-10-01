@@ -10,6 +10,7 @@ package com.ibm.crypto.plus.provider.base;
 
 import java.nio.ByteBuffer;
 import java.security.ProviderException;
+import javax.crypto.BadPaddingException;
 
 public interface NativeInterface {
     public String getLibraryVersion() throws NativeException;
@@ -97,7 +98,7 @@ public interface NativeInterface {
 
     public int CIPHER_decryptFinal(long cipherId,
             byte[] ciphertext, int cipherOffset, int cipherLen, byte[] plaintext,
-            int plaintextOffset, boolean needsReinit) throws NativeException;
+            int plaintextOffset, boolean needsReinit) throws NativeException, BadPaddingException;
 
     public long checkHardwareSupport();
 
@@ -221,7 +222,21 @@ public interface NativeInterface {
 
     //public int get_GCM_TLSEnabled() throws NativeException;
 
+    /**
+     * Creates a GCM context without a key-size hint.
+     * Both the OCK and OpenSSL backends implement this overload; the OpenSSL backend
+     * defaults to AES-128-GCM and the cipher is re-initialised with the correct key size
+     * on the first {@code GCM_init} call.  Prefer {@link #create_GCM_context(int)} in
+     * new code so that the context is pre-configured for the right key size from the start.
+     */
     public long create_GCM_context() throws NativeException;
+
+    /**
+     * Creates a GCM context pre-configured for the given key size (16, 24, or 32 bytes).
+     * The OCK backend ignores {@code keySize} and delegates to the no-arg overload.
+     * The OpenSSL backend uses it to select the correct EVP cipher up front.
+     */
+    public long create_GCM_context(int keySize) throws NativeException;
 
     // =========================================================================
     // CCM Cipher functions

@@ -29,6 +29,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  *          for storing plain text and cipher text are overlapped or the same
  */
 @Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
 @Tag(Tags.MULTITHREAD_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
