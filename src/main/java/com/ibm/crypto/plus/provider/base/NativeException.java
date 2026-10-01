@@ -24,8 +24,6 @@ public class NativeException extends java.lang.Exception {
     protected int code = -1; // Non-specific value designed to be overriden.
 
     // These codes must be overriden by library-specific native exceptions.
-    public static final int GKR_FIPS_MODE_INVALID = -1;
-    public static final int GKR_OCK_ATTACH_FAILED = -1;
     public static final int GKR_DECRYPT_FINAL_BAD_PADDING_ERROR = -1;
     public static final int GKR_UNSPECIFIED = -1;
 
