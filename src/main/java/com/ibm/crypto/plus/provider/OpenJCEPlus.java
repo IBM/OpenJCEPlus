@@ -27,13 +27,13 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "                                       PBEWithHmacSHA1AndAES_128, PBEWithHmacSHA1AndAES_256, PBEWithHmacSHA224AndAES_128, PBEWithHmacSHA224AndAES_256\n"
             + "                                       PBEWithHmacSHA256AndAES_128, PBEWithHmacSHA256AndAES_256, PBEWithHmacSHA384AndAES_128, PBEWithHmacSHA384AndAES_256\n"
             + "                                       PBEWithHmacSHA512AndAES_128, PBEWithHmacSHA512AndAES_256\n"
-            + "                                       PBEWithSHA1AndDESede, PBEWithSHA1AndRC2_40, PBEWithSHA1AndRC2_128, PBEWithSHA1AndRC4_40, PBEWithSHA1AndRC4_128\n"                                    
+            + "                                       PBEWithSHA1AndDESede, PBEWithSHA1AndRC2_40, PBEWithSHA1AndRC2_128, PBEWithSHA1AndRC4_40, PBEWithSHA1AndRC4_128\n"
             + "Algorithm parameter generator      :  DiffieHellman, DSA, EC, XEC, GCM, CCM\n"
             + "Cipher algorithms                  : AES, ChaCha20, ChaCha20-Poly1305, DESede, RSA\n"
             + "                                       PBEWithHmacSHA1AndAES_128, PBEWithHmacSHA1AndAES_256, PBEWithHmacSHA224AndAES_128, PBEWithHmacSHA224AndAES_256\n"
             + "                                       PBEWithHmacSHA256AndAES_128, PBEWithHmacSHA256AndAES_256, PBEWithHmacSHA384AndAES_128, PBEWithHmacSHA384AndAES_256\n"
             + "                                       PBEWithHmacSHA512AndAES_128, PBEWithHmacSHA512AndAES_256\n"
-            + "                                       PBEWithSHA1AndDESede, PBEWithSHA1AndRC2_40, PBEWithSHA1AndRC2_128, PBEWithSHA1AndRC4_40, PBEWithSHA1AndRC4_128\n"        
+            + "                                       PBEWithSHA1AndDESede, PBEWithSHA1AndRC2_40, PBEWithSHA1AndRC2_128, PBEWithSHA1AndRC4_40, PBEWithSHA1AndRC4_128\n"
             + "Key agreement algorithms           : DiffieHellman, ECDH, XDH\n"
             + "Key Encapsulation Mechanisms       : ML-KEM-512, ML-KEM-768, ML-KEM-1024\n"
             + "Key factory                        : DiffieHellman, DSA, EC, XEC,  RSA, RSAPSS, ML-KEM-512, ML-KEM-768, ML-KEM-1024\n"
@@ -54,7 +54,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "                                       PBEWithHmacSHA1AndAES_128, PBEWithHmacSHA1AndAES_256, PBEWithHmacSHA224AndAES_128, PBEWithHmacSHA224AndAES_256\n"
             + "                                       PBEWithHmacSHA256AndAES_128, PBEWithHmacSHA256AndAES_256, PBEWithHmacSHA384AndAES_128, PBEWithHmacSHA384AndAES_256\n"
             + "                                       PBEWithHmacSHA512AndAES_128, PBEWithHmacSHA512AndAES_256\n"
-            + "                                       PBEWithSHA1AndDESede, PBEWithSHA1AndRC2_40, PBEWithSHA1AndRC2_128, PBEWithSHA1AndRC4_40, PBEWithSHA1AndRC4_128\n"               
+            + "                                       PBEWithSHA1AndDESede, PBEWithSHA1AndRC2_40, PBEWithSHA1AndRC2_128, PBEWithSHA1AndRC4_40, PBEWithSHA1AndRC4_128\n"
             + "Secure random                      : HASHDRBG, SHA256DRBG, SHA512DRBG\n"
             + "Signature algorithms               : NONEwithDSA, SHA1withDSA, SHA224withDSA, SHA256withDSA,\n"
             + "                                       SHA3-224withDSA, SHA3-256withDSA, SHA3-384withDSA, SHA3-512withDSA,\n"
@@ -86,11 +86,11 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         }
 
         LoadStringConfig(this, DefaultProviderAttrs.getConfigString());
-        
+
         if (instance == null) {
             instance = this;
         }
-    
+
         if (debug != null) {
             debug.println("OpenJCEPlus Build-Level: " + getDebugDate(this.getClass().getName()));
             debug.println("OpenJCEPlus library build date: " + NativeOCKAdapterNonFIPS.getInstance().getLibraryBuildDate());
@@ -101,7 +101,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
                 t.printStackTrace(System.out);
             }
         }
-        
+
     }
 
     @Override
@@ -118,7 +118,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
             if (null == name || name.equals("null") || name.length() == 0) {
                 new InvalidParameterException("Name in configuation file is null or empty");
-            }    
+            }
 
             return new OpenJCEPlus(newConfig, services);
         } catch (IOException e) {
@@ -139,7 +139,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
 
             if (null == name || name.equals("null") || name.length() == 0) {
                 throw new InvalidParameterException("Name in configuation file is null or empty");
-            }    
+            }
 
             return new OpenJCEPlus(newConfig, services);
         } catch (IOException e) {
@@ -153,7 +153,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
         if (instance == null) {
             instance = this;
         }
-        
+
         String temp = config.getDefSecRnd();
 
         if (temp != null) {
@@ -176,7 +176,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
                 //Display aliases
                 for (String key : this.stringPropertyNames()) {
                     // Check for alias properties specific to the type and algorithm
-                    if (key.startsWith("Alg.Alias." + service1.getType() + ".")) {               
+                    if (key.startsWith("Alg.Alias." + service1.getType() + ".")) {
                         String aliasAlgorithm = this.getProperty(key);
                         if (service1.getAlgorithm().equals(aliasAlgorithm)) {
                             // Extract the alias name from the key
@@ -185,7 +185,7 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
                         }
                     }
                 }
-            }   
+            }
         }
     }
 

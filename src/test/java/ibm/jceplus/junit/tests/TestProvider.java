@@ -21,7 +21,7 @@ public enum TestProvider {
     OpenJCEPlus_OpenSSL("OpenJCEPlus-OpenSSL", "com.ibm.crypto.plus.provider.OpenJCEPlus", "./src/test/OpenSSLOnly.config"),
     OpenJCEPlus_OCK("OpenJCEPlus-OCK", "com.ibm.crypto.plus.provider.OpenJCEPlus", "./src/test/OCKOnly.config"),
     OpenJCEPlusFIPS("OpenJCEPlusFIPS", "com.ibm.crypto.plus.provider.OpenJCEPlusFIPS", null);
-    
+
 
     // Constants for provider names (can be used in annotations where compiler couldn't use a runtime method)
     public static final String BC_NAME = "BC";

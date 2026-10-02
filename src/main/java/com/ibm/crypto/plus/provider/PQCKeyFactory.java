@@ -47,7 +47,7 @@ class PQCKeyFactory extends KeyFactorySpi {
                 RawKeySpec rks = RawKeySpec.class.cast(keySpec);
                 byte[] bytes = rks.getKeyArr();
                 if (checkEncoded(bytes, false)) {
-                    throw new InvalidKeySpecException("Key spec does not match Spec indicated");   
+                    throw new InvalidKeySpecException("Key spec does not match Spec indicated");
                 }
                 try {
                     return new PQCPrivateKey(provider, bytes, algName);
@@ -61,10 +61,10 @@ class PQCKeyFactory extends KeyFactorySpi {
                     return new PQCPrivateKey(provider, bytes, algName);
                 } finally {
                     Arrays.fill(bytes, (byte) 0);
-                } 
+                }
             } else {
                 throw new InvalidKeySpecException("Inappropriate key specification");
-            }      
+            }
         } catch (InvalidKeyException e) {
             throw new InvalidKeySpecException("Inappropriate key specification: ", e);
         }
@@ -80,9 +80,9 @@ class PQCKeyFactory extends KeyFactorySpi {
                 return generated;
             } else if (keySpec instanceof RawKeySpec) {
                 RawKeySpec rks = RawKeySpec.class.cast(keySpec);
-                byte[] bytes = rks.getKeyArr(); 
+                byte[] bytes = rks.getKeyArr();
                 if (checkEncoded(bytes, true)) {
-                    throw new InvalidKeySpecException("Key does not match Spec indicated");   
+                    throw new InvalidKeySpecException("Key does not match Spec indicated");
                 }
                 try {
                     return new PQCPublicKey(provider, bytes, algName);
@@ -240,7 +240,7 @@ class PQCKeyFactory extends KeyFactorySpi {
                     //This is an encoding
                     return true;
                 }
-            } 
+            }
             return false;
         } catch (Exception e) {
             return false;

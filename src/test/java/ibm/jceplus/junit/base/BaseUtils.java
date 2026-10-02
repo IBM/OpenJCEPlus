@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -103,7 +103,7 @@ abstract public class BaseUtils {
     /**
      * Determines if we are running on an environment where a FIPS
      * certified library is known to exist.
-     * 
+     *
      * @return true if running within a known FIPS envionrment, false otherwise.
      */
     public static boolean getIsFIPSCertifiedPlatform() {

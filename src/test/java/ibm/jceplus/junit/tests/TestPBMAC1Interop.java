@@ -44,7 +44,7 @@ public class TestPBMAC1Interop extends BaseTestInterop {
     private SecureRandom secureRandom = new SecureRandom();
     private byte[] salt = new byte[20];
     private int iterationCount = 300000;
-    
+
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -94,7 +94,7 @@ public class TestPBMAC1Interop extends BaseTestInterop {
         m.update(text, updateLen, updateLen);
         m.update(text, 2 * updateLen, text.length - (2 * updateLen));
         byte[] finalUpdate = m.doFinal();
-        
+
         return finalUpdate;
     }
 }
