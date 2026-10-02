@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2024
+ * Copyright IBM Corp. 2024, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -33,7 +33,7 @@ public class TestTLS extends BaseTestTLS {
             insertProvider("OpenJCEPlus", 2);
         }
     }
-    
+
     @ParameterizedTest
     @CsvSource({"TLSv1.3,rsa_pkcs1_sha1,TLS_AES_128_GCM_SHA256",
         "TLSv1.3,rsa_pkcs1_sha256,TLS_AES_128_GCM_SHA256",

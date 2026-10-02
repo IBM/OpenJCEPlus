@@ -256,7 +256,7 @@ class DefaultFIPSProviderAttrs {
         + "Service.Signature.SHA512withRSA = com.ibm.crypto.plus.provider.RSASignature$SHA512withRSA\n"
         + "Signature.RSAPSS.alias.add = RSA-PSS, RSASSA-PSS, RSASA-PSS, OID.1.2.840.113549.1.1.10, 1.2.840.113549.1.1.10\n"
         + "Service.Signature.RSAPSS = com.ibm.crypto.plus.provider.RSAPSSSignature\n";
-        
+
     public DefaultFIPSProviderAttrs() {
     }
 
@@ -267,20 +267,20 @@ class DefaultFIPSProviderAttrs {
              * HKDF Algorithms use KeyGeneratorSpi - Legacy way of using
              * =======================================================================
              */
-            result = defaultFIPSProvAttrs 
+            result = defaultFIPSProvAttrs
                 + "KeyGenerator.kda-hkdf-with-sha224.alias.add = kda-hkdf-with-sha-224\n"
                 + "Service.KeyGenerator.kda-hkdf-with-sha224 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA224\n"
 
                 + "KeyGenerator.kda-hkdf-with-sha256.alias.add = kda-hkdf-with-sha-256\n"
                 + "Service.KeyGenerator.kda-hkdf-with-sha256 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA256\n"
-            
+
                 + "KeyGenerator.kda-hkdf-with-sha384.alias.add = kda-hkdf-with-sha-384\n"
                 + "Service.KeyGenerator.kda-hkdf-with-sha384 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA384\n"
-            
+
                 + "KeyGenerator.kda-hkdf-with-sha512.alias.add = kda-hkdf-with-sha-512\n"
                 + "Service.KeyGenerator.kda-hkdf-with-sha512 = com.ibm.crypto.plus.provider.HKDFGenerator$HKDFwithSHA512\n";
         }
-        
+
         String supportedPaddings = "OAEPPADDING"
                 + "|OAEPWITHSHA224ANDMGF1PADDING"
                 + "|OAEPWITHSHA-224ANDMGF1PADDING"

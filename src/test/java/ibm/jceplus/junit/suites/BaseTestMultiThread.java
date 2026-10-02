@@ -112,7 +112,7 @@ public abstract class BaseTestMultiThread {
         SummaryGeneratingListener listener = new SummaryGeneratingListener();
         LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request().
             selectors(selectClass(className)).build();
-        
+
         Launcher launcher = LauncherFactory.create();
         launcher.discover(request);
         launcher.registerTestExecutionListeners(listener);
@@ -130,25 +130,25 @@ public abstract class BaseTestMultiThread {
      */
     protected List<String> discoverTestClasses() {
         List<String> testClasses = new ArrayList<>();
-        
+
         LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
             .selectors(selectPackage(getPackageName()))
             .filters(includeTags(getTagExpression()))
             .build();
-        
+
         Launcher launcher = LauncherFactory.create();
         TestPlan testPlan = launcher.discover(request);
-        
+
         // Collect unique test class names from the test plan
         Set<String> classNames = new java.util.HashSet<>();
         for (TestIdentifier root : testPlan.getRoots()) {
             collectTestClasses(testPlan, root, classNames);
         }
         testClasses.addAll(classNames);
-        
+
         return testClasses;
     }
-    
+
     /**
      * Recursively collects test class names from the test identifiers.
      */
@@ -161,7 +161,7 @@ public abstract class BaseTestMultiThread {
                 classNames.add(classSource.getClassName());
             }
         }
-        
+
         for (TestIdentifier child : testPlan.getChildren(identifier)) {
             collectTestClasses(testPlan, child, classNames);
         }
@@ -174,7 +174,7 @@ public abstract class BaseTestMultiThread {
 
         List<String> testClasses = discoverTestClasses();
         System.out.println("Found " + testClasses.size() + " test classes with " + getTagExpression() + " tag");
-        
+
         if (testClasses.isEmpty()) {
             fail("No test classes found with " + getTagExpression() + " tag");
         }
@@ -195,7 +195,7 @@ public abstract class BaseTestMultiThread {
             }
             System.out.println("Test finished: " + test);
         }
-        
+
         if (!failedTests.isEmpty()) {
             String allFailedTests = String.join("\n\t", failedTests);
             fail("Failed tests:\n\t" + allFailedTests);

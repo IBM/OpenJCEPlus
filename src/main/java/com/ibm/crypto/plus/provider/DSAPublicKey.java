@@ -182,7 +182,7 @@ final class DSAPublicKey extends X509Key
         DerValue[] inputValue = in.getSequence(4);
         BigInteger tempY = inputValue[0].getBigInteger();
 
-        /* Only the first element of the sequence is used - 
+        /* Only the first element of the sequence is used -
          * BigInteger tempP = inputValue[1].getInteger();
         BigInteger tempQ = inputValue[2].getInteger();
         BigInteger tempG = inputValue[3].getInteger();*/

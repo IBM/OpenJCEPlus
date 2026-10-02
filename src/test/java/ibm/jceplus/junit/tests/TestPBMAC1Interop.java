@@ -36,7 +36,7 @@ public class TestPBMAC1Interop extends BaseTestInterop {
 
     TestProvider interopProvider = TestProvider.SunJCE;
 
-    private List<String> algorithms = Arrays.asList("PBEWithHmacSHA1", "PBEWithHmacSHA224", "PBEWithHmacSHA256", "PBEWithHmacSHA384", 
+    private List<String> algorithms = Arrays.asList("PBEWithHmacSHA1", "PBEWithHmacSHA224", "PBEWithHmacSHA256", "PBEWithHmacSHA384",
             "PBEWithHmacSHA512", "PBEWithHmacSHA512/224", "PBEWithHmacSHA512/256");
 
     private final String message = "This is a message for PBMAC1 testing";
@@ -44,7 +44,7 @@ public class TestPBMAC1Interop extends BaseTestInterop {
     private SecureRandom secureRandom = new SecureRandom();
     private byte[] salt = new byte[20];
     private int iterationCount = 300000;
-    
+
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -94,7 +94,7 @@ public class TestPBMAC1Interop extends BaseTestInterop {
         m.update(text, updateLen, updateLen);
         m.update(text, 2 * updateLen, text.length - (2 * updateLen));
         byte[] finalUpdate = m.doFinal();
-        
+
         return finalUpdate;
     }
 }

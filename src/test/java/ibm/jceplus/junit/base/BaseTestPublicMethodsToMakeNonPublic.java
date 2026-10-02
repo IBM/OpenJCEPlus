@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -34,8 +34,8 @@ abstract public class BaseTestPublicMethodsToMakeNonPublic extends BaseTestJunit
 
     // --------------------------------------------------------------------------
     // Implementing testcase must override this method to indicate whether
-    // the given method is meant to be public and explitly called by users.  Any 
-    // public methods of public provider classes not flagged as allowed will be 
+    // the given method is meant to be public and explitly called by users.  Any
+    // public methods of public provider classes not flagged as allowed will be
     // reported as a test failure.
     //
     abstract public boolean isMethodMeantToBePublicAndExplicitlyCallableByUsers(Method method);
