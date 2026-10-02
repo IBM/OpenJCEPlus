@@ -30,7 +30,7 @@ abstract class PBMAC1Core extends HmacCore {
     private final String kdfAlgo;
     private final int blockLength;
     private final OpenJCEPlusProvider provider;
-    
+
     PBMAC1Core(String kdfAlgo, String hashAlgo, int blockLength, OpenJCEPlusProvider provider) {
         super(provider, "PBEWith" + kdfAlgo.replace('-', '/'), hashAlgo, blockLength);
         this.kdfAlgo = kdfAlgo;

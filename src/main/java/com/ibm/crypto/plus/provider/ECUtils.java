@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2025
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -102,7 +102,7 @@ final class ECUtils {
      * Same implementation from sun.security.util.ECUtil in semeru jdk21
      */
     /**
-     * 
+     *
      * Check an ECPrivateKey to make sure the scalar value is within the
      * range of the order [1, n-1].
      *

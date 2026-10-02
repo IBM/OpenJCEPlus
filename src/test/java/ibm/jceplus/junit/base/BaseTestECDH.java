@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -295,7 +295,7 @@ public class BaseTestECDH extends BaseTestJunit5 {
     }
 
     /*
-     * Ensure InvalidParameterSpecException is thrown by ECParamaters init method when given an 
+     * Ensure InvalidParameterSpecException is thrown by ECParamaters init method when given an
      * unrecognized curve name.
      * Was throwing an InvalidParameterException from ECNamedCurve constructor taking single String argument
      */
@@ -441,10 +441,10 @@ public class BaseTestECDH extends BaseTestJunit5 {
 
         KeyAgreement keyAgreeA = KeyAgreement.getInstance("ECDH", getProviderName());
         keyAgreeA.init(importPrivKeyA);
-        
+
         KeyAgreement keyAgreeB = KeyAgreement.getInstance("ECDH", getProviderName());
         keyAgreeB.init(importPrivKeyB);
-        
+
         keyAgreeA.doPhase(importPubKeyB, true);
         keyAgreeB.doPhase(importPubKeyA, true);
 

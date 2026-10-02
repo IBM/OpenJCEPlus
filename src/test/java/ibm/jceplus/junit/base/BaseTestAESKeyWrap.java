@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -35,7 +35,7 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
     protected Cipher              cpB              = null;
     protected boolean             success          = true;
     protected int                 specifiedKeySize = 0;
- 
+
     @ParameterizedTest
     @CsvSource({"AES/KW/NoPadding", "AES/KWP/NoPadding", "AES_128/KW/NoPadding",
         "AES_128/KWP/NoPadding", "AES_192/KW/NoPadding",
@@ -144,7 +144,7 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
             cp.init(Cipher.UNWRAP_MODE, kek);
 
             cp.unwrap(cipherText, "AES", Cipher.SECRET_KEY);
-                
+
             fail("testAESWrapFailureCiphertext did no fail as expected.");
         } catch (InvalidKeyException ie) {
             assumeTrue(true);
@@ -154,7 +154,7 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
             assumeTrue(false);
         }
     }
- 
+
     @Test
     public void testAESWrapModeFailureWrap() throws Exception {
         SecretKey kek            = null;
@@ -305,7 +305,7 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
             c.init(Cipher.ENCRYPT_MODE, kek);
             byte[] test = new byte[DATA_128.length * 2];
             c.update(DATA_128);
- 
+
             System.arraycopy(DATA_128, 0, test, 0, DATA_128.length);
             System.arraycopy(DATA_128, 0, test, DATA_128.length, DATA_128.length);
 
@@ -547,7 +547,7 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
         }
     }
 
-    public SecretKey createKey(String alg, int size, String providerName) throws NoSuchAlgorithmException, 
+    public SecretKey createKey(String alg, int size, String providerName) throws NoSuchAlgorithmException,
         NoSuchProviderException {
         KeyGenerator keyGen = null;
         try {
@@ -562,7 +562,7 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
     }
 
     public void WrapUnwrapKey(String cipher, SecretKey keyWrapped,
-        SecretKey KEK, String providerName) throws NoSuchAlgorithmException, NoSuchProviderException, 
+        SecretKey KEK, String providerName) throws NoSuchAlgorithmException, NoSuchProviderException,
         NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException  {
         Cipher cp = null;
         try {
@@ -587,7 +587,7 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
     }
 
     public void WrapUnwrapKeyInterop(String cipher, SecretKey keyWrapped,
-        SecretKey KEK, String providerName, String providerNameInterop) throws NoSuchAlgorithmException, 
+        SecretKey KEK, String providerName, String providerNameInterop) throws NoSuchAlgorithmException,
         NoSuchProviderException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException {
         Cipher cp         = null;
         Cipher cpI        = null;
@@ -628,7 +628,7 @@ public class BaseTestAESKeyWrap extends BaseTestJunit5Interop {
     }
 
     public void WrapUnwrapKeyInteropRev(String cipher, SecretKey keyWrapped,
-        SecretKey KEK, String providerName, String providerNameInterop) throws NoSuchAlgorithmException, 
+        SecretKey KEK, String providerName, String providerNameInterop) throws NoSuchAlgorithmException,
         NoSuchProviderException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException {
         Cipher cp         = null;
         Cipher cpI        = null;

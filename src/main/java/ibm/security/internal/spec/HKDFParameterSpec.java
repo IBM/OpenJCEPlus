@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -21,13 +21,13 @@ public class HKDFParameterSpec implements AlgorithmParameterSpec {
     private byte[] info; //optionally can be null
     private String keyAlgorithm; // cannot be null or ""
     long MAX_OKM_LENGTH = 255 * 64; // Max allowable OKM Material for SHA512
-    private long okmLength; //  Will be checked in HKDFGenerator.init that it 
+    private long okmLength; //  Will be checked in HKDFGenerator.init that it
                             // is less than 255 * digestLength (digest may be < SHA512)
 
 
 
     /**
-     * 
+     *
      * @param inKeyMaterial
      *            the inKeyMaterial The contents of <code>inKeyMaterial</code> are
      *            copied to protect against subsequent modification.
@@ -39,10 +39,10 @@ public class HKDFParameterSpec implements AlgorithmParameterSpec {
      *            against subsequent modification.
      * @param okmLength
      *             output Key material length
-     *            
+     *
      *@param keyAlgorithm
      *          The name of the algorithm to use when creating SecretKey.
-     * 
+     *
      */
     public HKDFParameterSpec(byte[] inKeyMaterial, byte[] salt, byte[] info, long okmLength,
             String keyAlgorithm) {

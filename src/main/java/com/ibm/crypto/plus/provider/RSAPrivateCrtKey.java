@@ -287,7 +287,7 @@ final class RSAPrivateCrtKey extends PKCS8Key
     protected Object writeReplace() throws java.io.ObjectStreamException {
         checkDestroyed();
         return new JCEPlusKeyRep(JCEPlusKeyRep.Type.PRIVATE, getAlgorithm(), getFormat(), getEncoded(), provider.getName());
-    } 
+    }
 
     /**
      * Destroys this key. A call to any of its other methods after this will
