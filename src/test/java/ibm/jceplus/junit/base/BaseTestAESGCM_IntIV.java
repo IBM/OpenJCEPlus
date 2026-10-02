@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -328,8 +328,8 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
 
     /*
      * Checks if the given portion of b1 and b2 are equal.
-     * 
-     * @return true if they are equal, false if they are not equal or if the specified offsets and lengths are out of bounds. 
+     *
+     * @return true if they are equal, false if they are not equal or if the specified offsets and lengths are out of bounds.
      */
     private boolean byteEqual(byte[] b1, int offset1, byte[] b2, int offset2, int len) {
         if ((b1.length - offset1) >= len && (b2.length - offset2) >= len) {

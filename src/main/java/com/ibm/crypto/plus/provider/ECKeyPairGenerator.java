@@ -97,7 +97,7 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
     }
 
     /**
-    * 
+    *
     */
 
     @Override

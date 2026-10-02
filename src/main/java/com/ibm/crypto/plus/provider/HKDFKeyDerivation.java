@@ -152,7 +152,7 @@ public class HKDFKeyDerivation extends KDFSpi {
                 // perform extract
                 return hkdfObj.extract(salt, salt.length,
                         inputKeyMaterial, inputKeyMaterial.length);
-                
+
             } catch (InvalidKeyException ike) {
                 throw new InvalidAlgorithmParameterException(
                         "an HKDF Extract could not be initialized with the "

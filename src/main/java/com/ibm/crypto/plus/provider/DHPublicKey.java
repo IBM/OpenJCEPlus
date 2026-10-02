@@ -30,7 +30,7 @@ final class DHPublicKey extends X509Key
         implements javax.crypto.interfaces.DHPublicKey, Destroyable {
 
     /**
-     * 
+     *
      */
 
     private static final long serialVersionUID = -2993913181811776154L;
@@ -137,7 +137,7 @@ final class DHPublicKey extends X509Key
          * = in.getSequence(3); BigInteger tempY = inputValue[0].getInteger();
          * BigInteger tempP = inputValue[1].getInteger(); BigInteger tempG =
          * inputValue[2].getInteger();
-         * 
+         *
          * DerValue outputValue = new DerValue(DerValue.tag_Integer,
          * tempY.toByteArray()); return outputValue.toByteArray();
          */
@@ -410,7 +410,7 @@ final class DHPublicKey extends X509Key
         try {
             objStream.close();
         } catch (IOException e) {
-            // Ignore this exception since this method is called from 
+            // Ignore this exception since this method is called from
             //final class
         }
 
@@ -444,9 +444,9 @@ final class DHPublicKey extends X509Key
             // This additional check is/was needed as the equals(..) and hashCode()
             // methods of this class were updated prior to being able to update
             // the methods of the DHPublicKey.
-            // Performing this additional check will ensure that we satisfy the 
+            // Performing this additional check will ensure that we satisfy the
             // contract for the Object.hashCode() method which states that if two
-            // objects are equal according to the equals(Object) method, then 
+            // objects are equal according to the equals(Object) method, then
             // calling the hashCode method on each of the two objects must produce
             // the same integer result.
             //

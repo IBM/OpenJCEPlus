@@ -34,7 +34,7 @@ public final class AESKeyWrap {
         }
         byte[] output = null;
         byte[] inData = Arrays.copyOfRange(data, start, length);
-        
+
         int type = 1; //wrap
         if (padding) {
             type = type | 4; // add padding

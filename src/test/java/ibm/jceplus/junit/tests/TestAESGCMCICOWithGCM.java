@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
 public class TestAESGCMCICOWithGCM extends BaseTest {
-    
+
     @Parameter(0)
     TestProvider provider;
 

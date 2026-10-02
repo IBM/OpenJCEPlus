@@ -102,7 +102,7 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
         }
 
         LoadStringConfig(this, DefaultFIPSProviderAttrs.getConfigString());
-  
+
         if (instance == null) {
             instance = this;
         }
@@ -201,8 +201,8 @@ public final class OpenJCEPlusFIPS extends OpenJCEPlusProvider {
     // SecureRandom in FIPS mode.
     //
     java.security.SecureRandom getSecureRandom(java.security.SecureRandom userSecureRandom) {
-        /* Unlike OpenJCEPlus we do not want this algorithm set by the config file 
-         * this should only be updated manually in the provider to make sure we 
+        /* Unlike OpenJCEPlus we do not want this algorithm set by the config file
+         * this should only be updated manually in the provider to make sure we
          * are using the RNG that FIPS requires.
          */
         try {
