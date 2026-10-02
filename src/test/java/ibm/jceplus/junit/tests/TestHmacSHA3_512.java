@@ -55,11 +55,11 @@ public class TestHmacSHA3_512 extends BaseTest {
             NISTKEY_172[i] = (byte) i;
         }
         /*
-        
+
         t("HmacSHA3-512", STR_NIST1, "4efd629d6c71bf86162658f29943b1c308ce27cdfa6db0d9c3ce81763f9cbce5f7ebe9868031db1a8f8eb7b6b95e5c5e3f657a8996c86a2f6527e307f0213196", Arrays.copyOf(NISTKEY_172, 64)),
         t("HmacSHA3-512", STR_NIST2, "544e257ea2a3e5ea19a590e6a24b724ce6327757723fe2751b75bf007d80f6b360744bf1b7a88ea585f9765b47911976d3191cf83c039f5ffab0d29cc9d9b6da", Arrays.copyOf(NISTKEY_172, 72)),
         t("HmacSHA3-512", STR_NIST3, "5f464f5e5b7848e3885e49b2c385f0694985d0e38966242dc4a5fe3fea4b37d46b65ceced5dcf59438dd840bab22269f0ba7febdb9fcf74602a35666b2a32915", Arrays.copyOf(NISTKEY_172, 136)),
-        
+
         */
 
         key_1 = Arrays.copyOf(NISTKEY_172, 64);

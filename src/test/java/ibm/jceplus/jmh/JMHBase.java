@@ -81,7 +81,7 @@ abstract public class JMHBase {
         optionsBuilder.addProfiler(StackProfiler.class);
         optionsBuilder.addProfiler(GCProfiler.class);
         optionsBuilder.addProfiler(ClassloaderProfiler.class);
-        
+
         // CompilerProfiler causes issues on ppc64le Linux which causes the Jenkins job to fail.
         // Add the compiler profiler for all other platforms.
         boolean isPpc64le = osArch.equals("ppc64le");
@@ -157,7 +157,7 @@ abstract public class JMHBase {
 
     protected void setup(String provider) throws Exception {
         logBenchmark();
-        
+
         if (allowedProviders == null) {
             allowedProviders = getAllowedProviders();
         }

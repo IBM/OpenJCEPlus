@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2023, 2024
+ * Copyright IBM Corp. 2023, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -15,7 +15,7 @@ public class BaseTestJunit5Interop extends BaseTestJunit5 {
 
     /**
      * Sets the provider name to interop with.
-     * 
+     *
      * @param providerName the provider name associated with this test case for use.
      */
     public void setInteropProviderName(String providerName) {
@@ -24,16 +24,16 @@ public class BaseTestJunit5Interop extends BaseTestJunit5 {
 
     /**
      * Gets the provider name that is to be used for interop.
-     * 
+     *
      * @return The provider name associated with the interop provider name.
      */
     public String getInteropProviderName() {
         return this.interopProviderName;
-    }    
-    
+    }
+
     /**
      * Sets the provider name to interop with.
-     * 
+     *
      * @param providerName the provider name associated with this test case for use.
      */
     public void setInteropProviderName2(String providerName) {
@@ -42,7 +42,7 @@ public class BaseTestJunit5Interop extends BaseTestJunit5 {
 
     /**
      * Gets the provider name that is to be used for interop.
-     * 
+     *
      * @return The provider name associated with the interop provider name.
      */
     public String getInteropProviderName2() {

@@ -35,7 +35,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
 public class TestAESGCMCICOWithGCMAndAAD extends BaseTest {
-    
+
     @Parameter(0)
     TestProvider provider;
     protected int specifiedKeySize = 128;

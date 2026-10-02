@@ -834,8 +834,8 @@ public class TestAESGCM extends BaseTest {
 
     /*
      * Checks if the given portion of b1 and b2 are equal.
-     * 
-     * @return true if they are equal, false if they are not equal or if the specified offsets and lengths are out of bounds. 
+     *
+     * @return true if they are equal, false if they are not equal or if the specified offsets and lengths are out of bounds.
      */
     private boolean byteEqual(byte[] b1, int offset1, byte[] b2, int offset2, int len) {
         if ((b1.length - offset1) >= len && (b2.length - offset2) >= len) {
@@ -1054,7 +1054,7 @@ public class TestAESGCM extends BaseTest {
             e.printStackTrace();
             fail("Unexpected Exception occurred " + e.getMessage());
         }
-        // try retry with a larger buffer 
+        // try retry with a larger buffer
         try {
             byte[] largerCipherTextBuffer = new byte[plainText18.length + 16];
             cpl.doFinal(plainText18, 0, plainText18.length, largerCipherTextBuffer);
@@ -1101,7 +1101,7 @@ public class TestAESGCM extends BaseTest {
 
     }
 
-    //Respecify parameters twice and it should fail. 
+    //Respecify parameters twice and it should fail.
     public void ktestCipherStates() throws Exception {
         Cipher cpl = null;
 
@@ -1120,7 +1120,7 @@ public class TestAESGCM extends BaseTest {
                 assertTrue(true);
             }
             try {
-                //expected it to fail 
+                //expected it to fail
                 cpl.doFinal(plainText128, 0, plainText128.length);
             } catch (Exception ex) {
                 System.err.println("got expected exception " + ex.getMessage());
