@@ -241,6 +241,14 @@ public class TestProviderServices extends BaseTest {
             + "default = true\n"
             + "securerandomdefault = SHA512DRBG";
 
+        // Remove all OpenJCEPlus/OpenJCEPlusFIPS instances left in the provider list by prior tests.
+        while (Security.getProvider("OpenJCEPlus") != null) {
+            Security.removeProvider("OpenJCEPlus");
+        }
+        while (Security.getProvider("OpenJCEPlusFIPS") != null) {
+            Security.removeProvider("OpenJCEPlusFIPS");
+        }
+
         //Make sure SunJCE is first in the list.
         Provider SunJCE = java.security.Security.getProvider("SunJCE");
         Security.removeProvider("SunJCE");
@@ -298,6 +306,14 @@ public class TestProviderServices extends BaseTest {
         setAndInsertProvider(provider);
         String provName = getProviderName();
         assumeTrue(("OpenJCEPlusFIPS").equals(provName), "Aborting test: Not in FIPS provider.");
+
+        // Remove all OpenJCEPlus/OpenJCEPlusFIPS instances left in the provider list by prior tests.
+        while (Security.getProvider("OpenJCEPlus") != null) {
+            Security.removeProvider("OpenJCEPlus");
+        }
+        while (Security.getProvider("OpenJCEPlusFIPS") != null) {
+            Security.removeProvider("OpenJCEPlusFIPS");
+        }
 
         //Make sure SunJCE is first in the list.
         Provider SunJCE = java.security.Security.getProvider("SunJCE");
