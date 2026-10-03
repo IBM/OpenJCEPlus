@@ -28,7 +28,7 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     // If OpenSSL is dynamically loaded, whether to require that OpenSSL be
     // pre-loaded.
     //
-    static boolean requirePreloadOSSL = true;
+    private static final boolean requirePreloadOSSL = true;
 
     // Default library names
     //
@@ -36,19 +36,28 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     private static final String OPENJCEPLUS_CORE_LIBRARY_NAME = "openjceplus";
     private static String osName = null;
     private static String osArch = null;
-    private static String JVMFIPSmode = null;
+
+    // If either native library is absent at class-load time the ProviderException
+    // is captured here and re-thrown from initializeOSSL().  This prevents an
+    // ExceptionInInitializerError from permanently poisoning this class on
+    // platforms that do not have OpenSSL installed (e.g. OCK-only Jenkins nodes).
+    static ProviderException initFailure = null;
 
     static {
-        if (osslDynamicallyLoaded) {
-            // Preload OpenSSL library. We want to pre-load OpenSSL to help
-            // ensure we are picking up the expected version within
-            // the JRE.
+        try {
+            if (osslDynamicallyLoaded) {
+                // Preload OpenSSL library. We want to pre-load OpenSSL to help
+                // ensure we are picking up the expected version within
+                // the JRE.
+                //
+                preloadOpenSSL();
+            }
+            // Load native code for java-gskit
             //
-            preloadOpenSSL();
+            preloadOpenJCEPlusNative();
+        } catch (ProviderException pe) {
+            initFailure = pe;
         }
-        // Load native code for java-gskit
-        //
-        preloadOpenJCEPlusNative();
     }
 
     public static String getOsName() {
@@ -146,9 +155,9 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
         if (osName.startsWith("Windows") && osArch.equals("amd64")) {
             loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + "_64.dll");
         } else if (osName.equals("Mac OS X")) {
-            loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + ".dylib");
+            loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + "_64.dylib");
         } else {
-            loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + ".so");
+            loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + "_64.so");
         }
 
         boolean ojpLibraryPreloaded = loadIfExists(loadFile);
@@ -344,8 +353,6 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
             throws OpenSSLException;
 
     static public native int do_GCM_FinalForUpdateDecrypt(long osslContextId, long gcmCtx,
-            /* byte[] key, int keyLen,
-             byte[] iv, int ivLen,*/
             byte[] ciphertext, int cipherOffset, int cipherLen, byte[] plaintext,
             int plaintextOffset, int plaintextlen, byte[] aad, int aadLen, int tagLen)
             throws OpenSSLException;
@@ -370,9 +377,26 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     static public native void free_GCM_ctx(long osslContextId, long gcmContextId)
             throws OpenSSLException;
 
-    //static public native int get_GCM_TLSEnabled() throws OpenSSLException;
-
     static public native long create_GCM_context(long osslContextId) throws OpenSSLException;
+
+    // -------------------------------------------------------------------------
+    // New thin GCM JNI primitives (implemented in OpenSSLGCM.c)
+    // -------------------------------------------------------------------------
+
+    static public native void GCM_init(long osslContextId, long cipherId, int encrypt,
+            byte[] key, byte[] iv, int tagLen) throws OpenSSLException;
+
+    static public native int GCM_update(long osslContextId, long cipherId, int encrypt,
+            byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset,
+            byte[] aad, int aadLen) throws OpenSSLException;
+
+    static public native int GCM_encryptFinal(long osslContextId, long cipherId,
+            byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset,
+            byte[] aad, int aadLen, int tagLen) throws OpenSSLException;
+
+    static public native int GCM_decryptFinal(long osslContextId, long cipherId,
+            byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset,
+            byte[] aad, int aadLen, int tagLen) throws OpenSSLException;
 
     // =========================================================================
     // CCM Cipher functions
@@ -407,6 +431,25 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
             byte[] plaintext, int plaintextLength, int tagLen) throws OpenSSLException;
 
     static public native void do_CCM_delete(long osslContextId) throws OpenSSLException;
+
+    // -------------------------------------------------------------------------
+    // New thin CCM JNI primitives (implemented in OpenSSLCCM.c)
+    // -------------------------------------------------------------------------
+
+    static public native void CCM_init(long osslContextId, long cipherId, int encrypt,
+            byte[] key, byte[] iv, int tagLen) throws OpenSSLException;
+
+    static public native int CCM_update(long osslContextId, long cipherId, int encrypt,
+            byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset,
+            byte[] aad, int aadLen) throws OpenSSLException;
+
+    static public native int CCM_encryptFinal(long osslContextId, long cipherId,
+            byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset,
+            byte[] aad, int aadLen, int tagLen) throws OpenSSLException;
+
+    static public native int CCM_decryptFinal(long osslContextId, long cipherId,
+            byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset,
+            byte[] aad, int aadLen, int tagLen) throws OpenSSLException;
 
     // =========================================================================
     // RSA cipher functions
@@ -526,7 +569,7 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     static public native long DIGEST_create(long osslContextId, String digestAlgo)
             throws OpenSSLException;
 
-    static public native long DIGEST_copy(long id, long digestId)
+    static public native long DIGEST_copy(long osslContextId, long digestId)
             throws OpenSSLException;
 
     static public native int DIGEST_update(long osslContextId, long digestId, byte[] input,

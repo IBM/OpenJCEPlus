@@ -1,9 +1,18 @@
 /*
- * Copyright IBM Corp. 2023, 2026
+ * Copyright IBM Corp. 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
  * this code, including the "Classpath" Exception described therein.
+ */
+
+/**
+ * @file BuildDate.c
+ * @brief Provides build date information for the OpenSSL native library.
+ *
+ * This file implements functionality to retrieve the build date and time
+ * of the native library, which can be useful for version tracking and
+ * debugging purposes.
  */
 
 #include <jni.h>
@@ -11,38 +20,49 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation.h"
-#include "Utils.h"
+#include "OpenSSLUtils.h"
+#include "OpenSSLHelpers.h"
 #include <stdint.h>
 
-/*
- * Class:     com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation
- * Method:    getLibraryBuildDate
- * Signature: ()Ljava/lang/String;
+/**
+ * Retrieves the build date and time of the native library.
+ *
+ * This function returns a string containing the build date and time of the
+ * native library. The date is determined at compile time using preprocessor
+ * macros in the following priority:
+ * 1. BUILD_DATE macro if defined
+ * 2. __DATE__ and __TIME__ macros if available
+ * 3. __DATE__ macro only if __TIME__ is not available
+ * 4. "<UNKNOWN>" if no date information is available
+ *
+ * On z/OS (MVS), the string is converted to ISO8859-1 encoding.
+ *
+ * @param env The JNI environment pointer
+ * @param thisObj The class object (unused)
+ * @return A Java String containing the build date, or NULL if allocation fails
  */
+//============================================================================
+// getLibraryBuildDate - Get the build date and time of the native library
+//============================================================================
 JNIEXPORT jstring JNICALL
 Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_getLibraryBuildDate(
     JNIEnv* env, jclass thisObj) {
-    static const char* functionName    = "NativeOpenSSLImplementation.getLibraryBuildDate";
-    const char*        buildDateString = NULL;
-    jstring            retValue        = NULL;
+    static const char* functionName =
+        "NativeOpenSSLImplementation.getLibraryBuildDate";
+    const char* buildDateString = NULL;
+    jstring     retValue        = NULL;
 
-    if (debug) {
-        gslogFunctionEntry(functionName);
-    }
+    logFunctionEntry(functionName);
 
 #ifdef __MVS__
 #pragma convert("ISO8859-1")
 #endif
 
 #if defined(BUILD_DATE)
-    // Compile flag specifying the build date
     buildDateString = BUILD_DATE;
 #elif defined(__DATE__) && defined(__TIME__)
-    // Pre-processor macros
     buildDateString = __DATE__ " " __TIME__;
 #elif defined(__DATE__)
-    // Pre-processor macro
     buildDateString = __DATE__;
 #else
     buildDateString = "<UNKNOWN>";
@@ -56,9 +76,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_getLibrary
         retValue = (*env)->NewStringUTF(env, buildDateString);
     }
 
-    if (debug) {
-        gslogFunctionExit(functionName);
-    }
+    logFunctionExit(functionName);
 
     return retValue;
 }

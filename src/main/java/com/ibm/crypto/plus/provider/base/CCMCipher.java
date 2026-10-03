@@ -11,6 +11,7 @@ package com.ibm.crypto.plus.provider.base;
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.SystemAccessUtils;
 import com.ibm.crypto.plus.provider.ock.NativeOCKAdapterNonFIPS;
+import com.ibm.crypto.plus.provider.openssl.NativeOpenSSLAdapter;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -51,7 +52,6 @@ public final class CCMCipher {
         }
     };
 
-
     // Buffer to get CCM output from native
     private static final ThreadLocal<FastJNIBuffer> outputBuffer = new ThreadLocal<FastJNIBuffer>() {
         @Override
@@ -59,7 +59,6 @@ public final class CCMCipher {
             return FastJNIBuffer.create(FastJNIOutputBufferSize);
         }
     };
-
 
     // ByteArray buffer to pass/get errCode key, IV, AAD, tag
     private static final ThreadLocal<FastJNIBuffer> parameterBuffer = new ThreadLocal<FastJNIBuffer>() {
@@ -198,7 +197,12 @@ public final class CCMCipher {
             CCMHardwareFunctionPtr = nativeInterface.do_CCM_checkHardwareCCMSupport();
         }
 
-        if (iv.length + key.length + aadLen <= FastJNIParameterBufferSize && !disableCCMAcceleration
+        // The FastJNI / hardware path is only valid for the OCK backend.
+        // The OpenSSL adapter does not implement do_CCM_decryptFastJNI and throws
+        // UnsupportedOperationException, so skip this entire block when OpenSSL is in use
+        // and fall through to the generic do_CCM_decrypt path below.
+        if (!(nativeInterface instanceof NativeOpenSSLAdapter)
+                && iv.length + key.length + aadLen <= FastJNIParameterBufferSize && !disableCCMAcceleration
                 && (inputLen <= FastJNIInputBufferSize || CCMHardwareFunctionPtr != -1)) {
             FastJNIBuffer parameters = CCMCipher.parameterBuffer.get();
             parameters.put(0, iv, 0, iv.length);
@@ -337,7 +341,10 @@ public final class CCMCipher {
         if (CCMHardwareFunctionPtr == 0)
             CCMHardwareFunctionPtr = nativeInterface.do_CCM_checkHardwareCCMSupport();
 
-        if (iv.length + key.length + aadLen + tagLen <= FastJNIParameterBufferSize
+        // Same guard as in doCCMFinal_Decrypt: skip the FastJNI / hardware path entirely
+        // for the OpenSSL backend, which does not implement do_CCM_encryptFastJNI.
+        if (!(nativeInterface instanceof NativeOpenSSLAdapter)
+                && iv.length + key.length + aadLen + tagLen <= FastJNIParameterBufferSize
                 && (inputLen <= FastJNIInputBufferSize || CCMHardwareFunctionPtr != -1)) {
 
             FastJNIBuffer parameters = CCMCipher.parameterBuffer.get();
@@ -368,16 +375,21 @@ public final class CCMCipher {
 
         } else {
 
-            // Create tempInput
-            byte[] tempInput = new byte[input.length - inputOffset];
+            // Create tempInput sized to inputLen, not input.length - inputOffset.
+            // On OCK this else branch is never reached (the FastJNI path above is always
+            // taken for OCK). On OpenSSL this is the only path. Using input.length -
+            // inputOffset here is wrong when
+            // inputLen < input.length - inputOffset (pooled/sliced buffer): the native
+            // call would encrypt extra trailing bytes, overrunning the output buffer.
+            byte[] tempInput = new byte[inputLen];
             // Copy contents of input from inputOffset for length inputLen into tempInput
-            System.arraycopy(input, inputOffset, tempInput, 0, input.length - inputOffset);
+            System.arraycopy(input, inputOffset, tempInput, 0, inputLen);
 
             // Create tempOutput
             byte[] tempOutput = new byte[len + outputOffset]; // len from call to getOutputSizeLegacy() above
 
             rc = nativeInterface.do_CCM_encrypt(iv, iv.length, key, key.length,
-                    authenticationData, aadLen, tempInput, tempInput.length, tempOutput,
+                    authenticationData, aadLen, tempInput, inputLen, tempOutput,
                     tempOutput.length, tagLen);
 
             if (rc != 0) {

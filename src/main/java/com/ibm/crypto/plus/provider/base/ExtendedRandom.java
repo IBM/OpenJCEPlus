@@ -66,7 +66,10 @@ public final class ExtendedRandom {
         }
 
         prngCtx = prngCtxBuffer.get();
-        if (prngCtx == null) {
+        // If the cached context was created by a different backend (e.g. OCK
+        // context cached on this thread but now called from OpenSSL, or vice
+        // versa), discard it and create a fresh one for this backend.
+        if (prngCtx == null || prngCtx.nativeInterface != this.nativeInterface) {
             prngCtx = new PRNGContextPointer(this.algName, this.nativeInterface, this.provider);
             prngCtxBuffer.set(prngCtx);
         }
@@ -127,8 +130,10 @@ public final class ExtendedRandom {
 
     private static final class PRNGContextPointer {
         final long prngCtx;
+        final NativeInterface nativeInterface;
 
         PRNGContextPointer(String algName, NativeInterface nativeInterface, OpenJCEPlusProvider provider) throws NativeException {
+            this.nativeInterface = nativeInterface;
             this.prngCtx = nativeInterface.EXTRAND_create(algName);
             provider.registerCleanable(this, ExtendedRandom.cleanOCKResources(this.prngCtx, nativeInterface));
         }

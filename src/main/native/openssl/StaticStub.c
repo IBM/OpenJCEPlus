@@ -62,11 +62,11 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CTX_1getVa
             return NULL;
 
         case VALUE_ID_OSSL_INSTALL_PATH:
-            result = OpenSSL_version(OPENSSL_VERSION_STRING);
+            result = OPENSSL_info(OPENSSL_INFO_CONFIG_DIR);
             break;
 
         case VALUE_ID_OSSL_VERSION:
-            result = OPENSSL_info(OPENSSL_INFO_CONFIG_DIR);
+            result = OpenSSL_version(OPENSSL_VERSION_STRING);
             break;
 
         default:
@@ -74,11 +74,12 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CTX_1getVa
             return NULL;
     }
 
-    if ((NULL == result) || (strcmp(result, "not available") != 0)) {
+    if ((NULL == result) || (strcmp(result, "not available") == 0)) {
         throwOSSLException(env, 0, "OPENSSL_info or OpenSSL_version failed");
         return NULL;
     }
 
+    strncpy(buffer, result, sizeof(buffer) - 1);
     buffer[sizeof(buffer) - 1] = 0;  // make sure null-terminated
     retValue = (*env)->NewStringUTF(env, buffer);
 
