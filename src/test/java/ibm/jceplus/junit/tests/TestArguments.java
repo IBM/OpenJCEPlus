@@ -147,7 +147,7 @@ public class TestArguments {
         if (osName.startsWith("Windows") && osArch.equals("amd64")) {
             libName = "libopenjceplus_64.dll";
         } else if (osName.equals("Mac OS X")) {
-            libName = "libopenjceplus.dylib";
+            libName = "libopenjceplus_64.dylib";
         } else {
             libName = "libopenjceplus_64.so";
         }

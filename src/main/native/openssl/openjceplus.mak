@@ -50,7 +50,7 @@ TARGET = ${HOSTOUT}/libopenjceplus_64.so
 ifeq (${PLATFORM},ppc-aix64)
 	TARGET_LIBS := ${OPENSSL_LIB_LOCATION}/libcrypto64.so.${OPENSSL_LIB_VERSION}
 else
-	TARGET_LIBS := -L ${OPENSSL_LIB_LOCATION} -l ${OPENSSL_LIB}
+	TARGET_LIBS := -L ${OPENSSL_LIB_LOCATION} -l ${OPENSSL_LIB} -Wl,-rpath,${OPENSSL_LIB_LOCATION}
 endif
 
 include ../share/common.mak

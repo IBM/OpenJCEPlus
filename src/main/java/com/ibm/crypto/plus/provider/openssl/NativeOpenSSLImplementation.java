@@ -155,9 +155,9 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
         if (osName.startsWith("Windows") && osArch.equals("amd64")) {
             loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + "_64.dll");
         } else if (osName.equals("Mac OS X")) {
-            loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + ".dylib");
+            loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + "_64.dylib");
         } else {
-            loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + ".so");
+            loadFile = new File(ojpPath, "lib" + OPENJCEPLUS_CORE_LIBRARY_NAME + "_64.so");
         }
 
         boolean ojpLibraryPreloaded = loadIfExists(loadFile);
