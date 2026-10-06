@@ -25,7 +25,6 @@ import java.util.Base64;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
@@ -103,7 +102,7 @@ public class TestPQCKeys extends BaseTest {
 
     /**
      * Verifies that key pair generation succeeds for all supported algorithm name variants.
-     * Covers both '-' and '_' name forms for all ML-KEM and ML-DSA families.
+     * Covers both '-' and '_' name forms for all ML-KEM, ML-DSA, and SLH-DSA families.
      *
      * @param Algorithm the algorithm name to test
      * @throws Exception if key pair generation fails unexpectedly
@@ -111,37 +110,56 @@ public class TestPQCKeys extends BaseTest {
     @ParameterizedTest
     @CsvSource({
         // canonical family names
-        "ML-KEM", "ML-DSA",
+        "ML-KEM", "ML-DSA", "SLH-DSA",
         // canonical param-set names
         "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024",
         "ML-DSA-44",  "ML-DSA-65",  "ML-DSA-87",
+        "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f",
         // underscore aliases
         "ML_KEM_512", "ML_KEM_768", "ML_KEM_1024",
         "ML_DSA_44",  "ML_DSA_65",  "ML_DSA_87",
+        "SLH_DSA_SHA2_128s", "SLH_DSA_SHA2_128f", "SLH_DSA_SHA2_192s", "SLH_DSA_SHA2_192f",
+        "SLH_DSA_SHA2_256s", "SLH_DSA_SHA2_256f", "SLH_DSA_SHAKE_128s", "SLH_DSA_SHAKE_128f",
+        "SLH_DSA_SHAKE_192s", "SLH_DSA_SHAKE_192f", "SLH_DSA_SHAKE_256s", "SLH_DSA_SHAKE_256f",
         // compact (no-separator) aliases
         "MLKEM512", "MLKEM768", "MLKEM1024",
         "MLDSA44",  "MLDSA65",  "MLDSA87",
+        "SLHDSASHA2128s", "SLHDSASHA2128f", "SLHDSASHA2192s", "SLHDSASHA2192f",
+        "SLHDSASHA2256s", "SLHDSASHA2256f", "SLHDSASHAKE128s", "SLHDSASHAKE128f",
+        "SLHDSASHAKE192s", "SLHDSASHAKE192f", "SLHDSASHAKE256s", "SLHDSASHAKE256f",
         // mixed-case: hyphenated lowercase
         "ml-kem-512", "ml-kem-768", "ml-kem-1024",
         "ml-dsa-44",  "ml-dsa-65",  "ml-dsa-87",
+        "slh-dsa-sha2-128s", "slh-dsa-shake-256f",
         // mixed-case: hyphenated title-case
         "Ml-Kem-512", "Ml-Kem-768", "Ml-Kem-1024",
         "Ml-Dsa-44",  "Ml-Dsa-65",  "Ml-Dsa-87",
+        "Slh-Dsa-Sha2-128s", "Slh-Dsa-Shake-256f",
         // mixed-case: underscore lowercase
         "ml_kem_512", "ml_kem_768", "ml_kem_1024",
         "ml_dsa_44",  "ml_dsa_65",  "ml_dsa_87",
+        "slh_dsa_sha2_128s", "slh_dsa_shake_256f",
         // mixed-case: compact lowercase
         "mlkem512", "mlkem768", "mlkem1024",
         "mldsa44",  "mldsa65",  "mldsa87",
+        "slhdsasha2128s", "slhdsashake256f",
         // mixed-case: compact camelCase
         "MlKem512", "MlKem768", "MlKem1024",
         "MlDsa44",  "MlDsa65",  "MlDsa87",
+        "SlhDsaSha2128s", "SlhDsaShake256f",
         // bare OID strings (dotted-arc notation)
         "2.16.840.1.101.3.4.4.1", "2.16.840.1.101.3.4.4.2", "2.16.840.1.101.3.4.4.3",
-        "2.16.840.1.101.3.4.3.17", "2.16.840.1.101.3.4.3.18", "2.16.840.1.101.3.4.3.19"
+        "2.16.840.1.101.3.4.3.17", "2.16.840.1.101.3.4.3.18", "2.16.840.1.101.3.4.3.19",
+        "2.16.840.1.101.3.4.3.20", "2.16.840.1.101.3.4.3.21", "2.16.840.1.101.3.4.3.22",
+        "2.16.840.1.101.3.4.3.23", "2.16.840.1.101.3.4.3.24", "2.16.840.1.101.3.4.3.25",
+        "2.16.840.1.101.3.4.3.26", "2.16.840.1.101.3.4.3.27", "2.16.840.1.101.3.4.3.28",
+        "2.16.840.1.101.3.4.3.29", "2.16.840.1.101.3.4.3.30", "2.16.840.1.101.3.4.3.31"
     })
     public void testPQCKeyGen(String Algorithm) throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(Algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         try {
             KeyPair pqcKeyPair = generateKeyPair(Algorithm);
 
@@ -154,8 +172,8 @@ public class TestPQCKeys extends BaseTest {
 
     /**
      * Verifies that a {@link KeyFactory} can reconstruct keys from their encoded forms for all
-     * supported algorithm name variants. Covers both '-' and '_' name forms for all ML-KEM and
-     * ML-DSA families.
+     * supported algorithm name variants. Covers both '-' and '_' name forms for all ML-KEM,
+     * ML-DSA, and SLH-DSA families.
      *
      * @param Algorithm the algorithm name to test
      * @throws Exception if key factory creation or encoding round-trip fails unexpectedly
@@ -163,49 +181,78 @@ public class TestPQCKeys extends BaseTest {
     @ParameterizedTest
     @CsvSource({
         // canonical family names
-        "ML-KEM", "ML-DSA",
+        "ML-KEM", "ML-DSA", "SLH-DSA",
         // canonical param-set names
         "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024",
         "ML-DSA-44",  "ML-DSA-65",  "ML-DSA-87",
+        "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f",
         // underscore aliases
         "ML_KEM_512", "ML_KEM_768", "ML_KEM_1024",
         "ML_DSA_44",  "ML_DSA_65",  "ML_DSA_87",
+        "SLH_DSA_SHA2_128s", "SLH_DSA_SHA2_128f", "SLH_DSA_SHA2_192s", "SLH_DSA_SHA2_192f",
+        "SLH_DSA_SHA2_256s", "SLH_DSA_SHA2_256f", "SLH_DSA_SHAKE_128s", "SLH_DSA_SHAKE_128f",
+        "SLH_DSA_SHAKE_192s", "SLH_DSA_SHAKE_192f", "SLH_DSA_SHAKE_256s", "SLH_DSA_SHAKE_256f",
         // compact (no-separator) aliases
         "MLKEM512", "MLKEM768", "MLKEM1024",
         "MLDSA44",  "MLDSA65",  "MLDSA87",
+        "SLHDSASHA2128s", "SLHDSASHA2128f", "SLHDSASHA2192s", "SLHDSASHA2192f",
+        "SLHDSASHA2256s", "SLHDSASHA2256f", "SLHDSASHAKE128s", "SLHDSASHAKE128f",
+        "SLHDSASHAKE192s", "SLHDSASHAKE192f", "SLHDSASHAKE256s", "SLHDSASHAKE256f",
         // mixed-case: hyphenated lowercase
         "ml-kem-512", "ml-kem-768", "ml-kem-1024",
         "ml-dsa-44",  "ml-dsa-65",  "ml-dsa-87",
+        "slh-dsa-sha2-128s", "slh-dsa-shake-256f",
         // mixed-case: hyphenated title-case
         "Ml-Kem-512", "Ml-Kem-768", "Ml-Kem-1024",
         "Ml-Dsa-44",  "Ml-Dsa-65",  "Ml-Dsa-87",
+        "Slh-Dsa-Sha2-128s", "Slh-Dsa-Shake-256f",
         // mixed-case: underscore lowercase
         "ml_kem_512", "ml_kem_768", "ml_kem_1024",
         "ml_dsa_44",  "ml_dsa_65",  "ml_dsa_87",
+        "slh_dsa_sha2_128s", "slh_dsa_shake_256f",
         // mixed-case: compact lowercase
         "mlkem512", "mlkem768", "mlkem1024",
         "mldsa44",  "mldsa65",  "mldsa87",
+        "slhdsasha2128s", "slhdsashake256f",
         // mixed-case: compact camelCase
         "MlKem512", "MlKem768", "MlKem1024",
         "MlDsa44",  "MlDsa65",  "MlDsa87",
+        "SlhDsaSha2128s", "SlhDsaShake256f",
         // OID.xxx-prefixed aliases (as registered in provider)
         "OID.2.16.840.1.101.3.4.4.1", "OID.2.16.840.1.101.3.4.4.2", "OID.2.16.840.1.101.3.4.4.3",
         "OID.2.16.840.1.101.3.4.3.17", "OID.2.16.840.1.101.3.4.3.18", "OID.2.16.840.1.101.3.4.3.19",
+        "OID.2.16.840.1.101.3.4.3.20", "OID.2.16.840.1.101.3.4.3.21", "OID.2.16.840.1.101.3.4.3.22",
+        "OID.2.16.840.1.101.3.4.3.23", "OID.2.16.840.1.101.3.4.3.24", "OID.2.16.840.1.101.3.4.3.25",
+        "OID.2.16.840.1.101.3.4.3.26", "OID.2.16.840.1.101.3.4.3.27", "OID.2.16.840.1.101.3.4.3.28",
+        "OID.2.16.840.1.101.3.4.3.29", "OID.2.16.840.1.101.3.4.3.30", "OID.2.16.840.1.101.3.4.3.31",
         // mixed-case OID prefix (JCA strips "OID." case-insensitively)
         "oid.2.16.840.1.101.3.4.4.1", "oid.2.16.840.1.101.3.4.4.2", "oid.2.16.840.1.101.3.4.4.3",
         "oid.2.16.840.1.101.3.4.3.17", "oid.2.16.840.1.101.3.4.3.18", "oid.2.16.840.1.101.3.4.3.19",
+        "oid.2.16.840.1.101.3.4.3.20", "oid.2.16.840.1.101.3.4.3.21", "oid.2.16.840.1.101.3.4.3.22",
+        "oid.2.16.840.1.101.3.4.3.23", "oid.2.16.840.1.101.3.4.3.24", "oid.2.16.840.1.101.3.4.3.25",
+        "oid.2.16.840.1.101.3.4.3.26", "oid.2.16.840.1.101.3.4.3.27", "oid.2.16.840.1.101.3.4.3.28",
+        "oid.2.16.840.1.101.3.4.3.29", "oid.2.16.840.1.101.3.4.3.30", "oid.2.16.840.1.101.3.4.3.31",
         // bare OID strings
         "2.16.840.1.101.3.4.4.1", "2.16.840.1.101.3.4.4.2", "2.16.840.1.101.3.4.4.3",
-        "2.16.840.1.101.3.4.3.17", "2.16.840.1.101.3.4.3.18", "2.16.840.1.101.3.4.3.19"
+        "2.16.840.1.101.3.4.3.17", "2.16.840.1.101.3.4.3.18", "2.16.840.1.101.3.4.3.19",
+        "2.16.840.1.101.3.4.3.20", "2.16.840.1.101.3.4.3.21", "2.16.840.1.101.3.4.3.22",
+        "2.16.840.1.101.3.4.3.23", "2.16.840.1.101.3.4.3.24", "2.16.840.1.101.3.4.3.25",
+        "2.16.840.1.101.3.4.3.26", "2.16.840.1.101.3.4.3.27", "2.16.840.1.101.3.4.3.28",
+        "2.16.840.1.101.3.4.3.29", "2.16.840.1.101.3.4.3.30", "2.16.840.1.101.3.4.3.31"
     })
     public void testPQCKeyFactoryCreateFromEncoded(String Algorithm) throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(Algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         keyFactoryCreateFromEncoded(Algorithm);
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-KEM", "ML-KEM-512"})
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-KEM", "ML-KEM-512",
+                "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHAKE-256f"})
     public void generatePublicWithInvalidKeySpec(String algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
 
         byte[] encodedKey = generateKeyPair(algorithm).getPrivate().getEncoded();
@@ -230,8 +277,10 @@ public class TestPQCKeys extends BaseTest {
      * @throws Exception if an unexpected error occurs
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-KEM", "ML-KEM-512"})
+    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-KEM", "ML-KEM-512",
+                "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHAKE-256f"})
     public void generatePrivateWithInvalidKeySpec(String algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
 
         // Pass public key bytes to PKCS8 spec - wrong content for a private key
@@ -246,73 +295,86 @@ public class TestPQCKeys extends BaseTest {
     }
 
     /**
-     * Verifies that a generic ML-KEM {@link KeyPairGenerator} accepts {@link NamedParameterSpec}
-     * using the dash-separated name variants (ML-KEM-512, ML-KEM-768, ML-KEM-1024).
+     * Verifies that a generic PQC {@link KeyPairGenerator} accepts {@link NamedParameterSpec}
+     * for any supported parameter set in its family.
      *
      * @param algParamSpecName the {@link NamedParameterSpec} name to initialize with
      * @throws Exception if initialization or key generation fails unexpectedly
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
-    public void genWithAlgParameterSpecMLKEM(String algParamSpecName) throws Exception {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-KEM", getProviderName());
+    @CsvSource({
+        "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024",
+        "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void genWithAlgParameterSpec(String algParamSpecName) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algParamSpecName) && !BaseUtils.isOpenSSLProvider(getProviderName()));
+        String family = BaseUtils.getFamilyName(algParamSpecName);
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(family, getProviderName());
         AlgorithmParameterSpec param = new NamedParameterSpec(algParamSpecName);
         kpg.initialize(param);
         kpg.generateKeyPair();
     }
 
     /**
-     * Verifies that a generic ML-DSA {@link KeyPairGenerator} accepts {@link NamedParameterSpec}
-     * using the dash-separated name variants (ML-DSA-44, ML-DSA-65, ML-DSA-87).
+     * Verifies that an algorithm-specific {@link KeyPairGenerator} rejects
+     * {@link NamedParameterSpec} values for sibling parameter sets.
      *
-     * @param algParamSpecName the {@link NamedParameterSpec} name to initialize with
-     * @throws Exception if initialization or key generation fails unexpectedly
-     */
-    @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void genWithAlgParameterSpecMLDSA(String algParamSpecName) throws Exception {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-DSA", getProviderName());
-        AlgorithmParameterSpec param = new NamedParameterSpec(algParamSpecName);
-        kpg.initialize(param);
-        kpg.generateKeyPair();
-    }
-
-    /**
-     * Verifies that an ML-DSA-44 {@link KeyPairGenerator} rejects {@link NamedParameterSpec}
-     * values for sibling parameter sets. Tests both '-' and '_' name forms
-     * (ML-DSA-65, ML-DSA-87, ML_DSA_65, ML_DSA_87).
-     *
-     * @param algParamSpecName the mismatched {@link NamedParameterSpec} name
+     * @param generatorAlg the algorithm used to obtain the KeyPairGenerator
+     * @param mismatchedSpec the mismatched NamedParameterSpec name
      * @throws Exception if an unexpected error occurs
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA-65", "ML-DSA-87", "ML_DSA_65", "ML_DSA_87"})
-    public void genWithAlgParameterSpecMLDSAFaiure(String algParamSpecName) throws Exception {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-DSA-44", getProviderName());
-        AlgorithmParameterSpec param = new NamedParameterSpec(algParamSpecName);
+    @CsvSource({
+        "ML-DSA-44, ML-DSA-65", "ML-DSA-44, ML-DSA-87", "ML-DSA-44, ML_DSA_65", "ML-DSA-44, ML_DSA_87",
+        "ML-KEM-512, ML-KEM-768", "ML-KEM-512, ML-KEM-1024", "ML-KEM-512, ML_KEM_768", "ML-KEM-512, ML_KEM_1024",
+        "ML-KEM-768, ML-KEM-512", "ML-KEM-1024, ML-KEM-512", "ML-KEM-768, ML_KEM_512", "ML-KEM-1024, ML_KEM_512",
+        "SLH-DSA-SHA2-128s, SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-128s, SLH_DSA_SHA2_128f",
+        "SLH-DSA-SHA2-128s, SLH-DSA-SHAKE-128s", "SLH-DSA-SHA2-128s, SLH_DSA_SHAKE-128s"
+    })
+    public void genWithAlgParameterSpecMismatchFailure(String generatorAlg, String mismatchedSpec) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(generatorAlg) && !BaseUtils.isOpenSSLProvider(getProviderName()));
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(generatorAlg, getProviderName());
+        AlgorithmParameterSpec param = new NamedParameterSpec(mismatchedSpec);
         try {
             kpg.initialize(param);
-            fail("Expected InvalidAlgorithmParameterException not thrown");
+            fail("Expected InvalidAlgorithmParameterException not thrown for " + generatorAlg + " / " + mismatchedSpec);
         } catch (InvalidAlgorithmParameterException e) {
-            assertTrue(e.getMessage().equals("Algorithm in AlgorithmParameterSpec: " + algParamSpecName +
-                " must match the Algorithnm for this KeyPairGenerator: " + "ML-DSA-44"),
+            assertTrue(e.getMessage().equals("Algorithm in AlgorithmParameterSpec: " + mismatchedSpec +
+                " must match the Algorithnm for this KeyPairGenerator: " + generatorAlg),
                 "Different Message than expected: " + e.getMessage());
         }
     }
 
     @ParameterizedTest
     @CsvSource({
-            "ML-KEM,      ML-KEM-768",
-            "ML-KEM-512,  ML-KEM-512",
-            "ML-KEM-768,  ML-KEM-768",
-            "ML-KEM-1024, ML-KEM-1024",
-            "ML-DSA,      ML-DSA-65",
-            "ML-DSA-44,   ML-DSA-44",
-            "ML-DSA-65,   ML-DSA-65",
-            "ML-DSA-87,   ML-DSA-87"
+            "ML-KEM,             ML-KEM-768",
+            "ML-KEM-512,         ML-KEM-512",
+            "ML-KEM-768,         ML-KEM-768",
+            "ML-KEM-1024,        ML-KEM-1024",
+            "ML-DSA,             ML-DSA-65",
+            "ML-DSA-44,          ML-DSA-44",
+            "ML-DSA-65,          ML-DSA-65",
+            "ML-DSA-87,          ML-DSA-87",
+            "SLH-DSA,            SLH-DSA-SHA2-128s",
+            "SLH-DSA-SHA2-128s,  SLH-DSA-SHA2-128s",
+            "SLH-DSA-SHA2-128f,  SLH-DSA-SHA2-128f",
+            "SLH-DSA-SHA2-192s,  SLH-DSA-SHA2-192s",
+            "SLH-DSA-SHA2-192f,  SLH-DSA-SHA2-192f",
+            "SLH-DSA-SHA2-256s,  SLH-DSA-SHA2-256s",
+            "SLH-DSA-SHA2-256f,  SLH-DSA-SHA2-256f",
+            "SLH-DSA-SHAKE-128s, SLH-DSA-SHAKE-128s",
+            "SLH-DSA-SHAKE-128f, SLH-DSA-SHAKE-128f",
+            "SLH-DSA-SHAKE-192s, SLH-DSA-SHAKE-192s",
+            "SLH-DSA-SHAKE-192f, SLH-DSA-SHAKE-192f",
+            "SLH-DSA-SHAKE-256s, SLH-DSA-SHAKE-256s",
+            "SLH-DSA-SHAKE-256f, SLH-DSA-SHAKE-256f"
     })
     public void testPQCKeyGetParams(String algorithm, String expectedParamSet)
             throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
         KeyPairGenerator keyPairGenerator =
                 KeyPairGenerator.getInstance(algorithm, getProviderName());
@@ -339,26 +401,38 @@ public class TestPQCKeys extends BaseTest {
      * OpenJCEPlus maps the "ML-DSA" alias to ML-DSA-65 only, so decoding
      * ML-DSA-44 or ML-DSA-87 keys through the generic factory fails.
      */
+    /**
+     * Tests that a generic KeyFactory (e.g. "ML-DSA" or "SLH-DSA") can decode public and private
+     * keys originally generated with any specific parameter set within its family.
+     */
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testGenericMLDSAKeyFactoryDecodesAllParamSets(String paramSetName)
+    @CsvSource({
+        "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testGenericPQCKeyFactoryDecodesAllParamSets(String paramSetName)
             throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(paramSetName) && !BaseUtils.isOpenSSLProvider(getProviderName()));
+
+        String family = BaseUtils.getFamilyName(paramSetName);
 
         // Generate a key pair using the specific parameter-set name
         KeyPair kp = generateKeyPair(paramSetName);
         byte[] x509Bytes  = kp.getPublic().getEncoded();
         byte[] pkcs8Bytes = kp.getPrivate().getEncoded();
 
-        // Obtain a generic "ML-DSA" KeyFactory (family name, not param-set)
-        KeyFactory genericKF = KeyFactory.getInstance("ML-DSA", getProviderName());
+        // Obtain a generic KeyFactory (family name, not param-set)
+        KeyFactory genericKF = KeyFactory.getInstance(family, getProviderName());
 
         // Public key decode via generic KF must succeed for all param sets
         PublicKey pub;
         try {
             pub = genericKF.generatePublic(new X509EncodedKeySpec(x509Bytes));
         } catch (InvalidKeySpecException e) {
-            fail("Generic ML-DSA KeyFactory failed to decode " + paramSetName
+            fail("Generic " + family + " KeyFactory failed to decode " + paramSetName
                     + " public key: " + e.getMessage());
             return;
         }
@@ -370,7 +444,7 @@ public class TestPQCKeys extends BaseTest {
         try {
             priv = genericKF.generatePrivate(new PKCS8EncodedKeySpec(pkcs8Bytes));
         } catch (InvalidKeySpecException e) {
-            fail("Generic ML-DSA KeyFactory failed to decode " + paramSetName
+            fail("Generic " + family + " KeyFactory failed to decode " + paramSetName
                     + " private key: " + e.getMessage());
             return;
         }
@@ -379,119 +453,84 @@ public class TestPQCKeys extends BaseTest {
     }
 
     /**
-     * Tests that key.getAlgorithm() returns the family name "ML-DSA" for keys
-     * generated with any ML-DSA parameter set, matching the SUN provider
-     * behaviour described in JEP 497.
+     * Tests that key.getAlgorithm() returns the family name for keys
+     * generated with any parameter set.
      */
     @ParameterizedTest
     @CsvSource({
-        // canonical names
+        // ML-DSA canonical and aliases
         "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
-        // underscore aliases
         "ML_DSA_44", "ML_DSA_65", "ML_DSA_87",
-        // compact aliases
         "MLDSA44", "MLDSA65", "MLDSA87",
-        // mixed-case: hyphenated lowercase
         "ml-dsa-44", "ml-dsa-65", "ml-dsa-87",
-        // mixed-case: hyphenated title-case
         "Ml-Dsa-44", "Ml-Dsa-65", "Ml-Dsa-87",
-        // mixed-case: underscore lowercase
         "ml_dsa_44", "ml_dsa_65", "ml_dsa_87",
-        // mixed-case: compact lowercase / camelCase
         "mldsa44", "mldsa65", "mldsa87",
-        "MlDsa44", "MlDsa65", "MlDsa87"
+        "MlDsa44", "MlDsa65", "MlDsa87",
+        // ML-KEM canonical and aliases
+        "ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024",
+        "ML_KEM_512", "ML_KEM_768", "ML_KEM_1024",
+        "MLKEM512", "MLKEM768", "MLKEM1024",
+        "ml-kem-512", "ml-kem-768", "ml-kem-1024",
+        "Ml-Kem-512", "Ml-Kem-768", "Ml-Kem-1024",
+        "ml_kem_512", "ml_kem_768", "ml_kem_1024",
+        "mlkem512", "mlkem768", "mlkem1024",
+        "MlKem512", "MlKem768", "MlKem1024",
+        // SLH-DSA canonical and aliases
+        "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHAKE-256f",
+        "SLH_DSA_SHA2_128s", "SLH_DSA_SHAKE_256f",
+        "SLHDSASHA2128s", "SLHDSASHAKE256f",
+        "slh-dsa-sha2-128s", "slh-dsa-shake-256f",
+        "Slh-Dsa-Sha2-128s", "Slh-Dsa-Shake-256f",
+        "slh_dsa_sha2_128s", "slh_dsa_shake_256f",
+        "slhdsasha2128s", "slhdsashake256f",
+        "SlhDsaSha2128s", "SlhDsaShake256f"
     })
-    public void testMLDSAKeyAlgorithmReturnsFamilyName(String paramSetName)
+    public void testPQCKeyAlgorithmReturnsFamilyName(String paramSetName)
             throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(paramSetName) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
         KeyPair kp = generateKeyPair(paramSetName);
+        String expectedFamily = BaseUtils.getFamilyName(paramSetName);
 
-        assertEquals("ML-DSA", kp.getPublic().getAlgorithm(),
+        assertEquals(expectedFamily, kp.getPublic().getAlgorithm(),
                 "getAlgorithm() on public key generated with " + paramSetName
-                        + " should return family name \"ML-DSA\"");
-        assertEquals("ML-DSA", kp.getPrivate().getAlgorithm(),
+                        + " should return family name \"" + expectedFamily + "\"");
+        assertEquals(expectedFamily, kp.getPrivate().getAlgorithm(),
                 "getAlgorithm() on private key generated with " + paramSetName
-                        + " should return family name \"ML-DSA\"");
+                        + " should return family name \"" + expectedFamily + "\"");
     }
 
     /**
-     * Tests that key.getAlgorithm() returns the family name "ML-KEM" for keys
-     * generated with any ML-KEM parameter set, matching the SUN provider
-     * behaviour which is "ML-KEM" for all three ML-KEM parameter sets.
+     * Tests default parameter-set generation when KeyPairGenerator is obtained with a family name.
      */
     @ParameterizedTest
     @CsvSource({
-        // canonical names
-        "ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024",
-        // underscore aliases
-        "ML_KEM_512", "ML_KEM_768", "ML_KEM_1024",
-        // compact aliases
-        "MLKEM512", "MLKEM768", "MLKEM1024",
-        // mixed-case: hyphenated lowercase
-        "ml-kem-512", "ml-kem-768", "ml-kem-1024",
-        // mixed-case: hyphenated title-case
-        "Ml-Kem-512", "Ml-Kem-768", "Ml-Kem-1024",
-        // mixed-case: underscore lowercase
-        "ml_kem_512", "ml_kem_768", "ml_kem_1024",
-        // mixed-case: compact lowercase / camelCase
-        "mlkem512", "mlkem768", "mlkem1024",
-        "MlKem512", "MlKem768", "MlKem1024"
+        "ML-DSA, ML-DSA-65",
+        "SLH-DSA, SLH-DSA-SHA2-128s"
     })
-    public void testMLKEMKeyAlgorithmReturnsFamilyName(String paramSetName)
-            throws Exception {
+    public void testGenericKPGDefaultParamSet(String familyName, String expectedDefaultParamSet) throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(familyName) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
-        KeyPair kp = generateKeyPair(paramSetName);
-
-        assertEquals("ML-KEM", kp.getPublic().getAlgorithm(),
-                "getAlgorithm() on public key generated with " + paramSetName
-                        + " should return family name \"ML-KEM\"");
-        assertEquals("ML-KEM", kp.getPrivate().getAlgorithm(),
-                "getAlgorithm() on private key generated with " + paramSetName
-                        + " should return family name \"ML-KEM\"");
-    }
-
-    /**
-     * Tests that {@code KeyPairGenerator.getInstance("ML-DSA")} produces an
-     * ML-DSA-65 key by default - i.e. when no {@code AlgorithmParameterSpec} is
-     * passed to {@code initialize()}.
-     *
-     * <p>This matches the SUN provider behaviour (comment in ML_DSA_Impls.KPG:
-     * "ML-DSA-65 is default") and the OpenJCEPlus implementation in
-     * {@link com.ibm.crypto.plus.provider.PQCKeyPairGenerator#generateKeyPair()}.
-     *
-     * <p>The test verifies the default by:
-     * <ol>
-     *   <li>Generating a key pair without calling {@code initialize()}</li>
-     *   <li>Checking that the encoded public key is the same length as one
-     *       explicitly generated with {@code ML-DSA-65}</li>
-     *   <li>Confirming that the generic {@code KeyFactory("ML-DSA")} can round-trip
-     *       the key and that the re-decoded key is accepted by the ML-DSA-65
-     *       specific {@code KeyFactory} (which rejects ML-DSA-44 and ML-DSA-87)</li>
-     * </ol>
-     */
-    @Test
-    public void testMLDSADefaultParamSetIsML_DSA_65() throws Exception {
-        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
-
-        // Generate without calling initialize() - should silently default to ML-DSA-65
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-DSA", getProviderName());
+        // Generate without calling initialize()
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(familyName, getProviderName());
         KeyPair defaultKp = kpg.generateKeyPair();
 
-        // Generate an explicit ML-DSA-65 key for byte-length comparison
-        KeyPair ml65Kp = generateKeyPair("ML-DSA-65");
+        // Generate an explicit key for comparison
+        KeyPair explicitKp = generateKeyPair(expectedDefaultParamSet);
 
-        assertEquals(ml65Kp.getPublic().getEncoded().length,
+        assertEquals(explicitKp.getPublic().getEncoded().length,
                 defaultKp.getPublic().getEncoded().length,
-                "Default ML-DSA public key length should equal ML-DSA-65 public key length");
-        assertEquals(ml65Kp.getPrivate().getEncoded().length,
+                "Default " + familyName + " public key length should equal " + expectedDefaultParamSet + " public key length");
+        assertEquals(explicitKp.getPrivate().getEncoded().length,
                 defaultKp.getPrivate().getEncoded().length,
-                "Default ML-DSA private key length should equal ML-DSA-65 private key length");
+                "Default " + familyName + " private key length should equal " + expectedDefaultParamSet + " private key length");
 
         // The family-name KF must accept the default key
-        KeyFactory genericKF  = KeyFactory.getInstance("ML-DSA",    getProviderName());
-        KeyFactory specificKF = KeyFactory.getInstance("ML-DSA-65", getProviderName());
+        KeyFactory genericKF  = KeyFactory.getInstance(familyName, getProviderName());
+        KeyFactory specificKF = KeyFactory.getInstance(expectedDefaultParamSet, getProviderName());
 
         // Round-trip through generic KF
         PublicKey  pubRound  = genericKF.generatePublic(
@@ -500,41 +539,47 @@ public class TestPQCKeys extends BaseTest {
                 new PKCS8EncodedKeySpec(defaultKp.getPrivate().getEncoded()));
 
         assertArrayEquals(defaultKp.getPublic().getEncoded(), pubRound.getEncoded(),
-                "Generic ML-DSA KF: re-encoded public key bytes should be identical");
+                "Generic " + familyName + " KF: re-encoded public key bytes should be identical");
         assertArrayEquals(defaultKp.getPrivate().getEncoded(), privRound.getEncoded(),
-                "Generic ML-DSA KF: re-encoded private key bytes should be identical");
+                "Generic " + familyName + " KF: re-encoded private key bytes should be identical");
 
-        // The ML-DSA-65 specific KF must also accept the default key (proves it is ML-DSA-65)
+        // The specific KF must also accept the default key
         try {
             specificKF.generatePublic(
                     new X509EncodedKeySpec(defaultKp.getPublic().getEncoded()));
             specificKF.generatePrivate(
                     new PKCS8EncodedKeySpec(defaultKp.getPrivate().getEncoded()));
         } catch (Exception e) {
-            fail("ML-DSA-65 specific KeyFactory rejected the default ML-DSA key - "
-                    + "default param set is not ML-DSA-65: " + e.getMessage());
+            fail(expectedDefaultParamSet + " specific KeyFactory rejected default " + familyName + " key: " + e.getMessage());
         }
     }
 
     /**
-     * Tests that a generic "ML-DSA" KeyFactory can translateKey() for keys
-     * from all three ML-DSA parameter sets.
+     * Tests that a generic KeyFactory can translateKey() for keys
+     * from all parameter sets in its family.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testGenericMLDSAKeyFactoryTranslateKey(String paramSetName)
+    @CsvSource({
+        "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testGenericPQCKeyFactoryTranslateKey(String paramSetName)
             throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(paramSetName) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
+        String family = BaseUtils.getFamilyName(paramSetName);
         KeyPair kp = generateKeyPair(paramSetName);
-        KeyFactory genericKF = KeyFactory.getInstance("ML-DSA", getProviderName());
+        KeyFactory genericKF = KeyFactory.getInstance(family, getProviderName());
 
         try {
             PublicKey pub = (PublicKey) genericKF.translateKey(kp.getPublic());
             assertArrayEquals(kp.getPublic().getEncoded(), pub.getEncoded(),
                     "translateKey public key bytes differ for " + paramSetName);
         } catch (InvalidKeyException e) {
-            fail("Generic ML-DSA KeyFactory.translateKey() failed for "
+            fail("Generic " + family + " KeyFactory.translateKey() failed for "
                     + paramSetName + " public key: " + e.getMessage());
         }
 
@@ -543,27 +588,27 @@ public class TestPQCKeys extends BaseTest {
             assertArrayEquals(kp.getPrivate().getEncoded(), priv.getEncoded(),
                     "translateKey private key bytes differ for " + paramSetName);
         } catch (InvalidKeyException e) {
-            fail("Generic ML-DSA KeyFactory.translateKey() failed for "
+            fail("Generic " + family + " KeyFactory.translateKey() failed for "
                     + paramSetName + " private key: " + e.getMessage());
         }
     }
 
     /**
      * Tests that a param-set-specific KeyFactory rejects a key that belongs
-     * to a different ML-DSA parameter set, matching SUN provider behaviour.
-     * For example, KeyFactory.getInstance("ML-DSA-44") must throw
-     * InvalidKeyException when asked to translate an ML-DSA-65 key.
+     * to a different parameter set within the same family.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44, ML-DSA-65",
-                "ML-DSA-44, ML-DSA-87",
-                "ML-DSA-65, ML-DSA-44",
-                "ML-DSA-65, ML-DSA-87",
-                "ML-DSA-87, ML-DSA-44",
-                "ML-DSA-87, ML-DSA-65"})
-    public void testSpecificMLDSAKeyFactoryRejectsWrongParamSet(
+    @CsvSource({
+        "ML-DSA-44, ML-DSA-65", "ML-DSA-44, ML-DSA-87",
+        "ML-DSA-65, ML-DSA-44", "ML-DSA-65, ML-DSA-87",
+        "ML-DSA-87, ML-DSA-44", "ML-DSA-87, ML-DSA-65",
+        "SLH-DSA-SHA2-128s, SLH-DSA-SHA2-128f",
+        "SLH-DSA-SHA2-128s, SLH-DSA-SHAKE-128s"
+    })
+    public void testSpecificPQCKeyFactoryRejectsWrongParamSet(
             String kfParamSet, String keyParamSet) throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(kfParamSet) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
         KeyPair kp = generateKeyPair(keyParamSet);
         byte[] x509Bytes  = kp.getPublic().getEncoded();
@@ -594,34 +639,6 @@ public class TestPQCKeys extends BaseTest {
         }
     }
 
-    /**
-     * Verifies that a specific-variant ML-KEM {@link KeyPairGenerator} rejects
-     * {@link NamedParameterSpec} values for other ML-KEM variants. Tests both '-' and '_'
-     * name forms.
-     *
-     * @param generatorAlg  the algorithm used to obtain the {@link KeyPairGenerator}
-     * @param paramSpecName the mismatched {@link NamedParameterSpec} name
-     * @throws Exception if an unexpected error occurs
-     */
-    @ParameterizedTest
-    @CsvSource({"ML-KEM-512, ML-KEM-768", "ML-KEM-512, ML-KEM-1024",
-                "ML-KEM-512, ML_KEM_768", "ML-KEM-512, ML_KEM_1024",
-                "ML-KEM-768, ML-KEM-512", "ML-KEM-1024, ML-KEM-512",
-                "ML-KEM-768, ML_KEM_512", "ML-KEM-1024, ML_KEM_512"})
-    public void genWithAlgParameterSpecMLKEMFailure(
-            String generatorAlg, String paramSpecName) throws Exception {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(generatorAlg, getProviderName());
-        AlgorithmParameterSpec param = new NamedParameterSpec(paramSpecName);
-        try {
-            kpg.initialize(param);
-            fail("Expected InvalidAlgorithmParameterException not thrown for "
-                    + generatorAlg + " / " + paramSpecName);
-        } catch (InvalidAlgorithmParameterException e) {
-            assertTrue(e.getMessage().equals("Algorithm in AlgorithmParameterSpec: " + paramSpecName +
-                " must match the Algorithnm for this KeyPairGenerator: " + generatorAlg),
-                 "Different Message than expected: " + e.getMessage());
-        }
-    }
 
     @ParameterizedTest
     @MethodSource("rfcSeedPrivateKeys")
@@ -654,8 +671,11 @@ public class TestPQCKeys extends BaseTest {
     @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024",
                 "ML_KEM_512", "ML_KEM_768", "ML_KEM_1024",
                 "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
-                "ML_DSA_44", "ML_DSA_65", "ML_DSA_87"})
+                "ML_DSA_44", "ML_DSA_65", "ML_DSA_87",
+                "SLH-DSA-SHA2-128s", "SLH-DSA-SHAKE-256f",
+                "SLH_DSA_SHA2_128s", "SLH_DSA_SHAKE_256f"})
     public void testGetKeySpecPublicRoundTrip(String algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
         PublicKey publicKey = generateKeyPair(algorithm).getPublic();
 
@@ -676,8 +696,11 @@ public class TestPQCKeys extends BaseTest {
     @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024",
                 "ML_KEM_512", "ML_KEM_768", "ML_KEM_1024",
                 "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
-                "ML_DSA_44", "ML_DSA_65", "ML_DSA_87"})
+                "ML_DSA_44", "ML_DSA_65", "ML_DSA_87",
+                "SLH-DSA-SHA2-128s", "SLH-DSA-SHAKE-256f",
+                "SLH_DSA_SHA2_128s", "SLH_DSA_SHAKE_256f"})
     public void testGetKeySpecPrivateRoundTrip(String algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
         PrivateKey privateKey = generateKeyPair(algorithm).getPrivate();
 
@@ -694,8 +717,9 @@ public class TestPQCKeys extends BaseTest {
      * @throws Exception if an unexpected error occurs
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_512", "ML-DSA-44", "ML_DSA_44"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_512", "ML-DSA-44", "ML_DSA_44", "SLH-DSA-SHA2-128s", "SLH_DSA_SHA2_128s"})
     public void testGetKeySpecPublicWithWrongSpecType(String algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
         PublicKey publicKey = generateKeyPair(algorithm).getPublic();
 
@@ -716,8 +740,9 @@ public class TestPQCKeys extends BaseTest {
      * @throws Exception if an unexpected error occurs
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_512", "ML-DSA-44", "ML_DSA_44"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_512", "ML-DSA-44", "ML_DSA_44", "SLH-DSA-SHA2-128s", "SLH_DSA_SHA2_128s"})
     public void testGetKeySpecPrivateWithWrongSpecType(String algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
         PrivateKey privateKey = generateKeyPair(algorithm).getPrivate();
 
@@ -739,8 +764,10 @@ public class TestPQCKeys extends BaseTest {
      */
     @ParameterizedTest
     @CsvSource({"ML-KEM-512", "ML_KEM_512", "ML-KEM-768", "ML_KEM_768",
-                "ML-DSA-44", "ML_DSA_44", "ML-DSA-65", "ML_DSA_65"})
+                "ML-DSA-44", "ML_DSA_44", "ML-DSA-65", "ML_DSA_65",
+                "SLH-DSA-SHA2-128s", "SLH_DSA_SHA2_128s"})
     public void generatePublicWithUnsupportedKeySpec(String algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
 
         // PKCS8EncodedKeySpec is the wrong spec type for generatePublic; must be rejected
@@ -763,8 +790,10 @@ public class TestPQCKeys extends BaseTest {
      */
     @ParameterizedTest
     @CsvSource({"ML-KEM-512", "ML_KEM_512", "ML-KEM-768", "ML_KEM_768",
-                "ML-DSA-44", "ML_DSA_44", "ML-DSA-65", "ML_DSA_65"})
+                "ML-DSA-44", "ML_DSA_44", "ML-DSA-65", "ML_DSA_65",
+                "SLH-DSA-SHA2-128s", "SLH_DSA_SHA2_128s"})
     public void generatePrivateWithUnsupportedKeySpec(String algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
 
         // X509EncodedKeySpec is the wrong spec type for generatePrivate; must be rejected
@@ -786,8 +815,9 @@ public class TestPQCKeys extends BaseTest {
      * @throws Exception if an unexpected error occurs
      */
     @ParameterizedTest
-    @CsvSource({"ML-KEM-512", "ML_KEM_512", "ML-DSA-44", "ML_DSA_44"})
+    @CsvSource({"ML-KEM-512", "ML_KEM_512", "ML-DSA-44", "ML_DSA_44", "SLH-DSA-SHA2-128s", "SLH_DSA_SHA2_128s"})
     public void testTranslateKeyNull(String algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
         try {
             keyFactory.translateKey(null);
@@ -808,8 +838,11 @@ public class TestPQCKeys extends BaseTest {
     @CsvSource({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024",
                 "ML_KEM_512", "ML_KEM_768", "ML_KEM_1024",
                 "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
-                "ML_DSA_44", "ML_DSA_65", "ML_DSA_87"})
+                "ML_DSA_44", "ML_DSA_65", "ML_DSA_87",
+                "SLH-DSA-SHA2-128s", "SLH-DSA-SHAKE-256f",
+                "SLH_DSA_SHA2_128s", "SLH_DSA_SHAKE_256f"})
     public void testTranslateKeyIdentity(String algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm, getProviderName());
         KeyPair keyPair = generateKeyPair(algorithm);
 
@@ -828,59 +861,48 @@ public class TestPQCKeys extends BaseTest {
      *
      * @throws Exception if an unexpected error occurs
      */
-    @Test
-    public void testTranslateKeyCrossFamilyRejection() throws Exception {
-
-        // ML-KEM-512 factory must reject an ML-DSA-44 key
-        KeyFactory kemFactory = KeyFactory.getInstance("ML-KEM-512", getProviderName());
-        PrivateKey mlDsaKey = generateKeyPair("ML-DSA-44").getPrivate();
+    @ParameterizedTest
+    @CsvSource({
+        "ML-KEM-512, ML-DSA-44",
+        "ML-DSA-44, ML-KEM-512",
+        "SLH-DSA-SHA2-128s, ML-DSA-44",
+        "ML-DSA-44, SLH-DSA-SHA2-128s"
+    })
+    public void testTranslateKeyCrossFamilyRejection(String factoryAlg, String keyAlg) throws Exception {
+        assumeFalse((BaseUtils.isSLHDSA(factoryAlg) || BaseUtils.isSLHDSA(keyAlg)) && !BaseUtils.isOpenSSLProvider(getProviderName()));
+        KeyFactory kf = KeyFactory.getInstance(factoryAlg, getProviderName());
+        PrivateKey key = generateKeyPair(keyAlg).getPrivate();
         try {
-            kemFactory.translateKey(mlDsaKey);
-            fail("Expected InvalidKeyException when translating ML-DSA key with ML-KEM factory");
+            kf.translateKey(key);
+            fail("Expected InvalidKeyException when translating " + keyAlg + " key with " + factoryAlg + " factory");
         } catch (InvalidKeyException e) {
-            assertTrue(e.getMessage().equals("Expected a ML-KEM-512 key, but got ML-DSA-44"), "Different Message then expected: " + e.getMessage());
-        }
-
-        // ML-DSA-44 factory must reject an ML-KEM-512 key
-        KeyFactory dsaFactory = KeyFactory.getInstance("ML-DSA-44", getProviderName());
-        PublicKey mlKemKey = generateKeyPair("ML-KEM-512").getPublic();
-        try {
-            dsaFactory.translateKey(mlKemKey);
-            fail("Expected InvalidKeyException when translating ML-KEM key with ML-DSA factory");
-        } catch (InvalidKeyException e) {
-            assertTrue(e.getMessage().startsWith("Expected a ML-DSA-44 key, but got ML-KEM-512"), "Different Message then expected: " + e.getMessage());
+            assertTrue(e.getMessage().startsWith("Expected a " + factoryAlg + " key, but got " + keyAlg),
+                    "Different Message than expected: " + e.getMessage());
         }
     }
 
     /**
      * Verifies that a {@link KeyFactory} for a specific parameter set (e.g. ML-KEM-512) rejects
-     * a key from a sibling parameter set within the same family (e.g. ML-KEM-768 or ML-DSA-87).
+     * a key from a sibling parameter set within the same family (e.g. ML-KEM-768, ML-DSA-87, or SLH-DSA-SHA2-128f).
      *
      * @throws Exception if an unexpected error occurs
      */
-    @Test
-    public void testTranslateKeySiblingRejection() throws Exception {
-
-        // ML-KEM-512 factory must reject an ML-KEM-768 key
-        KeyFactory kem512Factory = KeyFactory.getInstance("ML-KEM-512", getProviderName());
-        PublicKey mlKem768Key = generateKeyPair("ML-KEM-768").getPublic();
+    @ParameterizedTest
+    @CsvSource({
+        "ML-KEM-512, ML-KEM-768",
+        "ML-DSA-44, ML-DSA-87",
+        "SLH-DSA-SHA2-128s, SLH-DSA-SHA2-128f"
+    })
+    public void testTranslateKeySiblingRejection(String factoryAlg, String keyAlg) throws Exception {
+        assumeFalse((BaseUtils.isSLHDSA(factoryAlg) || BaseUtils.isSLHDSA(keyAlg)) && !BaseUtils.isOpenSSLProvider(getProviderName()));
+        KeyFactory kf = KeyFactory.getInstance(factoryAlg, getProviderName());
+        PublicKey key = generateKeyPair(keyAlg).getPublic();
         try {
-            kem512Factory.translateKey(mlKem768Key);
-            fail("Expected InvalidKeyException when translating ML-KEM-768 key "
-                    + "with ML-KEM-512 factory");
+            kf.translateKey(key);
+            fail("Expected InvalidKeyException when translating " + keyAlg + " key with " + factoryAlg + " factory");
         } catch (InvalidKeyException e) {
-            assertTrue(e.getMessage().equals("Expected a ML-KEM-512 key, but got ML-KEM-768"), "Different Message then expected: " + e.getMessage());
-        }
-
-        // ML-DSA-44 factory must reject an ML-DSA-87 key
-        KeyFactory dsa44Factory = KeyFactory.getInstance("ML-DSA-44", getProviderName());
-        PrivateKey mlDsa87Key = generateKeyPair("ML-DSA-87").getPrivate();
-        try {
-            dsa44Factory.translateKey(mlDsa87Key);
-            fail("Expected InvalidKeyException when translating ML-DSA-87 key "
-                    + "with ML-DSA-44 factory");
-        } catch (InvalidKeyException e) {
-            assertTrue(e.getMessage().startsWith("Expected a ML-DSA-44 key, but got ML-DSA-87"), "Different Message then expected: " + e.getMessage());
+            assertTrue(e.getMessage().startsWith("Expected a " + factoryAlg + " key, but got " + keyAlg),
+                    "Different Message than expected: " + e.getMessage());
         }
     }
 
@@ -905,10 +927,11 @@ public class TestPQCKeys extends BaseTest {
      * Verifies that the OID embedded in the DER-encoded public and private key
      * matches the NIST-assigned OID for every supported PQC algorithm.
      *
-     * <p>The X.509 SubjectPublicKeyInfo structure encodes the AlgorithmIdentifier
-     * as the first inner SEQUENCE, with the OID at a fixed offset of 4 bytes in.
-     * The PKCS#8 OneAsymmetricKey structure places the OID at offset 9.
-     * Both are checked here to ensure {@link com.ibm.crypto.plus.provider.PQCKnownOIDs}
+     * <p>The OID position is derived dynamically from the outer SEQUENCE length
+     * encoding: small keys (e.g. SLH-DSA, 32-byte public key) use a 2-byte
+     * short-form header, while large keys (ML-KEM, ML-DSA) use a 4-byte long-form
+     * header.  Both the X.509 SubjectPublicKeyInfo and PKCS#8 OneAsymmetricKey
+     * encodings are checked to ensure {@link com.ibm.crypto.plus.provider.PQCKnownOIDs}
      * and {@link com.ibm.crypto.plus.provider.PQCAlgorithmId} agree with the standard.
      *
      * <p>OID values are from NIST FIPS 203/204/205:
@@ -933,11 +956,26 @@ public class TestPQCKeys extends BaseTest {
         "ML-DSA-65,            608648016503040312",
         "ML-DSA-87,            608648016503040313",
         // Generic ML-DSA name defaults to ML-DSA-65 (OID 2.16.840.1.101.3.4.3.18)
-        "ML-DSA,               608648016503040312"
+        "ML-DSA,               608648016503040312",
+        "SLH-DSA-SHA2-128s,    608648016503040314",
+        "SLH-DSA-SHA2-128f,    608648016503040315",
+        "SLH-DSA-SHA2-192s,    608648016503040316",
+        "SLH-DSA-SHA2-192f,    608648016503040317",
+        "SLH-DSA-SHA2-256s,    608648016503040318",
+        "SLH-DSA-SHA2-256f,    608648016503040319",
+        "SLH-DSA-SHAKE-128s,   60864801650304031a",
+        "SLH-DSA-SHAKE-128f,   60864801650304031b",
+        "SLH-DSA-SHAKE-192s,   60864801650304031c",
+        "SLH-DSA-SHAKE-192f,   60864801650304031d",
+        "SLH-DSA-SHAKE-256s,   60864801650304031e",
+        "SLH-DSA-SHAKE-256f,   60864801650304031f",
+        // Generic SLH-DSA name defaults to SLH-DSA-SHA2-128s (OID 2.16.840.1.101.3.4.3.20)
+        "SLH-DSA,              608648016503040314"
     })
     public void testEncodedKeyContainsCorrectOID(String algorithm, String expectedOidHex)
             throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
         // Strip any whitespace introduced by CsvSource padding
         expectedOidHex = expectedOidHex.strip();
@@ -945,33 +983,34 @@ public class TestPQCKeys extends BaseTest {
         KeyPair kp = generateKeyPair(algorithm);
 
         // --- Public key (X.509 SubjectPublicKeyInfo) ---
-        // These keys are large so the outer SEQUENCE uses a 2-byte length:
-        //   30 82 xx xx  -- outer SEQUENCE (4-byte header)
-        //   30 0b        -- AlgorithmIdentifier SEQUENCE at byte offset 4
-        //   06 09        -- OID tag + length at byte offset 6
-        //   <9 bytes>    -- OID value starting at byte offset 8
+        // Structure: SEQUENCE { SEQUENCE { OID, ... }, BIT STRING }
+        // The outer SEQUENCE header is 2 bytes for short-form (small keys like SLH-DSA)
+        // or 4 bytes for long-form (large keys like ML-KEM/ML-DSA).  Skip it dynamically.
         byte[] x509 = kp.getPublic().getEncoded();
-        String x509hex = BaseUtils.bytesToHex(x509);
-        // hex chars: each byte = 2 chars; OID tag+len at hex offset 12 (bytes 6-7)
-        assertEquals("0609", x509hex.substring(12, 16),
+        // byte 0 = 0x30 (SEQUENCE tag); byte 1 = length byte
+        // if bit 7 of byte 1 is set it is long-form: the low 7 bits give the number of
+        // subsequent length bytes.  For our keys only 1 or 2 extra length bytes are used.
+        int x509HeaderLen = (x509[1] & 0x80) != 0 ? 2 + (x509[1] & 0x7f) : 2;
+        // after outer header: inner AlgId SEQUENCE (30 0b), then OID tag+len (06 09)
+        int x509OidTagOffset = x509HeaderLen + 2; // skip inner SEQUENCE tag + length byte
+        assertEquals("0609", BaseUtils.bytesToHex(new byte[]{x509[x509OidTagOffset], x509[x509OidTagOffset + 1]}),
                 "X.509 encoding for " + algorithm + " should contain OID tag 06, length 09");
-        String actualPublicOid = x509hex.substring(16, 34); // 9 bytes * 2 hex chars = 18 chars
+        String actualPublicOid = BaseUtils.bytesToHex(java.util.Arrays.copyOfRange(
+                x509, x509OidTagOffset + 2, x509OidTagOffset + 11)); // 9 OID bytes
         assertEquals(expectedOidHex, actualPublicOid,
                 "X.509 OID mismatch for " + algorithm);
 
         // --- Private key (PKCS#8 OneAsymmetricKey) ---
-        // These keys are large so both the outer SEQUENCE and the AlgId are long-form:
-        //   30 82 xx xx  -- outer SEQUENCE (4-byte header)
-        //   02 01 00     -- version INTEGER 0 at byte offset 4
-        //   30 0b        -- AlgorithmIdentifier SEQUENCE at byte offset 7
-        //   06 09        -- OID tag + length at byte offset 9
-        //   <9 bytes>    -- OID value starting at byte offset 11
+        // Structure: SEQUENCE { INTEGER (version=0), SEQUENCE { OID, ... }, OCTET STRING }
+        // Same variable-length outer SEQUENCE header, then 02 01 00 (3 bytes), then AlgId.
         byte[] pkcs8 = kp.getPrivate().getEncoded();
-        String pkcs8hex = BaseUtils.bytesToHex(pkcs8);
-        // hex offset 18 = byte offset 9 (OID tag+len)
-        assertEquals("0609", pkcs8hex.substring(18, 22),
+        int pkcs8HeaderLen = (pkcs8[1] & 0x80) != 0 ? 2 + (pkcs8[1] & 0x7f) : 2;
+        // after outer header: version INTEGER (02 01 00 = 3 bytes), inner AlgId SEQUENCE (30 0b)
+        int pkcs8OidTagOffset = pkcs8HeaderLen + 3 + 2; // skip version + inner SEQUENCE tag+len
+        assertEquals("0609", BaseUtils.bytesToHex(new byte[]{pkcs8[pkcs8OidTagOffset], pkcs8[pkcs8OidTagOffset + 1]}),
                 "PKCS#8 encoding for " + algorithm + " should contain OID tag 06, length 09");
-        String actualPrivateOid = pkcs8hex.substring(22, 40); // 9 bytes * 2 hex chars = 18 chars
+        String actualPrivateOid = BaseUtils.bytesToHex(java.util.Arrays.copyOfRange(
+                pkcs8, pkcs8OidTagOffset + 2, pkcs8OidTagOffset + 11)); // 9 OID bytes
         assertEquals(expectedOidHex, actualPrivateOid,
                 "PKCS#8 OID mismatch for " + algorithm);
 
@@ -983,9 +1022,7 @@ public class TestPQCKeys extends BaseTest {
         assertArrayEquals(pkcs8, priv2.getEncoded(), "Private key round-trip failed for " + algorithm);
 
         // Confirm getAlgorithm() returns the expected family name
-        String expectedFamily = algorithm.startsWith("ML-KEM") ? "ML-KEM"
-                              : algorithm.startsWith("ML-DSA") ? "ML-DSA"
-                              : algorithm; // SLH-DSA variants have no family alias yet
+        String expectedFamily = BaseUtils.getFamilyName(algorithm);
         assertEquals(expectedFamily, pub2.getAlgorithm(),
                 "getAlgorithm() family name mismatch on public key for " + algorithm);
         assertEquals(expectedFamily, priv2.getAlgorithm(),
@@ -1017,6 +1054,7 @@ public class TestPQCKeys extends BaseTest {
             String alias, String canonicalParamSet, String expectedFamily)
             throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(canonicalParamSet) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
         // Generate with the canonical param-set name so we have a known key
         KeyPair kp = generateKeyPair(canonicalParamSet);
@@ -1113,26 +1151,47 @@ public class TestPQCKeys extends BaseTest {
             Arguments.of("ml_dsa_87",                     "ML-DSA-87",   "ML-DSA"),
             Arguments.of("mldsa87",                       "ML-DSA-87",   "ML-DSA"),
             Arguments.of("MlDsa87",                       "ML-DSA-87",   "ML-DSA"),
-            Arguments.of("oid.2.16.840.1.101.3.4.3.19",  "ML-DSA-87",   "ML-DSA")
+            Arguments.of("oid.2.16.840.1.101.3.4.3.19",  "ML-DSA-87",   "ML-DSA"),
+            // ---- SLH-DSA-SHA2-128s aliases ----
+            Arguments.of("SLH_DSA_SHA2_128s",             "SLH-DSA-SHA2-128s", "SLH-DSA"),
+            Arguments.of("SLHDSASHA2128s",               "SLH-DSA-SHA2-128s", "SLH-DSA"),
+            Arguments.of("OID.2.16.840.1.101.3.4.3.20",  "SLH-DSA-SHA2-128s", "SLH-DSA"),
+            Arguments.of("2.16.840.1.101.3.4.3.20",      "SLH-DSA-SHA2-128s", "SLH-DSA"),
+            // mixed-case SLH-DSA-SHA2-128s
+            Arguments.of("slh-dsa-sha2-128s",             "SLH-DSA-SHA2-128s", "SLH-DSA"),
+            Arguments.of("Slh-Dsa-Sha2-128s",             "SLH-DSA-SHA2-128s", "SLH-DSA"),
+            Arguments.of("slh_dsa_sha2_128s",             "SLH-DSA-SHA2-128s", "SLH-DSA"),
+            Arguments.of("slhdsasha2128s",               "SLH-DSA-SHA2-128s", "SLH-DSA"),
+            Arguments.of("SlhDsaSha2128s",               "SLH-DSA-SHA2-128s", "SLH-DSA"),
+            Arguments.of("oid.2.16.840.1.101.3.4.3.20",  "SLH-DSA-SHA2-128s", "SLH-DSA"),
+            // ---- SLH-DSA-SHAKE-256f aliases ----
+            Arguments.of("SLH_DSA_SHAKE_256f",            "SLH-DSA-SHAKE-256f", "SLH-DSA"),
+            Arguments.of("SLHDSASHAKE256f",              "SLH-DSA-SHAKE-256f", "SLH-DSA"),
+            Arguments.of("OID.2.16.840.1.101.3.4.3.31",  "SLH-DSA-SHAKE-256f", "SLH-DSA"),
+            Arguments.of("2.16.840.1.101.3.4.3.31",      "SLH-DSA-SHAKE-256f", "SLH-DSA"),
+            // mixed-case SLH-DSA-SHAKE-256f
+            Arguments.of("slh-dsa-shake-256f",            "SLH-DSA-SHAKE-256f", "SLH-DSA"),
+            Arguments.of("Slh-Dsa-Shake-256f",            "SLH-DSA-SHAKE-256f", "SLH-DSA"),
+            Arguments.of("slh_dsa_shake_256f",            "SLH-DSA-SHAKE-256f", "SLH-DSA"),
+            Arguments.of("slhdsashake256f",              "SLH-DSA-SHAKE-256f", "SLH-DSA"),
+            Arguments.of("SlhDsaShake256f",              "SLH-DSA-SHAKE-256f", "SLH-DSA"),
+            Arguments.of("oid.2.16.840.1.101.3.4.3.31",  "SLH-DSA-SHAKE-256f", "SLH-DSA")
         );
     }
 
     /**
-     * Verifies that all registered OID alias forms for the ML-DSA {@code Signature}
-     * service resolve to the correct param-set implementation and can sign and
+     * Verifies that all registered OID alias forms for the signature
+     * services resolve to the correct param-set implementation and can sign and
      * verify a message.
-     *
-     * <p>The provider registers four alias forms per ML-DSA param-set:
-     * {@code ML_DSA_44}, {@code MLDSA44}, {@code OID.2.16.840.1.101.3.4.3.17},
-     * and {@code 2.16.840.1.101.3.4.3.17} (and equivalent for -65 and -87).
      *
      * <p>Parameters: alias, canonical param-set name used to generate the signing key.
      */
     @ParameterizedTest
     @MethodSource("signatureOidAliasArgs")
-    public void testMLDSASignatureOidAliasWorks(String alias, String canonicalParamSet)
+    public void testPQCSignatureOidAliasWorks(String alias, String canonicalParamSet)
             throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(canonicalParamSet) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
         byte[] msg = "test message for OID alias signature".getBytes();
 
@@ -1191,7 +1250,31 @@ public class TestPQCKeys extends BaseTest {
             Arguments.of("ml_dsa_87",                    "ML-DSA-87"),
             Arguments.of("mldsa87",                      "ML-DSA-87"),
             Arguments.of("MlDsa87",                      "ML-DSA-87"),
-            Arguments.of("oid.2.16.840.1.101.3.4.3.19", "ML-DSA-87")
+            Arguments.of("oid.2.16.840.1.101.3.4.3.19", "ML-DSA-87"),
+            // ---- SLH-DSA-SHA2-128s aliases ----
+            Arguments.of("SLH_DSA_SHA2_128s",            "SLH-DSA-SHA2-128s"),
+            Arguments.of("SLHDSASHA2128s",              "SLH-DSA-SHA2-128s"),
+            Arguments.of("OID.2.16.840.1.101.3.4.3.20", "SLH-DSA-SHA2-128s"),
+            Arguments.of("2.16.840.1.101.3.4.3.20",     "SLH-DSA-SHA2-128s"),
+            // mixed-case SLH-DSA-SHA2-128s
+            Arguments.of("slh-dsa-sha2-128s",            "SLH-DSA-SHA2-128s"),
+            Arguments.of("Slh-Dsa-Sha2-128s",            "SLH-DSA-SHA2-128s"),
+            Arguments.of("slh_dsa_sha2_128s",            "SLH-DSA-SHA2-128s"),
+            Arguments.of("slhdsasha2128s",              "SLH-DSA-SHA2-128s"),
+            Arguments.of("SlhDsaSha2128s",              "SLH-DSA-SHA2-128s"),
+            Arguments.of("oid.2.16.840.1.101.3.4.3.20", "SLH-DSA-SHA2-128s"),
+            // ---- SLH-DSA-SHAKE-256f aliases ----
+            Arguments.of("SLH_DSA_SHAKE_256f",           "SLH-DSA-SHAKE-256f"),
+            Arguments.of("SLHDSASHAKE256f",             "SLH-DSA-SHAKE-256f"),
+            Arguments.of("OID.2.16.840.1.101.3.4.3.31", "SLH-DSA-SHAKE-256f"),
+            Arguments.of("2.16.840.1.101.3.4.3.31",     "SLH-DSA-SHAKE-256f"),
+            // mixed-case SLH-DSA-SHAKE-256f
+            Arguments.of("slh-dsa-shake-256f",           "SLH-DSA-SHAKE-256f"),
+            Arguments.of("Slh-Dsa-Shake-256f",           "SLH-DSA-SHAKE-256f"),
+            Arguments.of("slh_dsa_shake_256f",           "SLH-DSA-SHAKE-256f"),
+            Arguments.of("slhdsashake256f",             "SLH-DSA-SHAKE-256f"),
+            Arguments.of("SlhDsaShake256f",             "SLH-DSA-SHAKE-256f"),
+            Arguments.of("oid.2.16.840.1.101.3.4.3.31", "SLH-DSA-SHAKE-256f")
         );
     }
 

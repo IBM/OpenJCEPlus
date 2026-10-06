@@ -37,7 +37,9 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "                                       PBEWithSHA1AndDESede, PBEWithSHA1AndRC2_40, PBEWithSHA1AndRC2_128, PBEWithSHA1AndRC4_40, PBEWithSHA1AndRC4_128\n"
             + "Key agreement algorithms           : DiffieHellman, ECDH, XDH\n"
             + "Key Encapsulation Mechanisms       : ML-KEM-512, ML-KEM-768, ML-KEM-1024\n"
-            + "Key factory                        : DiffieHellman, DSA, EC, XEC,  RSA, RSAPSS, ML-KEM-512, ML-KEM-768, ML-KEM-1024\n"
+            + "Key factory                        : DiffieHellman, DSA, EC, XEC,  RSA, RSAPSS, ML-KEM-512, ML-KEM-768, ML-KEM-1024, ML-DSA-44, ML-DSA-65, ML-DSA-87,\n"
+            + "                                       SLH-DSA-SHA2-128s, SLH-DSA-SHA2-128f, SLH-DSA-SHA2-192s, SLH-DSA-SHA2-192f, SLH-DSA-SHA2-256s, SLH-DSA-SHA2-256f,\n"
+            + "                                       SLH-DSA-SHAKE-128s, SLH-DSA-SHAKE-128f, SLH-DSA-SHAKE-192s, SLH-DSA-SHAKE-192f, SLH-DSA-SHAKE-256s, SLH-DSA-SHAKE-256f\n"
             + "Key generator                      : AES, ChaCha20, DESede, HmacMD5, HmacSHA1, HmacSHA224,\n"
             + "                                       HmacMD5, HmacSHA1, HmacSHA224, HmacSHA256, HmacSHA384, HmacSHA512,\n"
             + "                                       HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512,\n"
@@ -45,7 +47,9 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "                                       kda-hkdf-with-sha256, kda-hkdf-with-sha384,\n"
             + "                                       kda-hkdf-with-sha512\n"
             + "Key pair generator                 : DiffieHellman, DSA, EC, XEC, RSA, ML-DSA-44, ML-DSA-65, ML-DSA-87,\n"
-            + "                                       ML-KEM-512, ML-KEM-768, ML-KEM-1024\n"
+            + "                                       ML-KEM-512, ML-KEM-768, ML-KEM-1024,\n"
+            + "                                       SLH-DSA-SHA2-128s, SLH-DSA-SHA2-128f, SLH-DSA-SHA2-192s, SLH-DSA-SHA2-192f, SLH-DSA-SHA2-256s, SLH-DSA-SHA2-256f,\n"
+            + "                                       SLH-DSA-SHAKE-128s, SLH-DSA-SHAKE-128f, SLH-DSA-SHAKE-192s, SLH-DSA-SHAKE-192f, SLH-DSA-SHAKE-256s, SLH-DSA-SHAKE-256f\n"
             + "Message authentication code (MAC)  : HmacMD5, HmacSHA1, HmacSHA224, HmacSHA256, HmacSHA384, HmacSHA512\n"
             + "                                       , HmacSHA3-224, HmacSHA3-256, HmacSHA3-384, HmacSHA3-512\n"
             + "                                     PBEWithHmacSHA1, PBEWithHmacSHA224, PBEWithHmacSHA256, PBEWithHmacSHA384, PBEWithHmacSHA512, PBEWithHmacSHA512/224, PBEWithHmacSHA512/256\n"
@@ -66,7 +70,9 @@ public final class OpenJCEPlus extends OpenJCEPlusProvider {
             + "                                       NONEwithRSA, SHA1withRSA, SHA224withRSA,\n"
             + "                                       SHA256withRSA, SHA384withRSA, SHA512withRSA, RSAPSS, Ed25519, Ed448,\n"
             + "                                       SHA3-224withRSA, SHA3-256withRSA, SHA3-384withRSA, SHA3-512withRSA,\n"
-            + "                                       ML_DSA_44, ML_DSA_65, ML_DSA_87\n";
+            + "                                       ML_DSA_44, ML_DSA_65, ML_DSA_87,\n"
+            + "                                       SLH-DSA-SHA2-128s, SLH-DSA-SHA2-128f, SLH-DSA-SHA2-192s, SLH-DSA-SHA2-192f, SLH-DSA-SHA2-256s, SLH-DSA-SHA2-256f,\n"
+            + "                                       SLH-DSA-SHAKE-128s, SLH-DSA-SHAKE-128f, SLH-DSA-SHAKE-192s, SLH-DSA-SHAKE-192f, SLH-DSA-SHAKE-256s, SLH-DSA-SHAKE-256f\n";
 
 
     private static final String OID_PKCS3 = "1.2.840.113549.1.3.1";

@@ -79,12 +79,13 @@ abstract class PQCSignatureImpl extends SignatureSpi {
 
         // Validate that the key's param-set matches the algorithm for this Signature instance.
         // Use getParamSetName() (e.g. "ML-DSA-65") rather than getAlgorithm() (which now returns
-        // the family name "ML-DSA" per JEP 497) so that specific instances (MLDSA44, etc.) still
+        // the family name "ML-DSA" / "SLH-DSA" per JEP 497) so that specific instances (MLDSA44, etc.) still
         // reject keys from the wrong parameter set.
-        // The generic "ML-DSA" instance accepts any ML-DSA parameter-set key.
+        // The generic "ML-DSA" and "SLH-DSA" instances accept any parameter-set key from their family.
         String keyParam = keyPrivate.getParamSetName();
         boolean paramMatches = keyParam.equalsIgnoreCase(this.alg)
-            || ("ML-DSA".equals(this.alg) && keyParam.startsWith("ML-DSA-"));
+            || ("ML-DSA".equals(this.alg) && keyParam.startsWith("ML-DSA-"))
+            || ("SLH-DSA".equals(this.alg) && keyParam.startsWith("SLH-DSA-"));
         if (!paramMatches) {
             throw new InvalidKeyException("Key must be of algorithm " + this.alg);
         }
@@ -110,12 +111,13 @@ abstract class PQCSignatureImpl extends SignatureSpi {
         }
         // Validate that the key's param-set matches the algorithm for this Signature instance.
         // Use getParamSetName() (e.g. "ML-DSA-65") rather than getAlgorithm() (which now returns
-        // the family name "ML-DSA" per JEP 497) so that specific instances still reject
+        // the family name "ML-DSA" / "SLH-DSA" per JEP 497) so that specific instances still reject
         // keys from the wrong parameter set.
-        // The generic "ML-DSA" instance accepts any ML-DSA parameter-set key.
+        // The generic "ML-DSA" and "SLH-DSA" instances accept any parameter-set key from their family.
         String keyParam = keyPublic.getParamSetName();
         boolean paramMatches = keyParam.equalsIgnoreCase(this.alg)
-            || ("ML-DSA".equals(this.alg) && keyParam.startsWith("ML-DSA-"));
+            || ("ML-DSA".equals(this.alg) && keyParam.startsWith("ML-DSA-"))
+            || ("SLH-DSA".equals(this.alg) && keyParam.startsWith("SLH-DSA-"));
         if (!paramMatches) {
             throw new InvalidKeyException("Expected algorithm " + this.alg + ", but got " + keyParam);
         }
@@ -203,6 +205,13 @@ abstract class PQCSignatureImpl extends SignatureSpi {
 
         public MLDSA87(OpenJCEPlusProvider provider) {
             super(provider, "ML-DSA-87");
+        }
+    }
+
+    public static final class SLHDSA extends PQCSignatureImpl {
+
+        public SLHDSA(OpenJCEPlusProvider provider) {
+            super(provider, "SLH-DSA");
         }
     }
 

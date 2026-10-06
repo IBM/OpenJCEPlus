@@ -57,6 +57,24 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
                     throw new InvalidAlgorithmParameterException(
                         "Unsupported parameter set name: " + name);
                 }
+            } else if (pqcAlg.equals("SLH-DSA")) {
+                if (name.equalsIgnoreCase("SLH-DSA-SHA2-128s") ||
+                    name.equalsIgnoreCase("SLH-DSA-SHAKE-128s") ||
+                    name.equalsIgnoreCase("SLH-DSA-SHA2-128f") ||
+                    name.equalsIgnoreCase("SLH-DSA-SHAKE-128f") ||
+                    name.equalsIgnoreCase("SLH-DSA-SHA2-192s") ||
+                    name.equalsIgnoreCase("SLH-DSA-SHAKE-192s") ||
+                    name.equalsIgnoreCase("SLH-DSA-SHA2-192f") ||
+                    name.equalsIgnoreCase("SLH-DSA-SHAKE-192f") ||
+                    name.equalsIgnoreCase("SLH-DSA-SHA2-256s") ||
+                    name.equalsIgnoreCase("SLH-DSA-SHAKE-256s") ||
+                    name.equalsIgnoreCase("SLH-DSA-SHA2-256f") ||
+                    name.equalsIgnoreCase("SLH-DSA-SHAKE-256f")) {
+                    pqcAlg = name;
+                } else {
+                    throw new InvalidAlgorithmParameterException(
+                        "Unsupported parameter set name: " + name);
+                }
             } else if (!pqcAlg.equalsIgnoreCase(name)) {
                 throw new InvalidAlgorithmParameterException(
                     "Algorithm in AlgorithmParameterSpec: " + spec.getName() +
@@ -88,6 +106,9 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
                     break;
                 case "ML-DSA":
                     pqcAlg = "ML-DSA-65";
+                    break;
+                case "SLH-DSA":
+                    pqcAlg = "SLH-DSA-SHA2-128s";
                     break;
                 default:
                     //We have the alg already
@@ -156,6 +177,13 @@ abstract class PQCKeyPairGenerator extends KeyPairGeneratorSpi {
 
         public MLDSA87(OpenJCEPlusProvider provider) {
             super(provider, "ML-DSA-87");
+        }
+    }
+
+    public static final class SLHDSA extends PQCKeyPairGenerator {
+
+        public SLHDSA(OpenJCEPlusProvider provider) {
+            super(provider, "SLH-DSA");
         }
     }
 

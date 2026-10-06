@@ -251,6 +251,10 @@ public class BaseTestDeterministic extends BaseTestJunit5 {
             case "Ed448", "X448" -> 448;
             case "ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024" -> 0;
             case "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87" -> 0;
+            case "SLH-DSA",
+                 "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+                 "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+                 "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f" -> 0;
             default -> throw new UnsupportedOperationException(alg);
         };
         if (size != 0) {

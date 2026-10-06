@@ -188,8 +188,14 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
      * different private-key encoding.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testPQCKeyGenMLDSA_PlusToInterop(String pqcAlgorithm) throws Exception {
+    @CsvSource({
+        "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testPQCKeyGenSignature_PlusToInterop(String pqcAlgorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(pqcAlgorithm) && (!BaseUtils.isOpenSSLProvider(getProviderName()) || !Utils.PROVIDER_BC.equals(getInteropProviderName2())));
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
         keyFactoryPlus = KeyFactory.getInstance(pqcAlgorithm, getProviderName());
         keyPairGenInterop = KeyPairGenerator.getInstance(pqcAlgorithm, getInteropProviderName2());
@@ -223,10 +229,16 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
      * encoded, and imported by OpenJCEPlus.  Public-key byte equality is verified.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testPQCKeyGenMLDSA_Interop(String pqcAlgorithm) throws Exception {
+    @CsvSource({
+        "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testPQCKeyGenSignature_Interop(String pqcAlgorithm) throws Exception {
         // BC provider generates seed format privatekey
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(pqcAlgorithm));
 
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
         keyFactoryPlus = KeyFactory.getInstance(pqcAlgorithm, getProviderName());
@@ -261,10 +273,16 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
      * the raw encoding from the interop provider then imports it into OpenJCEPlus.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testPQCKeyGenMLDSA_PlusToInteropRAW(String pqcAlgorithm) throws Exception {
+    @CsvSource({
+        "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testPQCKeyGenSignature_PlusToInteropRAW(String pqcAlgorithm) throws Exception {
         // Bouncy Castle does not support this test.
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(pqcAlgorithm));
 
         keyPairGenPlus = KeyPairGenerator.getInstance(pqcAlgorithm, getProviderName());
         keyFactoryPlus = KeyFactory.getInstance(pqcAlgorithm, getProviderName());
@@ -309,10 +327,16 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    @CsvSource({
+        "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
     public void testSignInteropAndVerifyPlus(String algorithm) throws Exception {
         // Boucncy Castle does not support this test when ML-DSA is specified.
         assumeFalse(algorithm.equalsIgnoreCase("ML-DSA") && getInteropProviderName2().equalsIgnoreCase("BC"));
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && (!BaseUtils.isOpenSSLProvider(getProviderName()) || !Utils.PROVIDER_BC.equals(getInteropProviderName2())));
 
         try {
             keyPairGenInterop = KeyPairGenerator.getInstance(algorithm, getInteropProviderName2());
@@ -343,10 +367,16 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    @CsvSource({
+        "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
     public void testSignInteropKeysPlusSignVerify(String algorithm) {
         //Bouncy Castle does not support this test.
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName2()));
+        assumeFalse(BaseUtils.isSLHDSA(algorithm));
 
         try {
             keyPairGenInterop = KeyPairGenerator.getInstance(algorithm, getInteropProviderName2());
@@ -376,10 +406,16 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    @CsvSource({
+        "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
     public void testSignPlusKeysInteropSignVerify(String algorithm) {
         //Bouncy Castle does not support this test.
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName2()));
+        assumeFalse(BaseUtils.isSLHDSA(algorithm));
 
         try {
             keyPairGenPlus = KeyPairGenerator.getInstance(algorithm, getProviderName());
@@ -409,8 +445,14 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
+    @CsvSource({
+        "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
     public void testSignPlusAndVerifyInterop(String algorithm) {
+        assumeFalse(BaseUtils.isSLHDSA(algorithm) && (!BaseUtils.isOpenSSLProvider(getProviderName()) || !Utils.PROVIDER_BC.equals(getInteropProviderName2())));
         try {
             keyPairGenPlus = KeyPairGenerator.getInstance(algorithm, getProviderName());
             KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
@@ -772,11 +814,17 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testMLDSAGetKeySpecPrivateInteropToPlus(String algorithm)
+    @CsvSource({
+        "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testSignatureGetKeySpecPrivateInteropToPlus(String algorithm)
             throws Exception {
         // Bouncy Castle does not support this test.
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(algorithm));
 
         KeyFactory openjceplusKeyFactory = KeyFactory.getInstance(algorithm, getProviderName());
         KeyPairGenerator interopKpg = KeyPairGenerator.getInstance(algorithm, getInteropProviderName2());
@@ -864,13 +912,21 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
     }
 
     /**
-     * Tests that OpenJCEPlus' generic {@code KeyFactory.getInstance("ML-DSA")} can
+     * Tests that OpenJCEPlus' generic KeyFactory (e.g. "ML-DSA" or "SLH-DSA") can
      * import public and private keys generated by the interop provider with any
-     * ML-DSA parameter set.  The re-encoded public-key bytes must be identical.
+     * parameter set. The re-encoded public-key bytes must be identical.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testGenericMLDSAKeyFactoryImportsInteropKeys(String paramSetName) throws Exception {
+    @CsvSource({
+        "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testGenericSignatureKeyFactoryImportsInteropKeys(String paramSetName) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(paramSetName) && (!BaseUtils.isOpenSSLProvider(getProviderName()) || !Utils.PROVIDER_BC.equals(getInteropProviderName2())));
+
+        String family = BaseUtils.getFamilyName(paramSetName);
 
         // Generate a key pair with the interop provider using the specific param set
         keyPairGenInterop = KeyPairGenerator.getInstance(paramSetName, getInteropProviderName2());
@@ -879,32 +935,39 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
         byte[] x509Bytes  = keyPairInterop.getPublic().getEncoded();
         byte[] pkcs8Bytes = keyPairInterop.getPrivate().getEncoded();
 
-        // Import via the GENERIC "ML-DSA" KeyFactory on the OpenJCEPlus side
-        KeyFactory genericKF = KeyFactory.getInstance("ML-DSA", getProviderName());
+        // Import via the GENERIC KeyFactory on the OpenJCEPlus side
+        KeyFactory genericKF = KeyFactory.getInstance(family, getProviderName());
 
         PublicKey pub = genericKF.generatePublic(new X509EncodedKeySpec(x509Bytes));
         assertArrayEquals(x509Bytes, pub.getEncoded(),
-                "Generic ML-DSA KF: re-encoded public key bytes differ for " + paramSetName);
+                "Generic " + family + " KF: re-encoded public key bytes differ for " + paramSetName);
 
         // BC private-key encoding differs; only compare against SunJCE
         if (getInteropProviderName().equals(Utils.PROVIDER_SunJCE)) {
             PrivateKey priv = genericKF.generatePrivate(new PKCS8EncodedKeySpec(pkcs8Bytes));
             assertArrayEquals(pkcs8Bytes, priv.getEncoded(),
-                    "Generic ML-DSA KF: re-encoded private key bytes differ for " + paramSetName);
+                    "Generic " + family + " KF: re-encoded private key bytes differ for " + paramSetName);
         }
     }
 
     /**
-     * Tests that keys generated by OpenJCEPlus' generic {@code KeyPairGenerator("ML-DSA")}
-     * (which defaults to ML-DSA-65) can be imported by the interop provider and used
-     * for a successful sign/verify round-trip.
+     * Tests that keys generated by OpenJCEPlus' generic KeyPairGenerator
+     * can be imported by the interop provider and used for a successful sign/verify round-trip.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testMLDSAInteropWithNamedParameterSpec(String paramSetName) throws Exception {
+    @CsvSource({
+        "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testSignatureInteropWithNamedParameterSpec(String paramSetName) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(paramSetName) && (!BaseUtils.isOpenSSLProvider(getProviderName()) || !Utils.PROVIDER_BC.equals(getInteropProviderName2())));
+
+        String family = BaseUtils.getFamilyName(paramSetName);
 
         // Generate a key pair on the OpenJCEPlus side using generic KPG + NamedParameterSpec
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-DSA", getProviderName());
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(family, getProviderName());
         kpg.initialize(new NamedParameterSpec(paramSetName));
         KeyPair keyPairPlus = generateKeyPair(kpg);
 
@@ -916,8 +979,8 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
         assertArrayEquals(keyPairPlus.getPublic().getEncoded(), pubInterop.getEncoded(),
                 "Public key bytes differ after import into interop provider for " + paramSetName);
 
-        // Sign with OpenJCEPlus generic "ML-DSA" Signature
-        Signature sigPlus = Signature.getInstance("ML-DSA", getProviderName());
+        // Sign with OpenJCEPlus generic Signature
+        Signature sigPlus = Signature.getInstance(family, getProviderName());
         sigPlus.initSign(keyPairPlus.getPrivate());
         sigPlus.update(origMsg);
         byte[] sigBytes = sigPlus.sign();
@@ -927,17 +990,24 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
         sigInterop.initVerify(pubInterop);
         sigInterop.update(origMsg);
         assertTrue(sigInterop.verify(sigBytes),
-                "Interop verify failed for signature produced by generic ML-DSA / " + paramSetName);
+                "Interop verify failed for signature produced by generic " + family + " / " + paramSetName);
     }
 
     /**
      * Tests that a signature produced by the interop provider can be verified by
-     * OpenJCEPlus' generic {@code Signature.getInstance("ML-DSA")} instance using a
-     * key imported via the generic {@code KeyFactory.getInstance("ML-DSA")}.
+     * OpenJCEPlus' generic Signature instance using a key imported via generic KeyFactory.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testGenericMLDSASignatureInteropSignsPlusVerifies(String paramSetName) throws Exception {
+    @CsvSource({
+        "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testGenericSignatureInteropSignsPlusVerifies(String paramSetName) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(paramSetName) && (!BaseUtils.isOpenSSLProvider(getProviderName()) || !Utils.PROVIDER_BC.equals(getInteropProviderName2())));
+
+        String family = BaseUtils.getFamilyName(paramSetName);
 
         // Generate and sign with the interop provider
         keyPairGenInterop = KeyPairGenerator.getInstance(paramSetName, getInteropProviderName2());
@@ -948,29 +1018,37 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
         sigInterop.update(origMsg);
         byte[] sigBytes = sigInterop.sign();
 
-        // Import public key into OpenJCEPlus via generic "ML-DSA" KeyFactory
-        KeyFactory genericKF = KeyFactory.getInstance("ML-DSA", getProviderName());
+        // Import public key into OpenJCEPlus via generic KeyFactory
+        KeyFactory genericKF = KeyFactory.getInstance(family, getProviderName());
         PublicKey pubPlus = genericKF.generatePublic(
                 new X509EncodedKeySpec(keyPairInterop.getPublic().getEncoded()));
 
-        // Verify with OpenJCEPlus generic "ML-DSA" Signature
-        Signature sigPlus = Signature.getInstance("ML-DSA", getProviderName());
+        // Verify with OpenJCEPlus generic Signature
+        Signature sigPlus = Signature.getInstance(family, getProviderName());
         sigPlus.initVerify(pubPlus);
         sigPlus.update(origMsg);
         assertTrue(sigPlus.verify(sigBytes),
-                "Generic ML-DSA Signature failed to verify interop signature for " + paramSetName);
+                "Generic " + family + " Signature failed to verify interop signature for " + paramSetName);
     }
 
     /**
      * Tests a full cross-provider sign/verify round-trip using the generic
-     * "ML-DSA" API on the OpenJCEPlus side and the param-set-specific API on the
-     * interop side, for all three ML-DSA parameter sets.
+     * API on the OpenJCEPlus side and the param-set-specific API on the
+     * interop side.
      *
      * <p>OpenJCEPlus signs -> interop verifies, then interop signs -> OpenJCEPlus verifies.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testGenericMLDSASignatureBidirectionalInterop(String paramSetName) throws Exception {
+    @CsvSource({
+        "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testGenericSignatureBidirectionalInterop(String paramSetName) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(paramSetName) && (!BaseUtils.isOpenSSLProvider(getProviderName()) || !Utils.PROVIDER_BC.equals(getInteropProviderName2())));
+
+        String family = BaseUtils.getFamilyName(paramSetName);
 
         // --- Direction 1: OpenJCEPlus signs, interop verifies ---
 
@@ -978,8 +1056,8 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
         keyPairGenPlus = KeyPairGenerator.getInstance(paramSetName, getProviderName());
         KeyPair keyPairPlus = generateKeyPair(keyPairGenPlus);
 
-        // Sign with OpenJCEPlus generic "ML-DSA" Signature
-        Signature sigPlus = Signature.getInstance("ML-DSA", getProviderName());
+        // Sign with OpenJCEPlus generic Signature
+        Signature sigPlus = Signature.getInstance(family, getProviderName());
         sigPlus.initSign(keyPairPlus.getPrivate());
         sigPlus.update(origMsg);
         byte[] sigFromPlus = sigPlus.sign();
@@ -992,7 +1070,7 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
         sigInteropVerify.initVerify(pubInterop);
         sigInteropVerify.update(origMsg);
         assertTrue(sigInteropVerify.verify(sigFromPlus),
-                "Interop failed to verify OpenJCEPlus generic ML-DSA signature for " + paramSetName);
+                "Interop failed to verify OpenJCEPlus generic " + family + " signature for " + paramSetName);
 
         // --- Direction 2: interop signs, OpenJCEPlus verifies ---
 
@@ -1005,40 +1083,53 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
         sigInteropSign.update(origMsg);
         byte[] sigFromInterop = sigInteropSign.sign();
 
-        // Import public key into OpenJCEPlus via generic "ML-DSA" KF, then verify with generic Sig
-        KeyFactory genericKF = KeyFactory.getInstance("ML-DSA", getProviderName());
+        // Import public key into OpenJCEPlus via generic KF, then verify with generic Sig
+        KeyFactory genericKF = KeyFactory.getInstance(family, getProviderName());
         PublicKey pubPlus = genericKF.generatePublic(
                 new X509EncodedKeySpec(keyPairInterop.getPublic().getEncoded()));
-        Signature sigPlusVerify = Signature.getInstance("ML-DSA", getProviderName());
+        Signature sigPlusVerify = Signature.getInstance(family, getProviderName());
         sigPlusVerify.initVerify(pubPlus);
         sigPlusVerify.update(origMsg);
         assertTrue(sigPlusVerify.verify(sigFromInterop),
-                "OpenJCEPlus generic ML-DSA failed to verify interop signature for " + paramSetName);
+                "OpenJCEPlus generic " + family + " failed to verify interop signature for " + paramSetName);
     }
 
     /**
-     * Asserts that {@code key.getAlgorithm()} returns {@code "ML-DSA"} for every
-     * ML-DSA parameter set on both the interop provider and on OpenJCEPlus after
+     * Asserts that {@code key.getAlgorithm()} returns the canonical family name
+     * (e.g. {@code "ML-KEM"}, {@code "ML-DSA"}, {@code "SLH-DSA"}) for every
+     * parameter set on both the interop provider and on OpenJCEPlus after
      * round-tripping through encoded form.
      *
-     * <p>Both providers must agree on the family name per JEP 497.  The BC
+     * <p>Both providers must agree on the family name per JEP 497. The BC
      * provider is excluded because it intentionally returns the param-set name
      * (e.g. {@code "ML-DSA-65"}) rather than the family name.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testMLDSAGetAlgorithmConsistentAcrossProviders(String paramSetName)
+    @CsvSource({
+        "ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024",
+        "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA", "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testPQCGetAlgorithmConsistentAcrossProviders(String paramSetName)
             throws Exception {
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(paramSetName));
 
-        // Generate with the interop provider (SUN)
-        KeyPair interopKP = KeyPairGenerator.getInstance(paramSetName, getInteropProviderName2())
+        String interopProvider = paramSetName.startsWith("ML-KEM")
+                ? getInteropProviderName()
+                : getInteropProviderName2();
+        String family = BaseUtils.getFamilyName(paramSetName);
+
+        // Generate with the interop provider
+        KeyPair interopKP = KeyPairGenerator.getInstance(paramSetName, interopProvider)
                                             .generateKeyPair();
         String interopPubAlg  = interopKP.getPublic().getAlgorithm();
         String interopPrivAlg = interopKP.getPrivate().getAlgorithm();
 
-        // Import into OpenJCEPlus via the generic "ML-DSA" KeyFactory
-        KeyFactory kf = KeyFactory.getInstance("ML-DSA", getProviderName());
+        // Import into OpenJCEPlus via the generic KeyFactory
+        KeyFactory kf = KeyFactory.getInstance(family, getProviderName());
         PublicKey  plusPub  = kf.generatePublic(
                 new X509EncodedKeySpec(interopKP.getPublic().getEncoded()));
         PrivateKey plusPriv = kf.generatePrivate(
@@ -1046,60 +1137,17 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
 
         // Both providers must return the same algorithm name
         assertEquals(interopPubAlg, plusPub.getAlgorithm(),
-                "Public key getAlgorithm() mismatch between " + getInteropProviderName2()
+                "Public key getAlgorithm() mismatch between " + interopProvider
                 + " and " + getProviderName() + " for " + paramSetName);
         assertEquals(interopPrivAlg, plusPriv.getAlgorithm(),
-                "Private key getAlgorithm() mismatch between " + getInteropProviderName2()
+                "Private key getAlgorithm() mismatch between " + interopProvider
                 + " and " + getProviderName() + " for " + paramSetName);
 
         // OpenJCEPlus must return the canonical family name
-        assertEquals("ML-DSA", plusPub.getAlgorithm(),
-                "OpenJCEPlus public key should return family name \"ML-DSA\" for " + paramSetName);
-        assertEquals("ML-DSA", plusPriv.getAlgorithm(),
-                "OpenJCEPlus private key should return family name \"ML-DSA\" for " + paramSetName);
-    }
-
-    /**
-     * Asserts that {@code key.getAlgorithm()} returns {@code "ML-KEM"} for every
-     * ML-KEM parameter set on both the interop provider and on OpenJCEPlus after
-     * round-tripping through encoded form.
-     *
-     * <p>Both providers must agree on the family name per JEP 497.  The BC
-     * provider is excluded because it intentionally returns the param-set name
-     * (e.g. {@code "ML-KEM-512"}) rather than the family name.
-     */
-    @ParameterizedTest
-    @CsvSource({"ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
-    public void testMLKEMGetAlgorithmConsistentAcrossProviders(String paramSetName)
-            throws Exception {
-        assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
-
-        // Generate with the interop provider (SunJCE)
-        KeyPair interopKP = KeyPairGenerator.getInstance(paramSetName, getInteropProviderName())
-                                            .generateKeyPair();
-        String interopPubAlg  = interopKP.getPublic().getAlgorithm();
-        String interopPrivAlg = interopKP.getPrivate().getAlgorithm();
-
-        // Import into OpenJCEPlus
-        KeyFactory kf = KeyFactory.getInstance(paramSetName, getProviderName());
-        PublicKey  plusPub  = kf.generatePublic(
-                new X509EncodedKeySpec(interopKP.getPublic().getEncoded()));
-        PrivateKey plusPriv = kf.generatePrivate(
-                new PKCS8EncodedKeySpec(interopKP.getPrivate().getEncoded()));
-
-        // Both providers must return the same algorithm name
-        assertEquals(interopPubAlg, plusPub.getAlgorithm(),
-                "Public key getAlgorithm() mismatch between " + getInteropProviderName()
-                + " and " + getProviderName() + " for " + paramSetName);
-        assertEquals(interopPrivAlg, plusPriv.getAlgorithm(),
-                "Private key getAlgorithm() mismatch between " + getInteropProviderName()
-                + " and " + getProviderName() + " for " + paramSetName);
-
-        // OpenJCEPlus must return the canonical family name
-        assertEquals("ML-KEM", plusPub.getAlgorithm(),
-                "OpenJCEPlus public key should return family name \"ML-KEM\" for " + paramSetName);
-        assertEquals("ML-KEM", plusPriv.getAlgorithm(),
-                "OpenJCEPlus private key should return family name \"ML-KEM\" for " + paramSetName);
+        assertEquals(family, plusPub.getAlgorithm(),
+                "OpenJCEPlus public key should return family name \"" + family + "\" for " + paramSetName);
+        assertEquals(family, plusPriv.getAlgorithm(),
+                "OpenJCEPlus private key should return family name \"" + family + "\" for " + paramSetName);
     }
 
     @ParameterizedTest
@@ -1111,7 +1159,20 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
             "ML-DSA",
             "ML-DSA-44",
             "ML-DSA-65",
-            "ML-DSA-87"
+            "ML-DSA-87",
+            "SLH-DSA",
+            "SLH-DSA-SHA2-128s",
+            "SLH-DSA-SHA2-128f",
+            "SLH-DSA-SHA2-192s",
+            "SLH-DSA-SHA2-192f",
+            "SLH-DSA-SHA2-256s",
+            "SLH-DSA-SHA2-256f",
+            "SLH-DSA-SHAKE-128s",
+            "SLH-DSA-SHAKE-128f",
+            "SLH-DSA-SHAKE-192s",
+            "SLH-DSA-SHAKE-192f",
+            "SLH-DSA-SHAKE-256s",
+            "SLH-DSA-SHAKE-256f"
     })
     public void testPQCGetParamsInterop(String algorithm) throws Exception {
 
@@ -1122,6 +1183,7 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
         // BC currently does not override AsymmetricKey.getParams()
         // for its ML-KEM/ML-DSA key classes.
         assumeFalse(Utils.PROVIDER_BC.equals(interopProvider));
+        assumeFalse(BaseUtils.isSLHDSA(algorithm));
 
         KeyPair openjceplusKeyPair =
                 KeyPairGenerator.getInstance(algorithm, getProviderName())

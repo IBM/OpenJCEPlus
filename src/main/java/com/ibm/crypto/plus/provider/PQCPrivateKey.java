@@ -48,21 +48,21 @@ final class PQCPrivateKey extends PKCS8Key {
         this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
         this.familyName = familyName(this.paramSetName);
         this.provider = provider;
-        byte[] key = null;
-        DerValue pkOct = null;
 
-        //Check to determine if the key bytes already have the Octet tag.
-        if (OctectStringEncoded(keyBytes)) {
-            //Remove encoding OctetString encoding.
-            key = Arrays.copyOfRange(keyBytes, 4, keyBytes.length);
-        } else {
-            key = keyBytes;
+        // keyBytes may be raw or DER OctetString-wrapped. Try to unwrap with DerValue;
+        // if that fails (not valid DER or wrong tag) treat as raw bytes.
+        byte[] rawKey;
+        try {
+            rawKey = new DerValue(keyBytes).getOctetString();
+        } catch (IOException e) {
+            rawKey = keyBytes;
         }
 
-        // Currently the ICC expects the raw keys in an OctetString
+        // Re-wrap as DER OctetString for the native layer and for privKeyMaterial.
+        DerValue pkOct = null;
         try {
             try {
-                pkOct = new DerValue(DerValue.tag_OctetString, key);
+                pkOct = new DerValue(DerValue.tag_OctetString, rawKey);
                 this.pqcKey = PQCKey.createPrivateKey(
                                 this.paramSetName, pkOct.toByteArray(), provider, "KeyFactory");
                 this.privKeyMaterial = pkOct.toByteArray();
@@ -83,30 +83,32 @@ final class PQCPrivateKey extends PKCS8Key {
         try {
             this.provider = provider;
             this.pqcKey = pqcKey;
-            // Resolve the specific param-set name first so that isExpandedChoice
-            // and getExpandedKeyLength receive a concrete name like "ML-KEM-512",
-            // not the family name "ML-KEM".
+            // Resolve the specific param-set name so that getExpandedKeyLength
+            // receives a concrete name like "ML-KEM-512", not the family name "ML-KEM".
             this.paramSetName = PQCKnownOIDs.findMatch(pqcKey.getAlgorithm()).stdName();
             this.familyName = familyName(this.paramSetName);
             this.algid = new AlgorithmId(PQCAlgorithmId.getOID(this.paramSetName));
 
-            validateKeyLength(pqcKey.getPrivateKeyBytes());
-            if (!isExpandedChoice(this.paramSetName, pqcKey.getPrivateKeyBytes())) {
+            // Native always returns a DER OctetString from MLKEY_getPrivateKeyBytes.
+            // new DerValue() throws IOException if bytes are not valid DER;
+            // getOctetString() throws IOException if the tag is not 0x04.
+            // Both checks are free - no manual tag/length arithmetic needed.
+            byte[] rawKey = new DerValue(pqcKey.getPrivateKeyBytes()).getOctetString();
+
+            if (rawKey.length != getExpandedKeyLength(this.paramSetName)) {
                 throw new InvalidKeyException("Only expanded keys are supported by OpenJCEPlus");
             }
-            //Check to determine if the key bytes have the Octet tag.
-            if (OctectStringEncoded(pqcKey.getPrivateKeyBytes())) {
-                this.privKeyMaterial = pqcKey.getPrivateKeyBytes();
-            } else {
-                DerValue pkOct = null;
-                try {
-                    pkOct = new DerValue(DerValue.tag_OctetString, pqcKey.getPrivateKeyBytes());
 
-                    this.privKeyMaterial = pkOct.toByteArray();
-                } finally {
-                    pkOct.clear();
-                }
+            // Re-wrap as DER OctetString for storage in privKeyMaterial (PKCS#8 encoding needs it).
+            DerValue pkOct = null;
+            try {
+                pkOct = new DerValue(DerValue.tag_OctetString, rawKey);
+                this.privKeyMaterial = pkOct.toByteArray();
+            } finally {
+                if (pkOct != null) pkOct.clear();
             }
+        } catch (InvalidKeyException e) {
+            throw e;
         } catch (Exception exception) {
             throw provider.providerException("Failure in PQCPrivateKey" + exception.getMessage(), exception);
         }
@@ -125,21 +127,34 @@ final class PQCPrivateKey extends PKCS8Key {
 
         this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
         this.familyName = familyName(this.paramSetName);
-        validateKeyLength(this.privKeyMaterial);
-        if (!isExpandedChoice(this.paramSetName, this.privKeyMaterial)) {
+
+        // privKeyMaterial is the raw privateKey OCTET STRING content extracted by
+        // PKCS8Key.super(encoded) from the PKCS#8 OneAsymmetricKey wrapper.
+        // Per RFC 9881/9935, that content is itself a DER CHOICE - for an expanded
+        // key it is an inner OctetString.  Use DerValue to unwrap it properly
+        // regardless of DER length form; getOctetString() rejects non-OctetString tags.
+        byte[] rawKey;
+        try {
+            rawKey = new DerValue(this.privKeyMaterial).getOctetString();
+        } catch (IOException e) {
             throw new InvalidKeyException("Only expanded keys are supported by OpenJCEPlus");
         }
-        //Check to determine if the key bytes have the Octet tag.
-        if (!(OctectStringEncoded(this.privKeyMaterial))) {
-            DerValue pkOct = null;
-            try {
-                pkOct = new DerValue(DerValue.tag_OctetString, this.privKeyMaterial);
 
-                this.privKeyMaterial = pkOct.toByteArray();
-            } finally {
-                pkOct.clear();
-            }
+        if (rawKey.length != getExpandedKeyLength(this.paramSetName)) {
+            throw new InvalidKeyException("Only expanded keys are supported by OpenJCEPlus");
         }
+
+        // Normalise privKeyMaterial back to a DER OctetString so getEncoded() is consistent.
+        DerValue pkOct = null;
+        try {
+            pkOct = new DerValue(DerValue.tag_OctetString, rawKey);
+            this.privKeyMaterial = pkOct.toByteArray();
+        } catch (Exception e) {
+            throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
+        } finally {
+            if (pkOct != null) pkOct.clear();
+        }
+
         try {
             this.pqcKey = PQCKey.createPrivateKey(
                                 this.paramSetName, this.privKeyMaterial, provider, configType);
@@ -266,48 +281,11 @@ final class PQCPrivateKey extends PKCS8Key {
         if (paramSetName.startsWith("ML-KEM-")) {
             return "ML-KEM";
         }
+        if (paramSetName.startsWith("SLH-DSA-")) {
+            return "SLH-DSA";
+        }
         throw new IllegalArgumentException(
                 "Unrecognized PQC algorithm family for parameter set: " + paramSetName);
-    }
-
-    private boolean OctectStringEncoded(byte[] key) {
-        try {
-            //Check and see if this is an encoded OctetString
-            if (key[0] == 0x04) {
-                //This might be encoded
-                StringBuilder sb = new StringBuilder();
-                for (int i = 2; i < 4; i++) {
-                    sb.append(String.format("%02X", key[i]));
-                }
-                String s = sb.toString();
-                int b =  Integer.parseInt(s, 16);
-                if (b == (key.length - 4)) {
-                    //This is an encoding
-                    return true;
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * Validates that the supplied key bytes are non-null and long enough to
-     * contain a valid DER-encoded expanded PQC private key (at least 4 bytes).
-     *
-     * @param key the raw key bytes to validate
-     * @throws InvalidKeyException if {@code key} is {@code null} or has fewer
-     *         than 4 bytes
-     */
-    private static void validateKeyLength(byte[] key) throws InvalidKeyException {
-        if (key == null) {
-            throw new InvalidKeyException("Private key material is null");
-        }
-        if (key.length < 4) {
-            throw new InvalidKeyException(
-                    "Private key material is too short: expected at least 4 bytes, got " + key.length);
-        }
     }
 
     /**
@@ -332,38 +310,18 @@ final class PQCPrivateKey extends PKCS8Key {
             return 2400;
         } else if ("ML-KEM-1024".equals(algName)) {
             return 3168;
+        } else if ("SLH-DSA-SHA2-128s".equals(algName) || "SLH-DSA-SHA2-128f".equals(algName)
+                || "SLH-DSA-SHAKE-128s".equals(algName) || "SLH-DSA-SHAKE-128f".equals(algName)) {
+            return 64;
+        } else if ("SLH-DSA-SHA2-192s".equals(algName) || "SLH-DSA-SHA2-192f".equals(algName)
+                || "SLH-DSA-SHAKE-192s".equals(algName) || "SLH-DSA-SHAKE-192f".equals(algName)) {
+            return 96;
+        } else if ("SLH-DSA-SHA2-256s".equals(algName) || "SLH-DSA-SHA2-256f".equals(algName)
+                || "SLH-DSA-SHAKE-256s".equals(algName) || "SLH-DSA-SHAKE-256f".equals(algName)) {
+            return 128;
         } else {
             throw new ProviderException("Unexpected PQC algorithm: " + algName);
         }
     }
 
-    /**
-     * Determines whether the supplied private key material represents an
-     * expanded PQC private key.
-     *
-     * <p>RFC 9881 and RFC 9935 define PQC private key material as a CHOICE.
-     * An expanded key is encoded as an OCTET STRING. For the currently
-     * supported ML-DSA and ML-KEM parameter sets, the expanded key lengths
-     * are large enough that the DER OCTET STRING encoding uses long-form
-     * length encoding.</p>
-     *
-     * <p>This method checks the private key material contained in the PKCS#8
-     * privateKey OCTET STRING, not the complete PKCS#8 encoding.</p>
-     *
-     * @param algName the standard PQC algorithm name
-     * @param key the private key material to check
-     *
-     * @return true if the key material is an expanded private key encoding;
-     *         false otherwise
-     */
-    private boolean isExpandedChoice(String algName, byte[] key) {
-        int expandedLen = getExpandedKeyLength(algName);
-
-        int derLen = ((key[2] & 0xFF) << 8) | (key[3] & 0xFF);
-
-        return key.length == expandedLen + 4
-                && ((key[0] & 0xFF) == 0x04)
-                && ((key[1] & 0xFF) == 0x82)
-                && derLen == expandedLen;
-    }
 }

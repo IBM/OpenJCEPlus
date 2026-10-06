@@ -44,6 +44,7 @@ import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
 @Tag(Tags.OPENJCEPLUS_OCK_NAME)
@@ -78,8 +79,9 @@ public class TestPQCKeystore extends BaseTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-DSA-87"})
+    @CsvSource({"ML-DSA-87", "SLH-DSA-SHA2-128s"})
     public void KeystoreTest(String algname) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(algname) && !BaseUtils.isOpenSSLProvider(getProviderName()));
         try {
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(algname, getProviderName());
             kp = keyPairGen.generateKeyPair();

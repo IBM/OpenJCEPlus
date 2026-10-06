@@ -19,7 +19,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
@@ -54,16 +53,30 @@ public class TestPQCSignature extends BaseTestSignature {
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML_DSA_44", "ML-DSA-65", "ML_DSA_87"})
+    @CsvSource({"ML-DSA", "ML_DSA_44", "ML-DSA-65", "ML_DSA_87",
+        "SLH-DSA", "SLH_DSA_SHA2_128s", "SLH-DSA-SHA2-128s", "SLH_DSA_SHA2_128f", "SLH-DSA-SHA2-128f",
+        "SLH_DSA_SHA2_192s", "SLH-DSA-SHA2-192s", "SLH_DSA_SHA2_192f", "SLH-DSA-SHA2-192f",
+        "SLH_DSA_SHA2_256s", "SLH-DSA-SHA2-256s", "SLH_DSA_SHA2_256f", "SLH-DSA-SHA2-256f",
+        "SLH_DSA_SHAKE_128s", "SLH-DSA-SHAKE-128s", "SLH_DSA_SHAKE_128f", "SLH-DSA-SHAKE-128f",
+        "SLH_DSA_SHAKE_192s", "SLH-DSA-SHAKE-192s", "SLH_DSA_SHAKE_192f", "SLH-DSA-SHAKE-192f",
+        "SLH_DSA_SHAKE_256s", "SLH-DSA-SHAKE-256s", "SLH_DSA_SHAKE_256f", "SLH-DSA-SHAKE-256f"})
     public void testPQCKeySignature(String Algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(Algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
         KeyPair keyPair = generateKeyPair(Algorithm);
         doSignVerify(Algorithm, origMsg, keyPair.getPrivate(), keyPair.getPublic());
     }
 
     @ParameterizedTest
-    @CsvSource({"ML-DSA", "ML_DSA_44", "ML-DSA-65", "ML_DSA_87"})
+    @CsvSource({"ML-DSA", "ML_DSA_44", "ML-DSA-65", "ML_DSA_87",
+        "SLH-DSA", "SLH_DSA_SHA2_128s", "SLH-DSA-SHA2-128s", "SLH_DSA_SHA2_128f", "SLH-DSA-SHA2-128f",
+        "SLH_DSA_SHA2_192s", "SLH-DSA-SHA2-192s", "SLH_DSA_SHA2_192f", "SLH-DSA-SHA2-192f",
+        "SLH_DSA_SHA2_256s", "SLH-DSA-SHA2-256s", "SLH_DSA_SHA2_256f", "SLH-DSA-SHA2-256f",
+        "SLH_DSA_SHAKE_128s", "SLH-DSA-SHAKE-128s", "SLH_DSA_SHAKE_128f", "SLH-DSA-SHAKE-128f",
+        "SLH_DSA_SHAKE_192s", "SLH-DSA-SHAKE-192s", "SLH_DSA_SHAKE_192f", "SLH-DSA-SHAKE-192f",
+        "SLH_DSA_SHAKE_256s", "SLH-DSA-SHAKE-256s", "SLH_DSA_SHAKE_256f", "SLH-DSA-SHAKE-256f"})
     public void testPQCKeySignatureEncodings(String Algorithm) throws Exception {
+        assumeFalse(BaseUtils.isSLHDSA(Algorithm) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
         KeyPair keyPair = generateKeyPair(Algorithm);
 
@@ -80,70 +93,75 @@ public class TestPQCSignature extends BaseTestSignature {
         doSignVerify(Algorithm, origMsg, keyFactory.generatePrivate(privateKeySpec), keyFactory.generatePublic(publicKeySpec));
     }
 
+
     /**
-     * Tests that Signature.getInstance("ML-DSA") - the generic family-name
-     * signature instance - can sign and verify with keys from each of the three
-     * ML-DSA parameter sets (ML-DSA-44, ML-DSA-65, ML-DSA-87).
-     * <p>
-     * Per JEP 497, the generic "ML-DSA" Signature must be flexible and accept
-     * any ML-DSA parameter-set key. Currently OpenJCEPlus maps the "ML-DSA"
-     * Signature alias to ML-DSA-65, so using ML-DSA-44 or ML-DSA-87 keys with
-     * the generic instance throws InvalidKeyException.
+     * Tests that Signature.getInstance(family) - the generic family-name
+     * signature instance - can sign and verify with keys from each parameter set.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testGenericMLDSASignatureWithAllParamSets(String paramSetName)
+    @CsvSource({
+        "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testGenericPQCSignatureWithAllParamSets(String paramSetName)
             throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(paramSetName) && !BaseUtils.isOpenSSLProvider(getProviderName()));
+
+        String family = BaseUtils.getFamilyName(paramSetName);
 
         // Generate a key pair with the specific parameter set
         KeyPair kp = generateKeyPair(paramSetName);
 
-        // Obtain a GENERIC "ML-DSA" Signature instance
-        Signature sig = Signature.getInstance("ML-DSA", getProviderName());
+        // Obtain a GENERIC Signature instance (e.g. "ML-DSA" or "SLH-DSA")
+        Signature sig = Signature.getInstance(family, getProviderName());
 
-        // Sign - initSign must accept any ML-DSA parameter-set private key
+        // Sign - initSign must accept any parameter-set private key in the family
         try {
             sig.initSign(kp.getPrivate());
         } catch (InvalidKeyException e) {
-            fail("Generic ML-DSA Signature.initSign() rejected " + paramSetName
+            fail("Generic " + family + " Signature.initSign() rejected " + paramSetName
                     + " private key: " + e.getMessage());
             return;
         }
         sig.update(origMsg);
         byte[] sigBytes = sig.sign();
 
-        // Verify - initVerify must accept any ML-DSA parameter-set public key
+        // Verify - initVerify must accept any parameter-set public key in the family
         try {
             sig.initVerify(kp.getPublic());
         } catch (InvalidKeyException e) {
-            fail("Generic ML-DSA Signature.initVerify() rejected " + paramSetName
+            fail("Generic " + family + " Signature.initVerify() rejected " + paramSetName
                     + " public key: " + e.getMessage());
             return;
         }
         sig.update(origMsg);
         assertTrue(sig.verify(sigBytes),
-                "Generic ML-DSA signature verification failed for " + paramSetName);
+                "Generic " + family + " signature verification failed for " + paramSetName);
     }
 
     /**
-     * Tests that a key generated with KeyPairGenerator("ML-DSA") - which by
-     * default produces an ML-DSA-65 key - can be used directly with the generic
-     * Signature.getInstance("ML-DSA") without any parameter mismatch error.
+     * Tests that a key generated with KeyPairGenerator(family) - which
+     * produces a default parameter-set key - can be used directly with the generic
+     * Signature.getInstance(family) without any parameter mismatch error.
      */
-    @Test
-    public void testGenericMLDSASignatureWithGenericKeyGen() throws Exception {
+    @ParameterizedTest
+    @CsvSource({"ML-DSA", "SLH-DSA"})
+    public void testGenericPQCSignatureWithGenericKeyGen(String family) throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(family) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
-        KeyPair kp = generateKeyPair("ML-DSA");
+        KeyPair kp = generateKeyPair(family);
 
         // Key algorithm should be the family name
-        assertEquals("ML-DSA", kp.getPublic().getAlgorithm(),
-                "getAlgorithm() on KPG(\"ML-DSA\") public key should return \"ML-DSA\"");
-        assertEquals("ML-DSA", kp.getPrivate().getAlgorithm(),
-                "getAlgorithm() on KPG(\"ML-DSA\") private key should return \"ML-DSA\"");
+        assertEquals(family, kp.getPublic().getAlgorithm(),
+                "getAlgorithm() on KPG(\"" + family + "\") public key should return \"" + family + "\"");
+        assertEquals(family, kp.getPrivate().getAlgorithm(),
+                "getAlgorithm() on KPG(\"" + family + "\") private key should return \"" + family + "\"");
 
-        Signature sig = Signature.getInstance("ML-DSA", getProviderName());
+        Signature sig = Signature.getInstance(family, getProviderName());
         sig.initSign(kp.getPrivate());
         sig.update(origMsg);
         byte[] sigBytes = sig.sign();
@@ -151,24 +169,31 @@ public class TestPQCSignature extends BaseTestSignature {
         sig.initVerify(kp.getPublic());
         sig.update(origMsg);
         assertTrue(sig.verify(sigBytes),
-                "Generic ML-DSA sign/verify round-trip failed for ML-DSA (default param set)");
+                "Generic " + family + " sign/verify round-trip failed for " + family + " (default param set)");
     }
 
     /**
-     * Tests that a generic "ML-DSA" Signature can round-trip sign/verify when
-     * keys are decoded through the generic "ML-DSA" KeyFactory.  This mirrors
-     * the usage pattern described in JEP 497.
+     * Tests that a generic family Signature can round-trip sign/verify when
+     * keys are decoded through the generic family KeyFactory.
      */
     @ParameterizedTest
-    @CsvSource({"ML-DSA-44", "ML-DSA-65", "ML-DSA-87"})
-    public void testGenericMLDSASignatureWithGenericKeyFactory(String paramSetName)
+    @CsvSource({
+        "ML-DSA-44", "ML-DSA-65", "ML-DSA-87",
+        "SLH-DSA-SHA2-128s", "SLH-DSA-SHA2-128f", "SLH-DSA-SHA2-192s", "SLH-DSA-SHA2-192f",
+        "SLH-DSA-SHA2-256s", "SLH-DSA-SHA2-256f", "SLH-DSA-SHAKE-128s", "SLH-DSA-SHAKE-128f",
+        "SLH-DSA-SHAKE-192s", "SLH-DSA-SHAKE-192f", "SLH-DSA-SHAKE-256s", "SLH-DSA-SHAKE-256f"
+    })
+    public void testGenericPQCSignatureWithGenericKeyFactory(String paramSetName)
             throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+        assumeFalse(BaseUtils.isSLHDSA(paramSetName) && !BaseUtils.isOpenSSLProvider(getProviderName()));
+
+        String family = BaseUtils.getFamilyName(paramSetName);
 
         KeyPair kp = generateKeyPair(paramSetName);
 
-        // Decode keys via generic "ML-DSA" KeyFactory
-        KeyFactory genericKF = KeyFactory.getInstance("ML-DSA", getProviderName());
+        // Decode keys via generic KeyFactory (e.g. "ML-DSA" or "SLH-DSA")
+        KeyFactory genericKF = KeyFactory.getInstance(family, getProviderName());
         PublicKey  pub  = genericKF.generatePublic(
                 new X509EncodedKeySpec(kp.getPublic().getEncoded()));
         PrivateKey priv = genericKF.generatePrivate(
@@ -179,7 +204,7 @@ public class TestPQCSignature extends BaseTestSignature {
                 "Generic KF re-encoded public key bytes differ for " + paramSetName);
 
         // Sign with generic Signature + KF-decoded private key
-        Signature sig = Signature.getInstance("ML-DSA", getProviderName());
+        Signature sig = Signature.getInstance(family, getProviderName());
         sig.initSign(priv);
         sig.update(origMsg);
         byte[] sigBytes = sig.sign();
@@ -188,7 +213,7 @@ public class TestPQCSignature extends BaseTestSignature {
         sig.initVerify(pub);
         sig.update(origMsg);
         assertTrue(sig.verify(sigBytes),
-                "Generic ML-DSA Signature + generic KF round-trip failed for " + paramSetName);
+                "Generic " + family + " Signature + generic KF round-trip failed for " + paramSetName);
     }
 
     protected KeyPair generateKeyPair(String Algorithm) throws Exception {
