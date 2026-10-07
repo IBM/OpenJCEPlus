@@ -79,7 +79,7 @@ jobs:
       - name: Setup Temurin JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '27-ea'
+          java-version: '27'
           distribution: 'temurin'
           architecture: 'x64'
       - name: Install OpenSSL Headers
