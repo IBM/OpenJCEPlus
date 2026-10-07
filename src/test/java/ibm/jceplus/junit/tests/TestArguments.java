@@ -57,6 +57,24 @@ public class TestArguments {
         return getOpenJCEPlusWithInteropProviders(providers, TestProvider.SunEC);
     }
 
+    /**
+     * Generates combinations of OpenJCEPlus* providers with two BC providers for interoperability testing.
+     *
+     * @return Stream of Arguments containing (JCEProviders, BC, BC) pairs
+     */
+    protected static Stream<Arguments> getOpenJCEPlusWithBCAndBCInteropProviders(Set<String> providers) {
+        return getOpenJCEPlusWithTwoInteropProviders(providers, TestProvider.BC, TestProvider.BC);
+    }
+
+    /**
+     * Generates combinations of OpenJCEPlus* providers with SunJCE and SUN providers for interoperability testing.
+     *
+     * @return Stream of Arguments containing (JCEProviders, SunJCE, SUN) pairs
+     */
+    protected static Stream<Arguments> getOpenJCEPlusWithSunJCEAndSUNInteropProviders(Set<String> providers) {
+        return getOpenJCEPlusWithTwoInteropProviders(providers, TestProvider.SunJCE, TestProvider.SUN);
+    }
+
     public static Stream<Arguments> keySizesAndProviders(Set<String> providers, List<Integer> keySizes) {
         // Determine enabled providers.
         List<TestProvider> enabledProviders = getEnabledProviders(providers).toList();
@@ -125,6 +143,24 @@ public class TestArguments {
         List<Arguments> arguments = new ArrayList<>();
         for (TestProvider jceProvider : enabledProviders) {
             arguments.add(Arguments.of(jceProvider, interopProvider));
+        }
+
+        return arguments.stream();
+    }
+
+    /**
+     * Generates combinations of OpenJCEPlus* providers with a specified interoperability providers for testing.
+     *
+     * @param interopProvider The interoperability provider to combine with OpenJCEPlus* providers
+     * @param interopProvider2 The second interoperability provider to combine with OpenJCEPlus* providers
+     * @return Stream of Arguments containing (JCEProviders, interopProvider, interopProvider2) pairs
+     */
+    protected static Stream<Arguments> getOpenJCEPlusWithTwoInteropProviders(Set<String> providers, TestProvider interopProvider, TestProvider interopProvider2) {
+        List<TestProvider> enabledProviders = getEnabledProviders(providers).toList();
+
+        List<Arguments> arguments = new ArrayList<>();
+        for (TestProvider jceProvider : enabledProviders) {
+            arguments.add(Arguments.of(jceProvider, interopProvider, interopProvider2));
         }
 
         return arguments.stream();
