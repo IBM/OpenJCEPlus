@@ -51,6 +51,16 @@ public class BaseTestInterop extends BaseTest {
     }
 
     /**
+     * Sets the 2nd interop provider name and loads the provider.
+     *
+     * @param interopProvider2 the provider to be used for interop.
+     */
+    public void setAndInsertInteropProvider2(TestProvider interopProvider2) throws Exception {
+        this.interopProviderName2 = interopProvider2.getProviderName();
+        loadSupportedProvider(interopProvider2);
+    }
+
+    /**
      * Gets the provider name that is to be used for interop.
      *
      * @return The provider name associated with the interop provider name.
