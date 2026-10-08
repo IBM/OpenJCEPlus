@@ -6,15 +6,25 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
-import java.util.Arrays;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class BaseTestHmacSHA1 extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestHmacSHA1 extends BaseTestHmac {
+
+    @Parameter(0)
+    TestProvider provider;
 
     static final byte[] key_1 = {(byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b,
             (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b,
@@ -180,119 +190,42 @@ public class BaseTestHmacSHA1 extends BaseTestJunit5 {
             (byte) 0x7b, (byte) 0xe1, (byte) 0xd5, (byte) 0x8b, (byte) 0xb9, (byte) 0x32,
             (byte) 0x4a, (byte) 0x9a, (byte) 0x5a, (byte) 0x04};
 
-    @Test
-    public void testHmacSHA1_key1() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA1", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_1, "HmacSHA1");
-        mac.init(key);
-        mac.update(data_1);
-        byte[] digest = mac.doFinal();
-
-        assertTrue(Arrays.equals(digest, digest_1), "Mac digest did not equal expected");
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
     }
 
-    @Test
-    public void testHmacSHA1_key2() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA1", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_2, "HmacSHA1");
-        mac.init(key);
-        mac.update(data_2);
-        byte[] digest = mac.doFinal();
-
-        assertTrue(Arrays.equals(digest, digest_2), "Mac digest did not equal expected");
+    @Override
+    protected String algorithmName() {
+        return "HmacSHA1";
     }
 
-    @Test
-    public void testHmacSHA1_key3() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA1", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_3, "HmacSHA1");
-        mac.init(key);
-        mac.update(data_3);
-        byte[] digest = mac.doFinal();
-
-        assertTrue(Arrays.equals(digest, digest_3), "Mac digest did not equal expected");
+    @Override
+    protected int expectedMacLength() {
+        return 20;
     }
 
-    @Test
-    public void testHmacSHA1_key4() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA1", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_4, "HmacSHA1");
-        mac.init(key);
-        mac.update(data_4);
-        byte[] digest = mac.doFinal();
-
-        assertTrue(Arrays.equals(digest, digest_4), "Mac digest did not equal expected");
+    @Override
+    protected Stream<Arguments> testVectors() {
+        return Stream.of(
+                Arguments.of("testHmacSHA1_key1", key_1, data_1, digest_1, -1),
+                Arguments.of("testHmacSHA1_key2", key_2, data_2, digest_2, -1),
+                Arguments.of("testHmacSHA1_key3", key_3, data_3, digest_3, -1),
+                Arguments.of("testHmacSHA1_key4", key_4, data_4, digest_4, -1),
+                Arguments.of("testHmacSHA1_key5", key_5, data_5, digest_5, -1),
+                Arguments.of("testHmacSHA1_key6", key_6, data_6, digest_6, -1),
+                Arguments.of("testHmacSHA1_key7", key_7, data_7, digest_7, -1)
+        );
     }
 
-    @Test
-    public void testHmacSHA1_key5() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA1", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_5, "HmacSHA1");
-        mac.init(key);
-        mac.update(data_5);
-        byte[] digest = mac.doFinal();
-
-        assertTrue(Arrays.equals(digest, digest_5), "Mac digest did not equal expected");
+    @Override
+    protected Arguments reuseVector() {
+        return Arguments.of("test_reuse", key_4, data_4, digest_4);
     }
 
-    @Test
-    public void testHmacSHA1_key6() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA1", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_6, "HmacSHA1");
-        mac.init(key);
-        mac.update(data_6);
-        byte[] digest = mac.doFinal();
-
-        assertTrue(Arrays.equals(digest, digest_6), "Mac digest did not equal expected");
-    }
-
-    @Test
-    public void testHmacSHA1_key7() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA1", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_7, "HmacSHA1");
-        mac.init(key);
-        mac.update(data_7);
-        byte[] digest = mac.doFinal();
-
-        assertTrue(Arrays.equals(digest, digest_7), "Mac digest did not equal expected");
-    }
-
-    @Test
-    public void test_reset() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA1", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_4, "HmacSHA1");
-        mac.init(key);
-        mac.update(data_4);
-        mac.reset();
-        mac.update(data_4);
-        byte[] digest = mac.doFinal();
-
-        assertTrue(Arrays.equals(digest, digest_4), "Mac digest did not equal expected");
-    }
-
-    @Test
-    public void test_reuse() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA1", getProviderName());
-        SecretKeySpec key = new SecretKeySpec(key_4, "HmacSHA1");
-        mac.init(key);
-        mac.update(data_4);
-        byte[] digest = mac.doFinal();
-
-        assertTrue(Arrays.equals(digest, digest_4), "Mac digest did not equal expected");
-
-        mac.update(data_4);
-        byte[] digest2 = mac.doFinal();
-
-        assertTrue(Arrays.equals(digest2, digest_4), "Mac digest did not equal expected");
-    }
-
-    @Test
-    public void test_mac_length() throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA1", getProviderName());
-        int macLength = mac.getMacLength();
-        boolean isExpectedValue = (macLength == 20);
-        assertTrue(isExpectedValue, "Unexpected mac length");
+    @Override
+    protected Arguments resetVector() {
+        return Arguments.of("test_reset", key_4, data_4, digest_4);
     }
 }
-
 
