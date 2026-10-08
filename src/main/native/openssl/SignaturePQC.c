@@ -31,7 +31,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_PQC_1SIGNA
 
     EVP_PKEY          *pkey           = (EVP_PKEY *)((intptr_t)pKeyId);
     EVP_PKEY_CTX      *sctx           = NULL;
-    EVP_SIGNATURE     *sig_alg        = NULL;
     unsigned char     *dataNative     = NULL;
     unsigned char     *sigBuf         = NULL;
     unsigned char     *sigBytesNative = NULL;
@@ -40,23 +39,9 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_PQC_1SIGNA
     size_t            dataLen         = 0;
     size_t            sigLen          = 0;
     jbyteArray        retSigBytes     = NULL;
-    const char        *algName        = NULL;
 
     if (pkey == NULL || data == NULL) {
         throwOSSLException(env, 0, "PQC_SIGNATURE_sign: pkey or data is null");
-        return NULL;
-    }
-
-    /* Derive the algorithm name from the key (e.g. "ML-DSA-44") */
-    algName = EVP_PKEY_get0_type_name(pkey);
-    if (algName == NULL) {
-        throwOSSLException(env, 0, "PQC_SIGNATURE_sign: EVP_PKEY_get0_type_name failed");
-        return NULL;
-    }
-
-    sig_alg = EVP_SIGNATURE_fetch(NULL, algName, NULL);
-    if (sig_alg == NULL) {
-        throwOSSLException(env, 0, "PQC_SIGNATURE_sign: EVP_SIGNATURE_fetch failed");
         return NULL;
     }
 
@@ -67,7 +52,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_PQC_1SIGNA
     }
 
     /* No context string params needed for standard signing */
-    if (1 != EVP_PKEY_sign_message_init(sctx, sig_alg, NULL)) {
+    if (1 != EVP_PKEY_sign_message_init(sctx, NULL, NULL)) {
         throwOSSLException(env, 0, "PQC_SIGNATURE_sign: EVP_PKEY_sign_message_init failed");
         goto cleanup;
     }
@@ -129,9 +114,6 @@ cleanup:
     if (sctx != NULL) {
         EVP_PKEY_CTX_free(sctx);
     }
-    if (sig_alg != NULL) {
-        EVP_SIGNATURE_free(sig_alg);
-    }
     
     return retSigBytes;
 }
@@ -149,29 +131,15 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_PQC_1SIGNA
 
     EVP_PKEY          *pkey           = (EVP_PKEY *)((intptr_t)pKeyId);
     EVP_PKEY_CTX      *sctx           = NULL;
-    EVP_SIGNATURE     *sig_alg        = NULL;
     unsigned char     *sigBytesNative = NULL;
     unsigned char     *dataNative     = NULL;
     jboolean          isCopy          = 0;
     size_t            sigLen          = 0;
     size_t            dataLen         = 0;
     jboolean          verified        = JNI_FALSE;
-    const char        *algName        = NULL;
 
     if (pkey == NULL || sigBytes == NULL || data == NULL) {
         throwOSSLException(env, 0, "PQC_SIGNATURE_verify: pkey, sigBytes, or data is null");
-        return JNI_FALSE;
-    }
-
-    algName = EVP_PKEY_get0_type_name(pkey);
-    if (algName == NULL) {
-        throwOSSLException(env, 0, "PQC_SIGNATURE_verify: EVP_PKEY_get0_type_name failed");
-        return JNI_FALSE;
-    }
-
-    sig_alg = EVP_SIGNATURE_fetch(NULL, algName, NULL);
-    if (sig_alg == NULL) {
-        throwOSSLException(env, 0, "PQC_SIGNATURE_verify: EVP_SIGNATURE_fetch failed");
         return JNI_FALSE;
     }
 
@@ -181,7 +149,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_PQC_1SIGNA
         goto cleanup;
     }
 
-    if (1 != EVP_PKEY_verify_message_init(sctx, sig_alg, NULL)) {
+    if (1 != EVP_PKEY_verify_message_init(sctx, NULL, NULL)) {
         throwOSSLException(env, 0, "PQC_SIGNATURE_verify: EVP_PKEY_verify_message_init failed");
         goto cleanup;
     }
@@ -218,9 +186,6 @@ cleanup:
     }
     if (sctx != NULL) {
         EVP_PKEY_CTX_free(sctx);
-    }
-    if (sig_alg != NULL) {
-        EVP_SIGNATURE_free(sig_alg);
     }
 
     return verified;
