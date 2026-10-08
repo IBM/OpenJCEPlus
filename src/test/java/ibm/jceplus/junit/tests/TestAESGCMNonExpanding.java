@@ -36,6 +36,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  *          is the same as the encrypted data.
  */
 @Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
 @Tag(Tags.MULTITHREAD_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

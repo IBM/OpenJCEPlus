@@ -29,9 +29,9 @@ BEGIN
             VALUE "FileDescription", "Native OpenJCEPlus runtime library\0"
             VALUE "FileVersion", "26\0"
 	        VALUE "Build Increment", "0\0"
-            VALUE "InternalName", "openjceplus.dll\0"
+            VALUE "InternalName", "libopenjceplus_64.dll\0"
             VALUE "LegalCopyright", "(C) Copyright IBM Corp. 2026. Licensed under the GLP v2 plus classpath exception. See LICENSE file associated with source.\0"
-            VALUE "OriginalFilename", "openjceplus.dll\0"
+            VALUE "OriginalFilename", "libopenjceplus_64.dll\0"
             VALUE "ProductName", "OpenJCEPlus Crypto Provider for Windows, 26.0\0"
             VALUE "ProductVersion", "26.0\0"
         END
@@ -41,5 +41,4 @@ BEGIN
         VALUE "Translation", 0x0000, 0000
     END
 END
-
 

@@ -8,6 +8,7 @@
 
 package ibm.jceplus.junit.tests;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -128,7 +129,48 @@ public class TestArguments {
             enabledProviders.removeIf(tp -> tp == TestProvider.OpenJCEPlus_OpenSSL);
         }
 
+        // OpenSSL-backed tests require the OpenSSL native library (libopenjceplus_64)
+        // to be physically present on disk.  We check for the file using the same
+        // path-resolution logic as NativeOpenSSLImplementation.preloadOpenJCEPlusNative()
+        // so that the guard fires precisely when the library cannot be loaded, regardless
+        // of which system properties happen to be set by the caller.
+        if (!isOpenSSLNativeLibraryPresent()) {
+            enabledProviders.removeIf(tp -> tp == TestProvider.OpenJCEPlus_OpenSSL);
+        }
+
         return enabledProviders.stream();
+    }
+
+    /**
+     * Returns true if the OpenJCEPlus OpenSSL native library file exists on disk at the
+     * path that NativeOpenSSLImplementation would attempt to load it from.
+     * Mirrors the path-resolution logic in NativeOpenSSLImplementation.preloadOpenJCEPlusNative().
+     */
+    static boolean isOpenSSLNativeLibraryPresent() {
+        String osName = System.getProperty("os.name", "");
+        String osArch = System.getProperty("os.arch", "");
+
+        // Determine the directory to search
+        String libDir;
+        String ojpOverridePath = System.getProperty("openjceplus.library.path");
+        if (ojpOverridePath != null) {
+            libDir = ojpOverridePath;
+        } else {
+            String javaHome = System.getProperty("java.home", "");
+            libDir = javaHome + File.separator + (osName.startsWith("Windows") ? "bin" : "lib");
+        }
+
+        // Determine the expected filename (mirrors NativeOpenSSLImplementation)
+        String libName;
+        if (osName.startsWith("Windows") && osArch.equals("amd64")) {
+            libName = "libopenjceplus_64.dll";
+        } else if (osName.equals("Mac OS X")) {
+            libName = "libopenjceplus_64.dylib";
+        } else {
+            libName = "libopenjceplus_64.so";
+        }
+
+        return new File(libDir, libName).exists();
     }
 
     /**

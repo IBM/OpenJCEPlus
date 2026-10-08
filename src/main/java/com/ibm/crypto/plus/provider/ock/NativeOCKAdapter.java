@@ -602,6 +602,13 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     }
 
     @Override
+    public long create_GCM_context(int keySize) throws OCKException {
+        // OCK doesn't need key size at context creation time
+        // It determines the cipher type from the key during initialization
+        return create_GCM_context();
+    }
+
+    @Override
     public long do_CCM_checkHardwareCCMSupport() {
         return NativeOCKImplementation.do_CCM_checkHardwareCCMSupport(ockContext.getId());
     }
