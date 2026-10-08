@@ -241,22 +241,22 @@ public class TestProviderServices extends BaseTest {
             + "default = true\n"
             + "securerandomdefault = SHA512DRBG";
 
-        //Make sure SunJCE is first in the list.
-        Provider SunJCE = java.security.Security.getProvider("SunJCE");
-        Security.removeProvider("SunJCE");
-        int position = Security.insertProviderAt(SunJCE, 1);
+        //Make sure SUN is first in the list.
+        Provider SUN = java.security.Security.getProvider("SUN");
+        Security.removeProvider("SUN");
+        int position = Security.insertProviderAt(SUN, 1);
 
         if (position == -1) {
-            fail("Failed to insert SunJCE provider");
+            fail("Failed to insert SUN provider");
         }
 
         SecureRandom secureRandom = new SecureRandom();
 
         List<String> acceptableValues = List.of("NativePRNG", "NativePRNGBlocking", "NativePRNGNonBlocking", "DRBG");
-        assertTrue (acceptableValues.contains(secureRandom.getAlgorithm()), "SecureRandom not SunJCE - " + secureRandom.getAlgorithm());
+        assertTrue (acceptableValues.contains(secureRandom.getAlgorithm()), "SecureRandom not SUN - " + secureRandom.getAlgorithm());
 
         //Now Put OpenJCEPlus first in the list.
-        Provider provider = (Provider) new OpenJCEPlus();
+        Provider provider = new OpenJCEPlus();
         if (provider == null) {
             fail("Provider is null");
         }
@@ -299,21 +299,21 @@ public class TestProviderServices extends BaseTest {
         String provName = getProviderName();
         assumeTrue(("OpenJCEPlusFIPS").equals(provName), "Aborting test: Not in FIPS provider.");
 
-        //Make sure SunJCE is first in the list.
-        Provider SunJCE = java.security.Security.getProvider("SunJCE");
-        Security.removeProvider("SunJCE");
-        int position = Security.insertProviderAt(SunJCE, 1);
+        //Make sure SUN is first in the list.
+        Provider SUN = java.security.Security.getProvider("SUN");
+        Security.removeProvider("SUN");
+        int position = Security.insertProviderAt(SUN, 1);
 
         if (position == -1) {
-            fail("Failed to insert SunJCE provider");
+            fail("Failed to insert SUN provider");
         }
 
         SecureRandom secureRandom = new SecureRandom();
 
         List<String> acceptableValues = List.of("NativePRNG", "NativePRNGBlocking", "NativePRNGNonBlocking", "DRBG");
-        assertTrue (acceptableValues.contains(secureRandom.getAlgorithm()), "SecureRandom not SunJCE");
+        assertTrue (acceptableValues.contains(secureRandom.getAlgorithm()), "SecureRandom not SUN");
 
-        //Now Put OpenJCEPlus first in the list.
+        //Now Put OpenJCEPlusFIPS first in the list.
         Provider provider = Security.getProvider("OpenJCEPlusFIPS");
         if (provider == null) {
             provider = (Provider) new OpenJCEPlusFIPS();
