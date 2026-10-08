@@ -188,7 +188,7 @@ abstract public class JMHBase {
                     myProvider = ((OpenJCEPlus) myProvider).configure("./src/test/OpenSSLOnly.config");
                 } else if (provider.endsWith("-OCK")) {
                     myProvider = ((OpenJCEPlus) myProvider).configure("./src/test/OCKOnly.config");
-                } else {
+                } else if (!provider.equals("OpenJCEPlus")) {
                     throw new RuntimeException("Provider not supported: " + provider);
                 }
             } else if (provider.equals("BC")) {
