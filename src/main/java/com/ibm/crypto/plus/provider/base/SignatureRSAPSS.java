@@ -13,6 +13,7 @@ import com.ibm.crypto.plus.provider.PrimitiveWrapper;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
+import java.util.Locale;
 
 public final class SignatureRSAPSS {
 
@@ -75,76 +76,67 @@ public final class SignatureRSAPSS {
         }
     }
 
+    private static String toOCKDigestName(String digestAlgo) {
+        if (digestAlgo == null) {
+            throw new InvalidParameterException("Digest algorithm cannot be null");
+        }
+
+        switch (digestAlgo.toUpperCase(Locale.ROOT).replace('_', '-')) {
+            case "SHA-1":
+            case "SHA":
+            case "SHA1":
+                return "SHA1";
+
+            case "SHA-224":
+            case "SHA224":
+                return "SHA224";
+
+            case "SHA-2":
+            case "SHA2":
+            case "SHA256":
+            case "SHA-256":
+                return "SHA256";
+
+            case "SHA384":
+            case "SHA-384":
+                return "SHA384";
+
+            case "SHA5":
+            case "SHA-5":
+            case "SHA512":
+            case "SHA-512":
+                return "SHA512";
+
+            case "SHA512/224":
+            case "SHA-512/224":
+                return "SHA512-224";
+
+            case "SHA512/256":
+            case "SHA-512/256":
+                return "SHA512-256";
+
+            case "SHA3-224":
+                return "SHA3-224";
+
+            case "SHA3-256":
+                return "SHA3-256";
+
+            case "SHA3-384":
+                return "SHA3-384";
+
+            case "SHA3-512":
+                return "SHA3-512";
+
+            default:
+                return digestAlgo;
+        }
+    }
 
     private int configureParameter(String digestAlgo, int saltlen, int trailerField, String mgfAlgo,
             String mgf1SpecAlgo) {
 
-        String digestAlgoOCK = null;
-        String mgf1SpecAlgoOCK = null;
-
-        switch (digestAlgo.toUpperCase()) {
-            case "SHA-1":
-            case "SHA":
-            case "SHA1":
-                digestAlgoOCK = "SHA1";
-                break;
-            case "SHA-224":
-            case "SHA224":
-                digestAlgoOCK = "SHA224";
-                break;
-            case "SHA-2":
-            case "SHA2":
-            case "SHA256":
-            case "SHA-256":
-                digestAlgoOCK = "SHA256";
-                break;
-            case "SHA3":
-            case "SHA-3":
-            case "SHA384":
-            case "SHA-384":
-                digestAlgoOCK = "SHA384";
-                break;
-            case "SHA5":
-            case "SHA-5":
-            case "SHA512":
-            case "SHA-512":
-                digestAlgoOCK = "SHA512";
-                break;
-            default:
-                digestAlgoOCK = digestAlgo;
-        }
-        switch (mgf1SpecAlgo.toUpperCase()) {
-            case "SHA-1":
-            case "SHA":
-            case "SHA1":
-                mgf1SpecAlgoOCK = "SHA1";
-                break;
-            case "SHA-224":
-            case "SHA224":
-                mgf1SpecAlgoOCK = "SHA224";
-                break;
-            case "SHA-2":
-            case "SHA2":
-            case "SHA256":
-            case "SHA-256":
-                mgf1SpecAlgoOCK = "SHA256";
-                break;
-            case "SHA3":
-            case "SHA-3":
-            case "SHA384":
-            case "SHA-384":
-                mgf1SpecAlgoOCK = "SHA384";
-                break;
-
-            case "SHA5":
-            case "SHA-5":
-            case "SHA512":
-            case "SHA-512":
-                mgf1SpecAlgoOCK = "SHA512";
-                break;
-            default:
-                mgf1SpecAlgoOCK = mgf1SpecAlgo;
-        }
+        String digestAlgoOCK = toOCKDigestName(digestAlgo);
+        String mgf1SpecAlgoOCK = toOCKDigestName(mgf1SpecAlgo);
 
         this.saltlen = saltlen;
         this.trailerField = trailerField;
