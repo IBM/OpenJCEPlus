@@ -25,26 +25,6 @@ public final class BasicRandom {
         this.nativeInterface = NativeCryptoSelector.selectBackend(provider, "SecureRandom", algName + "DRBG");
     }
 
-    public void nextBytes(byte[] bytes) throws NativeException {
-        if (bytes == null) {
-            throw new IllegalArgumentException("bytes is null");
-        }
-
-        if (bytes.length > 0) {
-            this.nativeInterface.RAND_nextBytes(bytes);
-        }
-    }
-
-    public void setSeed(byte[] seed) throws NativeException {
-        if (seed == null) {
-            throw new IllegalArgumentException("seed is null");
-        }
-
-        if (seed.length > 0) {
-            this.nativeInterface.RAND_setSeed(seed);
-        }
-    }
-
     public byte[] generateSeed(int numBytes) throws NativeException {
         if (numBytes < 0) {
             throw new IllegalArgumentException("numBytes is negative");

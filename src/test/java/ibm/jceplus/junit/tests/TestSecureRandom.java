@@ -16,7 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -25,20 +27,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * Tests for SecureRandom (SHA256DRBG and SHA512DRBG) covering the native
  * functions that are reachable from the Java layer:
  *
- *   EXTRAND_create     -- exercised by HASHDRBG constructor (PRNGContextPointer)
- *   EXTRAND_nextBytes  -- exercised by engineNextBytes -> SecureRandom.nextBytes()
- *   EXTRAND_setSeed    -- exercised by engineSetSeed  -> SecureRandom.setSeed()
- *   EXTRAND_delete     -- exercised by GC cleaner after setSeed creates instance ctx
- *   RAND_generateSeed  -- exercised by engineGenerateSeed -> SecureRandom.generateSeed()
- *
- * RAND_nextBytes and RAND_setSeed (BasicRandom) are not tested here because
- * they are unreachable dead code in the current provider - no call site in
- * HASHDRBG or anywhere else routes through BasicRandom.nextBytes/setSeed.
- *
- * This test class covers the OCK backend only.
- * OpenSSL-backend coverage will be added in a follow-up PR once
- * OpenSSLOnly.config registers both SHA256DRBG and SHA512DRBG with
- * NativeProvider=OpenSSL.
+ * <ul>
+ * <li>EXTRAND_create - exercised by the HASHDRBG constructor
+ * (PRNGContextPointer)</li>
+ * <li>EXTRAND_nextBytes - exercised by engineNextBytes via
+ * SecureRandom.nextBytes()</li>
+ * <li>EXTRAND_setSeed - exercised by engineSetSeed via
+ * SecureRandom.setSeed()</li>
+ * <li>EXTRAND_delete - exercised by the GC cleaner after setSeed creates an
+ * instance context</li>
+ * <li>RAND_generateSeed - exercised by engineGenerateSeed via
+ * SecureRandom.generateSeed()</li>
+ * </ul>
  */
 @Tag(Tags.OPENJCEPLUS_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
@@ -47,53 +47,50 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
 public class TestSecureRandom extends BaseTest {
 
+    /**
+     * Number of bytes requested from the generator. Large enough that an
+     * all-zero result is not a realistic outcome of a working generator.
+     */
+    private static final int NUM_BYTES = 2048;
+
+    /** The provider under test. */
     @Parameter(0)
     TestProvider provider;
 
-    // -----------------------------------------------------------------------
-    // Setup
-    // -----------------------------------------------------------------------
-
+    /**
+     * Inserts the provider under test before each test.
+     */
     @BeforeEach
     public void setUp() throws Exception {
         setAndInsertProvider(provider);
     }
 
-    // -----------------------------------------------------------------------
-    // EXTRAND_create + EXTRAND_nextBytes via SHA256DRBG
-    // -----------------------------------------------------------------------
-
-    @Test
-    public void testNextBytes_SHA256DRBG() throws Exception {
-        SecureRandom sr = SecureRandom.getInstance("SHA256DRBG", getProviderName());
+    /**
+     * Verifies that nextBytes fills a buffer with non-zero output
+     * (EXTRAND_create and EXTRAND_nextBytes).
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"SHA256DRBG", "SHA512DRBG"})
+    public void testNextBytes(String algorithm) throws Exception {
+        SecureRandom sr = SecureRandom.getInstance(algorithm, getProviderName());
         assertNotNull(sr);
 
-        byte[] bytes = new byte[32];
+        byte[] bytes = new byte[NUM_BYTES];
         sr.nextBytes(bytes);
 
         assertFalse(isAllZeros(bytes), "nextBytes output should not be all zeros");
     }
 
-    @Test
-    public void testNextBytes_SHA512DRBG() throws Exception {
-        SecureRandom sr = SecureRandom.getInstance("SHA512DRBG", getProviderName());
-        assertNotNull(sr);
-
-        byte[] bytes = new byte[64];
-        sr.nextBytes(bytes);
-
-        assertFalse(isAllZeros(bytes), "nextBytes output should not be all zeros");
-    }
-
-    // -----------------------------------------------------------------------
-    // Two consecutive calls must produce different output
-    // -----------------------------------------------------------------------
-
-    @Test
-    public void testNextBytes_SHA256DRBG_consecutive() throws Exception {
-        SecureRandom sr = SecureRandom.getInstance("SHA256DRBG", getProviderName());
-        byte[] first  = new byte[32];
-        byte[] second = new byte[32];
+    /**
+     * Verifies that two consecutive nextBytes calls on the same instance
+     * produce different output.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"SHA256DRBG", "SHA512DRBG"})
+    public void testNextBytesConsecutive(String algorithm) throws Exception {
+        SecureRandom sr = SecureRandom.getInstance(algorithm, getProviderName());
+        byte[] first = new byte[NUM_BYTES];
+        byte[] second = new byte[NUM_BYTES];
         sr.nextBytes(first);
         sr.nextBytes(second);
 
@@ -101,123 +98,82 @@ public class TestSecureRandom extends BaseTest {
                 "Consecutive nextBytes calls should produce different output");
     }
 
-    @Test
-    public void testNextBytes_SHA512DRBG_consecutive() throws Exception {
-        SecureRandom sr = SecureRandom.getInstance("SHA512DRBG", getProviderName());
-        byte[] first  = new byte[64];
-        byte[] second = new byte[64];
-        sr.nextBytes(first);
-        sr.nextBytes(second);
-
-        assertFalse(Arrays.equals(first, second),
-                "Consecutive nextBytes calls should produce different output");
-    }
-
-    // -----------------------------------------------------------------------
-    // RAND_generateSeed via engineGenerateSeed
-    // -----------------------------------------------------------------------
-
-    @Test
-    public void testGenerateSeed_SHA256DRBG() throws Exception {
-        SecureRandom sr = SecureRandom.getInstance("SHA256DRBG", getProviderName());
-        byte[] seed = sr.generateSeed(32);
+    /**
+     * Verifies that generateSeed returns the requested number of non-zero
+     * bytes (RAND_generateSeed).
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"SHA256DRBG", "SHA512DRBG"})
+    public void testGenerateSeed(String algorithm) throws Exception {
+        SecureRandom sr = SecureRandom.getInstance(algorithm, getProviderName());
+        byte[] seed = sr.generateSeed(NUM_BYTES);
 
         assertNotNull(seed);
-        assertEquals(32, seed.length, "generateSeed should return exactly 32 bytes");
+        assertEquals(NUM_BYTES, seed.length,
+                "generateSeed should return exactly " + NUM_BYTES + " bytes");
         assertFalse(isAllZeros(seed), "generateSeed output should not be all zeros");
     }
 
+    /**
+     * Verifies that generateSeed(0) returns an empty array rather than null.
+     */
     @Test
-    public void testGenerateSeed_SHA512DRBG() throws Exception {
-        SecureRandom sr = SecureRandom.getInstance("SHA512DRBG", getProviderName());
-        byte[] seed = sr.generateSeed(64);
-
-        assertNotNull(seed);
-        assertEquals(64, seed.length, "generateSeed should return exactly 64 bytes");
-        assertFalse(isAllZeros(seed), "generateSeed output should not be all zeros");
-    }
-
-    @Test
-    public void testGenerateSeed_zeroLength() throws Exception {
+    public void testGenerateSeedZeroLength() throws Exception {
         SecureRandom sr = SecureRandom.getInstance("SHA256DRBG", getProviderName());
         byte[] seed = sr.generateSeed(0);
         assertNotNull(seed, "generateSeed(0) should return empty array, not null");
         assertEquals(0, seed.length, "generateSeed(0) should return 0-length array");
     }
 
-    // -----------------------------------------------------------------------
-    // EXTRAND_setSeed + EXTRAND_delete via engineSetSeed
-    // setSeed switches HASHDRBG from thread-local to instance context,
-    // exercising EXTRAND_create (for instance ctx) and scheduling
-    // EXTRAND_delete via the GC cleaner.
-    // -----------------------------------------------------------------------
-
-    @Test
-    public void testSetSeed_SHA256DRBG() throws Exception {
-        SecureRandom sr = SecureRandom.getInstance("SHA256DRBG", getProviderName());
-        byte[] seed = new byte[32];
-        for (int i = 0; i < seed.length; i++) seed[i] = (byte) (i + 1);
-
-        sr.setSeed(seed);
-
-        byte[] bytes = new byte[32];
-        sr.nextBytes(bytes);
-        assertFalse(isAllZeros(bytes), "nextBytes after setSeed should not be all zeros");
-    }
-
-    @Test
-    public void testSetSeed_SHA512DRBG() throws Exception {
-        SecureRandom sr = SecureRandom.getInstance("SHA512DRBG", getProviderName());
+    /**
+     * Verifies that setSeed followed by nextBytes works. setSeed switches
+     * HASHDRBG from the thread-local context to an instance context,
+     * exercising EXTRAND_create for the instance context, EXTRAND_setSeed, and
+     * scheduling EXTRAND_delete via the GC cleaner.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"SHA256DRBG", "SHA512DRBG"})
+    public void testSetSeed(String algorithm) throws Exception {
+        SecureRandom sr = SecureRandom.getInstance(algorithm, getProviderName());
         byte[] seed = new byte[64];
-        for (int i = 0; i < seed.length; i++) seed[i] = (byte) (i + 1);
+        for (int i = 0; i < seed.length; i++) {
+            seed[i] = (byte) (i + 1);
+        }
 
         sr.setSeed(seed);
 
-        byte[] bytes = new byte[64];
+        byte[] bytes = new byte[NUM_BYTES];
         sr.nextBytes(bytes);
         assertFalse(isAllZeros(bytes), "nextBytes after setSeed should not be all zeros");
     }
 
-    // -----------------------------------------------------------------------
-    // Cross-instance: two independent instances must not produce identical
-    // output (verifies each has its own independent DRBG state)
-    // -----------------------------------------------------------------------
+    /**
+     * Verifies that two independent instances do not produce identical output,
+     * i.e. each has its own DRBG state.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"SHA256DRBG", "SHA512DRBG"})
+    public void testCrossInstance(String algorithm) throws Exception {
+        SecureRandom sr1 = SecureRandom.getInstance(algorithm, getProviderName());
+        SecureRandom sr2 = SecureRandom.getInstance(algorithm, getProviderName());
 
-    @Test
-    public void testCrossInstance_SHA256DRBG() throws Exception {
-        SecureRandom sr1 = SecureRandom.getInstance("SHA256DRBG", getProviderName());
-        SecureRandom sr2 = SecureRandom.getInstance("SHA256DRBG", getProviderName());
-
-        byte[] out1 = new byte[32];
-        byte[] out2 = new byte[32];
+        byte[] out1 = new byte[NUM_BYTES];
+        byte[] out2 = new byte[NUM_BYTES];
         sr1.nextBytes(out1);
         sr2.nextBytes(out2);
 
         assertFalse(Arrays.equals(out1, out2),
-                "Two independent SHA256DRBG instances should not produce identical output");
+                "Two independent " + algorithm + " instances should not produce identical output");
     }
 
-    @Test
-    public void testCrossInstance_SHA512DRBG() throws Exception {
-        SecureRandom sr1 = SecureRandom.getInstance("SHA512DRBG", getProviderName());
-        SecureRandom sr2 = SecureRandom.getInstance("SHA512DRBG", getProviderName());
-
-        byte[] out1 = new byte[64];
-        byte[] out2 = new byte[64];
-        sr1.nextBytes(out1);
-        sr2.nextBytes(out2);
-
-        assertFalse(Arrays.equals(out1, out2),
-                "Two independent SHA512DRBG instances should not produce identical output");
-    }
-
-    // -----------------------------------------------------------------------
-    // Helper
-    // -----------------------------------------------------------------------
-
+    /**
+     * Returns true if every byte in the array is zero.
+     */
     private static boolean isAllZeros(byte[] bytes) {
         for (byte b : bytes) {
-            if (b != 0) return false;
+            if (b != 0) {
+                return false;
+            }
         }
         return true;
     }
