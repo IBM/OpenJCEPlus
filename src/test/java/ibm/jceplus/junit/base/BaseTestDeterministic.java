@@ -165,11 +165,12 @@ public class BaseTestDeterministic extends BaseTestJunit5 {
         String keyAlg = s.getAlgorithm();
         String keyProvider = s.getProvider().getName();
 
-        // The OpenJCEPlusFIPS provider does not allow for signing with SHA1withRSA
-        // OpenJCEPlusFIPS provider does not have a DSA key generator so these
-        // signature tests can be skipped.
+        // The OpenJCEPlusFIPS provider does not allow for signing with SHA1withRSA,
+        // DSA signatures, or Composite ML-DSA signatures.
         if (s.getProvider().getName().equals("OpenJCEPlusFIPS")
-                && (s.getAlgorithm().equals("SHA1withRSA") || s.getAlgorithm().contains("withDSA"))) {
+                && (s.getAlgorithm().equals("SHA1withRSA")
+                        || s.getAlgorithm().contains("withDSA")
+                        || isCompositeMlDsa(s.getAlgorithm()))) {
             System.out.println(
                     "Skipping variation for OpenJCEPlusFIPS provider. Not supported in FIPS.");
             System.out.println("    Ignored");
@@ -229,6 +230,16 @@ public class BaseTestDeterministic extends BaseTestJunit5 {
 
     static void testKeyPairGenerator(Provider.Service s) throws Exception {
         System.out.println(s.getProvider().getName() + " " + s.getType() + "." + s.getAlgorithm());
+
+        // Composite ML-DSA is only supported by OpenJCEPlus, not OpenJCEPlusFIPS.
+        if (s.getProvider().getName().equals("OpenJCEPlusFIPS")
+                && isCompositeMlDsa(s.getAlgorithm())) {
+            System.out.println(
+                    "Skipping variation for OpenJCEPlusFIPS provider. Not supported in FIPS.");
+            System.out.println("    Ignored");
+            return;
+        }
+
         var kp1 = generateKeyPair(s.getAlgorithm(), s.getProvider().getName(), 0);
         var kp2 = generateKeyPair(s.getAlgorithm(), s.getProvider().getName(), 0);
 
@@ -251,7 +262,12 @@ public class BaseTestDeterministic extends BaseTestJunit5 {
             case "Ed448", "X448" -> 448;
             case "ML-KEM", "ML-KEM-512", "ML-KEM-768", "ML-KEM-1024" -> 0;
             case "ML-DSA", "ML-DSA-44", "ML-DSA-65", "ML-DSA-87" -> 0;
-            default -> throw new UnsupportedOperationException(alg);
+            default -> {
+                if (isCompositeMlDsa(g.getAlgorithm())) {
+                    yield 0;
+                }
+                throw new UnsupportedOperationException(alg);
+            }
         };
         if (size != 0) {
             g.initialize(size, new SeededSecureRandom(SEED + offset));
@@ -317,6 +333,16 @@ public class BaseTestDeterministic extends BaseTestJunit5 {
         assertArrayEquals(sc1, sc2);
         hash = Objects.hash(hash, Arrays.hashCode(sc1));
         System.out.println("    Passed");
+    }
+
+    /**
+     * Returns true if the algorithm name is a Composite ML-DSA algorithm
+     * (e.g. MLDSA44-RSA2048-PSS-SHA256). These are only supported by
+     * OpenJCEPlus, not OpenJCEPlusFIPS.
+     */
+    static boolean isCompositeMlDsa(String algorithm) {
+        return algorithm.startsWith("MLDSA44-") || algorithm.startsWith("MLDSA65-")
+                || algorithm.startsWith("MLDSA87-");
     }
 
     static String getKeyAlgFromKEM(String algorithm) {
