@@ -145,12 +145,6 @@ You can test your installation by issuing `mvn --version`. For example:
     mvn '-Dock.library.path=$OCK_PROJECT_HOME' install -DskipTests
     ```
 
-    On Mac:
-
-    ```console
-    mvn '-Dock.library.path=$OCK_PROJECT_HOME/jgsk_crypto' install -DskipTests
-    ```
-
 ## Test Execution
 
 ### Run functional tests
@@ -223,13 +217,13 @@ The OpenJCEPlus project includes JMH performance tests that exercise various alg
 To run a single test for example the `SHA256Benchmark`:
 
 ```console
-mvn -Dock.library.path=$OCK_PROJECT_HOME/jgsk_crypto clean install -DskipTests -Djmh.benchmark.skip=false -Djmh.benchmark=ibm.jceplus.jmh.SHA256Benchmark
+mvn -Dock.library.path=$OCK_PROJECT_HOME clean install -DskipTests -Djmh.benchmark.skip=false -Djmh.benchmark=ibm.jceplus.jmh.SHA256Benchmark
 ```
 
 To run all performance tests:
 
 ```console
-mvn -Dock.library.path=$OCK_PROJECT_HOME/jgsk_crypto clean install -DskipTests -Djmh.benchmark.skip=false
+mvn -Dock.library.path=$OCK_PROJECT_HOME clean install -DskipTests -Djmh.benchmark.skip=false
 ```
 
 #### Using the `-Djmh.threads` Property
