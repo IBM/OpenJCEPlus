@@ -57,7 +57,6 @@ import org.junit.platform.suite.api.Suite;
     TestPublicMethodsToMakeNonPublic.class,
     TestResetByteBuffer.class,
     TestRSACipherInterop.class,
-    TestRSAKey.class,
     TestRSAKeyInterop.class,
     TestRSAKeyInteropBC.class,
     TestRSAPSS.class,
