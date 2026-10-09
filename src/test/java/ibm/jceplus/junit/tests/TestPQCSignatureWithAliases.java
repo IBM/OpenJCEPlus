@@ -22,7 +22,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
+@Tag(Tags.OPENJCEPLUS_OCK_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")

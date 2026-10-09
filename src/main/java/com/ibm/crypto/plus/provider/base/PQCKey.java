@@ -36,8 +36,7 @@ public final class PQCKey implements AsymmetricKey {
         }
         NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", algName);
         try {
-            String NoDashAlg = algName.replace('-', '_');
-            keyId = nativeInterface.MLKEY_generate(NoDashAlg);
+            keyId = nativeInterface.MLKEY_generate(algName);
 
             if (keyId == 0) {
                 throw new NativeException("PQCKey.generateKeyPair: MLKEY_generate failed");
@@ -60,8 +59,7 @@ public final class PQCKey implements AsymmetricKey {
         }
         NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, configType, algName);
         long keyId = 0;
-        String NoDashAlg = algName.replace('-', '_');
-        keyId = nativeInterface.MLKEY_createPrivateKey(NoDashAlg, privateKeyBytes);
+        keyId = nativeInterface.MLKEY_createPrivateKey(algName, privateKeyBytes);
 
         return new PQCKey(nativeInterface, keyId, privateKeyBytes.clone(), null, algName, provider);
     }
@@ -78,8 +76,7 @@ public final class PQCKey implements AsymmetricKey {
         }
         NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, configType, algName);
         long keyId = 0;
-        String NoDashAlg = algName.replace('-', '_');
-        keyId = nativeInterface.MLKEY_createPublicKey(NoDashAlg, publicKeyBytes);
+        keyId = nativeInterface.MLKEY_createPublicKey(algName, publicKeyBytes);
 
         // OCKDebug.Msg (debPrefix, methodName, "mlkemKeyId :" + mlkemKeyId);
         return new PQCKey(nativeInterface, keyId, null, publicKeyBytes.clone(), algName, provider);
@@ -117,6 +114,10 @@ public final class PQCKey implements AsymmetricKey {
     @Override
     public String getAlgorithm() {
         return algName;
+    }
+
+    public NativeInterface getBackendInterface() {
+        return nativeInterface;
     }
 
     @Override

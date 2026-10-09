@@ -72,7 +72,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
     protected void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
         PQCPrivateKey keyPrivate = null;
         try {
-            keyPrivate = (PQCPrivateKey) PQCKeyFactory.toPQCKey(provider, privateKey);
+            keyPrivate = (PQCPrivateKey) PQCKeyFactory.toPQCKey(provider, privateKey, "Signature");
         } catch (Exception e) {
             throw new InvalidKeyException("Unsupported key type: ", e);
         }
@@ -104,7 +104,7 @@ abstract class PQCSignatureImpl extends SignatureSpi {
     protected void engineInitVerify(PublicKey publicKey) throws InvalidKeyException {
         PQCPublicKey keyPublic = null;
         try {
-            keyPublic = (PQCPublicKey) PQCKeyFactory.toPQCKey(provider, publicKey);
+            keyPublic = (PQCPublicKey) PQCKeyFactory.toPQCKey(provider, publicKey, "Signature");
         } catch (Exception e) {
             throw new InvalidKeyException("Unsupported key type: ", e);
         }

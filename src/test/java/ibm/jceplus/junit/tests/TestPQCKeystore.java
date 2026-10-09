@@ -45,7 +45,8 @@ import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
+@Tag(Tags.OPENJCEPLUS_OCK_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")

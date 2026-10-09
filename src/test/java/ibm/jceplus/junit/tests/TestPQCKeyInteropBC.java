@@ -11,7 +11,8 @@ package ibm.jceplus.junit.tests;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
+@Tag(Tags.OPENJCEPLUS_OCK_NAME)
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithBCAndBCInteropProviders")
 public class TestPQCKeyInteropBC extends BaseTestPQCKeyInterop {
     // This class is only used to pass the provider parameter to the BaseTestPQCKeyInterop class.

@@ -37,12 +37,9 @@ public class MLDSABenchmark extends JMHBase {
     @Param({"64", "1024", "8192", "32768"})
     private int payloadSize;
 
-    @Param({"OpenJCEPlus", "SUN"})
+    @Param({"OpenJCEPlus-OCK", "OpenJCEPlus-OpenSSL", "SUN"})
     private String provider;
 
-    private KeyPairGenerator mldsa44KeyPairGenerator;
-    private KeyPairGenerator mldsa65KeyPairGenerator;
-    private KeyPairGenerator mldsa87KeyPairGenerator;
     private Signature mldsa44SignatureInstance;
     private Signature mldsa65SignatureInstance;
     private Signature mldsa87SignatureInstance;
@@ -62,9 +59,9 @@ public class MLDSABenchmark extends JMHBase {
     public void setup() throws Exception {
         super.setup(provider);
 
-        mldsa44KeyPairGenerator = KeyPairGenerator.getInstance("ML-DSA-44", provider);
-        mldsa65KeyPairGenerator = KeyPairGenerator.getInstance("ML-DSA-65", provider);
-        mldsa87KeyPairGenerator = KeyPairGenerator.getInstance("ML-DSA-87", provider);
+        KeyPairGenerator mldsa44KeyPairGenerator = KeyPairGenerator.getInstance("ML-DSA-44", provider);
+        KeyPairGenerator mldsa65KeyPairGenerator = KeyPairGenerator.getInstance("ML-DSA-65", provider);
+        KeyPairGenerator mldsa87KeyPairGenerator = KeyPairGenerator.getInstance("ML-DSA-87", provider);
 
         mldsa44SignatureInstance = Signature.getInstance("ML-DSA-44", provider);
         mldsa65SignatureInstance = Signature.getInstance("ML-DSA-65", provider);
@@ -92,21 +89,6 @@ public class MLDSABenchmark extends JMHBase {
         mldsa44signature = mldsa44SignatureInstance.sign();
         mldsa65signature = mldsa65SignatureInstance.sign();
         mldsa87signature = mldsa87SignatureInstance.sign();
-    }
-
-    @Benchmark
-    public KeyPair mldsa44KeyGeneration() throws Exception {
-        return mldsa44KeyPairGenerator.generateKeyPair();
-    }
-
-    @Benchmark
-    public KeyPair mldsa65KeyGeneration() throws Exception {
-        return mldsa65KeyPairGenerator.generateKeyPair();
-    }
-
-    @Benchmark
-    public KeyPair mldsa87KeyGeneration() throws Exception {
-        return mldsa87KeyPairGenerator.generateKeyPair();
     }
 
     @Benchmark
