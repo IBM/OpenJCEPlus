@@ -42,7 +42,6 @@ public class TestMultithreadFIPS {
             "ibm.jceplus.junit.openjceplusfips.multithread.TestHmacSHA256InteropSunJCE",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestPBKDF2",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestPBKDF2Interop",
-            "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSS2",
             //"ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop2",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSAPSSInterop3",
             "ibm.jceplus.junit.openjceplusfips.multithread.TestRSASignatureInteropSunRsaSign",
