@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -24,17 +24,25 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestRSAKey extends BaseTestJunit5 {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+public abstract class BaseTestRSAKey extends BaseTest {
 
+    @Parameter(0)
+    TestProvider provider;
 
     protected KeyPairGenerator rsaKeyPairGen;
     protected KeyFactory rsaKeyFactory;
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", getProviderName());
         rsaKeyFactory = KeyFactory.getInstance("RSA", getProviderName());
     }
