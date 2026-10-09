@@ -12,7 +12,6 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
@@ -117,9 +116,10 @@ public class TestSecureRandom extends BaseTest {
     /**
      * Verifies that generateSeed(0) returns an empty array rather than null.
      */
-    @Test
-    public void testGenerateSeedZeroLength() throws Exception {
-        SecureRandom sr = SecureRandom.getInstance("SHA256DRBG", getProviderName());
+    @ParameterizedTest
+    @ValueSource(strings = {"SHA256DRBG", "SHA512DRBG"})
+    public void testGenerateSeedZeroLength(String algorithm) throws Exception {
+        SecureRandom sr = SecureRandom.getInstance(algorithm, getProviderName());
         byte[] seed = sr.generateSeed(0);
         assertNotNull(seed, "generateSeed(0) should return empty array, not null");
         assertEquals(0, seed.length, "generateSeed(0) should return 0-length array");
