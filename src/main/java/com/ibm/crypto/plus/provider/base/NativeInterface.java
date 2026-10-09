@@ -40,10 +40,6 @@ public interface NativeInterface {
     // Basic random number generator functions
     // =========================================================================
 
-    public void RAND_nextBytes(byte[] buffer) throws NativeException;
-
-    public void RAND_setSeed(byte[] seed) throws NativeException;
-
     public void RAND_generateSeed(byte[] seed) throws NativeException;
 
     // =========================================================================

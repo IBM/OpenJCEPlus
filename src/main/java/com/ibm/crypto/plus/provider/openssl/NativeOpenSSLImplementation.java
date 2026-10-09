@@ -190,10 +190,6 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     // Basic random number generator functions
     // =========================================================================
 
-    static public native void RAND_nextBytes(long osslContextId, byte[] buffer) throws OpenSSLException;
-
-    static public native void RAND_setSeed(long osslContextId, byte[] seed) throws OpenSSLException;
-
     static public native void RAND_generateSeed(long osslContextId, byte[] seed) throws OpenSSLException;
 
     // =========================================================================

@@ -292,16 +292,6 @@ public abstract class NativeOCKAdapter implements NativeInterface {
     }
 
     @Override
-    public void RAND_nextBytes(byte[] buffer) throws OCKException {
-        NativeOCKImplementation.RAND_nextBytes(ockContext.getId(), buffer);
-    }
-
-    @Override
-    public void RAND_setSeed(byte[] seed) throws OCKException {
-        NativeOCKImplementation.RAND_setSeed(ockContext.getId(), seed);
-    }
-
-    @Override
     public void RAND_generateSeed(byte[] seed) throws OCKException {
         NativeOCKImplementation.RAND_generateSeed(ockContext.getId(), seed);
     }
