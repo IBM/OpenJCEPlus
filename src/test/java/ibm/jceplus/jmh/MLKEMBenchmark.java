@@ -42,7 +42,6 @@ public class MLKEMBenchmark extends JMHBase {
 
     private KEM myKEM;
     private KeyPair keyPair;
-    private KeyPairGenerator keyPairGen;
     private KEM.Encapsulator encapsulator;
     private KEM.Encapsulated encapsulated;
     private KEM.Decapsulator decapsulator;
@@ -52,18 +51,13 @@ public class MLKEMBenchmark extends JMHBase {
         super.setup(provider);
 
         myKEM = KEM.getInstance(transformation, provider);
-        keyPairGen = KeyPairGenerator.getInstance(transformation, provider);
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(transformation, provider);
         keyPair = keyPairGen.generateKeyPair();
         keyPair.getPublic();
         keyPair.getPrivate();
         encapsulator = myKEM.newEncapsulator(keyPair.getPublic());
         encapsulated = encapsulator.encapsulate(0, 31, "AES");
         decapsulator = myKEM.newDecapsulator(keyPair.getPrivate());
-    }
-
-    @Benchmark
-    public KeyPair keyGeneration() throws Exception {
-        return keyPairGen.generateKeyPair();
     }
 
     @Benchmark
