@@ -49,11 +49,6 @@ static EVP_PKEY_CTX *getPqcCtx(JNIEnv *env, const char *algo) {
                     throwOSSLException(env, 0, "MLKEY_generate (cached path): EVP_PKEY_CTX_new_from_name failed");
                     return NULL;
                 }
-                if (1 != EVP_PKEY_keygen_init(t)) {
-                    EVP_PKEY_CTX_free(t);
-                    throwOSSLException(env, 0, "MLKEY_generate (cached path): EVP_PKEY_keygen_init failed");
-                    return NULL;
-                }
                 pqcCtxCache[i].pqcCtx = t;
             }
             EVP_PKEY_CTX *dupCtx = EVP_PKEY_CTX_dup(pqcCtxCache[i].pqcCtx);
@@ -69,11 +64,6 @@ static EVP_PKEY_CTX *getPqcCtx(JNIEnv *env, const char *algo) {
     EVP_PKEY_CTX *fallbackCtx = EVP_PKEY_CTX_new_from_name(NULL, algo, NULL);
     if (fallbackCtx == NULL) {
         throwOSSLException(env, 0, "MLKEY_generate (fallback path): EVP_PKEY_CTX_new_from_name failed");
-        return NULL;
-    }
-    if (1 != EVP_PKEY_keygen_init(fallbackCtx)) {
-        EVP_PKEY_CTX_free(fallbackCtx);
-        throwOSSLException(env, 0, "MLKEY_generate (fallback path): EVP_PKEY_keygen_init failed");
         return NULL;
     }
     return fallbackCtx;
@@ -107,6 +97,11 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_MLKEY_1gen
     ctx = getPqcCtx(env, algoChars);
     if (ctx == NULL) {
         /* Exception already thrown by getPqcCtx */
+        goto cleanup;
+    }
+
+    if (1 != EVP_PKEY_keygen_init(ctx)) {
+        throwOSSLException(env, 0, "MLKEY_generate: EVP_PKEY_keygen_init failed");
         goto cleanup;
     }
 
