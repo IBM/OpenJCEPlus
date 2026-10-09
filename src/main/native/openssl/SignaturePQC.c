@@ -32,7 +32,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_PQC_1SIGNA
     EVP_PKEY          *pkey           = (EVP_PKEY *)((intptr_t)pKeyId);
     EVP_PKEY_CTX      *sctx           = NULL;
     unsigned char     *dataNative     = NULL;
-    unsigned char     *sigBuf         = NULL;
     unsigned char     *sigBytesNative = NULL;
     jbyteArray        sigBytes        = NULL;
     jboolean          isCopy          = 0;
@@ -60,29 +59,18 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_PQC_1SIGNA
     dataLen    = (size_t)((*env)->GetArrayLength(env, data));
     dataNative = (unsigned char *)((*env)->GetPrimitiveArrayCritical(env, data, &isCopy));
     if (dataNative == NULL) {
-        throwOSSLException(env, 0, "PQC_SIGNATURE_sign: GetPrimitiveArrayCritical failed");
+        throwOSSLException(env, 0, "PQC_SIGNATURE_sign: GetPrimitiveArrayCritical (data) failed");
         goto cleanup;
     }
 
-    /* Determine signature length */
-    if (1 != EVP_PKEY_sign(sctx, NULL, &sigLen, dataNative, dataLen)) {
-        throwOSSLException(env, 0, "PQC_SIGNATURE_sign: EVP_PKEY_sign (size query) failed");
-        goto cleanup;
+    /* Query signature size from key metadata */
+    sigLen = (size_t)EVP_PKEY_get_size(pkey);
+    if (sigLen == 0) {
+        if (1 != EVP_PKEY_sign(sctx, NULL, &sigLen, dataNative, dataLen)) {
+            throwOSSLException(env, 0, "PQC_SIGNATURE_sign: EVP_PKEY_sign (size query) failed");
+            goto cleanup;
+        }
     }
-
-    sigBuf = (unsigned char *)malloc(sigLen);
-    if (sigBuf == NULL) {
-        throwOSSLException(env, 0, "PQC_SIGNATURE_sign: malloc failed");
-        goto cleanup;
-    }
-
-    if (1 != EVP_PKEY_sign(sctx, sigBuf, &sigLen, dataNative, dataLen)) {
-        throwOSSLException(env, 0, "PQC_SIGNATURE_sign: EVP_PKEY_sign failed");
-        goto cleanup;
-    }
-
-    (*env)->ReleasePrimitiveArrayCritical(env, data, dataNative, JNI_ABORT);
-    dataNative = NULL;
 
     sigBytes = (*env)->NewByteArray(env, (jsize)sigLen);
     if (sigBytes == NULL) {
@@ -96,20 +84,25 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_PQC_1SIGNA
         goto cleanup;
     }
 
-    memcpy(sigBytesNative, sigBuf, sigLen);
-    (*env)->ReleasePrimitiveArrayCritical(env, sigBytes, sigBytesNative, 0);
+    /* Direct single-pass signature into the Java byte array buffer */
+    if (1 != EVP_PKEY_sign(sctx, sigBytesNative, &sigLen, dataNative, dataLen)) {
+        throwOSSLException(env, 0, "PQC_SIGNATURE_sign: EVP_PKEY_sign failed");
+        goto cleanup;
+    }
+
     retSigBytes = sigBytes;
 
 cleanup:
+    if (sigBytesNative != NULL) {
+        (*env)->ReleasePrimitiveArrayCritical(env, sigBytes, sigBytesNative, 0);
+        sigBytesNative = NULL;
+    }
     if (dataNative != NULL) {
         (*env)->ReleasePrimitiveArrayCritical(env, data, dataNative, JNI_ABORT);
         dataNative = NULL;
     }
     if ((sigBytes != NULL) && (retSigBytes == NULL)) {
         (*env)->DeleteLocalRef(env, sigBytes);
-    }
-    if (sigBuf != NULL) {
-        free(sigBuf);
     }
     if (sctx != NULL) {
         EVP_PKEY_CTX_free(sctx);
