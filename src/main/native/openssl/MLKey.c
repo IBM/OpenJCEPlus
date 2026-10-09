@@ -19,13 +19,13 @@
 #include <stdint.h>
 
 //============================================================================
-/* Lazy cache for EVP_KEYMGMT pointers to avoid provider lookup lock contention */
+/* Lazy cache for initialized keygen context templates to avoid provider lookup */
 typedef struct {
     const char   *name;
-    EVP_KEYMGMT  *keymgmt;
-} PQC_KEYMGMT_CACHE;
+    EVP_PKEY_CTX *pqcCtx;
+} PQC_CTX_CACHE;
 
-static PQC_KEYMGMT_CACHE keymgmtCache[] = {
+static PQC_CTX_CACHE pqcCtxCache[] = {
     {"ML-KEM-512",  NULL},
     {"ML-KEM-768",  NULL},
     {"ML-KEM-1024", NULL},
@@ -35,22 +35,48 @@ static PQC_KEYMGMT_CACHE keymgmtCache[] = {
     {NULL,          NULL}
 };
 
-static EVP_KEYMGMT *getKeymgmt(const char *algo) {
+static EVP_PKEY_CTX *getPqcCtx(JNIEnv *env, const char *algo) {
     if (algo == NULL) {
+        throwOSSLException(env, 0, "getPqcCtx: algo is null");
         return NULL;
     }
-    for (int i = 0; keymgmtCache[i].name != NULL; i++) {
-        if (OPENSSL_strcasecmp(algo, keymgmtCache[i].name) == 0) {
-            if (keymgmtCache[i].keymgmt == NULL) {
-                EVP_KEYMGMT *km = EVP_KEYMGMT_fetch(NULL, keymgmtCache[i].name, NULL);
-                if (km != NULL) {
-                    keymgmtCache[i].keymgmt = km;
+
+    for (int i = 0; pqcCtxCache[i].name != NULL; i++) {
+        if (OPENSSL_strcasecmp(algo, pqcCtxCache[i].name) == 0) {
+            if (pqcCtxCache[i].pqcCtx == NULL) {
+                EVP_PKEY_CTX *t = EVP_PKEY_CTX_new_from_name(NULL, pqcCtxCache[i].name, NULL);
+                if (t == NULL) {
+                    throwOSSLException(env, 0, "MLKEY_generate (cached path): EVP_PKEY_CTX_new_from_name failed");
+                    return NULL;
                 }
+                if (1 != EVP_PKEY_keygen_init(t)) {
+                    EVP_PKEY_CTX_free(t);
+                    throwOSSLException(env, 0, "MLKEY_generate (cached path): EVP_PKEY_keygen_init failed");
+                    return NULL;
+                }
+                pqcCtxCache[i].pqcCtx = t;
             }
-            return keymgmtCache[i].keymgmt;
+            EVP_PKEY_CTX *dupCtx = EVP_PKEY_CTX_dup(pqcCtxCache[i].pqcCtx);
+            if (dupCtx == NULL) {
+                throwOSSLException(env, 0, "MLKEY_generate (cached path): EVP_PKEY_CTX_dup failed");
+                return NULL;
+            }
+            return dupCtx;
         }
     }
-    return NULL;
+
+    /* Fallback for unlisted/generic algorithm names */
+    EVP_PKEY_CTX *fallbackCtx = EVP_PKEY_CTX_new_from_name(NULL, algo, NULL);
+    if (fallbackCtx == NULL) {
+        throwOSSLException(env, 0, "MLKEY_generate (fallback path): EVP_PKEY_CTX_new_from_name failed");
+        return NULL;
+    }
+    if (1 != EVP_PKEY_keygen_init(fallbackCtx)) {
+        EVP_PKEY_CTX_free(fallbackCtx);
+        throwOSSLException(env, 0, "MLKEY_generate (fallback path): EVP_PKEY_keygen_init failed");
+        return NULL;
+    }
+    return fallbackCtx;
 }
 
 //============================================================================
@@ -65,7 +91,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_MLKEY_1gen
 
     EVP_PKEY_CTX  *ctx       = NULL;
     EVP_PKEY      *pkey      = NULL;
-    EVP_KEYMGMT   *keymgmt   = NULL;
     const char    *algoChars = NULL;
     jlong         mlkeyId    = 0;
 
@@ -79,19 +104,9 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_MLKEY_1gen
         return 0;
     }
 
-    keymgmt = getKeymgmt(algoChars);
-    if (keymgmt != NULL) {
-        ctx = EVP_PKEY_CTX_new_from_keymgmt(NULL, keymgmt, NULL);
-    } else {
-        ctx = EVP_PKEY_CTX_new_from_name(NULL, algoChars, NULL);
-    }
+    ctx = getPqcCtx(env, algoChars);
     if (ctx == NULL) {
-        throwOSSLException(env, 0, "MLKEY_generate: EVP_PKEY_CTX_new_from_name failed");
-        goto cleanup;
-    }
-
-    if (1 != EVP_PKEY_keygen_init(ctx)) {
-        throwOSSLException(env, 0, "MLKEY_generate: EVP_PKEY_keygen_init failed");
+        /* Exception already thrown by getPqcCtx */
         goto cleanup;
     }
 
