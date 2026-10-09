@@ -6,20 +6,34 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
 import java.security.SignatureException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestRSASignatureChunkUpdate extends BaseTestJunit5Signature {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestRSASignatureChunkUpdate extends BaseTestSignature {
+
     static final String KEY_ALGO = "RSA";
     static final int KEY_SIZE = 2048;
+
+    @Parameter(0)
+    TestProvider provider;
 
     protected KeyPairGenerator keyPairGenerator = null;
     protected KeyPair keyPair = null;
@@ -27,6 +41,7 @@ public class BaseTestRSASignatureChunkUpdate extends BaseTestJunit5Signature {
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         keyPairGenerator = KeyPairGenerator.getInstance(KEY_ALGO, getProviderName());
         if (specifiedKeySize > 0) {
             keyPairGenerator.initialize(specifiedKeySize);
