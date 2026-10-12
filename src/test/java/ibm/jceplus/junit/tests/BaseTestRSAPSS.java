@@ -8,7 +8,7 @@
 
 // A test program to test all DSA classes
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
@@ -26,14 +26,28 @@ import java.security.spec.PSSParameterSpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestRSAPSS extends BaseTestJunit5 {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+public abstract class BaseTestRSAPSS extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
 
     String IBM_ALG = "RSASA-PSS";
     //String BC_ALG = "SHA1withRSAandMGF1";
