@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corp. 2025
+ * Copyright IBM Corp. 2025, 2026
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms provided by IBM in the LICENSE file that accompanied
@@ -258,8 +258,8 @@ abstract class PBES2Parameters extends AlgorithmParametersSpi {
         var prfDer = pBKDF2_params.data.getOptional(DerValue.tag_Sequence);
         if (prfDer.isPresent()) {
             DerValue prf = prfDer.get();
-            kdfAlgo_OID = prf.data.getOID();
-            KnownOIDs o = KnownOIDs.findMatch(kdfAlgo_OID.toString());
+            ObjectIdentifier prfOID = prf.data.getOID();
+            KnownOIDs o = KnownOIDs.findMatch(prfOID.toString());
             if (o == null || (!o.stdName().equals("HmacSHA1") &&
                     !o.stdName().equals("HmacSHA224") &&
                     !o.stdName().equals("HmacSHA256") &&
