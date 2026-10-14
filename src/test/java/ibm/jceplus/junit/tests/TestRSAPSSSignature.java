@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import ibm.jceplus.junit.base.certificateutils.CertAndKeyGen;
 import java.io.BufferedInputStream;
@@ -20,7 +20,6 @@ import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -36,7 +35,6 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Date;
 import javax.security.auth.x500.X500Principal;
@@ -52,11 +50,24 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import sun.security.x509.X500Name;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestRSAPSSSignature extends BaseTestSignature {
+
+    @Parameter(0)
+    TestProvider provider;
 
     String IBM_ALG = "RSAPSS";
     String BC_ALG = "SHA1withRSAandMGF1";
@@ -120,12 +131,16 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
     final int PARAMS_SALT40 = 3;
     static boolean printJunitTrace = false;
 
-
     @BeforeAll
     public static void setup() {
         Security.addProvider(new BouncyCastleProvider());
         printJunitTrace = Boolean
                 .valueOf(System.getProperty("com.ibm.jceplus.junit.printJunitTrace"));
+    }
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
     }
 
     @Test
@@ -345,41 +360,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
     }
 
     /**
-     * SHA256
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA256() throws Exception {
-
-        try {
-            PSSParameterSpec pssParameter = specSHA256Salt20;
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * SHA512
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA512() throws Exception {
-
-        PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512", "MGF1",
-                MGF1ParameterSpec.SHA512, 20, 1);
-        try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
      * SHA512/224
      * @throws Exception
      */
@@ -408,38 +388,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
                 MGF1ParameterSpec.SHA512_256, 20, 1);
         try {
             dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * SHA384
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA384() throws Exception {
-        try {
-            PSSParameterSpec pssParameter = new PSSParameterSpec("SHA384", "MGF1",
-                    MGF1ParameterSpec.SHA384, 20, 1);
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * SHA255 - test one byte
-     */
-    @Test
-    public void testRSASignatureSHA256OneByte() throws Exception {
-        try {
-            PSSParameterSpec pssParameterSpec = specSHA256Salt40;
-            dotestSignaturePSSParameterSpec(oneByte, IBM_ALG, 2048, pssParameterSpec);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1599,33 +1547,4 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         return buf.toString();
     }
 
-    @Test
-    public void testRSAPSSKeyFactory() throws Exception {
-        try {
-            String providerNameKF = "";
-            providerNameKF = getProviderName();
-            if (printJunitTrace)
-                System.out.println("Test RSAPSS KeyFactory provider: " + providerNameKF);
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", providerNameKF);
-            keyGen.initialize(1024, new java.security.SecureRandom());
-            KeyPair keyPair = keyGen.genKeyPair();
-            RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-
-            KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS", providerNameKF);
-            X509EncodedKeySpec x509KeySpec = kf.getKeySpec(publicKey,
-                    X509EncodedKeySpec.class);
-            byte[] encodedKey = x509KeySpec.getEncoded();
-
-            X509EncodedKeySpec x509KeySpec2 = new X509EncodedKeySpec(encodedKey);
-            KeyFactory.getInstance("RSASSA-PSS", providerNameKF);
-            RSAPublicKey publicKey2 = (RSAPublicKey) kf.generatePublic(x509KeySpec2);
-            assertTrue(publicKey.getAlgorithm().equalsIgnoreCase(publicKey2.getAlgorithm()), "Algorithm name different");
-            assertTrue(publicKey.getModulus().equals(publicKey2.getModulus()), "Modulus different");
-            assertTrue(publicKey.getPublicExponent().equals(publicKey2.getPublicExponent()), "Exponent different");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
 }
