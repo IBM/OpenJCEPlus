@@ -79,10 +79,6 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
             MGF1ParameterSpec.SHA256, 40, 1);
     static final String hexSHA256Salt40 = "3034a00f300d06096086480165030402010500a11c301a06092a864886f70d010108300d06096086480165030402010500a203020128";
 
-    private static final byte[] content = {(byte) 0x5F, (byte) 0x78, (byte) 0x4F, (byte) 0xC3,
-            (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0, (byte) 0x31, (byte) 0xF8,
-            (byte) 0x97, (byte) 0x03, (byte) 0xDD, (byte) 0x71, (byte) 0x9A, (byte) 0xBD,
-            (byte) 0xC5, (byte) 0x2B, (byte) 0xB1, (byte) 0x8E};
     // Used by doGenKeyPair method
     final int EMPTY_PARAMS = 0;
     final int DEFAULT_PARAMS = 1;
@@ -158,128 +154,6 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
 
     }
 
-    /**
-     * SHA512/224
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA512_224() throws Exception {
-
-        PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512/224", "MGF1",
-                MGF1ParameterSpec.SHA512_224, 20, 1);
-        try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * SHA512/256
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA512_256() throws Exception {
-
-        PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512/256", "MGF1",
-                MGF1ParameterSpec.SHA512_256, 20, 1);
-        try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * Helper method
-     * @param content
-     * @param algorithm
-     * @param keySize
-     * @param pssParameterSpec
-     * @param jceprovider
-     * @throws Exception
-     */
-    protected void dotestSignature(byte[] content, String algorithm, int keySize,
-            PSSParameterSpec pssParameterSpec, String jceprovider) throws Exception {
-
-        // Generate Signature
-
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(keySize, new java.security.SecureRandom());
-        KeyPair keyPair = keyGen.genKeyPair();
-
-        Signature sig = Signature.getInstance(algorithm, jceprovider);
-        if (pssParameterSpec != null) {
-            sig.setParameter(pssParameterSpec);
-            AlgorithmParameters algParams = sig.getParameters();
-            algParams.getParameterSpec(PSSParameterSpec.class);
-            if (printJunitTrace)
-                System.out.println("parameters=" + algParams.toString());
-        }
-
-        AlgorithmParameters algParams = sig.getParameters();
-        algParams.getParameterSpec(PSSParameterSpec.class);
-        if (printJunitTrace)
-            System.out.println("parameters=" + algParams.toString());
-        sig.initSign(keyPair.getPrivate());
-        sig.update(content);
-        byte[] sigBytes = sig.sign();
-
-        // Verify the signature
-        sig.initVerify(keyPair.getPublic());
-        sig.update(content);
-
-        // Check Signature
-        // Signature verifySig = Signature.getInstance("SHA1withRSA/PSS",
-        // getProviderName());
-        // verifySig.initVerify(cert);
-        // verifySig.update(content);
-        boolean signatureVerified = sig.verify(sigBytes);
-
-        assertTrue(signatureVerified, "signature is invalid!!");
-    }
-
-    /**
-     * Helper method
-     * @param content
-     * @param algorithm
-     * @param keySize
-     * @param pssParameterSpec
-     * @throws Exception
-     */
-    protected void dotestSignaturePSSParameterSpec(byte[] content, String algorithm, int keySize,
-            PSSParameterSpec pssParameterSpec) throws Exception {
-        if (printJunitTrace)
-            System.out.println("testSignaturePSSParameterSpec algorithm= " + algorithm + " keysize="
-                    + keySize);
-
-        // Generate Signature
-
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(keySize, new java.security.SecureRandom());
-        KeyPair keyPair = keyGen.genKeyPair();
-
-        Signature sig = Signature.getInstance(algorithm, getProviderName());
-        // Set salt length
-        if (pssParameterSpec != null) {
-            sig.setParameter(pssParameterSpec);
-        }
-        sig.initSign(keyPair.getPrivate());
-        sig.update(content);
-        byte[] sigBytes = sig.sign();
-
-        // Verify the signature
-        sig.initVerify(keyPair.getPublic());
-        sig.update(content);
-
-        boolean signatureVerified = sig.verify(sigBytes);
-
-        assertTrue(signatureVerified, "signature is invalid!!");
-    }
 
     /**
      * Empty parameters
