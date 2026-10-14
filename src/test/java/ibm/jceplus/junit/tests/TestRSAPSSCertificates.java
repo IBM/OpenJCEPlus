@@ -64,7 +64,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
-public class TestRSAPSSSignature extends BaseTestSignature {
+public class TestRSAPSSCertificates extends BaseTestSignature {
 
     @Parameter(0)
     TestProvider provider;
