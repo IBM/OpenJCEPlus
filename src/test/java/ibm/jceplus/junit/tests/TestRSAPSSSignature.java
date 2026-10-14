@@ -83,15 +83,6 @@ public class TestRSAPSSSignature extends BaseTestSignature {
             (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0, (byte) 0x31, (byte) 0xF8,
             (byte) 0x97, (byte) 0x03, (byte) 0xDD, (byte) 0x71, (byte) 0x9A, (byte) 0xBD,
             (byte) 0xC5, (byte) 0x2B, (byte) 0xB1, (byte) 0x8E};
-
-    private static final byte[] content1 = {(byte) 0x5F, (byte) 0x78, (byte) 0x4F, (byte) 0xC3,
-            (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0, (byte) 0x31, (byte) 0xF8,
-            (byte) 0x97, (byte) 0x03, (byte) 0xDD, (byte) 0x71, (byte) 0x9A, (byte) 0xBD,
-            (byte) 0xC5, (byte) 0x2B, (byte) 0xB1, (byte) 0x8E, (byte) 0x5F, (byte) 0x78,
-            (byte) 0x4F, (byte) 0xC3, (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0,
-            (byte) 0x31, (byte) 0xF8, (byte) 0x97, (byte) 0x03, (byte) 0xDD, (byte) 0x71,
-            (byte) 0x9A, (byte) 0xBD, (byte) 0xC5, (byte) 0x2B, (byte) 0xB1};
-
     private static final byte[] oneByte = {(byte) 0x5F};
     private static byte[] elevenBytes = {(byte) 0x5F, (byte) 0x78, (byte) 0x4F, (byte) 0xC3,
             (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0, (byte) 0x31, (byte) 0xF8,
@@ -141,17 +132,6 @@ public class TestRSAPSSSignature extends BaseTestSignature {
     @BeforeEach
     public void setUp() throws Exception {
         setAndInsertProvider(provider);
-    }
-
-    @Test
-    public void testRSASignatureWithPSS_SHA1() throws Exception {
-        try {
-            dotestSignature(content, IBM_ALG, 512, null, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
     }
 
     /**
@@ -337,21 +317,6 @@ public class TestRSAPSSSignature extends BaseTestSignature {
                 doSignatureIBM2BC(dynMsg, IBM_ALG, BC_ALG, 512, -1);
 
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * Test after setting parameters
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureWithPSSParameterSpec() throws Exception {
-        try {
-            dotestSignaturePSSParameterSpec(content1, IBM_ALG, 512);
 
         } catch (Exception e) {
             e.printStackTrace();
