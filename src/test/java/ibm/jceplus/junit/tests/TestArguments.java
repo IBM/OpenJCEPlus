@@ -49,6 +49,15 @@ public class TestArguments {
     }
 
     /**
+     * Generates combinations of OpenJCEPlus* providers with the SunRsaSign provider for interoperability testing.
+     *
+     * @return Stream of Arguments containing (JCEProviders, SunRsaSign) pairs
+     */
+    protected static Stream<Arguments> getOpenJCEPlusWithSunRsaSignInteropProvider(Set<String> providers) {
+        return getOpenJCEPlusWithInteropProviders(providers, TestProvider.SunRsaSign);
+    }
+
+    /**
      * Generates combinations of OpenJCEPlus* providers with the SunEC provider for interoperability testing.
      *
      * @return Stream of Arguments containing (JCEProviders, SunEC) pairs
@@ -73,6 +82,34 @@ public class TestArguments {
      */
     protected static Stream<Arguments> getOpenJCEPlusWithSunJCEAndSUNInteropProviders(Set<String> providers) {
         return getOpenJCEPlusWithTwoInteropProviders(providers, TestProvider.SunJCE, TestProvider.SUN);
+    }
+
+    /**
+     * Generates (signingProvider, verifyingProvider) pairs for RSA-PSS interoperability testing.
+     *
+     * @return Stream of Arguments containing (signingProvider, verifyingProvider) pairs
+     */
+    public static Stream<Arguments> getRSAPSSInteropProviderPairs(Set<String> providers) {
+        List<TestProvider> enabledProviders = getEnabledProviders(providers).toList();
+        List<TestProvider> interopProviders = new ArrayList<>();
+        interopProviders.add(TestProvider.SunRsaSign);
+
+        List<Arguments> arguments = new ArrayList<>();
+        for (TestProvider jceProvider : enabledProviders) {
+            for (TestProvider interopProvider : interopProviders) {
+                if (!jceProvider.equals(interopProvider)) {
+                    arguments.add(Arguments.of(interopProvider, jceProvider));
+                    arguments.add(Arguments.of(jceProvider, interopProvider));
+                } else {
+                    arguments.add(Arguments.of(jceProvider, interopProvider));
+                }
+            }
+        }
+
+        if (arguments.isEmpty()) {
+            throw new IllegalArgumentException("No test arguments, unlikely this is what was asked for.");
+        }
+        return arguments.stream();
     }
 
     public static Stream<Arguments> keySizesAndProviders(Set<String> providers, List<Integer> keySizes) {
