@@ -29,6 +29,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+import sun.security.util.DerOutputStream;
+import sun.security.util.DerValue;
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.CertificateAlgorithmId;
 import sun.security.x509.CertificateExtensions;
@@ -450,11 +452,24 @@ public final class CertAndKeyGen {
             info.setValidity(interval);
             info.setIssuer(issuer.getSigner());
 
-            if (provider == null) {
-                cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg);
-            } else {
-                cert = X509CertImpl.newSigned(info, privateKey, this.sigAlg, provider);
-            }
+            // Custom code based on X509CertImpl.newSigned to use provided spec
+            Signature sig = issuer.getSignatureObject();
+            sig.initSign(privateKey);
+
+            DerOutputStream tbsOut = new DerOutputStream();
+            info.encode(tbsOut);
+            byte[] rawCert = tbsOut.toByteArray();
+            sig.update(rawCert);
+            byte[] signature = sig.sign();
+
+            DerOutputStream seq = new DerOutputStream();
+            DerOutputStream out = new DerOutputStream();
+            info.encode(seq);
+            algID.encode(seq);
+            seq.putBitString(signature);
+            out.write(DerValue.tag_Sequence, seq);
+
+            cert = new X509CertImpl(info, algID, signature, out.toByteArray());
 
             if (debug != null) {
                 debug.exit(Debug.TYPE_PUBLIC, className, "getSelfCert", (X509Certificate) cert);
