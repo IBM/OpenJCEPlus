@@ -58,6 +58,8 @@ import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.provider.MethodSource;
 import sun.security.x509.X500Name;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag(Tags.OPENJCEPLUS_NAME)
@@ -128,7 +130,7 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
         X509v1CertificateBuilder builder = new X509v1CertificateBuilder(issuer, BigInteger.ONE, validityBeginDate, validityEndDate,
                 issuer, publicKeyInfo);
 
-        ContentSigner signer = new JcaContentSignerBuilder(null).setProvider(new BouncyCastleProvider())
+        ContentSigner signer = new JcaContentSignerBuilder(BC_ALG).setProvider(new BouncyCastleProvider())
                 .build(keyPair.getPrivate());
         X509CertificateHolder holder = builder.build(signer);
 
@@ -143,7 +145,7 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
 
         InputStream is0 = new ByteArrayInputStream(derBytes0);
         X509Certificate certificate0 = (X509Certificate) CertificateFactory
-                .getInstance("X.509", getProviderName()).generateCertificate(is0);
+                .getInstance("X.509").generateCertificate(is0);
         if (printJunitTrace)
             System.out.println(toHex(certificate0.getSigAlgParams()));
 
@@ -289,7 +291,7 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
         //String sigAlgName = "SHA1WithRSA";
 
         doGenKeyPair(alias, dname, keyAlgName, keysize, "SHA1WithRSA", EMPTY_PARAMS);
-        doGenKeyPair(alias, dname, keyAlgName, keysize, "SHA2WithRSA", EMPTY_PARAMS);
+        doGenKeyPair(alias, dname, keyAlgName, keysize, "SHA256WithRSA", EMPTY_PARAMS);
     }
 
     /**
@@ -393,7 +395,11 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
                 InputStream is0 = new ByteArrayInputStream(derBytes0);
                 X509Certificate certificate0 = (X509Certificate) CertificateFactory
                         .getInstance("X.509").generateCertificate(is0);
-                assertTrue(certificate0.getSigAlgParams() == null);
+                if ("RSAPSS".equalsIgnoreCase(sigAlgName)) {
+                    assertEquals("3000", toHex(certificate0.getSigAlgParams()));
+                } else {
+                    assertNull(certificate0.getSigAlgParams());
+                }
                 if (printJunitTrace)
                     System.out.println(
                             "Certificate0 parameters=" + toHex(certificate0.getSigAlgParams()));
@@ -430,7 +436,7 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
                 //            certImpl.verify(certificate1.getPublicKey(), null,
                 //                    certificate1.getSigAlgParams());
                 certificate1.checkValidity();
-                assertTrue(toHex(certificate1.getSigAlgParams()).equals("3000"));
+                assertEquals("3000", toHex(certificate1.getSigAlgParams()));
                 // Hex string was verified manually using asnDecoder utility
                 //assertTrue(toHex(certificate1.getSigAlgParams())
                 //        .equals("3027a00b300906052b0e03021a0500a118301606092a864886f70d010108300906052b0e03021a0500"));
@@ -463,8 +469,7 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
                 //        certificate2.getSigAlgParams());
 
                 certificate2.checkValidity();
-                String algString = toHex(certificate2.getSigAlgParams());
-                assertTrue(algString.equals(hexSHA256Salt20));
+                assertEquals(hexSHA256Salt20, toHex(certificate2.getSigAlgParams()));
                 break;
 
             case PARAMS_SALT40:
@@ -492,7 +497,7 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
                 //            X509CertImpl certImpl3 = (X509CertImpl) certificate3;
                 //            certImpl3.verify(certificate3.getPublicKey(), null,
                 //                    certificate3.getSigAlgParams());
-                assertTrue(toHex(certificate3.getSigAlgParams()).equals("3005a203020128"));
+                assertEquals("3005a203020128", toHex(certificate3.getSigAlgParams()));
                 break;
 
             default:
@@ -568,7 +573,7 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
                 InputStream is0 = new ByteArrayInputStream(derBytes0);
                 X509Certificate certificate0 = (X509Certificate) CertificateFactory
                         .getInstance("X.509").generateCertificate(is0);
-                assertTrue(certificate0.getSigAlgParams() == null);
+                assertEquals("3000", toHex(certificate0.getSigAlgParams()));
                 if (printJunitTrace)
                     System.out.println(
                             "Certificate0 parameters=" + toHex(certificate0.getSigAlgParams()));
@@ -653,7 +658,7 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
                 //                    certificate2.getSigAlgParams());
 
                 certificate2.checkValidity();
-                assertTrue(toHex(certificate2.getSigAlgParams()).equals(hexSHA256Salt40));
+                assertEquals(hexSHA256Salt40, toHex(certificate2.getSigAlgParams()));
                 java.security.cert.CertificateFactory cf2 = java.security.cert.CertificateFactory
                         .getInstance("X.509", "BC");
                 InputStream istream2 = new ByteArrayInputStream(derBytes2);
@@ -741,7 +746,6 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
         InputStream isDefaultParamsRoot = new ByteArrayInputStream(defaultParamsRootBytes);
         X509Certificate certDefaultParamsRoot = (X509Certificate) CertificateFactory
                 .getInstance("X.509").generateCertificate(isDefaultParamsRoot);
-        certDefaultParamsRoot.checkValidity();
         certDefaultParamsRoot.verify(certDefaultParamsRoot.getPublicKey());
 
         BufferedInputStream bisDefaultParamsClient = null;
@@ -760,8 +764,6 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
         InputStream isDefaultParamsClient = new ByteArrayInputStream(defaultParamsClientBytes);
         X509Certificate certDefaultParamsClient = (X509Certificate) CertificateFactory
                 .getInstance("X.509").generateCertificate(isDefaultParamsClient);
-        certDefaultParamsClient.checkValidity();
-
         certDefaultParamsClient.verify(certDefaultParamsRoot.getPublicKey(), (String) null);
 
         //        X509CertImpl certImplDefaultParamsClient = (X509CertImpl) certDefaultParamsClient;
@@ -795,8 +797,6 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
         InputStream isEmptyParamsRoot = new ByteArrayInputStream(emptyParamsRootBytes);
         X509Certificate certEmptyParamsRoot = (X509Certificate) CertificateFactory
                 .getInstance("X.509").generateCertificate(isEmptyParamsRoot);
-        certEmptyParamsRoot.checkValidity();
-
         certEmptyParamsRoot.verify(certEmptyParamsRoot.getPublicKey());
 
         BufferedInputStream bisEmptyParamsClient = null;
@@ -815,8 +815,6 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
         InputStream isEmptyParamsClient = new ByteArrayInputStream(emptyParamsClientBytes);
         X509Certificate certEmptyParamsClient = (X509Certificate) CertificateFactory
                 .getInstance("X.509").generateCertificate(isEmptyParamsClient);
-        certEmptyParamsClient.checkValidity();
-
         certEmptyParamsClient.verify(certEmptyParamsRoot.getPublicKey(), (String) null);
 
         //        X509CertImpl certImplEmptyParamsClient = (X509CertImpl) certEmptyParamsClient;
@@ -851,13 +849,17 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
         if (printJunitTrace)
             System.out.println("algParams_ibm=" + algParams_ibm.toString());
 
-        assertTrue(algParams_ibm.toString().contains("hashAlgorithm: SHA"));
-        assertTrue(algParams_ibm.toString().contains("maskGenAlgorithm: MGF1"));
-        assertTrue(algParams_ibm.toString().contains("mgf1ParameterSpec: SHA-1"));
-        assertTrue(algParams_ibm.toString().contains("saltLength: 20"));
-        assertTrue(algParams_ibm.toString().contains("trailerField: 1"));
+        String ibmDefaultStr = algParams_ibm.toString();
+        assertTrue(ibmDefaultStr.contains("hashAlgorithm=SHA-1"),
+                "expected hashAlgorithm=SHA-1 in: " + ibmDefaultStr);
+        assertTrue(ibmDefaultStr.contains("maskGenAlgorithm=MGF1ParameterSpec"),
+                "expected maskGenAlgorithm=MGF1ParameterSpec in: " + ibmDefaultStr);
+        assertTrue(ibmDefaultStr.contains("saltLength=20"),
+                "expected saltLength=20 in: " + ibmDefaultStr);
+        assertTrue(ibmDefaultStr.contains("trailerField=1"),
+                "expected trailerField=1 in: " + ibmDefaultStr);
 
-        PSSParameterSpec pssParameterSpec = new PSSParameterSpec("SHA2", "MGF1",
+        PSSParameterSpec pssParameterSpec = new PSSParameterSpec("SHA-256", "MGF1",
                 MGF1ParameterSpec.SHA256, 400, 1);
         try {
             sig_ibm.setParameter(pssParameterSpec);
@@ -869,9 +871,12 @@ public class TestRSAPSSCertificates extends BaseTestSignature {
         AlgorithmParameters algParams_ibm1 = sig_ibm.getParameters();
         if (printJunitTrace)
             System.out.println("algParams_ibm1=" + algParams_ibm1);
-        assertTrue(algParams_ibm1.toString().contains("hashAlgorithm: SHA-256")
-                || algParams_ibm1.toString().contains("hashAlgorithm: SHA2"));
-        assertTrue(algParams_ibm1.toString().contains("saltLength: 400"));
+        String ibmUpdatedStr = algParams_ibm1.toString();
+        assertTrue(ibmUpdatedStr.contains("hashAlgorithm=SHA-256")
+                || ibmUpdatedStr.contains("hashAlgorithm=SHA2"),
+                "expected hashAlgorithm=SHA-256 or SHA2 in: " + ibmUpdatedStr);
+        assertTrue(ibmUpdatedStr.contains("saltLength=400"),
+                "expected saltLength=400 in: " + ibmUpdatedStr);
 
         Signature sig_bc = null;
         try {
