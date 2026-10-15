@@ -12,6 +12,7 @@ import com.ibm.crypto.plus.provider.base.PQCKey;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.ProviderException;
+import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
 import javax.security.auth.DestroyFailedException;
 import sun.security.pkcs.PKCS8Key;
@@ -191,6 +192,17 @@ final class PQCPrivateKey extends PKCS8Key {
      */
     String getParamSetName() {
         return paramSetName;
+    }
+
+    /**
+     * Returns the parameters associated with this key.
+     *
+     * @return the parameter set as a {@code NamedParameterSpec}
+     */
+    @Override
+    public NamedParameterSpec getParams() {
+        checkDestroyed();
+        return new NamedParameterSpec(this.paramSetName);
     }
 
     PQCKey getPQCKey() {
