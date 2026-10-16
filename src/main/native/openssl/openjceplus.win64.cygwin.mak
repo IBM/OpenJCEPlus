@@ -16,6 +16,8 @@ JNI_HEADER = com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation.h
 OBJS= \
 	BuildDate.obj \
 	Digest.obj \
+	Helpers.obj \
+	Random.obj \
 	StaticStub.obj \
 	Utils.obj
 
@@ -24,7 +26,7 @@ TARGET = libopenjceplus_64.dll
 RC_SRC = openjceplus_resource.rc
 RC_OBJ = openjceplus_resource.res
 
-TARGET_LIBS = -LIBPATH:"$(NATIVE_LIB_HOME)\lib" libcrypto.lib
+TARGET_LIBS = -LIBPATH:"$(NATIVE_LIB_HOME)\lib" libcrypto.lib libssl.lib ws2_32.lib crypt32.lib advapi32.lib user32.lib
 
 !INCLUDE ../share/common.win64.cygwin.mak
 

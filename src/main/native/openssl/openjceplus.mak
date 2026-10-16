@@ -16,6 +16,8 @@ JNI_HEADER = com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation.h
 OBJS = \
 	${HOSTOUT}/BuildDate.o \
 	${HOSTOUT}/Digest.o \
+	${HOSTOUT}/Helpers.o \
+	${HOSTOUT}/Random.o \
 	${HOSTOUT}/StaticStub.o \
 	${HOSTOUT}/Utils.o
 

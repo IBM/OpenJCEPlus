@@ -70,12 +70,12 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CTX_1getVa
             break;
 
         default:
-            throwOSSLException(env, 0, "Invalid value id");
+            setPendingOpenSSLException(env, 0, "Invalid value id");
             return NULL;
     }
 
     if ((NULL == result) || (strcmp(result, "not available") != 0)) {
-        throwOSSLException(env, 0, "OPENSSL_info or OpenSSL_version failed");
+        setPendingOpenSSLException(env, 0, "OPENSSL_info or OpenSSL_version failed");
         return NULL;
     }
 
