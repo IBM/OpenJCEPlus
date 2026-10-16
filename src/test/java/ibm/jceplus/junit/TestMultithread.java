@@ -47,8 +47,6 @@ public class TestMultithread {
             "ibm.jceplus.junit.openjceplus.multithread.TestRSAKey",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSAPSS",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSAPSS2",
-            //"ibm.jceplus.junit.openjceplus.multithread.TestRSAPSSInterop2",
-            "ibm.jceplus.junit.openjceplus.multithread.TestRSAPSSInterop3",
             "ibm.jceplus.junit.openjceplus.multithread.TestRSASignatureInteropSunRsaSign",
             "ibm.jceplus.junit.openjceplus.multithread.TestSHA256Clone_SharedMD"};
 

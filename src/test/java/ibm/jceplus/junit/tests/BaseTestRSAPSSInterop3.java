@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -21,10 +21,18 @@ import java.security.spec.PSSParameterSpec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestRSAPSSInterop3 extends BaseTestJunit5 {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+public abstract class BaseTestRSAPSSInterop3 extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     String signingProvidersSignatureAlgorithmName = null;
     String verifyingProvidersSignatureAlgorithmName = null;
@@ -68,6 +76,7 @@ public class BaseTestRSAPSSInterop3 extends BaseTestJunit5 {
             System.out.println(
                     "======================================================================================");
 
+        setAndInsertProvider(provider);
         signingProviderName = "OpenJCEPlus";
         verifyingProviderName = "SunRsaSign";
 

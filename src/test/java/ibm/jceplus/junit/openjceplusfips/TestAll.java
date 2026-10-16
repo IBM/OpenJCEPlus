@@ -62,8 +62,6 @@ import org.junit.platform.suite.api.Suite;
     TestRSAKeyInteropBC.class,
     TestRSAPSS.class,
     TestRSAPSS2.class,
-    TestRSAPSSInterop2.class,
-    TestRSAPSSInterop3.class,
     TestRSASignature.class,
     TestRSASignatureChunkUpdate.class,
     TestRSASignatureInteropSunRsaSign.class,

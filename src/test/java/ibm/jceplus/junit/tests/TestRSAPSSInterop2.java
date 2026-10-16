@@ -6,14 +6,13 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.Provider;
 import java.security.Security;
 import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
@@ -21,11 +20,24 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestRSAPSSInterop2 extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     String signingProvidersSignatureAlgorithmName = null;
     String verifyingProvidersSignatureAlgorithmName = null;
@@ -52,7 +64,6 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
 
     static int testCaseNumber = 1;
 
-    Provider provider = null;
     static boolean printJunitTrace = false;
 
     @BeforeEach
@@ -72,15 +83,15 @@ public class BaseTestRSAPSSInterop2 extends BaseTestJunit5 {
         verifyingProviderName = "OpenJCEPlus";
 
         // Add the OpenJCEPlus provider to the provider's list
-        provider = new com.ibm.crypto.plus.provider.OpenJCEPlus();
         try {
-            Security.insertProviderAt(provider, 3);
+            Security.insertProviderAt(new com.ibm.crypto.plus.provider.OpenJCEPlus(), 3);
         } catch (Exception ex) {
             if (printJunitTrace)
                 System.out.println(
                         "Failed to create the OpenJCEPlus provider.  The following exception was thrown.");
             ex.printStackTrace();
         }
+        setAndInsertProvider(provider);
 
         java.security.Provider[] providers = Security.getProviders();
         if (printJunitTrace)
