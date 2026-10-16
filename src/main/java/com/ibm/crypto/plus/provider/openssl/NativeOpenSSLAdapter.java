@@ -256,18 +256,6 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     }
 
     @Override
-    public void RAND_nextBytes(byte[] buffer) throws OpenSSLException {
-        // NativeOpenSSLImplementation.RAND_nextBytes(osslContext.getId(), buffer);
-        throw new UnsupportedOperationException("RAND_nextBytes");
-    }
-
-    @Override
-    public void RAND_setSeed(byte[] seed) throws OpenSSLException {
-        // NativeOpenSSLImplementation.RAND_setSeed(osslContext.getId(), seed);
-        throw new UnsupportedOperationException("RAND_setSeed");
-    }
-
-    @Override
     public void RAND_generateSeed(byte[] seed) throws OpenSSLException {
         // NativeOpenSSLImplementation.RAND_generateSeed(osslContext.getId(), seed);
         throw new UnsupportedOperationException("RAND_generateSeed");
