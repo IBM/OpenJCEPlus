@@ -192,10 +192,6 @@ final class NativeOCKImplementation extends NativeImplementation {
     // Basic random number generator functions
     // =========================================================================
 
-    static public native void RAND_nextBytes(long ockContextId, byte[] buffer) throws OCKException;
-
-    static public native void RAND_setSeed(long ockContextId, byte[] seed) throws OCKException;
-
     static public native void RAND_generateSeed(long ockContextId, byte[] seed) throws OCKException;
 
     // =========================================================================
