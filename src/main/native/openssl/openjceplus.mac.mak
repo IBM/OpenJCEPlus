@@ -26,6 +26,8 @@ TARGET_LIBS := -L ${OPENSSL_LIB_LOCATION} -l ${OPENSSL_LIB}
 OBJS = \
 	${HOSTOUT}/BuildDate.o \
 	${HOSTOUT}/Digest.o \
+	${HOSTOUT}/Helpers.o \
+	${HOSTOUT}/Random.o \
 	${HOSTOUT}/StaticStub.o \
 	${HOSTOUT}/Utils.o
 

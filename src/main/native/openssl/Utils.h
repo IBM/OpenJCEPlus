@@ -10,6 +10,7 @@
 #define _UTILS_H
 
 #include <jni.h>
+#include "ExceptionCodes.h"
 
 #define DIGEST_INTERNAL_SUCCESS 0
 #define FAIL_DIGEST_FINAL -1
@@ -46,6 +47,10 @@ int gslogFunctionExit(const char* functionName);
 
 void osslCheckStatus(void);
 
-void throwOSSLException(JNIEnv* env, int code, const char* msg);
+//============================================================================
+// Exception handling
+//============================================================================
+
+void setPendingOpenSSLException(JNIEnv *env, int code, const char *msg);
 
 #endif

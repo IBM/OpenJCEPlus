@@ -30,7 +30,7 @@ int gslogFunctionEntry(const char *functionName) {
 int gslogError(const char *formatString, ...) {
     int         charsPrinted;
     va_list     formatArgs;
-    static char printBuffer[4096];
+    char        printBuffer[4096];
 
     va_start(formatArgs, formatString);
     charsPrinted = vsnprintf(printBuffer, sizeof(printBuffer), formatString, formatArgs);
@@ -48,7 +48,7 @@ int gslogError(const char *formatString, ...) {
 int gslogMessage(const char *formatString, ...) {
     int         charsPrinted;
     va_list     formatArgs;
-    static char printBuffer[4096];
+    char        printBuffer[4096];
 
     va_start(formatArgs, formatString);
     charsPrinted = vsnprintf(printBuffer, sizeof(printBuffer), formatString, formatArgs);
@@ -66,7 +66,7 @@ int gslogMessage(const char *formatString, ...) {
 int gslogMessagePrefix(const char *formatString, ...) {
     int         charsPrinted;
     va_list     formatArgs;
-    static char printBuffer[4096];
+    char        printBuffer[4096];
 
     va_start(formatArgs, formatString);
     charsPrinted = vsnprintf(printBuffer, sizeof(printBuffer), formatString, formatArgs);
@@ -129,7 +129,7 @@ void osslCheckStatus(void) {
 //============================================================================
 //
 //
-void throwOSSLException(JNIEnv *env, int code, const char *msg) {
+void setPendingOpenSSLException(JNIEnv *env, int code, const char *msg) {
 #define EXCEPTION_CLASS "com/ibm/crypto/plus/provider/openssl/OpenSSLException"
     static const char *exceptionClass = EXCEPTION_CLASS;
 #ifdef __MVS__
@@ -147,7 +147,7 @@ void throwOSSLException(JNIEnv *env, int code, const char *msg) {
     char     *msgCopy = NULL;
 
     /* return immediately if an exception is already pending */
-    if ((*env)->ExceptionOccurred(env)) {
+    if ((*env)->ExceptionCheck(env)) {
         return;
     }
 
@@ -177,12 +177,13 @@ void throwOSSLException(JNIEnv *env, int code, const char *msg) {
             gslogError("malloc for msg failed.");
         }
 
-        if (!(str = (*env)->NewStringUTF(env, msgCopy))) {
+        if (!(str = (*env)->NewStringUTF(env, msgCopy ? msgCopy : msg))) {
             gslogError("Can't create message string for exception");
             if (msgCopy) {
                 free(msgCopy);
                 msgCopy = NULL;
             }
+            (*env)->DeleteLocalRef(env, clazz);
             return;
         }
         FREE_N_NULL(msgCopy);
@@ -190,17 +191,32 @@ void throwOSSLException(JNIEnv *env, int code, const char *msg) {
 #ifdef __MVS__
 #pragma convert("ISO8859-1")
 #endif
-        if (!(mid = (*env)->GetMethodID(env, clazz, "<init>",
-                                        "(Ljava/lang/String;)V"))) {
+        if (code != 0) {
+            mid = (*env)->GetMethodID(env, clazz, "<init>",
+                                      "(Ljava/lang/String;I)V");
+        } else {
+            mid = (*env)->GetMethodID(env, clazz, "<init>",
+                                      "(Ljava/lang/String;)V");
+        }
 #ifdef __MVS__
 #pragma convert(pop)
 #endif
-            gslogError("Can't find constuctor(message) for %s", exceptionClass);
+        if (!mid) {
+            gslogError("Can't find constructor for %s", exceptionClass);
+            (*env)->DeleteLocalRef(env, str);
+            (*env)->DeleteLocalRef(env, clazz);
             return;
         }
 
-        if (!(obj = (*env)->NewObject(env, clazz, mid, str))) {
+        if (code != 0) {
+            obj = (*env)->NewObject(env, clazz, mid, str, (jint)code);
+        } else {
+            obj = (*env)->NewObject(env, clazz, mid, str);
+        }
+        if (!obj) {
             gslogError("Can't create exception object");
+            (*env)->DeleteLocalRef(env, str);
+            (*env)->DeleteLocalRef(env, clazz);
             return;
         }
     } else {
@@ -213,17 +229,29 @@ void throwOSSLException(JNIEnv *env, int code, const char *msg) {
 #endif
             gslogError("Can't find default constructor for %s(int)",
                        exceptionClass);
+            (*env)->DeleteLocalRef(env, clazz);
             return;
         }
 
         if (!(obj = (*env)->NewObject(env, clazz, mid, (jint)code))) {
             gslogError("Can't create exception object");
+            (*env)->DeleteLocalRef(env, clazz);
             return;
         }
     }
 
     if ((*env)->Throw(env, obj) < 0) {
         gslogError("Can't throw %s", exceptionClass);
+    }
+
+    if (obj != NULL) {
+        (*env)->DeleteLocalRef(env, obj);
+    }
+    if (str != NULL) {
+        (*env)->DeleteLocalRef(env, str);
+    }
+    if (clazz != NULL) {
+        (*env)->DeleteLocalRef(env, clazz);
     }
 }
 
