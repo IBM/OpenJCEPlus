@@ -14,6 +14,20 @@
 
 # Overview
 
+`OpenJCEPlus` and `OpenJCEPlusFIPS` are high-performance Java Cryptography Extension (JCE) security providers that significantly extend the cryptographic capabilities of a base OpenJDK installation. Built on top of **Open Cryptography Kit C (OCKC)** native library, or OpenSSL, they deliver the following key advantages over the standard JDK providers:
+
+- **Native-accelerated performance** — Cryptographic operations are delegated to the OCKC native library, or OpenSSL, which leverages platform-optimised assembly and hardware acceleration (e.g., AES-NI, POWER crypto extensions, z/Architecture CP Assist instructions). This yields substantially lower latency and higher throughput than the pure-Java implementations in the base JDK, as demonstrated by the included [JMH benchmark suite](#run-performance-tests).
+
+- **Pathway to FIPS-validated cryptography** — The `OpenJCEPlusFIPS` provider is architected to route all cryptographic operations through an underlying OCKC binary. When that binary has been independently validated to FIPS 140-3, the entire Java application inherits FIPS-compliant cryptography without any code changes. This makes `OpenJCEPlusFIPS` the standardised on-ramp for Java applications that must operate in FIPS-enforced environments. See the [FIPS note](#overview) below for compliance requirements.
+
+- **Generalised native library model** — Because all cryptographic work is performed by a swappable native library (OCKC or OpenSSL), the same Java provider code can target either a FIPS-validated binary or an accelerated non-FIPS binary simply by supplying a different library at deployment time.
+
+- **Broad platform support** — Source code support spans AIX (ppc64), Linux (x86-64, ppc64le, aarch64, s390x), macOS (x86-64, aarch64), Windows (x86-64), and z/OS (s390x), enabling a single security policy across heterogeneous enterprise environments.
+
+- **Post-quantum readiness** — In addition to classical algorithms, OpenJCEPlus provides implementations of the NIST-standardised post-quantum cryptographic primitives ML-KEM and ML-DSA, giving applications a migration path to quantum-resistant security today.
+
+- **JCE-standard API compatibility** — All algorithms are exposed through the standard `javax.crypto` and `java.security` APIs. No proprietary API usage is required; existing JCE code automatically benefits by placing `OpenJCEPlus` earlier in the provider preference list in `java.security`.
+
 This project contains source code associated with the `OpenJCEPlus` and `OpenJCEPlusFIPS` cryptographic providers that can be used within a Java SDK. At this time, this project intends to only issue source code releases which will not include any binary distribution format. These cryptographic providers contain capabilities to support JCE cryptographic operations using the `Open Crypto Kit` cryptographic library.
 
 **IMPORTANT NOTE:
