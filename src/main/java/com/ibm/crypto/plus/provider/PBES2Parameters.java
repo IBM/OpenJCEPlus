@@ -258,8 +258,8 @@ abstract class PBES2Parameters extends AlgorithmParametersSpi {
         var prfDer = pBKDF2_params.data.getOptional(DerValue.tag_Sequence);
         if (prfDer.isPresent()) {
             DerValue prf = prfDer.get();
-            kdfAlgo_OID = prf.data.getOID();
-            KnownOIDs o = KnownOIDs.findMatch(kdfAlgo_OID.toString());
+            ObjectIdentifier prfOID = prf.data.getOID();
+            KnownOIDs o = KnownOIDs.findMatch(prfOID.toString());
             if (o == null || (!o.stdName().equals("HmacSHA1") &&
                     !o.stdName().equals("HmacSHA224") &&
                     !o.stdName().equals("HmacSHA256") &&
@@ -336,12 +336,15 @@ abstract class PBES2Parameters extends AlgorithmParametersSpi {
             pBKDF2_params.putInteger(keysize / 8); // derived key length (in octets)
         }
 
-        DerOutputStream prf = new DerOutputStream();
-        // algorithm is id-hmacWith<MD>
-        prf.putOID(kdfAlgo_OID);
-        // parameters is 'NULL'
-        prf.putNull();
-        pBKDF2_params.write(DerValue.tag_Sequence, prf);
+        // HmacSHA1 is the default and must not be encoded.
+        if (!kdfAlgo_OID.equals(ObjectIdentifier.of(KnownOIDs.HmacSHA1))) {
+            DerOutputStream prf = new DerOutputStream();
+            // algorithm is id-hmacWith<MD>
+            prf.putOID(kdfAlgo_OID);
+            // parameters is 'NULL'
+            prf.putNull();
+            pBKDF2_params.write(DerValue.tag_Sequence, prf);
+        }
 
         keyDerivationFunc.write(DerValue.tag_Sequence, pBKDF2_params);
         pBES2_params.write(DerValue.tag_Sequence, keyDerivationFunc);
