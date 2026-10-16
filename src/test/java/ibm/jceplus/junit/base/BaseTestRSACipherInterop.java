@@ -17,21 +17,26 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class BaseTestRSACipherInterop extends BaseTestJunit5Interop {
     private KeyFactory rsaKeyFactoryPlus;
-    private KeyFactory rsaKeyFactorySun;
+    private KeyFactory rsaKeyFactoryInterop;
 
     private KeyPair rsaKeyPairPlus;
-    private KeyPair rsaKeyPairSun;
+    private KeyPair rsaKeyPairInterop;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -39,12 +44,13 @@ public class BaseTestRSACipherInterop extends BaseTestJunit5Interop {
         rsaKeyPairGenPlus.initialize(getKeySize());
         rsaKeyPairPlus = rsaKeyPairGenPlus.generateKeyPair();
 
-        KeyPairGenerator rsaKeyPairGenSun = KeyPairGenerator.getInstance("RSA", "SunRsaSign");
-        rsaKeyPairGenSun.initialize(getKeySize());
-        rsaKeyPairSun = rsaKeyPairGenSun.generateKeyPair();
+        String rsaKeyProvider = "SunJCE".equals(getInteropProviderName()) ? "SunRsaSign" : getInteropProviderName();
+        KeyPairGenerator rsaKeyPairGenInterop = KeyPairGenerator.getInstance("RSA", rsaKeyProvider);
+        rsaKeyPairGenInterop.initialize(getKeySize());
+        rsaKeyPairInterop = rsaKeyPairGenInterop.generateKeyPair();
 
         rsaKeyFactoryPlus = KeyFactory.getInstance("RSA", getProviderName());
-        rsaKeyFactorySun = KeyFactory.getInstance("RSA", "SunRsaSign");
+        rsaKeyFactoryInterop = KeyFactory.getInstance("RSA", rsaKeyProvider);
     }
 
     @ParameterizedTest
@@ -59,10 +65,14 @@ public class BaseTestRSACipherInterop extends BaseTestJunit5Interop {
     public void testEncryptDecryptInterop(String padding) throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
+        // OAEP from BC requires an explicit spec due to differing MGF1 defaults.
+        assumeFalse("BC".equals(getInteropProviderName())
+                && !padding.equals("NOPADDING") && !padding.equals("PKCS1PADDING"));
+
         String alg = "RSA/ECB/" + padding;
         testEncryptDecryptInterop(alg, rsaKeyPairPlus, getProviderName(), getInteropProviderName());
-        testEncryptDecryptInterop(alg, rsaKeyPairSun, getInteropProviderName(), getProviderName());
-        testEncryptDecryptInterop(alg, rsaKeyPairSun, getProviderName(), getInteropProviderName());
+        testEncryptDecryptInterop(alg, rsaKeyPairInterop, getInteropProviderName(), getProviderName());
+        testEncryptDecryptInterop(alg, rsaKeyPairInterop, getProviderName(), getInteropProviderName());
         testEncryptDecryptInterop(alg, rsaKeyPairPlus, getInteropProviderName(), getProviderName());
     }
 
@@ -87,11 +97,15 @@ public class BaseTestRSACipherInterop extends BaseTestJunit5Interop {
         // OAEP from OpenJCEPlusFIPS requires initialization with spec.
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
+        // OAEP from BC requires an explicit spec due to differing MGF1 defaults.
+        assumeFalse("BC".equals(getInteropProviderName())
+                && !padding.equals("NOPADDING") && !padding.equals("PKCS1PADDING"));
+
         String alg = "RSA/ECB/" + padding;
-        testEncryptImportDecryptInterop(alg, rsaKeyPairPlus, rsaKeyFactorySun, getProviderName(), getInteropProviderName());
-        testEncryptImportDecryptInterop(alg, rsaKeyPairSun, rsaKeyFactoryPlus, getInteropProviderName(), getProviderName());
-        testEncryptImportDecryptInterop(alg, rsaKeyPairSun, rsaKeyFactoryPlus, getProviderName(), getInteropProviderName());
-        testEncryptImportDecryptInterop(alg, rsaKeyPairPlus, rsaKeyFactorySun, getInteropProviderName(), getProviderName());
+        testEncryptImportDecryptInterop(alg, rsaKeyPairPlus, rsaKeyFactoryInterop, getProviderName(), getInteropProviderName());
+        testEncryptImportDecryptInterop(alg, rsaKeyPairInterop, rsaKeyFactoryPlus, getInteropProviderName(), getProviderName());
+        testEncryptImportDecryptInterop(alg, rsaKeyPairInterop, rsaKeyFactoryPlus, getProviderName(), getInteropProviderName());
+        testEncryptImportDecryptInterop(alg, rsaKeyPairPlus, rsaKeyFactoryInterop, getInteropProviderName(), getProviderName());
     }
 
     private void testEncryptImportDecryptInterop(String alg, KeyPair rsaKeyPair, KeyFactory kf,
@@ -111,19 +125,15 @@ public class BaseTestRSACipherInterop extends BaseTestJunit5Interop {
     private void testEncryptDecrypt(String alg, RSAPrivateCrtKey rsaPrivate, RSAPublicKey rsaPublic,
             String encryptProvider, String decryptProvider) throws Exception {
 
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA", getProviderName());
-        kpg.initialize(getKeySize());
-        KeyPair kp = kpg.generateKeyPair();
-
         byte[] msgBytes = ("This is a short msg".getBytes());
         byte[] cipherText;
 
         Cipher cipherEncrypt = Cipher.getInstance(alg, encryptProvider);
-        cipherEncrypt.init(Cipher.ENCRYPT_MODE, kp.getPublic());
+        cipherEncrypt.init(Cipher.ENCRYPT_MODE, rsaPublic);
         cipherText = cipherEncrypt.doFinal(msgBytes);
 
         Cipher cipherDecrypt = Cipher.getInstance(alg, decryptProvider);
-        cipherDecrypt.init(Cipher.DECRYPT_MODE, kp.getPrivate());
+        cipherDecrypt.init(Cipher.DECRYPT_MODE, rsaPrivate);
         byte[] decryptedBytes = stripLeadingZeroes(cipherDecrypt.doFinal(cipherText));
 
         assertArrayEquals(msgBytes, decryptedBytes);
@@ -153,9 +163,14 @@ public class BaseTestRSACipherInterop extends BaseTestJunit5Interop {
     public void testEncryptDecryptParamsInterop(String md, String mgf1) throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()) && (md.equals("SHA-1") || mgf1.equals("SHA-1")));
 
+        // BC does not support truncated digests (SHA-512/224, SHA-512/256).
+        assumeFalse("BC".equals(getInteropProviderName())
+                && (md.equals("SHA-512/224") || md.equals("SHA-512/256")
+                    || mgf1.equals("SHA-512/224") || mgf1.equals("SHA-512/256")));
+
         testEncryptDecryptParamsInterop(md, mgf1, rsaKeyPairPlus, getProviderName(), getInteropProviderName());
-        testEncryptDecryptParamsInterop(md, mgf1, rsaKeyPairSun, getInteropProviderName(), getProviderName());
-        testEncryptDecryptParamsInterop(md, mgf1, rsaKeyPairSun, getProviderName(), getInteropProviderName());
+        testEncryptDecryptParamsInterop(md, mgf1, rsaKeyPairInterop, getInteropProviderName(), getProviderName());
+        testEncryptDecryptParamsInterop(md, mgf1, rsaKeyPairInterop, getProviderName(), getInteropProviderName());
         testEncryptDecryptParamsInterop(md, mgf1, rsaKeyPairPlus, getInteropProviderName(), getProviderName());
     }
 
@@ -191,10 +206,15 @@ public class BaseTestRSACipherInterop extends BaseTestJunit5Interop {
     public void testEncryptImportDecryptParamsInterop(String md, String mgf1) throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()) && (md.equals("SHA-1") || mgf1.equals("SHA-1")));
 
-        testEncryptImportDecryptParamsInterop(md, mgf1, rsaKeyPairPlus, rsaKeyFactorySun, getProviderName(), getInteropProviderName());
-        testEncryptImportDecryptParamsInterop(md, mgf1, rsaKeyPairSun, rsaKeyFactoryPlus, getInteropProviderName(), getProviderName());
-        testEncryptImportDecryptParamsInterop(md, mgf1, rsaKeyPairSun, rsaKeyFactoryPlus, getProviderName(), getInteropProviderName());
-        testEncryptImportDecryptParamsInterop(md, mgf1, rsaKeyPairPlus, rsaKeyFactorySun, getInteropProviderName(), getProviderName());
+        // BC does not support truncated digests (SHA-512/224, SHA-512/256).
+        assumeFalse("BC".equals(getInteropProviderName())
+                && (md.equals("SHA-512/224") || md.equals("SHA-512/256")
+                    || mgf1.equals("SHA-512/224") || mgf1.equals("SHA-512/256")));
+
+        testEncryptImportDecryptParamsInterop(md, mgf1, rsaKeyPairPlus, rsaKeyFactoryInterop, getProviderName(), getInteropProviderName());
+        testEncryptImportDecryptParamsInterop(md, mgf1, rsaKeyPairInterop, rsaKeyFactoryPlus, getInteropProviderName(), getProviderName());
+        testEncryptImportDecryptParamsInterop(md, mgf1, rsaKeyPairInterop, rsaKeyFactoryPlus, getProviderName(), getInteropProviderName());
+        testEncryptImportDecryptParamsInterop(md, mgf1, rsaKeyPairPlus, rsaKeyFactoryInterop, getInteropProviderName(), getProviderName());
     }
 
     private void testEncryptImportDecryptParamsInterop(String md, String mgf1, KeyPair rsaKeyPair, KeyFactory kf,
@@ -233,6 +253,40 @@ public class BaseTestRSACipherInterop extends BaseTestJunit5Interop {
         byte[] decryptedBytes = stripLeadingZeroes(cipherDecrypt.doFinal(cipherText));
 
         assertArrayEquals(msgBytes, decryptedBytes);
+    }
+
+    @Test
+    public void testEncryptDecryptBCDefaultOAEPThrows() throws Exception {
+        assumeTrue("BC".equals(getInteropProviderName()));
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
+
+        testEncryptDecryptBCDefaultOAEPThrows(getProviderName(), getInteropProviderName());
+        testEncryptDecryptBCDefaultOAEPThrows(getInteropProviderName(), getProviderName());
+    }
+
+    private void testEncryptDecryptBCDefaultOAEPThrows(
+            String encryptProvider, String decryptProvider) throws Exception {
+
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA", encryptProvider);
+        kpg.initialize(getKeySize());
+        KeyPair rsaKeyPair = kpg.generateKeyPair();
+
+        RSAPublicKey rsaPublic = (RSAPublicKey) rsaKeyPair.getPublic();
+        RSAPrivateCrtKey rsaPrivate = (RSAPrivateCrtKey) rsaKeyPair.getPrivate();
+
+        Cipher cipherEncrypt = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", encryptProvider);
+        cipherEncrypt.init(Cipher.ENCRYPT_MODE, rsaPublic);
+        byte[] cipherText = cipherEncrypt.doFinal("This is a short msg".getBytes());
+
+        try {
+            Cipher cipherDecrypt = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", decryptProvider);
+            cipherDecrypt.init(Cipher.DECRYPT_MODE, rsaPrivate);
+            byte[] decrypted = cipherDecrypt.doFinal(cipherText);
+
+            assertNotEquals("This is a short msg", new String(decrypted));
+        } catch (BadPaddingException ex) {
+            assertEquals("unable to decrypt block", ex.getMessage());
+        }
     }
 
     private byte[] stripLeadingZeroes(byte[] array) {
