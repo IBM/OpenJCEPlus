@@ -16,7 +16,7 @@ import java.security.SecureRandom;
 import java.security.spec.ECParameterSpec;
 import java.util.Arrays;
 
-public final class ECKey implements AsymmetricKey {
+public final class ECKey implements AsymmetricKey, OJPKey {
 
     private static final String ALLOW_INCORRECT_KEYSIZES = "openjceplus.ec.allowIncorrectKeysizes";
 
@@ -28,10 +28,10 @@ public final class ECKey implements AsymmetricKey {
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
 
-    private OpenJCEPlusProvider provider;
-    private NativeInterface nativeInterface;
+    private final OpenJCEPlusProvider provider;
+    private final NativeInterface nativeInterface;
     private final long ecKeyId;
-    private PrimitiveWrapper.Long pkeyId = new PrimitiveWrapper.Long(0);
+    private final PrimitiveWrapper.Long pkeyId = new PrimitiveWrapper.Long(0);
     private static final String badIdMsg = "EC Key Identifier is not valid";
 
     // Public Key
@@ -218,6 +218,21 @@ public final class ECKey implements AsymmetricKey {
         byte[] generatedParams = nativeInterface.ECKEY_generateParameters(soid);
         //OCKDebug.Msg (debPrefix, methodName,  "generatedParams :", generatedParams);
         return generatedParams;
+    }
+
+    @Override
+    public NativeInterface getBackendInterface() {
+        return this.nativeInterface;
+    }
+
+    @Override
+    public OpenJCEPlusProvider getProvider() {
+        return this.provider;
+    }
+
+    @Override
+    public boolean isFIPS() {
+        return this.provider.isFIPS();
     }
 
     @Override
