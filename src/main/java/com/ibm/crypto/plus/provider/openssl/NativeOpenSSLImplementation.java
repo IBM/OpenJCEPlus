@@ -187,6 +187,15 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     static native long getByteBufferPointer(ByteBuffer b);
 
     // =========================================================================
+    // EVP_PKEY_CTX lifecycle functions
+    // =========================================================================
+
+    static public native long EVP_PKEY_CTX_create(long osslContextId, String algoName)
+            throws OpenSSLException;
+
+    static public native void EVP_PKEY_CTX_delete(long osslContextId, long pkeyCtxId);
+
+    // =========================================================================
     // Basic random number generator functions
     // =========================================================================
 
@@ -738,7 +747,7 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     // ML-KEY key functions
     // =========================================================================
 
-    static public native long MLKEY_generate(long osslContextId, String cipherName)
+    static public native long MLKEY_generate(long osslContextId, long pkeyCtxId)
             throws OpenSSLException;
 
     static public native long MLKEY_createPrivateKey(long osslContextId, String cipherName, byte[] privateKeyBytes)
