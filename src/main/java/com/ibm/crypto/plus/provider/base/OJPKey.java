@@ -10,5 +10,11 @@ package com.ibm.crypto.plus.provider.base;
 
 public interface OJPKey {
 
+    /**
+     * Returns the native interface used by this key to perform operations
+     * in the underlying cryptographic backend.
+     *
+     * @return the {@link NativeInterface} backing this key
+     */
     public NativeInterface getBackendInterface();
 }
