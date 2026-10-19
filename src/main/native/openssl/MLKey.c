@@ -19,85 +19,29 @@
 #include <stdint.h>
 
 //============================================================================
-/* Lazy cache for initialized keygen context templates to avoid provider lookup */
-typedef struct {
-    const char   *name;
-    EVP_PKEY_CTX *pqcCtx;
-} PQC_CTX_CACHE;
-
-static PQC_CTX_CACHE pqcCtxCache[] = {
-    {"ML-KEM-512",  NULL},
-    {"ML-KEM-768",  NULL},
-    {"ML-KEM-1024", NULL},
-    {"ML-DSA-44",   NULL},
-    {"ML-DSA-65",   NULL},
-    {"ML-DSA-87",   NULL},
-    {NULL,          NULL}
-};
-
-static EVP_PKEY_CTX *getPqcCtx(JNIEnv *env, const char *algo) {
-    if (algo == NULL) {
-        throwOSSLException(env, 0, "getPqcCtx: algo is null");
-        return NULL;
-    }
-
-    for (int i = 0; pqcCtxCache[i].name != NULL; i++) {
-        if (OPENSSL_strcasecmp(algo, pqcCtxCache[i].name) == 0) {
-            if (pqcCtxCache[i].pqcCtx == NULL) {
-                EVP_PKEY_CTX *t = EVP_PKEY_CTX_new_from_name(NULL, pqcCtxCache[i].name, NULL);
-                if (t == NULL) {
-                    throwOSSLException(env, 0, "MLKEY_generate (cached path): EVP_PKEY_CTX_new_from_name failed");
-                    return NULL;
-                }
-                pqcCtxCache[i].pqcCtx = t;
-            }
-            EVP_PKEY_CTX *dupCtx = EVP_PKEY_CTX_dup(pqcCtxCache[i].pqcCtx);
-            if (dupCtx == NULL) {
-                throwOSSLException(env, 0, "MLKEY_generate (cached path): EVP_PKEY_CTX_dup failed");
-                return NULL;
-            }
-            return dupCtx;
-        }
-    }
-
-    /* Fallback for unlisted/generic algorithm names */
-    EVP_PKEY_CTX *fallbackCtx = EVP_PKEY_CTX_new_from_name(NULL, algo, NULL);
-    if (fallbackCtx == NULL) {
-        throwOSSLException(env, 0, "MLKEY_generate (fallback path): EVP_PKEY_CTX_new_from_name failed");
-        return NULL;
-    }
-    return fallbackCtx;
-}
-
-//============================================================================
 /*
  * Class:     com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation
  * Method:    MLKEY_generate
- * Signature: (JLjava/lang/String;)J
+ * Signature: (JJ)J
  */
 JNIEXPORT jlong JNICALL
 Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_MLKEY_1generate(
-    JNIEnv *env, jclass thisObj, jlong osslContextId, jstring cipherName) {
+    JNIEnv *env, jclass thisObj, jlong osslContextId, jlong pkeyCtxId) {
 
-    EVP_PKEY_CTX  *ctx       = NULL;
-    EVP_PKEY      *pkey      = NULL;
-    const char    *algoChars = NULL;
-    jlong         mlkeyId    = 0;
+    EVP_PKEY_CTX  *tmpl    = (EVP_PKEY_CTX *)((intptr_t)pkeyCtxId);
+    EVP_PKEY_CTX  *ctx     = NULL;
+    EVP_PKEY      *pkey    = NULL;
+    jlong          mlkeyId = 0;
 
-    if (cipherName == NULL) {
-        throwOSSLException(env, 0, "MLKEY_generate: cipherName is null");
+    if (tmpl == NULL) {
+        throwOSSLException(env, 0, "MLKEY_generate: pkeyCtxId is null");
         return 0;
     }
 
-    if (!(algoChars = (*env)->GetStringUTFChars(env, cipherName, NULL))) {
-        throwOSSLException(env, 0, "MLKEY_generate: GetStringUTFChars failed");
-        return 0;
-    }
-
-    ctx = getPqcCtx(env, algoChars);
+    ctx = EVP_PKEY_CTX_dup(tmpl);
     if (ctx == NULL) {
-        /* Exception already thrown by getPqcCtx */
-        goto cleanup;
+        throwOSSLException(env, 0, "MLKEY_generate: EVP_PKEY_CTX_dup failed");
+        return 0;
     }
 
     if (1 != EVP_PKEY_keygen_init(ctx)) {
@@ -114,7 +58,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_MLKEY_1gen
     pkey = NULL; /* ownership transferred to caller via mlkeyId */
 
 cleanup:
-    (*env)->ReleaseStringUTFChars(env, cipherName, algoChars);
     if (ctx != NULL) {
         EVP_PKEY_CTX_free(ctx);
     }

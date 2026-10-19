@@ -35,6 +35,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_KEM_1encap
     unsigned char  *genKeyNative     = NULL;
     size_t         wrappedkeylen     = 0;
     size_t         genkeylen         = 0;
+    int            genKeyReleaseFlag = 0;
 
     ctx = EVP_PKEY_CTX_new_from_pkey(NULL, pkey, NULL);
     if (ctx == NULL) {
@@ -63,11 +64,12 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_KEM_1encap
 
     if (1 != EVP_PKEY_encapsulate(ctx, wrappedKeyNative, &wrappedkeylen, genKeyNative, &genkeylen)) {
         throwOSSLException(env, 0, "KEM_encapsulate: EVP_PKEY_encapsulate failed");
+        genKeyReleaseFlag = JNI_ABORT;
     }
 
 cleanup:
     if (genKeyNative != NULL) {
-        (*env)->ReleasePrimitiveArrayCritical(env, randomKey, genKeyNative, 0);
+        (*env)->ReleasePrimitiveArrayCritical(env, randomKey, genKeyNative, genKeyReleaseFlag);
         genKeyNative = NULL;
     }
     if (wrappedKeyNative != NULL) {
