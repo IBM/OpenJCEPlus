@@ -11,8 +11,11 @@ package com.ibm.crypto.plus.provider.openssl;
 import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
 import com.ibm.crypto.plus.provider.base.NativeInterface;
 import java.io.File;
+import java.lang.ref.Cleaner;
 import java.nio.ByteBuffer;
 import java.security.ProviderException;
+import java.util.HashMap;
+import java.util.Map;
 import sun.security.util.Debug;
 
 public abstract class NativeOpenSSLAdapter implements NativeInterface {
@@ -34,6 +37,10 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     private boolean osslInitialized = false;
     private boolean useFIPSMode;
 
+    //Per-algorithm cache of EVP_PKEY_CTX instances to be duplicated.
+    private final Map<String, Long> pkeyCtxCache = new HashMap<>();
+    private static final Cleaner CLEANER = Cleaner.create();
+
     private static final String minOpenSSLVersion = "3.5.0";
 
     private String osslVersion = unobtainedValue;
@@ -48,6 +55,32 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     NativeOpenSSLAdapter(boolean useFIPSMode) {
         this.useFIPSMode = useFIPSMode;
         initializeContext();
+        CLEANER.register(this, cleanPkeyCtxCache(pkeyCtxCache, osslContext));
+    }
+
+    private static Runnable cleanPkeyCtxCache(Map<String, Long> cache,
+                                               OpenSSLContext ctx) {
+        return () -> {
+            if (ctx == null) return;
+            for (Long pkeyCtxId : cache.values()) {
+                NativeOpenSSLImplementation.EVP_PKEY_CTX_delete(ctx.getId(), pkeyCtxId);
+            }
+        };
+    }
+
+    private long getOrCreatePkeyCtx(String algoName) throws OpenSSLException {
+        Long pkeyCtxId = pkeyCtxCache.get(algoName);
+        if (pkeyCtxId == null) {
+            synchronized (pkeyCtxCache) {
+                pkeyCtxId = pkeyCtxCache.get(algoName);
+                if (pkeyCtxId == null) {
+                    pkeyCtxId = NativeOpenSSLImplementation.EVP_PKEY_CTX_create(
+                            osslContext.getId(), algoName);
+                    pkeyCtxCache.put(algoName, pkeyCtxId);
+                }
+            }
+        }
+        return pkeyCtxId;
     }
 
     // Initialize OpenSSL context(s)
@@ -1274,7 +1307,8 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     @Override
     public long MLKEY_generate(String cipherName)
             throws OpenSSLException {
-        return NativeOpenSSLImplementation.MLKEY_generate(osslContext.getId(), cipherName);
+        long pkeyCtxId = getOrCreatePkeyCtx(cipherName);
+        return NativeOpenSSLImplementation.MLKEY_generate(osslContext.getId(), pkeyCtxId);
     }
 
     @Override
