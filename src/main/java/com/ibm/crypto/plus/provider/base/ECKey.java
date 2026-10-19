@@ -16,7 +16,7 @@ import java.security.SecureRandom;
 import java.security.spec.ECParameterSpec;
 import java.util.Arrays;
 
-public final class ECKey implements AsymmetricKey {
+public final class ECKey implements AsymmetricKey, OJPKey {
 
     private static final String ALLOW_INCORRECT_KEYSIZES = "openjceplus.ec.allowIncorrectKeysizes";
 
@@ -218,6 +218,11 @@ public final class ECKey implements AsymmetricKey {
         byte[] generatedParams = nativeInterface.ECKEY_generateParameters(soid);
         //OCKDebug.Msg (debPrefix, methodName,  "generatedParams :", generatedParams);
         return generatedParams;
+    }
+
+    @Override
+    public NativeInterface getBackendInterface() {
+        return this.nativeInterface;
     }
 
     @Override

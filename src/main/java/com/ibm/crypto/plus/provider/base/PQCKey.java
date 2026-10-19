@@ -11,7 +11,7 @@ package com.ibm.crypto.plus.provider.base;
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.Arrays;
 
-public final class PQCKey implements AsymmetricKey {
+public final class PQCKey implements AsymmetricKey, OJPKey {
 
     // The following is a special byte[] instance to indicate that the
     // private/public key bytes are available but not yet obtained.
@@ -112,6 +112,11 @@ public final class PQCKey implements AsymmetricKey {
         }
 
         this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, pkeyId, this.nativeInterface));
+    }
+
+    @Override
+    public NativeInterface getBackendInterface() {
+        return this.nativeInterface;
     }
 
     @Override
