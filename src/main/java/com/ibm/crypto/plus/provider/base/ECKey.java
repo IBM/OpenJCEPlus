@@ -28,10 +28,9 @@ public final class ECKey implements AsymmetricKey, OJPKey {
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
 
-    private OpenJCEPlusProvider provider;
-    private NativeInterface nativeInterface;
+    private final NativeInterface nativeInterface;
     private final long ecKeyId;
-    private PrimitiveWrapper.Long pkeyId = new PrimitiveWrapper.Long(0);
+    private final PrimitiveWrapper.Long pkeyId = new PrimitiveWrapper.Long(0);
     private static final String badIdMsg = "EC Key Identifier is not valid";
 
     // Public Key
@@ -79,13 +78,12 @@ public final class ECKey implements AsymmetricKey, OJPKey {
         this.parameterBytes = parameterBytes;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
-        this.provider = provider;
         this.nativeInterface = nativeInterface;
         //OCKDebug.Msg (debPrefix, methodName, "privateKeyBytes :", privateKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName, "publicKeyBytes :", publicKeyBytes);
         //OCKDebug.Msg (debPrefix, methodName, "parameterBytes :", parameterBytes);
 
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, ecKeyId, pkeyId, nativeInterface));
+        provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, ecKeyId, pkeyId, nativeInterface));
     }
 
     /* Custom Curve */
@@ -93,7 +91,6 @@ public final class ECKey implements AsymmetricKey, OJPKey {
             BigInteger pubKeyAffineX, BigInteger pubKeyAffineY, OpenJCEPlusProvider provider) {
         this.ecKeyId = ecKeyId;
         this.pkeyId.setValue(0);
-        this.provider = provider;
         this.nativeInterface = nativeInterface;
 
         this.ecSpec = ecSpec;
@@ -105,7 +102,7 @@ public final class ECKey implements AsymmetricKey, OJPKey {
         // this.pubKeyAffineX = pubKeyAffineX;
         // this.pubKeyAffineY = pubKeyAffineY;
 
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, ecKeyId, pkeyId, nativeInterface));
+        provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, ecKeyId, pkeyId, nativeInterface));
     }
 
     // Note that the caller of this method must ensure the pointer ecKeyId is not used

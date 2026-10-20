@@ -19,10 +19,9 @@ public final class DSAKey implements AsymmetricKey, OJPKey {
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
 
-    private OpenJCEPlusProvider provider;
-    private NativeInterface nativeInterface;
+    private final NativeInterface nativeInterface;
     private final long dsaKeyId;
-    private PrimitiveWrapper.Long pkeyId;
+    private final PrimitiveWrapper.Long pkeyId;
     private byte[] parameters;
     private byte[] privateKeyBytes;
     private byte[] publicKeyBytes;
@@ -132,10 +131,9 @@ public final class DSAKey implements AsymmetricKey, OJPKey {
         this.parameters = parameters;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
-        this.provider = provider;
         this.nativeInterface = nativeInterface;
 
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, dsaKeyId, pkeyId, nativeInterface));
+        provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, dsaKeyId, pkeyId, nativeInterface));
     }
 
     @Override

@@ -16,8 +16,7 @@ public final class XECKey implements AsymmetricKey, OJPKey {
     // private/public key bytes are available but not yet obtained.
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
-    private OpenJCEPlusProvider provider;
-    private NativeInterface nativeInterface;
+    private final NativeInterface nativeInterface;
     private final long xecKeyId;
     private byte[] privateKeyBytes;
     private byte[] publicKeyBytes;
@@ -38,9 +37,8 @@ public final class XECKey implements AsymmetricKey, OJPKey {
         this.xecKeyId = xecKeyId;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
-        this.provider = provider;
         this.nativeInterface = nativeInterface;
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, xecKeyId, nativeInterface));
+        provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, xecKeyId, nativeInterface));
     }
 
 

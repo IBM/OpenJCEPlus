@@ -19,10 +19,9 @@ public final class DHKey implements AsymmetricKey, OJPKey {
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
 
-    private OpenJCEPlusProvider provider;
-    private NativeInterface nativeInterface;
+    private final NativeInterface nativeInterface;
     private final long dhKeyId;
-    private PrimitiveWrapper.Long pkeyId = new PrimitiveWrapper.Long(0);
+    private final PrimitiveWrapper.Long pkeyId = new PrimitiveWrapper.Long(0);
 
     private byte[] privateKeyBytes = null;
     private byte[] publicKeyBytes = null;
@@ -105,9 +104,8 @@ public final class DHKey implements AsymmetricKey, OJPKey {
         this.parameters = parameters;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
-        this.provider = provider;
 
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, dhKeyId, pkeyId, nativeInterface));
+        provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, dhKeyId, pkeyId, nativeInterface));
     }
 
     @Override
