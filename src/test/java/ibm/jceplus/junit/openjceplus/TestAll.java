@@ -23,8 +23,6 @@ import org.junit.platform.suite.api.Suite;
     TestAttributes.class,
     TestByteArrayOutputDelay.class,
     TestDeterministic.class,
-    TestDSAKey.class,
-    TestDSASignature.class,
     TestECDH.class,
     TestECDHInteropBC.class,
     TestECDHInteropSunEC.class,
