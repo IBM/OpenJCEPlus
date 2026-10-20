@@ -63,13 +63,9 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_PQC_1SIGNA
         goto cleanup;
     }
 
-    /* Query signature size from key metadata */
-    sigLen = (size_t)EVP_PKEY_get_size(pkey);
-    if (sigLen == 0) {
-        if (1 != EVP_PKEY_sign(sctx, NULL, &sigLen, dataNative, dataLen)) {
-            throwOSSLException(env, 0, "PQC_SIGNATURE_sign: EVP_PKEY_sign (size query) failed");
-            goto cleanup;
-        }
+    if (1 != EVP_PKEY_sign(sctx, NULL, &sigLen, dataNative, dataLen)) {
+        throwOSSLException(env, 0, "PQC_SIGNATURE_sign: EVP_PKEY_sign (size query) failed");
+        goto cleanup;
     }
 
     sigBytes = (*env)->NewByteArray(env, (jsize)sigLen);
