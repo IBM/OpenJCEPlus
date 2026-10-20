@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
@@ -20,13 +20,32 @@ import java.security.SignatureException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestDSASignature extends BaseTestJunit5Signature {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestDSASignature extends BaseTestSignature {
+
+    @Parameter(0)
+    TestProvider provider;
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
 
     @Test
     public void testSHA1withDSA_1024() throws Exception {
@@ -169,6 +188,7 @@ public class BaseTestDSASignature extends BaseTestJunit5Signature {
             doSignVerify("DSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
             fail("Did not get expected SignatureException");
         } catch (SignatureException se) {
+            // Expected exception.
         } catch (Exception e) {
             fail("Expected SignatureException, got " + e.toString());
         }
@@ -210,6 +230,7 @@ public class BaseTestDSASignature extends BaseTestJunit5Signature {
             doSignVerify("DSAforSSL", sslHash, keyPair.getPrivate(), keyPair.getPublic());
             fail("Did not get expected SignatureException");
         } catch (SignatureException se) {
+            // Expected exception.
         } catch (Exception e) {
             fail("Expected SignatureException, got " + e.toString());
         }

@@ -22,7 +22,6 @@ import org.junit.platform.suite.api.Suite;
     TestAliases.class,
     TestAttributes.class,
     TestDeterministic.class,
-    TestDSAKey.class,
     TestECDH.class,
     TestECDHInteropSunEC.class,
     TestECDHKeyAgreementParamValidation.class,
