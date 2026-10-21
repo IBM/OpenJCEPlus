@@ -18,6 +18,7 @@ OBJS= \
 	$(HOSTOUT)/Digest.obj \
 	$(HOSTOUT)/KEM.obj \
 	$(HOSTOUT)/MLKey.obj \
+	$(HOSTOUT)/SharedJNIUtils.obj \
 	$(HOSTOUT)/SignaturePQC.obj \
 	$(HOSTOUT)/StaticStub.obj \
 	$(HOSTOUT)/Utils.obj

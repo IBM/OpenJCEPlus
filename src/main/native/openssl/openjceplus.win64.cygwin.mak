@@ -18,6 +18,7 @@ OBJS= \
 	Digest.obj \
 	KEM.obj \
 	MLKey.obj \
+	SharedJNIUtils.obj \
 	SignaturePQC.obj \
 	StaticStub.obj \
 	Utils.obj

@@ -18,6 +18,7 @@ OBJS = \
 	${HOSTOUT}/Digest.o \
 	${HOSTOUT}/KEM.o \
 	${HOSTOUT}/MLKey.o \
+	${HOSTOUT}/SharedJNIUtils.o \
 	${HOSTOUT}/SignaturePQC.o \
 	${HOSTOUT}/StaticStub.o \
 	${HOSTOUT}/Utils.o
