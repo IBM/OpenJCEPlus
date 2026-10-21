@@ -9,6 +9,8 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 public final class ExtendedRandom {
 
@@ -25,10 +27,15 @@ public final class ExtendedRandom {
     private long ockPRNGContextId;
     private boolean usingThreadLocalContext = true;
 
-    private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha256 =
-        new ThreadLocal<PRNGContextPointer>();
-    private static final ThreadLocal<PRNGContextPointer> prngContextBufferSha512 =
-        new ThreadLocal<PRNGContextPointer>();
+    /*
+     * ThreadLocal caches keyed by algorithm. Each cache holds one context per
+     * NativeInterface (backend) so that OCK and OpenSSL never share a native
+     * pointer and alternating between backends does not recreate contexts.
+     */
+    private static final ThreadLocal<Map<NativeInterface, PRNGContextPointer>> prngContextBufferSha256 =
+        ThreadLocal.withInitial(IdentityHashMap::new);
+    private static final ThreadLocal<Map<NativeInterface, PRNGContextPointer>> prngContextBufferSha512 =
+        ThreadLocal.withInitial(IdentityHashMap::new);
 
     public static ExtendedRandom getInstance(String algName, OpenJCEPlusProvider provider)
             throws NativeException {
@@ -51,7 +58,7 @@ public final class ExtendedRandom {
 
     private PRNGContextPointer getThreadLocalPRNGContext() throws NativeException {
         PRNGContextPointer prngCtx = null;
-        ThreadLocal<PRNGContextPointer> prngCtxBuffer = null;
+        ThreadLocal<Map<NativeInterface, PRNGContextPointer>> prngCtxBuffer = null;
 
         switch (this.algName) {
             case "SHA256":
@@ -65,10 +72,11 @@ public final class ExtendedRandom {
                         "Unsupported HASHDRBG algorithm: " + this.algName);
         }
 
-        prngCtx = prngCtxBuffer.get();
+        Map<NativeInterface, PRNGContextPointer> perBackend = prngCtxBuffer.get();
+        prngCtx = perBackend.get(this.nativeInterface);
         if (prngCtx == null) {
             prngCtx = new PRNGContextPointer(this.algName, this.nativeInterface, this.provider);
-            prngCtxBuffer.set(prngCtx);
+            perBackend.put(this.nativeInterface, prngCtx);
         }
 
         return prngCtx;

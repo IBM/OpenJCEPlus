@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <openssl/err.h>
 
+#include "ExceptionCodes.h"
 #include "Utils.h"
 #include <string.h>
 
@@ -30,7 +31,7 @@ int gslogFunctionEntry(const char *functionName) {
 int gslogError(const char *formatString, ...) {
     int         charsPrinted;
     va_list     formatArgs;
-    static char printBuffer[4096];
+    char        printBuffer[4096];
 
     va_start(formatArgs, formatString);
     charsPrinted = vsnprintf(printBuffer, sizeof(printBuffer), formatString, formatArgs);
@@ -48,7 +49,7 @@ int gslogError(const char *formatString, ...) {
 int gslogMessage(const char *formatString, ...) {
     int         charsPrinted;
     va_list     formatArgs;
-    static char printBuffer[4096];
+    char        printBuffer[4096];
 
     va_start(formatArgs, formatString);
     charsPrinted = vsnprintf(printBuffer, sizeof(printBuffer), formatString, formatArgs);
@@ -66,7 +67,7 @@ int gslogMessage(const char *formatString, ...) {
 int gslogMessagePrefix(const char *formatString, ...) {
     int         charsPrinted;
     va_list     formatArgs;
-    static char printBuffer[4096];
+    char        printBuffer[4096];
 
     va_start(formatArgs, formatString);
     charsPrinted = vsnprintf(printBuffer, sizeof(printBuffer), formatString, formatArgs);
@@ -140,14 +141,14 @@ void throwOSSLException(JNIEnv *env, int code, const char *msg) {
     static const char *exceptionClass_local = EXCEPTION_CLASS;
 #endif
 
-    jclass    clazz;
-    jstring   str = NULL;
+    jclass    clazz   = NULL;
+    jstring   str     = NULL;
     jmethodID mid;
     jobject   obj     = NULL;
     char     *msgCopy = NULL;
 
     /* return immediately if an exception is already pending */
-    if ((*env)->ExceptionOccurred(env)) {
+    if ((*env)->ExceptionCheck(env)) {
         return;
     }
 
@@ -162,46 +163,42 @@ void throwOSSLException(JNIEnv *env, int code, const char *msg) {
     }
 
     if (msg) {
-        msgCopy = (char *)malloc(
-            strlen(msg) + 1); /* for some reason strdup just throws segvs when
-                                 used against msg, so brute force. */
+#ifdef __MVS__
+        /* z/OS requires a mutable copy for __etoa (EBCDIC -> ASCII). */
+        msgCopy = (char *)malloc(strlen(msg) + 1);
         if (msgCopy) {
             strcpy(msgCopy, msg);
-#ifdef __MVS__
             int rc = __etoa(msgCopy);
             if (rc < 1) {
                 gslogError("_etoa failed in %s", __FUNCTION__);
             }
-#endif
         } else {
             gslogError("malloc for msg failed.");
         }
-
-        if (!(str = (*env)->NewStringUTF(env, msgCopy))) {
+#endif
+        if (!(str = (*env)->NewStringUTF(env, msgCopy ? msgCopy : msg))) {
             gslogError("Can't create message string for exception");
-            if (msgCopy) {
-                free(msgCopy);
-                msgCopy = NULL;
-            }
-            return;
+            FREE_N_NULL(msgCopy);
+            goto cleanup;
         }
         FREE_N_NULL(msgCopy);
 
 #ifdef __MVS__
 #pragma convert("ISO8859-1")
 #endif
-        if (!(mid = (*env)->GetMethodID(env, clazz, "<init>",
-                                        "(Ljava/lang/String;)V"))) {
+        mid = (*env)->GetMethodID(env, clazz, "<init>",
+                                  "(Ljava/lang/String;I)V");
 #ifdef __MVS__
 #pragma convert(pop)
 #endif
-            gslogError("Can't find constuctor(message) for %s", exceptionClass);
-            return;
+        if (!mid) {
+            gslogError("Can't find constructor for %s", exceptionClass);
+            goto cleanup;
         }
 
-        if (!(obj = (*env)->NewObject(env, clazz, mid, str))) {
+        if (!(obj = (*env)->NewObject(env, clazz, mid, str, (jint)code))) {
             gslogError("Can't create exception object");
-            return;
+            goto cleanup;
         }
     } else {
 #ifdef __MVS__
@@ -213,18 +210,113 @@ void throwOSSLException(JNIEnv *env, int code, const char *msg) {
 #endif
             gslogError("Can't find default constructor for %s(int)",
                        exceptionClass);
-            return;
+            goto cleanup;
         }
 
         if (!(obj = (*env)->NewObject(env, clazz, mid, (jint)code))) {
             gslogError("Can't create exception object");
-            return;
+            goto cleanup;
         }
     }
 
     if ((*env)->Throw(env, obj) < 0) {
         gslogError("Can't throw %s", exceptionClass);
     }
+
+cleanup:
+    if (obj != NULL) {
+        (*env)->DeleteLocalRef(env, obj);
+    }
+    if (str != NULL) {
+        (*env)->DeleteLocalRef(env, str);
+    }
+    if (clazz != NULL) {
+        (*env)->DeleteLocalRef(env, clazz);
+    }
+}
+
+//============================================================================
+// Exception helpers (formerly Helpers.c)
+//============================================================================
+
+void throwException(JNIEnv *env, const char *className, const char *msg) {
+    jclass cls;
+
+    /* Don't clobber an already-pending exception. */
+    if ((*env)->ExceptionCheck(env)) {
+        return;
+    }
+
+    cls = (*env)->FindClass(env, className);
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, msg);
+        (*env)->DeleteLocalRef(env, cls);
+    }
+}
+
+void throwNPE(JNIEnv *env, const char *msg) {
+    throwException(env, "java/lang/NullPointerException", msg);
+}
+
+void throwOOM(JNIEnv *env, const char *msg) {
+    throwException(env, "java/lang/OutOfMemoryError", msg);
+}
+
+void throwISE(JNIEnv *env, const char *msg) {
+    throwException(env, "java/lang/IllegalStateException", msg);
+}
+
+//============================================================================
+// String helpers
+//============================================================================
+
+const char *getStringUTFCharsSafe(JNIEnv *env, jstring javaString,
+                                  const char *errorMsg) {
+    const char *str = (*env)->GetStringUTFChars(env, javaString, NULL);
+    if (str == NULL) {
+        throwOOM(env, errorMsg);
+    }
+    return str;
+}
+
+void releaseStringUTFChars(JNIEnv *env, jstring javaString, const char *str) {
+    if (str != NULL && javaString != NULL) {
+        (*env)->ReleaseStringUTFChars(env, javaString, str);
+    }
+}
+
+//============================================================================
+// Byte array helpers
+//============================================================================
+
+jbyte *getByteArrayElementsSafe(JNIEnv *env, jbyteArray array,
+                                const char *errorMsg) {
+    jbyte *bytes = (*env)->GetByteArrayElements(env, array, NULL);
+    if (bytes == NULL) {
+        throwOOM(env, errorMsg);
+    }
+    return bytes;
+}
+
+void releaseByteArrayElements(JNIEnv *env, jbyteArray array, jbyte *bytes,
+                              jint mode) {
+    if (bytes != NULL && array != NULL) {
+        (*env)->ReleaseByteArrayElements(env, array, bytes, mode);
+    }
+}
+
+//============================================================================
+// Memory helpers
+//============================================================================
+
+void *mallocSafe(JNIEnv *env, size_t size, const char *errorMsg) {
+    void *ptr = malloc(size);
+    if (ptr == NULL) {
+        throwOSSLException(env, OPENSSL_ALLOCATION_FAILED, errorMsg);
+        return NULL;
+    }
+    memset(ptr, 0, size);
+    return ptr;
 }
 
 #ifdef __MVS__
