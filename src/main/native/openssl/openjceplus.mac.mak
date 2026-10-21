@@ -31,6 +31,7 @@ OBJS = \
 	${HOSTOUT}/Random.o \
 	${HOSTOUT}/SharedJNIUtils.o \
 	${HOSTOUT}/SignaturePQC.o \
+	${HOSTOUT}/XECKey.o \
 	${HOSTOUT}/StaticStub.o \
 	${HOSTOUT}/Utils.o
 

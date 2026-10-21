@@ -650,7 +650,7 @@ final class NativeOpenSSLImplementation extends NativeImplementation {
     static public native long ECKEY_generate(long osslContextId, String curveOid)
             throws OpenSSLException;
 
-    static public native long XECKEY_generate(long osslContextId, int option, long bufferPtr)
+    static public native long XECKEY_generate(long osslContextId, long pkeyCtxId, long bufferPtr)
             throws OpenSSLException;
 
     static public native byte[] ECKEY_generateParameters(long osslContextId, int numBits)

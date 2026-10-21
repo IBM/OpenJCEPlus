@@ -27,8 +27,10 @@ import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OCK_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
 @Tag(Tags.MULTITHREAD_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
@@ -44,6 +46,15 @@ public class TestXDHMultiParty extends BaseTest {
     public void setUp() throws Exception {
         setAndInsertProvider(provider);
     }
+
+    /**
+     * The OpenSSL backend only implements X25519 and X448, not the FFDHE groups.
+     */
+    private void assumeFFDHESupported() {
+        assumeFalse(provider == TestProvider.OpenJCEPlus_OpenSSL,
+                "FFDHE is not supported by the OpenSSL backend");
+    }
+
 
     @Test
     public void testXDHMulti_x25519() throws Exception {
@@ -79,6 +90,7 @@ public class TestXDHMultiParty extends BaseTest {
 
     @Test
     public void testXDHMulti_ffdhe2048() throws Exception {
+        assumeFFDHESupported();
 
         String curveName = "FFDHE2048";
 
@@ -95,6 +107,7 @@ public class TestXDHMultiParty extends BaseTest {
 
     @Test
     public void testXDHMulti_ffdhe3072() throws Exception {
+        assumeFFDHESupported();
 
         String curveName = "FFDHE3072";
 
@@ -111,6 +124,7 @@ public class TestXDHMultiParty extends BaseTest {
 
     @Test
     public void testXDHMulti_ffdhe4096() throws Exception {
+        assumeFFDHESupported();
 
         String curveName = "FFDHE4096";
 
@@ -127,6 +141,7 @@ public class TestXDHMultiParty extends BaseTest {
 
     @Test
     public void testXDHMulti_ffdhe6144() throws Exception {
+        assumeFFDHESupported();
 
         String curveName = "FFDHE6144";
 
@@ -143,6 +158,7 @@ public class TestXDHMultiParty extends BaseTest {
 
     @Test
     public void testXDHMulti_ffdhe8192() throws Exception {
+        assumeFFDHESupported();
 
         String curveName = "FFDHE8192";
 

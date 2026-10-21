@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
+import com.ibm.crypto.plus.provider.base.NativeInterface;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -34,16 +36,37 @@ class XDHKeyFactory extends KeyFactorySpi {
 
     private OpenJCEPlusProvider provider = null;
     private String alg = null;
+    private String serviceType = "KeyFactory";
 
     static XECKey toXECKey(OpenJCEPlusProvider provider, String Alg, Key key)
             throws InvalidKeyException {
         return (XECKey) new XDHKeyFactory(provider, Alg).engineTranslateKey(key);
     }
 
+    static XECKey toXECKey(OpenJCEPlusProvider provider, String Alg, Key key,
+            String serviceType) throws InvalidKeyException {
+        return (XECKey) new XDHKeyFactory(provider, Alg, serviceType).engineTranslateKey(key);
+    }
+
     private XDHKeyFactory(OpenJCEPlusProvider provider, String Alg) {
         super();
         this.provider = provider;
         this.alg = Alg;
+    }
+
+    private XDHKeyFactory(OpenJCEPlusProvider provider, String Alg, String serviceType) {
+        super();
+        this.provider = provider;
+        this.alg = Alg;
+        this.serviceType = serviceType;
+    }
+
+    private String paramSetName() {
+        return alg == null ? "XDH" : alg;
+    }
+
+    private NativeInterface backend() {
+        return NativeCryptoSelector.selectBackend(provider, serviceType, paramSetName());
     }
 
     private XDHKeyFactory(OpenJCEPlusProvider provider) {
@@ -78,7 +101,7 @@ class XDHKeyFactory extends KeyFactorySpi {
                 BigInteger u = publicKeySpec.getU();
 
                 try {
-                    return new XDHPublicKeyImpl(provider, params, u, configAlgName);
+                    return new XDHPublicKeyImpl(provider, params, u, configAlgName, backend());
                 } catch (InvalidAlgorithmParameterException iape) {
                     throw new InvalidKeySpecException(iape);
                 }
@@ -120,7 +143,7 @@ class XDHKeyFactory extends KeyFactorySpi {
 
                 Optional<byte[]> scalar = Optional.of(privateKeySpec.getScalar());
                 try {
-                    return new XDHPrivateKeyImpl(provider, params, scalar, configAlgName);
+                    return new XDHPrivateKeyImpl(provider, params, scalar, configAlgName, backend());
                 } catch (InvalidAlgorithmParameterException iape) {
                     throw new InvalidKeySpecException(iape);
                 }
@@ -212,9 +235,11 @@ class XDHKeyFactory extends KeyFactorySpi {
                     throw new InvalidKeyException("Parameters must be " + this.alg);
                 }
 
-                // Check if key originates from this factory
-                if (key instanceof XDHPublicKeyImpl)
+                // Reuse a provider key only when it belongs to the target backend.
+                if (key instanceof XDHPublicKeyImpl local
+                        && KeyUtils.keyMatchesProvider(provider, serviceType, local.getNativeKey(), paramSetName())) {
                     return key;
+                }
 
                 // Convert key to spec
                 XECPublicKeySpec xecPubKeySpec = engineGetKeySpec(key,
@@ -231,9 +256,11 @@ class XDHKeyFactory extends KeyFactorySpi {
                     throw new InvalidKeyException("Parameters must be " + this.alg);
                 }
 
-                // Check if key originates from this factory
-                if (key instanceof XDHPrivateKeyImpl)
+                // Reuse a provider key only when it belongs to the target backend.
+                if (key instanceof XDHPrivateKeyImpl local
+                        && KeyUtils.keyMatchesProvider(provider, serviceType, local.getNativeKey(), paramSetName())) {
                     return key;
+                }
 
                 // Convert key to spec
                 XECPrivateKeySpec xecPrivKeySpec = engineGetKeySpec(key,
