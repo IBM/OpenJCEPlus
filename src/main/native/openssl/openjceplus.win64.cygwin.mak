@@ -19,6 +19,7 @@ OBJS= \
 	KEM.obj \
 	MLKey.obj \
 	Random.obj \
+	SharedJNIUtils.obj \
 	SignaturePQC.obj \
 	StaticStub.obj \
 	Utils.obj

@@ -19,6 +19,7 @@ OBJS = \
 	${HOSTOUT}/KEM.o \
 	${HOSTOUT}/MLKey.o \
 	${HOSTOUT}/Random.o \
+	${HOSTOUT}/SharedJNIUtils.o \
 	${HOSTOUT}/SignaturePQC.o \
 	${HOSTOUT}/StaticStub.o \
 	${HOSTOUT}/Utils.o
