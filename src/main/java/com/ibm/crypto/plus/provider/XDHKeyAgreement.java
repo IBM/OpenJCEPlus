@@ -8,9 +8,10 @@
 
 package com.ibm.crypto.plus.provider;
 
-
 import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
+import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
 import com.ibm.crypto.plus.provider.base.NativeException;
+import com.ibm.crypto.plus.provider.base.NativeInterface;
 import com.ibm.crypto.plus.provider.base.XECKey;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -21,6 +22,7 @@ import java.security.interfaces.XECPrivateKey;
 import java.security.interfaces.XECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.NamedParameterSpec;
+import java.util.Arrays;
 import javax.crypto.KeyAgreementSpi;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
@@ -30,10 +32,12 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
 
     private OpenJCEPlusProvider provider = null;
     private long genCtx;
+    private String curveName;
     private XECKey ockXecKeyPub = null;
     private XECKey ockXecKeyPriv = null;
-    private byte[] secret = {};
+    private byte[] secret;
     private String alg = null;
+    private NativeInterface nativeInterface = null;
 
     XDHKeyAgreement(OpenJCEPlusProvider provider) {
         this.provider = provider;
@@ -62,65 +66,84 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
     @Override
     protected Key engineDoPhase(Key key, boolean lastPhase)
             throws InvalidKeyException, IllegalStateException {
+
+        clearSecret();
+        this.ockXecKeyPub = null;
+
         if (!(key instanceof XECPublicKey)) {
             throw new InvalidKeyException("Unsupported key type");
         }
-        if (ockXecKeyPriv == null)
+
+        if (ockXecKeyPriv == null) {
             throw new IllegalStateException(
-                    "object is not initialized correctly (private key is not received)");
+                    "object is not initialized correctly "
+                            + "(private key is not received)");
+        }
+
+        if (lastPhase == false) {
+            throw new IllegalStateException(
+                    "XDH can only be between two parties.");
+        }
 
         if (!(key instanceof XDHPublicKeyImpl)) {
             try {
-                key = (XDHPublicKeyImpl) XDHKeyFactory.toXECKey(this.provider, this.alg, key);
-            } catch (ClassCastException cce) {
-                throw new InvalidKeyException("Translated key is not an instance of XDHPublicKeyImpl", cce);
+                key = (XDHPublicKeyImpl) XDHKeyFactory.toXECKey(
+                        this.provider, this.alg, key);
             } catch (Exception exception) {
-                throw new InvalidKeyException("Unable to translate key", exception);
+                throw new InvalidKeyException(
+                        "Unable to translate key", exception);
             }
         }
 
         XDHPublicKeyImpl xdhPublicKeyImpl = (XDHPublicKeyImpl) key;
+        NamedParameterSpec keyParams = (NamedParameterSpec) xdhPublicKeyImpl.getParams();
 
-        //Validate algs match for key and keyagreement
-        if (this.alg != null
-                && !(((NamedParameterSpec) ((XDHPublicKeyImpl) key).getParams())
-                        .getName().equals(this.alg))) {
-            throw new InvalidKeyException("Parameters must be " + this.alg);
+        // Validate that the public and private keys use the same curve.
+        if (!keyParams.getName().equalsIgnoreCase(this.curveName)) {
+            throw new InvalidKeyException(
+                    "Public and private keys must use the same parameters");
         }
 
-        ockXecKeyPub = xdhPublicKeyImpl.getOCKKey();
+        XECKey publicKey = xdhPublicKeyImpl.getOCKKey();
 
-        // we've received a public key (from one of the other parties),
-        // so we are ready to create the secret, which may be an
-        // intermediate secret, in which case we wrap it into a
-        // Diffie-Hellman public key object and return it.
-        if (lastPhase == false) {
-            throw new IllegalStateException("XDH can only be between two parties.");
+        // Import the public key if it belongs to a different backend.
+        if (publicKey.getBackendInterface() != this.nativeInterface) {
+            byte[] publicKeyBytes = xdhPublicKeyImpl.getEncoded();
+
+            try {
+                publicKey = XECKey.createPublicKey(
+                        publicKeyBytes,
+                        this.provider,
+                        this.nativeInterface);
+            } catch (NativeException e) {
+                throw new InvalidKeyException(
+                        "Unable to import public key into KeyAgreement backend",
+                        e);
+            }
         }
+
+        ockXecKeyPub = publicKey;
 
         try {
-            String configAlgName = this.alg;
-
-            if (configAlgName == null) {
-                configAlgName = "XDH";
-            }
-
-            this.secret = XECKey.computeECDHSecret(genCtx,
-                    ockXecKeyPub.getPKeyId(), ockXecKeyPriv.getPKeyId(), provider, configAlgName);
-        } catch (NativeException e) {
-            //Validate the secret value for a small order point condition.
-            byte orValue = (byte) 0;
-            for (int i = 0; i < secret.length; i++) {
-                orValue |= secret[i];
-            }
-
-            if (orValue == (byte) 0) {
-                throw new InvalidKeyException("Point has small order.", e);
-            }
-
-            throw new IllegalStateException("Failed to generate secret", e);
+            this.secret = XECKey.computeECDHSecret(
+                    genCtx,
+                    ockXecKeyPub.getPKeyId(),
+                    ockXecKeyPriv.getPKeyId(),
+                    this.nativeInterface);
         } catch (Exception e) {
-            throw new InvalidKeyException("Failed to generate secret", e);
+            throw new InvalidKeyException(
+                    "Failed to generate secret", e);
+        }
+
+        byte orValue = (byte) 0;
+
+        for (int i = 0; i < this.secret.length; i++) {
+            orValue |= this.secret[i];
+        }
+
+        if (orValue == (byte) 0) {
+            this.secret = null;
+            throw new InvalidKeyException("Point has small order.");
         }
 
         return null;
@@ -157,19 +180,20 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
     @Override
     protected int engineGenerateSecret(byte[] sharedSecret, int offset)
             throws IllegalStateException, ShortBufferException {
-        if (secret == null)
+        if (secret == null) {
             throw new IllegalStateException("Wrong state");
-        if (sharedSecret == null)
-            throw new ShortBufferException("No buffer provided for shared secret");
-
-        byte[] secret = engineGenerateSecret();
-        try {
-            System.arraycopy(secret, 0, sharedSecret, offset, secret.length);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new ShortBufferException(e.getMessage());
         }
-        return secret.length;
 
+        if (sharedSecret == null || offset < 0 || offset > sharedSecret.length
+                || secret.length > sharedSecret.length - offset) {
+            throw new ShortBufferException(
+                    "Insufficient buffer for shared secret");
+        }
+
+        int length = secret.length;
+        System.arraycopy(secret, 0, sharedSecret, offset, length);
+        clearSecret();
+        return length;
     }
 
     /**
@@ -209,7 +233,7 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
      * @param key    the party's private information. For example, in the case of
      *               the Diffie-Hellman key agreement, this would be the party's
      *               own Diffie-Hellman private key.
-     * @param params Added to satisfy API but never used. Can be null.
+     * @param params optional parameters that must match the private key
      * @param random Added to satisfy API but never used. Can be null.
      * @throws InvalidKeyException                if the given key is inappropriate for this key agreement,
      *                                            e.g., is of the wrong type or has an incompatible
@@ -219,8 +243,15 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
      */
 
     @Override
-    protected void engineInit(Key key, AlgorithmParameterSpec params, SecureRandom random)
+    protected void engineInit(Key key, AlgorithmParameterSpec params,
+            SecureRandom random)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
+
+        clearSecret();
+        this.ockXecKeyPriv = null;
+        this.ockXecKeyPub = null;
+        this.nativeInterface = null;
+        this.curveName = null;
 
         if (!(key instanceof XECPrivateKey)) {
             throw new InvalidKeyException("Unsupported key type");
@@ -229,37 +260,89 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
         if (!(key instanceof XDHPrivateKeyImpl)) {
             try {
                 key = (XDHPrivateKeyImpl) XDHKeyFactory.toXECKey(this.provider, this.alg, key);
-            } catch (ClassCastException cce) {
-                throw new InvalidKeyException("Translated key is not an instance of XDHPrivateKeyImpl", cce);
             } catch (Exception exception) {
                 throw new InvalidKeyException("Unable to translate key", exception);
             }
         }
 
-        // Check if parameter is a valid NamedParameterSpec instance
+        // Check if parameter is a valid NamedParameterSpec instance.
+        XDHPrivateKeyImpl xdhPrivateKeyImpl = (XDHPrivateKeyImpl) key;
+        NamedParameterSpec keyParams =
+                (NamedParameterSpec) xdhPrivateKeyImpl.getParams();
+
+        // Check that the private key matches the KeyAgreement algorithm.
+        if (this.alg != null
+                && !this.alg.equalsIgnoreCase(keyParams.getName())) {
+            throw new InvalidKeyException(
+                    "Parameters must be " + this.alg
+                            + " but is " + keyParams.getName());
+        }
+
+        // If parameters were supplied, they must match the private key.
         if (params != null) {
-            if (params instanceof NamedParameterSpec nps) {
-                CURVE curve = CurveUtil.getXCurve(nps);
-                if ((this.alg != null) && !this.alg.equalsIgnoreCase(curve.name())) {
-                    throw new InvalidAlgorithmParameterException("Invalid Parameters: " + params);
+            if (!(params instanceof NamedParameterSpec)) {
+                throw new InvalidAlgorithmParameterException(
+                        "Parameters must be NamedParameterSpec");
+            }
+
+            NamedParameterSpec requestedParams = (NamedParameterSpec) params;
+
+            if (!requestedParams.getName().equalsIgnoreCase(keyParams.getName())) {
+                throw new InvalidAlgorithmParameterException(
+                        "Parameters must match the private key parameters");
+            }
+        }
+        String configAlgName = this.alg;
+
+        if (configAlgName == null) {
+            configAlgName = "XDH";
+        }
+
+        try {
+            this.nativeInterface =
+                    NativeCryptoSelector.selectBackend(
+                            this.provider, "KeyAgreement", configAlgName);
+        } catch (Exception e) {
+            throw new InvalidKeyException(
+                    "Unable to select XDH KeyAgreement backend", e);
+        }
+
+        XECKey privateKey = xdhPrivateKeyImpl.getOCKKey();
+
+        // Import the private key if it belongs to a different backend.
+        if (privateKey.getBackendInterface() != this.nativeInterface) {
+            CURVE curve = CurveUtil.getXCurve(keyParams);
+            int keySize = CurveUtil.getCurveSize(curve);
+
+            byte[] privateKeyBytes = null;
+            try {
+                privateKeyBytes = privateKey.getPrivateKeyBytes();
+
+                privateKey = XECKey.createPrivateKey(
+                        privateKeyBytes,
+                        keySize,
+                        this.provider,
+                        this.nativeInterface);
+            } catch (NativeException e) {
+                throw new InvalidKeyException(
+                        "Unable to import private key into KeyAgreement backend",
+                        e);
+            } finally {
+                if (privateKeyBytes != null) {
+                    Arrays.fill(privateKeyBytes, (byte) 0);
                 }
-            } else {
-                throw new InvalidAlgorithmParameterException("Invalid Parameters: " + params);
             }
         }
 
-        XDHPrivateKeyImpl xdhPrivateKeyImpl = (XDHPrivateKeyImpl) key;
+        this.curveName = keyParams.getName();
+        ockXecKeyPriv = privateKey;
+    }
 
-        //Validate algs match for key and keyfactory
-        if (this.alg != null
-                && !(((NamedParameterSpec) ((XDHPrivateKeyImpl) key).getParams())
-                        .getName().equals(this.alg))) {
-            throw new InvalidKeyException("Parameters must be " + this.alg + " but is " + ((NamedParameterSpec) ((XDHPrivateKeyImpl) key).getParams())
-            .getName());
+    private void clearSecret() {
+        if (secret != null) {
+            Arrays.fill(secret, (byte) 0);
+            secret = null;
         }
-
-        ockXecKeyPriv = xdhPrivateKeyImpl.getOCKKey();
-        ockXecKeyPub = null; // in case object is being reused
     }
 
     public static final class X25519 extends XDHKeyAgreement {

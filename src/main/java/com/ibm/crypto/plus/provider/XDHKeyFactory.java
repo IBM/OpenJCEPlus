@@ -8,6 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -213,8 +214,13 @@ class XDHKeyFactory extends KeyFactorySpi {
                 }
 
                 // Check if key originates from this factory
-                if (key instanceof XDHPublicKeyImpl)
+                // Reuse a provider key only when it belongs to this factory's backend.
+                if (key instanceof XDHPublicKeyImpl local
+                        && local.getOCKKey().getBackendInterface()
+                                == NativeCryptoSelector.selectBackend(
+                                        provider, "KeyFactory", alg == null ? "XDH" : alg)) {
                     return key;
+                }
 
                 // Convert key to spec
                 XECPublicKeySpec xecPubKeySpec = engineGetKeySpec(key,
@@ -232,8 +238,13 @@ class XDHKeyFactory extends KeyFactorySpi {
                 }
 
                 // Check if key originates from this factory
-                if (key instanceof XDHPrivateKeyImpl)
+                // Reuse a provider key only when it belongs to this factory's backend.
+                if (key instanceof XDHPrivateKeyImpl local
+                        && local.getOCKKey().getBackendInterface()
+                                == NativeCryptoSelector.selectBackend(
+                                        provider, "KeyFactory", alg == null ? "XDH" : alg)) {
                     return key;
+                }
 
                 // Convert key to spec
                 XECPrivateKeySpec xecPrivKeySpec = engineGetKeySpec(key,

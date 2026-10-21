@@ -27,8 +27,12 @@ class FastJNIBuffer {
     }
 
     public static FastJNIBuffer create(int capacity) {
+        return create(capacity, NativeOCKAdapterNonFIPS.getInstance());
+    }
+
+    static FastJNIBuffer create(int capacity, NativeInterface backend) {
         FastJNIBuffer b = new FastJNIBuffer(capacity);
-        b.pointer = NativeOCKAdapterNonFIPS.getInstance().getByteBufferPointer(b.byteBuffer);
+        b.pointer = backend.getByteBufferPointer(b.byteBuffer);
         b.capacity = capacity;
         return b;
     }

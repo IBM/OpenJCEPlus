@@ -17,6 +17,7 @@ OBJS= \
 	$(HOSTOUT)/BuildDate.obj \
 	$(HOSTOUT)/Digest.obj \
 	$(HOSTOUT)/Random.obj \
+	$(HOSTOUT)/XECKey.obj \
 	$(HOSTOUT)/StaticStub.obj \
 	$(HOSTOUT)/Utils.obj
 

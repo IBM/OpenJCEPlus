@@ -9,6 +9,8 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
+import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
+import com.ibm.crypto.plus.provider.base.NativeInterface;
 import com.ibm.crypto.plus.provider.base.XECKey;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -118,11 +120,16 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
      * @param params   must be of type NamedParameterSpec
      */
     public XDHPrivateKeyImpl(OpenJCEPlusProvider provider, AlgorithmParameterSpec params,
-            Optional<byte[]> scalar, String configAlgName) throws InvalidAlgorithmParameterException, InvalidParameterException {
+        Optional<byte[]> scalar, String configAlgName)
+        throws InvalidAlgorithmParameterException, InvalidParameterException {
+        this(provider, params, scalar, configAlgName,
+                NativeCryptoSelector.selectBackend(
+                        provider, "KeyFactory", configAlgName));
+    }
 
-        if (provider == null) {
-            throw new InvalidParameterException("provider must not be null");
-        }
+    XDHPrivateKeyImpl(OpenJCEPlusProvider provider, AlgorithmParameterSpec params,
+            Optional<byte[]> scalar, String configAlgName, NativeInterface backend)
+            throws InvalidAlgorithmParameterException, InvalidParameterException {
 
         if (params instanceof NamedParameterSpec) {
             this.params = (NamedParameterSpec) params;
@@ -157,8 +164,8 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
             } else {
                 this.algid = CurveUtil.getAlgId(this.params.getName());
                 byte[] der = buildOCKPrivateKeyBytes();
-                int encodingSize = CurveUtil.getDEREncodingSize(curve);
-                this.xecKey = XECKey.createPrivateKey(der, encodingSize, provider, configAlgName);
+                int encodingSize = CurveUtil.getCurveSize(curve);
+                this.xecKey = XECKey.createPrivateKey(der, encodingSize, provider, backend);
             }
             setPKCS8KeyByte(k);
         } catch (Exception exception) {

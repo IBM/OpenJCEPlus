@@ -27,12 +27,12 @@ import org.openjdk.jmh.runner.options.Options;
 
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
-@State(Scope.Benchmark)
+@State(Scope.Thread)
 @Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 4, time = 30, timeUnit = TimeUnit.SECONDS)
 public class XDHKeyGeneratorBenchmark extends JMHBase {
 
-    @Param({"OpenJCEPlus", "SunEC"})
+    @Param({"OpenJCEPlus-OCK", "OpenJCEPlus-OpenSSL", "SunEC"})
     private String provider;
 
     private KeyPairGenerator x25519KeyPairGenerator = null;

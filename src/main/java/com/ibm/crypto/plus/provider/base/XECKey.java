@@ -10,6 +10,8 @@ package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class XECKey implements AsymmetricKey, OJPKey {
     // The following is a special byte[] instance to indicate that the
@@ -25,12 +27,26 @@ public final class XECKey implements AsymmetricKey, OJPKey {
     private static final int FastJNIBufferSize = 3000;
 
     // Buffer to pass XDH data from/to native efficiently
-    private static final ThreadLocal<FastJNIBuffer> buffer = new ThreadLocal<FastJNIBuffer>() {
-        @Override
-        protected FastJNIBuffer initialValue() {
-            return FastJNIBuffer.create(FastJNIBufferSize);
+    private static final ThreadLocal<Map<NativeInterface, FastJNIBuffer>> buffers =
+        new ThreadLocal<Map<NativeInterface, FastJNIBuffer>>() {
+            @Override
+            protected Map<NativeInterface, FastJNIBuffer> initialValue() {
+                return new HashMap<NativeInterface, FastJNIBuffer>();
+            }
+        };
+
+    private static FastJNIBuffer bufferFor(NativeInterface backend) {
+        Map<NativeInterface, FastJNIBuffer> threadBuffers = buffers.get();
+
+        FastJNIBuffer buffer = threadBuffers.get(backend);
+
+        if (buffer == null) {
+            buffer = FastJNIBuffer.create(FastJNIBufferSize, backend);
+            threadBuffers.put(backend, buffer);
         }
-    };
+
+        return buffer;
+    }
 
     private XECKey(NativeInterface nativeInterface, long xecKeyId, byte[] privateKeyBytes,
             byte[] publicKeyBytes, OpenJCEPlusProvider provider) {
@@ -47,15 +63,13 @@ public final class XECKey implements AsymmetricKey, OJPKey {
     public static XECKey generateKeyPair(int curveNum, int pub_size, OpenJCEPlusProvider provider, String configAlgName)
             throws NativeException {
         //final String methodName = "generateKeyPair(NamedParameterSpec.CURVE) ";
-        FastJNIBuffer buffer = XECKey.buffer.get();
-
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
 
         NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyPairGenerator", configAlgName);
-        long xecKeyId = nativeInterface.XECKEY_generate(curveNum,
-                buffer.pointer());
+        FastJNIBuffer buffer = bufferFor(nativeInterface);
+        long xecKeyId = nativeInterface.XECKEY_generate(curveNum, buffer.pointer());
         if (!validId(xecKeyId))
             throw new NativeException(badIdMsg);
 
@@ -66,16 +80,35 @@ public final class XECKey implements AsymmetricKey, OJPKey {
     }
 
     public static byte[] computeECDHSecret(long genCtx, long pubId,
-            long privId, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
-        if (pubId == 0)
-            throw new IllegalArgumentException("The public key parameter is not valid");
-        if (privId == 0)
-            throw new IllegalArgumentException("The private key parameter is not valid");
+            long privId, OpenJCEPlusProvider provider, String configAlgName)
+            throws NativeException {
 
-        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyAgreement", configAlgName);
-        byte[] sharedSecretBytes = nativeInterface.XECKEY_computeECDHSecret(
-                genCtx, pubId, privId);
-        //OCKDebug.Msg (debPrefix, methodName,  "pubId :" + pubId + " privId :" + privId + " sharedSecretBytes :", sharedSecretBytes);
+        NativeInterface nativeInterface =
+                NativeCryptoSelector.selectBackend(
+                        provider, "KeyAgreement", configAlgName);
+
+        return computeECDHSecret(
+                genCtx, pubId, privId, nativeInterface);
+    }
+
+    public static byte[] computeECDHSecret(long genCtx, long pubId,
+            long privId, NativeInterface nativeInterface)
+            throws NativeException {
+
+        if (pubId == 0) {
+            throw new IllegalArgumentException(
+                    "The public key parameter is not valid");
+        }
+
+        if (privId == 0) {
+            throw new IllegalArgumentException(
+                    "The private key parameter is not valid");
+        }
+
+        byte[] sharedSecretBytes =
+                nativeInterface.XECKEY_computeECDHSecret(
+                        genCtx, pubId, privId);
+
         return sharedSecretBytes;
     }
 
@@ -116,40 +149,75 @@ public final class XECKey implements AsymmetricKey, OJPKey {
     }
 
     public synchronized static XECKey createPrivateKey(
-            byte[] privateKeyBytes, int priv_size, OpenJCEPlusProvider provider, String configAlgName) throws NativeException {
-        //final String methodName = "createPrivateKey";
-        if (privateKeyBytes == null)
+        byte[] privateKeyBytes, int priv_size,
+        OpenJCEPlusProvider provider, String configAlgName)
+        throws NativeException {
+        if (privateKeyBytes == null) {
             throw new IllegalArgumentException("key bytes is null");
-        if (provider == null)
-            throw new IllegalArgumentException("provider is null");
-
-        FastJNIBuffer buffer = XECKey.buffer.get();
-
-        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", configAlgName);
-        long xecKeyId = nativeInterface.XECKEY_createPrivateKey(privateKeyBytes,
-                buffer.pointer());
-        if (!validId(xecKeyId))
-            throw new NativeException(badIdMsg);
-
-        // buffer now contains public key
-        byte[] publicKeyBytes = new byte[priv_size];
-        buffer.get(0, publicKeyBytes, 0, priv_size);
-
-        return new XECKey(nativeInterface, xecKeyId, privateKeyBytes.clone(), publicKeyBytes, provider);
-    }
-
-    public static XECKey createPublicKey(byte[] publicKeyBytes, OpenJCEPlusProvider provider, String configAlgName)
-            throws NativeException {
-        //final String methodName = "createPublicKey";
-        if (publicKeyBytes == null)
-            throw new IllegalArgumentException("key bytes is null");
+        }
         if (provider == null) {
             throw new IllegalArgumentException("provider is null");
         }
 
-        NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", configAlgName);
+        return createPrivateKey(privateKeyBytes, priv_size, provider,
+                NativeCryptoSelector.selectBackend(
+                        provider, "KeyFactory", configAlgName));
+    }
+
+    public static XECKey createPrivateKey(
+            byte[] privateKeyBytes, int priv_size,
+            OpenJCEPlusProvider provider, NativeInterface nativeInterface)
+            throws NativeException {
+        if (privateKeyBytes == null || provider == null || nativeInterface == null) {
+            throw new IllegalArgumentException(
+                    "Missing private key, provider or backend");
+        }
+
+        FastJNIBuffer buffer = bufferFor(nativeInterface);
+        long xecKeyId = nativeInterface.XECKEY_createPrivateKey(
+                privateKeyBytes, buffer.pointer());
+        if (!validId(xecKeyId)) {
+            throw new NativeException(badIdMsg);
+        }
+
+        // The native call writes the corresponding raw public key into the buffer.
+        byte[] publicKeyBytes = new byte[priv_size];
+        buffer.get(0, publicKeyBytes, 0, priv_size);
+
+        return new XECKey(nativeInterface, xecKeyId,
+                privateKeyBytes.clone(), publicKeyBytes, provider);
+    }
+
+    public static XECKey createPublicKey(
+            byte[] publicKeyBytes, OpenJCEPlusProvider provider,
+            String configAlgName) throws NativeException {
+        if (publicKeyBytes == null) {
+            throw new IllegalArgumentException("key bytes is null");
+        }
+        if (provider == null) {
+            throw new IllegalArgumentException("provider is null");
+        }
+
+        return createPublicKey(publicKeyBytes, provider,
+                NativeCryptoSelector.selectBackend(
+                        provider, "KeyFactory", configAlgName));
+    }
+
+    public static XECKey createPublicKey(
+            byte[] publicKeyBytes, OpenJCEPlusProvider provider,
+            NativeInterface nativeInterface) throws NativeException {
+        if (publicKeyBytes == null || provider == null || nativeInterface == null) {
+            throw new IllegalArgumentException(
+                    "Missing public key, provider or backend");
+        }
+
         long xecKeyId = nativeInterface.XECKEY_createPublicKey(publicKeyBytes);
-        return new XECKey(nativeInterface, xecKeyId, null, publicKeyBytes.clone(), provider);
+        if (!validId(xecKeyId)) {
+            throw new NativeException(badIdMsg);
+        }
+
+        return new XECKey(nativeInterface, xecKeyId,
+                null, publicKeyBytes.clone(), provider);
     }
 
     @Override

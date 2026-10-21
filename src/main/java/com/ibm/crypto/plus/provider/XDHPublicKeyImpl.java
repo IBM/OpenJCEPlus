@@ -9,6 +9,8 @@
 package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
+import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
+import com.ibm.crypto.plus.provider.base.NativeInterface;
 import com.ibm.crypto.plus.provider.base.XECKey;
 import java.io.IOException;
 import java.io.Serializable;
@@ -141,8 +143,18 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
      * @throws InvalidParameterException
      */
     public XDHPublicKeyImpl(OpenJCEPlusProvider provider, AlgorithmParameterSpec params,
-            BigInteger u, String configAlgName) throws InvalidAlgorithmParameterException, InvalidParameterException, InvalidKeyException {
+            BigInteger u, String configAlgName)
+            throws InvalidAlgorithmParameterException,
+            InvalidParameterException, InvalidKeyException {
+        this(provider, params, u, configAlgName,
+                NativeCryptoSelector.selectBackend(
+                        provider, "KeyFactory", configAlgName));
+    }
 
+    XDHPublicKeyImpl(OpenJCEPlusProvider provider, AlgorithmParameterSpec params,
+            BigInteger u, String configAlgName, NativeInterface backend)
+            throws InvalidAlgorithmParameterException,
+            InvalidParameterException, InvalidKeyException {
         if (provider == null) {
             throw new InvalidParameterException("provider must not be null");
         }
@@ -201,7 +213,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
                 byte[] der = buildICCPublicKeyBytes();
                 checkKeySize();
 
-                this.xecKey = XECKey.createPublicKey(der, provider, configAlgName);
+                this.xecKey = XECKey.createPublicKey(der, provider, backend);
             }
         } catch (InvalidKeyException ex) {
             throw ex;
