@@ -11,17 +11,16 @@ package com.ibm.crypto.plus.provider.base;
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.Arrays;
 
-public final class PQCKey implements AsymmetricKey {
+public final class PQCKey implements AsymmetricKey, OJPKey {
 
     // The following is a special byte[] instance to indicate that the
     // private/public key bytes are available but not yet obtained.
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
 
-    private OpenJCEPlusProvider provider;
-    private NativeInterface nativeInterface;
+    private final NativeInterface nativeInterface;
     private final long pkeyId;
-    private String algName;
+    private final String algName;
     private byte[] privateKeyBytes;
     private byte[] publicKeyBytes;
     private final static String badIdMsg = "Key Identifier is not valid";
@@ -90,7 +89,6 @@ public final class PQCKey implements AsymmetricKey {
         this.nativeInterface = nativeInterface;
         this.pkeyId = keyId;
         this.algName = algName;
-        this.provider = provider;
 
         if (!validId(pkeyId)) {
             throw new NativeException(badIdMsg);
@@ -111,7 +109,12 @@ public final class PQCKey implements AsymmetricKey {
             this.publicKeyBytes = publicKeyBytes;
         }
 
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, pkeyId, this.nativeInterface));
+        provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, pkeyId, this.nativeInterface));
+    }
+
+    @Override
+    public NativeInterface getBackendInterface() {
+        return this.nativeInterface;
     }
 
     @Override

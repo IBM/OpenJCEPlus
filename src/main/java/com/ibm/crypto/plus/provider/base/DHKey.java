@@ -12,17 +12,16 @@ import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
 import java.util.Arrays;
 
-public final class DHKey implements AsymmetricKey {
+public final class DHKey implements AsymmetricKey, OJPKey {
 
     // The following is a special byte[] instance to indicate that the
     // private/public key bytes are available but not yet obtained.
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
 
-    private OpenJCEPlusProvider provider;
-    private NativeInterface nativeInterface;
+    private final NativeInterface nativeInterface;
     private final long dhKeyId;
-    private PrimitiveWrapper.Long pkeyId = new PrimitiveWrapper.Long(0);
+    private final PrimitiveWrapper.Long pkeyId = new PrimitiveWrapper.Long(0);
 
     private byte[] privateKeyBytes = null;
     private byte[] publicKeyBytes = null;
@@ -105,9 +104,13 @@ public final class DHKey implements AsymmetricKey {
         this.parameters = parameters;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
-        this.provider = provider;
 
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, dhKeyId, pkeyId, nativeInterface));
+        provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, dhKeyId, pkeyId, nativeInterface));
+    }
+
+    @Override
+    public NativeInterface getBackendInterface() {
+        return this.nativeInterface;
     }
 
     @Override

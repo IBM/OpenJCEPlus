@@ -11,13 +11,12 @@ package com.ibm.crypto.plus.provider.base;
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.Arrays;
 
-public final class XECKey implements AsymmetricKey {
+public final class XECKey implements AsymmetricKey, OJPKey {
     // The following is a special byte[] instance to indicate that the
     // private/public key bytes are available but not yet obtained.
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
-    private OpenJCEPlusProvider provider;
-    private NativeInterface nativeInterface;
+    private final NativeInterface nativeInterface;
     private final long xecKeyId;
     private byte[] privateKeyBytes;
     private byte[] publicKeyBytes;
@@ -38,9 +37,8 @@ public final class XECKey implements AsymmetricKey {
         this.xecKeyId = xecKeyId;
         this.privateKeyBytes = privateKeyBytes;
         this.publicKeyBytes = publicKeyBytes;
-        this.provider = provider;
         this.nativeInterface = nativeInterface;
-        this.provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, xecKeyId, nativeInterface));
+        provider.registerCleanable(this, cleanOCKResources(privateKeyBytes, xecKeyId, nativeInterface));
     }
 
 
@@ -150,6 +148,11 @@ public final class XECKey implements AsymmetricKey {
         NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", configAlgName);
         long xecKeyId = nativeInterface.XECKEY_createPublicKey(publicKeyBytes);
         return new XECKey(nativeInterface, xecKeyId, null, publicKeyBytes.clone(), provider);
+    }
+
+    @Override
+    public NativeInterface getBackendInterface() {
+        return this.nativeInterface;
     }
 
     public String getAlgorithm() {
