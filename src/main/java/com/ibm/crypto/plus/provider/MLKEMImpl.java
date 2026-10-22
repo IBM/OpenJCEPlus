@@ -12,16 +12,11 @@ import com.ibm.crypto.plus.provider.base.NativeException;
 import com.ibm.crypto.plus.provider.base.OJPKEM;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.ProviderException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
 import javax.crypto.DecapsulateException;
 import javax.crypto.KEM;
 import javax.crypto.KEMSpi;
@@ -97,22 +92,15 @@ public class MLKEMImpl implements KEMSpi {
             throw new InvalidKeyException("Key is null.");
         }
 
-        if (!(pubKey instanceof PQCPublicKey)) {
-            // Try and convert this key to a usage PQCPublicKey
-            // First verify it's an ML-KEM key
-            String keyAlgorithm = publicKey.getAlgorithm();
-            if (keyAlgorithm == null || !keyAlgorithm.startsWith("ML-KEM")) {
-                throw new InvalidKeyException("unsupported key");
-            }
+        String keyAlgorithm = publicKey.getAlgorithm();
+        if (keyAlgorithm == null || !keyAlgorithm.equals("ML-KEM")) {
+            throw new InvalidKeyException("unsupported key");
+        }
 
-            // Use the key's actual algorithm, not the generic "ML-KEM"
-            try {
-                KeyFactory kf = KeyFactory.getInstance(keyAlgorithm, this.provider.getName());
-                EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKey.getEncoded());
-                pubKey = kf.generatePublic(publicKeySpec);
-            } catch (Exception e) {
-                throw new InvalidKeyException("unsupported key", e);
-            }
+        try {
+            pubKey = (PublicKey) PQCKeyFactory.toPQCKey(provider, pubKey, "KEM");
+        } catch (Exception e) {
+            throw new InvalidKeyException("unsupported key", e);
         }
 
         // Validate against the concrete parameter set name.
@@ -194,26 +182,15 @@ public class MLKEMImpl implements KEMSpi {
             throw new InvalidKeyException("Key is null.");
         }
 
-        if (!(privKey instanceof PQCPrivateKey)) {
-            // Try and convert this key to a usage PQCPrivateKey
-            // First verify it's an ML-KEM key
-            String keyAlgorithm = privateKey.getAlgorithm();
-            if (keyAlgorithm == null || !keyAlgorithm.startsWith("ML-KEM")) {
-                throw new InvalidKeyException("unsupported key");
-            }
+        String keyAlgorithm = privateKey.getAlgorithm();
+        if (keyAlgorithm == null || !keyAlgorithm.equals("ML-KEM")) {
+            throw new InvalidKeyException("unsupported key");
+        }
 
-            // Use the key's actual algorithm, not the generic "ML-KEM"
-            byte[] encoding = null;
-            try {
-                KeyFactory kf = KeyFactory.getInstance(keyAlgorithm, this.provider.getName());
-                encoding = privateKey.getEncoded();
-                PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(encoding);
-                privKey = kf.generatePrivate(privateKeySpec);
-            } catch (Exception e) {
-                throw new InvalidKeyException("unsupported key", e);
-            } finally {
-                Arrays.fill(encoding, (byte) 0);
-            }
+        try {
+            privKey = (PrivateKey) PQCKeyFactory.toPQCKey(provider, privKey, "KEM");
+        } catch (Exception e) {
+            throw new InvalidKeyException("unsupported key", e);
         }
 
         // Validate against the concrete parameter set name.
