@@ -121,11 +121,7 @@ public class TestDSAKey extends BaseTest {
             dsaKeyPair.getPublic();
             dsaKeyPair.getPrivate();
         } catch (InvalidParameterException | InvalidKeyException ikex) {
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                assertTrue(true);
-            } else {
-                assertTrue(false);
-            }
+            assertTrue(false);
         }
     }
 
@@ -150,11 +146,7 @@ public class TestDSAKey extends BaseTest {
             dsaKeyPair.getPublic();
             dsaKeyPair.getPrivate();
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                assertTrue(true);
-            } else {
-                assertTrue(false);
-            }
+            assertTrue(false);
         }
 
     }
