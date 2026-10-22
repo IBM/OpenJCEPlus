@@ -79,8 +79,8 @@ def getBinaries(hardware, software) {
     }
     dir("openjceplus/OCK") {
         withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'GSKIT_PASSWORD', usernameVariable: 'GSKIT_USERNAME')]) {
-            sh "curl -k -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_bin -o jgsk_crypto.tar"
-            sh "curl -k -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_sdk_bin -o jgsk_crypto_sdk.tar"
+            sh "curl --fail -k --retry 3 --retry-delay 15 -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_bin -o jgsk_crypto.tar"
+            sh "curl --fail -k --retry 3 --retry-delay 15 -u $GSKIT_USERNAME:$GSKIT_PASSWORD $gskit_sdk_bin -o jgsk_crypto_sdk.tar"
         }
         if (software == "zos") {
             sh 'chtag -b jgsk_crypto.tar'
@@ -213,19 +213,19 @@ def getJava(hardware, software) {
         if (JAVA_RELEASE.contains("na.artifactory.swg-devops.com")) {
             java_file = "java.${file_extension}"
             withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_USERNAME')]) {
-                sh "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD ${java_link} > ${java_file}"
+                sh "curl --fail --retry 3 --retry-delay 15 -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD -o ${java_file} ${java_link}"
             }
         } else if (software == "zos") {
-            sh "curl -LJkO -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD ${java_link}"
+            sh "curl --fail -LJkO --retry 3 --retry-delay 15 -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD ${java_link}"
             java_file = sh (
                 script: 'ls | grep \'pax\'',
                 returnStdout: true
             ).trim()
 
             // We also need to download a java.base patch to disabled checking for signed JARs or else we can't do a patch-module.
-            sh "curl -LJkO -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaroundzos032526/java.base.jar"
+            sh "curl --fail -LJkO --retry 3 --retry-delay 15 -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplusworkaroundzos032526/java.base.jar"
         } else {
-            sh "curl -LJkO ${java_link}"
+            sh "curl --fail -LJkO --retry 3 --retry-delay 15 ${java_link}"
             java_file = sh (
                 script: 'ls | grep \'tar\\|zip\'',
                 returnStdout: true
@@ -298,10 +298,21 @@ def getJava(hardware, software) {
  * Get the Maven tool and extract it.
  */
 def getMaven(software) {
-    sh "curl -kLO https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.10/apache-maven-3.9.10-bin.tar.gz"
-    untar file: "apache-maven-3.9.10-bin.tar.gz"
+    def mavenVersion = "3.9.16"
+    def baseUrl = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/openjceplus/buildartifacts/maven/${mavenVersion}"
+    // Windows uses the zip archive, all other platforms use the tar.gz archive.
+    def mavenFile = (software == "windows") ? "apache-maven-${mavenVersion}-bin.zip" : "apache-maven-${mavenVersion}-bin.tar.gz"
+    withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_USERNAME')]) {
+        sh "curl --fail -kL --retry 3 --retry-delay 15 -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD -o ${mavenFile} ${baseUrl}/${mavenFile}"
+    }
+    if (software == "windows") {
+        unzip zipFile: mavenFile
+    } else {
+        untar file: mavenFile
+        sh "chmod +x apache-maven-${mavenVersion}/bin/mvn"
+    }
     if (software == "zos") {
-        sh "chtag -tR -c ISO8859-1 apache-maven-3.9.10"
+        sh "chtag -tR -c ISO8859-1 apache-maven-${mavenVersion}"
     }
 }
 
@@ -316,7 +327,7 @@ def getOpenSSL(hardware, software) {
     def openssl_link = "https://na.artifactory.swg-devops.com/artifactory/sys-rt-generic-local/OpenSSL_builds/${platform}/${version}/${platform}-${version}.tar.gz"
     withCredentials([usernamePassword(credentialsId: '7c1c2c28-650f-49e0-afd1-ca6b60479546', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_USERNAME')]) {
         // -s: silent, -o: output to null, -w: write-out the status code, -I: HEAD request
-        def status = sh(script: "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD -s -o /dev/null -w '%{http_code}' -I ${openssl_link}", returnStdout: true).trim()
+        def status = sh(script: "curl --retry 3 --retry-delay 15 -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD -s -o /dev/null -w '%{http_code}' -I ${openssl_link}", returnStdout: true).trim()
         if (status == "200") {
             echo "OpenSSL version ${version} already exists."
         } else {
@@ -331,7 +342,7 @@ def getOpenSSL(hardware, software) {
                         ]
             }
         }
-        sh "curl -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD ${openssl_link} > openssl.tar.gz"
+        sh "curl --fail --retry 3 --retry-delay 15 -u \$ARTIFACTORY_USERNAME:\$ARTIFACTORY_PASSWORD -o openssl.tar.gz ${openssl_link}"
         dir("openssl") {
             sh "tar -xvf ../openssl.tar.gz --strip-components=2"
             sh "ls -la"
@@ -368,7 +379,7 @@ def runOpenJCEPlus(command, hardware, software) {
         def java_home = "export JAVA_HOME=$WORKSPACE/java/jdk;"
         def gskit_home = "export GSKIT_HOME=$WORKSPACE/openjceplus/OCK/jgsk_sdk;"
         def openssl_home = (software == "zos") ? "" : "export OPENSSL_HOME=$WORKSPACE/openssl;"
-        def mavenPath = "$WORKSPACE/apache-maven-3.9.10/bin"
+        def mavenPath = "$WORKSPACE/apache-maven-3.9.16/bin"
         def environment = "export PATH=${mavenPath}:\$PATH;"
 
         def additional_cmd_args = ADDITIONAL_CMD_ARGS
@@ -382,7 +393,7 @@ def runOpenJCEPlus(command, hardware, software) {
                dir "c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Auxiliary\\Build\\vcvarsall.bat"
                call "c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Auxiliary\\Build\\vcvarsall.bat" x86_amd64
                set "JAVA_HOME=$WORKSPACE\\java\\jdk"
-               set "PATH=$WORKSPACE\\apache-maven-3.9.10\\bin;%JAVA_HOME%;c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX86\\x64;%PATH%"
+               set "PATH=$WORKSPACE\\apache-maven-3.9.16\\bin;%JAVA_HOME%;c:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX86\\x64;%PATH%"
                set "GSKIT_HOME=$WORKSPACE\\openjceplus\\OCK\\jgsk_sdk"
                set "OPENSSL_HOME=$WORKSPACE\\openssl"
                echo PATH: %PATH%
@@ -390,7 +401,7 @@ def runOpenJCEPlus(command, hardware, software) {
                echo OPENSSL_HOME: %OPENSSL_HOME%
                echo JAVA_HOME: %JAVA_HOME%
                echo mvn -Dock.library.path=${ock_path} --batch-mode ${command}
-               $WORKSPACE\\apache-maven-3.9.10\\bin\\mvn -Dock.library.path=${ock_path} -Dopenssl.library.path=${openssl_path} ${additional_cmd_args} --batch-mode ${command}
+               $WORKSPACE\\apache-maven-3.9.16\\bin\\mvn -Dock.library.path=${ock_path} -Dopenssl.library.path=${openssl_path} ${additional_cmd_args} --batch-mode ${command}
                """
         } else if (software == "mac") {
             java_home = "export JAVA_HOME=$WORKSPACE/java/jdk/Contents/Home;"
