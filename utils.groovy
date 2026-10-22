@@ -384,7 +384,7 @@ def upload_artifactory(uploadSpec) {
     // Create build info for this pipeline.
     def buildInfo = Artifactory.newBuildInfo()
     buildInfo.retention maxBuilds: 30, maxDays: 60, deleteBuildArtifacts: true
-    buildInfo.env.capture = true
+    buildInfo.env.capture = false
     buildInfo.name = "sys-rt/" + buildInfo.name
 
     // Upload to Artifactory and retry  if errors occur
