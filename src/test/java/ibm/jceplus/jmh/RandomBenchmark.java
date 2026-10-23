@@ -42,6 +42,8 @@ public class RandomBenchmark extends JMHBase {
         "SHA256DRBG|OpenJCEPlus",
         "SHA512DRBG|OpenJCEPlus",
         "HASHDRBG|OpenJCEPlus",
+        "SHA256DRBG|OpenJCEPlus-OpenSSL",
+        "SHA512DRBG|OpenJCEPlus-OpenSSL",
         "SHA256DRBG|OpenJCEPlusFIPS",
         "SHA512DRBG|OpenJCEPlusFIPS",
         "HASHDRBG|OpenJCEPlusFIPS",

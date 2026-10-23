@@ -10,6 +10,8 @@
 #define _UTILS_H
 
 #include <jni.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define DIGEST_INTERNAL_SUCCESS 0
 #define FAIL_DIGEST_FINAL -1
@@ -46,6 +48,40 @@ int gslogFunctionExit(const char* functionName);
 
 void osslCheckStatus(void);
 
-void throwOSSLException(JNIEnv* env, int code, const char* msg);
+//============================================================================
+// Exception handling
+//============================================================================
+
+void throwOSSLException(JNIEnv *env, int code, const char *msg);
+
+/**
+ * Throw any Java exception class by name with the given message.
+ * All specific helpers below delegate to this.
+ */
+void throwException(JNIEnv *env, const char *className, const char *msg);
+
+void throwNPE(JNIEnv *env, const char *msg);
+void throwOOM(JNIEnv *env, const char *msg);
+void throwISE(JNIEnv *env, const char *msg);
+
+//============================================================================
+// String helpers
+//============================================================================
+
+const char *getStringUTFCharsSafe(JNIEnv *env, jstring javaString, const char *errorMsg);
+void releaseStringUTFChars(JNIEnv *env, jstring javaString, const char *str);
+
+//============================================================================
+// Byte array helpers
+//============================================================================
+
+jbyte *getByteArrayElementsSafe(JNIEnv *env, jbyteArray array, const char *errorMsg);
+void releaseByteArrayElements(JNIEnv *env, jbyteArray array, jbyte *bytes, jint mode);
+
+//============================================================================
+// Memory helpers
+//============================================================================
+
+void *mallocSafe(JNIEnv *env, size_t size, const char *errorMsg);
 
 #endif
