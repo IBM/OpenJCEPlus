@@ -18,6 +18,7 @@ OBJS= \
 	Digest.obj \
 	Random.obj \
 	StaticStub.obj \
+	SymmetricCipher.obj \
 	Utils.obj
 
 TARGET = libopenjceplus_64.dll

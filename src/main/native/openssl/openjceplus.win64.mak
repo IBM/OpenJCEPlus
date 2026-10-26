@@ -18,6 +18,7 @@ OBJS= \
 	$(HOSTOUT)/Digest.obj \
 	$(HOSTOUT)/Random.obj \
 	$(HOSTOUT)/StaticStub.obj \
+	$(HOSTOUT)/SymmetricCipher.obj \
 	$(HOSTOUT)/Utils.obj
 
 ifndef OPENSSL_LIB_LOCATION

@@ -28,6 +28,7 @@ OBJS = \
 	${HOSTOUT}/Digest.o \
 	${HOSTOUT}/Random.o \
 	${HOSTOUT}/StaticStub.o \
+	${HOSTOUT}/SymmetricCipher.o \
 	${HOSTOUT}/Utils.o
 
 TARGET = ${HOSTOUT}/libopenjceplus.dylib
