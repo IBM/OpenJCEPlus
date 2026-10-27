@@ -8,26 +8,21 @@
 
 package ibm.jceplus.junit.tests;
 
-import java.util.Arrays;
-import java.util.Random;
-import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag(Tags.OPENJCEPLUS_NAME)
 @Tag(Tags.MULTITHREAD_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithSunJCEInteropProvider")
-public class TestHmacMD5Interop extends BaseTestInterop {
+public class TestHmacMD5Interop extends BaseTestHmacInterop {
 
     @Parameter(0)
     TestProvider provider;
@@ -35,37 +30,18 @@ public class TestHmacMD5Interop extends BaseTestInterop {
     @Parameter(1)
     TestProvider interopProvider;
 
-    final byte[] key_1 = {(byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b,
-            (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b,
-            (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b, (byte) 0x0b};
-
     //"Hi There".getBytes();
-    final byte[] data_1 = {(byte) 0x48, (byte) 0x69, (byte) 0x20, (byte) 0x54, (byte) 0x68,
+    static final byte[] data_1 = {(byte) 0x48, (byte) 0x69, (byte) 0x20, (byte) 0x54, (byte) 0x68,
             (byte) 0x65, (byte) 0x72, (byte) 0x65};
 
-    final byte[] digest_1 = {(byte) 0x92, (byte) 0x94, (byte) 0x72, (byte) 0x7a, (byte) 0x36,
-            (byte) 0x38, (byte) 0xbb, (byte) 0x1c, (byte) 0x13, (byte) 0xf4, (byte) 0x8e,
-            (byte) 0xf8, (byte) 0x15, (byte) 0x8b, (byte) 0xfc, (byte) 0x9d};
-
-    //"Jefe".getBytes();
-    final byte[] key_2 = {(byte) 0x4a, (byte) 0x65, (byte) 0x66, (byte) 0x65};
-
     //"what do ya want for nothing?".getBytes();
-    final byte[] data_2 = {(byte) 0x77, (byte) 0x68, (byte) 0x61, (byte) 0x74, (byte) 0x20,
+    static final byte[] data_2 = {(byte) 0x77, (byte) 0x68, (byte) 0x61, (byte) 0x74, (byte) 0x20,
             (byte) 0x64, (byte) 0x6f, (byte) 0x20, (byte) 0x79, (byte) 0x61, (byte) 0x20,
             (byte) 0x77, (byte) 0x61, (byte) 0x6e, (byte) 0x74, (byte) 0x20, (byte) 0x66,
             (byte) 0x6f, (byte) 0x72, (byte) 0x20, (byte) 0x6e, (byte) 0x6f, (byte) 0x74,
             (byte) 0x68, (byte) 0x69, (byte) 0x6e, (byte) 0x67, (byte) 0x3f};
 
-    final byte[] digest_2 = {(byte) 0x75, (byte) 0x0c, (byte) 0x78, (byte) 0x3e, (byte) 0x6a,
-            (byte) 0xb0, (byte) 0xb5, (byte) 0x03, (byte) 0xea, (byte) 0xa8, (byte) 0x6e,
-            (byte) 0x31, (byte) 0x0a, (byte) 0x5d, (byte) 0xb7, (byte) 0x38};
-
-    final byte[] key_3 = {(byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa};
-
-    final byte[] data_3 = {(byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd,
+    static final byte[] data_3 = {(byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd,
             (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd,
             (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd,
             (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd,
@@ -75,17 +51,7 @@ public class TestHmacMD5Interop extends BaseTestInterop {
             (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd, (byte) 0xdd,
             (byte) 0xdd, (byte) 0xdd, (byte) 0xdd};
 
-    final byte[] digest_3 = {(byte) 0x56, (byte) 0xbe, (byte) 0x34, (byte) 0x52, (byte) 0x1d,
-            (byte) 0x14, (byte) 0x4c, (byte) 0x88, (byte) 0xdb, (byte) 0xb8, (byte) 0xc7,
-            (byte) 0x33, (byte) 0xf0, (byte) 0xe8, (byte) 0xb3, (byte) 0xf6};
-
-    final byte[] key_4 = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05,
-            (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09, (byte) 0x0a, (byte) 0x0b,
-            (byte) 0x0c, (byte) 0x0d, (byte) 0x0e, (byte) 0x0f, (byte) 0x10, (byte) 0x11,
-            (byte) 0x12, (byte) 0x13, (byte) 0x14, (byte) 0x15, (byte) 0x16, (byte) 0x17,
-            (byte) 0x18, (byte) 0x19};
-
-    final byte[] data_4 = {(byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd,
+    static final byte[] data_4 = {(byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd,
             (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd,
             (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd,
             (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd,
@@ -95,41 +61,14 @@ public class TestHmacMD5Interop extends BaseTestInterop {
             (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd, (byte) 0xcd,
             (byte) 0xcd, (byte) 0xcd, (byte) 0xcd};
 
-    final byte[] digest_4 = {(byte) 0x69, (byte) 0x7e, (byte) 0xaf, (byte) 0x0a, (byte) 0xca,
-            (byte) 0x3a, (byte) 0x3a, (byte) 0xea, (byte) 0x3a, (byte) 0x75, (byte) 0x16,
-            (byte) 0x47, (byte) 0x46, (byte) 0xff, (byte) 0xaa, (byte) 0x79};
-
-    final byte[] key_5 = {(byte) 0x0c, (byte) 0x0c, (byte) 0x0c, (byte) 0x0c, (byte) 0x0c,
-            (byte) 0x0c, (byte) 0x0c, (byte) 0x0c, (byte) 0x0c, (byte) 0x0c, (byte) 0x0c,
-            (byte) 0x0c, (byte) 0x0c, (byte) 0x0c, (byte) 0x0c, (byte) 0x0c};
-
     //"Test With Truncation".getBytes(); ASCII//{0xcd};
-    final byte[] data_5 = {(byte) 0x54, (byte) 0x65, (byte) 0x73, (byte) 0x74, (byte) 0x20,
+    static final byte[] data_5 = {(byte) 0x54, (byte) 0x65, (byte) 0x73, (byte) 0x74, (byte) 0x20,
             (byte) 0x57, (byte) 0x69, (byte) 0x74, (byte) 0x68, (byte) 0x20, (byte) 0x54,
             (byte) 0x72, (byte) 0x75, (byte) 0x6E, (byte) 0x63, (byte) 0x61, (byte) 0x74,
             (byte) 0x69, (byte) 0x6F, (byte) 0x6E};
 
-    final byte[] digest_5 = {(byte) 0x56, (byte) 0x46, (byte) 0x1e, (byte) 0xf2, (byte) 0x34,
-            (byte) 0x2e, (byte) 0xdc, (byte) 0x00, (byte) 0xf9, (byte) 0xba, (byte) 0xb9,
-            (byte) 0x95, (byte) 0x69, (byte) 0x0e, (byte) 0xfd, (byte) 0x4c};
-
-    final byte[] key_6 = {(byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa};
-
     //"Test Using Larger Than Block-Size Key - Hash Key First".getBytes();//{0xcd};
-    final byte[] data_6 = {(byte) 0x54, (byte) 0x65, (byte) 0x73, (byte) 0x74, (byte) 0x20,
+    static final byte[] data_6 = {(byte) 0x54, (byte) 0x65, (byte) 0x73, (byte) 0x74, (byte) 0x20,
             (byte) 0x55, (byte) 0x73, (byte) 0x69, (byte) 0x6e, (byte) 0x67, (byte) 0x20,
             (byte) 0x4c, (byte) 0x61, (byte) 0x72, (byte) 0x67, (byte) 0x65, (byte) 0x72,
             (byte) 0x20, (byte) 0x54, (byte) 0x68, (byte) 0x61, (byte) 0x6e, (byte) 0x20,
@@ -140,27 +79,8 @@ public class TestHmacMD5Interop extends BaseTestInterop {
             (byte) 0x79, (byte) 0x20, (byte) 0x46, (byte) 0x69, (byte) 0x72, (byte) 0x73,
             (byte) 0x74};
 
-    final byte[] digest_6 = {(byte) 0x6b, (byte) 0x1a, (byte) 0xb7, (byte) 0xfe, (byte) 0x4b,
-            (byte) 0xd7, (byte) 0xbf, (byte) 0x8f, (byte) 0x0b, (byte) 0x62, (byte) 0xe6,
-            (byte) 0xce, (byte) 0x61, (byte) 0xb9, (byte) 0xd0, (byte) 0xcd};
-
-    final byte[] key_7 = {(byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
-            (byte) 0xaa, (byte) 0xaa, (byte) 0xaa};
-
     //"Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data".getBytes();
-    final byte[] data_7 = {(byte) 0x54, (byte) 0x65, (byte) 0x73, (byte) 0x74, (byte) 0x20,
+    static final byte[] data_7 = {(byte) 0x54, (byte) 0x65, (byte) 0x73, (byte) 0x74, (byte) 0x20,
             (byte) 0x55, (byte) 0x73, (byte) 0x69, (byte) 0x6e, (byte) 0x67, (byte) 0x20,
             (byte) 0x4c, (byte) 0x61, (byte) 0x72, (byte) 0x67, (byte) 0x65, (byte) 0x72,
             (byte) 0x20, (byte) 0x54, (byte) 0x68, (byte) 0x61, (byte) 0x6e, (byte) 0x20,
@@ -174,103 +94,24 @@ public class TestHmacMD5Interop extends BaseTestInterop {
             (byte) 0x69, (byte) 0x7a, (byte) 0x65, (byte) 0x20, (byte) 0x44, (byte) 0x61,
             (byte) 0x74, (byte) 0x61};
 
-    final byte[] digest_7 = {(byte) 0x6f, (byte) 0x63, (byte) 0x0f, (byte) 0xad, (byte) 0x67,
-            (byte) 0xcd, (byte) 0xa0, (byte) 0xee, (byte) 0x1f, (byte) 0xb1, (byte) 0xf5,
-            (byte) 0x62, (byte) 0xdb, (byte) 0x3a, (byte) 0xa5, (byte) 0x3e};
-
-
     @BeforeEach
     public void setUp() throws Exception {
         setAndInsertProvider(provider);
         setAndInsertInteropProvider(interopProvider);
+        setAlgorithm("HmacMD5");
     }
 
-    @Test
-    public void test_data1() throws Exception {
-        doHmac(data_1, getProviderName(), getInteropProviderName());
-        doHmac(data_1, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_data2() throws Exception {
-        doHmac(data_2, getProviderName(), getInteropProviderName());
-        doHmac(data_2, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_data3() throws Exception {
-        doHmac(data_3, getProviderName(), getInteropProviderName());
-        doHmac(data_3, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_data4() throws Exception {
-        doHmac(data_4, getProviderName(), getInteropProviderName());
-        doHmac(data_4, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_data5() throws Exception {
-        doHmac(data_5, getProviderName(), getInteropProviderName());
-        doHmac(data_5, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_data6() throws Exception {
-        doHmac(data_6, getProviderName(), getInteropProviderName());
-        doHmac(data_6, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_data7() throws Exception {
-        doHmac(data_7, getProviderName(), getInteropProviderName());
-        doHmac(data_7, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_payload_512() throws Exception {
-        byte[] data_512 = new byte[512];
-        Random r = new Random(10);
-        r.nextBytes(data_512);
-        doHmac(data_512, getProviderName(), getInteropProviderName());
-        doHmac(data_512, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_payload_2048() throws Exception {
-        byte[] data_2048 = new byte[2048];
-        Random r = new Random(10);
-        r.nextBytes(data_2048);
-        doHmac(data_2048, getProviderName(), getInteropProviderName());
-        doHmac(data_2048, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_payload_8192() throws Exception {
-        byte[] data_8192 = new byte[8192];
-        Random r = new Random(10);
-        r.nextBytes(data_8192);
-        doHmac(data_8192, getProviderName(), getInteropProviderName());
-        doHmac(data_8192, getInteropProviderName(), getProviderName());
-    }
-
-
-
-    protected void doHmac(byte[] data, String provider, String interopProvider) throws Exception {
-        KeyGenerator keyGen = KeyGenerator.getInstance("HmacMD5", provider);
-        SecretKey key = keyGen.generateKey();
-
-        Mac mac = Mac.getInstance("HmacMD5", provider);
-        mac.init(key);
-        mac.update(data);
-        byte[] digest = mac.doFinal();
-
-        Mac mac2 = Mac.getInstance("HmacMD5", interopProvider);
-        mac2.init(key);
-        mac2.update(data);
-        byte[] digest2 = mac2.doFinal();
-
-        assertTrue(Arrays.equals(digest, digest2), "Mac digest did not equal expected");
+    @Override
+    protected Stream<Arguments> testVectors() {
+        return Stream.of(
+                Arguments.of("test_data1", data_1),
+                Arguments.of("test_data2", data_2),
+                Arguments.of("test_data3", data_3),
+                Arguments.of("test_data4", data_4),
+                Arguments.of("test_data5", data_5),
+                Arguments.of("test_data6", data_6),
+                Arguments.of("test_data7", data_7)
+        );
     }
 }
 
