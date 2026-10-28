@@ -60,6 +60,10 @@ public class TestRSAPSS2 extends BaseTest {
     // Per-provider keypair cache
     private static final Map<String, KeyPair[]> keyPairCache = new HashMap<>();
 
+    private static final int[] KEY_SIZES = {512, 1024, 2048, 3072, 4096, 5120};
+    private static final int FIPS_MIN_KEY_SIZE = 2048;
+    private static final int FIPS_MAX_KEY_SIZE = 4096;
+
     KeyPair rsaKeyPair_OpenJCEPlus[];
     KeyPair rsaKeyPair_SunRsaSign[];
     KeyPair rsaKeyPair_OpenJCEPlusFIPS[];
@@ -124,8 +128,6 @@ public class TestRSAPSS2 extends BaseTest {
                     "BaseTestRSAPSS2.java:  setup():  Following the call to setUp(), verifyingProviderName = "
                             + verifyingProviderName);
 
-        //================================================================
-
         if (signingProviderName.equalsIgnoreCase("OpenJCEPlus")) {
             rsaKeyPair_OpenJCEPlus = getKeyPairs("OpenJCEPlus");
         }
@@ -138,22 +140,20 @@ public class TestRSAPSS2 extends BaseTest {
             rsaKeyPair_OpenJCEPlusFIPS = getKeyPairs("OpenJCEPlusFIPS");
         }
 
-        //================================================================
-
     }
 
     private static synchronized KeyPair[] getKeyPairs(String providerName) throws Exception {
         KeyPair[] keyPairs = keyPairCache.get(providerName);
         if (keyPairs == null) {
-            int[] keySizes = {512, 1024, 2048, 3072, 4096, 5120};
-            keyPairs = new KeyPair[keySizes.length];
-            // OpenJCEPlusFIPS does not support 512 and 1024
-            int firstIndex = providerName.equalsIgnoreCase("OpenJCEPlusFIPS") ? 2 : 0;
-            // OpenJCEPlusFIPS does not support 5120
-            int lastIndex = providerName.equalsIgnoreCase("OpenJCEPlusFIPS") ? 4 : 5;
-            for (int i = firstIndex; i <= lastIndex; i++) {
+            boolean isFips = providerName.equalsIgnoreCase("OpenJCEPlusFIPS");
+            keyPairs = new KeyPair[KEY_SIZES.length];
+            for (int i = 0; i < KEY_SIZES.length; i++) {
+                if (isFips && (KEY_SIZES[i] < FIPS_MIN_KEY_SIZE
+                        || KEY_SIZES[i] > FIPS_MAX_KEY_SIZE)) {
+                    continue;
+                }
                 KeyPairGenerator rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", providerName);
-                rsaKeyPairGen.initialize(keySizes[i], null);
+                rsaKeyPairGen.initialize(KEY_SIZES[i], null);
                 keyPairs[i] = rsaKeyPairGen.generateKeyPair();
             }
             keyPairCache.put(providerName, keyPairs);
