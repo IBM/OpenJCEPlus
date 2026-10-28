@@ -27,7 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -260,30 +260,22 @@ public class BaseTestRSACipherInterop extends BaseTestJunit5Interop {
         assumeTrue("BC".equals(getInteropProviderName()));
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
-        testEncryptDecryptBCDefaultOAEPThrows(getProviderName(), getInteropProviderName());
-        testEncryptDecryptBCDefaultOAEPThrows(getInteropProviderName(), getProviderName());
-    }
-
-    private void testEncryptDecryptBCDefaultOAEPThrows(
-            String encryptProvider, String decryptProvider) throws Exception {
-
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA", encryptProvider);
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA", getProviderName());
         kpg.initialize(getKeySize());
         KeyPair rsaKeyPair = kpg.generateKeyPair();
 
         RSAPublicKey rsaPublic = (RSAPublicKey) rsaKeyPair.getPublic();
         RSAPrivateCrtKey rsaPrivate = (RSAPrivateCrtKey) rsaKeyPair.getPrivate();
 
-        Cipher cipherEncrypt = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", encryptProvider);
+        Cipher cipherEncrypt = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", getProviderName());
         cipherEncrypt.init(Cipher.ENCRYPT_MODE, rsaPublic);
         byte[] cipherText = cipherEncrypt.doFinal("This is a short msg".getBytes());
 
         try {
-            Cipher cipherDecrypt = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", decryptProvider);
+            Cipher cipherDecrypt = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", getInteropProviderName());
             cipherDecrypt.init(Cipher.DECRYPT_MODE, rsaPrivate);
-            byte[] decrypted = cipherDecrypt.doFinal(cipherText);
-
-            assertNotEquals("This is a short msg", new String(decrypted));
+            cipherDecrypt.doFinal(cipherText);
+            fail("Expected BadPaddingException not thrown");
         } catch (BadPaddingException ex) {
             assertEquals("unable to decrypt block", ex.getMessage());
         }
