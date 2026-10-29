@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -29,11 +29,28 @@ import javax.crypto.spec.IvParameterSpec;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.generators.HKDFBytesGenerator;
 import org.bouncycastle.crypto.params.HKDFParameters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithBCInteropProvider")
+public class TestHKDFInterop extends BaseTestInterop {
+
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
+
     String HKDF_KA[][] = {
 
             {"SHA256", "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
@@ -75,6 +92,12 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
                             + "9d201395faa4b61a96c8",
                     "42"}, };
 
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
+    }
+
     @Test
     public void testJcePlustoBC() throws InvalidAlgorithmParameterException,
             NoSuchAlgorithmException, NoSuchProviderException {
@@ -98,24 +121,28 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
             }
 
             KDF hkdfExtract = KDF.getInstance("HKDF-SHA256", getProviderName());
-            javax.crypto.spec.HKDFParameterSpec extractOnly = javax.crypto.spec.HKDFParameterSpec.ofExtract().addIKM(ikmArray).addSalt(saltArray).extractOnly();
+            javax.crypto.spec.HKDFParameterSpec extractOnly =
+                    javax.crypto.spec.HKDFParameterSpec.ofExtract()
+                            .addIKM(ikmArray).addSalt(saltArray).extractOnly();
             SecretKey calcPrk = hkdfExtract.deriveKey("TlsEarlySecret", extractOnly);
             byte[] calcPrkArray = calcPrk.getEncoded();
-            assertArrayEquals(prkArray, calcPrkArray, "Calculated key doesn't match hardcoded one");
+            assertArrayEquals(prkArray, calcPrkArray,
+                    "Calculated key doesn't match hardcoded one");
 
             KDF hkdfExpand = KDF.getInstance("HKDF-SHA256", getProviderName());
-            javax.crypto.spec.HKDFParameterSpec expandOnly = javax.crypto.spec.HKDFParameterSpec.expandOnly(calcPrk, infoArray, okmLength);
+            javax.crypto.spec.HKDFParameterSpec expandOnly =
+                    javax.crypto.spec.HKDFParameterSpec.expandOnly(calcPrk, infoArray, okmLength);
             SecretKey calcOkm = hkdfExpand.deriveKey("TlsEarlySecret", expandOnly);
             byte[] calcOkmArray = calcOkm.getEncoded();
 
-            assertArrayEquals(okmArray, calcOkmArray, "Calculated okm doesn't match hardcoded one");
-            assertTrue (calcOkmArray.length == okmLength);
+            assertArrayEquals(okmArray, calcOkmArray,
+                    "Calculated okm doesn't match hardcoded one");
+            assertTrue(calcOkmArray.length == okmLength);
 
             SHA256Digest bcDigest = new SHA256Digest();
 
             HKDFBytesGenerator hkdfBytesGeneratorBC = new HKDFBytesGenerator(bcDigest);
-            HKDFParameters hkdfParametersBC = new HKDFParameters(ikmArray, saltArray,
-                    infoArray);
+            HKDFParameters hkdfParametersBC = new HKDFParameters(ikmArray, saltArray, infoArray);
             hkdfBytesGeneratorBC.init(hkdfParametersBC);
             byte[] okmBC = new byte[okmLength];
 
@@ -147,7 +174,10 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
                     saltArray = new byte[0];
                 }
 
-                javax.crypto.spec.HKDFParameterSpec derive = javax.crypto.spec.HKDFParameterSpec.ofExtract().addIKM(ikmArray).addSalt(saltArray).thenExpand(infoArray, okmLength);
+                javax.crypto.spec.HKDFParameterSpec derive =
+                        javax.crypto.spec.HKDFParameterSpec.ofExtract()
+                                .addIKM(ikmArray).addSalt(saltArray).thenExpand(infoArray,
+                                        okmLength);
                 KDF hkdfDerive = KDF.getInstance("HKDF-SHA256", getProviderName());
                 SecretKey calcOkm = hkdfDerive.deriveKey("TlsEarlySecret", derive);
                 byte[] calcOkmArray = calcOkm.getEncoded();
@@ -156,8 +186,8 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
 
                 SHA256Digest bcDigest = new SHA256Digest();
                 HKDFBytesGenerator hkdfBytesGeneratorBC = new HKDFBytesGenerator(bcDigest);
-                HKDFParameters hkdfParametersBC = new HKDFParameters(ikmArray, saltArray,
-                        infoArray);
+                HKDFParameters hkdfParametersBC =
+                        new HKDFParameters(ikmArray, saltArray, infoArray);
                 hkdfBytesGeneratorBC.init(hkdfParametersBC);
                 byte[] okmBC = new byte[okmLength];
 
@@ -170,7 +200,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
         } catch (NoSuchProviderException e) {
             e.printStackTrace();
             assertTrue(false);
-
         }
     }
 
@@ -181,9 +210,12 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
         String curveName = "secp256r1";
 
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
-        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, getProviderName(), getProviderName());
+        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn,
+                getProviderName(), getProviderName());
 
-        javax.crypto.spec.HKDFParameterSpec derive = javax.crypto.spec.HKDFParameterSpec.ofExtract().addIKM(sharedSecret).thenExpand(null, (256 / 8));
+        javax.crypto.spec.HKDFParameterSpec derive =
+                javax.crypto.spec.HKDFParameterSpec.ofExtract()
+                        .addIKM(sharedSecret).thenExpand(null, (256 / 8));
         KDF hkdfDerive = KDF.getInstance("HKDF-SHA256", getProviderName());
         SecretKey calcOkm = hkdfDerive.deriveKey("AES", derive);
 
@@ -201,10 +233,12 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
         String curveName = "secp256r1";
 
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
-        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, getInteropProviderName(),
-                getInteropProviderName());
+        byte[] sharedSecret = compute_ecdh_key(curveName, ecgn,
+                getInteropProviderName(), getInteropProviderName());
 
-        javax.crypto.spec.HKDFParameterSpec derive = javax.crypto.spec.HKDFParameterSpec.ofExtract().addIKM(sharedSecret).thenExpand(null, (256 / 8));
+        javax.crypto.spec.HKDFParameterSpec derive =
+                javax.crypto.spec.HKDFParameterSpec.ofExtract()
+                        .addIKM(sharedSecret).thenExpand(null, (256 / 8));
         KDF hkdfDerive = KDF.getInstance("HKDF-SHA256", getProviderName());
         SecretKey calcOkm = hkdfDerive.deriveKey("AES", derive);
 
@@ -227,7 +261,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
         } else if (cipherAlgorithm.startsWith("AES") && !cipherAlgorithm.contains("/ECB/")) {
             iv = new IvParameterSpec(new byte[16]);
         }
-
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
         return cipher.doFinal(strToEncrypt.getBytes());
     }
@@ -245,7 +278,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
         } else if (cipherAlgorithm.startsWith("AES") && !cipherAlgorithm.contains("/ECB/")) {
             iv = new IvParameterSpec(new byte[16]);
         }
-
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
         return cipher.doFinal(strToEncrypt.getBytes());
     }
@@ -264,7 +296,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
         }
         cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
         return new String(cipher.doFinal(encryptedBytes));
-
     }
 
     private String decrypt(SecretKey secretKey, byte[] encryptedBytes, String cipherAlgorithm,
@@ -282,7 +313,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
         }
         cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
         return new String(cipher.doFinal(encryptedBytes));
-
     }
 
     private static byte[] hexStringToByteArray(String string) {
@@ -321,7 +351,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
 
         KeyPair keyPairA = kpgA.generateKeyPair();
 
-        // set up
         KeyAgreement keyAgreeA = null;
         try {
             keyAgreeA = KeyAgreement.getInstance("ECDH", providerA);
@@ -332,7 +361,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
             e.printStackTrace();
             throw e;
         }
-        // Two party agreement
         try {
             keyAgreeA.init(keyPairA.getPrivate());
         } catch (InvalidKeyException e) {
@@ -396,12 +424,10 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
             throw e;
         }
 
-        // Generate the key bytes
         byte[] sharedSecretA = keyAgreeA.generateSecret();
         byte[] sharedSecretB = keyAgreeB.generateSecret();
 
         assertTrue(Arrays.equals(sharedSecretA, sharedSecretB));
         return sharedSecretA;
-
     }
 }
