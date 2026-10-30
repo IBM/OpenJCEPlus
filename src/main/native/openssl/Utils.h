@@ -74,4 +74,18 @@ void releaseByteArrayElements(JNIEnv *env, jbyteArray array, jbyte *bytes, jint 
 
 void *mallocSafe(JNIEnv *env, size_t size, const char *errorMsg);
 
+/*
+ * DER OctetString helpers (0x04 0x82 HH LL <raw>).
+ * Used for private key serialisation to match the format expected by the Java layer.
+ */
+unsigned char *encode_octet_string(const unsigned char *raw, size_t rawLen, size_t *outLen);
+unsigned char *decode_octet_string(const unsigned char *enc, size_t encLen, size_t *rawLen);
+
+/*
+ * DER BitString helpers (0x03 0x82 HH LL 0x00 <raw>).
+ * Used for public key serialisation to match the format expected by the Java layer.
+ */
+unsigned char *encode_bit_string(const unsigned char *raw, size_t rawLen, size_t *outLen);
+unsigned char *decode_bit_string(const unsigned char *enc, size_t encLen, size_t *rawLen);
+
 #endif
