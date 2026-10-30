@@ -131,10 +131,6 @@ public final class PQCKey implements AsymmetricKey, OJPKey {
         return algName;
     }
 
-    public NativeInterface getBackendInterface() {
-        return nativeInterface;
-    }
-
     @Override
     public long getPKeyId() throws NativeException {
         return pkeyId;
