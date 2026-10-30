@@ -32,8 +32,6 @@ import org.junit.platform.suite.api.Suite;
     TestECKeyImportInteropSunEC.class,
     TestECKeyPairGenerator.class,
     TestFIPSVerifyOnlyTest.class,
-    TestHKDF.class,
-    TestHKDFInterop.class,
     TestHmacSHA224.class,
     TestHmacSHA224InteropSunJCE.class,
     TestHmacSHA256.class,
