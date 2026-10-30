@@ -11,13 +11,13 @@ package com.ibm.crypto.plus.provider.base;
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import java.util.Arrays;
 
-public final class XECKey implements AsymmetricKey {
+public final class XECKey implements AsymmetricKey, OJPKey {
     // The following is a special byte[] instance to indicate that the
     // private/public key bytes are available but not yet obtained.
     //
     static final byte[] unobtainedKeyBytes = new byte[0];
-    private OpenJCEPlusProvider provider;
-    private NativeInterface nativeInterface;
+    private final OpenJCEPlusProvider provider;
+    private final NativeInterface nativeInterface;
     private final long xecKeyId;
     private byte[] privateKeyBytes;
     private byte[] publicKeyBytes;
@@ -150,6 +150,21 @@ public final class XECKey implements AsymmetricKey {
         NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "KeyFactory", configAlgName);
         long xecKeyId = nativeInterface.XECKEY_createPublicKey(publicKeyBytes);
         return new XECKey(nativeInterface, xecKeyId, null, publicKeyBytes.clone(), provider);
+    }
+
+    @Override
+    public NativeInterface getBackendInterface() {
+        return this.nativeInterface;
+    }
+
+    @Override
+    public OpenJCEPlusProvider getProvider() {
+        return this.provider;
+    }
+
+    @Override
+    public boolean isFIPS() {
+        return this.provider.isFIPS();
     }
 
     public String getAlgorithm() {
