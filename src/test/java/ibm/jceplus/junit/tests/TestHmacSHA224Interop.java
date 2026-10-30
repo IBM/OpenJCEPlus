@@ -6,17 +6,29 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
-import java.util.Arrays;
-import java.util.Random;
-import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class BaseTestHmacSHA224Interop extends BaseTestJunit5Interop {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithSunJCEInteropProvider")
+public class TestHmacSHA224Interop extends BaseTestHmacInterop {
+
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
 
     // test vectors from http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/HMAC_SHA224.pdf
     static final byte[] key_1 = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
@@ -98,67 +110,21 @@ public class BaseTestHmacSHA224Interop extends BaseTestJunit5Interop {
             (byte) 0x6c, (byte) 0xa4, (byte) 0xb4, (byte) 0xb1, (byte) 0xc2, (byte) 0x3d,
             (byte) 0x27, (byte) 0xbd, (byte) 0xe0, (byte) 0x67, (byte) 0xd6, };
 
-    @Test
-    public void test_data1() throws Exception {
-        doHmac(data_1, getProviderName(), getInteropProviderName());
-        doHmac(data_1, getInteropProviderName(), getProviderName());
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
+        setAlgorithm("HmacSHA224");
     }
 
-    @Test
-    public void test_data2() throws Exception {
-        doHmac(data_2, getProviderName(), getInteropProviderName());
-        doHmac(data_2, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_data3() throws Exception {
-        doHmac(data_3, getProviderName(), getInteropProviderName());
-        doHmac(data_3, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_payload_512() throws Exception {
-        byte[] data_512 = new byte[512];
-        Random r = new Random(10);
-        r.nextBytes(data_512);
-        doHmac(data_512, getProviderName(), getInteropProviderName());
-        doHmac(data_512, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_payload_2048() throws Exception {
-        byte[] data_2048 = new byte[2048];
-        Random r = new Random(10);
-        r.nextBytes(data_2048);
-        doHmac(data_2048, getProviderName(), getInteropProviderName());
-        doHmac(data_2048, getInteropProviderName(), getProviderName());
-    }
-
-    @Test
-    public void test_payload_8192() throws Exception {
-        byte[] data_8192 = new byte[8192];
-        Random r = new Random(10);
-        r.nextBytes(data_8192);
-        doHmac(data_8192, getProviderName(), getInteropProviderName());
-        doHmac(data_8192, getInteropProviderName(), getProviderName());
-    }
-
-
-    protected void doHmac(byte[] data, String provider, String interopProvider) throws Exception {
-        KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA224", provider);
-        SecretKey key = keyGen.generateKey();
-
-        Mac mac = Mac.getInstance("HmacSHA224", provider);
-        mac.init(key);
-        mac.update(data);
-        byte[] digest = mac.doFinal();
-
-        Mac mac2 = Mac.getInstance("HmacSHA224", interopProvider);
-        mac2.init(key);
-        mac2.update(data);
-        byte[] digest2 = mac2.doFinal();
-
-        assertTrue(Arrays.equals(digest, digest2), "Mac digest did not equal expected");
+    @Override
+    protected Stream<Arguments> testVectors() {
+        return Stream.of(
+                Arguments.of("test_data1", data_1),
+                Arguments.of("test_data2", data_2),
+                Arguments.of("test_data3", data_3),
+                Arguments.of("test_data4", data_4)
+        );
     }
 }
 
