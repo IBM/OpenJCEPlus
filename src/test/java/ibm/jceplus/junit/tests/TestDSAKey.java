@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
@@ -24,11 +24,28 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-public class BaseTestDSAKey extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestDSAKey extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
+
     private static String publicKey1024 = "MIIBuDCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7"
                                         + "s5Of2EbdSPO9EAMMeP4C2USZpRV1AIlH7WT2NWPq/xfW6MPbLm1"
                                         + "Vs14E7gB00b/JmYLdrmVClpJ+f6AR7ECLCT7up1/63xhv4O1fnx"
@@ -90,23 +107,28 @@ public class BaseTestDSAKey extends BaseTestJunit5 {
                                         + "qMpislBtDj4EIgIgJGAGjgXTmTeq0L8Oo2jCuSCLmEeFfMM9xjt"
                                         + "tGLOCEc8=";
 
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
+
     @Test
     public void testDSAKeyGen_1024() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()),
+                "DSA key generation is not available in FIPS mode.");
         try {
             KeyPair dsaKeyPair = generateKeyPair(1024);
             dsaKeyPair.getPublic();
             dsaKeyPair.getPrivate();
         } catch (InvalidParameterException | InvalidKeyException ikex) {
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                assertTrue(true);
-            } else {
-                assertTrue(false);
-            }
+            assertTrue(false);
         }
     }
 
     @Test
     public void testDSAKeyGen_2048() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()),
+                "DSA key generation is not available in FIPS mode.");
         KeyPair dsaKeyPair = generateKeyPair(2048);
         dsaKeyPair.getPublic();
         dsaKeyPair.getPrivate();
@@ -114,6 +136,8 @@ public class BaseTestDSAKey extends BaseTestJunit5 {
 
     @Test
     public void testDSAKeyGenFromParams_1024() throws Exception {
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()),
+                "DSA algorithm parameters are not available in FIPS mode.");
         try {
             AlgorithmParameters algParams = generateParameters(1024);
             DSAParameterSpec dsaParameterSpec = algParams
@@ -122,11 +146,7 @@ public class BaseTestDSAKey extends BaseTestJunit5 {
             dsaKeyPair.getPublic();
             dsaKeyPair.getPrivate();
         } catch (InvalidParameterException | InvalidKeyException ipex) {
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                assertTrue(true);
-            } else {
-                assertTrue(false);
-            }
+            assertTrue(false);
         }
 
     }
