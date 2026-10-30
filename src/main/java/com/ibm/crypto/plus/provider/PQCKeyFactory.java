@@ -8,9 +8,6 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
-import com.ibm.crypto.plus.provider.base.NativeInterface;
-import com.ibm.crypto.plus.provider.base.PQCKey;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactorySpi;
@@ -149,7 +146,8 @@ class PQCKeyFactory extends KeyFactorySpi {
             if (key instanceof java.security.PublicKey) {
                 // Return as-is only if already our type AND on the same backend
                 if ((key instanceof PQCPublicKey pub)
-                        && keyMatchesProvider(pub.getPQCKey(), pub.getParamSetName())) {
+                        && KeyUtils.keyMatchesProvider(provider, serviceType,
+                                pub.getPQCKey(), pub.getParamSetName())) {
                     return key;
                 }
                 // Convert key to spec and re-create on the correct backend
@@ -159,7 +157,8 @@ class PQCKeyFactory extends KeyFactorySpi {
             } else if (key instanceof PrivateKey) {
                 // Return as-is only if already our type AND on the same backend
                 if ((key instanceof PQCPrivateKey priv)
-                        && keyMatchesProvider(priv.getPQCKey(), priv.getParamSetName())) {
+                        && KeyUtils.keyMatchesProvider(provider, serviceType,
+                                priv.getPQCKey(), priv.getParamSetName())) {
                     return key;
                 }
                 // Convert key to spec and re-create on the correct backend
@@ -171,23 +170,6 @@ class PQCKeyFactory extends KeyFactorySpi {
             }
         } catch (InvalidKeySpecException e) {
             throw new InvalidKeyException("Cannot translate key: ", e);
-        }
-    }
-
-    /**
-     * Returns {@code true} if the given {@link PQCKey}'s backend matches the
-     * backend this factory's provider would select for {@code paramSetName} under
-     * {@code serviceType}. Falls back to {@code false} on any error so translation
-     * is attempted rather than silently skipped.
-     */
-    private boolean keyMatchesProvider(PQCKey pqcKey, String paramSetName) {
-        try {
-            NativeInterface expected = NativeCryptoSelector.selectBackend(
-                    provider, serviceType, paramSetName);
-            NativeInterface actual = pqcKey.getBackendInterface();
-            return expected.getBackendType() == actual.getBackendType();
-        } catch (Exception e) {
-            return false;
         }
     }
 
