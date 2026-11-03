@@ -79,7 +79,7 @@ jobs:
       - name: Setup Semeru JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '21.0.10+7.0.LTS'
+          java-version: '21.0.13+9.0.LTS'
           distribution: 'temurin'
           architecture: 'x64'
       - name: Install OpenSSL Headers

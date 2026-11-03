@@ -37,6 +37,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -557,53 +559,43 @@ public class TestPBMAC1 extends BaseTest {
             Security.insertProviderAt(new OpenJCEPlusFIPS(), 1);
         }
 
-        /*
-        * A change in openjdk hasn't been backported to java versions 25 and less
-        * which prevents loading pkcs12 files. When the required fix is updated in openjdk
-        * the try-catch block here can be removed.
-        */
-        try {
-            loadP12(p12file1);
-            fail("P12 file with PBMAC1 algorithm (PBEWithHmacSHA256) loaded successfully unexpectedly");
-        } catch (java.io.IOException e) {
-
-        }
-        try {
-            loadP12(p12file2);
-            fail("P12 file with PBMAC1 algorithm (PBEWithHmacSHA256) loaded successfully unexpectedly");
-        } catch (java.io.IOException e) {
-
-        }
-        try {
-            loadP12(p12file3);
-            fail("P12 file with PBMAC1 algorithm (PBEWithHmacSHA512) loaded successfully unexpectedly");
-        } catch (java.io.IOException e) {
-
+        if (!isOpenJ9()) {
+            // Known failure on non-Semeru runtimes: PBMAC1 HMAC algorithm is not available
+            java.io.IOException e = assertThrows(java.io.IOException.class, () -> loadP12(p12file1));
+            assertTrue(e.getMessage().contains("HmacPBE1.2.840.113549.1.5.14 not available"),
+                    "Unexpected failure message: " + e.getMessage());
+            return;
         }
 
-        /*
-        * A change in openjdk hasn't been backported to java versions 25 and less
-        * which prevents loading pkcs12 files. When the required fix is updated in openjdk
-        * the try-catch block here can be updated here to check for specific expected failures.
-        */
+        loadP12(p12file1);
+        loadP12(p12file2);
+        loadP12(p12file3);
+
         try {
             loadP12(p12file4);
-            fail("Keystore unexpectedly loaded successfully with incorrect iteration count");
         } catch (java.io.IOException e) {
             // Expected error (Incorrect iteration count)
+            assertEquals("Integrity check failed: java.security.UnrecoverableKeyException: Failed PKCS12 integrity checking", e.getMessage());
         }
+
         try {
             loadP12(p12file5);
-            fail("Keystore unexpectedly loaded successfully with incorrect salt");
         } catch (java.io.IOException e) {
             // Expected error (Incorrect salt)
+            assertEquals("Integrity check failed: java.security.UnrecoverableKeyException: Failed PKCS12 integrity checking", e.getMessage());
         }
+
         try {
             loadP12(p12file6);
-            fail("Keystore unexpectedly loaded successfully with missing key length");
         } catch (java.io.IOException e) {
             // Expected error (Missing key length)
+            assertEquals("error: missing keyLength field", e.getMessage());
         }
+    }
+
+    private static boolean isOpenJ9() {
+        String vmName = System.getProperty("java.vm.name");
+        return vmName.contains("OpenJ9");
     }
 
     private void loadP12(String file) throws Exception {
