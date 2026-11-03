@@ -6,9 +6,8 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
@@ -18,7 +17,6 @@ import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.Provider;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
@@ -33,23 +31,28 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-public class BaseTestHKDF extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestHKDF extends BaseTest {
 
-    public String testName;
-    public String algName;
-    public byte[] IKM;
-    public byte[] salt;
-    public byte[] info;
-    public int outLen;
-    public byte[] expectedPRK;
-    public byte[] expectedOKM;
-
-    Provider provider = null;
+    @Parameter(0)
+    TestProvider provider;
 
     String HKDF_KA[][] = {
 
@@ -92,6 +95,11 @@ public class BaseTestHKDF extends BaseTestJunit5 {
                             + "9d201395faa4b61a96c8",
                     "42"}, };
 
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
+
     @Test
     public void testHKDF256() throws Exception {
         aesHKDF(192, "HKDF-SHA256", "AES", "AES", getProviderName());
@@ -111,13 +119,11 @@ public class BaseTestHKDF extends BaseTestJunit5 {
     public void test3DesHKDF256() throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchPaddingException,
             IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
+        // FIPS does not support 3DES
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()),
+                "Skipping 3DES test for FIPS provider");
+
         String curveName = "secp256r1";
-
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            //FIPS does not support 3DES. So skip the test
-            return;
-        }
-
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
         byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, getProviderName(), getProviderName());
 
@@ -226,105 +232,6 @@ public class BaseTestHKDF extends BaseTestJunit5 {
         }
     }
 
-    private static class MyKDFParameters implements KDFParameters {
-    }
-
-    private static class MyKDFParameters2 implements KDFParameters {
-    }
-
-    private void aesHKDF(int aesKeySize, String hashAlg, String extractAlg, String expandAlg,
-            String providerName) throws NoSuchAlgorithmException, NoSuchProviderException,
-            InvalidAlgorithmParameterException, IOException, InvalidKeyException,
-            NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(aesKeySize);
-        SecretKey psk = keyGen.generateKey(); // System.out.println("Generated secretKey=" + psk);
-
-        MessageDigest md = MessageDigest.getInstance(hashAlg.replace("HKDF-", ""),
-                providerName);
-        byte[] zeros = new byte[md.getDigestLength()];
-
-        KDF hkdfExtract = KDF.getInstance(hashAlg, getProviderName());
-        javax.crypto.spec.HKDFParameterSpec extractOnly = javax.crypto.spec.HKDFParameterSpec.ofExtract().addIKM(psk).addSalt(zeros).extractOnly();
-        SecretKey earlySecret = hkdfExtract.deriveKey(extractAlg, extractOnly);
-        assertTrue(earlySecret != null);
-
-        byte[] label = ("tls13 res binder").getBytes();
-        byte[] hkdfInfo = createHkdfInfo(label, new byte[0], md.getDigestLength());
-        KDF hkdfExpand = KDF.getInstance(hashAlg, getProviderName());
-        javax.crypto.spec.HKDFParameterSpec expandOnly = javax.crypto.spec.HKDFParameterSpec.expandOnly(earlySecret, hkdfInfo, (aesKeySize / 8));
-        SecretKey expandSecretKey = hkdfExpand.deriveKey(expandAlg, expandOnly);
-        assertTrue(expandSecretKey != null);
-
-        String strToEncrypt = "Hello string to be encrypted";
-        byte[] encryptedBytes = encrypt(expandSecretKey, strToEncrypt, "AES/ECB/PKCS5Padding");
-        String plainStr = decrypt(expandSecretKey, encryptedBytes, "AES/ECB/PKCS5Padding");
-        assertTrue(plainStr.equals(strToEncrypt));
-    }
-
-    private byte[] encrypt(SecretKey secretKey, String strToEncrypt, String cipherAlgorithm)
-            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-            IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException,
-            InvalidAlgorithmParameterException {
-
-        Cipher cipher = Cipher.getInstance(cipherAlgorithm);
-        IvParameterSpec iv = null;
-        if (cipherAlgorithm.startsWith("DESede")) {
-            iv = new IvParameterSpec(new byte[8]);
-        } else if (cipherAlgorithm.startsWith("AES")) {
-            iv = new IvParameterSpec(new byte[16]);
-        }
-
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
-        return cipher.doFinal(strToEncrypt.getBytes());
-    }
-
-    private String decrypt(SecretKey secretKey, byte[] encryptedBytes, String cipherAlgorithm)
-            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-            IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException,
-            InvalidAlgorithmParameterException {
-
-        Cipher cipher = Cipher.getInstance(cipherAlgorithm);
-        IvParameterSpec iv = null;
-        if (cipherAlgorithm.startsWith("DESede")) {
-            iv = new IvParameterSpec(new byte[8]);
-        } else if (cipherAlgorithm.startsWith("AES")) {
-            iv = new IvParameterSpec(new byte[16]);
-        }
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
-        return new String(cipher.doFinal(encryptedBytes));
-
-    }
-
-    private static byte[] createHkdfInfo(byte[] label, byte[] context, int length)
-            throws IOException {
-        byte[] info = new byte[4 + label.length];
-        ByteBuffer m = ByteBuffer.wrap(info);
-        try {
-            Record.putInt16(m, length);
-            Record.putBytes8(m, label);
-            Record.putInt8(m, 0x00); // zero-length context
-        } catch (IOException ioe) {
-            // unlikely
-            throw new RuntimeException("Unexpected exception", ioe);
-        }
-
-        return info;
-
-    }
-
-    private static byte[] hexStringToByteArray(String string) {
-        String s = string.trim().replaceAll(" +", ""); // remove all spaces
-
-        byte[] b = new byte[s.length() / 2];
-        for (int i = 0; i < b.length; i++) {
-            int index = i * 2;
-            int v = Integer.parseInt(s.substring(index, index + 2), 16);
-            b[i] = (byte) v;
-        }
-        return b;
-    }
-
     @Test
     public void testThroughProvider() throws Exception {
         try {
@@ -341,7 +248,6 @@ public class BaseTestHKDF extends BaseTestJunit5 {
                 assert (prkArray != null);
                 assert (okmArray != null);
                 assert (okmLength > 0);
-                // System.out.println("i=" + i);
 
                 KDF hkdfExtract = KDF.getInstance("HKDF-SHA256", getProviderName());
 
@@ -391,7 +297,6 @@ public class BaseTestHKDF extends BaseTestJunit5 {
                 assert (prkArray != null);
                 assert (okmArray != null);
                 assert (okmLength > 0);
-                // System.out.println("i=" + i);
 
                 if (HKDF_KA[i][2].equals("")) {
                     saltArray = new byte[0];
@@ -411,14 +316,106 @@ public class BaseTestHKDF extends BaseTestJunit5 {
         } catch (NoSuchProviderException e) {
             e.printStackTrace();
             assertTrue(false);
-
         }
+    }
+
+    private static class MyKDFParameters implements KDFParameters {
+    }
+
+    private static class MyKDFParameters2 implements KDFParameters {
+    }
+
+    private void aesHKDF(int aesKeySize, String hashAlg, String extractAlg, String expandAlg,
+            String providerName) throws NoSuchAlgorithmException, NoSuchProviderException,
+            InvalidAlgorithmParameterException, InvalidKeyException,
+            NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException,
+            UnsupportedEncodingException {
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(aesKeySize);
+        SecretKey psk = keyGen.generateKey();
+
+        MessageDigest md = MessageDigest.getInstance(hashAlg.replace("HKDF-", ""), providerName);
+        byte[] zeros = new byte[md.getDigestLength()];
+
+        KDF hkdfExtract = KDF.getInstance(hashAlg, getProviderName());
+        javax.crypto.spec.HKDFParameterSpec extractOnly =
+                javax.crypto.spec.HKDFParameterSpec.ofExtract()
+                        .addIKM(psk).addSalt(zeros).extractOnly();
+        SecretKey earlySecret = hkdfExtract.deriveKey(extractAlg, extractOnly);
+        assertTrue(earlySecret != null);
+
+        byte[] label = ("tls13 res binder").getBytes();
+        byte[] hkdfInfo = createHkdfInfo(label, new byte[0], md.getDigestLength());
+        KDF hkdfExpand = KDF.getInstance(hashAlg, getProviderName());
+        javax.crypto.spec.HKDFParameterSpec expandOnly =
+                javax.crypto.spec.HKDFParameterSpec.expandOnly(earlySecret, hkdfInfo,
+                        (aesKeySize / 8));
+        SecretKey expandSecretKey = hkdfExpand.deriveKey(expandAlg, expandOnly);
+        assertTrue(expandSecretKey != null);
+
+        String strToEncrypt = "Hello string to be encrypted";
+        byte[] encryptedBytes = encrypt(expandSecretKey, strToEncrypt, "AES/ECB/PKCS5Padding");
+        String plainStr = decrypt(expandSecretKey, encryptedBytes, "AES/ECB/PKCS5Padding");
+        assertTrue(plainStr.equals(strToEncrypt));
+    }
+
+    private byte[] encrypt(SecretKey secretKey, String strToEncrypt, String cipherAlgorithm)
+            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+            IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException,
+            InvalidAlgorithmParameterException {
+
+        Cipher cipher = Cipher.getInstance(cipherAlgorithm);
+        IvParameterSpec iv = null;
+        if (cipherAlgorithm.startsWith("DESede")) {
+            iv = new IvParameterSpec(new byte[8]);
+        } else if (cipherAlgorithm.startsWith("AES")) {
+            iv = new IvParameterSpec(new byte[16]);
+        }
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
+        return cipher.doFinal(strToEncrypt.getBytes());
+    }
+
+    private String decrypt(SecretKey secretKey, byte[] encryptedBytes, String cipherAlgorithm)
+            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+            IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException,
+            InvalidAlgorithmParameterException {
+
+        Cipher cipher = Cipher.getInstance(cipherAlgorithm);
+        IvParameterSpec iv = null;
+        if (cipherAlgorithm.startsWith("DESede")) {
+            iv = new IvParameterSpec(new byte[8]);
+        } else if (cipherAlgorithm.startsWith("AES")) {
+            iv = new IvParameterSpec(new byte[16]);
+        }
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
+        return new String(cipher.doFinal(encryptedBytes));
+    }
+
+    private static byte[] createHkdfInfo(byte[] label, byte[] context, int length) {
+        byte[] info = new byte[4 + label.length];
+        ByteBuffer m = ByteBuffer.wrap(info);
+        m.put((byte) ((length >> 8) & 0xFF));
+        m.put((byte) (length & 0xFF));
+        m.put((byte) (label.length & 0xFF));
+        m.put(label);
+        return info;
+    }
+
+    private static byte[] hexStringToByteArray(String string) {
+        String s = string.trim().replaceAll(" +", ""); // remove all spaces
+
+        byte[] b = new byte[s.length() / 2];
+        for (int i = 0; i < b.length; i++) {
+            int index = i * 2;
+            int v = Integer.parseInt(s.substring(index, index + 2), 16);
+            b[i] = (byte) v;
+        }
+        return b;
     }
 
     byte[] compute_ecdh_key(String idString, AlgorithmParameterSpec algParameterSpec,
             String providerA, String providerB) throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, InvalidKeyException {
-        //final String methodName = "compute_ecdh_key" + "_" + idString;
 
         KeyPairGenerator kpgA = null;
         try {
@@ -439,12 +436,7 @@ public class BaseTestHKDF extends BaseTestJunit5 {
         }
 
         KeyPair keyPairA = kpgA.generateKeyPair();
-        // System.out.println("KeyPairA.privKey=" +
-        // BaseUtils.bytesToHex(keyPairA.getPrivate().getEncoded()));
-        // System.out.println("KeyPairA.publicKey=" +
-        // BaseUtils.bytesToHex(keyPairA.getPublic().getEncoded()));
 
-        // set up
         KeyAgreement keyAgreeA = null;
         try {
             keyAgreeA = KeyAgreement.getInstance("ECDH", providerA);
@@ -455,7 +447,6 @@ public class BaseTestHKDF extends BaseTestJunit5 {
             e.printStackTrace();
             throw e;
         }
-        // Two party agreement
         try {
             keyAgreeA.init(keyPairA.getPrivate());
         } catch (InvalidKeyException e) {
@@ -482,10 +473,6 @@ public class BaseTestHKDF extends BaseTestJunit5 {
         }
 
         KeyPair keyPairB = kpgB.generateKeyPair();
-        // System.out.println("KeyPairB.privKey=" +
-        // BaseUtils.bytesToHex(keyPairB.getPrivate().getEncoded()));
-        // System.out.println("KeyPairB.publicKey=" +
-        // BaseUtils.bytesToHex(keyPairB.getPublic().getEncoded()));
 
         KeyAgreement keyAgreeB = null;
         try {
@@ -523,13 +510,8 @@ public class BaseTestHKDF extends BaseTestJunit5 {
             throw e;
         }
 
-        // Generate the key bytes
         byte[] sharedSecretA = keyAgreeA.generateSecret();
         byte[] sharedSecretB = keyAgreeB.generateSecret();
-        // System.out.println(methodName + " sharedSecretA = " +
-        // BaseUtils.bytesToHex(sharedSecretA));
-        // System.out.println(methodName + " sharedSecretB = " +
-        // BaseUtils.bytesToHex(sharedSecretB));
 
         assertTrue(Arrays.equals(sharedSecretA, sharedSecretB));
         return sharedSecretA;
