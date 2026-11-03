@@ -40,7 +40,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@Tag(Tags.OPENJCEPLUS_NAME)
 @Tag(Tags.OPENJCEPLUS_OCK_NAME)
 @Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
