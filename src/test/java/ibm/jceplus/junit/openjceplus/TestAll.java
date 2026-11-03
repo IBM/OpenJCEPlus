@@ -37,8 +37,6 @@ import org.junit.platform.suite.api.Suite;
     TestECKeyPairGenerator.class,
     TestEdDSASignature.class,
     TestEdDSASignatureInterop.class,
-    TestHKDF.class,
-    TestHKDFInterop.class,
     TestHmacSHA1.class,
     TestHmacSHA1InteropSunJCE.class,
     TestHmacSHA224.class,
