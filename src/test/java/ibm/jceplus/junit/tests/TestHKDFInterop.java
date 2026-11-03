@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import ibm.security.internal.spec.HKDFExpandParameterSpec;
 import ibm.security.internal.spec.HKDFExtractParameterSpec;
@@ -33,10 +33,28 @@ import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.generators.HKDFBytesGenerator;
 import org.bouncycastle.crypto.params.HKDFParameters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithBCInteropProvider")
+public class TestHKDFInterop extends BaseTestInterop {
+
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
+
     String HKDF_KA[][] = {
 
             {"SHA256", "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
@@ -112,6 +130,12 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
                     "2adccada18779e7c2077ad2eb19d3f3e731385dd", "2c91117204d745f3500d636a62f64f0a"
                             + "b3bae548aa53d423b0d1f27ebba6f5e5" + "673a081d70cce7acfc48",
                     "42"}, };
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
+    }
 
     @Test
     public void testJcePlustoBC() throws InvalidAlgorithmParameterException,
@@ -456,7 +480,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
 
         KeyPair keyPairA = kpgA.generateKeyPair();
 
-        // set up
         KeyAgreement keyAgreeA = null;
         try {
             keyAgreeA = KeyAgreement.getInstance("ECDH", providerA);
@@ -467,7 +490,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
             e.printStackTrace();
             throw e;
         }
-        // Two party agreement
         try {
             keyAgreeA.init(keyPairA.getPrivate());
         } catch (InvalidKeyException e) {
@@ -531,7 +553,6 @@ public class BaseTestHKDFInterop extends BaseTestJunit5Interop {
             throw e;
         }
 
-        // Generate the key bytes
         byte[] sharedSecretA = keyAgreeA.generateSecret();
         byte[] sharedSecretB = keyAgreeB.generateSecret();
 
