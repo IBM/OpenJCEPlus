@@ -116,13 +116,10 @@ public class TestDSAKey extends BaseTest {
     public void testDSAKeyGen_1024() throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()),
                 "DSA key generation is not available in FIPS mode.");
-        try {
-            KeyPair dsaKeyPair = generateKeyPair(1024);
-            dsaKeyPair.getPublic();
-            dsaKeyPair.getPrivate();
-        } catch (InvalidParameterException | InvalidKeyException ikex) {
-            assertTrue(false);
-        }
+        
+        KeyPair dsaKeyPair = generateKeyPair(1024);
+        dsaKeyPair.getPublic();
+        dsaKeyPair.getPrivate();
     }
 
     @Test
@@ -138,17 +135,11 @@ public class TestDSAKey extends BaseTest {
     public void testDSAKeyGenFromParams_1024() throws Exception {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()),
                 "DSA algorithm parameters are not available in FIPS mode.");
-        try {
-            AlgorithmParameters algParams = generateParameters(1024);
-            DSAParameterSpec dsaParameterSpec = algParams
-                    .getParameterSpec(DSAParameterSpec.class);
-            KeyPair dsaKeyPair = generateKeyPair(dsaParameterSpec);
-            dsaKeyPair.getPublic();
-            dsaKeyPair.getPrivate();
-        } catch (InvalidParameterException | InvalidKeyException ipex) {
-            assertTrue(false);
-        }
-
+        AlgorithmParameters algParams = generateParameters(1024);
+        DSAParameterSpec dsaParameterSpec = algParams.getParameterSpec(DSAParameterSpec.class);
+        KeyPair dsaKeyPair = generateKeyPair(dsaParameterSpec);
+        dsaKeyPair.getPublic();
+        dsaKeyPair.getPrivate();
     }
 
     @Test
