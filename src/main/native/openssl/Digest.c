@@ -405,7 +405,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_DIGEST_1re
     int        rc        = 0;
 
     if (NULL == mdCtx) {
-        throwOSSLException(env, 0, "DIGEST_size: The specified mdCtx is null");
+        throwOSSLException(env, 0, "DIGEST_reset: The specified mdCtx is null");
         return;
     }
 

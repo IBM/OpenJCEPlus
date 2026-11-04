@@ -9,8 +9,6 @@
 package com.ibm.crypto.plus.provider.openssl;
 
 import com.ibm.crypto.plus.provider.base.NativeException;
-import java.util.Hashtable;
-import java.util.Map;
 
 public class OpenSSLException extends NativeException {
 
@@ -19,36 +17,22 @@ public class OpenSSLException extends NativeException {
      */
     private static final long serialVersionUID = -3104732494450550831L;
 
-    /* These codes are overriding the ones specified in the superclass NativeException
-     * and must match those defined in native/openssl/ExceptionCodes.h.
-     */
-    public static final int GKR_DECRYPT_FINAL_BAD_PADDING_ERROR = 0x00000003;
-    public static final int GKR_UNSPECIFIED = 0x80000000;
-
-    private static final Map<Integer, String> errorCodeMap = new Hashtable<Integer, String>();
+    /** Generic error code set on all OpenSSLException instances. */
+    public static final int OPENSSL_UNSPECIFIED = 0x80000000;
 
     public OpenSSLException(String s) {
         super(s);
-        this.code = GKR_UNSPECIFIED;
+        this.code = OPENSSL_UNSPECIFIED;
     }
 
     public OpenSSLException(String s, Throwable cause) {
         super(s, cause);
-        this.code = GKR_UNSPECIFIED;
+        this.code = OPENSSL_UNSPECIFIED;
     }
-
 
     public OpenSSLException(int code) {
-        super(errorMessage(code));
+        super("0x" + Integer.toHexString(code));
         this.code = code;
-    }
-
-    private static String errorMessage(int code) {
-        String message = errorCodeMap.get(Integer.valueOf(code));
-        if (message == null) {
-            message = "0x" + Integer.toHexString(code);
-        }
-        return message;
     }
 
 }
