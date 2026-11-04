@@ -8,7 +8,6 @@
 
 package ibm.jceplus.junit.tests;
 
-import ibm.jceplus.junit.base.BaseUtils;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
