@@ -9,6 +9,7 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import java.lang.ref.Reference;
 import java.security.InvalidKeyException;
 import java.security.SignatureException;
 
@@ -51,8 +52,16 @@ public final class SignatureEdDSA {
         if (!validId(this.key.getPKeyId())) {
             throw new NativeException(badIdMsg);
         }
-        byte[] signature = this.nativeInterface.SIGNATUREEdDSA_signOneShot(
-                this.key.getPKeyId(), oneShotData);
+        byte[] signature = null;
+        try {
+            signature = this.nativeInterface.SIGNATUREEdDSA_signOneShot(
+                    this.key.getPKeyId(), oneShotData);
+        } finally {
+            // Fence on the inner AsymmetricKey. This ensures that GC does not prematurely
+            // cleanup the native key that is in use in the above SIGNATUREEdDSA_signOneShot method call.
+            Reference.reachabilityFence(this.key);
+        }
+
         return signature;
     }
 
@@ -69,8 +78,16 @@ public final class SignatureEdDSA {
         if (this.key.getPKeyId() == 0L) {
             throw new NativeException(badIdMsg);
         }
-        boolean verified = this.nativeInterface.SIGNATUREEdDSA_verifyOneShot(
-                this.key.getPKeyId(), sigBytes, dataBytes);
+
+        boolean verified = false;
+        try {
+            verified = this.nativeInterface.SIGNATUREEdDSA_verifyOneShot(
+                    this.key.getPKeyId(), sigBytes, dataBytes);
+        } finally {
+            // Fence on the inner AsymmetricKey. This ensures that GC does not prematurely
+            // cleanup the native key that is in use in the above SIGNATUREEdDSA_signOneShot method call.
+            Reference.reachabilityFence(this.key);
+        }
         return verified;
     }
 

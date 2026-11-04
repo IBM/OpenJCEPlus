@@ -11,6 +11,7 @@ package com.ibm.crypto.plus.provider.base;
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
 import com.ibm.crypto.plus.provider.SystemAccessUtils;
+import java.lang.ref.Reference;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.security.spec.ECParameterSpec;
@@ -390,10 +391,16 @@ public final class ECKey implements AsymmetricKey, OJPKey {
         NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "Signature", "NONEwithECDSA");
 
         byte[] signedBytes;
-        synchronized (ecPrivateKey) {
-            //OCKDebug.Msg (debPrefix, methodName,  "digestBytesLen :" + digestBytesLen +  " digestActualBytes :", digestActualBytes);
-            signedBytes = nativeInterface.ECKEY_signDatawithECDSA(digestActualBytes,
-                    digestBytesLen, ecPrivateKey.getEcKeyId());
+        try {
+            synchronized (ecPrivateKey) {
+                //OCKDebug.Msg (debPrefix, methodName,  "digestBytesLen :" + digestBytesLen +  " digestActualBytes :", digestActualBytes);
+                signedBytes = nativeInterface.ECKEY_signDatawithECDSA(digestActualBytes,
+                        digestBytesLen, ecPrivateKey.getEcKeyId());
+            }
+        } finally {
+            // Fence on the ECKey. This ensures that GC does not prematurely clean up
+            // the native key that is in use in the above ECKEY_signDatawithECDSA call.
+            Reference.reachabilityFence(ecPrivateKey);
         }
         //OCKDebug.Msg (debPrefix, methodName,  " signedBytes :" + signedBytes);
         return signedBytes;
@@ -438,10 +445,16 @@ public final class ECKey implements AsymmetricKey, OJPKey {
         //OCKDebug.Msg (debPrefix, methodName, " sigActualBytes : ", sigActualBytes);
         NativeInterface nativeInterface = NativeCryptoSelector.selectBackend(provider, "Signature", "NONEwithECDSA");
 
-        synchronized (ecPublicKey) {
-            verified = nativeInterface.ECKEY_verifyDatawithECDSA(
-                    digestActualBytes, digestBytesLen, sigActualBytes, sigBytesLen,
-                    ecPublicKey.getEcKeyId());
+        try {
+            synchronized (ecPublicKey) {
+                verified = nativeInterface.ECKEY_verifyDatawithECDSA(
+                        digestActualBytes, digestBytesLen, sigActualBytes, sigBytesLen,
+                        ecPublicKey.getEcKeyId());
+            }
+        } finally {
+            // Fence on the ECKey. This ensures that GC does not prematurely clean up
+            // the native key that is in use in the above ECKEY_verifyDatawithECDSA call.
+            Reference.reachabilityFence(ecPublicKey);
         }
         //OCKDebug.Msg (debPrefix, methodName,  verified);
         return verified;

@@ -10,6 +10,7 @@ package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
 import com.ibm.crypto.plus.provider.PrimitiveWrapper;
+import java.lang.ref.Reference;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
@@ -167,6 +168,10 @@ public final class SignatureRSAPSS {
             }
         } catch (NativeException e) {
             ret = 1;
+        } finally {
+            // Fence on the key wrapper. This ensures that GC does not prematurely cleanup
+            // the native key that is in use in the above RSAPSS_signInit/verifyInit call.
+            Reference.reachabilityFence(this.key);
         }
 
         return (this.rsaPssId.getValue() != 0 && ret == 0) ? 0 : 1;
@@ -192,12 +197,18 @@ public final class SignatureRSAPSS {
         this.initOp = initOp;
         this.convert = convert;
         if (rsaPssId.getValue() != 0) {
-            if (initOp == InitOp.INITSIGN) {
-                this.nativeInterface.RSAPSS_signInit(rsaPssId.getValue(),
-                        this.key.getPKeyId(), this.saltlen, convert);
-            } else {
-                this.nativeInterface.RSAPSS_verifyInit(rsaPssId.getValue(),
-                        this.key.getPKeyId(), this.saltlen);
+            try {
+                if (initOp == InitOp.INITSIGN) {
+                    this.nativeInterface.RSAPSS_signInit(rsaPssId.getValue(),
+                            this.key.getPKeyId(), this.saltlen, convert);
+                } else {
+                    this.nativeInterface.RSAPSS_verifyInit(rsaPssId.getValue(),
+                            this.key.getPKeyId(), this.saltlen);
+                }
+            } finally {
+                // Fence on the key wrapper. This ensures that GC does not prematurely cleanup
+                // the native key that is in use in the above RSAPSS_signInit/verifyInit call.
+                Reference.reachabilityFence(this.key);
             }
         } else {
             throw new NativeException("RSS-PSS context was not created correctly");
@@ -221,6 +232,10 @@ public final class SignatureRSAPSS {
                 // Try to reset if NativeException is thrown
                 this.nativeInterface.RSAPSS_resetDigest(this.rsaPssId.getValue());
                 throw e;
+            } finally {
+                // Fence on the key wrapper. The PSS context holds a native reference to the EVP_PKEY,
+                // so this.key must stay alive until RSAPSS_signFinal returns.
+                Reference.reachabilityFence(this.key);
             }
         } else {
             throw new NativeException("RSS-PSS context was not created correctly");
@@ -246,6 +261,10 @@ public final class SignatureRSAPSS {
                 // Try to reset if NativeException is thrown
                 this.nativeInterface.RSAPSS_resetDigest(this.rsaPssId.getValue());
                 throw e;
+            } finally {
+                // Fence on the key wrapper. The PSS context holds a native reference to the EVP_PKEY,
+                // so this.key must stay alive until RSAPSS_verifyFinal returns.
+                Reference.reachabilityFence(this.key);
             }
             return verified;
         } else {

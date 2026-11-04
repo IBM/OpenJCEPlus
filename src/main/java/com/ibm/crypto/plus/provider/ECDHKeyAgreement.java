@@ -10,6 +10,7 @@ package com.ibm.crypto.plus.provider;
 
 import com.ibm.crypto.plus.provider.base.ECKey;
 import com.ibm.crypto.plus.provider.base.NativeException;
+import java.lang.ref.Reference;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -216,8 +217,16 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi { // implements
             throw new IllegalStateException(e.getMessage());
         } catch (Exception e) {
             throw provider.providerException("Failed to generate secret", e);
+        } finally {
+            // Fence on the inner ECKeys AND the wrapper objects that hold them.
+            // Fencing only ockEcKeyPub/ockEcKeyPriv is not enough: if the ECPublicKey/ECPrivateKey
+            // wrappers become unreachable before the JNI call returns, the GC can collect them
+            // and fire the cleaner (ECKEY_delete) on the same native key still in use.
+            Reference.reachabilityFence(ockEcKeyPub);
+            Reference.reachabilityFence(ockEcKeyPriv);
+            Reference.reachabilityFence(ecPublicKey);
+            Reference.reachabilityFence(ecPrivateKey);
         }
-        // );
 
         return secret;
 
