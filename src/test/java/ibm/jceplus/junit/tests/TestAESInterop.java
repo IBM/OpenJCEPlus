@@ -51,150 +51,146 @@ public class TestAESInterop extends BaseTestInterop {
     @Parameter(1)
     TestProvider interopProvider;
 
-    static final byte[] plainText14 = "12345678123456".getBytes();
-    static final byte[] plainText16 = "1234567812345678".getBytes();
-    static final byte[] plainText18 = "123456781234567812".getBytes();
-    static final byte[] plainText63 = "123456781234567812345678123456781234567812345678123456781234567"
+    private static final byte[] plainText14 = "12345678123456".getBytes();
+    private static final byte[] plainText16 = "1234567812345678".getBytes();
+    private static final byte[] plainText18 = "123456781234567812".getBytes();
+    private static final byte[] plainText63 = "123456781234567812345678123456781234567812345678123456781234567"
             .getBytes();
-    static final byte[] plainText128 = "12345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678"
+    private static final byte[] plainText128 = "12345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678"
             .getBytes();
 
-    Random r = new Random(5);
-    static int iteration = 0;
-    static final byte[] plainText512 = new byte[512];
-    static final byte[] plainText65536 = new byte[65536];
-    static final byte[] plainText524288 = new byte[524288];
-    static final byte[] plainText1048576 = new byte[1048576];
-    static final byte[] plainText16KB = new byte[16384];
-    static final byte[] plainText = plainText128;
+    private static final byte[] plainText512 = new byte[512];
+    private static final byte[] plainText65536 = new byte[65536];
+    private static final byte[] plainText524288 = new byte[524288];
+    private static final byte[] plainText1048576 = new byte[1048576];
+    private static final byte[] plainText16KB = new byte[16384];
+    private static final byte[] plainText = plainText128;
 
-    protected SecretKey key;
-    protected AlgorithmParameters params = null;
-    protected Cipher cpA = null;
-    protected Cipher cpB = null;
+    private static final SecretKey key128;
+    private static final SecretKey key192;
+    private static final SecretKey key256;
+    private static final SecretKey[] allKeys;
 
-    @BeforeEach
-    public void setUp() throws Exception {
-        setAndInsertProvider(provider);
-        setAndInsertInteropProvider(interopProvider);
+    static {
+        Random r = new Random(5);
         r.nextBytes(plainText512);
         r.nextBytes(plainText65536);
         r.nextBytes(plainText524288);
         r.nextBytes(plainText1048576);
         r.nextBytes(plainText16KB);
-        setKeyForSize(128);
+
+        byte[] k128 = new byte[16];
+        byte[] k192 = new byte[24];
+        byte[] k256 = new byte[32];
+        r.nextBytes(k128);
+        r.nextBytes(k192);
+        r.nextBytes(k256);
+        key128 = new SecretKeySpec(k128, "AES");
+        key192 = new SecretKeySpec(k192, "AES");
+        key256 = new SecretKeySpec(k256, "AES");
+        allKeys = new SecretKey[]{key128, key192, key256};
     }
 
-    protected void setKeyForSize(int keySize) {
-        byte[] keyBytes = new byte[keySize / 8];
-        r.nextBytes(keyBytes);
-        key = new SecretKeySpec(keyBytes, "AES");
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
     }
 
     @Test
     public void testAES() throws Exception {
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
-            encryptDecrypt("AES", getProviderName(), getInteropProviderName());
-            encryptDecrypt("AES", getInteropProviderName(), getProviderName());
+        for (SecretKey k : allKeys) {
+            encryptDecrypt("AES", k, getProviderName(), getInteropProviderName());
+            encryptDecrypt("AES", k, getInteropProviderName(), getProviderName());
         }
     }
 
     @Test
     public void testAES_CBC_NoPadding() throws Exception {
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
-            encryptDecrypt("AES/CBC/NoPadding", true, false, getProviderName(), getInteropProviderName());
-            encryptDecrypt("AES/CBC/NoPadding", true, false, getInteropProviderName(), getProviderName());
+        for (SecretKey k : allKeys) {
+            encryptDecrypt("AES/CBC/NoPadding", k, true, false, getProviderName(), getInteropProviderName());
+            encryptDecrypt("AES/CBC/NoPadding", k, true, false, getInteropProviderName(), getProviderName());
         }
     }
 
     @Test
     public void testAES_CBC_PKCS5Padding() throws Exception {
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
-            encryptDecrypt("AES/CBC/PKCS5Padding", getProviderName(), getInteropProviderName());
-            encryptDecrypt("AES/CBC/PKCS5Padding", getInteropProviderName(), getProviderName());
+        for (SecretKey k : allKeys) {
+            encryptDecrypt("AES/CBC/PKCS5Padding", k, getProviderName(), getInteropProviderName());
+            encryptDecrypt("AES/CBC/PKCS5Padding", k, getInteropProviderName(), getProviderName());
         }
     }
 
     @Test
     public void testAES_CFB8_NoPadding() throws Exception {
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
-            encryptDecrypt("AES/CFB8/NoPadding", getProviderName(), getInteropProviderName());
-            encryptDecrypt("AES/CFB8/NoPadding", getInteropProviderName(), getProviderName());
+        for (SecretKey k : allKeys) {
+            encryptDecrypt("AES/CFB8/NoPadding", k, getProviderName(), getInteropProviderName());
+            encryptDecrypt("AES/CFB8/NoPadding", k, getInteropProviderName(), getProviderName());
         }
     }
 
     @Test
     public void testAES_CFB_NoPadding() throws Exception {
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
-            encryptDecrypt("AES/CFB/NoPadding", getProviderName(), getInteropProviderName());
-            encryptDecrypt("AES/CFB/NoPadding", getInteropProviderName(), getProviderName());
+        for (SecretKey k : allKeys) {
+            encryptDecrypt("AES/CFB/NoPadding", k, getProviderName(), getInteropProviderName());
+            encryptDecrypt("AES/CFB/NoPadding", k, getInteropProviderName(), getProviderName());
         }
     }
 
     @Test
     public void testAES_CFB128_NoPadding() throws Exception {
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
-            encryptDecrypt("AES/CFB128/NoPadding", getProviderName(), getInteropProviderName());
-            encryptDecrypt("AES/CFB128/NoPadding", getInteropProviderName(), getProviderName());
+        for (SecretKey k : allKeys) {
+            encryptDecrypt("AES/CFB128/NoPadding", k, getProviderName(), getInteropProviderName());
+            encryptDecrypt("AES/CFB128/NoPadding", k, getInteropProviderName(), getProviderName());
         }
     }
 
     @Test
     public void testAES_CTR_NoPadding() throws Exception {
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
-            encryptDecrypt("AES/CTR/NoPadding", getProviderName(), getInteropProviderName());
-            encryptDecrypt("AES/CTR/NoPadding", getInteropProviderName(), getProviderName());
+        for (SecretKey k : allKeys) {
+            encryptDecrypt("AES/CTR/NoPadding", k, getProviderName(), getInteropProviderName());
+            encryptDecrypt("AES/CTR/NoPadding", k, getInteropProviderName(), getProviderName());
         }
     }
 
     @Test
     public void testAES_ECB_NoPadding() throws Exception {
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
-            encryptDecrypt("AES/ECB/NoPadding", true, false, getProviderName(), getInteropProviderName());
-            encryptDecrypt("AES/ECB/NoPadding", true, false, getInteropProviderName(), getProviderName());
+        for (SecretKey k : allKeys) {
+            encryptDecrypt("AES/ECB/NoPadding", k, true, false, getProviderName(), getInteropProviderName());
+            encryptDecrypt("AES/ECB/NoPadding", k, true, false, getInteropProviderName(), getProviderName());
         }
     }
 
     @Test
     public void testAES_ECB_PKCS5Padding() throws Exception {
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
-            encryptDecrypt("AES/ECB/PKCS5Padding", getProviderName(), getInteropProviderName());
-            encryptDecrypt("AES/ECB/PKCS5Padding", getInteropProviderName(), getProviderName());
+        for (SecretKey k : allKeys) {
+            encryptDecrypt("AES/ECB/PKCS5Padding", k, getProviderName(), getInteropProviderName());
+            encryptDecrypt("AES/ECB/PKCS5Padding", k, getInteropProviderName(), getProviderName());
         }
     }
 
     @Test
     public void testAES_OFB_NoPadding() throws Exception {
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
-            encryptDecrypt("AES/OFB/NoPadding", getProviderName(), getInteropProviderName());
-            encryptDecrypt("AES/OFB/NoPadding", getInteropProviderName(), getProviderName());
+        for (SecretKey k : allKeys) {
+            encryptDecrypt("AES/OFB/NoPadding", k, getProviderName(), getInteropProviderName());
+            encryptDecrypt("AES/OFB/NoPadding", k, getInteropProviderName(), getProviderName());
         }
     }
 
     @Test
     public void testAESShortBuffer() throws Exception {
-        String msg = doTestAESShortBuffer("AES", getProviderName());
-        String interopMsg = doTestAESShortBuffer("AES", getInteropProviderName());
+        String msg = doTestAESShortBuffer("AES", key128, getProviderName());
+        String interopMsg = doTestAESShortBuffer("AES", key128, getInteropProviderName());
         assertEquals(msg, interopMsg);
     }
 
-    private String doTestAESShortBuffer(String algorithm, String providerA) throws Exception {
+    private String doTestAESShortBuffer(String algorithm, SecretKey k, String providerA) throws Exception {
         String msg = null;
         try {
-            cpA = Cipher.getInstance(algorithm, providerA);
-            cpA.init(Cipher.ENCRYPT_MODE, key);
+            Cipher cp = Cipher.getInstance(algorithm, providerA);
+            cp.init(Cipher.ENCRYPT_MODE, k);
             byte[] cipherText = new byte[5];
-            cpA.doFinal(plainText, 0, plainText.length, cipherText);
+            cp.doFinal(plainText, 0, plainText.length, cipherText);
             fail("Expected ShortBufferException did not occur for provider: " + providerA);
         } catch (ShortBufferException ex) {
             msg = ex.getMessage();
@@ -204,18 +200,18 @@ public class TestAESInterop extends BaseTestInterop {
 
     @Test
     public void testAESIllegalBlockSizeEncrypt() throws Exception {
-        doTestAESIllegalBlockSizeEncrypt("AES/CBC/NoPadding", getProviderName());
-        doTestAESIllegalBlockSizeEncrypt("AES/CBC/NoPadding", getInteropProviderName());
+        doTestAESIllegalBlockSizeEncrypt("AES/CBC/NoPadding", key128, getProviderName());
+        doTestAESIllegalBlockSizeEncrypt("AES/CBC/NoPadding", key128, getInteropProviderName());
     }
 
-    private void doTestAESIllegalBlockSizeEncrypt(String algorithm, String providerA)
+    private void doTestAESIllegalBlockSizeEncrypt(String algorithm, SecretKey k, String providerA)
             throws Exception {
         try {
-            cpA = Cipher.getInstance(algorithm, providerA);
-            int blockSize = cpA.getBlockSize();
+            Cipher cp = Cipher.getInstance(algorithm, providerA);
+            int blockSize = cp.getBlockSize();
             byte[] message = new byte[blockSize - 1];
-            cpA.init(Cipher.ENCRYPT_MODE, key);
-            cpA.doFinal(message);
+            cp.init(Cipher.ENCRYPT_MODE, k);
+            cp.doFinal(message);
             fail("Expected IllegalBlockSizeException did not occur");
         } catch (IllegalBlockSizeException ex) {
             assertTrue(true);
@@ -224,19 +220,19 @@ public class TestAESInterop extends BaseTestInterop {
 
     @Test
     public void testAESIllegalBlockSizeDecrypt() throws Exception {
-        doTestAESIllegalBlockSizeDecrypt("AES/CBC/PKCS5Padding", getProviderName());
-        doTestAESIllegalBlockSizeDecrypt("AES/CBC/PKCS5Padding", getInteropProviderName());
+        doTestAESIllegalBlockSizeDecrypt("AES/CBC/PKCS5Padding", key128, getProviderName());
+        doTestAESIllegalBlockSizeDecrypt("AES/CBC/PKCS5Padding", key128, getInteropProviderName());
     }
 
-    private void doTestAESIllegalBlockSizeDecrypt(String algorithm, String providerA)
+    private void doTestAESIllegalBlockSizeDecrypt(String algorithm, SecretKey k, String providerA)
             throws Exception {
         try {
-            cpA = Cipher.getInstance(algorithm, providerA);
-            cpA.init(Cipher.ENCRYPT_MODE, key);
-            byte[] cipherText = cpA.doFinal(plainText);
-            params = cpA.getParameters();
-            cpA.init(Cipher.DECRYPT_MODE, key, params);
-            cpA.doFinal(cipherText, 0, cipherText.length - 1);
+            Cipher cp = Cipher.getInstance(algorithm, providerA);
+            cp.init(Cipher.ENCRYPT_MODE, k);
+            byte[] cipherText = cp.doFinal(plainText);
+            AlgorithmParameters ap = cp.getParameters();
+            cp.init(Cipher.DECRYPT_MODE, k, ap);
+            cp.doFinal(cipherText, 0, cipherText.length - 1);
             fail("Expected IllegalBlockSizeException did not occur");
         } catch (IllegalBlockSizeException ex) {
             assertTrue(true);
@@ -246,22 +242,22 @@ public class TestAESInterop extends BaseTestInterop {
     @Test
     public void testAESBadPaddingDecrypt() throws NoSuchAlgorithmException, NoSuchProviderException,
             NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
-        doTestAESBadPaddingDecrypt("AES/CBC/PKCS5Padding", getProviderName(), getInteropProviderName());
-        doTestAESBadPaddingDecrypt("AES/CBC/PKCS5Padding", getInteropProviderName(), getProviderName());
+        doTestAESBadPaddingDecrypt("AES/CBC/PKCS5Padding", key128, getProviderName(), getInteropProviderName());
+        doTestAESBadPaddingDecrypt("AES/CBC/PKCS5Padding", key128, getInteropProviderName(), getProviderName());
     }
 
-    private void doTestAESBadPaddingDecrypt(String algorithm, String providerA, String providerB)
+    private void doTestAESBadPaddingDecrypt(String algorithm, SecretKey k, String providerA, String providerB)
             throws NoSuchAlgorithmException, NoSuchProviderException, NoSuchPaddingException,
             InvalidKeyException, InvalidAlgorithmParameterException {
         try {
-            cpA = Cipher.getInstance(algorithm, providerA);
-            cpA.init(Cipher.ENCRYPT_MODE, key);
+            Cipher cpA = Cipher.getInstance(algorithm, providerA);
+            cpA.init(Cipher.ENCRYPT_MODE, k);
             byte[] cipherText = cpA.doFinal(plainText);
-            params = cpA.getParameters();
+            AlgorithmParameters ap = cpA.getParameters();
             cipherText[cipherText.length - 1]++;
 
-            cpB = Cipher.getInstance(algorithm, providerB);
-            cpB.init(Cipher.DECRYPT_MODE, key, params);
+            Cipher cpB = Cipher.getInstance(algorithm, providerB);
+            cpB.init(Cipher.DECRYPT_MODE, k, ap);
             byte[] newPlainText = cpB.doFinal(cipherText, 0, cipherText.length);
             if (Arrays.equals(plainText, newPlainText)) {
                 fail("Expected failure did not occur");
@@ -280,21 +276,20 @@ public class TestAESInterop extends BaseTestInterop {
         byte[] multipleFullBlocks = "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF".getBytes();
         String[] algorithms = {"AES/CFB8/NoPadding", "AES/CBC/PKCS5Padding", "AES/CBC/NoPadding"};
 
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
+        for (SecretKey k : allKeys) {
             for (String algorithm : algorithms) {
-                doTestAESOnlyFinal(algorithm, fullBlock, getProviderName(), getInteropProviderName());
-                doTestAESOnlyFinal(algorithm, incompleteBlock, getProviderName(), getInteropProviderName());
-                doTestAESOnlyFinal(algorithm, multipleFullBlocks, getProviderName(), getInteropProviderName());
+                doTestAESOnlyFinal(algorithm, k, fullBlock, getProviderName(), getInteropProviderName());
+                doTestAESOnlyFinal(algorithm, k, incompleteBlock, getProviderName(), getInteropProviderName());
+                doTestAESOnlyFinal(algorithm, k, multipleFullBlocks, getProviderName(), getInteropProviderName());
 
-                doTestAESOnlyFinal(algorithm, fullBlock, getInteropProviderName(), getProviderName());
-                doTestAESOnlyFinal(algorithm, incompleteBlock, getInteropProviderName(), getProviderName());
-                doTestAESOnlyFinal(algorithm, multipleFullBlocks, getInteropProviderName(), getProviderName());
+                doTestAESOnlyFinal(algorithm, k, fullBlock, getInteropProviderName(), getProviderName());
+                doTestAESOnlyFinal(algorithm, k, incompleteBlock, getInteropProviderName(), getProviderName());
+                doTestAESOnlyFinal(algorithm, k, multipleFullBlocks, getInteropProviderName(), getProviderName());
             }
         }
     }
 
-    private void doTestAESOnlyFinal(String algorithm, byte[] msg, String providerA,
+    private void doTestAESOnlyFinal(String algorithm, SecretKey k, byte[] msg, String providerA,
             String providerB) throws NoSuchAlgorithmException, NoSuchProviderException,
             NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
         int expectedEncryptedFinalLength;
@@ -305,18 +300,18 @@ public class TestAESInterop extends BaseTestInterop {
         }
 
         try {
-            cpA = Cipher.getInstance(algorithm, providerA);
-            cpA.init(Cipher.ENCRYPT_MODE, key);
+            Cipher cpA = Cipher.getInstance(algorithm, providerA);
+            cpA.init(Cipher.ENCRYPT_MODE, k);
             byte[] cipherText = cpA.doFinal(msg);
             if (cipherText.length != expectedEncryptedFinalLength) {
                 fail("Failure: algorithm " + algorithm + " encrypted text length = "
                         + cipherText.length + " Expected encryption length="
                         + expectedEncryptedFinalLength);
             }
-            params = cpA.getParameters();
+            AlgorithmParameters ap = cpA.getParameters();
 
-            cpB = Cipher.getInstance(algorithm, providerB);
-            cpB.init(Cipher.DECRYPT_MODE, key, params);
+            Cipher cpB = Cipher.getInstance(algorithm, providerB);
+            cpB.init(Cipher.DECRYPT_MODE, k, ap);
             byte[] newPlainText = cpB.doFinal(cipherText, 0, cipherText.length);
             assertTrue(Arrays.equals(msg, newPlainText),
                     "Failure: algorithm " + algorithm + " decrypted plaintext does not match original");
@@ -338,28 +333,27 @@ public class TestAESInterop extends BaseTestInterop {
         byte[] multipleFullBlocks = "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF".getBytes();
         String[] algorithms = {"AES/CFB8/NoPadding", "AES/CBC/PKCS5Padding", "AES/CBC/NoPadding"};
 
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
+        for (SecretKey k : allKeys) {
             for (String algorithm : algorithms) {
-                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, fullBlock,
+                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, k, fullBlock,
                         getProviderName(), getInteropProviderName());
-                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, incompleteBlock,
+                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, k, incompleteBlock,
                         getProviderName(), getInteropProviderName());
-                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, multipleFullBlocks,
+                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, k, multipleFullBlocks,
                         getProviderName(), getInteropProviderName());
 
-                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, fullBlock,
+                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, k, fullBlock,
                         getInteropProviderName(), getProviderName());
-                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, incompleteBlock,
+                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, k, incompleteBlock,
                         getInteropProviderName(), getProviderName());
-                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, multipleFullBlocks,
+                doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithm, k, multipleFullBlocks,
                         getInteropProviderName(), getProviderName());
             }
         }
     }
 
     private void doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(String algorithm,
-            byte[] msg, String providerA, String providerB)
+            SecretKey k, byte[] msg, String providerA, String providerB)
             throws NoSuchAlgorithmException, NoSuchProviderException, NoSuchPaddingException,
             InvalidKeyException, InvalidAlgorithmParameterException {
         int expectedEncryptedFinalLength;
@@ -370,12 +364,12 @@ public class TestAESInterop extends BaseTestInterop {
         }
 
         try {
-            cpA = Cipher.getInstance(algorithm, providerA);
-            cpA.init(Cipher.ENCRYPT_MODE, key);
+            Cipher cpA = Cipher.getInstance(algorithm, providerA);
+            cpA.init(Cipher.ENCRYPT_MODE, k);
             byte[] cipherTextFromUpdate = cpA.update(msg);
             byte[] cipherTextFromFinal = cpA.doFinal();
 
-            params = cpA.getParameters();
+            AlgorithmParameters ap = cpA.getParameters();
             int updateLen = (cipherTextFromUpdate != null) ? cipherTextFromUpdate.length : 0;
             int finalLen = (cipherTextFromFinal != null) ? cipherTextFromFinal.length : 0;
             byte[] cipherText = new byte[updateLen + finalLen];
@@ -391,8 +385,8 @@ public class TestAESInterop extends BaseTestInterop {
                         + expectedEncryptedFinalLength);
             }
 
-            cpB = Cipher.getInstance(algorithm, providerB);
-            cpB.init(Cipher.DECRYPT_MODE, key, params);
+            Cipher cpB = Cipher.getInstance(algorithm, providerB);
+            cpB.init(Cipher.DECRYPT_MODE, k, ap);
             byte[] newPlainText = cpB.doFinal(cipherText, 0, cipherText.length);
             assertTrue(Arrays.equals(msg, newPlainText),
                     "Failure: algorithm " + algorithm + " decrypted plaintext does not match original");
@@ -414,27 +408,26 @@ public class TestAESInterop extends BaseTestInterop {
         byte[] multipleFullBlocks = "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF".getBytes();
         String[] algorithms = {"AES/CFB8/NoPadding", "AES/CBC/PKCS5Padding", "AES/CBC/NoPadding"};
 
-        for (int ks : new int[]{128, 192, 256}) {
-            setKeyForSize(ks);
+        for (SecretKey k : allKeys) {
             for (String algorithm : algorithms) {
-                doTestAESWithUpdateEncryptionAndDecryption(algorithm, fullBlock, getProviderName(),
+                doTestAESWithUpdateEncryptionAndDecryption(algorithm, k, fullBlock, getProviderName(),
                         getInteropProviderName());
-                doTestAESWithUpdateEncryptionAndDecryption(algorithm, incompleteBlock, getProviderName(),
+                doTestAESWithUpdateEncryptionAndDecryption(algorithm, k, incompleteBlock, getProviderName(),
                         getInteropProviderName());
-                doTestAESWithUpdateEncryptionAndDecryption(algorithm, multipleFullBlocks,
+                doTestAESWithUpdateEncryptionAndDecryption(algorithm, k, multipleFullBlocks,
                         getProviderName(), getInteropProviderName());
 
-                doTestAESWithUpdateEncryptionAndDecryption(algorithm, fullBlock, getInteropProviderName(),
+                doTestAESWithUpdateEncryptionAndDecryption(algorithm, k, fullBlock, getInteropProviderName(),
                         getProviderName());
-                doTestAESWithUpdateEncryptionAndDecryption(algorithm, incompleteBlock, getInteropProviderName(),
+                doTestAESWithUpdateEncryptionAndDecryption(algorithm, k, incompleteBlock, getInteropProviderName(),
                         getProviderName());
-                doTestAESWithUpdateEncryptionAndDecryption(algorithm, multipleFullBlocks,
+                doTestAESWithUpdateEncryptionAndDecryption(algorithm, k, multipleFullBlocks,
                         getInteropProviderName(), getProviderName());
             }
         }
     }
 
-    private void doTestAESWithUpdateEncryptionAndDecryption(String algorithm, byte[] msg,
+    private void doTestAESWithUpdateEncryptionAndDecryption(String algorithm, SecretKey k, byte[] msg,
             String providerA, String providerB)
             throws NoSuchAlgorithmException, NoSuchProviderException, NoSuchPaddingException,
             InvalidKeyException, InvalidAlgorithmParameterException, ShortBufferException {
@@ -447,11 +440,11 @@ public class TestAESInterop extends BaseTestInterop {
 
         byte[] cipherText = new byte[expectedEncryptedFinalLength];
         try {
-            cpA = Cipher.getInstance(algorithm, providerA);
+            Cipher cpA = Cipher.getInstance(algorithm, providerA);
             byte[] cipherFromDoFinal = null;
             int actualEncryptedLength = 0;
 
-            cpA.init(Cipher.ENCRYPT_MODE, key);
+            cpA.init(Cipher.ENCRYPT_MODE, k);
             int firstChunk = Math.min(16, msg.length);
             byte[] cipherFrom1stUpdate = cpA.update(msg, 0, firstChunk);
             int firstUpdateLen = (cipherFrom1stUpdate != null) ? cipherFrom1stUpdate.length : 0;
@@ -486,9 +479,9 @@ public class TestAESInterop extends BaseTestInterop {
                         + expectedEncryptedFinalLength);
             }
 
-            params = cpA.getParameters();
-            cpB = Cipher.getInstance(algorithm, providerB);
-            cpB.init(Cipher.DECRYPT_MODE, key, params);
+            AlgorithmParameters ap = cpA.getParameters();
+            Cipher cpB = Cipher.getInstance(algorithm, providerB);
+            cpB.init(Cipher.DECRYPT_MODE, k, ap);
             byte[] newPlainText = cpB.doFinal(cipherText, 0, actualEncryptedLength);
             assertTrue(Arrays.equals(msg, newPlainText),
                     "Failure: algorithm " + algorithm + " decrypted plaintext did not match original");
@@ -503,80 +496,80 @@ public class TestAESInterop extends BaseTestInterop {
         }
     }
 
-    protected void encryptDecrypt(String algorithm, String providerA, String providerB)
+    protected void encryptDecrypt(String algorithm, SecretKey k, String providerA, String providerB)
             throws Exception {
-        encryptDecrypt(algorithm, false, false, providerA, providerB);
+        encryptDecrypt(algorithm, k, false, false, providerA, providerB);
     }
 
-    protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
+    protected void encryptDecrypt(String algorithm, SecretKey k, boolean requireLengthMultipleBlockSize,
             boolean testFinalizeOnly, String providerA, String providerB) throws Exception {
-        encryptDecrypt(algorithm, requireLengthMultipleBlockSize, null, testFinalizeOnly, providerA,
+        encryptDecrypt(algorithm, k, requireLengthMultipleBlockSize, null, testFinalizeOnly, providerA,
                 providerB);
     }
 
-    protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
+    protected void encryptDecrypt(String algorithm, SecretKey k, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, boolean testFinalizeOnly, String providerA,
             String providerB) throws Exception {
         Cipher cA = Cipher.getInstance(algorithm, providerA);
         Cipher cB = Cipher.getInstance(algorithm, providerB);
-        encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText14,
+        encryptDecrypt(algorithm, k, requireLengthMultipleBlockSize, algParams, plainText14,
                 testFinalizeOnly, cA, cB);
-        encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText16,
+        encryptDecrypt(algorithm, k, requireLengthMultipleBlockSize, algParams, plainText16,
                 testFinalizeOnly, cA, cB);
-        encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText18,
+        encryptDecrypt(algorithm, k, requireLengthMultipleBlockSize, algParams, plainText18,
                 testFinalizeOnly, cA, cB);
-        encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText63,
+        encryptDecrypt(algorithm, k, requireLengthMultipleBlockSize, algParams, plainText63,
                 testFinalizeOnly, cA, cB);
-        encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText128,
+        encryptDecrypt(algorithm, k, requireLengthMultipleBlockSize, algParams, plainText128,
                 testFinalizeOnly, cA, cB);
-        encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText512,
+        encryptDecrypt(algorithm, k, requireLengthMultipleBlockSize, algParams, plainText512,
                 testFinalizeOnly, cA, cB);
-        for (iteration = 32; iteration <= 16384; iteration += 32) {
-            byte[] slice = Arrays.copyOfRange(plainText16KB, 0, iteration);
-            encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, slice,
+        for (int iter = 32; iter <= 16384; iter += 32) {
+            byte[] slice = Arrays.copyOfRange(plainText16KB, 0, iter);
+            encryptDecrypt(algorithm, k, requireLengthMultipleBlockSize, algParams, slice,
                     testFinalizeOnly, cA, cB);
         }
-        encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText65536,
+        encryptDecrypt(algorithm, k, requireLengthMultipleBlockSize, algParams, plainText65536,
                 testFinalizeOnly, cA, cB);
-        encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText524288,
+        encryptDecrypt(algorithm, k, requireLengthMultipleBlockSize, algParams, plainText524288,
                 testFinalizeOnly, cA, cB);
-        encryptDecrypt(algorithm, requireLengthMultipleBlockSize, algParams, plainText1048576,
+        encryptDecrypt(algorithm, k, requireLengthMultipleBlockSize, algParams, plainText1048576,
                 testFinalizeOnly, cA, cB);
     }
 
-    protected void encryptDecrypt(String algorithm, boolean requireLengthMultipleBlockSize,
+    protected void encryptDecrypt(String algorithm, SecretKey k, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message, boolean testFinalizeOnly,
             Cipher cA, Cipher cB) throws Exception {
         if (testFinalizeOnly) {
-            encryptDecryptDoFinal(algorithm, requireLengthMultipleBlockSize, algParams, message,
+            encryptDecryptDoFinal(algorithm, k, requireLengthMultipleBlockSize, algParams, message,
                     cA, cB);
-            encryptDecryptReuseObject(algorithm, requireLengthMultipleBlockSize, algParams, message,
+            encryptDecryptReuseObject(algorithm, k, requireLengthMultipleBlockSize, algParams, message,
                     cA, cB);
-            encryptDecryptDoFinalCopySafe(algorithm, requireLengthMultipleBlockSize, algParams,
+            encryptDecryptDoFinalCopySafe(algorithm, k, requireLengthMultipleBlockSize, algParams,
                     message, cA, cB);
         } else {
-            encryptDecryptDoFinal(algorithm, requireLengthMultipleBlockSize, algParams, message,
+            encryptDecryptDoFinal(algorithm, k, requireLengthMultipleBlockSize, algParams, message,
                     cA, cB);
-            encryptDecryptUpdate(algorithm, requireLengthMultipleBlockSize, algParams, message,
+            encryptDecryptUpdate(algorithm, k, requireLengthMultipleBlockSize, algParams, message,
                     cA, cB);
-            encryptDecryptPartialUpdate(algorithm, requireLengthMultipleBlockSize, algParams,
+            encryptDecryptPartialUpdate(algorithm, k, requireLengthMultipleBlockSize, algParams,
                     message, cA, cB);
-            encryptDecryptReuseObject(algorithm, requireLengthMultipleBlockSize, algParams, message,
+            encryptDecryptReuseObject(algorithm, k, requireLengthMultipleBlockSize, algParams, message,
                     cA, cB);
-            encryptDecryptDoFinalCopySafe(algorithm, requireLengthMultipleBlockSize, algParams,
+            encryptDecryptDoFinalCopySafe(algorithm, k, requireLengthMultipleBlockSize, algParams,
                     message, cA, cB);
-            encryptDecryptUpdateCopySafe(algorithm, requireLengthMultipleBlockSize, algParams,
+            encryptDecryptUpdateCopySafe(algorithm, k, requireLengthMultipleBlockSize, algParams,
                     message, cA, cB);
         }
     }
 
-    protected void encryptDecryptDoFinal(String algorithm, boolean requireLengthMultipleBlockSize,
+    protected void encryptDecryptDoFinal(String algorithm, SecretKey k, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message, Cipher cA, Cipher cB)
             throws Exception {
         if (algParams == null) {
-            cA.init(Cipher.ENCRYPT_MODE, key);
+            cA.init(Cipher.ENCRYPT_MODE, k);
         } else {
-            cA.init(Cipher.ENCRYPT_MODE, key, algParams);
+            cA.init(Cipher.ENCRYPT_MODE, k, algParams);
         }
         int blockSize = cA.getBlockSize();
         try {
@@ -589,13 +582,13 @@ public class TestAESInterop extends BaseTestInterop {
                                 + ", msglen=" + message.length);
             }
 
-            cB.init(Cipher.DECRYPT_MODE, key, ap);
+            cB.init(Cipher.DECRYPT_MODE, k, ap);
             byte[] newPlainText = cB.doFinal(cipherText);
 
             boolean success = Arrays.equals(newPlainText, message);
             assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
 
-            cB.init(Cipher.DECRYPT_MODE, key, ap);
+            cB.init(Cipher.DECRYPT_MODE, k, ap);
             byte[] newPlainText2 = cB.doFinal(cipherText, 0, cipherText.length);
             success = Arrays.equals(newPlainText2, message);
             assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
@@ -606,13 +599,13 @@ public class TestAESInterop extends BaseTestInterop {
         }
     }
 
-    protected void encryptDecryptUpdate(String algorithm, boolean requireLengthMultipleBlockSize,
+    protected void encryptDecryptUpdate(String algorithm, SecretKey k, boolean requireLengthMultipleBlockSize,
             AlgorithmParameters algParams, byte[] message, Cipher cA, Cipher cB)
             throws Exception {
         if (algParams == null) {
-            cA.init(Cipher.ENCRYPT_MODE, key);
+            cA.init(Cipher.ENCRYPT_MODE, k);
         } else {
-            cA.init(Cipher.ENCRYPT_MODE, key, algParams);
+            cA.init(Cipher.ENCRYPT_MODE, k, algParams);
         }
         int blockSize = cA.getBlockSize();
         try {
@@ -626,7 +619,7 @@ public class TestAESInterop extends BaseTestInterop {
                                 + ", msglen=" + message.length);
             }
 
-            cB.init(Cipher.DECRYPT_MODE, key, ap);
+            cB.init(Cipher.DECRYPT_MODE, k, ap);
             byte[] newPlainText1 = (cipherText1 == null) ? new byte[0] : cB.update(cipherText1);
             byte[] newPlainText2 = cB.doFinal(cipherText2);
 
@@ -650,13 +643,13 @@ public class TestAESInterop extends BaseTestInterop {
         }
     }
 
-    protected void encryptDecryptPartialUpdate(String algorithm,
+    protected void encryptDecryptPartialUpdate(String algorithm, SecretKey k,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message,
             Cipher cA, Cipher cB) throws Exception {
         if (algParams == null) {
-            cA.init(Cipher.ENCRYPT_MODE, key);
+            cA.init(Cipher.ENCRYPT_MODE, k);
         } else {
-            cA.init(Cipher.ENCRYPT_MODE, key, algParams);
+            cA.init(Cipher.ENCRYPT_MODE, k, algParams);
         }
         int blockSize = cA.getBlockSize();
         int partialLen = message.length > 10 ? 10 : 1;
@@ -671,7 +664,7 @@ public class TestAESInterop extends BaseTestInterop {
                                 + ", msglen=" + message.length);
             }
 
-            cB.init(Cipher.DECRYPT_MODE, key, ap);
+            cB.init(Cipher.DECRYPT_MODE, k, ap);
             byte[] newPlainText1 = (cipherText1 == null) ? new byte[0] : cB.update(cipherText1);
             byte[] newPlainText2 = cB.doFinal(cipherText2);
 
@@ -695,13 +688,13 @@ public class TestAESInterop extends BaseTestInterop {
         }
     }
 
-    protected void encryptDecryptReuseObject(String algorithm,
+    protected void encryptDecryptReuseObject(String algorithm, SecretKey k,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message,
             Cipher cA, Cipher cB) throws Exception {
         if (algParams == null) {
-            cA.init(Cipher.ENCRYPT_MODE, key);
+            cA.init(Cipher.ENCRYPT_MODE, k);
         } else {
-            cA.init(Cipher.ENCRYPT_MODE, key, algParams);
+            cA.init(Cipher.ENCRYPT_MODE, k, algParams);
         }
         int blockSize = cA.getBlockSize();
         try {
@@ -718,7 +711,7 @@ public class TestAESInterop extends BaseTestInterop {
             boolean success = Arrays.equals(cipherText2, cipherText);
             assertTrue(success, "Re-encrypted text does not match");
 
-            cB.init(Cipher.DECRYPT_MODE, key, ap);
+            cB.init(Cipher.DECRYPT_MODE, k, ap);
             byte[] newPlainText = cB.doFinal(cipherText);
             success = Arrays.equals(newPlainText, message);
             assertTrue(success, "Decrypted text does not match expected, msglen=" + message.length);
@@ -733,13 +726,13 @@ public class TestAESInterop extends BaseTestInterop {
         }
     }
 
-    protected void encryptDecryptDoFinalCopySafe(String algorithm,
+    protected void encryptDecryptDoFinalCopySafe(String algorithm, SecretKey k,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message,
             Cipher cA, Cipher cB) throws Exception {
         if (algParams == null) {
-            cA.init(Cipher.ENCRYPT_MODE, key);
+            cA.init(Cipher.ENCRYPT_MODE, k);
         } else {
-            cA.init(Cipher.ENCRYPT_MODE, key, algParams);
+            cA.init(Cipher.ENCRYPT_MODE, k, algParams);
         }
         int blockSize = cA.getBlockSize();
         try {
@@ -759,7 +752,7 @@ public class TestAESInterop extends BaseTestInterop {
             boolean success = Arrays.equals(cipherText, cipherText0);
             assertTrue(success, "Encrypted text does not match expected result");
 
-            cB.init(Cipher.DECRYPT_MODE, key, ap);
+            cB.init(Cipher.DECRYPT_MODE, k, ap);
             resultBuffer = Arrays.copyOf(cipherText, cipherText.length);
             resultLen = cB.doFinal(resultBuffer, 0, cipherText.length, resultBuffer);
             byte[] newPlainText = Arrays.copyOf(resultBuffer, resultLen);
@@ -773,13 +766,13 @@ public class TestAESInterop extends BaseTestInterop {
         }
     }
 
-    protected void encryptDecryptUpdateCopySafe(String algorithm,
+    protected void encryptDecryptUpdateCopySafe(String algorithm, SecretKey k,
             boolean requireLengthMultipleBlockSize, AlgorithmParameters algParams, byte[] message,
             Cipher cA, Cipher cB) throws Exception {
         if (algParams == null) {
-            cA.init(Cipher.ENCRYPT_MODE, key);
+            cA.init(Cipher.ENCRYPT_MODE, k);
         } else {
-            cA.init(Cipher.ENCRYPT_MODE, key, algParams);
+            cA.init(Cipher.ENCRYPT_MODE, k, algParams);
         }
         int blockSize = cA.getBlockSize();
         try {
@@ -806,7 +799,7 @@ public class TestAESInterop extends BaseTestInterop {
             boolean success = Arrays.equals(cipherText, cipherText0);
             assertTrue(success, "Encrypted text does not match expected result");
 
-            cB.init(Cipher.DECRYPT_MODE, key, ap);
+            cB.init(Cipher.DECRYPT_MODE, k, ap);
             resultBuffer = Arrays.copyOf(cipherText, cB.getOutputSize(cipherText.length));
             int plainText1Len = cB.update(resultBuffer, 0, cipherText.length, resultBuffer);
             byte[] plainText2 = cB.doFinal();
