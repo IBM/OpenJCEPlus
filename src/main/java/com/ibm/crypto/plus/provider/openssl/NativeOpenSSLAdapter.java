@@ -257,32 +257,27 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
 
     @Override
     public void RAND_generateSeed(byte[] seed) throws OpenSSLException {
-        // NativeOpenSSLImplementation.RAND_generateSeed(osslContext.getId(), seed);
-        throw new UnsupportedOperationException("RAND_generateSeed");
+        NativeOpenSSLImplementation.RAND_generateSeed(osslContext.getId(), seed);
     }
 
     @Override
     public long EXTRAND_create(String algName) throws OpenSSLException {
-        // return NativeOpenSSLImplementation.EXTRAND_create(osslContext.getId(), algName);
-        throw new UnsupportedOperationException("EXTRAND_create");
+        return NativeOpenSSLImplementation.EXTRAND_create(osslContext.getId(), algName);
     }
 
     @Override
     public void EXTRAND_nextBytes(long PRNGContextId, byte[] buffer) throws OpenSSLException {
-        // NativeOpenSSLImplementation.EXTRAND_nextBytes(osslContext.getId(), PRNGContextId, buffer);
-        throw new UnsupportedOperationException("EXTRAND_nextBytes");
+        NativeOpenSSLImplementation.EXTRAND_nextBytes(osslContext.getId(), PRNGContextId, buffer);
     }
 
     @Override
     public void EXTRAND_setSeed(long PRNGContextId, byte[] seed) throws OpenSSLException {
-        // NativeOpenSSLImplementation.EXTRAND_setSeed(osslContext.getId(), PRNGContextId, seed);
-        throw new UnsupportedOperationException("EXTRAND_setSeed");
+        NativeOpenSSLImplementation.EXTRAND_setSeed(osslContext.getId(), PRNGContextId, seed);
     }
 
     @Override
     public void EXTRAND_delete(long PRNGContextId) throws OpenSSLException {
-        // NativeOpenSSLImplementation.EXTRAND_delete(osslContext.getId(), PRNGContextId);
-        throw new UnsupportedOperationException("EXTRAND_delete");
+        NativeOpenSSLImplementation.EXTRAND_delete(osslContext.getId(), PRNGContextId);
     }
 
     @Override

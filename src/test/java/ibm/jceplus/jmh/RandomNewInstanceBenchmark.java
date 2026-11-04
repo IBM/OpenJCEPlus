@@ -39,7 +39,16 @@ public class RandomNewInstanceBenchmark extends JMHBase {
     private String algorithm;
     private String provider;
 
-    @Param({"SHA256DRBG|OpenJCEPlus", "SHA512DRBG|OpenJCEPlus", "SHA1PRNG|SUN", "DRBG|SUN"})
+    @Param({
+        "SHA256DRBG|OpenJCEPlus-OCK",
+        "SHA512DRBG|OpenJCEPlus-OCK",
+        "SHA256DRBG|OpenJCEPlus-OpenSSL",
+        "SHA512DRBG|OpenJCEPlus-OpenSSL",
+        "SHA256DRBG|OpenJCEPlusFIPS",
+        "SHA512DRBG|OpenJCEPlusFIPS",
+        "SHA1PRNG|SUN",
+        "DRBG|SUN"
+    })
     private String randomToTest;
 
     @Setup
