@@ -39,7 +39,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * SecureRandom.generateSeed()</li>
  * </ul>
  */
-@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OCK_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
 @Tag(Tags.OPENJCEPLUS_FIPS_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
@@ -78,6 +79,22 @@ public class TestSecureRandom extends BaseTest {
         sr.nextBytes(bytes);
 
         assertFalse(isAllZeros(bytes), "nextBytes output should not be all zeros");
+    }
+
+    /**
+     * Verifies that a request far larger than a single DRBG generate call
+     * is fully satisfied (no trailing zero block).
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"SHA256DRBG", "SHA512DRBG"})
+    public void testNextBytesLargeRequest(String algorithm) throws Exception {
+        SecureRandom sr = SecureRandom.getInstance(algorithm, getProviderName());
+
+        byte[] bytes = new byte[1024 * 1024];
+        sr.nextBytes(bytes);
+
+        byte[] tail = Arrays.copyOfRange(bytes, bytes.length - NUM_BYTES, bytes.length);
+        assertFalse(isAllZeros(tail), "Tail of a large request should not be all zeros");
     }
 
     /**
