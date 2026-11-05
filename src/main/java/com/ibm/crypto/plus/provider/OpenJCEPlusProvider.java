@@ -59,7 +59,7 @@ public abstract class OpenJCEPlusProvider extends java.security.Provider {
     protected static final Debug debug = Debug.getInstance(DEBUG_VALUE);
 
     static {
-        SystemAccessUtils.preloadSunSecurityUtilClasses();
+        SystemAccessUtils.preloadSunSecurityClasses();
     }
 
     OpenJCEPlusProvider(String name, String info) {
