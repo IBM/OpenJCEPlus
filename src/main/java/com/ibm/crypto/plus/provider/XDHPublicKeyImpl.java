@@ -372,7 +372,7 @@ final class XDHPublicKeyImpl extends X509Key implements XECPublicKey, Destroyabl
         }
     }
 
-    XECKey getOCKKey() {
+    XECKey getNativeKey() {
         return this.xecKey;
     }
 

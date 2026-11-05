@@ -65,28 +65,34 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_XECKEY_1ge
     JNIEnv *env, jclass clazz, jlong contextId, jint option, jlong bufferPtr) {
     const char *name = curveName(option);
     EVP_PKEY *key = NULL;
+    jlong keyId = 0;
 
     /*
      * Like Digest.c, use the default OpenSSL libctx. contextId is currently
      * a placeholder, NOT an OSSL_LIB_CTX pointer.
      */
     if (name == NULL || bufferPtr == 0) {
-        throwOSSLException(env, 0, "XDH: unsupported curve or null output buffer");
-        return 0;
+        throwOSSLException(env, 0,
+                          "XDH: unsupported curve or null output buffer");
+        goto cleanup;
     }
 
     key = EVP_PKEY_Q_keygen(NULL, NULL, name);
     if (key == NULL) {
         throwOSSLException(env, 0, "XDH: key generation failed");
-        return 0;
+        goto cleanup;
     }
 
     if (!writePublicKey(env, key, bufferPtr)) {
-        EVP_PKEY_free(key);
-        return 0;
+        goto cleanup;
     }
 
-    return (jlong)(intptr_t)key;
+    keyId = (jlong)(intptr_t)key;
+    key = NULL; /* Ownership transferred to the caller. */
+
+cleanup:
+    EVP_PKEY_free(key);
+    return keyId;
 }
 
 JNIEXPORT jlong JNICALL
@@ -97,39 +103,51 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_XECKEY_1cr
         jbyteArray privateKeyBytes,
         jlong bufferPtr) {
 
+    jlong keyId = 0;
+    EVP_PKEY *pkey = NULL;
+    unsigned char *keyBytesNative = NULL;
+    const unsigned char *pBytes = NULL;
+    jsize size = 0;
+
     if (privateKeyBytes == NULL || bufferPtr == 0) {
         throwOSSLException(env, 0, "XDH: invalid private key input");
-        return 0;
+        goto cleanup;
     }
 
-    jsize size = (*env)->GetArrayLength(env, privateKeyBytes);
+    size = (*env)->GetArrayLength(env, privateKeyBytes);
 
-    unsigned char *keyBytesNative =
+    keyBytesNative =
             (*env)->GetPrimitiveArrayCritical(env, privateKeyBytes, NULL);
-
     if (keyBytesNative == NULL) {
-        return 0;
+        goto cleanup; /* Preserve the pending JVM exception. */
     }
 
-    const unsigned char *pBytes = keyBytesNative;
-    EVP_PKEY *pkey = NULL;
-
+    pBytes = keyBytesNative;
     d2i_AutoPrivateKey(&pkey, &pBytes, (long)size);
 
     (*env)->ReleasePrimitiveArrayCritical(
             env, privateKeyBytes, keyBytesNative, JNI_ABORT);
+    keyBytesNative = NULL;
 
     if (pkey == NULL) {
         throwOSSLException(env, 0, "XDH: failed to decode private key");
-        return 0;
+        goto cleanup;
     }
 
     if (!writePublicKey(env, pkey, bufferPtr)) {
-        EVP_PKEY_free(pkey);
-        return 0;
+        goto cleanup;
     }
 
-    return (jlong)(intptr_t)pkey;
+    keyId = (jlong)(intptr_t)pkey;
+    pkey = NULL; /* Ownership transferred to the caller. */
+
+cleanup:
+    if (keyBytesNative != NULL) {
+        (*env)->ReleasePrimitiveArrayCritical(
+                env, privateKeyBytes, keyBytesNative, JNI_ABORT);
+    }
+    EVP_PKEY_free(pkey);
+    return keyId;
 }
 
 JNIEXPORT jlong JNICALL
@@ -139,39 +157,51 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_XECKEY_1cr
         jlong osslContextId,
         jbyteArray publicKeyBytes) {
 
+    jlong keyId = 0;
+    EVP_PKEY *pkey = NULL;
+    unsigned char *keyBytesNative = NULL;
+    const unsigned char *ptr = NULL;
+    jsize size = 0;
+
     if (publicKeyBytes == NULL) {
         throwOSSLException(env, 0, "XDH: public key bytes are null");
-        return 0;
+        goto cleanup;
     }
 
-    jsize size = (*env)->GetArrayLength(env, publicKeyBytes);
-
+    size = (*env)->GetArrayLength(env, publicKeyBytes);
     if (size == 0) {
         throwOSSLException(env, 0, "XDH: public key bytes are empty");
-        return 0;
+        goto cleanup;
     }
 
-    unsigned char *keyBytesNative =
+    keyBytesNative =
             (*env)->GetPrimitiveArrayCritical(env, publicKeyBytes, NULL);
-
     if (keyBytesNative == NULL) {
-        return 0;
+        goto cleanup; /* Preserve the pending JVM exception. */
     }
 
-    const unsigned char *ptr = keyBytesNative;
-    EVP_PKEY *pkey = NULL;
-
+    ptr = keyBytesNative;
     d2i_PUBKEY(&pkey, &ptr, size);
 
     (*env)->ReleasePrimitiveArrayCritical(
             env, publicKeyBytes, keyBytesNative, JNI_ABORT);
+    keyBytesNative = NULL;
 
     if (pkey == NULL) {
         throwOSSLException(env, 0, "XDH: failed to decode public key");
-        return 0;
+        goto cleanup;
     }
 
-    return (jlong)(intptr_t)pkey;
+    keyId = (jlong)(intptr_t)pkey;
+    pkey = NULL; /* Ownership transferred to the caller. */
+
+cleanup:
+    if (keyBytesNative != NULL) {
+        (*env)->ReleasePrimitiveArrayCritical(
+                env, publicKeyBytes, keyBytesNative, JNI_ABORT);
+    }
+    EVP_PKEY_free(pkey);
+    return keyId;
 }
 
 JNIEXPORT jbyteArray JNICALL
@@ -182,38 +212,39 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_XECKEY_1ge
         jlong xecKeyId) {
 
     EVP_PKEY *pkey = (EVP_PKEY *)(intptr_t)xecKeyId;
+    unsigned char *encoded = NULL;
+    int encodedLength = 0;
+    jbyteArray privateKeyBytes = NULL;
+    jbyteArray result = NULL;
 
     if (pkey == NULL) {
         throwOSSLException(env, 0, "XDH: private key is null");
-        return NULL;
+        goto cleanup;
     }
 
-    unsigned char *encoded = NULL;
-    int encodedLength = i2d_PrivateKey(pkey, &encoded);
-
+    encodedLength = i2d_PrivateKey(pkey, &encoded);
     if (encodedLength <= 0) {
-        OPENSSL_free(encoded);
+        encodedLength = 0;
         throwOSSLException(env, 0, "XDH: failed to encode private key");
-        return NULL;
+        goto cleanup;
     }
 
-    jbyteArray privateKeyBytes = (*env)->NewByteArray(env, encodedLength);
-
+    privateKeyBytes = (*env)->NewByteArray(env, encodedLength);
     if (privateKeyBytes == NULL) {
-        OPENSSL_clear_free(encoded, encodedLength);
-        return NULL;
+        goto cleanup; /* Preserve the pending JVM exception. */
     }
 
     (*env)->SetByteArrayRegion(
             env, privateKeyBytes, 0, encodedLength, (const jbyte *)encoded);
-
-    OPENSSL_clear_free(encoded, encodedLength);
-
     if ((*env)->ExceptionCheck(env)) {
-        return NULL;
+        goto cleanup;
     }
 
-    return privateKeyBytes;
+    result = privateKeyBytes;
+
+cleanup:
+    OPENSSL_clear_free(encoded, (size_t)encodedLength);
+    return result;
 }
 
 JNIEXPORT jbyteArray JNICALL
@@ -222,11 +253,11 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_XECKEY_1ge
     unsigned char bytes[56];
     EVP_PKEY *key = (EVP_PKEY *)(intptr_t)keyId;
     size_t size = keySize(key);
-    jbyteArray result;
+    jbyteArray result = NULL;
 
     if (!size || EVP_PKEY_get_raw_public_key(key, bytes, &size) != 1) {
         throwOSSLException(env, 0, "XDH: public key export failed");
-        return NULL;
+        goto cleanup;
     }
 
     result = (*env)->NewByteArray(env, (jsize)size);
@@ -234,6 +265,8 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_XECKEY_1ge
         (*env)->SetByteArrayRegion(
             env, result, 0, (jsize)size, (jbyte *)bytes);
     }
+
+cleanup:
     return result;
 }
 
@@ -249,74 +282,89 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_XECKEY_1co
     EVP_PKEY *publicKey = (EVP_PKEY *)(intptr_t)pubXecKeyId;
     EVP_PKEY *privateKey = (EVP_PKEY *)(intptr_t)privXecKeyId;
 
-    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(privateKey, NULL);
+    EVP_PKEY_CTX *ctx = NULL;
+    jbyteArray secretBytes = NULL;
+    jbyteArray result = NULL;
+    unsigned char *secretBytesNative = NULL;
 
+    const char *errorMessage = NULL;
+    int requiredLength = 0;
+    size_t secretLength = 0;
+
+    if (publicKey == NULL || privateKey == NULL) {
+        errorMessage = "XDH: public or private key is null";
+        goto cleanup;
+    }
+
+    ctx = EVP_PKEY_CTX_new(privateKey, NULL);
     if (ctx == NULL) {
-        throwOSSLException(env, 0, "XDH: failed to create context");
-        return NULL;
+        errorMessage = "XDH: failed to create context";
+        goto cleanup;
     }
 
-    int rc = EVP_PKEY_derive_init(ctx);
-
-    if (rc != 1) {
-        EVP_PKEY_CTX_free(ctx);
-        throwOSSLException(env, 0, "XDH: failed to initialize key agreement");
-        return NULL;
+    if (EVP_PKEY_derive_init(ctx) != 1) {
+        errorMessage = "XDH: failed to initialize key agreement";
+        goto cleanup;
     }
 
-    rc = EVP_PKEY_derive_set_peer(ctx, publicKey);
-
-    if (rc != 1) {
-        EVP_PKEY_CTX_free(ctx);
-        throwOSSLException(env, 0, "XDH: failed to set peer public key");
-        return NULL;
+    if (EVP_PKEY_derive_set_peer(ctx, publicKey) != 1) {
+        errorMessage = "XDH: failed to set peer public key";
+        goto cleanup;
     }
 
-    int required_len = EVP_PKEY_size(publicKey);
-
-    if (required_len <= 0) {
-        EVP_PKEY_CTX_free(ctx);
-        throwOSSLException(env, 0, "Derived secret size is zero");
-        return NULL;
+    requiredLength = EVP_PKEY_size(publicKey);
+    if (requiredLength <= 0) {
+        errorMessage = "Derived secret size is zero";
+        goto cleanup;
     }
 
-    size_t secret_key_len = (size_t)required_len;
+    secretLength = (size_t)requiredLength;
 
-    jbyteArray secretBytes =
-            (*env)->NewByteArray(env, (jsize)secret_key_len);
-
+    secretBytes = (*env)->NewByteArray(env, (jsize)requiredLength);
     if (secretBytes == NULL) {
-        EVP_PKEY_CTX_free(ctx);
-        return NULL;
+        goto cleanup; /* Preserve the pending JVM exception. */
     }
 
-    unsigned char *secretBytesNative =
+    secretBytesNative =
             (unsigned char *)(*env)->GetPrimitiveArrayCritical(
                     env, secretBytes, NULL);
 
     if (secretBytesNative == NULL) {
-        EVP_PKEY_CTX_free(ctx);
-        return NULL;
+        goto cleanup; /* Preserve the pending JVM exception. */
     }
 
-    rc = EVP_PKEY_derive(ctx, secretBytesNative, &secret_key_len);
+    if (EVP_PKEY_derive(ctx, secretBytesNative, &secretLength) != 1) {
+        errorMessage = "Failed to derive shared secret";
+        goto cleanup;
+    }
 
-    (*env)->ReleasePrimitiveArrayCritical(
-            env, secretBytes, secretBytesNative, 0);
+    if (secretLength != (size_t)requiredLength) {
+        errorMessage = "Unexpected shared secret length";
+        goto cleanup;
+    }
+
+    result = secretBytes;
+
+cleanup:
+    if (secretBytesNative != NULL) {
+        if (result == NULL) {
+            OPENSSL_cleanse(secretBytesNative, (size_t)requiredLength);
+        }
+
+        (*env)->ReleasePrimitiveArrayCritical(
+                env, secretBytes, secretBytesNative, 0);
+    }
+
+    /*
+     * Report errors only after releasing the critical array,
+     * and preserve any exception already raised by the JVM.
+     */
+    if (errorMessage != NULL && !(*env)->ExceptionCheck(env)) {
+        throwOSSLException(env, 0, errorMessage);
+    }
 
     EVP_PKEY_CTX_free(ctx);
-
-    if (rc != 1) {
-        throwOSSLException(env, 0, "Failed to derive shared secret");
-        return NULL;
-    }
-
-    if (secret_key_len != (size_t)required_len) {
-        throwOSSLException(env, 0, "Unexpected shared secret length");
-        return NULL;
-    }
-
-    return secretBytes;
+    return result;
 }
 
 JNIEXPORT void JNICALL

@@ -8,9 +8,7 @@
 
 package com.ibm.crypto.plus.provider;
 
-import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
 import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
-import com.ibm.crypto.plus.provider.base.NativeException;
 import com.ibm.crypto.plus.provider.base.NativeInterface;
 import com.ibm.crypto.plus.provider.base.XECKey;
 import java.security.InvalidAlgorithmParameterException;
@@ -33,8 +31,8 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
     private OpenJCEPlusProvider provider = null;
     private long genCtx;
     private String curveName;
-    private XECKey ockXecKeyPub = null;
-    private XECKey ockXecKeyPriv = null;
+    private XECKey nativeXecKeyPub = null;
+    private XECKey nativeXecKeyPriv = null;
     private byte[] secret;
     private String alg = null;
     private NativeInterface nativeInterface = null;
@@ -68,13 +66,13 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
             throws InvalidKeyException, IllegalStateException {
 
         clearSecret();
-        this.ockXecKeyPub = null;
+        this.nativeXecKeyPub = null;
 
         if (!(key instanceof XECPublicKey)) {
             throw new InvalidKeyException("Unsupported key type");
         }
 
-        if (ockXecKeyPriv == null) {
+        if (nativeXecKeyPriv == null) {
             throw new IllegalStateException(
                     "object is not initialized correctly "
                             + "(private key is not received)");
@@ -85,14 +83,14 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
                     "XDH can only be between two parties.");
         }
 
-        if (!(key instanceof XDHPublicKeyImpl)) {
-            try {
-                key = (XDHPublicKeyImpl) XDHKeyFactory.toXECKey(
-                        this.provider, this.alg, key);
-            } catch (Exception exception) {
-                throw new InvalidKeyException(
-                        "Unable to translate key", exception);
-            }
+        // The factory translates foreign keys and keys from another backend
+        // into a key usable by this KeyAgreement's backend.
+        try {
+            key = (XDHPublicKeyImpl) XDHKeyFactory.toXECKey(
+                    this.provider, this.alg, key, this.nativeInterface);
+        } catch (Exception exception) {
+            throw new InvalidKeyException(
+                    "Unable to translate key", exception);
         }
 
         XDHPublicKeyImpl xdhPublicKeyImpl = (XDHPublicKeyImpl) key;
@@ -104,31 +102,13 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
                     "Public and private keys must use the same parameters");
         }
 
-        XECKey publicKey = xdhPublicKeyImpl.getOCKKey();
-
-        // Import the public key if it belongs to a different backend.
-        if (publicKey.getBackendInterface() != this.nativeInterface) {
-            byte[] publicKeyBytes = xdhPublicKeyImpl.getEncoded();
-
-            try {
-                publicKey = XECKey.createPublicKey(
-                        publicKeyBytes,
-                        this.provider,
-                        this.nativeInterface);
-            } catch (NativeException e) {
-                throw new InvalidKeyException(
-                        "Unable to import public key into KeyAgreement backend",
-                        e);
-            }
-        }
-
-        ockXecKeyPub = publicKey;
+        nativeXecKeyPub = xdhPublicKeyImpl.getNativeKey();
 
         try {
             this.secret = XECKey.computeECDHSecret(
                     genCtx,
-                    ockXecKeyPub.getPKeyId(),
-                    ockXecKeyPriv.getPKeyId(),
+                    nativeXecKeyPub.getPKeyId(),
+                    nativeXecKeyPriv.getPKeyId(),
                     this.nativeInterface);
         } catch (Exception e) {
             throw new InvalidKeyException(
@@ -153,7 +133,7 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
     protected byte[] engineGenerateSecret() throws IllegalStateException {
         if (secret == null)
             throw new IllegalStateException("Wrong state");
-        if (ockXecKeyPriv == null || ockXecKeyPub == null)
+        if (nativeXecKeyPriv == null || nativeXecKeyPub == null)
             throw new IllegalStateException("private/public key is not received");
 
         byte[] result = secret;
@@ -248,8 +228,8 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
             throws InvalidKeyException, InvalidAlgorithmParameterException {
 
         clearSecret();
-        this.ockXecKeyPriv = null;
-        this.ockXecKeyPub = null;
+        this.nativeXecKeyPriv = null;
+        this.nativeXecKeyPub = null;
         this.nativeInterface = null;
         this.curveName = null;
 
@@ -257,12 +237,28 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
             throw new InvalidKeyException("Unsupported key type");
         }
 
-        if (!(key instanceof XDHPrivateKeyImpl)) {
-            try {
-                key = (XDHPrivateKeyImpl) XDHKeyFactory.toXECKey(this.provider, this.alg, key);
-            } catch (Exception exception) {
-                throw new InvalidKeyException("Unable to translate key", exception);
-            }
+        String configAlgName = this.alg;
+
+        if (configAlgName == null) {
+            configAlgName = "XDH";
+        }
+
+        try {
+            this.nativeInterface =
+                    NativeCryptoSelector.selectBackend(
+                            this.provider, "KeyAgreement", configAlgName);
+        } catch (Exception e) {
+            throw new InvalidKeyException(
+                    "Unable to select XDH KeyAgreement backend", e);
+        }
+
+        // The factory translates foreign keys and keys from another backend
+        // into a key usable by this KeyAgreement's backend.
+        try {
+            key = (XDHPrivateKeyImpl) XDHKeyFactory.toXECKey(
+                    this.provider, this.alg, key, this.nativeInterface);
+        } catch (Exception exception) {
+            throw new InvalidKeyException("Unable to translate key", exception);
         }
 
         // Check if parameter is a valid NamedParameterSpec instance.
@@ -292,50 +288,8 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
                         "Parameters must match the private key parameters");
             }
         }
-        String configAlgName = this.alg;
-
-        if (configAlgName == null) {
-            configAlgName = "XDH";
-        }
-
-        try {
-            this.nativeInterface =
-                    NativeCryptoSelector.selectBackend(
-                            this.provider, "KeyAgreement", configAlgName);
-        } catch (Exception e) {
-            throw new InvalidKeyException(
-                    "Unable to select XDH KeyAgreement backend", e);
-        }
-
-        XECKey privateKey = xdhPrivateKeyImpl.getOCKKey();
-
-        // Import the private key if it belongs to a different backend.
-        if (privateKey.getBackendInterface() != this.nativeInterface) {
-            CURVE curve = CurveUtil.getXCurve(keyParams);
-            int keySize = CurveUtil.getCurveSize(curve);
-
-            byte[] privateKeyBytes = null;
-            try {
-                privateKeyBytes = privateKey.getPrivateKeyBytes();
-
-                privateKey = XECKey.createPrivateKey(
-                        privateKeyBytes,
-                        keySize,
-                        this.provider,
-                        this.nativeInterface);
-            } catch (NativeException e) {
-                throw new InvalidKeyException(
-                        "Unable to import private key into KeyAgreement backend",
-                        e);
-            } finally {
-                if (privateKeyBytes != null) {
-                    Arrays.fill(privateKeyBytes, (byte) 0);
-                }
-            }
-        }
-
         this.curveName = keyParams.getName();
-        ockXecKeyPriv = privateKey;
+        nativeXecKeyPriv = xdhPrivateKeyImpl.getNativeKey();
     }
 
     private void clearSecret() {

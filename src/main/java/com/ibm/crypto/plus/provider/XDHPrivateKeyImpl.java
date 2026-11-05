@@ -393,7 +393,7 @@ final class XDHPrivateKeyImpl extends PKCS8Key implements XECPrivateKey, Seriali
         return true;
     }
 
-    XECKey getOCKKey() {
+    XECKey getNativeKey() {
         return this.xecKey;
     }
 
