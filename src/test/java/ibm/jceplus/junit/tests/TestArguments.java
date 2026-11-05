@@ -84,6 +84,15 @@ public class TestArguments {
         return getOpenJCEPlusWithTwoInteropProviders(providers, TestProvider.SunJCE, TestProvider.SUN);
     }
 
+    /**
+     * Generates combinations of OpenJCEPlus* providers with SunRsaSign and SunJCE providers for interoperability testing.
+     *
+     * @return Stream of Arguments containing (JCEProviders, SunRsaSign, SunJCE) pairs
+     */
+    protected static Stream<Arguments> getOpenJCEPlusWithSunRsaSignAndSunJCEInteropProviders(Set<String> providers) {
+        return getOpenJCEPlusWithTwoInteropProviders(providers, TestProvider.SunRsaSign, TestProvider.SunJCE);
+    }
+
     public static Stream<Arguments> keySizesAndProviders(Set<String> providers, List<Integer> keySizes) {
         // Determine enabled providers.
         List<TestProvider> enabledProviders = getEnabledProviders(providers).toList();
