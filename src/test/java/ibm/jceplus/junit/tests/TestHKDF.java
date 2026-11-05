@@ -387,14 +387,17 @@ public class TestHKDF extends BaseTest {
 
     }
 
-    private static byte[] createHkdfInfo(byte[] label, byte[] context, int length) {
+    private static byte[] createHkdfInfo(byte[] label, byte[] context, int length)
+            throws IOException {
         byte[] info = new byte[4 + label.length];
         ByteBuffer m = ByteBuffer.wrap(info);
         m.put((byte) ((length >> 8) & 0xFF));
         m.put((byte) (length & 0xFF));
         m.put((byte) (label.length & 0xFF));
         m.put(label);
+
         return info;
+
     }
 
     private static byte[] hexStringToByteArray(String string) {
@@ -407,6 +410,7 @@ public class TestHKDF extends BaseTest {
             b[i] = (byte) v;
         }
         return b;
+
     }
 
     @Test
