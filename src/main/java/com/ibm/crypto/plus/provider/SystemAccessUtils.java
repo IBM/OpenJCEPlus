@@ -114,7 +114,7 @@ public final class SystemAccessUtils {
      * longer necessary.  The method is retained so that existing call sites
      * require no changes.
      */
-    public static void preloadSunSecurityUtilClasses() {
+    public static void preloadSunSecurityClasses() {
         // no-op: SecurityManager removed in JDK 25
     }
 }
