@@ -13,6 +13,7 @@ import com.ibm.crypto.plus.provider.PrimitiveWrapper;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
+import java.util.Locale;
 
 public final class SignatureRSAPSS {
 
@@ -66,85 +67,68 @@ public final class SignatureRSAPSS {
                 rsaPssId.setValue(0);;
             }
         } catch (NativeException e) {
-            throw new InvalidParameterException("Unable to set the digestAlgoOCK: releaseContext");
+            throw new InvalidParameterException("Unable to set the nativeDigestAlgo: releaseContext");
         }
 
         if (0 != configureParameter(digestAlgo, saltlen, trailerField, mgfAlgo, mgf1SpecAlgo)) {
             throw new InvalidParameterException(
-                    "Unable to set the digestAlgoOCK: configureParameters");
+                    "Unable to set the nativeDigestAlgo: configureParameters");
         }
     }
 
+    private static String toNativeDigestName(String digestAlgo) {
+        if (digestAlgo == null) {
+            throw new InvalidParameterException("Digest algorithm cannot be null");
+        }
+
+        switch (digestAlgo.toUpperCase(Locale.ROOT).replace('_', '-')) {
+            case "SHA-1":
+            case "SHA":
+            case "SHA1":
+                return "SHA1";
+
+            case "SHA-224":
+            case "SHA224":
+                return "SHA224";
+
+            case "SHA-2":
+            case "SHA2":
+            case "SHA256":
+            case "SHA-256":
+                return "SHA256";
+
+            case "SHA384":
+            case "SHA-384":
+                return "SHA384";
+
+            case "SHA5":
+            case "SHA-5":
+            case "SHA512":
+            case "SHA-512":
+                return "SHA512";
+
+            case "SHA3-224":
+                return "SHA3-224";
+
+            case "SHA3-256":
+                return "SHA3-256";
+
+            case "SHA3-384":
+                return "SHA3-384";
+
+            case "SHA3-512":
+                return "SHA3-512";
+
+            default:
+                return digestAlgo;
+        }
+    }
 
     private int configureParameter(String digestAlgo, int saltlen, int trailerField, String mgfAlgo,
             String mgf1SpecAlgo) {
 
-        String digestAlgoOCK = null;
-        String mgf1SpecAlgoOCK = null;
-
-        switch (digestAlgo.toUpperCase()) {
-            case "SHA-1":
-            case "SHA":
-            case "SHA1":
-                digestAlgoOCK = "SHA1";
-                break;
-            case "SHA-224":
-            case "SHA224":
-                digestAlgoOCK = "SHA224";
-                break;
-            case "SHA-2":
-            case "SHA2":
-            case "SHA256":
-            case "SHA-256":
-                digestAlgoOCK = "SHA256";
-                break;
-            case "SHA3":
-            case "SHA-3":
-            case "SHA384":
-            case "SHA-384":
-                digestAlgoOCK = "SHA384";
-                break;
-            case "SHA5":
-            case "SHA-5":
-            case "SHA512":
-            case "SHA-512":
-                digestAlgoOCK = "SHA512";
-                break;
-            default:
-                digestAlgoOCK = digestAlgo;
-        }
-        switch (mgf1SpecAlgo.toUpperCase()) {
-            case "SHA-1":
-            case "SHA":
-            case "SHA1":
-                mgf1SpecAlgoOCK = "SHA1";
-                break;
-            case "SHA-224":
-            case "SHA224":
-                mgf1SpecAlgoOCK = "SHA224";
-                break;
-            case "SHA-2":
-            case "SHA2":
-            case "SHA256":
-            case "SHA-256":
-                mgf1SpecAlgoOCK = "SHA256";
-                break;
-            case "SHA3":
-            case "SHA-3":
-            case "SHA384":
-            case "SHA-384":
-                mgf1SpecAlgoOCK = "SHA384";
-                break;
-
-            case "SHA5":
-            case "SHA-5":
-            case "SHA512":
-            case "SHA-512":
-                mgf1SpecAlgoOCK = "SHA512";
-                break;
-            default:
-                mgf1SpecAlgoOCK = mgf1SpecAlgo;
-        }
+        String nativeDigestAlgo = toNativeDigestName(digestAlgo);
+        String nativeMgf1SpecAlgo = toNativeDigestName(mgf1SpecAlgo);
 
         this.saltlen = saltlen;
         this.trailerField = trailerField;
@@ -153,8 +137,8 @@ public final class SignatureRSAPSS {
 
         int ret = 0;
         try {
-            this.rsaPssId.setValue(this.nativeInterface.RSAPSS_createContext(digestAlgoOCK,
-                    mgf1SpecAlgoOCK));
+            this.rsaPssId.setValue(this.nativeInterface.RSAPSS_createContext(nativeDigestAlgo,
+                    nativeMgf1SpecAlgo));
             // If already initialized, re-init with new context and parameters
             if (this.initialized && this.rsaPssId.getValue() != 0) {
                 if (this.initOp == InitOp.INITSIGN) {
@@ -185,7 +169,7 @@ public final class SignatureRSAPSS {
         if (rsaPssId.getValue() == 0) { // if context wasn't created by setParameters, create it now
             if (0 != configureParameter(digestAlgo, saltlen, trailerField, mgfAlgo, mgf1SpecAlgo)) {
                 throw new InvalidParameterException(
-                        "Unable to set the digestAlgoOCK: configureParameters");
+                        "Unable to set the nativeDigestAlgo: configureParameters");
             }
         }
         this.key = key;
