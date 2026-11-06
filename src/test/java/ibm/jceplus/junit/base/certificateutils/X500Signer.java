@@ -81,6 +81,13 @@ public class X500Signer extends Signer {
     }
 
     /**
+     * Returns the Signature object used to sign.
+     */
+    public Signature getSignatureObject() {
+        return sig;
+    }
+
+    /**
      * Returns the algorithm used to sign.
      */
     public AlgorithmId getAlgorithmId() {
