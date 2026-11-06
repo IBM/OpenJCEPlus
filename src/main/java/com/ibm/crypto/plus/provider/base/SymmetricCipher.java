@@ -309,6 +309,8 @@ public final class SymmetricCipher {
         int remainderBytes = totalLen % blockSize;
 
         int retLen = totalLen + (blockSize - remainderBytes) + OCK_ENCRYPTION_RESIDUE;
+        // Native final may write inputLen + 2 * blockSize - 1 bytes (buffered block plus padding block).
+        retLen = Math.max(retLen, inputLen + 2 * blockSize);
 
         // OCKDebug.Msg (debPrefix, methodName, "retLen = " + retLen);
         return retLen;

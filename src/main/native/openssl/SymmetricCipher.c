@@ -54,9 +54,14 @@ static int reinitCipher(JNIEnv *env, CipherContext *cipherCtx) {
     }
 
     /* blockSize == 1 means stream cipher - padding not applicable */
-    EVP_CIPHER_CTX_set_padding(cipherCtx->ctx,
-                               (cipherCtx->blockSize == 1) ? 0
-                                                           : (cipherCtx->padding != 0));
+    if (EVP_CIPHER_CTX_set_padding(cipherCtx->ctx,
+                                   (cipherCtx->blockSize == 1) ? 0
+                                                               : (cipherCtx->padding != 0)) != 1) {
+        throwOSSLException(env, 0,
+                           "SymmetricCipher: reinit set_padding failed");
+        osslCheckStatus();
+        return 0;
+    }
     return 1;
 }
 
@@ -65,7 +70,7 @@ static int reinitCipher(JNIEnv *env, CipherContext *cipherCtx) {
  * accepted only when required == 0.
  * Returns 1 if valid, 0 otherwise (exception already thrown).
  */
-static int checkRange(JNIEnv *env, jbyteArray arr, jint off, jint required,
+static int checkRange(JNIEnv *env, jbyteArray arr, jint off, jlong required,
                       const char *msg) {
     jsize total;
 
@@ -81,7 +86,7 @@ static int checkRange(JNIEnv *env, jbyteArray arr, jint off, jint required,
         return 0;
     }
     total = (*env)->GetArrayLength(env, arr);
-    if (off > total || (jlong)total - off < (jlong)required) {
+    if (off > total || (jlong)total - off < required) {
         throwOSSLException(env, 0, msg);
         return 0;
     }
@@ -178,10 +183,9 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1in
     jint isEncrypt, jint paddingId, jbyteArray key, jbyteArray iv)
 {
     CipherContext *cipherCtx = (CipherContext *)((intptr_t)cipherId);
-    jbyte         *keyBytes  = NULL;
-    jbyte         *ivBytes   = NULL;
     jsize          keyLen    = 0;
     jsize          ivLen     = 0;
+    int            expectedIvLen = 0;
     int            rc        = 0;
     int            evpCalled = 0; /* 1 once EVP_*Init_ex has been attempted */
 
@@ -196,86 +200,81 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1in
         goto cleanup;
     }
 
-    keyBytes = getByteArrayElementsSafe(env, key,
-                                        "CIPHER_init: GetByteArrayElements key failed");
-    if (keyBytes == NULL) {
-        goto cleanup;
-    }
     keyLen = (*env)->GetArrayLength(env, key);
-
     if (iv != NULL) {
-        ivBytes = getByteArrayElementsSafe(env, iv,
-                                           "CIPHER_init: GetByteArrayElements iv failed");
-        if (ivBytes == NULL) {
-            goto cleanup;
-        }
         ivLen = (*env)->GetArrayLength(env, iv);
+    }
+
+    /* A mode that needs an IV must not silently run with OpenSSL's zero IV */
+    expectedIvLen = EVP_CIPHER_get_iv_length(cipherCtx->cipher);
+    if (expectedIvLen > 0 && (iv == NULL || ivLen < expectedIvLen)) {
+        throwOSSLException(env, 0,
+                           "CIPHER_init: missing or too short IV");
+        goto cleanup;
     }
 
     cipherCtx->encrypt   = (int)isEncrypt;
     cipherCtx->padding   = (int)paddingId;
     cipherCtx->blockSize = EVP_CIPHER_get_block_size(cipherCtx->cipher);
 
-    /* Store key copy for needsReinit */
+    /*
+     * Copy the key and IV straight from the Java arrays into native buffers
+     * (also used for needsReinit). No JVM-managed copy of the key is ever
+     * left behind, and the Java arrays are never modified.
+     */
     if (cipherCtx->key != NULL) {
         OPENSSL_cleanse(cipherCtx->key, (size_t)cipherCtx->keyLen);
         free(cipherCtx->key);
         cipherCtx->key = NULL;
+        cipherCtx->keyLen = 0;
     }
     cipherCtx->key = (unsigned char *)mallocSafe(env, (size_t)keyLen,
                                                  "CIPHER_init: malloc key failed");
     if (cipherCtx->key == NULL) {
         goto cleanup;
     }
-    memcpy(cipherCtx->key, keyBytes, (size_t)keyLen);
     cipherCtx->keyLen = (int)keyLen;
+    (*env)->GetByteArrayRegion(env, key, 0, keyLen, (jbyte *)cipherCtx->key);
+    if ((*env)->ExceptionCheck(env)) {
+        goto cleanup;
+    }
 
-    /* Store IV copy for needsReinit */
     if (cipherCtx->iv != NULL) {
         OPENSSL_cleanse(cipherCtx->iv, (size_t)cipherCtx->ivLen);
         free(cipherCtx->iv);
         cipherCtx->iv = NULL;
     }
-    if (ivBytes != NULL && ivLen > 0) {
+    cipherCtx->ivLen = 0;
+    if (iv != NULL && ivLen > 0) {
         cipherCtx->iv = (unsigned char *)mallocSafe(env, (size_t)ivLen,
                                                     "CIPHER_init: malloc iv failed");
         if (cipherCtx->iv == NULL) {
             goto cleanup;
         }
-        memcpy(cipherCtx->iv, ivBytes, (size_t)ivLen);
         cipherCtx->ivLen = (int)ivLen;
+        (*env)->GetByteArrayRegion(env, iv, 0, ivLen, (jbyte *)cipherCtx->iv);
+        if ((*env)->ExceptionCheck(env)) {
+            goto cleanup;
+        }
     }
 
     evpCalled = 1;
     if (isEncrypt) {
         rc = EVP_EncryptInit_ex(cipherCtx->ctx, cipherCtx->cipher, NULL,
-                                (unsigned char *)keyBytes,
-                                ivBytes ? (unsigned char *)ivBytes : NULL);
+                                cipherCtx->key, cipherCtx->iv);
     } else {
         rc = EVP_DecryptInit_ex(cipherCtx->ctx, cipherCtx->cipher, NULL,
-                                (unsigned char *)keyBytes,
-                                ivBytes ? (unsigned char *)ivBytes : NULL);
+                                cipherCtx->key, cipherCtx->iv);
     }
 
     if (rc == 1) {
         /* EVP_CIPHER_CTX_set_padding must be called after cipher is bound */
-        EVP_CIPHER_CTX_set_padding(cipherCtx->ctx,
-                                   (cipherCtx->blockSize == 1) ? 0
-                                                               : (paddingId != 0));
+        rc = EVP_CIPHER_CTX_set_padding(cipherCtx->ctx,
+                                        (cipherCtx->blockSize == 1) ? 0
+                                                                    : (paddingId != 0));
     }
 
 cleanup:
-    /*
-     * Do not zero keyBytes/ivBytes: if the JVM pinned the array rather than
-     * copying it, that would clobber the caller's live key/IV (including
-     * reinitKey, which Java reuses after this call).
-     */
-    if (keyBytes != NULL) {
-        releaseByteArrayElements(env, key, keyBytes, JNI_ABORT);
-    }
-    if (ivBytes != NULL) {
-        releaseByteArrayElements(env, iv, ivBytes, JNI_ABORT);
-    }
     if (evpCalled && rc != 1) {
         throwOSSLException(env, 0,
                            "CIPHER_init: EVP_*Init_ex failed");
@@ -334,9 +333,13 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1se
     }
 
     cipherCtx->padding = (int)paddingId;
-    EVP_CIPHER_CTX_set_padding(cipherCtx->ctx,
-                               (cipherCtx->blockSize == 1) ? 0
-                                                           : (paddingId != 0));
+    if (EVP_CIPHER_CTX_set_padding(cipherCtx->ctx,
+                                   (cipherCtx->blockSize == 1) ? 0
+                                                               : (paddingId != 0)) != 1) {
+        throwOSSLException(env, 0,
+                           "CIPHER_setPadding: EVP_CIPHER_CTX_set_padding failed");
+        osslCheckStatus();
+    }
 }
 
 /*
@@ -453,11 +456,14 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1en
         goto cleanup;
     }
 
-    /* EVP_EncryptUpdate may write up to inputLen + blockSize - 1 bytes */
+    /*
+     * EVP_EncryptUpdate may write up to buffered + inputLen bytes, i.e.
+     * inputLen + blockSize - 1 once the buffered partial block is included.
+     */
     if (!checkRange(env, plaintext, plaintextOffset, plaintextLen,
                     "CIPHER_encryptUpdate: invalid input range") ||
         !checkRange(env, ciphertext, ciphertextOffset,
-                    plaintextLen + EVP_CIPHER_get_block_size(cipherCtx->cipher),
+                    (jlong)plaintextLen + EVP_CIPHER_get_block_size(cipherCtx->cipher),
                     "CIPHER_encryptUpdate: output buffer too small")) {
         goto cleanup;
     }
@@ -536,7 +542,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1de
     if (!checkRange(env, ciphertext, ciphertextOffset, ciphertextLen,
                     "CIPHER_decryptUpdate: invalid input range") ||
         !checkRange(env, plaintext, plaintextOffset,
-                    ciphertextLen + EVP_CIPHER_get_block_size(cipherCtx->cipher),
+                    (jlong)ciphertextLen + EVP_CIPHER_get_block_size(cipherCtx->cipher),
                     "CIPHER_decryptUpdate: output buffer too small")) {
         goto cleanup;
     }
@@ -612,11 +618,14 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1en
         goto cleanup;
     }
 
-    /* Update + final may write up to inputLen + blockSize bytes */
+    /*
+     * Update + final with PKCS padding may write up to
+     * buffered + inputLen + blockSize bytes, i.e. inputLen + 2*blockSize - 1.
+     */
     if (!checkRange(env, plaintext, plaintextOffset, plaintextLen,
                     "CIPHER_encryptFinal: invalid input range") ||
         !checkRange(env, ciphertext, ciphertextOffset,
-                    plaintextLen + EVP_CIPHER_get_block_size(cipherCtx->cipher),
+                    (jlong)plaintextLen + 2 * (jlong)EVP_CIPHER_get_block_size(cipherCtx->cipher) - 1,
                     "CIPHER_encryptFinal: output buffer too small")) {
         goto cleanup;
     }
@@ -710,7 +719,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1de
     if (!checkRange(env, ciphertext, ciphertextOffset, ciphertextLen,
                     "CIPHER_decryptFinal: invalid input range") ||
         !checkRange(env, plaintext, plaintextOffset,
-                    ciphertextLen + EVP_CIPHER_get_block_size(cipherCtx->cipher),
+                    (jlong)ciphertextLen + EVP_CIPHER_get_block_size(cipherCtx->cipher),
                     "CIPHER_decryptFinal: output buffer too small")) {
         goto cleanup;
     }
@@ -755,7 +764,9 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1de
                                               + updateOutLen),
                             &finalOutLen) != 1) {
         unsigned long errCode = ERR_peek_error();
-        if (ERR_GET_REASON(errCode) == EVP_R_BAD_DECRYPT) {
+        if ((ERR_GET_LIB(errCode) == ERR_LIB_EVP ||
+             ERR_GET_LIB(errCode) == ERR_LIB_PROV) &&
+            ERR_GET_REASON(errCode) == EVP_R_BAD_DECRYPT) {
             ERR_clear_error();
             returnResult = FAIL_CIPHER_INTERNAL_DECRYPTFINAL_BAD_PADDING_ERROR;
         } else {
