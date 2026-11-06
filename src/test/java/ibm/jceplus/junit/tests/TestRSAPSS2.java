@@ -6,26 +6,41 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.Provider;
 import java.security.Security;
 import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestRSAPSS2 extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestRSAPSS2 extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     String signingProvidersSignatureAlgorithmName = null;
     String verifyingProvidersSignatureAlgorithmName = null;
@@ -42,18 +57,20 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
     static final byte[] dataToBeSignedLong = "this is text to test the RSAPSS Signature xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
             .getBytes();
 
-    static KeyPairGenerator rsaKeyPairGen = null;
+    // Per-provider keypair cache
+    private static final Map<String, KeyPair[]> keyPairCache = new HashMap<>();
 
-    static KeyPair rsaKeyPair_OpenJCEPlus[] = new KeyPair[6];
-    static KeyPair rsaKeyPair_SunRsaSign[] = new KeyPair[6];
-    static KeyPair rsaKeyPair_OpenJCEPlusFIPS[] = new KeyPair[6];
+    private static final int[] KEY_SIZES = {512, 1024, 2048, 3072, 4096, 5120};
+    private static final int FIPS_MIN_KEY_SIZE = 2048;
+    private static final int FIPS_MAX_KEY_SIZE = 4096;
 
-    static PSSParameterSpec pssParameterSpec = null;
+    KeyPair rsaKeyPair_OpenJCEPlus[];
+    KeyPair rsaKeyPair_SunRsaSign[];
+    KeyPair rsaKeyPair_OpenJCEPlusFIPS[];
 
-    static int testCaseNumber = 1;
+    int testCaseNumber = 1;
 
-    Provider provider = null;
-    static boolean printJunitTrace = false;
+    static final boolean printJunitTrace = false;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -68,12 +85,12 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
             System.out.println(
                     "===============================================================================");
 
+        setAndInsertProvider(provider);
         signingProviderName = getProviderName();
         verifyingProviderName = getProviderName();
         // Add the OpenJCEPlus provider to the provider's list
-        provider = new com.ibm.crypto.plus.provider.OpenJCEPlus();
         try {
-            Security.insertProviderAt(provider, 3);
+            Security.insertProviderAt(new com.ibm.crypto.plus.provider.OpenJCEPlus(), 3);
         } catch (Exception ex) {
             if (printJunitTrace)
                 System.out.println(
@@ -111,91 +128,37 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
                     "BaseTestRSAPSS2.java:  setup():  Following the call to setUp(), verifyingProviderName = "
                             + verifyingProviderName);
 
-        //================================================================
-
         if (signingProviderName.equalsIgnoreCase("OpenJCEPlus")) {
-            // KeyPairs for OpenJCEPlus
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlus");
-            rsaKeyPairGen.initialize(512, null);
-            rsaKeyPair_OpenJCEPlus[0] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlus[0] = RSA 512
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlus");
-            rsaKeyPairGen.initialize(1024, null);
-            rsaKeyPair_OpenJCEPlus[1] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlus[1] = RSA 1024
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlus");
-            rsaKeyPairGen.initialize(2048, null);
-            rsaKeyPair_OpenJCEPlus[2] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlus[2] = RSA 2048
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlus");
-            rsaKeyPairGen.initialize(3072, null);
-            rsaKeyPair_OpenJCEPlus[3] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlus[3] = RSA 3072
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlus");
-            rsaKeyPairGen.initialize(4096, null);
-            rsaKeyPair_OpenJCEPlus[4] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlus[4] = RSA 4096
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlus");
-            rsaKeyPairGen.initialize(5120, null);
-            rsaKeyPair_OpenJCEPlus[5] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlus[5] = RSA 5120
+            rsaKeyPair_OpenJCEPlus = getKeyPairs("OpenJCEPlus");
         }
-
-        //================================================================
 
         if (signingProviderName.equalsIgnoreCase("SunRsaSign")) {
-            // KeyPairs for IBMJCE
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "SunRsaSign");
-            rsaKeyPairGen.initialize(512, null);
-            rsaKeyPair_SunRsaSign[0] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_SunRsaSign[0] = RSA 512
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "SunRsaSign");
-            rsaKeyPairGen.initialize(1024, null);
-            rsaKeyPair_SunRsaSign[1] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_SunRsaSign[1] = RSA 1024
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "SunRsaSign");
-            rsaKeyPairGen.initialize(2048, null);
-            rsaKeyPair_SunRsaSign[2] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_SunRsaSign[2] = RSA 2048
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "SunRsaSign");
-            rsaKeyPairGen.initialize(3072, null);
-            rsaKeyPair_SunRsaSign[3] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_SunRsaSign[3] = RSA 3072
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "SunRsaSign");
-            rsaKeyPairGen.initialize(4096, null);
-            rsaKeyPair_SunRsaSign[4] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_SunRsaSign[4] = RSA 4096
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "SunRsaSign");
-            rsaKeyPairGen.initialize(5120, null);
-            rsaKeyPair_SunRsaSign[5] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_SunRsaSign[5] = RSA 5120
+            rsaKeyPair_SunRsaSign = getKeyPairs("SunRsaSign");
         }
-
-        //================================================================
 
         if (signingProviderName.equalsIgnoreCase("OpenJCEPlusFIPS")) {
-            // KeyPairs for OpenJCEPlusFIPS
-            //rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlusFIPS");
-            //rsaKeyPairGen.initialize(512, null);
-            //rsaKeyPair_OpenJCEPlusFIPS[0] = rsaKeyPairGen.generateKeyPair();               // rsaKeyPair_OpenJCEPlusFIPS[0] = RSA 512
-            //rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlusFIPS");
-            //rsaKeyPairGen.initialize(1024, null);
-            //rsaKeyPair_OpenJCEPlusFIPS[1] = rsaKeyPairGen.generateKeyPair();               // rsaKeyPair_OpenJCEPlusFIPS[1] = RSA 1024
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlusFIPS");
-            rsaKeyPairGen.initialize(2048, null);
-            rsaKeyPair_OpenJCEPlusFIPS[2] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlusFIPS[2] = RSA 2048
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlusFIPS");
-            rsaKeyPairGen.initialize(3072, null);
-            rsaKeyPair_OpenJCEPlusFIPS[3] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlusFIPS[3] = RSA 3072
-
-            rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", "OpenJCEPlusFIPS");
-            rsaKeyPairGen.initialize(4096, null);
-            rsaKeyPair_OpenJCEPlusFIPS[4] = rsaKeyPairGen.generateKeyPair(); // rsaKeyPair_OpenJCEPlusFIPS[4] = RSA 4096
-
+            rsaKeyPair_OpenJCEPlusFIPS = getKeyPairs("OpenJCEPlusFIPS");
         }
 
-        //================================================================
+    }
 
+    private static synchronized KeyPair[] getKeyPairs(String providerName) throws Exception {
+        KeyPair[] keyPairs = keyPairCache.get(providerName);
+        if (keyPairs == null) {
+            boolean isFips = providerName.equalsIgnoreCase("OpenJCEPlusFIPS");
+            keyPairs = new KeyPair[KEY_SIZES.length];
+            for (int i = 0; i < KEY_SIZES.length; i++) {
+                if (isFips && (KEY_SIZES[i] < FIPS_MIN_KEY_SIZE
+                        || KEY_SIZES[i] > FIPS_MAX_KEY_SIZE)) {
+                    continue;
+                }
+                KeyPairGenerator rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", providerName);
+                rsaKeyPairGen.initialize(KEY_SIZES[i], null);
+                keyPairs[i] = rsaKeyPairGen.generateKeyPair();
+            }
+            keyPairCache.put(providerName, keyPairs);
+        }
+        return keyPairs;
     }
 
 
@@ -3725,7 +3688,7 @@ public class BaseTestRSAPSS2 extends BaseTestJunit5 {
     } // end testRSAPSS_SameObjectTest()( )
 
     // Compute the signature, but do not use PSSParameters class
-    private static boolean doSignature(byte[] dataToBeSigned, KeyPair rsaKeyPair,
+    private boolean doSignature(byte[] dataToBeSigned, KeyPair rsaKeyPair,
             String signingProvidersSignatureAlgorithmName,
             String verifingProvidersSignatureAlgorithmName, String signingProviderName,
             String verifyingProviderName,
