@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import ibm.security.internal.spec.HKDFExpandParameterSpec;
 import ibm.security.internal.spec.HKDFExtractParameterSpec;
@@ -21,7 +21,6 @@ import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.Provider;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
@@ -33,21 +32,26 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-public class BaseTestHKDF extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestHKDF extends BaseTest {
 
-    public String testName;
-    public String algName;
-    public byte[] IKM;
-    public byte[] salt;
-    public byte[] info;
-    public int outLen;
-    public byte[] expectedPRK;
-    public byte[] expectedOKM;
-
-    Provider provider = null;
+    @Parameter(0)
+    TestProvider provider;
 
     String HKDF_KA[][] = {
 
@@ -125,6 +129,11 @@ public class BaseTestHKDF extends BaseTestJunit5 {
                             + "b3bae548aa53d423b0d1f27ebba6f5e5" + "673a081d70cce7acfc48",
                     "42"}, };
 
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
+
     @Test
     public void testHKDF1() throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
@@ -168,13 +177,11 @@ public class BaseTestHKDF extends BaseTestJunit5 {
     public void test3DesHKDF256() throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchPaddingException,
             IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
+        // FIPS does not support 3DES
+        assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()),
+                "Skipping 3DES test for FIPS provider");
+
         String curveName = "secp256r1";
-
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            //FIPS does not support 3DES. So skip the test
-            return;
-        }
-
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
         byte[] sharedSecret = compute_ecdh_key(curveName, ecgn, getProviderName(), getProviderName());
 
@@ -384,14 +391,10 @@ public class BaseTestHKDF extends BaseTestJunit5 {
             throws IOException {
         byte[] info = new byte[4 + label.length];
         ByteBuffer m = ByteBuffer.wrap(info);
-        try {
-            Record.putInt16(m, length);
-            Record.putBytes8(m, label);
-            Record.putInt8(m, 0x00); // zero-length context
-        } catch (IOException ioe) {
-            // unlikely
-            throw new RuntimeException("Unexpected exception", ioe);
-        }
+        m.put((byte) ((length >> 8) & 0xFF));
+        m.put((byte) (length & 0xFF));
+        m.put((byte) (label.length & 0xFF));
+        m.put(label);
 
         return info;
 
@@ -407,6 +410,7 @@ public class BaseTestHKDF extends BaseTestJunit5 {
             b[i] = (byte) v;
         }
         return b;
+
     }
 
     @Test
@@ -581,14 +585,12 @@ public class BaseTestHKDF extends BaseTestJunit5 {
         } catch (NoSuchProviderException e) {
             e.printStackTrace();
             assertTrue(false);
-
         }
     }
 
     byte[] compute_ecdh_key(String idString, AlgorithmParameterSpec algParameterSpec,
             String providerA, String providerB) throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NoSuchProviderException, InvalidKeyException {
-        //final String methodName = "compute_ecdh_key" + "_" + idString;
 
         KeyPairGenerator kpgA = null;
         try {
@@ -609,12 +611,7 @@ public class BaseTestHKDF extends BaseTestJunit5 {
         }
 
         KeyPair keyPairA = kpgA.generateKeyPair();
-        // System.out.println("KeyPairA.privKey=" +
-        // BaseUtils.bytesToHex(keyPairA.getPrivate().getEncoded()));
-        // System.out.println("KeyPairA.publicKey=" +
-        // BaseUtils.bytesToHex(keyPairA.getPublic().getEncoded()));
 
-        // set up
         KeyAgreement keyAgreeA = null;
         try {
             keyAgreeA = KeyAgreement.getInstance("ECDH", providerA);
@@ -625,7 +622,6 @@ public class BaseTestHKDF extends BaseTestJunit5 {
             e.printStackTrace();
             throw e;
         }
-        // Two party agreement
         try {
             keyAgreeA.init(keyPairA.getPrivate());
         } catch (InvalidKeyException e) {
@@ -652,10 +648,6 @@ public class BaseTestHKDF extends BaseTestJunit5 {
         }
 
         KeyPair keyPairB = kpgB.generateKeyPair();
-        // System.out.println("KeyPairB.privKey=" +
-        // BaseUtils.bytesToHex(keyPairB.getPrivate().getEncoded()));
-        // System.out.println("KeyPairB.publicKey=" +
-        // BaseUtils.bytesToHex(keyPairB.getPublic().getEncoded()));
 
         KeyAgreement keyAgreeB = null;
         try {
@@ -693,13 +685,8 @@ public class BaseTestHKDF extends BaseTestJunit5 {
             throw e;
         }
 
-        // Generate the key bytes
         byte[] sharedSecretA = keyAgreeA.generateSecret();
         byte[] sharedSecretB = keyAgreeB.generateSecret();
-        // System.out.println(methodName + " sharedSecretA = " +
-        // BaseUtils.bytesToHex(sharedSecretA));
-        // System.out.println(methodName + " sharedSecretB = " +
-        // BaseUtils.bytesToHex(sharedSecretB));
 
         assertTrue(Arrays.equals(sharedSecretA, sharedSecretB));
         return sharedSecretA;
