@@ -49,6 +49,15 @@ public class TestArguments {
     }
 
     /**
+     * Generates combinations of OpenJCEPlus* providers with the SunRsaSign provider for interoperability testing.
+     *
+     * @return Stream of Arguments containing (JCEProviders, SunRsaSign) pairs
+     */
+    protected static Stream<Arguments> getOpenJCEPlusWithSunRsaSignInteropProvider(Set<String> providers) {
+        return getOpenJCEPlusWithInteropProviders(providers, TestProvider.SunRsaSign);
+    }
+
+    /**
      * Generates combinations of OpenJCEPlus* providers with the SunEC provider for interoperability testing.
      *
      * @return Stream of Arguments containing (JCEProviders, SunEC) pairs
