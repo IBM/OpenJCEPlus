@@ -37,8 +37,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
@@ -52,7 +54,10 @@ public class TestPBECipher extends BaseTest {
         0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20,
     };
     private int iterationCount = 300000;
-    private byte[] salt = new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+    private byte[] salt = {
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+        0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x00,
+    };
 
     private List<String> algorithms = Arrays.asList("PBEWithHmacSHA1AndAES_128", "PBEWithHmacSHA1AndAES_256", "PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
             "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
@@ -67,6 +72,10 @@ public class TestPBECipher extends BaseTest {
             "PBEWithHmacShA512/256AndAES_256/CBC/pkCS5Padding", "PBEWithSHA1AndDESede/CBC/PKCS5Padding", "PBEWithSHA1AndRC2_40/CBC/PKCS5Padding", "PBEWithSHA1AndRC2_128/CBC/PKCS5Padding",
             "PBEWithSHA1AndRC4_40/ECB/NoPadding", "PBEWithSHA1AndRC4_128/ECB/NoPadding");
 
+    private List<String> fipsAlgorithms = Arrays.asList("PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
+            "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
+            "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256");
+
     private final byte[] plainText15 = "123456781234567".getBytes();
     private final byte[] plainText16 = "1234567812345678".getBytes();
     private final byte[] plainText17 = "12345678123456781".getBytes();
@@ -77,9 +86,19 @@ public class TestPBECipher extends BaseTest {
         setAndInsertProvider(provider);
     }
 
+    private void assumeAlgorithmSupported(String alg) {
+        if (getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
+            int modeIdx = alg.toUpperCase(Locale.ENGLISH).indexOf("/CBC");
+            String base = modeIdx == -1 ? alg : alg.substring(0, modeIdx);
+            assumeTrue(fipsAlgorithms.stream().anyMatch(base::equalsIgnoreCase),
+                    "Algorithm not supported by OpenJCEPlusFIPS: " + alg);
+        }
+    }
+
     @ParameterizedTest
     @FieldSource("algorithms")
     void testPBEFunctionality(String alg) throws Exception {
+        assumeAlgorithmSupported(alg);
         SecretKey key = createKey(alg);
         encryptDecrypt(alg, key);
         encryptDecrypt(alg, key, true);
@@ -88,6 +107,7 @@ public class TestPBECipher extends BaseTest {
     @ParameterizedTest
     @FieldSource("algorithmsModePadding")
     void testPBEFunctionalityModePadding(String alg) throws Exception {
+        assumeAlgorithmSupported(alg);
         SecretKey key = createKey(alg);
         encryptDecrypt(alg, key);
         encryptDecrypt(alg, key, true);
@@ -96,6 +116,7 @@ public class TestPBECipher extends BaseTest {
     @ParameterizedTest
     @FieldSource("algorithms")
     void testWrongMode(String alg) throws Exception {
+        assumeAlgorithmSupported(alg);
         try {
             Cipher.getInstance(alg + "/BOB/NoPadding", getProviderName());
         } catch (NoSuchAlgorithmException e) {
@@ -123,6 +144,7 @@ public class TestPBECipher extends BaseTest {
     @ParameterizedTest
     @FieldSource("algorithms")
     void testWrongPadding(String alg) throws Exception {
+        assumeAlgorithmSupported(alg);
         try {
             if (!alg.equals("PBEWithSHA1AndRC4_40") && !alg.equals("PBEWithSHA1AndRC4_128")) {
                 Cipher.getInstance(alg + "/CBC/BOBISO", getProviderName());
@@ -154,6 +176,7 @@ public class TestPBECipher extends BaseTest {
     @ParameterizedTest
     @FieldSource("algorithms")
     void testShortBuffer(String alg) throws Exception {
+        assumeAlgorithmSupported(alg);
         SecretKey key = createKey(alg);
         Cipher c = Cipher.getInstance(alg, getProviderName());
         c.init(Cipher.ENCRYPT_MODE, key);
@@ -169,6 +192,7 @@ public class TestPBECipher extends BaseTest {
     @ParameterizedTest
     @FieldSource("algorithms")
     void testIllegalBlockSize(String alg) throws Exception {
+        assumeAlgorithmSupported(alg);
         // RC4 is a stream cipher
         if (alg.equals("PBEWithSHA1AndRC4_40") || alg.equals("PBEWithSHA1AndRC4_128"))
             return;
@@ -189,6 +213,7 @@ public class TestPBECipher extends BaseTest {
     @ParameterizedTest
     @FieldSource("algorithms")
     void testWrongCipherOperatingMode(String alg) throws Exception {
+        assumeAlgorithmSupported(alg);
         SecretKey key = createKey(alg);
         Cipher c = Cipher.getInstance(alg, getProviderName());
         try {
@@ -202,6 +227,7 @@ public class TestPBECipher extends BaseTest {
     @ParameterizedTest
     @FieldSource("algorithms")
     void testNullKeyAndPassword(String alg) throws Exception {
+        assumeAlgorithmSupported(alg);
         SecretKey key = null;
         Cipher c = Cipher.getInstance(alg, getProviderName());
         try {
