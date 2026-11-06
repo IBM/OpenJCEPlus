@@ -17,6 +17,7 @@ OBJS= \
 	BuildDate.obj \
 	Digest.obj \
 	Random.obj \
+	XECKey.obj \
 	StaticStub.obj \
 	Utils.obj
 

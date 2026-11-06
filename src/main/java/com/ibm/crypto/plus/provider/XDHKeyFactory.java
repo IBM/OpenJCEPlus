@@ -8,6 +8,8 @@
 
 package com.ibm.crypto.plus.provider;
 
+import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
+import com.ibm.crypto.plus.provider.base.NativeInterface;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -35,15 +37,33 @@ class XDHKeyFactory extends KeyFactorySpi {
     private OpenJCEPlusProvider provider = null;
     private String alg = null;
 
-    static XECKey toXECKey(OpenJCEPlusProvider provider, String Alg, Key key)
-            throws InvalidKeyException {
-        return (XECKey) new XDHKeyFactory(provider, Alg).engineTranslateKey(key);
+    // Backend that translated keys must belong to. When null, the backend
+    // selected for "KeyFactory" is used.
+    private NativeInterface targetBackend = null;
+
+    /**
+     * Translates a key into an XDH key whose native key lives on the given
+     * backend, importing it if necessary.
+     */
+    static XECKey toXECKey(OpenJCEPlusProvider provider, String Alg, Key key,
+            NativeInterface backend) throws InvalidKeyException {
+        XDHKeyFactory factory = new XDHKeyFactory(provider, Alg);
+        factory.targetBackend = backend;
+        return (XECKey) factory.engineTranslateKey(key);
     }
 
     private XDHKeyFactory(OpenJCEPlusProvider provider, String Alg) {
         super();
         this.provider = provider;
         this.alg = Alg;
+    }
+
+    private NativeInterface backend() {
+        if (targetBackend != null) {
+            return targetBackend;
+        }
+        return NativeCryptoSelector.selectBackend(
+                provider, "KeyFactory", alg == null ? "XDH" : alg);
     }
 
     private XDHKeyFactory(OpenJCEPlusProvider provider) {
@@ -78,7 +98,7 @@ class XDHKeyFactory extends KeyFactorySpi {
                 BigInteger u = publicKeySpec.getU();
 
                 try {
-                    return new XDHPublicKeyImpl(provider, params, u, configAlgName);
+                    return new XDHPublicKeyImpl(provider, params, u, configAlgName, backend());
                 } catch (InvalidAlgorithmParameterException iape) {
                     throw new InvalidKeySpecException(iape);
                 }
@@ -120,7 +140,7 @@ class XDHKeyFactory extends KeyFactorySpi {
 
                 Optional<byte[]> scalar = Optional.of(privateKeySpec.getScalar());
                 try {
-                    return new XDHPrivateKeyImpl(provider, params, scalar, configAlgName);
+                    return new XDHPrivateKeyImpl(provider, params, scalar, configAlgName, backend());
                 } catch (InvalidAlgorithmParameterException iape) {
                     throw new InvalidKeySpecException(iape);
                 }
@@ -212,9 +232,11 @@ class XDHKeyFactory extends KeyFactorySpi {
                     throw new InvalidKeyException("Parameters must be " + this.alg);
                 }
 
-                // Check if key originates from this factory
-                if (key instanceof XDHPublicKeyImpl)
+                // Reuse a provider key only when it belongs to the target backend.
+                if (key instanceof XDHPublicKeyImpl local
+                        && local.getNativeKey().getBackendInterface() == backend()) {
                     return key;
+                }
 
                 // Convert key to spec
                 XECPublicKeySpec xecPubKeySpec = engineGetKeySpec(key,
@@ -231,9 +253,11 @@ class XDHKeyFactory extends KeyFactorySpi {
                     throw new InvalidKeyException("Parameters must be " + this.alg);
                 }
 
-                // Check if key originates from this factory
-                if (key instanceof XDHPrivateKeyImpl)
+                // Reuse a provider key only when it belongs to the target backend.
+                if (key instanceof XDHPrivateKeyImpl local
+                        && local.getNativeKey().getBackendInterface() == backend()) {
                     return key;
+                }
 
                 // Convert key to spec
                 XECPrivateKeySpec xecPrivKeySpec = engineGetKeySpec(key,

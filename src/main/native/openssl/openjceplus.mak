@@ -17,6 +17,7 @@ OBJS = \
 	${HOSTOUT}/BuildDate.o \
 	${HOSTOUT}/Digest.o \
 	${HOSTOUT}/Random.o \
+	${HOSTOUT}/XECKey.o \
 	${HOSTOUT}/StaticStub.o \
 	${HOSTOUT}/Utils.o
 
