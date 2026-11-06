@@ -14,8 +14,8 @@ import java.io.File;
 import java.lang.ref.Cleaner;
 import java.nio.ByteBuffer;
 import java.security.ProviderException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import sun.security.util.Debug;
 
 public abstract class NativeOpenSSLAdapter implements NativeInterface {
@@ -38,7 +38,7 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
     private boolean useFIPSMode;
 
     //Per-algorithm cache of EVP_PKEY_CTX instances to be duplicated.
-    private final Map<String, Long> pkeyCtxCache = new HashMap<>();
+    private final Map<String, Long> pkeyCtxCache = new ConcurrentHashMap<>();
     private static final Cleaner CLEANER = Cleaner.create();
 
     private static final String minOpenSSLVersion = "3.5.0";

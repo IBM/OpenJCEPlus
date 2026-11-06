@@ -93,7 +93,7 @@ public class MLKEMImpl implements KEMSpi {
         }
 
         String keyAlgorithm = publicKey.getAlgorithm();
-        if (keyAlgorithm == null || !keyAlgorithm.equals("ML-KEM")) {
+        if (keyAlgorithm == null || !keyAlgorithm.startsWith("ML-KEM")) {
             throw new InvalidKeyException("unsupported key");
         }
 
