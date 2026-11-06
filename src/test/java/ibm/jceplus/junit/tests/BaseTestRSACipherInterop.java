@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -23,6 +23,9 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -31,7 +34,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-public class BaseTestRSACipherInterop extends BaseTestJunit5Interop {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+public abstract class BaseTestRSACipherInterop extends BaseTestInterop {
+
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
+
     private KeyFactory rsaKeyFactoryPlus;
     private KeyFactory rsaKeyFactoryInterop;
 
@@ -40,6 +52,10 @@ public class BaseTestRSACipherInterop extends BaseTestJunit5Interop {
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
+        setKeySize(2048);
+
         KeyPairGenerator rsaKeyPairGenPlus = KeyPairGenerator.getInstance("RSA", getProviderName());
         rsaKeyPairGenPlus.initialize(getKeySize());
         rsaKeyPairPlus = rsaKeyPairGenPlus.generateKeyPair();

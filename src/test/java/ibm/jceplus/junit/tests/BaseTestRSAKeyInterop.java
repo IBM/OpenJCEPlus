@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -28,35 +28,51 @@ import java.util.Arrays;
 import javax.crypto.Cipher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+public abstract class BaseTestRSAKeyInterop extends BaseTestInterop {
 
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
+
+    @Parameter(2)
+    TestProvider interopProvider2;
 
     protected KeyPairGenerator rsaKeyPairGenPlus;
     protected KeyFactory rsaKeyFactoryPlus;
-    protected KeyPairGenerator rsaKeyPairGenBC;
-    protected KeyFactory rsaKeyFactoryBC;
+    protected KeyPairGenerator rsaKeyPairGenInterop;
+    protected KeyFactory rsaKeyFactoryInterop;
 
     byte[] origMsg = "this is the original message to be signed".getBytes();
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
+        setAndInsertInteropProvider2(interopProvider2);
+        setKeySize(2048);
+        if (interopProvider == TestProvider.BC && !getProviderName().equals("OpenJCEPlusFIPS")) {
+            setKeySize(1024);
+        }
         rsaKeyPairGenPlus = KeyPairGenerator.getInstance("RSA", getProviderName());
         rsaKeyFactoryPlus = KeyFactory.getInstance("RSA", getProviderName());
-        rsaKeyPairGenBC = KeyPairGenerator.getInstance("RSA", getInteropProviderName());
-        rsaKeyFactoryBC = KeyFactory.getInstance("RSA", getInteropProviderName());
+        rsaKeyPairGenInterop = KeyPairGenerator.getInstance("RSA", getInteropProviderName());
+        rsaKeyFactoryInterop = KeyFactory.getInstance("RSA", getInteropProviderName());
     }
 
     @Test
-    public void testRSAKeyGen_PlusToBC() throws Exception {
-        int keySize = 1024;
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            keySize = 2048;
-        }
-        KeyPair rsaKeyPairPlus = generateKeyPair(rsaKeyPairGenPlus, keySize);
+    public void testRSAKeyGen_PlusToInterop() throws Exception {
+        KeyPair rsaKeyPairPlus = generateKeyPair(rsaKeyPairGenPlus, getKeySize());
         RSAPublicKey publicKeyPlus = (RSAPublicKey) rsaKeyPairPlus.getPublic();
         RSAPrivateKey privateKeyPlus = (RSAPrivateKey) rsaKeyPairPlus.getPrivate();
         byte[] publicKeyBytesPlus = publicKeyPlus.getEncoded();
@@ -65,69 +81,66 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
         //KeyFactory keyFactory = KeyFactory.getInstance("RSA", interopProviderName);
         EncodedKeySpec privateKeySpecPlus = new PKCS8EncodedKeySpec(privateKeyBytesPlus);
         EncodedKeySpec publicKeySpecPlus = new X509EncodedKeySpec(publicKeyBytesPlus);
-        PublicKey publicKeyBC = rsaKeyFactoryBC.generatePublic(publicKeySpecPlus);
-        PrivateKey privateKeyBC = rsaKeyFactoryBC.generatePrivate(privateKeySpecPlus);
+        PublicKey publicKeyInterop = rsaKeyFactoryInterop.generatePublic(publicKeySpecPlus);
+        PrivateKey privateKeyInterop = rsaKeyFactoryInterop.generatePrivate(privateKeySpecPlus);
 
         // The original and new keys are the same
-        //boolean same = privateKeyPlus.equals(privateKeyBC);
-        boolean same = Arrays.equals(privateKeyBytesPlus, privateKeyBC.getEncoded());
+        boolean same = Arrays.equals(privateKeyBytesPlus, privateKeyInterop.getEncoded());
         assertTrue(same);
-        same = Arrays.equals(publicKeyBytesPlus, publicKeyBC.getEncoded());
+        same = Arrays.equals(publicKeyBytesPlus, publicKeyInterop.getEncoded());
         assertTrue(same);
 
     }
 
     @Test
-    public void testRSAKeyGen_BCToPlus() throws Exception {
-        int keySize = 1024;
-        if (getProviderName().equals("OpenJCEPlusFIPS")) {
-            keySize = 2048;
-        }
-        KeyPair rsaKeyPairBC = generateKeyPair(rsaKeyPairGenBC, keySize);
-        RSAPublicKey publicKeyBC = (RSAPublicKey) rsaKeyPairBC.getPublic();
-        RSAPrivateKey privateKeyBC = (RSAPrivateKey) rsaKeyPairBC.getPrivate();
-        byte[] publicKeyBytesBC = publicKeyBC.getEncoded();
-        byte[] privateKeyBytesBC = privateKeyBC.getEncoded();
+    public void testRSAKeyGen_InteropToPlus() throws Exception {
+        KeyPair rsaKeyPairInterop = generateKeyPair(rsaKeyPairGenInterop, getKeySize());
+        RSAPublicKey publicKeyInterop = (RSAPublicKey) rsaKeyPairInterop.getPublic();
+        RSAPrivateKey privateKeyInterop = (RSAPrivateKey) rsaKeyPairInterop.getPrivate();
+        byte[] publicKeyBytesInterop = publicKeyInterop.getEncoded();
+        byte[] privateKeyBytesInterop = privateKeyInterop.getEncoded();
 
         //KeyFactory keyFactory = KeyFactory.getInstance("RSA", interopProviderName);
-        EncodedKeySpec privateKeySpecBC = new PKCS8EncodedKeySpec(privateKeyBytesBC);
-        PrivateKey privateKeyPlus = rsaKeyFactoryPlus.generatePrivate(privateKeySpecBC);
+        EncodedKeySpec privateKeySpecInterop = new PKCS8EncodedKeySpec(privateKeyBytesInterop);
+        PrivateKey privateKeyPlus = rsaKeyFactoryPlus.generatePrivate(privateKeySpecInterop);
 
-        EncodedKeySpec publicKeySpecBC = new X509EncodedKeySpec(publicKeyBytesBC);
-        PublicKey publicKeyPlus = rsaKeyFactoryPlus.generatePublic(publicKeySpecBC);
+        EncodedKeySpec publicKeySpecInterop = new X509EncodedKeySpec(publicKeyBytesInterop);
+        PublicKey publicKeyPlus = rsaKeyFactoryPlus.generatePublic(publicKeySpecInterop);
 
         // The original and new keys are the same
-        boolean same = Arrays.equals(privateKeyBytesBC, privateKeyPlus.getEncoded());
+        boolean same = Arrays.equals(privateKeyBytesInterop, privateKeyPlus.getEncoded());
         assertTrue(same);
-        same = Arrays.equals(publicKeyBytesBC, publicKeyPlus.getEncoded());
+        same = Arrays.equals(publicKeyBytesInterop, publicKeyPlus.getEncoded());
         assertTrue(same);
 
     }
 
     @Test
-    public void testRSAKeyFactoryCreateFromEncodedBCtoPlus_1024() throws Exception {
+    public void testRSAKeyFactoryCreateFromEncodedInteropToPlus_1024() throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
+            // 1024 key size for FIPS not supported
             return;
         }
-        keyFactoryCreateFromEncodedBCToPlus(1024);
+        keyFactoryCreateFromEncodedInteropToPlus(1024);
     }
 
     @Test
-    public void testRSAKeyFactoryCreateFromEncodedPlusToBC_1024() throws Exception {
+    public void testRSAKeyFactoryCreateFromEncodedPlusToInterop_1024() throws Exception {
         if (getProviderName().equals("OpenJCEPlusFIPS")) {
+            // 1024 key size for FIPS not supported
             return;
         }
-        keyFactoryCreateFromEncodedPlusToBC(1024);
+        keyFactoryCreateFromEncodedPlusToInterop(1024);
     }
 
     @Test
-    public void testRSAKeyFactoryCreateFromKeySpecBCToPlus_2048() throws Exception {
-        keyFactoryCreateFromKeySpecBCToPlus(2048);
+    public void testRSAKeyFactoryCreateFromKeySpecInteropToPlus_2048() throws Exception {
+        keyFactoryCreateFromKeySpecInteropToPlus(2048);
     }
 
     @Test
-    public void testRSAKeyFactoryCreateFromKeySpecPlusToBC_2048() throws Exception {
-        keyFactoryCreateFromKeySpecPlusToBC(2048);
+    public void testRSAKeyFactoryCreateFromKeySpecPlusToInterop_2048() throws Exception {
+        keyFactoryCreateFromKeySpecPlusToInterop(2048);
     }
 
     /*
@@ -186,7 +199,7 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
     }
 
 
-    protected void keyFactoryCreateFromEncodedPlusToBC(int size) throws Exception {
+    protected void keyFactoryCreateFromEncodedPlusToInterop(int size) throws Exception {
 
         KeyPair rsaKeyPairPlus = generateKeyPair(rsaKeyPairGenPlus, size);
 
@@ -212,56 +225,55 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
         //X509EncodedKeySpec  x509SpecInterOp  = new X509EncodedKeySpec(rsaPub.getEncoded());
         //PKCS8EncodedKeySpec pkcs8SpecInterOp = new PKCS8EncodedKeySpec(rsaPriv.getEncoded());
 
-        //Test Interop  with BC
+        //Test Interop  with JCE
 
-        RSAPublicKey rsaPubBC = (RSAPublicKey) rsaKeyFactoryBC.generatePublic(x509SpecPlus);
-        RSAPrivateKey rsaPrivBC = (RSAPrivateKey) rsaKeyFactoryBC.generatePrivate(pkcs8SpecPlus);
-        if (!Arrays.equals(rsaPubBC.getEncoded(), rsaKeyPairPlus.getPublic().getEncoded())) {
+        RSAPublicKey rsaPubInterop = (RSAPublicKey) rsaKeyFactoryInterop.generatePublic(x509SpecPlus);
+        RSAPrivateKey rsaPrivInterop = (RSAPrivateKey) rsaKeyFactoryInterop.generatePrivate(pkcs8SpecPlus);
+        if (!Arrays.equals(rsaPubInterop.getEncoded(), rsaKeyPairPlus.getPublic().getEncoded())) {
             fail("RSA public key does not match generated public key");
         }
 
-        //System.out.println ("RSAPrivInterOp get Bytes " + toHex(rsaPrivBC.getEncoded()));
+        //System.out.println ("RSAPrivInterOp get Bytes " + toHex(rsaPrivInterop.getEncoded()));
         //System.out.println ("rsaKeyPair.getPrivate().getEncoded() get Bytes " + toHex(rsaKeyPairPlus.getPrivate().getEncoded()));
-        if (!Arrays.equals(rsaPrivBC.getEncoded(), rsaKeyPairPlus.getPrivate().getEncoded())) {
+        if (!Arrays.equals(rsaPrivInterop.getEncoded(), rsaKeyPairPlus.getPrivate().getEncoded())) {
             fail("RSA private key does not match generated private key");
         }
 
     }
 
-    protected void keyFactoryCreateFromEncodedBCToPlus(int size) throws Exception {
+    protected void keyFactoryCreateFromEncodedInteropToPlus(int size) throws Exception {
 
-        KeyPair rsaKeyPairBC = generateKeyPair(rsaKeyPairGenBC, size);
+        KeyPair rsaKeyPairInterop = generateKeyPair(rsaKeyPairGenInterop, size);
 
-        X509EncodedKeySpec x509SpecBC = new X509EncodedKeySpec(
-                rsaKeyPairBC.getPublic().getEncoded());
-        PKCS8EncodedKeySpec pkcs8SpecBC = new PKCS8EncodedKeySpec(
-                rsaKeyPairBC.getPrivate().getEncoded());
+        X509EncodedKeySpec x509SpecInterop = new X509EncodedKeySpec(
+                rsaKeyPairInterop.getPublic().getEncoded());
+        PKCS8EncodedKeySpec pkcs8SpecInterop = new PKCS8EncodedKeySpec(
+                rsaKeyPairInterop.getPrivate().getEncoded());
 
-        RSAPublicKey rsaPubBC = (RSAPublicKey) rsaKeyFactoryBC.generatePublic(x509SpecBC);
-        RSAPrivateKey rsaPrivBC = (RSAPrivateKey) rsaKeyFactoryBC.generatePrivate(pkcs8SpecBC);
+        RSAPublicKey rsaPubInterop = (RSAPublicKey) rsaKeyFactoryInterop.generatePublic(x509SpecInterop);
+        RSAPrivateKey rsaPrivInterop = (RSAPrivateKey) rsaKeyFactoryInterop.generatePrivate(pkcs8SpecInterop);
 
-        if (!Arrays.equals(rsaPubBC.getEncoded(), rsaKeyPairBC.getPublic().getEncoded())) {
+        if (!Arrays.equals(rsaPubInterop.getEncoded(), rsaKeyPairInterop.getPublic().getEncoded())) {
             fail("RSA public key does not match generated public key");
         }
 
-        if (!Arrays.equals(rsaPrivBC.getEncoded(), rsaKeyPairBC.getPrivate().getEncoded())) {
+        if (!Arrays.equals(rsaPrivInterop.getEncoded(), rsaKeyPairInterop.getPrivate().getEncoded())) {
             fail("RSA private key does not match generated public key");
         }
 
         //KeyPair rsaKeyPairInterOp = generateKeyPair(rsaKeyPairGenInterOp, size);
-
         //X509EncodedKeySpec  x509Spec = new X509EncodedKeySpec(rsaPubInterOp.getEncoded());
         //PKCS8EncodedKeySpec pkcs8Spec = new PKCS8EncodedKeySpec(rsaPrivInterOp.getEncoded());
 
-        RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyFactoryPlus.generatePublic(x509SpecBC);
-        RSAPrivateKey rsaPrivPlus = (RSAPrivateKey) rsaKeyFactoryPlus.generatePrivate(pkcs8SpecBC);
-        if (!Arrays.equals(rsaPubPlus.getEncoded(), rsaKeyPairBC.getPublic().getEncoded())) {
+        RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyFactoryPlus.generatePublic(x509SpecInterop);
+        RSAPrivateKey rsaPrivPlus = (RSAPrivateKey) rsaKeyFactoryPlus.generatePrivate(pkcs8SpecInterop);
+        if (!Arrays.equals(rsaPubPlus.getEncoded(), rsaKeyPairInterop.getPublic().getEncoded())) {
             fail("RSA public key does not match generated public key");
         }
 
         //System.out.println ("RSAPrivInterOp get Bytes " + toHex(rsaPrivPlus.getEncoded()));
-        //System.out.println ("rsaKeyPairBC.getPrivate().getEncoded() get Bytes " + toHex(rsaKeyPairBC.getPrivate().getEncoded()));
-        if (!Arrays.equals(rsaPrivPlus.getEncoded(), rsaKeyPairBC.getPrivate().getEncoded())) {
+        //System.out.println ("rsaKeyPairInterop.getPrivate().getEncoded() get Bytes " + toHex(rsaKeyPairInterop.getPrivate().getEncoded()));
+        if (!Arrays.equals(rsaPrivPlus.getEncoded(), rsaKeyPairInterop.getPrivate().getEncoded())) {
             fail("RSA private key does not match generated private key");
         }
 
@@ -269,48 +281,48 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
 
 
 
-    protected void keyFactoryCreateFromKeySpecBCToPlus(int size) throws Exception {
+    protected void keyFactoryCreateFromKeySpecInteropToPlus(int size) throws Exception {
 
-        KeyPair rsaKeyPairBC = generateKeyPair(rsaKeyPairGenBC, size);
+        KeyPair rsaKeyPairInterop = generateKeyPair(rsaKeyPairGenInterop, size);
 
-        RSAPublicKeySpec rsaPubSpecBC = rsaKeyFactoryBC
-                .getKeySpec(rsaKeyPairBC.getPublic(), RSAPublicKeySpec.class);
-        RSAPublicKey rsaPubBC = (RSAPublicKey) rsaKeyFactoryBC.generatePublic(rsaPubSpecBC);
+        RSAPublicKeySpec rsaPubSpecInterop = rsaKeyFactoryInterop
+                .getKeySpec(rsaKeyPairInterop.getPublic(), RSAPublicKeySpec.class);
+        RSAPublicKey rsaPubInterop = (RSAPublicKey) rsaKeyFactoryInterop.generatePublic(rsaPubSpecInterop);
 
-        if (!Arrays.equals(rsaPubBC.getEncoded(), rsaKeyPairBC.getPublic().getEncoded())) {
+        if (!Arrays.equals(rsaPubInterop.getEncoded(), rsaKeyPairInterop.getPublic().getEncoded())) {
             fail("RSA public key does not match generated public key");
         }
 
-        if (rsaKeyPairBC.getPrivate() instanceof RSAPrivateCrtKey) {
-            RSAPrivateCrtKeySpec rsaPrivateCrtSpecBC = rsaKeyFactoryBC
-                    .getKeySpec(rsaKeyPairBC.getPrivate(), RSAPrivateCrtKeySpec.class);
-            RSAPrivateCrtKey rsaPrivCrtBC = (RSAPrivateCrtKey) rsaKeyFactoryBC
-                    .generatePrivate(rsaPrivateCrtSpecBC);
+        if (rsaKeyPairInterop.getPrivate() instanceof RSAPrivateCrtKey) {
+            RSAPrivateCrtKeySpec rsaPrivateCrtSpecInterop = rsaKeyFactoryInterop
+                    .getKeySpec(rsaKeyPairInterop.getPrivate(), RSAPrivateCrtKeySpec.class);
+            RSAPrivateCrtKey rsaPrivCrtInterop = (RSAPrivateCrtKey) rsaKeyFactoryInterop
+                    .generatePrivate(rsaPrivateCrtSpecInterop);
 
-            if (!Arrays.equals(rsaPrivCrtBC.getEncoded(), rsaPrivCrtBC.getEncoded())) {
+            if (!Arrays.equals(rsaPrivCrtInterop.getEncoded(), rsaPrivCrtInterop.getEncoded())) {
                 fail("RSA private CRT key does not match generated private key");
             }
 
-            RSAPrivateKeySpec rsaPrivateSpecBC = rsaKeyFactoryBC
-                    .getKeySpec(rsaPrivCrtBC, RSAPrivateKeySpec.class);
+            RSAPrivateKeySpec rsaPrivateSpecInterop = rsaKeyFactoryInterop
+                    .getKeySpec(rsaPrivCrtInterop, RSAPrivateKeySpec.class);
             try {
-                rsaKeyFactoryBC.generatePrivate(rsaPrivateSpecBC);
+                rsaKeyFactoryInterop.generatePrivate(rsaPrivateSpecInterop);
             } catch (InvalidKeySpecException ikse) {
-                assertTrue(false, "BCPlus InvalidKeySpeccException = " + ikse.getMessage());
+                assertTrue(false, "JCEPlus InvalidKeySpeccException = " + ikse.getMessage());
             }
         } else {
-            RSAPrivateKeySpec rsaPrivateSpecBC = rsaKeyFactoryBC
-                    .getKeySpec(rsaKeyPairBC.getPrivate(), RSAPrivateKeySpec.class);
-            RSAPrivateKey rsaPrivBC = (RSAPrivateKey) rsaKeyFactoryBC
-                    .generatePrivate(rsaPrivateSpecBC);
+            RSAPrivateKeySpec rsaPrivateSpecInterop = rsaKeyFactoryInterop
+                    .getKeySpec(rsaKeyPairInterop.getPrivate(), RSAPrivateKeySpec.class);
+            RSAPrivateKey rsaPrivInterop = (RSAPrivateKey) rsaKeyFactoryInterop
+                    .generatePrivate(rsaPrivateSpecInterop);
 
-            if (!Arrays.equals(rsaPrivBC.getEncoded(), rsaKeyPairBC.getPrivate().getEncoded())) {
+            if (!Arrays.equals(rsaPrivInterop.getEncoded(), rsaKeyPairInterop.getPrivate().getEncoded())) {
                 fail("RSA private key does not match generated private key");
             }
         }
     }
 
-    protected void keyFactoryCreateFromKeySpecPlusToBC(int size) throws Exception {
+    protected void keyFactoryCreateFromKeySpecPlusToInterop(int size) throws Exception {
 
         KeyPair rsaKeyPairPlus = generateKeyPair(rsaKeyPairGenPlus, size);
 
@@ -336,10 +348,10 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
             RSAPrivateKeySpec rsaPrivateSpecPlus = rsaKeyFactoryPlus
                     .getKeySpec(rsaKeyPairPlus.getPrivate(), RSAPrivateKeySpec.class);
             try {
+
                 rsaKeyFactoryPlus.generatePrivate(rsaPrivateSpecPlus);
             } catch (InvalidKeySpecException ikse) {
-
-                assertTrue(false, "BCPlus InvalidKeySpeccException = " + ikse.getMessage());
+                assertTrue(false, "JCEPlus InvalidKeySpeccException = " + ikse.getMessage());
             }
         } else {
             RSAPrivateKeySpec rsaPrivateSpecPlus = rsaKeyFactoryPlus
@@ -355,87 +367,75 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
     }
 
     @Test
-    public void testSignBCAndVerifyPlus() {
+    public void testSignInteropAndVerifyPlus() {
         try {
 
-            int keySize = 1024;
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                keySize = 2048;
-            }
-            rsaKeyPairGenBC.initialize(keySize);
-            KeyPair rsaKeyPairBC = rsaKeyPairGenBC.generateKeyPair();
+            rsaKeyPairGenInterop.initialize(getKeySize());
+            KeyPair rsaKeyPairInterop = rsaKeyPairGenInterop.generateKeyPair();
 
-            rsaKeyPairBC.getPublic();
-            RSAPrivateKey rsaPrivBC = (RSAPrivateKey) rsaKeyPairBC.getPrivate();
-            Signature signingBC = Signature.getInstance("SHA256WithRSA", getInteropProviderName());
-            signingBC.initSign(rsaPrivBC);
-            signingBC.update(origMsg);
-            byte[] signedBytesBC = signingBC.sign();
+            rsaKeyPairInterop.getPublic();
+            RSAPrivateKey rsaPrivInterop = (RSAPrivateKey) rsaKeyPairInterop.getPrivate();
+            Signature signingInterop = Signature.getInstance("SHA256WithRSA", getInteropProviderName());
+            signingInterop.initSign(rsaPrivInterop);
+            signingInterop.update(origMsg);
+            byte[] signedBytesInterop = signingInterop.sign();
 
-            X509EncodedKeySpec x509SpecBC = new X509EncodedKeySpec(
-                    rsaKeyPairBC.getPublic().getEncoded());
-            PKCS8EncodedKeySpec pkcs8SpecBC = new PKCS8EncodedKeySpec(
-                    rsaKeyPairBC.getPrivate().getEncoded());
+            X509EncodedKeySpec x509SpecInterop = new X509EncodedKeySpec(
+                    rsaKeyPairInterop.getPublic().getEncoded());
+            PKCS8EncodedKeySpec pkcs8SpecInterop = new PKCS8EncodedKeySpec(
+                    rsaKeyPairInterop.getPrivate().getEncoded());
 
-            RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyFactoryPlus.generatePublic(x509SpecBC);
-            rsaKeyFactoryPlus.generatePrivate(pkcs8SpecBC);
+            RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyFactoryPlus.generatePublic(x509SpecInterop);
+            rsaKeyFactoryPlus.generatePrivate(pkcs8SpecInterop);
 
             Signature verifyingPlus = Signature.getInstance("SHA256withRSA", getProviderName());
             verifyingPlus.initVerify(rsaPubPlus);
             verifyingPlus.update(origMsg);
-            assertTrue(verifyingPlus.verify(signedBytesBC), "Signature verification failed");
+            assertTrue(verifyingPlus.verify(signedBytesInterop), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "signBCAndVerifyPlus failed");
+            assertTrue(false, "signInteropAndVerifyPlus failed");
         }
     }
 
     @Test
-    public void testSignBCAndVerifyPlusPrivateCrt() {
+    public void testSignInteropAndVerifyPlusPrivateCrt() {
 
         try {
 
-            int keySize = 1024;
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                keySize = 2048;
-            }
-            rsaKeyPairGenBC.initialize(keySize);
-            KeyPair rsaKeyPairBC = rsaKeyPairGenBC.generateKeyPair();
+            rsaKeyPairGenInterop.initialize(getKeySize());
+            KeyPair rsaKeyPairInterop = rsaKeyPairGenInterop.generateKeyPair();
 
-            rsaKeyPairBC.getPublic();
-            RSAPrivateCrtKey rsaPrivBC = (RSAPrivateCrtKey) rsaKeyPairBC.getPrivate();
-            Signature signingBC = Signature.getInstance("SHA256WithRSA", getInteropProviderName());
-            signingBC.initSign(rsaPrivBC);
-            signingBC.update(origMsg);
-            byte[] signedBytesBC = signingBC.sign();
+            rsaKeyPairInterop.getPublic();
+            RSAPrivateCrtKey rsaPrivInterop = (RSAPrivateCrtKey) rsaKeyPairInterop.getPrivate();
+            Signature signingInterop = Signature.getInstance("SHA256WithRSA", getInteropProviderName());
+            signingInterop.initSign(rsaPrivInterop);
+            signingInterop.update(origMsg);
+            byte[] signedBytesInterop = signingInterop.sign();
 
-            X509EncodedKeySpec x509SpecBC = new X509EncodedKeySpec(
-                    rsaKeyPairBC.getPublic().getEncoded());
-            PKCS8EncodedKeySpec pkcs8SpecBC = new PKCS8EncodedKeySpec(
-                    rsaKeyPairBC.getPrivate().getEncoded());
+            X509EncodedKeySpec x509SpecInterop = new X509EncodedKeySpec(
+                    rsaKeyPairInterop.getPublic().getEncoded());
+            PKCS8EncodedKeySpec pkcs8SpecInterop = new PKCS8EncodedKeySpec(
+                    rsaKeyPairInterop.getPrivate().getEncoded());
 
-            RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyFactoryPlus.generatePublic(x509SpecBC);
-            rsaKeyFactoryPlus.generatePrivate(pkcs8SpecBC);
+            RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyFactoryPlus.generatePublic(x509SpecInterop);
+            rsaKeyFactoryPlus.generatePrivate(pkcs8SpecInterop);
 
             Signature verifyingPlus = Signature.getInstance("SHA256withRSA", getProviderName());
             verifyingPlus.initVerify(rsaPubPlus);
             verifyingPlus.update(origMsg);
-            assertTrue(verifyingPlus.verify(signedBytesBC), "Signature verification failed");
+            assertTrue(verifyingPlus.verify(signedBytesInterop), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "signBCAndVerifyPlus failed");
+            assertTrue(false, "signInteropAndVerifyPlus failed");
         }
     }
 
     @Test
-    public void testSignPlusAndVerifyBC() {
+    public void testSignPlusAndVerifyInterop() {
 
         try {
-            int keySize = 1024;
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                keySize = 2048;
-            }
-            rsaKeyPairGenPlus.initialize(keySize);
+            rsaKeyPairGenPlus.initialize(getKeySize());
             KeyPair rsaKeyPairPlus = rsaKeyPairGenPlus.generateKeyPair();
 
             rsaKeyPairPlus.getPublic();
@@ -450,13 +450,13 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
             PKCS8EncodedKeySpec pkcs8SpecPlus = new PKCS8EncodedKeySpec(
                     rsaKeyPairPlus.getPrivate().getEncoded());
 
-            RSAPublicKey rsaPubBC = (RSAPublicKey) rsaKeyFactoryBC.generatePublic(x509SpecPlus);
-            rsaKeyFactoryBC.generatePrivate(pkcs8SpecPlus);
+            RSAPublicKey rsaPubInterop = (RSAPublicKey) rsaKeyFactoryInterop.generatePublic(x509SpecPlus);
+            rsaKeyFactoryInterop.generatePrivate(pkcs8SpecPlus);
 
-            Signature verifyingBC = Signature.getInstance("SHA256withRSA", getInteropProviderName());
-            verifyingBC.initVerify(rsaPubBC);
-            verifyingBC.update(origMsg);
-            assertTrue(verifyingBC.verify(signedBytesPlus), "Signature verification");
+            Signature verifyingInterop = Signature.getInstance("SHA256withRSA", getInteropProviderName());
+            verifyingInterop.initVerify(rsaPubInterop);
+            verifyingInterop.update(origMsg);
+            assertTrue(verifyingInterop.verify(signedBytesPlus), "Signature verification");
         } catch (Exception ex) {
             ex.printStackTrace();
             assertTrue(false, "SignAndVerify failed");
@@ -464,14 +464,10 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
     }
 
     @Test
-    public void testSignPlusAndVerifyBCCrt() {
+    public void testSignPlusAndVerifyInteropCrt() {
         try {
 
-            int keySize = 1024;
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                keySize = 2048;
-            }
-            rsaKeyPairGenPlus.initialize(keySize);
+            rsaKeyPairGenPlus.initialize(getKeySize());
             KeyPair rsaKeyPairPlus = rsaKeyPairGenPlus.generateKeyPair();
 
             rsaKeyPairPlus.getPublic();
@@ -486,34 +482,30 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
             PKCS8EncodedKeySpec pkcs8SpecPlus = new PKCS8EncodedKeySpec(
                     rsaKeyPairPlus.getPrivate().getEncoded());
 
-            RSAPublicKey rsaPubBC = (RSAPublicKey) rsaKeyFactoryBC.generatePublic(x509SpecPlus);
-            rsaKeyFactoryBC.generatePrivate(pkcs8SpecPlus);
+            RSAPublicKey rsaPubInterop = (RSAPublicKey) rsaKeyFactoryInterop.generatePublic(x509SpecPlus);
+            rsaKeyFactoryInterop.generatePrivate(pkcs8SpecPlus);
 
-            Signature verifyingBC = Signature.getInstance("SHA256withRSA", getProviderName());
-            verifyingBC.initVerify(rsaPubBC);
-            verifyingBC.update(origMsg);
-            assertTrue(verifyingBC.verify(signedBytesPlus), "Signature verification failed");
+            Signature verifyingInterop = Signature.getInstance("SHA256withRSA", getProviderName());
+            verifyingInterop.initVerify(rsaPubInterop);
+            verifyingInterop.update(origMsg);
+            assertTrue(verifyingInterop.verify(signedBytesPlus), "Signature verification failed");
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "signPlusAndVerifyBC failed");
+            assertTrue( false, "signPlusAndVerifyInterop failed");
         }
     }
 
     @Test
-    public void testEncryptPlusDecryptBC() {
+    public void testEncryptPlusDecryptInterop() {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
         try {
 
             byte[] msgBytes = ("This is a short msg".getBytes());
             //            public and Private key;" +
-            //                "encrypt with BC and d/ecrypt with BCPlus and vice versa").getBytes();
+            //                "encrypt with JCE and d/ecrypt with JCEPlus and vice versa").getBytes();
             byte[] cipherText;
-            int keySize = 1024;
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                keySize = 2048;
-            }
-            rsaKeyPairGenPlus.initialize(keySize);
+            rsaKeyPairGenPlus.initialize(getKeySize());
             KeyPair rsaKeyPairPlus = rsaKeyPairGenPlus.generateKeyPair();
 
             RSAPublicKey rsaPubPlus = (RSAPublicKey) rsaKeyPairPlus.getPublic();
@@ -527,55 +519,51 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
             PKCS8EncodedKeySpec pkcs8SpecPlus = new PKCS8EncodedKeySpec(
                     rsaKeyPairPlus.getPrivate().getEncoded());
 
-            rsaKeyFactoryBC.generatePublic(x509SpecPlus);
-            RSAPrivateCrtKey rsaPrivBC = (RSAPrivateCrtKey) rsaKeyFactoryBC
+            rsaKeyFactoryInterop.generatePublic(x509SpecPlus);
+            RSAPrivateCrtKey rsaPrivInterop = (RSAPrivateCrtKey) rsaKeyFactoryInterop
                     .generatePrivate(pkcs8SpecPlus);
 
-            Cipher cipherBC = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
-            cipherBC.init(Cipher.DECRYPT_MODE, rsaPrivBC);
-            byte[] decryptedBytes = cipherBC.doFinal(cipherText);
+            Cipher cipherInterop = Cipher.getInstance("RSA/ECB/PKCS1Padding", getInteropCipherProviderName());
+            cipherInterop.init(Cipher.DECRYPT_MODE, rsaPrivInterop);
+            byte[] decryptedBytes = cipherInterop.doFinal(cipherText);
             System.out.println("msgBytes = " + toHex(msgBytes));
             System.out.println("decryptedBytes = " + toHex(decryptedBytes));
             assertTrue(Arrays.equals(msgBytes, decryptedBytes));
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, "testEncryptPlusDecryptBC");
+            assertTrue(false, "testEncryptPlusDecryptInterop");
         }
     }
 
     @Test
-    public void testEncryptBCDecryptPlus() {
+    public void testEncryptInteropDecryptPlus() {
         assumeFalse("OpenJCEPlusFIPS".equals(getProviderName()));
 
         byte[] msgBytes = ("This is a short message".getBytes());
         //long message to be encrypted and decrypted using RSA public and Private key;" +
-        //        "encrypt with BC and decrypt with BCPlus and vice versa").getBytes();
+        //        "encrypt with JCE and decrypt with JCEPlus and vice versa").getBytes();
 
         try {
             byte[] cipherText;
-            int keySize = 1024;
-            if (getProviderName().equals("OpenJCEPlusFIPS")) {
-                keySize = 2048;
-            }
-            rsaKeyPairGenBC.initialize(keySize);
-            KeyPair rsaKeyPairBC = rsaKeyPairGenBC.generateKeyPair();
+            rsaKeyPairGenInterop.initialize(getKeySize());
+            KeyPair rsaKeyPairInterop = rsaKeyPairGenInterop.generateKeyPair();
 
-            RSAPublicKey rsaPubBC = (RSAPublicKey) rsaKeyPairBC.getPublic();
-            rsaKeyPairBC.getPrivate();
-            Cipher cipherBC = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
-            cipherBC.init(Cipher.ENCRYPT_MODE, rsaPubBC);
-            cipherText = cipherBC.doFinal(msgBytes);
+            RSAPublicKey rsaPubInterop = (RSAPublicKey) rsaKeyPairInterop.getPublic();
+            rsaKeyPairInterop.getPrivate();
+            Cipher cipherInterop = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
+            cipherInterop.init(Cipher.ENCRYPT_MODE, rsaPubInterop);
+            cipherText = cipherInterop.doFinal(msgBytes);
 
-            X509EncodedKeySpec x509SpecBC = new X509EncodedKeySpec(
-                    rsaKeyPairBC.getPublic().getEncoded());
-            PKCS8EncodedKeySpec pkcs8SpecBC = new PKCS8EncodedKeySpec(
-                    rsaKeyPairBC.getPrivate().getEncoded());
+            X509EncodedKeySpec x509SpecInterop = new X509EncodedKeySpec(
+                    rsaKeyPairInterop.getPublic().getEncoded());
+            PKCS8EncodedKeySpec pkcs8SpecInterop = new PKCS8EncodedKeySpec(
+                    rsaKeyPairInterop.getPrivate().getEncoded());
 
-            rsaKeyFactoryPlus.generatePublic(x509SpecBC);
+            rsaKeyFactoryPlus.generatePublic(x509SpecInterop);
             RSAPrivateCrtKey rsaPrivPlus = (RSAPrivateCrtKey) rsaKeyFactoryPlus
-                    .generatePrivate(pkcs8SpecBC);
+                    .generatePrivate(pkcs8SpecInterop);
 
-            Cipher cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", getProviderName());
+            Cipher cipherPlus = Cipher.getInstance("RSA/ECB/PKCS1Padding", getInteropCipherProviderName());
             cipherPlus.init(Cipher.DECRYPT_MODE, rsaPrivPlus);
             byte[] decryptedBytes = cipherPlus.doFinal(cipherText);
             System.out.println("msgBytes = " + toHex(msgBytes));
@@ -583,8 +571,18 @@ public class BaseTestRSAKeyInteropBC extends BaseTestJunit5Interop {
             assertTrue(Arrays.equals(msgBytes, decryptedBytes));
         } catch (Exception ex) {
             ex.printStackTrace();
-            assertTrue(false, " testEncryptBCDecryptPlus");
+            assertTrue(false, " testEncryptInteropDecryptPlus");
         }
+    }
+
+    /**
+     * Gets the provider used for the cipher that handles keys created by the interop provider.
+     */
+    protected String getInteropCipherProviderName() {
+        if (interopProvider == TestProvider.BC) {
+            return getProviderName();
+        }
+        return getInteropProviderName2();
     }
 
     /*
