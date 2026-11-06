@@ -1,0 +1,493 @@
+/*
+ * Copyright IBM Corp. 2026
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms provided by IBM in the LICENSE file that accompanied
+ * this code, including the "Classpath" Exception described therein.
+ */
+
+import groovy.transform.Field;
+
+@Field boolean PPC64_AIX
+@Field boolean X86_64_LINUX
+@Field boolean PPC64LE_LINUX
+@Field boolean S390X_LINUX
+@Field boolean X86_64_WINDOWS
+@Field boolean AARCH64_MAC
+@Field boolean X86_64_MAC
+@Field boolean AARCH64_LINUX
+@Field OCK_RELEASE
+@Field OCK_FULL_URL
+@Field RUN_OCKC_TESTS
+@Field RUN_OCKC_PERF
+@Field OCKC_PERF_THREADS
+@Field CAPTURE_OCKC_TRACE
+@Field ADDITIONAL_NODE_LABELS
+@Field OVERRIDE_NODE_LABELS
+@Field TIMEOUT_TIME
+@Field externalLibrary
+
+/*
+ * Checks the checkboxes to figure out the platforms
+ * selected to run the OCKC operations on.
+ *
+ * @return      The platforms to run on
+ */
+def getPlatforms() {
+    def platforms = []
+
+    if (PPC64_AIX == "true") {
+        platforms.add("ppc64_aix")
+    }
+
+    if (X86_64_LINUX == "true") {
+        platforms.add("x86-64_linux")
+    }
+
+    if (PPC64LE_LINUX == "true") {
+        platforms.add("ppc64le_linux")
+    }
+
+    if (S390X_LINUX == "true") {
+        platforms.add("s390x_linux")
+    }
+
+    if (X86_64_WINDOWS == "true") {
+        platforms.add("x86-64_windows")
+    }
+
+    if (AARCH64_MAC == "true") {
+        platforms.add("aarch64_mac")
+    }
+
+    if (X86_64_MAC == "true") {
+        platforms.add("x86-64_mac")
+    }
+
+    if (AARCH64_LINUX == "true") {
+        platforms.add("aarch64_linux")
+    }
+
+    return platforms
+}
+
+/*
+ * macOS only: make a native OCKC executable able to find libjgsk8iccs.
+ *
+ * The OCKC executables reference the library as @rpath/libjgsk8iccs_64.dylib but
+ * carry no usable LC_RPATH, and they are signed with the hardened runtime, which
+ * makes dyld ignore DYLD_LIBRARY_PATH. The load then fails with
+ * "Library not loaded: @rpath/libjgsk8iccs_64.dylib". To fix it we add the OCK
+ * directory (the current directory, where the dylib is extracted) as an rpath
+ * and re-sign ad hoc, since editing the binary invalidates its signature.
+ * The signature and rpath state is printed first to help diagnose any failure.
+ *
+ * @param binary    Path of the executable, relative to the current directory
+ */
+def fixMacRpath(binary) {
+    sh """
+        echo "Library references of ${binary}:"
+        otool -L ${binary}
+        echo "Existing LC_RPATH entries of ${binary}:"
+        otool -l ${binary} | grep -A2 LC_RPATH || echo "none"
+        echo "Code signature of ${binary}:"
+        codesign -dv ${binary} 2>&1 || true
+        if ! otool -l ${binary} | grep -q "path \$PWD "; then
+            install_name_tool -add_rpath "\$PWD" ${binary}
+        fi
+        codesign --force --sign - ${binary}
+    """
+}
+
+/*
+ * Get the library search path variable name for the OS, so the OCK shared
+ * libraries are found when running the native OCKC executables.
+ */
+def getLibPathVar(software) {
+    if (software == "aix") {
+        return "LIBPATH"
+    } else if (software == "mac") {
+        return "DYLD_LIBRARY_PATH"
+    }
+    return "LD_LIBRARY_PATH"
+}
+
+/*
+ * Prepare the OCKC trace file before running the native OCKC tests.
+ * The OCKC native library detects the fixed filename GSKIT_CRYPTO.log in the
+ * current working directory (openjceplus/OCK, where jcctest and jicc_perf run)
+ * and appends startup/loading diagnostics to it.
+ * Any log from a prior run is removed first so captured output is always fresh.
+ * Does nothing unless CAPTURE_OCKC_TRACE is "true".
+ */
+def prepareOckcTrace(software) {
+    if (CAPTURE_OCKC_TRACE != "true") {
+        return
+    }
+    dir("openjceplus/OCK") {
+        if (software == "windows") {
+            bat """
+                if exist GSKIT_CRYPTO.log del /f GSKIT_CRYPTO.log
+                type nul > GSKIT_CRYPTO.log
+                """
+        } else {
+            sh "rm -f GSKIT_CRYPTO.log && touch GSKIT_CRYPTO.log"
+        }
+        echo "OCKC trace enabled: GSKIT_CRYPTO.log created"
+    }
+}
+
+/*
+ * Rename and archive the OCKC trace log so it is accessible from the Jenkins
+ * build page. The log is renamed to GSKIT_CRYPTO-{iteration}-{platform}.log.
+ * Does nothing unless CAPTURE_OCKC_TRACE is "true".
+ */
+def archiveOckcTrace(platform, iteration, software) {
+    if (CAPTURE_OCKC_TRACE != "true") {
+        return
+    }
+    dir("openjceplus/OCK") {
+        def ockcTraceLog = "GSKIT_CRYPTO-${iteration}-${platform}.log"
+        // Non-empty check: the log must exist and contain data.
+        def traceFiles = findFiles(glob: "GSKIT_CRYPTO.log")
+        def logExists = (traceFiles.length > 0 && traceFiles[0].length > 0) ? "yes" : "no"
+        if (logExists == "yes") {
+            if (software == "windows") {
+                bat "move /Y GSKIT_CRYPTO.log ${ockcTraceLog}"
+            } else {
+                sh "mv GSKIT_CRYPTO.log ${ockcTraceLog}"
+            }
+            archiveArtifacts artifacts: ockcTraceLog, allowEmptyArchive: true
+            echo "OCKC trace archived: ${ockcTraceLog}"
+        } else {
+            echo "OCKC trace enabled but GSKIT_CRYPTO.log is empty or was not written — the OCKC library may not support tracing on this platform."
+        }
+    }
+}
+
+/*
+ * Run the native OCKC self-test (jcctest) from the extracted OCK binaries
+ * directory. It loads and initializes the OCKC library and exercises its
+ * built-in self-tests, exposing platform-specific initialization failures.
+ *
+ * Runs with LIBPATH (AIX) / LD_LIBRARY_PATH (Linux) / DYLD_LIBRARY_PATH
+ * (macOS) pointing at the OCK directory so the shared library is found.
+ * Output is captured to ockctest-{iteration}-{platform}.log and archived as a
+ * build artifact. A non-zero exit code fails the build.
+ */
+def runOckcTests(platform, iteration, software) {
+    if (RUN_OCKC_TESTS != "true") {
+        return
+    }
+    echo "Running native OCKC self-test (jcctest) in $WORKSPACE/openjceplus/OCK"
+
+    dir("openjceplus/OCK") {
+        def ockcTestLog = "ockctest-${iteration}-${platform}.log"
+        // Use returnStatus so the log is always archived and shown, even when jcctest fails.
+        def testRC
+        if (software == "windows") {
+            testRC = bat(returnStatus: true, script: """
+                set "PATH=%CD%;%CD%\\jgsk_sdk\\lib64;%PATH%"
+                jgsk_sdk\\bin\\jcctest.exe > ${ockcTestLog} 2>&1
+                """)
+        } else {
+            if (software == "mac") {
+                fixMacRpath("jcctest")
+            }
+            def libPathVar = getLibPathVar(software)
+            def libPathExport = "export ${libPathVar}=\$PWD:\$PWD/jgsk_sdk/lib64:\$${libPathVar};"
+            testRC = sh(script: "${libPathExport} ./jcctest > ${ockcTestLog} 2>&1", returnStatus: true)
+        }
+        echo "jcctest completed with exit code ${testRC} — output in ${ockcTestLog}"
+        archiveArtifacts artifacts: ockcTestLog, allowEmptyArchive: false
+        if (testRC != 0) {
+            // The failure output was redirected to the log, so show it here along with
+            // where the OCKC executables actually are in the extracted OCK package.
+            echo "jcctest output:\n${readFile(ockcTestLog)}"
+            def found = findFiles(glob: "**/jcctest*,**/jicc_perf*").collect { it.path }
+            echo "OCKC executables found under ${pwd()}: ${found}"
+            error "jcctest failed with exit code ${testRC} on ${platform}"
+        }
+    }
+}
+
+/*
+ * Run the native OCKC performance test (jicc_perf) from the extracted OCK
+ * binaries directory. jicc_perf benchmarks digest and cipher streaming speeds
+ * and, when run with multiple threads via the -t flag, stresses thread-safety
+ * paths that have historically exposed platform-specific failures.
+ *
+ * The number of threads is controlled by the OCKC_PERF_THREADS parameter. When
+ * empty, jicc_perf runs with its built-in default of 1 thread.
+ *
+ * Output is captured to ockctest_perf-{iteration}-{platform}.log and archived
+ * as a build artifact. A non-zero exit code only produces a warning, so the
+ * log is always captured.
+ */
+def runOckcPerf(platform, iteration, software) {
+    if (RUN_OCKC_PERF != "true") {
+        return
+    }
+    dir("openjceplus/OCK") {
+        // Append -t <n> only when the user supplied a value.
+        def threads = OCKC_PERF_THREADS?.trim()
+        def threadFlag = threads ? " -t ${threads}" : ""
+        def jiccPerfLog = "ockctest_perf-${iteration}-${platform}.log"
+
+        echo "Running jicc_perf${threadFlag} — output in ${jiccPerfLog}"
+        // Use returnStatus so a non-zero exit does not abort before the log is archived.
+        def perfRC
+        if (software == "windows") {
+            perfRC = bat(returnStatus: true, script: """
+                set "PATH=%CD%;%CD%\\jgsk_sdk\\lib64;%PATH%"
+                jgsk_sdk\\bin\\jicc_perf.exe${threadFlag} > ${jiccPerfLog} 2>&1
+                """)
+        } else {
+            if (software == "mac") {
+                fixMacRpath("jgsk_sdk/bin/jicc_perf")
+            }
+            def libPathVar = getLibPathVar(software)
+            def libPathExport = "export ${libPathVar}=\$PWD:\$PWD/jgsk_sdk/lib64:\$${libPathVar};"
+            perfRC = sh(script: "${libPathExport} ./jgsk_sdk/bin/jicc_perf${threadFlag} > ${jiccPerfLog} 2>&1", returnStatus: true)
+        }
+        archiveArtifacts artifacts: jiccPerfLog, allowEmptyArchive: false
+        if (perfRC != 0) {
+            echo "WARNING: jicc_perf exited with code ${perfRC} — see ${jiccPerfLog} for details"
+        }
+    }
+}
+
+/*
+ * Figure out the appropriate node tags based on the platform and
+ * run the OCKC operations on a node that conforms to them.
+ *
+ * @param platform  The platform on which the OCKC operations will be run
+ * @return          The closure that performs the run
+ */
+def run(platform) {
+    def platformArray = platform.split("_")
+    def hardware = platformArray[0]
+    def software = platformArray[1]
+
+    def node_hardware = hardware
+    if (hardware.contains('x86')) {
+        node_hardware = "x86"
+    }
+
+    def node_software = software
+    if (software == "windows") {
+        node_software = "windows.2022"
+    }
+
+    return {
+        // Only a single run per platform; the iteration number is kept in the log names.
+        def iteration = 1
+        // Specific labels are selected based on platform.
+        def nodeTags = "hw.arch.${node_hardware}&&sw.os.${node_software}"
+
+        // Some OSes have some further specific requirements.
+        if (software == "aix") {
+            nodeTags = "hw.arch.${node_hardware}&&sw.os.aix.7_2&&sw.tool.c++runtime.17_1&&ci.role.build"
+        } else {
+            nodeTags += "&&ci.role.test"
+
+            // Exclude machines that are FIPS140-2 configured.
+            nodeTags += "&&!ci.role.test.fips"
+        }
+
+        // Add additional labels specified by user.
+        nodeTags += (ADDITIONAL_NODE_LABELS) ? "&&" + ADDITIONAL_NODE_LABELS : ""
+
+        // Override labels as specified by user.
+        nodeTags = (OVERRIDE_NODE_LABELS) ?: nodeTags
+
+        echo "${nodeTags}"
+
+        node("$nodeTags") {
+            echo "Machine Name = ${env.NODE_NAME}"
+            // Check out the pipeline's own SCM to obtain the shared utils.groovy.
+            dir("openjceplus/OpenJCEPlus") {
+                checkout scm
+                externalLibrary = load("./utils.groovy")
+            }
+            try {
+                if (!externalLibrary.isBuildable(hardware, software)) {
+                    echo "OCKC is not supported on $hardware and $software"
+                    return
+                }
+
+                externalLibrary.getBinaries(hardware, software)
+                echo "Binaries fetched"
+
+                // The trace is written by the OCKC library while jcctest and jicc_perf run.
+                prepareOckcTrace(software)
+                try {
+                    runOckcTests(platform, iteration, software)
+                    runOckcPerf(platform, iteration, software)
+                } finally {
+                    archiveOckcTrace(platform, iteration, software)
+                }
+            } finally {
+                cleanWs()
+            }
+        }
+    }
+}
+
+/*
+ * Runs only the native OCKC operations (jcctest, jicc_perf and/or an OCKC
+ * trace capture) against the OCK binaries on the selected platforms. No Java,
+ * Maven, OpenSSL or OpenJCEPlus build/test is performed. Logs are archived
+ * as build artifacts.
+ */
+pipeline {
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '100'))
+    }
+    parameters {
+        separator(name: "TargetPlatforms", sectionHeader: "Target Platforms",
+            separatorStyle: "border-width: 0",
+            sectionHeaderStyle: """
+                background-color: rgb(24, 42, 118);
+                text-align: center;
+                padding: 4px;
+                color: rgb(255, 255, 255);
+                font-size: 22px;
+                font-weight: normal;
+                text-transform: uppercase;
+                font-family: 'Orienta', sans-serif;
+                letter-spacing: 1px;
+                font-style: italic;
+            """
+        )
+        booleanParam(name: 'ppc64_aix', defaultValue: false, description: '\
+            Run on ppc64_aix platform')
+        booleanParam(name: 'x86_64_linux', defaultValue: false, description: '\
+            Run on x86-64_linux platform')
+        booleanParam(name: 'ppc64le_linux', defaultValue: false, description: '\
+            Run on ppc64le_linux platform')
+        booleanParam(name: 's390x_linux', defaultValue: false, description: '\
+            Run on s390x_linux platform')
+        booleanParam(name: 'x86_64_windows', defaultValue: false, description: '\
+            Run on x86-64_windows platform')
+        booleanParam(name: 'aarch64_mac', defaultValue: false, description: '\
+            Run on aarch64_mac platform')
+        booleanParam(name: 'x86_64_mac', defaultValue: false, description: '\
+            Run on x86-64_mac platform')
+        booleanParam(name: 'aarch64_linux', defaultValue: false, description: '\
+            Run on aarch64_linux platform')
+        separator(name: "OckcOptions", sectionHeader: "OCKC Options",
+            separatorStyle: "border-width: 0",
+            sectionHeaderStyle: """
+                background-color: rgb(24, 42, 118);
+                text-align: center;
+                padding: 4px;
+                color: rgb(255, 255, 255);
+                font-size: 22px;
+                font-weight: normal;
+                text-transform: uppercase;
+                font-family: 'Orienta', sans-serif;
+                letter-spacing: 1px;
+                font-style: italic;
+            """
+        )
+        string(name: 'OCK_RELEASE', defaultValue: '', description: '\
+            Indicate the specific release of the OCK binaries to use.<br> \
+            If left empty, the latest release will be used.<br> \
+            Specify the full name of the release.<br> \
+            (i.e., &ltrelease date(YYYYMMDD)&gt_&ltOCK version&gt => eg., 20230802_8.9.5) \
+        ')
+        string(name: 'OCK_FULL_URL', defaultValue: '', description: ' \
+            This parameter can be used if one wants to specify the full URL from which to get OCK.<br> \
+            BEWARE: This can only be used with a single platform and it overrides OCK_RELEASE. \
+        ')
+        booleanParam(name: 'RUN_OCKC_TESTS', defaultValue: true, description: '\
+            Run the native OCKC self-test (jcctest).<br> \
+            jcctest loads and initializes the OCKC library and exercises its built-in self-tests.<br> \
+            Output is archived as ockctest-{iteration}-{platform}.log.')
+        booleanParam(name: 'RUN_OCKC_PERF', defaultValue: true, description: '\
+            Run the native OCKC performance test (jicc_perf).<br> \
+            jicc_perf benchmarks digest and cipher streaming speeds and stresses threading paths.<br> \
+            Use OCKC_PERF_THREADS to control the number of threads (default: 4).<br> \
+            Output is archived as ockctest_perf-{iteration}-{platform}.log.<br>')
+        string(name: 'OCKC_PERF_THREADS', defaultValue: '4', description: '\
+            Number of threads to pass to jicc_perf via the -t flag (default: 4).<br> \
+            Setting a higher thread count stresses thread-safety paths that may expose platform-specific failures.<br> \
+            Only used when RUN_OCKC_PERF is enabled.')
+        booleanParam(name: 'CAPTURE_OCKC_TRACE', defaultValue: true, description: '\
+            Capture an OCKC (GSKit) startup trace while the native tests run.<br> \
+            When enabled, a GSKIT_CRYPTO.log file is created in the OCK directory before the tests \
+            run, which causes the OCKC native library to log its initialization and module loading.<br> \
+            The log is renamed and archived as GSKIT_CRYPTO-{iteration}-{platform}.log after the run.<br> \
+            Any existing log from a prior run is removed first so captured output is always fresh.')
+        separator(name: "ExtendedOptions", sectionHeader: "Extended Options",
+            separatorStyle: "border-width: 0",
+            sectionHeaderStyle: """
+                background-color: rgb(24, 42, 118);
+                text-align: center;
+                padding: 4px;
+                color: rgb(255, 255, 255);
+                font-size: 22px;
+                font-weight: normal;
+                text-transform: uppercase;
+                font-family: 'Orienta', sans-serif;
+                letter-spacing: 1px;
+                font-style: italic;
+            """
+        )
+        string(name: 'ADDITIONAL_NODE_LABELS', defaultValue: '', description: '\
+            Additional labels for the node to be used can be defined here.<br> \
+            These labels will be added to the automatically generated ones, pertaining to platform specified.')
+        string(name: 'OVERRIDE_NODE_LABELS', defaultValue: '', description: '\
+            The labels specified will override any other labels chosen and will be the only ones utilized.')
+        string(name: 'TIMEOUT_TIME', defaultValue: '4', description: '\
+            Overall build timeout (HOURS)')
+    }
+
+    agent none
+    stages {
+        stage('Run OCKC Operations') {
+            steps {
+                timestamps {
+                    script {
+                        // Set values for various variables associated with the parameters
+                        // of the job. We set these since the default values when the job is
+                        // run the first time is not yet set without explictly setting them.
+                        PPC64_AIX = "${params.ppc64_aix}"
+                        X86_64_LINUX = "${params.x86_64_linux}"
+                        PPC64LE_LINUX="${params.ppc64le_linux}"
+                        S390X_LINUX="${params.s390x_linux}"
+                        X86_64_WINDOWS="${params.x86_64_windows}"
+                        AARCH64_MAC="${params.aarch64_mac}"
+                        X86_64_MAC="${params.x86_64_mac}"
+                        AARCH64_LINUX="${params.aarch64_linux}"
+                        OCK_RELEASE="${params.OCK_RELEASE}"
+                        OCK_FULL_URL="${params.OCK_FULL_URL}"
+                        RUN_OCKC_TESTS="${params.RUN_OCKC_TESTS}"
+                        RUN_OCKC_PERF="${params.RUN_OCKC_PERF}"
+                        OCKC_PERF_THREADS="${params.OCKC_PERF_THREADS}"
+                        CAPTURE_OCKC_TRACE="${params.CAPTURE_OCKC_TRACE}"
+                        ADDITIONAL_NODE_LABELS="${params.ADDITIONAL_NODE_LABELS}"
+                        OVERRIDE_NODE_LABELS="${params.OVERRIDE_NODE_LABELS}"
+                        TIMEOUT_TIME="${params.TIMEOUT_TIME}"
+
+                        timeout(time: "${TIMEOUT_TIME}".toInteger(), unit: 'HOURS') {
+
+                            // Figure out the platforms to run on.
+                            def platforms = getPlatforms()
+                            assert !((platforms.size() > 1) && (OCK_FULL_URL != "")) : "Cannot specify full OCK URL and multiple platforms."
+
+                            def mapForParallel = [:]
+                            // Create jobs for each platform, as provided by user.
+                            for (platform in platforms) {
+                                mapForParallel["${platform}"] = run(platform.trim())
+                            }
+                            // Run said jobs in parallel.
+                            parallel mapForParallel
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
