@@ -282,94 +282,81 @@ public abstract class NativeOpenSSLAdapter implements NativeInterface {
 
     @Override
     public long CIPHER_create(String cipher) throws OpenSSLException {
-        // return NativeOpenSSLImplementation.CIPHER_create(osslContext.getId(), cipher);
-        throw new UnsupportedOperationException("CIPHER_create");
+        return NativeOpenSSLImplementation.CIPHER_create(osslContext.getId(), cipher);
     }
 
     @Override
     public void CIPHER_init(long cipherId, int isEncrypt, int paddingId, byte[] key, byte[] iv) throws OpenSSLException {
-        // NativeOpenSSLImplementation.CIPHER_init(osslContext.getId(), cipherId, isEncrypt, paddingId, key, iv);
-        throw new UnsupportedOperationException("CIPHER_init");
+        NativeOpenSSLImplementation.CIPHER_init(osslContext.getId(), cipherId, isEncrypt, paddingId, key, iv);
     }
 
     @Override
     public void CIPHER_clean(long cipherId) throws OpenSSLException {
-        // NativeOpenSSLImplementation.CIPHER_clean(osslContext.getId(), cipherId);
-        throw new UnsupportedOperationException("CIPHER_clean");
+        NativeOpenSSLImplementation.CIPHER_clean(osslContext.getId(), cipherId);
     }
 
     @Override
     public void CIPHER_setPadding(long cipherId, int paddingId) throws OpenSSLException {
-        // NativeOpenSSLImplementation.CIPHER_setPadding(osslContext.getId(), cipherId, paddingId);
-        throw new UnsupportedOperationException("CIPHER_setPadding");
+        NativeOpenSSLImplementation.CIPHER_setPadding(osslContext.getId(), cipherId, paddingId);
     }
 
     @Override
     public int CIPHER_getBlockSize(long cipherId) {
-        // return NativeOpenSSLImplementation.CIPHER_getBlockSize(osslContext.getId(), cipherId);
-        throw new UnsupportedOperationException("CIPHER_getBlockSize");
+        return NativeOpenSSLImplementation.CIPHER_getBlockSize(osslContext.getId(), cipherId);
     }
 
     @Override
     public int CIPHER_getKeyLength(long cipherId) {
-        // return NativeOpenSSLImplementation.CIPHER_getKeyLength(osslContext.getId(), cipherId);
-        throw new UnsupportedOperationException("CIPHER_getKeyLength");
+        return NativeOpenSSLImplementation.CIPHER_getKeyLength(osslContext.getId(), cipherId);
     }
 
     @Override
     public int CIPHER_getIVLength(long cipherId) {
-        // return NativeOpenSSLImplementation.CIPHER_getIVLength(osslContext.getId(), cipherId);
-        throw new UnsupportedOperationException("CIPHER_getIVLength");
+        return NativeOpenSSLImplementation.CIPHER_getIVLength(osslContext.getId(), cipherId);
     }
 
     @Override
     public int CIPHER_getOID(long cipherId) {
-        // return NativeOpenSSLImplementation.CIPHER_getOID(osslContext.getId(), cipherId);
-        throw new UnsupportedOperationException("CIPHER_getOID");
+        return NativeOpenSSLImplementation.CIPHER_getOID(osslContext.getId(), cipherId);
     }
 
     @Override
     public int CIPHER_encryptUpdate(long cipherId, byte[] plaintext, int plaintextOffset, int plaintextLen,
             byte[] ciphertext, int ciphertextOffset, boolean needsReinit) throws OpenSSLException {
-        // return NativeOpenSSLImplementation.CIPHER_encryptUpdate(osslContext.getId(), cipherId,
-        //     plaintext, plaintextOffset, plaintextLen, ciphertext, ciphertextOffset, needsReinit);
-        throw new UnsupportedOperationException("CIPHER_encryptUpdate");
+        return NativeOpenSSLImplementation.CIPHER_encryptUpdate(osslContext.getId(), cipherId,
+                plaintext, plaintextOffset, plaintextLen, ciphertext, ciphertextOffset, needsReinit);
     }
 
     @Override
     public int CIPHER_decryptUpdate(long cipherId, byte[] ciphertext, int cipherOffset, int cipherLen,
             byte[] plaintext, int plaintextOffset, boolean needsReinit) throws OpenSSLException {
-        // return NativeOpenSSLImplementation.CIPHER_decryptUpdate(osslContext.getId(), cipherId,
-        //     ciphertext, cipherOffset, cipherLen, plaintext, plaintextOffset, needsReinit);
-        throw new UnsupportedOperationException("CIPHER_decryptUpdate");
+        return NativeOpenSSLImplementation.CIPHER_decryptUpdate(osslContext.getId(), cipherId,
+                ciphertext, cipherOffset, cipherLen, plaintext, plaintextOffset, needsReinit);
     }
 
     @Override
     public int CIPHER_encryptFinal(long cipherId, byte[] input, int inOffset, int inLen, byte[] ciphertext,
             int ciphertextOffset, boolean needsReinit) throws OpenSSLException {
-        // return NativeOpenSSLImplementation.CIPHER_encryptFinal(osslContext.getId(), cipherId,
-        //     input, inOffset, inLen, ciphertext, ciphertextOffset, needsReinit);
-        throw new UnsupportedOperationException("CIPHER_encryptFinal");
+        return NativeOpenSSLImplementation.CIPHER_encryptFinal(osslContext.getId(), cipherId,
+                input, inOffset, inLen, ciphertext, ciphertextOffset, needsReinit);
     }
 
     @Override
     public int CIPHER_decryptFinal(long cipherId, byte[] ciphertext, int cipherOffset, int cipherLen,
             byte[] plaintext, int plaintextOffset, boolean needsReinit) throws OpenSSLException {
-        // return NativeOpenSSLImplementation.CIPHER_decryptFinal(osslContext.getId(), cipherId,
-        //     ciphertext, cipherOffset, cipherLen, plaintext, plaintextOffset, needsReinit);
-        throw new UnsupportedOperationException("CIPHER_decryptFinal");
+        return NativeOpenSSLImplementation.CIPHER_decryptFinal(osslContext.getId(), cipherId,
+                ciphertext, cipherOffset, cipherLen, plaintext, plaintextOffset, needsReinit);
     }
 
     @Override
     public long checkHardwareSupport() {
-        // return NativeOpenSSLImplementation.checkHardwareSupport(osslContext.getId());
-        throw new UnsupportedOperationException("checkHardwareSupport");
+        // z/OS hardware AES acceleration is not available via OpenSSL
+        return -1;
     }
 
     @Override
     public void CIPHER_delete(long cipherId) throws OpenSSLException {
-        // NativeOpenSSLImplementation.CIPHER_delete(osslContext.getId(), cipherId);
-        throw new UnsupportedOperationException("CIPHER_delete");
+        NativeOpenSSLImplementation.CIPHER_delete(osslContext.getId(), cipherId);
     }
 
     @Override
