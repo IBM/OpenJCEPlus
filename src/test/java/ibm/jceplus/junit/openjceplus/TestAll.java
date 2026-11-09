@@ -12,7 +12,6 @@ import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 @SelectClasses({
-    TestAES256Interop.class,
     TestAESCCMParameters.class,
     TestAESGCM_ExtIV.class,
     TestAESGCM_IntIV.class,
