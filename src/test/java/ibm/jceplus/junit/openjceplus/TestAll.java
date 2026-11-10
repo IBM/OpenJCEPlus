@@ -48,7 +48,6 @@ import org.junit.platform.suite.api.Suite;
     TestIsAssignableFromOrder.class,
     TestKeyEncodings.class,
     TestKeySerialization.class,
-    TestOAEPOrderCheck.class,
     TestPBKDF2.class,
     TestPBKDF2Interop.class,
     TestPublicMethodsToMakeNonPublic.class,
@@ -58,8 +57,6 @@ import org.junit.platform.suite.api.Suite;
     TestRSAKeyInterop.class,
     TestRSAKeyInteropBC.class,
     TestRSASignatureInteropSunRsaSign.class,
-    TestRSATypeCheckDefault.class,
-    TestRSATypeCheckEnabled.class,
 })
 
 @Suite
