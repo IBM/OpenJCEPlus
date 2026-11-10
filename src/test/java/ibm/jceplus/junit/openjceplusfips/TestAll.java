@@ -45,11 +45,6 @@ import org.junit.platform.suite.api.Suite;
     TestPBKDF2Interop.class,
     TestPublicMethodsToMakeNonPublic.class,
     TestResetByteBuffer.class,
-    TestRSACipherInterop.class,
-    TestRSACipherInteropBC.class,
-    TestRSAKeyInterop.class,
-    TestRSAKeyInteropBC.class,
-    TestRSASignatureInteropSunRsaSign.class,
     TestRSASignatureWithSpecificSize.class,
 })
 

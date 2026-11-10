@@ -40,7 +40,6 @@ public class TestMultithread {
             "ibm.jceplus.junit.openjceplus.multithread.TestHmacSHA256InteropSunJCE",
             "ibm.jceplus.junit.openjceplus.multithread.TestPBKDF2",
             "ibm.jceplus.junit.openjceplus.multithread.TestPBKDF2Interop",
-            "ibm.jceplus.junit.openjceplus.multithread.TestRSASignatureInteropSunRsaSign",
             "ibm.jceplus.junit.openjceplus.multithread.TestSHA256Clone_SharedMD"};
 
     public TestMultithread() {}
