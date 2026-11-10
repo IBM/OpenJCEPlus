@@ -50,9 +50,6 @@ public final class SymmetricCipher {
     /* private final static String debPrefix = "SymCipher"; Adding Debug causes test cases to fail */
     int paramOffset;
     FastJNIBuffer parametersBuffer = null;
-    // GSKit code adds 16 to the input buffer length for every Update  and provide a
-    // 16  byte buffer for the Final which has no input data.
-    private final int OCK_ENCRYPTION_RESIDUE = 16;
     //final String debPrefix = "SymmetricCipher";
 
 
@@ -286,34 +283,24 @@ public final class SymmetricCipher {
     }
 
     /**
-     * OCKC always oversizes the buffer by 16 bytes (i.e. 128 bits).
+     * Native backends may write more than the final result size into the
+     * buffer they are given: an update can flush a previously buffered
+     * partial block, and a final can write that block plus a full padding
+     * block, i.e. up to inputLen + 2 * blockSize - 1 bytes.
      *
-     * This buffer is larger than what end user application will provide typically as a
-     * buffer. This method calculates the amount of space that is needed by OCKC in order
-     * to perform its operations.
+     * This buffer is larger than what an end user application will typically
+     * provide, so this method calculates the space the native library needs
+     * in order to perform its operations.
      *
-     * @param inputLen the length of the input buffer used to calulate the necessary
-     * buffer size needed for the OCKC library.
-     * @return the necessary buffer size needed by OCK.
+     * @param inputLen the length of the input used to calculate the necessary
+     * native buffer size.
+     * @return the buffer size needed by the native library.
      */
-    private synchronized int getOutputSizeForOCK(int inputLen) throws NativeException {
-        //final String methodName = "getOutputSize";
+    private synchronized int getNativeOutputSize(int inputLen) throws NativeException {
         if (inputLen < 0) {
             throw new NativeException("Input length not expected to be < 0");
         }
-        //OCKDebug.Msg (debPrefix, methodName, "inputLen=" + inputLen + " isFinal=" + isFinal + "encrypting=" + encrypting );
-        int totalLen = this.bufferedCount + inputLen;
-        int blockSize = getBlockSize();
-        //OCKDebug.Msg (debPrefix, methodName, "totalLen=" + totalLen + " blockSize=" + blockSize);
-
-        int remainderBytes = totalLen % blockSize;
-
-        int retLen = totalLen + (blockSize - remainderBytes) + OCK_ENCRYPTION_RESIDUE;
-        // Native final may write inputLen + 2 * blockSize - 1 bytes (buffered block plus padding block).
-        retLen = Math.max(retLen, inputLen + 2 * blockSize);
-
-        // OCKDebug.Msg (debPrefix, methodName, "retLen = " + retLen);
-        return retLen;
+        return inputLen + 2 * getBlockSize();
     }
 
     public synchronized int getBlockSize() throws NativeException {
@@ -408,7 +395,7 @@ public final class SymmetricCipher {
             }
         }
 
-        byte[] tmpBuf = new byte[getOutputSizeForOCK(inputLen)];
+        byte[] tmpBuf = new byte[getNativeOutputSize(inputLen)];
         try {
             //OCKDebug.Msg (debPrefix, methodName, "ockCipherId :" + ockCipherId + " inputOffset :" + inputOffset + " inputLen :" + inputLen + "encrypting :" + encrypting);
             if (ockCipherId == 0L) {
@@ -538,7 +525,7 @@ public final class SymmetricCipher {
             }
         }
         // Customer provided buffer may be smaller than what OCK requires.
-        byte[] tmpBuf = new byte[getOutputSizeForOCK(inputLen)];
+        byte[] tmpBuf = new byte[getNativeOutputSize(inputLen)];
 
         try {
             //OCKDebug.Msg (debPrefix, methodName, "ockCipherId :" + ockCipherId + " inputOffset :" + inputOffset + " inputLen :" + inputLen + "encrypting :" + encrypting);

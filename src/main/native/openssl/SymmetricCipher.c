@@ -22,43 +22,23 @@
 typedef struct {
     EVP_CIPHER_CTX *ctx;        /* OpenSSL cipher context                    */
     EVP_CIPHER     *cipher;     /* Fetched cipher (EVP_CIPHER_fetch)          */
-    int             padding;    /* 1 = PKCS5/7, 0 = no padding               */
-    int             encrypt;    /* 1 = encrypt, 0 = decrypt                  */
     int             blockSize;  /* Cipher block size in bytes                */
-    unsigned char  *key;        /* Stored key copy (for needsReinit)         */
-    int             keyLen;     /* Key length in bytes                       */
-    unsigned char  *iv;         /* Stored IV copy (for needsReinit)          */
+    unsigned char  *iv;         /* IV given to CIPHER_init (for needsReinit) */
     int             ivLen;      /* IV length in bytes                        */
 } CipherContext;
 
 /*
- * Re-initialises ctx from the stored key/iv when Java passes needsReinit.
+ * Resets ctx to its post-init state when Java passes needsReinit.
+ * The key schedule, direction and padding already live in ctx, so only the
+ * IV (which the previous operation advanced) is passed again; no key copy
+ * is kept. enc == -1 keeps the current direction.
  * Returns 1 on success, 0 on failure (exception already thrown).
  */
 static int reinitCipher(JNIEnv *env, CipherContext *cipherCtx) {
-    int rc;
-
-    if (cipherCtx->encrypt) {
-        rc = EVP_EncryptInit_ex(cipherCtx->ctx, cipherCtx->cipher, NULL,
-                                cipherCtx->key, cipherCtx->iv);
-    } else {
-        rc = EVP_DecryptInit_ex(cipherCtx->ctx, cipherCtx->cipher, NULL,
-                                cipherCtx->key, cipherCtx->iv);
-    }
-
-    if (rc != 1) {
+    if (EVP_CipherInit_ex(cipherCtx->ctx, NULL, NULL, NULL, cipherCtx->iv,
+                          -1) != 1) {
         throwOSSLException(env, 0,
                            "SymmetricCipher: reinit failed");
-        osslCheckStatus();
-        return 0;
-    }
-
-    /* blockSize == 1 means stream cipher - padding not applicable */
-    if (EVP_CIPHER_CTX_set_padding(cipherCtx->ctx,
-                                   (cipherCtx->blockSize == 1) ? 0
-                                                               : (cipherCtx->padding != 0)) != 1) {
-        throwOSSLException(env, 0,
-                           "SymmetricCipher: reinit set_padding failed");
         osslCheckStatus();
         return 0;
     }
@@ -136,11 +116,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1cr
     /* mallocSafe zeroes the block; set fields explicitly for clarity */
     cipherCtx->cipher    = NULL;
     cipherCtx->ctx       = NULL;
-    cipherCtx->padding   = 0;
-    cipherCtx->encrypt   = 0;
     cipherCtx->blockSize = 0;
-    cipherCtx->key       = NULL;
-    cipherCtx->keyLen    = 0;
     cipherCtx->iv        = NULL;
     cipherCtx->ivLen     = 0;
 
@@ -183,6 +159,7 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1in
     jint isEncrypt, jint paddingId, jbyteArray key, jbyteArray iv)
 {
     CipherContext *cipherCtx = (CipherContext *)((intptr_t)cipherId);
+    unsigned char *keyNative = NULL;
     jsize          keyLen    = 0;
     jsize          ivLen     = 0;
     int            expectedIvLen = 0;
@@ -213,28 +190,19 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1in
         goto cleanup;
     }
 
-    cipherCtx->encrypt   = (int)isEncrypt;
-    cipherCtx->padding   = (int)paddingId;
     cipherCtx->blockSize = EVP_CIPHER_get_block_size(cipherCtx->cipher);
 
     /*
-     * Copy the key and IV straight from the Java arrays into native buffers
-     * (also used for needsReinit). No JVM-managed copy of the key is ever
-     * left behind, and the Java arrays are never modified.
+     * Copy the key into a temporary native buffer that is cleansed on every
+     * path; it is not kept after EVP_*Init_ex. The IV is kept for
+     * needsReinit. The Java arrays are never modified.
      */
-    if (cipherCtx->key != NULL) {
-        OPENSSL_cleanse(cipherCtx->key, (size_t)cipherCtx->keyLen);
-        free(cipherCtx->key);
-        cipherCtx->key = NULL;
-        cipherCtx->keyLen = 0;
-    }
-    cipherCtx->key = (unsigned char *)mallocSafe(env, (size_t)keyLen,
-                                                 "CIPHER_init: malloc key failed");
-    if (cipherCtx->key == NULL) {
+    keyNative = (unsigned char *)mallocSafe(env, (size_t)keyLen,
+                                            "CIPHER_init: malloc key failed");
+    if (keyNative == NULL) {
         goto cleanup;
     }
-    cipherCtx->keyLen = (int)keyLen;
-    (*env)->GetByteArrayRegion(env, key, 0, keyLen, (jbyte *)cipherCtx->key);
+    (*env)->GetByteArrayRegion(env, key, 0, keyLen, (jbyte *)keyNative);
     if ((*env)->ExceptionCheck(env)) {
         goto cleanup;
     }
@@ -261,10 +229,10 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1in
     evpCalled = 1;
     if (isEncrypt) {
         rc = EVP_EncryptInit_ex(cipherCtx->ctx, cipherCtx->cipher, NULL,
-                                cipherCtx->key, cipherCtx->iv);
+                                keyNative, cipherCtx->iv);
     } else {
         rc = EVP_DecryptInit_ex(cipherCtx->ctx, cipherCtx->cipher, NULL,
-                                cipherCtx->key, cipherCtx->iv);
+                                keyNative, cipherCtx->iv);
     }
 
     if (rc == 1) {
@@ -275,6 +243,10 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1in
     }
 
 cleanup:
+    if (keyNative != NULL) {
+        OPENSSL_cleanse(keyNative, (size_t)keyLen);
+        free(keyNative);
+    }
     if (evpCalled && rc != 1) {
         throwOSSLException(env, 0,
                            "CIPHER_init: EVP_*Init_ex failed");
@@ -332,7 +304,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1se
         return;
     }
 
-    cipherCtx->padding = (int)paddingId;
     if (EVP_CIPHER_CTX_set_padding(cipherCtx->ctx,
                                    (cipherCtx->blockSize == 1) ? 0
                                                                : (paddingId != 0)) != 1) {
@@ -809,11 +780,6 @@ Java_com_ibm_crypto_plus_provider_openssl_NativeOpenSSLImplementation_CIPHER_1de
         return;
     }
 
-    if (cipherCtx->key != NULL) {
-        OPENSSL_cleanse(cipherCtx->key, (size_t)cipherCtx->keyLen);
-        free(cipherCtx->key);
-        cipherCtx->key = NULL;
-    }
     if (cipherCtx->iv != NULL) {
         OPENSSL_cleanse(cipherCtx->iv, (size_t)cipherCtx->ivLen);
         free(cipherCtx->iv);
