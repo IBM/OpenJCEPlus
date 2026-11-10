@@ -159,16 +159,28 @@ public final class SystemAccessUtils {
     }
 
     /**
-     * Pre-loads all {@code sun.security.util} classes used by the OpenJCEPlus
-     * provider under {@code doPrivileged} during static initialisation.
-     * This prevents {@code SecurityManager.checkPackageAccess} from failing
-     * later when an unprivileged frame (e.g. a jtreg test class) is on the
-     * call stack during first class load. Load failures are silently ignored.
+     * Pre-loads all {@code sun.security.util}, {@code sun.security.pkcs},
+     * {@code sun.security.x509}, and {@code sun.security.internal} classes used
+     * by the OpenJCEPlus provider under {@code doPrivileged} during static
+     * initialisation. This prevents {@code SecurityManager.checkPackageAccess}
+     * from failing later when an unprivileged frame (e.g. a jtreg test class) is
+     * on the call stack during first class load. Load failures are silently ignored.
      */
     @SuppressWarnings("removal")
-    public static void preloadSunSecurityUtilClasses() {
+    public static void preloadSunSecurityClasses() {
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
             String[] classes = {
+                // sun.security.internal
+                "sun.security.internal.interfaces.TlsMasterSecret",
+                "sun.security.internal.spec.TlsKeyMaterialParameterSpec",
+                "sun.security.internal.spec.TlsKeyMaterialSpec",
+                "sun.security.internal.spec.TlsMasterSecretParameterSpec",
+                "sun.security.internal.spec.TlsPrfParameterSpec",
+                "sun.security.internal.spec.TlsRsaPremasterSecretParameterSpec",
+
+                // sun.security.pkcs
+                "sun.security.pkcs.PKCS8Key",
+
                 // sun.security.util
                 "sun.security.util.BitArray",
                 "sun.security.util.CurveDB",
@@ -184,7 +196,12 @@ public final class SystemAccessUtils {
                 "sun.security.util.NamedCurve",
                 "sun.security.util.ObjectIdentifier",
                 "sun.security.util.PBEUtil",
-                "sun.security.util.RawKeySpec"
+                "sun.security.util.RawKeySpec",
+
+                // sun.security.x509
+                "sun.security.x509.AlgIdDSA",
+                "sun.security.x509.AlgorithmId",
+                "sun.security.x509.X509Key"
             };
             for (String cls : classes) {
                 try {
