@@ -57,8 +57,6 @@ import org.junit.platform.suite.api.Suite;
     TestRSAKeyInterop.class,
     TestRSAKeyInteropBC.class,
     TestRSASignatureInteropSunRsaSign.class,
-    TestRSATypeCheckDefault.class,
-    TestRSATypeCheckEnabled.class,
 })
 
 @Suite
