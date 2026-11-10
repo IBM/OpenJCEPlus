@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -15,14 +15,26 @@ import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPublicKey;
 import javax.crypto.Cipher;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestRSATypeCheckEnabled extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestRSATypeCheckDefault extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     static final int DEFAULT_KEY_SIZE = 2048;
-
 
     KeyPairGenerator rsaKeyPairGen;
     KeyPair rsaKeyPair;
@@ -31,6 +43,7 @@ public class BaseTestRSATypeCheckEnabled extends BaseTestJunit5 {
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         rsaKeyPairGen = KeyPairGenerator.getInstance("RSA", getProviderName());
         rsaKeyPairGen.initialize(DEFAULT_KEY_SIZE, null);
         rsaKeyPair = rsaKeyPairGen.generateKeyPair();
