@@ -31,6 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -85,10 +87,10 @@ public abstract class BaseTestRSAKeyInterop extends BaseTestInterop {
         PrivateKey privateKeyInterop = rsaKeyFactoryInterop.generatePrivate(privateKeySpecPlus);
 
         // The original and new keys are the same
-        boolean same = Arrays.equals(privateKeyBytesPlus, privateKeyInterop.getEncoded());
-        assertTrue(same);
-        same = Arrays.equals(publicKeyBytesPlus, publicKeyInterop.getEncoded());
-        assertTrue(same);
+        assertArrayEquals(privateKeyBytesPlus, privateKeyInterop.getEncoded());
+        assertArrayEquals(publicKeyBytesPlus, publicKeyInterop.getEncoded());
+        assertEquals(privateKeyPlus, privateKeyInterop);
+        assertEquals(publicKeyPlus, publicKeyInterop);
 
     }
 
@@ -108,10 +110,10 @@ public abstract class BaseTestRSAKeyInterop extends BaseTestInterop {
         PublicKey publicKeyPlus = rsaKeyFactoryPlus.generatePublic(publicKeySpecInterop);
 
         // The original and new keys are the same
-        boolean same = Arrays.equals(privateKeyBytesInterop, privateKeyPlus.getEncoded());
-        assertTrue(same);
-        same = Arrays.equals(publicKeyBytesInterop, publicKeyPlus.getEncoded());
-        assertTrue(same);
+        assertArrayEquals(privateKeyBytesInterop, privateKeyPlus.getEncoded());
+        assertArrayEquals(publicKeyBytesInterop, publicKeyPlus.getEncoded());
+        assertEquals(privateKeyPlus, privateKeyInterop);
+        assertEquals(publicKeyPlus, publicKeyInterop);
 
     }
 
@@ -215,10 +217,12 @@ public abstract class BaseTestRSAKeyInterop extends BaseTestInterop {
         if (!Arrays.equals(rsaPubPlus.getEncoded(), rsaKeyPairPlus.getPublic().getEncoded())) {
             fail("RSA public key does not match generated public key");
         }
+        assertEquals(rsaKeyPairPlus.getPublic(), rsaPubPlus);
 
         if (!Arrays.equals(rsaPrivPlus.getEncoded(), rsaKeyPairPlus.getPrivate().getEncoded())) {
             fail("RSA private key does not match generated public key");
         }
+        assertEquals(rsaKeyPairPlus.getPrivate(), rsaPrivPlus);
 
         //KeyPair rsaKeyPairInterOp = generateKeyPair(rsaKeyPairGenInterOp, size);
 
@@ -232,12 +236,14 @@ public abstract class BaseTestRSAKeyInterop extends BaseTestInterop {
         if (!Arrays.equals(rsaPubInterop.getEncoded(), rsaKeyPairPlus.getPublic().getEncoded())) {
             fail("RSA public key does not match generated public key");
         }
+        assertEquals(rsaKeyPairPlus.getPublic(), rsaPubInterop);
 
         //System.out.println ("RSAPrivInterOp get Bytes " + toHex(rsaPrivInterop.getEncoded()));
         //System.out.println ("rsaKeyPair.getPrivate().getEncoded() get Bytes " + toHex(rsaKeyPairPlus.getPrivate().getEncoded()));
         if (!Arrays.equals(rsaPrivInterop.getEncoded(), rsaKeyPairPlus.getPrivate().getEncoded())) {
             fail("RSA private key does not match generated private key");
         }
+        assertEquals(rsaKeyPairPlus.getPrivate(), rsaPrivInterop);
 
     }
 
@@ -270,12 +276,14 @@ public abstract class BaseTestRSAKeyInterop extends BaseTestInterop {
         if (!Arrays.equals(rsaPubPlus.getEncoded(), rsaKeyPairInterop.getPublic().getEncoded())) {
             fail("RSA public key does not match generated public key");
         }
+        assertEquals(rsaPubPlus, rsaKeyPairInterop.getPublic());
 
         //System.out.println ("RSAPrivInterOp get Bytes " + toHex(rsaPrivPlus.getEncoded()));
         //System.out.println ("rsaKeyPairInterop.getPrivate().getEncoded() get Bytes " + toHex(rsaKeyPairInterop.getPrivate().getEncoded()));
         if (!Arrays.equals(rsaPrivPlus.getEncoded(), rsaKeyPairInterop.getPrivate().getEncoded())) {
             fail("RSA private key does not match generated private key");
         }
+        assertEquals(rsaPrivPlus, rsaKeyPairInterop.getPrivate());
 
     }
 
