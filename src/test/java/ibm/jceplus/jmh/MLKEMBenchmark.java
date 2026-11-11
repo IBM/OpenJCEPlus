@@ -37,12 +37,11 @@ public class MLKEMBenchmark extends JMHBase {
     @Param({"ML-KEM-512", "ML-KEM-768", "ML-KEM-1024"})
     private String transformation;
 
-    @Param({"OpenJCEPlus", "SunJCE"})
+    @Param({"OpenJCEPlus-OCK", "OpenJCEPlus-OpenSSL", "SunJCE"})
     private String provider;
 
     private KEM myKEM;
     private KeyPair keyPair;
-    private KeyPairGenerator keyPairGen;
     private KEM.Encapsulator encapsulator;
     private KEM.Encapsulated encapsulated;
     private KEM.Decapsulator decapsulator;
@@ -52,7 +51,7 @@ public class MLKEMBenchmark extends JMHBase {
         super.setup(provider);
 
         myKEM = KEM.getInstance(transformation, provider);
-        keyPairGen = KeyPairGenerator.getInstance(transformation, provider);
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(transformation, provider);
         keyPair = keyPairGen.generateKeyPair();
         keyPair.getPublic();
         keyPair.getPrivate();

@@ -802,7 +802,7 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         KeyPairGenerator kpgDSA = KeyPairGenerator.getInstance("ML-DSA", getInteropProviderName2());
-        kpgDSA.initialize(new NamedParameterSpec("ML_DSA_65"));
+        kpgDSA.initialize(new NamedParameterSpec("ML-DSA-65"));
         KeyPair keyPairDSA = kpgDSA.generateKeyPair();
 
         KeyFactory keyFactory = KeyFactory.getInstance("ML-DSA-65", getProviderName());
@@ -828,7 +828,7 @@ public abstract class BaseTestPQCKeyInterop extends BaseTestInterop {
         assumeFalse(Utils.PROVIDER_BC.equals(getInteropProviderName()));
 
         KeyPairGenerator kpgKEM = KeyPairGenerator.getInstance("ML-KEM", getInteropProviderName());
-        kpgKEM.initialize(new NamedParameterSpec("ML_KEM_768"));
+        kpgKEM.initialize(new NamedParameterSpec("ML-KEM-768"));
         KeyPair keyPairKEM = kpgKEM.generateKeyPair();
 
         KeyFactory keyFactory = KeyFactory.getInstance("ML-KEM-768", getProviderName());
