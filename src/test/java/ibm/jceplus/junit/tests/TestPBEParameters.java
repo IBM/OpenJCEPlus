@@ -9,6 +9,8 @@
 package ibm.jceplus.junit.tests;
 
 import java.security.AlgorithmParameters;
+import java.util.Arrays;
+import java.util.List;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -26,8 +28,10 @@ import sun.security.util.DerValue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
@@ -36,9 +40,20 @@ public class TestPBEParameters extends BaseTest {
     @Parameter(0)
     TestProvider provider;
 
+    private List<String> fipsAlgorithms = Arrays.asList("PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
+            "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
+            "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256");
+
     @BeforeEach
     public void setUp() throws Exception {
         setAndInsertProvider(provider);
+    }
+
+    private void assumeAlgorithmSupported(String alg) {
+        if (getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
+            assumeTrue(fipsAlgorithms.stream().anyMatch(alg::equalsIgnoreCase),
+                    "Algorithm not supported by OpenJCEPlusFIPS: " + alg);
+        }
     }
 
     @ParameterizedTest
@@ -48,7 +63,8 @@ public class TestPBEParameters extends BaseTest {
         "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_40",
         "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_40", "PBEWithSHA1AndRC4_128"})
     public void testParameters(String algorithm) throws Exception {
-        PBEKeySpec ks = new PBEKeySpec("password".toCharArray());
+        assumeAlgorithmSupported(algorithm);
+        PBEKeySpec ks = new PBEKeySpec("password12345678".toCharArray());
         SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm, getProviderName());
         SecretKey key = skf.generateSecret(ks);
 

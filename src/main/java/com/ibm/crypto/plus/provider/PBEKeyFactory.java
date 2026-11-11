@@ -25,6 +25,12 @@ abstract class PBEKeyFactory extends SecretKeyFactorySpi {
         this.provider = provider;
     }
 
+    public static final class PBE extends PBEKeyFactory {
+        public PBE(OpenJCEPlusProvider provider) {
+            super("PBE", provider);
+        }
+    }
+
     public static final class PBEWithHmacSHA1AndAES_128 extends PBEKeyFactory {
         public PBEWithHmacSHA1AndAES_128(OpenJCEPlusProvider provider) {
             super("PBEWithHmacSHA1AndAES_128", provider);
