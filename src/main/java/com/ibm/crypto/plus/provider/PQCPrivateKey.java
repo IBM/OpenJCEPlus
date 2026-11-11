@@ -115,9 +115,11 @@ final class PQCPrivateKey extends PKCS8Key {
     /**
      * Create a private key from it's DER encoding (PKCS#8).
      *
-     * @param encoded   the encoded PKCS#8 key
+     * @param configType  the service type used to select the native backend
+     *                    (e.g. {@code "KeyFactory"}, {@code "Signature"}, {@code "KEM"})
+     * @param encoded     the encoded PKCS#8 key
      */
-    PQCPrivateKey(OpenJCEPlusProvider provider, byte[] encoded) throws InvalidKeyException {
+    PQCPrivateKey(OpenJCEPlusProvider provider, String configType, byte[] encoded) throws InvalidKeyException {
         super(encoded);
         this.provider = provider;
 
@@ -141,7 +143,7 @@ final class PQCPrivateKey extends PKCS8Key {
             }
 
             this.pqcKey = PQCKey.createPrivateKey(
-                                this.paramSetName, this.key, provider, "KeyFactory");
+                                this.paramSetName, this.key, provider, configType);
         } catch (Exception e) {
             throw new InvalidKeyException("Invalid key " + e.getMessage(), e);
         }
