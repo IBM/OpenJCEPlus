@@ -41,9 +41,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
     private OpenJCEPlusProvider provider = null;
     private BigInteger x = null;
     private DHParameters dhParams = null;
-    private byte[] key = null;
-    private byte[] encodedKey = null;
-    private String DH_data = "1.2.840.113549.1.3.1";
+    private static final String DH_OID = "1.2.840.113549.1.3.1";
 
     private transient boolean destroyed = false;
     private transient DHKey dhKey = null; // Transient per tag [SERIALIZATION] in DesignNotes.txt
@@ -74,7 +72,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
     }
 
     private void initDHPrivateKey(OpenJCEPlusProvider provider, BigInteger x, DHParameters dhp,
-            BigInteger p, BigInteger g, int l) throws InvalidKeyException {
+            BigInteger p, BigInteger g, int l) throws InvalidKeyException, IOException {
         this.provider = provider;
         this.x = x;
 
@@ -89,55 +87,148 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
             this.dhParams = dhp;
         }
 
+        byte[] encoded = null;
         try {
-            this.key = new DerValue(DerValue.tag_Integer, this.x.toByteArray()).toByteArray();
-            this.encodedKey = getEncoded();
-            this.dhKey = DHKey.createPrivateKey(encodedKey, provider);
+            this.algid = createDHAlgorithmId(this.dhParams);
+            this.privKeyMaterial = new DerValue(DerValue.tag_Integer, this.x.toByteArray()).toByteArray();
+
+            encoded = getEncoded();
+            if (encoded == null) {
+                throw new InvalidKeyException(
+                    "Cannot encode DH private key");
+            }
+
+            this.dhKey = DHKey.createPrivateKey(encoded, provider);
         } catch (NativeException e) {
             throw new InvalidKeyException("Failure in DHPrivateKey");
+        } finally {
+            if (encoded != null) {
+                Arrays.fill(encoded, (byte) 0x00);
+                encoded = null;
+            }
         }
     }
 
     DHPrivateKey(OpenJCEPlusProvider provider, DHKey dhKey) {
+
+        byte[] encoded = null;
         try {
-
             this.provider = provider;
-            this.algid = new AlgorithmId(ObjectIdentifier.of("1.2.840.113549.1.3.1"),
-                    new DerValue(dhKey.getParameters()));
-            convertOCKPrivateKeyBytes(dhKey.getPrivateKeyBytes());
+            this.algid = new AlgorithmId(ObjectIdentifier.of(DH_OID), new DerValue(dhKey.getParameters()));
 
+            encoded = dhKey.getPrivateKeyBytes();
+            this.privKeyMaterial = extractPrivateKeyMaterial(encoded);
+            parseKeyBits();
+            initDHParameters();
+            this.encodedKey = encoded.clone();
             this.dhKey = dhKey;
         } catch (Exception exception) {
             throw provider.providerException("Failure in DHPrivateKey", exception);
+        } finally {
+            if (encoded != null) {
+                Arrays.fill(encoded, (byte) 0x00);
+                encoded = null;
+            }
         }
     }
 
     DHPrivateKey(OpenJCEPlusProvider provider, byte[] encoded)
             throws InvalidKeyException, IOException {
+        super(encoded);
         this.provider = provider;
 
         try {
-            convertOCKPrivateKeyBytes(encoded);
-
+            parseKeyBits();
+            initDHParameters();
+            this.encodedKey = encoded.clone();
             buildOCKPrivateKeyBytes();
             this.dhKey = DHKey.createPrivateKey(
                     encoded /*privateKeyBytes*/, provider);
         } catch (Exception e) {
-            throw new InvalidKeyException("Failure in DHPrivateKey");
+            throw new InvalidKeyException("Failure in DHPrivateKey", e);
         }
     }
 
-    private byte[] convertOCKPrivateKeyBytes(byte[] encodedKey) throws IOException {
-        /*
-         * DerInputStream in = new DerInputStream(privateKeyBytes); DerValue[]
-         * inputValue = in.getSequence(5); BigInteger tempVersion =
-         * inputValue[0].getInteger(); BigInteger tempP = inputValue[1].getInteger();
-         * BigInteger tempG = inputValue[2].getInteger(); BigInteger tempY =
-         * inputValue[3].getInteger(); BigInteger tempX = inputValue[4].getInteger();
-         *
-         * DerValue outputValue = new DerValue(DerValue.tag_Integer,
-         * tempX.toByteArray()); return outputValue.toByteArray();
-         */
+    private AlgorithmId createDHAlgorithmId(DHParameters params)
+            throws IOException {
+
+        DerOutputStream encodedParams = new DerOutputStream();
+        encodedParams.putInteger(params.getP());
+        encodedParams.putInteger(params.getG());
+
+        if (params.getL() != 0) {
+            encodedParams.putInteger(
+                    BigInteger.valueOf(params.getL()));
+        }
+
+        DerValue parameterSequence = new DerValue(
+                DerValue.tag_Sequence,
+                encodedParams.toByteArray());
+
+        return new AlgorithmId(
+                ObjectIdentifier.of(DH_OID),
+                parameterSequence);
+    }
+
+    private void initDHParameters() throws IOException {
+
+        // Verify the DH algorithm OID.
+        if (algid == null || !DH_OID.equals(algid.getOID().toString())) {
+            throw new IOException("Mismatch private-key algorithm: "
+                    + (algid == null ? null : algid.getOID()));
+        }
+
+        if (dhParams == null) {
+            byte encodedParam[] = algid.getEncodedParams();
+            if (encodedParam == null) {
+                throw new IOException("Missing DH parameters");
+            }
+
+            InputStream inStream = new ByteArrayInputStream(encodedParam);
+
+            try {
+                DerValue paramsDerValue = new DerValue(inStream);
+
+                if (paramsDerValue.getTag() == DerValue.tag_Null) {
+                    throw new IOException("Null parameters");
+                }
+
+                if (paramsDerValue.getTag() != DerValue.tag_Sequence) {
+                    throw new IOException("Parameters not a SEQUENCE");
+                }
+
+                DerInputStream derInStream = paramsDerValue.toDerInputStream();
+                BigInteger p = derInStream.getBigInteger();
+                BigInteger g = derInStream.getBigInteger();
+
+                int l = -1;
+                // Private-value length is OPTIONAL.
+                if (derInStream.available() != 0) {
+                    l = derInStream.getInteger();
+                }
+
+                if (derInStream.available() != 0) {
+                    throw new IOException("Extra parameter data");
+                }
+
+                try {
+                    DHParameters parameters = new DHParameters();
+                    parameters.engineInit((l == -1)
+                            ? new DHParameterSpec(p, g, x.bitLength())
+                            : new DHParameterSpec(p, g, l));
+                    dhParams = parameters;
+
+                } catch (InvalidParameterSpecException e) {
+                    throw new IOException("Invalid DH parameters", e);
+                }
+            } finally {
+                inStream.close();
+            }
+        }
+    }
+
+    private byte[] extractPrivateKeyMaterial(byte[] encodedKey) throws IOException {
+        //parse the private key bytes to extract the private value x
 
         InputStream inStream = new ByteArrayInputStream(encodedKey);
         try {
@@ -146,69 +237,17 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
                 throw new IOException("Key not a SEQUENCE");
             }
 
-            //
-            // version
-            //
             BigInteger parsedVersion = val.getData().getBigInteger();
             if (!parsedVersion.equals(PKCS8_VERSION)) {
                 throw new IOException("version mismatch: (supported: " + PKCS8_VERSION
-                        + ", parsed: " + parsedVersion);
+                        + ", parsed: " + parsedVersion + ")");
             }
 
-            //
-            // privateKeyAlgorithm
-            //
-            DerValue algid = val.getData().getDerValue();
-            if (algid.getTag() != DerValue.tag_Sequence) {
-                throw new IOException("AlgId is not a SEQUENCE");
-            }
-            DerInputStream derInStream = algid.toDerInputStream();
-            // parse the OID
-            derInStream.getOID();
-            if (derInStream.available() == 0) {
-                throw new IOException("Parameters missing");
-            }
-            // parse the parameters
-            DerValue params = derInStream.getDerValue();
-            if (params.getTag() == DerValue.tag_Null) {
-                throw new IOException("Null parameters");
-            }
-            if (params.getTag() != DerValue.tag_Sequence) {
-                throw new IOException("Parameters not a SEQUENCE");
-            }
-            params.getData().reset();
-            BigInteger p = params.getData().getDerValue().getBigInteger();
-            BigInteger g = params.getData().getDerValue().getBigInteger();
-            int l = -1;
-            // Private-value length is OPTIONAL
-            if (params.getData().available() != 0) {
-                l = params.getData().getInteger();
-            }
-            if (params.getData().available() != 0) {
-                throw new IOException("Extra parameter data");
-            }
+            val.getData().getDerValue(); // Skip algorithm identifier
 
-            //
-            // privateKey
-            //
-            this.key = val.getData().getOctetString();
-            parseKeyBits();
-
-            dhParams = new DHParameters();
-            dhParams.engineInit((l == -1) ? new DHParameterSpec(p, g, x.bitLength())
-                    : new DHParameterSpec(p, g, l));
-
-            // ignore OPTIONAL attributes
-
-            this.encodedKey = encodedKey.clone();
-
-            DerValue outputValue = new DerValue(DerValue.tag_Integer, key);
-            return outputValue.toByteArray();
-
-        } catch (IOException | NumberFormatException e) {
-            throw new IOException("Error parsing key encoding", e);
-        } catch (InvalidParameterSpecException e) {
-            throw new IOException("Error creating DHParameters", e);
+            return val.getData().getOctetString(); // Return the private key bytes
+        } finally {
+            inStream.close();
         }
     }
 
@@ -236,7 +275,7 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
     }
 
     protected void parseKeyBits() throws IOException {
-        DerInputStream in = new DerInputStream(key);
+        DerInputStream in = new DerInputStream(this.privKeyMaterial);
 
         try {
             x = in.getBigInteger();
@@ -271,68 +310,8 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
 
     @Override
     public byte[] getEncoded() {
-        DerOutputStream derKey = null;
-        DerOutputStream params = null;
         checkDestroyed();
-        /**
-         * Get the encoding of the key.
-         */
-
-        if (this.encodedKey == null) {
-            try {
-                DerOutputStream tmp = new DerOutputStream();
-
-                //
-                // version
-                //
-                tmp.putInteger(PKCS8_VERSION);
-
-                //
-                // privateKeyAlgorithm
-                //
-                DerOutputStream algid = new DerOutputStream();
-
-                // store OID
-                algid.putOID(ObjectIdentifier.of(DH_data));
-                // encode parameters
-                params = new DerOutputStream();
-                params.putInteger(this.dhParams.getP());
-                params.putInteger(this.dhParams.getG());
-                if (this.dhParams.getL() != 0) {
-                    params.putInteger(BigInteger.valueOf(this.dhParams.getL()));
-                }
-                // wrap parameters into SEQUENCE
-                DerValue paramSequence = new DerValue(DerValue.tag_Sequence, params.toByteArray());
-                // store parameter SEQUENCE in algid
-                algid.putDerValue(paramSequence);
-                // wrap algid into SEQUENCE
-                tmp.write(DerValue.tag_Sequence, algid);
-
-                // privateKey
-                tmp.putOctetString(this.key);
-
-                // make it a SEQUENCE
-                derKey = new DerOutputStream();
-                derKey.write(DerValue.tag_Sequence, tmp);
-                this.encodedKey = derKey.toByteArray();
-            } catch (IOException e) {
-                return null;
-            } finally {
-                try {
-                    derKey.close();
-                } catch (IOException e) {
-                    //do nothing
-                }
-                try {
-                    params.close();
-                } catch (IOException e) {
-                    //do nothing
-                }
-            }
-        }
-        return this.encodedKey.clone();
-
-        //return super.getEncoded();
+        return super.getEncoded();
     }
 
     /**
@@ -372,9 +351,15 @@ final class DHPrivateKey extends PKCS8Key implements javax.crypto.interfaces.DHP
     public void destroy() throws DestroyFailedException {
         if (!destroyed) {
             destroyed = true;
-            if (this.key != null) {
-                Arrays.fill(this.key, (byte) 0x00);
+            if (this.privKeyMaterial != null) {
+                Arrays.fill(this.privKeyMaterial, (byte) 0x00);
             }
+
+            if (this.encodedKey != null) {
+                Arrays.fill(this.encodedKey, (byte) 0x00);
+                this.encodedKey = null;
+            }
+
             this.dhKey = null;
             this.x = null;
             dhParams = null;
