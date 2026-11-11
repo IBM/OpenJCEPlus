@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * The provider signs and the interop provider verifies. Unless both are the
  * same provider, each test then swaps the roles and runs again.
  */
-public abstract class BaseTestRSAPSSInterop extends BaseTestInterop {
+public abstract class BaseTestRSAPSSInterop2 extends BaseTestInterop {
 
     private static final int[] KEY_SIZES = {512, 1024, 2048, 3072, 4096, 5120};
     // SunRsaSign raises InvalidKeyException for SHA-384/SHA-512 on 512-bit keys.

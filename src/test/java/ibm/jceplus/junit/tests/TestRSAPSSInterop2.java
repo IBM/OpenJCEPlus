@@ -21,7 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithSunRsaSignInteropProvider")
-public class TestRSAPSSInterop2 extends BaseTestRSAPSSInterop {
+public class TestRSAPSSInterop2 extends BaseTestRSAPSSInterop2 {
 
     @Parameter(0)
     TestProvider provider;
