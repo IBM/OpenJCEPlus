@@ -404,6 +404,7 @@ pipeline {
                                             'ibm.jceplus.jmh.MLDSABenchmark', \
                                             'ibm.jceplus.jmh.MLKEMBenchmark', \
                                             'ibm.jceplus.jmh.PBEBenchmark', \
+                                            'ibm.jceplus.jmh.PQCKeyGeneratorBenchmark', \
                                             'ibm.jceplus.jmh.PBKDF2Benchmark', \
                                             'ibm.jceplus.jmh.PBMAC1Benchmark', \
                                             'ibm.jceplus.jmh.RandomBenchmark', \
