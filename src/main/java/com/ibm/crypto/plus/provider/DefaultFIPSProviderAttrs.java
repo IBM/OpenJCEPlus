@@ -227,7 +227,7 @@ class DefaultFIPSProviderAttrs {
         + "Service.SecretKeyFactory.PBKDF2WithHmacSHA256 = com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA256\n"
         + "Service.SecretKeyFactory.PBKDF2WithHmacSHA384 = com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA384\n"
         + "Service.SecretKeyFactory.PBKDF2WithHmacSHA512 = com.ibm.crypto.plus.provider.PBKDF2Core$HmacSHA512\n"
-        + "SecretKeyFactory.PBEWithHmacSHA224AndAES_128.alias.add = PBE\n"
+        + "Service.SecretKeyFactory.PBE = com.ibm.crypto.plus.provider.PBEKeyFactory$PBE\n"
         + "Service.SecretKeyFactory.PBEWithHmacSHA224AndAES_128 = com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA224AndAES_128\n"
         + "Service.SecretKeyFactory.PBEWithHmacSHA224AndAES_256 = com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA224AndAES_256\n"
         + "Service.SecretKeyFactory.PBEWithHmacSHA256AndAES_128 = com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA256AndAES_128\n"

@@ -350,6 +350,7 @@ class DefaultProviderAttrs {
         + "SecretKeyFactory.DESede.alias.add = TripleDES, 3DES\n"
         + "Service.SecretKeyFactory.DESede = com.ibm.crypto.plus.provider.DESedeKeyFactory\n"
         + "Service.SecretKeyFactory.ChaCha20 = com.ibm.crypto.plus.provider.ChaCha20KeyFactory\n"
+        + "Service.SecretKeyFactory.PBE = com.ibm.crypto.plus.provider.PBEKeyFactory$PBE\n"
         + "Service.SecretKeyFactory.PBEWithHmacSHA1AndAES_128 = com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA1AndAES_128\n"
         + "Service.SecretKeyFactory.PBEWithHmacSHA1AndAES_256 = com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA1AndAES_256\n"
         + "Service.SecretKeyFactory.PBEWithHmacSHA224AndAES_128 = com.ibm.crypto.plus.provider.PBEKeyFactory$PBEWithHmacSHA224AndAES_128\n"

@@ -585,6 +585,7 @@ SecretKeyFactory            | PBKDF2WithHmacSHA384            |X                
 SecretKeyFactory            | PBKDF2WithHmacSHA512            |X                |X             |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
 SecretKeyFactory            | PBKDF2WithHmacSHA512/224        |                 |X             |              |
 SecretKeyFactory            | PBKDF2WithHmacSHA512/256        |                 |X             |              |
+SecretKeyFactory            | PBE                             |X                |X             |Only used for loading PKCS12 KeyStore files|
 SecretKeyFactory            | PBEWithSHA1AndDESede            |                 |X             |              |
 SecretKeyFactory            | PBEWithSHA1AndRC2_40            |                 |X             |              |
 SecretKeyFactory            | PBEWithSHA1AndRC2_128           |                 |X             |              |
