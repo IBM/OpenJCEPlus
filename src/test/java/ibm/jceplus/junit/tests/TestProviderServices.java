@@ -18,12 +18,10 @@ import java.security.InvalidParameterException;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -102,11 +100,11 @@ public class TestProviderServices extends BaseTest {
         BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
 
-        List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
+        Set<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
         for (String alias : Alaises) {
             System.out.println(alias);
         }
-        List<String> expected = Arrays.asList("AESCCM", "TEST", "JOHN");
+        Set<String> expected = Set.of("AESCCM", "JOHN", "TEST");
         assertEquals(expected, Alaises);
 
         for (String alias : Alaises) {
@@ -126,8 +124,8 @@ public class TestProviderServices extends BaseTest {
         BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
 
-        List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
-        List<String> expected = Arrays.asList("AESCCM");
+        Set<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
+        Set<String> expected = Set.of("AESCCM");
         assertEquals(expected, Alaises);
 
         for (String alias : Alaises) {
@@ -148,8 +146,8 @@ public class TestProviderServices extends BaseTest {
         BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
 
-        List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
-        List<String> expected = Arrays.asList("AESCCM", "JOHN");
+        Set<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
+        Set<String> expected = Set.of("AESCCM", "JOHN");
         assertEquals(expected, Alaises);
 
         for (String alias : Alaises) {
@@ -169,8 +167,8 @@ public class TestProviderServices extends BaseTest {
         BufferedReader br = new BufferedReader(new StringReader(config));
         Provider provider2 = ((OpenJCEPlus) provider1).configure(br);
 
-        List<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
-        List<String> expected = Arrays.asList("TEST", "JOHN");
+        Set<String> Alaises = getAliases(provider2, "AlgorithmParameters", "CCM");
+        Set<String> expected = Set.of("JOHN", "TEST");
         assertEquals(expected, Alaises);
 
         for (String alias : Alaises) {
@@ -474,12 +472,10 @@ public class TestProviderServices extends BaseTest {
             }
 
             //compare aliases
-            List<String> sortedList1 = new ArrayList<>(getAliases(pr1, service1.getType(), service1.getAlgorithm()));
-            List<String> sortedList2 = new ArrayList<>(getAliases(pr2, service2.getType(), service2.getAlgorithm()));
+            Set<String> aliases1 = getAliases(pr1, service1.getType(), service1.getAlgorithm());
+            Set<String> aliases2 = getAliases(pr2, service2.getType(), service2.getAlgorithm());
 
-            Collections.sort(sortedList1);
-            Collections.sort(sortedList2);
-            if (sortedList1.equals(sortedList2) == false) {
+            if (aliases1.equals(aliases2) == false) {
                 result = false;
                 break;
             }
@@ -491,8 +487,8 @@ public class TestProviderServices extends BaseTest {
         return result;
     }
 
-    private List<String> getAliases(Provider provider, String type, String algorithm) {
-        List<String> aliases = new ArrayList<>();
+    private Set<String> getAliases(Provider provider, String type, String algorithm) {
+        Set<String> aliases = new TreeSet<>();
         // Iterate through all provider properties
         for (String key : provider.stringPropertyNames()) {
             // Check for alias properties specific to the type and algorithm
