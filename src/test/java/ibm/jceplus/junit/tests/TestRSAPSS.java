@@ -36,6 +36,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -382,6 +383,36 @@ public class TestRSAPSS extends BaseTest {
         } catch (InvalidAlgorithmParameterException iape) {
             assertEquals("The message digest within the PSSParameterSpec does not match the MGF message digest.", iape.getMessage());
         }
+    }
+
+    /**
+     * Reuse a single Signature object to sign, verify with the matching key, and
+     * verify with a different key.
+     */
+    @Test
+    public void testRSASignatureSameObject() throws Exception {
+        PSSParameterSpec pssParameter = new PSSParameterSpec("SHA384", "MGF1",
+                MGF1ParameterSpec.SHA384, 20, 1);
+
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", getProviderName());
+        keyGen.initialize(2048, new java.security.SecureRandom());
+        KeyPair keyPair = keyGen.genKeyPair();
+        keyGen.initialize(3072, new java.security.SecureRandom());
+        KeyPair keyPairWrong = keyGen.genKeyPair();
+
+        Signature sig = Signature.getInstance(IBM_ALG, getProviderName());
+        sig.setParameter(pssParameter);
+        sig.initSign(keyPair.getPrivate());
+        sig.update(content);
+        byte[] sigBytes = sig.sign();
+
+        sig.initVerify(keyPair.getPublic());
+        sig.update(content);
+        assertTrue(sig.verify(sigBytes), "signature is invalid!!");
+
+        sig.initVerify(keyPairWrong.getPublic());
+        sig.update(content);
+        assertFalse(sig.verify(sigBytes), "signature verified with the wrong key");
     }
 
     /**
