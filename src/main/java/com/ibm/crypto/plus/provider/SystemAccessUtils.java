@@ -81,6 +81,7 @@ public final class SystemAccessUtils {
      *
      * @param libraryName the path to the native library file
      */
+    @SuppressWarnings("restricted")
     public static void loadLibrary(String libraryName) {
         System.load(libraryName);
     }

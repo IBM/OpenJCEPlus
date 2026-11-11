@@ -487,13 +487,13 @@ public class TestPBMAC1 extends BaseTest {
         Mac mac = Mac.getInstance(alg, getProviderName());
         SecretKeyFactory kdf = SecretKeyFactory.getInstance("PBKDF2With" + alg.substring(7), getProviderName());
 
-        SecretKey key = (SecretKey) kdf.generateSecret(new PBEKeySpec(PASSWORD, salt, iterationCount, 512));
+        SecretKey key = kdf.generateSecret(new PBEKeySpec(PASSWORD, salt, iterationCount, 512));
         mac.init(key, new PBEParameterSpec(salt, iterationCount));
 
         PBEParameterSpec spec = new PBEParameterSpec(salt, iterationCount);
 
         try {
-            SecretKey keyDiffIterationCount = (SecretKey) kdf.generateSecret(new PBEKeySpec(PASSWORD, salt, iterationCount + 5, 512));
+            SecretKey keyDiffIterationCount = kdf.generateSecret(new PBEKeySpec(PASSWORD, salt, iterationCount + 5, 512));
             mac.init(keyDiffIterationCount, spec);
             fail("Expected InvalidAlgorithmParameterException not thrown, different value of iteration count between key and params");
         } catch (InvalidAlgorithmParameterException e) {
@@ -503,7 +503,7 @@ public class TestPBMAC1 extends BaseTest {
         try {
             byte[] saltDiff = new byte[20];
             secureRandom.nextBytes(saltDiff);
-            SecretKey keyDiffSalt = (SecretKey) kdf.generateSecret(new PBEKeySpec(PASSWORD, saltDiff, iterationCount, 512));
+            SecretKey keyDiffSalt = kdf.generateSecret(new PBEKeySpec(PASSWORD, saltDiff, iterationCount, 512));
             mac.init(keyDiffSalt, spec);
             fail("Expected InvalidAlgorithmParameterException not thrown, different value of salt between key and params");
         } catch (InvalidAlgorithmParameterException e) {
