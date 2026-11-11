@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import ibm.jceplus.junit.base.certificateutils.CertAndKeyGen;
 import java.io.BufferedInputStream;
@@ -20,7 +20,6 @@ import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -36,7 +35,6 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Date;
 import javax.security.auth.x500.X500Principal;
@@ -52,11 +50,26 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import sun.security.x509.X500Name;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestRSAPSSCertificates extends BaseTestSignature {
+
+    @Parameter(0)
+    TestProvider provider;
 
     String IBM_ALG = "RSAPSS";
     String BC_ALG = "SHA1withRSAandMGF1";
@@ -68,58 +81,12 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
             MGF1ParameterSpec.SHA256, 40, 1);
     static final String hexSHA256Salt40 = "3034a00f300d06096086480165030402010500a11c301a06092a864886f70d010108300d06096086480165030402010500a203020128";
 
-    private static final byte[] content = {(byte) 0x5F, (byte) 0x78, (byte) 0x4F, (byte) 0xC3,
-            (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0, (byte) 0x31, (byte) 0xF8,
-            (byte) 0x97, (byte) 0x03, (byte) 0xDD, (byte) 0x71, (byte) 0x9A, (byte) 0xBD,
-            (byte) 0xC5, (byte) 0x2B, (byte) 0xB1, (byte) 0x8E};
-
-    private static final byte[] content1 = {(byte) 0x5F, (byte) 0x78, (byte) 0x4F, (byte) 0xC3,
-            (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0, (byte) 0x31, (byte) 0xF8,
-            (byte) 0x97, (byte) 0x03, (byte) 0xDD, (byte) 0x71, (byte) 0x9A, (byte) 0xBD,
-            (byte) 0xC5, (byte) 0x2B, (byte) 0xB1, (byte) 0x8E, (byte) 0x5F, (byte) 0x78,
-            (byte) 0x4F, (byte) 0xC3, (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0,
-            (byte) 0x31, (byte) 0xF8, (byte) 0x97, (byte) 0x03, (byte) 0xDD, (byte) 0x71,
-            (byte) 0x9A, (byte) 0xBD, (byte) 0xC5, (byte) 0x2B, (byte) 0xB1};
-
-    private static final byte[] oneByte = {(byte) 0x5F};
-    private static byte[] elevenBytes = {(byte) 0x5F, (byte) 0x78, (byte) 0x4F, (byte) 0xC3,
-            (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0, (byte) 0x31, (byte) 0xF8,
-            (byte) 0x97};
-
-    private static final byte[] content3 = {(byte) 0x5F, (byte) 0x78, (byte) 0x4F, (byte) 0xC3,
-            (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0, (byte) 0x31, (byte) 0xF8,
-            (byte) 0x97, (byte) 0x03, (byte) 0xDD, (byte) 0x71, (byte) 0x9A, (byte) 0xBD,
-            (byte) 0xC5, (byte) 0x2B, (byte) 0xB1, (byte) 0x8E, (byte) 0x5F, (byte) 0x78,
-            (byte) 0x4F, (byte) 0xC3, (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0,
-            (byte) 0x31, (byte) 0xF8, (byte) 0x97, (byte) 0x03, (byte) 0xDD, (byte) 0x71,
-            (byte) 0x9A, (byte) 0xBD, (byte) 0xC5, (byte) 0x2B, (byte) 0xB1, (byte) 0x4F,
-            (byte) 0xC3, (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0, (byte) 0x31,
-            (byte) 0xF8, (byte) 0x97, (byte) 0x03, (byte) 0xDD, (byte) 0x71, (byte) 0x9A,
-            (byte) 0xBD, (byte) 0xC5, (byte) 0x2B, (byte) 0xB1, (byte) 0x8E, (byte) 0x5F,
-            (byte) 0x78, (byte) 0x4F, (byte) 0xC3, (byte) 0xE2, (byte) 0xE7, (byte) 0x65,
-            (byte) 0xC0, (byte) 0x31, (byte) 0xF8, (byte) 0x97, (byte) 0x03, (byte) 0xDD,
-            (byte) 0x71, (byte) 0x9A, (byte) 0xBD, (byte) 0xC5, (byte) 0x2B, (byte) 0xB1,
-            (byte) 0x4F, (byte) 0xC3, (byte) 0xE2, (byte) 0xE7, (byte) 0x65, (byte) 0xC0,
-            (byte) 0x31, (byte) 0xF8, (byte) 0x97, (byte) 0x03, (byte) 0xDD, (byte) 0x71,
-            (byte) 0x9A, (byte) 0xBD, (byte) 0xC5, (byte) 0x2B, (byte) 0xB1, (byte) 0x8E,
-            (byte) 0x5F, (byte) 0x78, (byte) 0x4F, (byte) 0xC3, (byte) 0xE2, (byte) 0xE7,
-            (byte) 0x65, (byte) 0xC0, (byte) 0x31, (byte) 0xF8, (byte) 0x97, (byte) 0x03,
-            (byte) 0xDD, (byte) 0x71, (byte) 0x9A, (byte) 0xBD, (byte) 0xC5, (byte) 0x2B,
-            (byte) 0xB1, (byte) 0x4F, (byte) 0xC3, (byte) 0xE2, (byte) 0xE7, (byte) 0x65,
-            (byte) 0xC0, (byte) 0x31, (byte) 0xF8, (byte) 0x97, (byte) 0x03, (byte) 0xDD,
-            (byte) 0x71, (byte) 0x9A, (byte) 0xBD, (byte) 0xC5, (byte) 0x2B, (byte) 0xB1,
-            (byte) 0x8E, (byte) 0x5F, (byte) 0x78, (byte) 0x4F, (byte) 0xC3, (byte) 0xE2,
-            (byte) 0xE7, (byte) 0x65, (byte) 0xC0, (byte) 0x31, (byte) 0xF8, (byte) 0x97,
-            (byte) 0x03, (byte) 0xDD, (byte) 0x71, (byte) 0x9A, (byte) 0xBD, (byte) 0xC5,
-            (byte) 0x2B, (byte) 0xB1};
-
     // Used by doGenKeyPair method
     final int EMPTY_PARAMS = 0;
     final int DEFAULT_PARAMS = 1;
     final int NONDEFAULT_PARAMS = 2;
     final int PARAMS_SALT40 = 3;
     static boolean printJunitTrace = false;
-
 
     @BeforeAll
     public static void setup() {
@@ -128,47 +95,9 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
                 .valueOf(System.getProperty("com.ibm.jceplus.junit.printJunitTrace"));
     }
 
-    @Test
-    public void testRSASignatureWithPSS_SHA1() throws Exception {
-        try {
-            dotestSignature(content, IBM_ALG, 512, null, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * Change the keysize in steps of 32
-     * Generate a key once and use it for multiple tests
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureWithPSSBigMsgMultiKeySize() throws Exception {
-        try {
-            for (int i = 512; i < 4096;) {
-                if (printJunitTrace)
-                    System.out.println("keySize=" + i);
-                KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-                keyGen.initialize(i, new java.security.SecureRandom());
-                KeyPair keyPair = keyGen.genKeyPair();
-                dotestSignature(content3, IBM_ALG, keyPair, null);
-                dotestSignature(oneByte, IBM_ALG, keyPair, null);
-                dotestSignature(content, IBM_ALG, keyPair, null);
-                doSignatureBC2IBM(content, IBM_ALG, BC_ALG, keyPair, -1);
-                doSignatureBC2IBM(content, IBM_ALG, BC_ALG, keyPair, 20);
-                doSignatureBC2IBM(content, IBM_ALG, BC_ALG, keyPair, 40);
-                dotestSignatureIBM2BC(content, IBM_ALG, BC_ALG, keyPair, -1);
-                dotestSignatureIBM2BC(content, IBM_ALG, BC_ALG, keyPair, 20);
-                dotestSignatureIBM2BC(content, IBM_ALG, BC_ALG, keyPair, 40);
-                i = i + 32;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
     }
 
     /**
@@ -201,7 +130,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         X509v1CertificateBuilder builder = new X509v1CertificateBuilder(issuer, BigInteger.ONE, validityBeginDate, validityEndDate,
                 issuer, publicKeyInfo);
 
-        ContentSigner signer = new JcaContentSignerBuilder(null).setProvider(new BouncyCastleProvider())
+        ContentSigner signer = new JcaContentSignerBuilder(BC_ALG).setProvider(new BouncyCastleProvider())
                 .build(keyPair.getPrivate());
         X509CertificateHolder holder = builder.build(signer);
 
@@ -216,7 +145,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
 
         InputStream is0 = new ByteArrayInputStream(derBytes0);
         X509Certificate certificate0 = (X509Certificate) CertificateFactory
-                .getInstance("X.509", getProviderName()).generateCertificate(is0);
+                .getInstance("X.509").generateCertificate(is0);
         if (printJunitTrace)
             System.out.println(toHex(certificate0.getSigAlgParams()));
 
@@ -227,603 +156,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
 
     }
 
-    /**
-     * Change the message size. key size is fixed at 10. Used for timing the performance of
-     * IBM vs BC
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureWithPSSMultiByteSize_timed() throws Exception {
-        try {
-            for (int i = 1; i <= 100; i++) {
-                byte[] dynMsg = new byte[i * 11];
-                for (int j = 0; j < i; j++) {
-                    System.arraycopy(elevenBytes, 0, dynMsg, j * 11, 11);
-                }
-                if (printJunitTrace)
-                    System.out.println("msgSize=" + dynMsg.length);
-                dotestSignature(dynMsg, IBM_ALG, 512, null, getProviderName());
-
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * Change the message size. key size is fixed at 10. Used for timing the performance of
-     * IBM vs BC
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureWithPSSMultiByteSize_timed_BC() throws Exception {
-        try {
-            for (int i = 1; i <= 100; i++) {
-                byte[] dynMsg = new byte[i * 11];
-                for (int j = 0; j < i; j++) {
-                    System.arraycopy(elevenBytes, 0, dynMsg, j * 11, 11);
-                }
-                if (printJunitTrace)
-                    System.out.println("msgSize=" + dynMsg.length);
-                dotestSignature(dynMsg, BC_ALG, 512, null, "BC");
-
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /** Test multiple raw messages generated by BC and verified by IBM
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureWithPSSMultiByteSize_BC2IBM() throws Exception {
-        try {
-            for (int i = 1; i <= 301; i++) {
-                byte[] dynMsg = new byte[i * 11];
-                for (int j = 0; j < i; j++) {
-                    System.arraycopy(elevenBytes, 0, dynMsg, j * 11, 11);
-                }
-                if (printJunitTrace)
-                    System.out.println("msgSize=" + dynMsg.length);
-                dotestSignatureBC2IBM(dynMsg, IBM_ALG, BC_ALG, 512, -1);
-                dotestSignatureBC2IBM(dynMsg, IBM_ALG, BC_ALG, 512, 20);
-                dotestSignatureBC2IBM(dynMsg, IBM_ALG, BC_ALG, 512, 40);
-
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /** Test multiple raw messages generated by IBM and verified by BC
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureWithPSSMultiByteSize_IBM2BC2() throws Exception {
-        try {
-            for (int i = 1; i <= 301; i++) {
-                byte[] dynMsg = new byte[i * 11];
-                for (int j = 0; j < i; j++) {
-                    System.arraycopy(elevenBytes, 0, dynMsg, j * 11, 11);
-                }
-                if (printJunitTrace)
-                    System.out.println("msgSize=" + dynMsg.length);
-                doSignatureIBM2BC(dynMsg, IBM_ALG, BC_ALG, 512, 20);
-                doSignatureIBM2BC(dynMsg, IBM_ALG, BC_ALG, 512, 40);
-                doSignatureIBM2BC(dynMsg, IBM_ALG, BC_ALG, 512, -1);
-
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * Test after setting parameters
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureWithPSSParameterSpec() throws Exception {
-        try {
-            dotestSignaturePSSParameterSpec(content1, IBM_ALG, 512);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * SHA256
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA256() throws Exception {
-
-        try {
-            PSSParameterSpec pssParameter = specSHA256Salt20;
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * SHA512
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA512() throws Exception {
-
-        PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512", "MGF1",
-                MGF1ParameterSpec.SHA512, 20, 1);
-        try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * SHA512/224
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA512_224() throws Exception {
-
-        PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512/224", "MGF1",
-                MGF1ParameterSpec.SHA512_224, 20, 1);
-        try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * SHA512/256
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA512_256() throws Exception {
-
-        PSSParameterSpec pssParameter = new PSSParameterSpec("SHA512/256", "MGF1",
-                MGF1ParameterSpec.SHA512_256, 20, 1);
-        try {
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * SHA384
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA384() throws Exception {
-        try {
-            PSSParameterSpec pssParameter = new PSSParameterSpec("SHA384", "MGF1",
-                    MGF1ParameterSpec.SHA384, 20, 1);
-            dotestSignature(content, IBM_ALG, 2048, pssParameter, getProviderName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * SHA255 - test one byte
-     */
-    @Test
-    public void testRSASignatureSHA256OneByte() throws Exception {
-        try {
-            PSSParameterSpec pssParameterSpec = specSHA256Salt40;
-            dotestSignaturePSSParameterSpec(oneByte, IBM_ALG, 2048, pssParameterSpec);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * Bouncy Castle to IBM
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA1_BC2IBM() throws Exception {
-        try {
-            dotestSignatureBC2IBM(oneByte, IBM_ALG, BC_ALG, 512, -1);
-            dotestSignatureBC2IBM(oneByte, IBM_ALG, BC_ALG, 512, 20);
-            dotestSignatureBC2IBM(oneByte, IBM_ALG, BC_ALG, 512, 40);
-            dotestSignatureBC2IBM(oneByte, IBM_ALG, BC_ALG, 512, 60);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * IBM to BC
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA1_IBM2BC() throws Exception {
-        try {
-            doSignatureIBM2BC(oneByte, IBM_ALG, BC_ALG, 512, -1);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * 0 salt length
-     * @throws Exception
-     */
-    @Test
-    public void testRSASignatureSHA1_IBM2BC_0salt() throws Exception {
-        try {
-            doSignatureIBM2BC(oneByte, IBM_ALG, BC_ALG, 512, 0);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    /**
-     * Helper method
-     * @param content
-     * @param algorithm
-     * @param keySize
-     * @param pssParameterSpec
-     * @param jceprovider
-     * @throws Exception
-     */
-    protected void dotestSignature(byte[] content, String algorithm, int keySize,
-            PSSParameterSpec pssParameterSpec, String jceprovider) throws Exception {
-
-        // Generate Signature
-
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(keySize, new java.security.SecureRandom());
-        KeyPair keyPair = keyGen.genKeyPair();
-
-        Signature sig = Signature.getInstance(algorithm, jceprovider);
-        if (pssParameterSpec != null) {
-            sig.setParameter(pssParameterSpec);
-            AlgorithmParameters algParams = sig.getParameters();
-            algParams.getParameterSpec(PSSParameterSpec.class);
-            if (printJunitTrace)
-                System.out.println("parameters=" + algParams.toString());
-        }
-
-        AlgorithmParameters algParams = sig.getParameters();
-        algParams.getParameterSpec(PSSParameterSpec.class);
-        if (printJunitTrace)
-            System.out.println("parameters=" + algParams.toString());
-        sig.initSign(keyPair.getPrivate());
-        sig.update(content);
-        byte[] sigBytes = sig.sign();
-
-        // Verify the signature
-        sig.initVerify(keyPair.getPublic());
-        sig.update(content);
-
-        // Check Signature
-        // Signature verifySig = Signature.getInstance("SHA1withRSA/PSS",
-        // getProviderName());
-        // verifySig.initVerify(cert);
-        // verifySig.update(content);
-        boolean signatureVerified = sig.verify(sigBytes);
-
-        assertTrue(signatureVerified, "signature is invalid!!");
-    }
-
-    /**
-     * Helper method
-     * @param content
-     * @param algorithm
-     * @param keyPair
-     * @param pssParameterSpec
-     * @throws Exception
-     */
-
-    protected void dotestSignature(byte[] content, String algorithm, KeyPair keyPair,
-            PSSParameterSpec pssParameterSpec) throws Exception {
-
-        // Generate Signature
-
-        // KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        // keyGen.initialize(keySize, new java.security.SecureRandom());
-        // KeyPair keyPair = keyGen.genKeyPair();
-
-        Signature sig = Signature.getInstance(algorithm, getProviderName());
-        if (pssParameterSpec != null) {
-            sig.setParameter(pssParameterSpec);
-        }
-        sig.initSign(keyPair.getPrivate());
-        sig.update(content);
-        byte[] sigBytes = sig.sign();
-
-        // Verify the signature
-        sig.initVerify(keyPair.getPublic());
-        sig.update(content);
-
-        // Check Signature
-        // Signature verifySig = Signature.getInstance("SHA1withRSA/PSS",
-        // getProviderName());
-        // verifySig.initVerify(cert);
-        // verifySig.update(content);
-        boolean signatureVerified = sig.verify(sigBytes);
-
-        assertTrue(signatureVerified, "signature is invalid!!");
-    }
-
-    /**
-     * Helper method
-     * @param content
-     * @param ibmalgorithm
-     * @param bcalgorithm
-     * @param keySize
-     * @param saltSize
-     * @throws Exception
-     */
-
-    protected void dotestSignatureBC2IBM(byte[] content, String ibmalgorithm, String bcalgorithm,
-            int keySize, int saltSize) throws Exception {
-
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(keySize, new java.security.SecureRandom());
-        KeyPair keyPair = keyGen.genKeyPair();
-
-        BC2IBM(content, ibmalgorithm, bcalgorithm, keyPair, saltSize);
-    }
-
-    protected void doSignatureBC2IBM(byte[] content, String ibmalgorithm, String bcalgorithm,
-            KeyPair keyPair, int saltSize) throws Exception {
-
-        BC2IBM(content, ibmalgorithm, bcalgorithm, keyPair, saltSize);
-    }
-
-    /**
-     * Helper method to do the BC to IBM
-     * @param plaintext
-     * @param ibmalgorithm
-     * @param bcalgorithm
-     * @param keyPair
-     * @param saltSize
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchProviderException
-     * @throws InvalidKeyException
-     * @throws SignatureException
-     */
-    void BC2IBM(byte[] plaintext, String ibmalgorithm, String bcalgorithm, KeyPair keyPair,
-            int saltSize) throws NoSuchAlgorithmException, NoSuchProviderException,
-            InvalidKeyException, SignatureException {
-
-        // Signature sig = Signature.getInstance(algorithm, getProviderName());
-        Signature sig = Signature.getInstance(bcalgorithm, "BC");
-        AlgorithmParameters algParams = sig.getParameters();
-        try {
-            algParams.getParameterSpec(PSSParameterSpec.class);
-        } catch (InvalidParameterSpecException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (printJunitTrace)
-            System.out.println("parameters=" + algParams.toString());
-        sig.initSign(keyPair.getPrivate());
-        sig.update(plaintext);
-        byte[] sigBytes = sig.sign();
-
-        Signature sig1 = Signature.getInstance(ibmalgorithm, getProviderName());
-        // Verify the signature
-        sig1.initVerify(keyPair.getPublic());
-        sig1.update(plaintext);
-
-        boolean signatureVerified = sig1.verify(sigBytes);
-        if (printJunitTrace)
-            System.out.println("Inter-op test " + signatureVerified);
-
-        assertTrue(signatureVerified, "signature is invalid!!");
-    }
-
-    /**
-     * Helper to do IBM to BC
-     * @param content
-     * @param ibmalgorithm
-     * @param bcalgorithm
-     * @param keySize
-     * @param saltsize
-     * @throws Exception
-     */
-    protected void doSignatureIBM2BC(byte[] content, String ibmalgorithm, String bcalgorithm,
-            int keySize, int saltsize) throws Exception {
-
-        if (printJunitTrace)
-            System.out.println("testSignatureIBM2BC");
-
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(keySize, new java.security.SecureRandom());
-        KeyPair keyPair = keyGen.genKeyPair();
-
-        IBM2BC(content, ibmalgorithm, bcalgorithm, keyPair, saltsize);
-
-    }
-
-    /**
-     * helper method
-     *
-     * @param content
-     * @param ibmalgorithm
-     * @param bcalgorithm
-     * @param keyPair
-     * @param saltsize
-     * @throws Exception
-     */
-
-    protected void dotestSignatureIBM2BC(byte[] content, String ibmalgorithm, String bcalgorithm,
-            KeyPair keyPair, int saltsize) throws Exception {
-
-        if (printJunitTrace)
-            System.out.println("testSignatureIBM2BC");
-
-        IBM2BC(content, ibmalgorithm, bcalgorithm, keyPair, saltsize);
-
-    }
-
-    /**
-     * Helper method
-     * @param content
-     * @param ibmalgorithm
-     * @param bcalgorithm
-     * @param keyPair
-     * @param saltsize
-     * @throws Exception
-     */
-    void IBM2BC(byte[] content, String ibmalgorithm, String bcalgorithm, KeyPair keyPair,
-            int saltsize) throws Exception {
-
-        PSSParameterSpec pssParameterSpec = null;
-
-        // Generate Signature
-        if (saltsize != -1) {
-            pssParameterSpec = new PSSParameterSpec("SHA-1", "MGF1",
-                    MGF1ParameterSpec.SHA1, saltsize, 1);;
-        }
-
-        // Signature sig = Signature.getInstance(algorithm, getProviderName());
-        Signature sig = Signature.getInstance(bcalgorithm, "BC");
-        if (pssParameterSpec != null) {
-            sig.setParameter(pssParameterSpec);
-        }
-        AlgorithmParameters algParams = sig.getParameters();
-        try {
-            algParams.getParameterSpec(PSSParameterSpec.class);
-        } catch (InvalidParameterSpecException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (printJunitTrace)
-            System.out.println("parameters=" + algParams.toString());
-        sig.initSign(keyPair.getPrivate());
-        sig.update(content);
-        byte[] sigBytes = sig.sign();
-
-        Signature sig1 = Signature.getInstance(ibmalgorithm, getProviderName());
-        if (pssParameterSpec != null) {
-            sig1.setParameter(pssParameterSpec);
-        }
-        // Verify the signature
-        sig1.initVerify(keyPair.getPublic());
-        sig1.update(content);
-
-        boolean signatureVerified = sig1.verify(sigBytes);
-        if (printJunitTrace)
-            System.out.println("Inter-op test " + signatureVerified);
-
-        assertTrue(signatureVerified, "signature is invalid!!");
-    }
-
-    /**
-     * Helper method
-     * @param content
-     * @param algorithm
-     * @param keySize
-     * @throws Exception
-     */
-
-    protected void dotestSignaturePSSParameterSpec(byte[] content, String algorithm, int keySize)
-            throws Exception {
-        if (printJunitTrace)
-            System.out.println("testSignaturePSSParameterSpec");
-
-        // Generate Signature
-
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(keySize, new java.security.SecureRandom());
-        KeyPair keyPair = keyGen.genKeyPair();
-
-        Signature sig = Signature.getInstance(algorithm, getProviderName());
-        // Set salt length
-        PSSParameterSpec pss = new PSSParameterSpec("SHA-1", "MGF1",
-                MGF1ParameterSpec.SHA1, 20, 1);
-        sig.setParameter(pss);
-        sig.initSign(keyPair.getPrivate());
-        sig.update(content);
-        byte[] sigBytes = sig.sign();
-
-        // Verify the signature
-        sig.initVerify(keyPair.getPublic());
-        sig.update(content);
-
-        boolean signatureVerified = sig.verify(sigBytes);
-
-        assertTrue(signatureVerified, "signature is invalid!!");
-    }
-
-    /**
-     * Helper method
-     * @param content
-     * @param algorithm
-     * @param keySize
-     * @param pssParameterSpec
-     * @throws Exception
-     */
-    protected void dotestSignaturePSSParameterSpec(byte[] content, String algorithm, int keySize,
-            PSSParameterSpec pssParameterSpec) throws Exception {
-        if (printJunitTrace)
-            System.out.println("testSignaturePSSParameterSpec algorithm= " + algorithm + " keysize="
-                    + keySize);
-
-        // Generate Signature
-
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(keySize, new java.security.SecureRandom());
-        KeyPair keyPair = keyGen.genKeyPair();
-
-        Signature sig = Signature.getInstance(algorithm, getProviderName());
-        // Set salt length
-        if (pssParameterSpec != null) {
-            sig.setParameter(pssParameterSpec);
-        }
-        sig.initSign(keyPair.getPrivate());
-        sig.update(content);
-        byte[] sigBytes = sig.sign();
-
-        // Verify the signature
-        sig.initVerify(keyPair.getPublic());
-        sig.update(content);
-
-        boolean signatureVerified = sig.verify(sigBytes);
-
-        assertTrue(signatureVerified, "signature is invalid!!");
-    }
 
     /**
      * Empty parameters
@@ -959,7 +291,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         //String sigAlgName = "SHA1WithRSA";
 
         doGenKeyPair(alias, dname, keyAlgName, keysize, "SHA1WithRSA", EMPTY_PARAMS);
-        doGenKeyPair(alias, dname, keyAlgName, keysize, "SHA2WithRSA", EMPTY_PARAMS);
+        doGenKeyPair(alias, dname, keyAlgName, keysize, "SHA256WithRSA", EMPTY_PARAMS);
     }
 
     /**
@@ -1063,7 +395,11 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
                 InputStream is0 = new ByteArrayInputStream(derBytes0);
                 X509Certificate certificate0 = (X509Certificate) CertificateFactory
                         .getInstance("X.509").generateCertificate(is0);
-                assertTrue(certificate0.getSigAlgParams() == null);
+                if ("RSAPSS".equalsIgnoreCase(sigAlgName)) {
+                    assertEquals("3000", toHex(certificate0.getSigAlgParams()));
+                } else {
+                    assertNull(certificate0.getSigAlgParams());
+                }
                 if (printJunitTrace)
                     System.out.println(
                             "Certificate0 parameters=" + toHex(certificate0.getSigAlgParams()));
@@ -1100,7 +436,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
                 //            certImpl.verify(certificate1.getPublicKey(), null,
                 //                    certificate1.getSigAlgParams());
                 certificate1.checkValidity();
-                assertTrue(toHex(certificate1.getSigAlgParams()).equals("3000"));
+                assertEquals("3000", toHex(certificate1.getSigAlgParams()));
                 // Hex string was verified manually using asnDecoder utility
                 //assertTrue(toHex(certificate1.getSigAlgParams())
                 //        .equals("3027a00b300906052b0e03021a0500a118301606092a864886f70d010108300906052b0e03021a0500"));
@@ -1133,8 +469,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
                 //        certificate2.getSigAlgParams());
 
                 certificate2.checkValidity();
-                String algString = toHex(certificate2.getSigAlgParams());
-                assertTrue(algString.equals(hexSHA256Salt20));
+                assertEquals(hexSHA256Salt20, toHex(certificate2.getSigAlgParams()));
                 break;
 
             case PARAMS_SALT40:
@@ -1162,7 +497,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
                 //            X509CertImpl certImpl3 = (X509CertImpl) certificate3;
                 //            certImpl3.verify(certificate3.getPublicKey(), null,
                 //                    certificate3.getSigAlgParams());
-                assertTrue(toHex(certificate3.getSigAlgParams()).equals("3005a203020128"));
+                assertEquals("3005a203020128", toHex(certificate3.getSigAlgParams()));
                 break;
 
             default:
@@ -1238,7 +573,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
                 InputStream is0 = new ByteArrayInputStream(derBytes0);
                 X509Certificate certificate0 = (X509Certificate) CertificateFactory
                         .getInstance("X.509").generateCertificate(is0);
-                assertTrue(certificate0.getSigAlgParams() == null);
+                assertEquals("3000", toHex(certificate0.getSigAlgParams()));
                 if (printJunitTrace)
                     System.out.println(
                             "Certificate0 parameters=" + toHex(certificate0.getSigAlgParams()));
@@ -1323,7 +658,7 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
                 //                    certificate2.getSigAlgParams());
 
                 certificate2.checkValidity();
-                assertTrue(toHex(certificate2.getSigAlgParams()).equals(hexSHA256Salt40));
+                assertEquals(hexSHA256Salt40, toHex(certificate2.getSigAlgParams()));
                 java.security.cert.CertificateFactory cf2 = java.security.cert.CertificateFactory
                         .getInstance("X.509", "BC");
                 InputStream istream2 = new ByteArrayInputStream(derBytes2);
@@ -1411,7 +746,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         InputStream isDefaultParamsRoot = new ByteArrayInputStream(defaultParamsRootBytes);
         X509Certificate certDefaultParamsRoot = (X509Certificate) CertificateFactory
                 .getInstance("X.509").generateCertificate(isDefaultParamsRoot);
-        certDefaultParamsRoot.checkValidity();
         certDefaultParamsRoot.verify(certDefaultParamsRoot.getPublicKey());
 
         BufferedInputStream bisDefaultParamsClient = null;
@@ -1430,8 +764,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         InputStream isDefaultParamsClient = new ByteArrayInputStream(defaultParamsClientBytes);
         X509Certificate certDefaultParamsClient = (X509Certificate) CertificateFactory
                 .getInstance("X.509").generateCertificate(isDefaultParamsClient);
-        certDefaultParamsClient.checkValidity();
-
         certDefaultParamsClient.verify(certDefaultParamsRoot.getPublicKey(), (String) null);
 
         //        X509CertImpl certImplDefaultParamsClient = (X509CertImpl) certDefaultParamsClient;
@@ -1465,8 +797,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         InputStream isEmptyParamsRoot = new ByteArrayInputStream(emptyParamsRootBytes);
         X509Certificate certEmptyParamsRoot = (X509Certificate) CertificateFactory
                 .getInstance("X.509").generateCertificate(isEmptyParamsRoot);
-        certEmptyParamsRoot.checkValidity();
-
         certEmptyParamsRoot.verify(certEmptyParamsRoot.getPublicKey());
 
         BufferedInputStream bisEmptyParamsClient = null;
@@ -1485,8 +815,6 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         InputStream isEmptyParamsClient = new ByteArrayInputStream(emptyParamsClientBytes);
         X509Certificate certEmptyParamsClient = (X509Certificate) CertificateFactory
                 .getInstance("X.509").generateCertificate(isEmptyParamsClient);
-        certEmptyParamsClient.checkValidity();
-
         certEmptyParamsClient.verify(certEmptyParamsRoot.getPublicKey(), (String) null);
 
         //        X509CertImpl certImplEmptyParamsClient = (X509CertImpl) certEmptyParamsClient;
@@ -1521,13 +849,17 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         if (printJunitTrace)
             System.out.println("algParams_ibm=" + algParams_ibm.toString());
 
-        assertTrue(algParams_ibm.toString().contains("hashAlgorithm: SHA"));
-        assertTrue(algParams_ibm.toString().contains("maskGenAlgorithm: MGF1"));
-        assertTrue(algParams_ibm.toString().contains("mgf1ParameterSpec: SHA-1"));
-        assertTrue(algParams_ibm.toString().contains("saltLength: 20"));
-        assertTrue(algParams_ibm.toString().contains("trailerField: 1"));
+        String ibmDefaultStr = algParams_ibm.toString();
+        assertTrue(ibmDefaultStr.contains("hashAlgorithm=SHA-1"),
+                "expected hashAlgorithm=SHA-1 in: " + ibmDefaultStr);
+        assertTrue(ibmDefaultStr.contains("maskGenAlgorithm=MGF1ParameterSpec"),
+                "expected maskGenAlgorithm=MGF1ParameterSpec in: " + ibmDefaultStr);
+        assertTrue(ibmDefaultStr.contains("saltLength=20"),
+                "expected saltLength=20 in: " + ibmDefaultStr);
+        assertTrue(ibmDefaultStr.contains("trailerField=1"),
+                "expected trailerField=1 in: " + ibmDefaultStr);
 
-        PSSParameterSpec pssParameterSpec = new PSSParameterSpec("SHA2", "MGF1",
+        PSSParameterSpec pssParameterSpec = new PSSParameterSpec("SHA-256", "MGF1",
                 MGF1ParameterSpec.SHA256, 400, 1);
         try {
             sig_ibm.setParameter(pssParameterSpec);
@@ -1539,9 +871,12 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         AlgorithmParameters algParams_ibm1 = sig_ibm.getParameters();
         if (printJunitTrace)
             System.out.println("algParams_ibm1=" + algParams_ibm1);
-        assertTrue(algParams_ibm1.toString().contains("hashAlgorithm: SHA-256")
-                || algParams_ibm1.toString().contains("hashAlgorithm: SHA2"));
-        assertTrue(algParams_ibm1.toString().contains("saltLength: 400"));
+        String ibmUpdatedStr = algParams_ibm1.toString();
+        assertTrue(ibmUpdatedStr.contains("hashAlgorithm=SHA-256")
+                || ibmUpdatedStr.contains("hashAlgorithm=SHA2"),
+                "expected hashAlgorithm=SHA-256 or SHA2 in: " + ibmUpdatedStr);
+        assertTrue(ibmUpdatedStr.contains("saltLength=400"),
+                "expected saltLength=400 in: " + ibmUpdatedStr);
 
         Signature sig_bc = null;
         try {
@@ -1599,33 +934,4 @@ public class BaseTestRSAPSSSignature extends BaseTestJunit5Signature {
         return buf.toString();
     }
 
-    @Test
-    public void testRSAPSSKeyFactory() throws Exception {
-        try {
-            String providerNameKF = "";
-            providerNameKF = getProviderName();
-            if (printJunitTrace)
-                System.out.println("Test RSAPSS KeyFactory provider: " + providerNameKF);
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", providerNameKF);
-            keyGen.initialize(1024, new java.security.SecureRandom());
-            KeyPair keyPair = keyGen.genKeyPair();
-            RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-
-            KeyFactory kf = KeyFactory.getInstance("RSASSA-PSS", providerNameKF);
-            X509EncodedKeySpec x509KeySpec = kf.getKeySpec(publicKey,
-                    X509EncodedKeySpec.class);
-            byte[] encodedKey = x509KeySpec.getEncoded();
-
-            X509EncodedKeySpec x509KeySpec2 = new X509EncodedKeySpec(encodedKey);
-            KeyFactory.getInstance("RSASSA-PSS", providerNameKF);
-            RSAPublicKey publicKey2 = (RSAPublicKey) kf.generatePublic(x509KeySpec2);
-            assertTrue(publicKey.getAlgorithm().equalsIgnoreCase(publicKey2.getAlgorithm()), "Algorithm name different");
-            assertTrue(publicKey.getModulus().equals(publicKey2.getModulus()), "Modulus different");
-            assertTrue(publicKey.getPublicExponent().equals(publicKey2.getPublicExponent()), "Exponent different");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
 }
