@@ -49,6 +49,15 @@ public class TestArguments {
     }
 
     /**
+     * Generates combinations of OpenJCEPlus* providers with the SunRsaSign provider for interoperability testing.
+     *
+     * @return Stream of Arguments containing (JCEProviders, SunRsaSign) pairs
+     */
+    protected static Stream<Arguments> getOpenJCEPlusWithSunRsaSignInteropProvider(Set<String> providers) {
+        return getOpenJCEPlusWithInteropProviders(providers, TestProvider.SunRsaSign);
+    }
+
+    /**
      * Generates combinations of OpenJCEPlus* providers with the SunEC provider for interoperability testing.
      *
      * @return Stream of Arguments containing (JCEProviders, SunEC) pairs
@@ -73,6 +82,32 @@ public class TestArguments {
      */
     protected static Stream<Arguments> getOpenJCEPlusWithSunJCEAndSUNInteropProviders(Set<String> providers) {
         return getOpenJCEPlusWithTwoInteropProviders(providers, TestProvider.SunJCE, TestProvider.SUN);
+    }
+
+    /**
+     * Generates the two cross-backend provider triples needed to exercise
+     * OCK keys through an OpenSSL-backed operation and vice-versa:
+     * <ul>
+     *   <li>{@code (OpenJCEPlus_OCK,     OpenJCEPlus_OpenSSL, OpenJCEPlus_OpenSSL)}</li>
+     *   <li>{@code (OpenJCEPlus_OpenSSL, OpenJCEPlus_OCK,     OpenJCEPlus_OCK)}</li>
+     * </ul>
+     * Both slots ({@code interopProvider} and {@code interopProvider2}) are set to the
+     * same value so that all tests in {@code BaseTestPQCKeyInterop} - which use slot 1
+     * for ML-KEM and slot 2 for ML-DSA - run against the opposite backend.
+     * Returns an empty stream on z/OS where OpenSSL is not available.
+     *
+     * @return Stream of cross-backend Arguments triples
+     */
+    protected static Stream<Arguments> getOCKAndOpenSSLCrossBackendProviders(Set<String> providers) {
+        if (System.getProperty("os.name", "").contains("z/OS")) {
+            return Stream.empty();
+        }
+        List<Arguments> arguments = new ArrayList<>();
+        arguments.add(Arguments.of(TestProvider.OpenJCEPlus_OCK,
+                TestProvider.OpenJCEPlus_OpenSSL, TestProvider.OpenJCEPlus_OpenSSL));
+        arguments.add(Arguments.of(TestProvider.OpenJCEPlus_OpenSSL,
+                TestProvider.OpenJCEPlus_OCK, TestProvider.OpenJCEPlus_OCK));
+        return arguments.stream();
     }
 
     public static Stream<Arguments> keySizesAndProviders(Set<String> providers, List<Integer> keySizes) {
