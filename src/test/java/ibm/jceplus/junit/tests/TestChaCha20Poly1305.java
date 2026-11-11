@@ -27,6 +27,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.provider.MethodSource;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -999,6 +1000,73 @@ public class TestChaCha20Poly1305 extends BaseTest implements ChaCha20Constants 
 
         } catch (Exception e) {
             fail("Got unexpected exception on encrypt/decrypt...");
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // Run encrypt test using just doFinal calls (overlapping input/output buffer)
+    //
+    @Test
+    public void testChaCha20Poly1305EncryptDoFinalOverlappingBuffer() throws Exception {
+        cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
+        cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
+        byte[] expected = cp.doFinal(PLAIN_TEXT);
+
+        int[][] offsetPairs = {
+            {0, 16},                    // overlap
+            {0, PLAIN_TEXT.length},     // no overlap (adjacent)
+            {16, PLAIN_TEXT.length}     // overlap, non-zero input offset
+        };
+
+        for (int[] offsets : offsetPairs) {
+            int inputOffset = offsets[0];
+            int outputOffset = offsets[1];
+
+            byte[] buffer = new byte[outputOffset + PLAIN_TEXT.length + 16];
+            System.arraycopy(PLAIN_TEXT, 0, buffer, inputOffset, PLAIN_TEXT.length);
+
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
+            cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
+            int outLen = cp.doFinal(buffer, inputOffset, PLAIN_TEXT.length, buffer, outputOffset);
+
+            byte[] actual = Arrays.copyOfRange(buffer, outputOffset, outputOffset + outLen);
+            assertArrayEquals(expected, actual,
+                    "doFinal output does not match expected result, inputOffset=" + inputOffset
+                            + ", outputOffset=" + outputOffset);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // Run encrypt test using update, then doFinal calls (overlapping input/output buffer)
+    //
+    @Test
+    public void testChaCha20Poly1305EncryptUpdateOverlappingBuffer() throws Exception {
+        cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
+        cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
+        byte[] expected = cp.doFinal(PLAIN_TEXT);
+
+        int[][] offsetPairs = {
+            {0, 16},                    // overlap
+            {0, PLAIN_TEXT.length},     // no overlap (adjacent)
+            {16, PLAIN_TEXT.length}     // overlap, non-zero input offset
+        };
+
+        for (int[] offsets : offsetPairs) {
+            int inputOffset = offsets[0];
+            int outputOffset = offsets[1];
+
+            byte[] buffer = new byte[outputOffset + PLAIN_TEXT.length + 16];
+            System.arraycopy(PLAIN_TEXT, 0, buffer, inputOffset, PLAIN_TEXT.length);
+
+            cp = Cipher.getInstance(CHACHA20_POLY1305_ALGORITHM, getProviderName());
+            cp.init(Cipher.ENCRYPT_MODE, key, CHACHA20_POLY1305_PARAM_SPEC);
+            int outLen = cp.update(buffer, inputOffset, PLAIN_TEXT.length, buffer, outputOffset);
+            outLen += cp.doFinal(buffer, outputOffset + outLen);
+
+            byte[] actual = Arrays.copyOfRange(buffer, outputOffset, outputOffset + outLen);
+            assertArrayEquals(expected, actual,
+                    "update/doFinal output does not match expected result, inputOffset=" + inputOffset
+                            + ", outputOffset=" + outputOffset);
         }
     }
 }
