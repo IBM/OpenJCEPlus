@@ -27,6 +27,7 @@ class DefaultProviderAttrs {
         + "Service.AlgorithmParameters.CCM = com.ibm.crypto.plus.provider.CCMParameters\n"
         + "Service.AlgorithmParameters.OAEP = com.ibm.crypto.plus.provider.OAEPParameters\n"
 
+        + "Service.AlgorithmParameters.PBES2 = com.ibm.crypto.plus.provider.PBES2Parameters$General\n"
         + "Service.AlgorithmParameters.PBEWithHmacSHA1AndAES_128 = com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA1AndAES_128\n"
         + "Service.AlgorithmParameters.PBEWithHmacSHA1AndAES_256 = com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA1AndAES_256\n"
         + "Service.AlgorithmParameters.PBEWithHmacSHA224AndAES_128 = com.ibm.crypto.plus.provider.PBES2Parameters$HmacSHA224AndAES_128\n"

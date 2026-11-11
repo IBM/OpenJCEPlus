@@ -429,6 +429,7 @@ AlgorithmParameters         | DiffieHellman                   |X                
 AlgorithmParameters         | EC                              |X                |X             |              |
 AlgorithmParameters         | GCM                             |X                |X             |              |
 AlgorithmParameters         | OAEP                            |X                |X             |              |
+AlgorithmParameters         | PBES2                           |X                |X             |              |
 AlgorithmParameters         | RSAPSS                          |X                |X             |              |
 AlgorithmParameters         | PBEWithSHA1AndDESede            |                 |X             |              |
 AlgorithmParameters         | PBEWithSHA1AndRC2_40            |                 |X             |              |

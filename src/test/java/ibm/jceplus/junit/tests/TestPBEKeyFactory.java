@@ -10,6 +10,8 @@ package ibm.jceplus.junit.tests;
 
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.List;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -23,8 +25,10 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
 @MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
@@ -33,9 +37,20 @@ public class TestPBEKeyFactory extends BaseTest {
     @Parameter(0)
     TestProvider provider;
 
+    private List<String> fipsAlgorithms = Arrays.asList("PBEWithHmacSHA224AndAES_128", "PBEWithHmacSHA224AndAES_256",
+            "PBEWithHmacSHA256AndAES_128", "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA384AndAES_128", "PBEWithHmacSHA384AndAES_256",
+            "PBEWithHmacSHA512AndAES_128", "PBEWithHmacSHA512AndAES_256");
+
     @BeforeEach
     public void setUp() throws Exception {
         setAndInsertProvider(provider);
+    }
+
+    private void assumeAlgorithmSupported(String alg) {
+        if (getProviderName().equalsIgnoreCase("OpenJCEPlusFIPS")) {
+            assumeTrue(fipsAlgorithms.stream().anyMatch(alg::equalsIgnoreCase),
+                    "Algorithm not supported by OpenJCEPlusFIPS: " + alg);
+        }
     }
 
     @ParameterizedTest
@@ -45,7 +60,7 @@ public class TestPBEKeyFactory extends BaseTest {
         "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_40",
         "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_40", "PBEWithSHA1AndRC4_128"})
     public void testValid(String algorithm) throws Exception {
-
+        assumeAlgorithmSupported(algorithm);
         SecretKeyFactory fac = SecretKeyFactory.getInstance(algorithm, getProviderName());
 
         char[] pass = new char[] {'p', 'a', 's', 's', 'w', 'o', 'r', 'd'};
@@ -63,7 +78,7 @@ public class TestPBEKeyFactory extends BaseTest {
         "PBEWithHmacSHA512/256AndAES_128", "PBEWithHmacSHA512/256AndAES_256", "PBEWithSHA1AndDESede", "PBEWithSHA1AndRC2_40",
         "PBEWithSHA1AndRC2_128", "PBEWithSHA1AndRC4_40", "PBEWithSHA1AndRC4_128"})
     public void testInvalid(String algorithm) throws Exception {
-
+        assumeAlgorithmSupported(algorithm);
         SecretKeyFactory fac = SecretKeyFactory.getInstance(algorithm, getProviderName());
 
         char[] pass = new char[] {'p', 'a', 's', 's', 'w', 'o', 'r', '\u0019'};
