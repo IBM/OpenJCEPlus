@@ -22,6 +22,7 @@ OBJS= \
 	SharedJNIUtils.obj \
 	SignaturePQC.obj \
 	StaticStub.obj \
+	SymmetricCipher.obj \
 	Utils.obj
 
 TARGET = libopenjceplus_64.dll

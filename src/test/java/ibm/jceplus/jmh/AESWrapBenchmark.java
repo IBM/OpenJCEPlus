@@ -38,7 +38,7 @@ public class AESWrapBenchmark extends SymmetricCipherBase {
     @Param({"128", "192", "256"})
     private int keySize;
 
-    @Param({"OpenJCEPlus", "OpenJCEPlusFIPS", "SunJCE"})
+    @Param({"OpenJCEPlus", "OpenJCEPlus-OpenSSL", "OpenJCEPlusFIPS", "SunJCE"})
     private String provider;
 
     private byte[] wrappedKey;

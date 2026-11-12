@@ -13,7 +13,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.ShortBufferException;
@@ -42,9 +43,9 @@ public final class SymmetricCipher {
     private long outputPointer; // Pointer to memory that has the output to the encrypted text by z_kmc
     private long outputOffset; // Offset, in the buffer, to where the output is stored, used to retrieve output after z_kmc call
     private long paramPointer; // Pointer to memory that has the parameters/state keeping used by z_kmc
-    private static long hardwareFunctionPtr = 0;
     private final boolean use_z_fast_command;
-    private static Optional<Boolean> hardwareEnabled = Optional.empty();
+    // Hardware support is a property of the backend, so cache it per NativeInterface.
+    private static final Map<NativeInterface, Boolean> hardwareEnabled = new ConcurrentHashMap<>();
     private static final String badIdMsg = "Cipher Identifier is not valid";
     /* private final static String debPrefix = "SymCipher"; Adding Debug causes test cases to fail */
     int paramOffset;
@@ -141,13 +142,8 @@ public final class SymmetricCipher {
         boolean isHardwareSupport = false;
         // The OS_Helper functions are not NIST certified, thus they can't be used in FIPS mode.
         if (!this.provider.isFIPS()) {
-            if (hardwareEnabled.isPresent())
-                isHardwareSupport = hardwareEnabled.get();
-            else {
-                hardwareFunctionPtr = checkHardwareSupport(nativeInterface);
-                isHardwareSupport = (hardwareFunctionPtr == 1) ? true : false;
-                hardwareEnabled = Optional.of(isHardwareSupport);
-            }
+            isHardwareSupport = hardwareEnabled.computeIfAbsent(nativeInterface,
+                    ni -> checkHardwareSupport(ni) == 1);
         }
 
         use_z_fast_command = "AES".equals(cipherName.substring(0, 3))
@@ -290,20 +286,29 @@ public final class SymmetricCipher {
     }
 
     /**
-     * OCKC always oversizes the buffer by 16 bytes (i.e. 128 bits).
+     * Calculates the size of the temporary buffer handed to the native library.
      *
-     * This buffer is larger than what end user application will provide typically as a
-     * buffer. This method calculates the amount of space that is needed by OCKC in order
-     * to perform its operations.
+     * Native backends may write more than the final result size into the buffer
+     * they are given. This buffer is larger than what an end user application
+     * will typically provide, so this method calculates the space the native
+     * library needs in order to perform its operations.
      *
-     * @param inputLen the length of the input buffer used to calulate the necessary
-     * buffer size needed for the OCKC library.
-     * @return the necessary buffer size needed by OCK.
+     * OCKC always oversizes the buffer by 16 bytes (i.e. 128 bits). OpenSSL may
+     * write up to inputLen + 2 * blockSize - 1 bytes in a final.
+     *
+     * @param inputLen the length of the input used to calculate the necessary
+     * native buffer size.
+     * @return the buffer size needed by the native library.
      */
-    private synchronized int getOutputSizeForOCK(int inputLen) throws NativeException {
+    private synchronized int getNativeOutputSize(int inputLen) throws NativeException {
         //final String methodName = "getOutputSize";
         if (inputLen < 0) {
             throw new NativeException("Input length not expected to be < 0");
+        }
+        // OpenSSL writes up to inputLen + 2 * blockSize - 1 bytes in a final and
+        // checks the buffer size natively. OCK keeps its original sizing below.
+        if (nativeInterface.getBackendType() == NativeCryptoSelector.Backend.OPENSSL) {
+            return inputLen + 2 * getBlockSize();
         }
         //OCKDebug.Msg (debPrefix, methodName, "inputLen=" + inputLen + " isFinal=" + isFinal + "encrypting=" + encrypting );
         int totalLen = this.bufferedCount + inputLen;
@@ -410,7 +415,7 @@ public final class SymmetricCipher {
             }
         }
 
-        byte[] tmpBuf = new byte[getOutputSizeForOCK(inputLen)];
+        byte[] tmpBuf = new byte[getNativeOutputSize(inputLen)];
         try {
             //OCKDebug.Msg (debPrefix, methodName, "ockCipherId :" + ockCipherId + " inputOffset :" + inputOffset + " inputLen :" + inputLen + "encrypting :" + encrypting);
             if (ockCipherId == 0L) {
@@ -540,7 +545,7 @@ public final class SymmetricCipher {
             }
         }
         // Customer provided buffer may be smaller than what OCK requires.
-        byte[] tmpBuf = new byte[getOutputSizeForOCK(inputLen)];
+        byte[] tmpBuf = new byte[getNativeOutputSize(inputLen)];
 
         try {
             //OCKDebug.Msg (debPrefix, methodName, "ockCipherId :" + ockCipherId + " inputOffset :" + inputOffset + " inputLen :" + inputLen + "encrypting :" + encrypting);

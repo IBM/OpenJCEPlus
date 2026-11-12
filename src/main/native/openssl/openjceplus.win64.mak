@@ -22,6 +22,7 @@ OBJS= \
 	$(HOSTOUT)/SharedJNIUtils.obj \
 	$(HOSTOUT)/SignaturePQC.obj \
 	$(HOSTOUT)/StaticStub.obj \
+	$(HOSTOUT)/SymmetricCipher.obj \
 	$(HOSTOUT)/Utils.obj
 
 ifndef OPENSSL_LIB_LOCATION

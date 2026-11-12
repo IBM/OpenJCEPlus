@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
@@ -25,12 +25,31 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestAESInterop extends BaseTestJunit5Interop {
+@Tag(Tags.OPENJCEPLUS_OCK_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithSunJCEInteropProvider")
+public class TestAESInterop extends BaseTestInterop {
+
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
+
     // 14 bytes: PASSED
     static final byte[] plainText14 = "12345678123456".getBytes();
 
@@ -51,23 +70,25 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
     // 512, 65536, 524288 bytes, payload increment of 32 bytes (up to 16384 bytes) :
     // PASSED
     Random r = new Random(5);
-    static int iteration = 0;
-    static final byte[] plainText512 = new byte[512];
-    static final byte[] plainText65536 = new byte[65536];
-    static final byte[] plainText524288 = new byte[524288];
-    static final byte[] plainText1048576 = new byte[1048576];
-    static final byte[] plainText16KB = new byte[16384];
-    static final byte[] plainText = plainText128; // default value
+    int iteration = 0;
+    final byte[] plainText512 = new byte[512];
+    final byte[] plainText65536 = new byte[65536];
+    final byte[] plainText524288 = new byte[524288];
+    final byte[] plainText1048576 = new byte[1048576];
+    final byte[] plainText16KB = new byte[16384];
+    final byte[] plainText = plainText128; // default value
 
     protected SecretKey key;
     protected AlgorithmParameters params = null;
     protected Cipher cpA = null;
     protected Cipher cpB = null;
     protected boolean success = true;
-    protected int specifiedKeySize = 0;
+    protected int specifiedKeySize = 256;
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
         byte[] encodedKey = new byte[(specifiedKeySize > 0 ? specifiedKeySize : 128) / 8];
         r.nextBytes(plainText512);
         r.nextBytes(plainText65536);
@@ -300,18 +321,18 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
                 "AES/CBC/PKCS5Padding", "AES/CBC/NoPadding"};
 
         for (int i = 0; i < algorithms.length; i++) {
-            doTestAESOnlyFinal(algorithms[i], fullBlock, "OpenJCEPlus", "SunJCE");
+            doTestAESOnlyFinal(algorithms[i], fullBlock, getProviderName(), getInteropProviderName());
             System.err.println("Test AESOnlyFinal with fullBlock OpenJCEPlus->SunJCE OK");
-            doTestAESOnlyFinal(algorithms[i], incompleteBlock, "OpenJCEPlus", "SunJCE");
+            doTestAESOnlyFinal(algorithms[i], incompleteBlock, getProviderName(), getInteropProviderName());
             System.err.println("Test AESOnlyFinal with incompelteBlock OpenJCEPlus->SunJCE OK");
-            doTestAESOnlyFinal(algorithms[i], multipleFullBlocks, "OpenJCEPlus", "SunJCE");
+            doTestAESOnlyFinal(algorithms[i], multipleFullBlocks, getProviderName(), getInteropProviderName());
             System.err.println("Test  AESOnlyFinal with multipleFullBlocks OpenJCEPlus->SunJCE OK");
 
-            doTestAESOnlyFinal(algorithms[i], fullBlock, "SunJCE", "OpenJCEPlus");
+            doTestAESOnlyFinal(algorithms[i], fullBlock, getInteropProviderName(), getProviderName());
             System.err.println("Test AESOnlyFinal with fullBlock SunJCE->OpenJCEPlus OK");
-            doTestAESOnlyFinal(algorithms[i], incompleteBlock, "SunJCE", "OpenJCEPlus");
+            doTestAESOnlyFinal(algorithms[i], incompleteBlock, getInteropProviderName(), getProviderName());
             System.err.println("Test AESOnlyFinal with incompelteBlock SunJCE->OpenJCEPlus OK");
-            doTestAESOnlyFinal(algorithms[i], multipleFullBlocks, "SunJCE", "OpenJCEPlus");
+            doTestAESOnlyFinal(algorithms[i], multipleFullBlocks, getInteropProviderName(), getProviderName());
             System.err.println("Test  AESOnlyFinal with multipleFullBlocks SunJCE->OpenJCEPlus");
 
         }
@@ -369,18 +390,18 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
                 "AES/CBC/PKCS5Padding", "AES/CBC/NoPadding"};
         for (int i = 0; i < algorithms.length; i++) {
             doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithms[i], fullBlock,
-                    "OpenJCEPlus", "SunJCE");
+                    getProviderName(), getInteropProviderName());
             doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithms[i],
-                    incompleteBlock, "OpenJCEPlus", "SunJCE");
+                    incompleteBlock, getProviderName(), getInteropProviderName());
             doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithms[i],
-                    multipleFullBlocks, "OpenJCEPlus", "SunJCE");
+                    multipleFullBlocks, getProviderName(), getInteropProviderName());
 
             doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithms[i], fullBlock,
-                    "SunJCE", "OpenJCEPlus");
+                    getInteropProviderName(), getProviderName());
             doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithms[i],
-                    incompleteBlock, "SunJCE", "OpenJCEPlus");
+                    incompleteBlock, getInteropProviderName(), getProviderName());
             doTestAESWithUpdateForEncryptionButOnlyFinalForDecryption(algorithms[i],
-                    multipleFullBlocks, "SunJCE", "OpenJCEPlus");
+                    multipleFullBlocks, getInteropProviderName(), getProviderName());
         }
     }
 
@@ -440,19 +461,19 @@ public class BaseTestAESInterop extends BaseTestJunit5Interop {
         String[] algorithms = {/* "AES/CFB8/PKCS5Padding", */ "AES/CFB8/NoPadding",
                 "AES/CBC/PKCS5Padding", "AES/CBC/NoPadding"};
         for (int i = 0; i < algorithms.length; i++) {
-            doTestAESWithUpdateEncryptionAndDecryption(algorithms[i], fullBlock, "OpenJCEPlus",
-                    "SunJCE");
+            doTestAESWithUpdateEncryptionAndDecryption(algorithms[i], fullBlock, getProviderName(),
+                    getInteropProviderName());
             doTestAESWithUpdateEncryptionAndDecryption(algorithms[i], incompleteBlock,
-                    "OpenJCEPlus", "SunJCE");
+                    getProviderName(), getInteropProviderName());
             doTestAESWithUpdateEncryptionAndDecryption(algorithms[i], multipleFullBlocks,
-                    "OpenJCEPlus", "SunJCE");
+                    getProviderName(), getInteropProviderName());
 
-            doTestAESWithUpdateEncryptionAndDecryption(algorithms[i], fullBlock, "SunJCE",
-                    "OpenJCEPlus");
-            doTestAESWithUpdateEncryptionAndDecryption(algorithms[i], incompleteBlock, "SunJCE",
-                    "OpenJCEPlus");
-            doTestAESWithUpdateEncryptionAndDecryption(algorithms[i], multipleFullBlocks, "SunJCE",
-                    "OpenJCEPlus");
+            doTestAESWithUpdateEncryptionAndDecryption(algorithms[i], fullBlock, getInteropProviderName(),
+                    getProviderName());
+            doTestAESWithUpdateEncryptionAndDecryption(algorithms[i], incompleteBlock, getInteropProviderName(),
+                    getProviderName());
+            doTestAESWithUpdateEncryptionAndDecryption(algorithms[i], multipleFullBlocks, getInteropProviderName(),
+                    getProviderName());
         }
     }
 

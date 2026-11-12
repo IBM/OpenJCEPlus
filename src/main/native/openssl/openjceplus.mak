@@ -22,6 +22,7 @@ OBJS = \
 	${HOSTOUT}/SharedJNIUtils.o \
 	${HOSTOUT}/SignaturePQC.o \
 	${HOSTOUT}/StaticStub.o \
+	${HOSTOUT}/SymmetricCipher.o \
 	${HOSTOUT}/Utils.o
 
 LIB_FOLDER = lib
