@@ -325,6 +325,13 @@ class PQCKeyFactory extends KeyFactorySpi {
         }
     }
 
+    public static final class SLHDSA extends PQCKeyFactory {
+
+        public SLHDSA(OpenJCEPlusProvider provider) {
+            super(provider, "SLH-DSA");
+        }
+    }
+
     public static final class SLHDSASHA2128s extends PQCKeyFactory {
 
         public SLHDSASHA2128s(OpenJCEPlusProvider provider) {

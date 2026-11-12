@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
 @Tag(Tags.OPENJCEPLUS_OCK_NAME)
@@ -45,8 +46,22 @@ public class TestPQCSignatureWithAliases extends BaseTestSignature {
         "ML-KEM-1024", "ML_KEM_1024", "MLKEM1024", "OID.2.16.840.1.101.3.4.4.3", "2.16.840.1.101.3.4.4.3",
         "ML-DSA", "ML-DSA-44", "ML_DSA_44", "MLDSA44", "OID.2.16.840.1.101.3.4.3.17", "2.16.840.1.101.3.4.3.17",
         "ML-DSA-65", "ML_DSA_65", "MLDSA65", "OID.2.16.840.1.101.3.4.3.18", "2.16.840.1.101.3.4.3.18",
-        "ML-DSA-87", "ML_DSA_87", "MLDSA87", "OID.2.16.840.1.101.3.4.3.19", "2.16.840.1.101.3.4.3.19"})
+        "ML-DSA-87", "ML_DSA_87", "MLDSA87", "OID.2.16.840.1.101.3.4.3.19", "2.16.840.1.101.3.4.3.19",
+        "SLH-DSA",
+        "SLH-DSA-SHA2-128s", "SLH_DSA_SHA2_128s", "SLHDSASHA2128s", "OID.2.16.840.1.101.3.4.3.20", "2.16.840.1.101.3.4.3.20",
+        "SLH-DSA-SHA2-128f", "SLH_DSA_SHA2_128f", "SLHDSASHA2128f", "OID.2.16.840.1.101.3.4.3.21", "2.16.840.1.101.3.4.3.21",
+        "SLH-DSA-SHA2-192s", "SLH_DSA_SHA2_192s", "SLHDSASHA2192s", "OID.2.16.840.1.101.3.4.3.22", "2.16.840.1.101.3.4.3.22",
+        "SLH-DSA-SHA2-192f", "SLH_DSA_SHA2_192f", "SLHDSASHA2192f", "OID.2.16.840.1.101.3.4.3.23", "2.16.840.1.101.3.4.3.23",
+        "SLH-DSA-SHA2-256s", "SLH_DSA_SHA2_256s", "SLHDSASHA2256s", "OID.2.16.840.1.101.3.4.3.24", "2.16.840.1.101.3.4.3.24",
+        "SLH-DSA-SHA2-256f", "SLH_DSA_SHA2_256f", "SLHDSASHA2256f", "OID.2.16.840.1.101.3.4.3.25", "2.16.840.1.101.3.4.3.25",
+        "SLH-DSA-SHAKE-128s", "SLH_DSA_SHAKE_128s", "SLHDSASHAKE128s", "OID.2.16.840.1.101.3.4.3.26", "2.16.840.1.101.3.4.3.26",
+        "SLH-DSA-SHAKE-128f", "SLH_DSA_SHAKE_128f", "SLHDSASHAKE128f", "OID.2.16.840.1.101.3.4.3.27", "2.16.840.1.101.3.4.3.27",
+        "SLH-DSA-SHAKE-192s", "SLH_DSA_SHAKE_192s", "SLHDSASHAKE192s", "OID.2.16.840.1.101.3.4.3.28", "2.16.840.1.101.3.4.3.28",
+        "SLH-DSA-SHAKE-192f", "SLH_DSA_SHAKE_192f", "SLHDSASHAKE192f", "OID.2.16.840.1.101.3.4.3.29", "2.16.840.1.101.3.4.3.29",
+        "SLH-DSA-SHAKE-256s", "SLH_DSA_SHAKE_256s", "SLHDSASHAKE256s", "OID.2.16.840.1.101.3.4.3.30", "2.16.840.1.101.3.4.3.30",
+        "SLH-DSA-SHAKE-256f", "SLH_DSA_SHAKE_256f", "SLHDSASHAKE256f", "OID.2.16.840.1.101.3.4.3.31", "2.16.840.1.101.3.4.3.31"})
     public void testPQCKeys(String pqcKeyType) {
+        assumeFalse(BaseUtils.isSLHDSA(pqcKeyType) && !BaseUtils.isOpenSSLProvider(getProviderName()));
 
         int numberOfTestsExecuted = 0;
         int testSuccesses         = 0;

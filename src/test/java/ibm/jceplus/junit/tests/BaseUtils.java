@@ -58,4 +58,93 @@ public class BaseUtils {
         return b;
     }
 
+    /**
+     * Returns the canonical IANA family name for any PQC algorithm name or alias.
+     * All alias forms (underscore, compact, camelCase, lowercase, OID, etc.) are
+     * normalised to one of "ML-KEM", "ML-DSA", or "SLH-DSA".
+     *
+     * @param paramSetName the algorithm or parameter set name (any alias form)
+     * @return the canonical family name, or {@code paramSetName} unchanged when
+     *         it does not match any known PQC family
+     */
+    public static String getFamilyName(String paramSetName) {
+        if (paramSetName == null) {
+            return null;
+        }
+        // Normalise to uppercase and strip all separators for compact comparison.
+        String upper = paramSetName.toUpperCase().replace("-", "").replace("_", "");
+        if (upper.startsWith("MLKEM")) {
+            return "ML-KEM";
+        }
+        if (upper.startsWith("MLDSA")) {
+            return "ML-DSA";
+        }
+        if (upper.startsWith("SLHDSA")) {
+            return "SLH-DSA";
+        }
+        // OID strings: ML-KEM OIDs are 2.16.840.1.101.3.4.4.x,
+        // ML-DSA OIDs are 2.16.840.1.101.3.4.3.17-19,
+        // SLH-DSA OIDs are 2.16.840.1.101.3.4.3.20-31.
+        String bare = paramSetName;
+        if (bare.toUpperCase().startsWith("OID.")) {
+            bare = bare.substring(4);
+        }
+        if (bare.startsWith("2.16.840.1.101.3.4.4.")) {
+            return "ML-KEM";
+        }
+        if (bare.startsWith("2.16.840.1.101.3.4.3.")) {
+            try {
+                int num = Integer.parseInt(bare.substring("2.16.840.1.101.3.4.3.".length()));
+                if (num >= 17 && num <= 19) {
+                    return "ML-DSA";
+                }
+                if (num >= 20 && num <= 31) {
+                    return "SLH-DSA";
+                }
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return paramSetName;
+    }
+
+    /**
+     * Checks if the algorithm or parameter set name belongs to the SLH-DSA family.
+     * Handles names like "SLH-DSA", "SLH_DSA_...", "slhdsasha2...", "OID.2.16.840.1.101.3.4.3.20", etc.
+     *
+     * @param alg the algorithm name, alias, or OID string
+     * @return true if the algorithm belongs to the SLH-DSA family
+     */
+    public static boolean isSLHDSA(String alg) {
+        if (alg == null) {
+            return false;
+        }
+        String upper = alg.toUpperCase();
+        if (upper.contains("SLH") || upper.contains("SLH-DSA") || upper.contains("SLH_DSA") || upper.contains("SLHDSA")) {
+            return true;
+        }
+        // Check SLH-DSA OIDs (2.16.840.1.101.3.4.3.20 to 2.16.840.1.101.3.4.3.31)
+        if (upper.contains("2.16.840.1.101.3.4.3.")) {
+            int idx = upper.indexOf("2.16.840.1.101.3.4.3.");
+            String suffix = upper.substring(idx + "2.16.840.1.101.3.4.3.".length());
+            try {
+                int oidNum = Integer.parseInt(suffix.split("[^0-9]")[0]);
+                if (oidNum >= 20 && oidNum <= 31) {
+                    return true;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the provider name corresponds to the OpenSSL backend.
+     *
+     * @param providerName the provider name to check
+     * @return true if the provider is OpenJCEPlus-OpenSSL
+     */
+    public static boolean isOpenSSLProvider(String providerName) {
+        return TestProvider.OpenJCEPlus_OpenSSL.getProviderName().equals(providerName);
+    }
+
 }

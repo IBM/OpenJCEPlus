@@ -289,39 +289,117 @@ void *mallocSafe(JNIEnv *env, size_t size, const char *errorMsg) {
 
 //============================================================================
 //
-// DER OctetString helpers
+// DER helpers (shared by OctetString and BitString)
 //
-unsigned char *encode_octet_string(const unsigned char *raw, size_t rawLen, size_t *outLen) {
-    if (rawLen > 0xFFFF) {
+#define DER_TAG_BIT_STRING   0x03
+#define DER_TAG_OCTET_STRING 0x04
+
+/*
+ * A BitString's content starts with an "unused bits" byte; an OctetString's
+ * content is the raw bytes only.
+ */
+static size_t der_prefix_len(unsigned char tag) {
+    return (tag == DER_TAG_BIT_STRING) ? 1 : 0;
+}
+
+/*
+ * Encode raw bytes as a DER TLV with the given tag (BitString or OctetString).
+ * For BitString, a leading unused-bits byte (0x00) is prepended to the content.
+ * Only lengths up to 0xFFFF are supported.
+ * Returns a malloc'd buffer (caller frees), or NULL on failure.
+ */
+static unsigned char *der_encode(unsigned char tag, const unsigned char *raw,
+                                 size_t rawLen, size_t *outLen) {
+    size_t prefixLen = der_prefix_len(tag);
+    size_t payload = rawLen + prefixLen;
+    if (payload > 0xFFFF) {
         return NULL;
     }
-    *outLen = rawLen + 4;
+    size_t headerLen;
+    if (payload <= 0x7F) {
+        headerLen = 2;          /* tag + 1-byte short-form length */
+    } else if (payload <= 0xFF) {
+        headerLen = 3;          /* tag + 0x81 + 1 length byte */
+    } else {
+        headerLen = 4;          /* tag + 0x82 + 2 length bytes */
+    }
+    *outLen = payload + headerLen;
     unsigned char *buf = (unsigned char *)malloc(*outLen);
     if (buf == NULL) {
         return NULL;
     }
-    buf[0] = 0x04;  /* OctetString tag */
-    buf[1] = 0x82;  /* long-form length, 2 bytes follow */
-    buf[2] = (unsigned char)((rawLen >> 8) & 0xFF);
-    buf[3] = (unsigned char)(rawLen & 0xFF);
-    memcpy(buf + 4, raw, rawLen);
+    buf[0] = tag;
+    if (headerLen == 2) {
+        buf[1] = (unsigned char)payload;
+    } else if (headerLen == 3) {
+        buf[1] = 0x81;
+        buf[2] = (unsigned char)payload;
+    } else {
+        buf[1] = 0x82;
+        buf[2] = (unsigned char)((payload >> 8) & 0xFF);
+        buf[3] = (unsigned char)(payload & 0xFF);
+    }
+    if (prefixLen) {
+        buf[headerLen] = 0x00;  /* unused bits = 0 */
+    }
+    memcpy(buf + headerLen + prefixLen, raw, rawLen);
     return buf;
 }
 
-unsigned char *decode_octet_string(const unsigned char *enc, size_t encLen, size_t *rawLen) {
-    if (encLen < 4 || enc[0] != 0x04 || enc[1] != 0x82) {
+/*
+ * Decode a DER TLV with the given tag (BitString or OctetString).
+ * For BitString, the leading unused-bits byte must be 0x00 and is skipped.
+ * Returns a malloc'd buffer of the raw content (caller frees), or NULL on
+ * failure.
+ */
+static unsigned char *der_decode(unsigned char tag, const unsigned char *enc,
+                                 size_t encLen, size_t *rawLen) {
+    size_t prefixLen = der_prefix_len(tag);
+    if (encLen < 2 || enc[0] != tag) {
         return NULL;
     }
-    *rawLen = ((size_t)(enc[2]) << 8) | (size_t)(enc[3]);
-    if (*rawLen + 4 != encLen) {
+    size_t payload;
+    size_t headerLen;
+    if ((enc[1] & 0x80) == 0) {
+        /* short-form: length fits in one byte */
+        payload   = (size_t)(enc[1]);
+        headerLen = 2;
+    } else if (enc[1] == 0x81 && encLen >= 3) {
+        /* long-form, 1 subsequent length byte */
+        payload   = (size_t)(enc[2]);
+        headerLen = 3;
+    } else if (enc[1] == 0x82 && encLen >= 4) {
+        /* long-form, 2 subsequent length bytes */
+        payload   = ((size_t)(enc[2]) << 8) | (size_t)(enc[3]);
+        headerLen = 4;
+    } else {
         return NULL;
     }
+    if (payload < prefixLen || payload + headerLen != encLen) {
+        return NULL;
+    }
+    if (prefixLen && enc[headerLen] != 0x00) {
+        return NULL;
+    }
+    *rawLen = payload - prefixLen;
     unsigned char *buf = (unsigned char *)malloc(*rawLen);
     if (buf == NULL) {
         return NULL;
     }
-    memcpy(buf, enc + 4, *rawLen);
+    memcpy(buf, enc + headerLen + prefixLen, *rawLen);
     return buf;
+}
+
+//============================================================================
+//
+// DER OctetString helpers
+//
+unsigned char *encode_octet_string(const unsigned char *raw, size_t rawLen, size_t *outLen) {
+    return der_encode(DER_TAG_OCTET_STRING, raw, rawLen, outLen);
+}
+
+unsigned char *decode_octet_string(const unsigned char *enc, size_t encLen, size_t *rawLen) {
+    return der_decode(DER_TAG_OCTET_STRING, enc, encLen, rawLen);
 }
 
 //============================================================================
@@ -329,40 +407,11 @@ unsigned char *decode_octet_string(const unsigned char *enc, size_t encLen, size
 // DER BitString helpers
 //
 unsigned char *encode_bit_string(const unsigned char *raw, size_t rawLen, size_t *outLen) {
-    /* BitString payload = 0x00 (unused bits) + raw */
-    size_t payload = rawLen + 1;
-    if (payload > 0xFFFF) {
-        return NULL;
-    }
-    *outLen = payload + 4; /* tag + 0x82 + 2 length bytes + payload */
-    unsigned char *buf = (unsigned char *)malloc(*outLen);
-    if (buf == NULL) {
-        return NULL;
-    }
-    buf[0] = 0x03;  /* BitString tag */
-    buf[1] = 0x82;  /* long-form length, 2 bytes follow */
-    buf[2] = (unsigned char)((payload >> 8) & 0xFF);
-    buf[3] = (unsigned char)(payload & 0xFF);
-    buf[4] = 0x00;  /* unused bits = 0 */
-    memcpy(buf + 5, raw, rawLen);
-    return buf;
+    return der_encode(DER_TAG_BIT_STRING, raw, rawLen, outLen);
 }
 
 unsigned char *decode_bit_string(const unsigned char *enc, size_t encLen, size_t *rawLen) {
-    if (encLen < 5 || enc[0] != 0x03 || enc[1] != 0x82) {
-        return NULL;
-    }
-    size_t payload = ((size_t)(enc[2]) << 8) | (size_t)(enc[3]);
-    if (payload < 1 || payload + 4 != encLen || enc[4] != 0x00) {
-        return NULL;
-    }
-    *rawLen = payload - 1;
-    unsigned char *buf = (unsigned char *)malloc(*rawLen);
-    if (buf == NULL) {
-        return NULL;
-    }
-    memcpy(buf, enc + 5, *rawLen);
-    return buf;
+    return der_decode(DER_TAG_BIT_STRING, enc, encLen, rawLen);
 }
 
 #ifdef __MVS__

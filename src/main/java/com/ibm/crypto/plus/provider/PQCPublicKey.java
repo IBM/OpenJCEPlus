@@ -67,8 +67,11 @@ final class PQCPublicKey extends X509Key
             this.paramSetName = PQCKnownOIDs.findMatch(this.algid.getName()).stdName();
             this.familyName = familyName(this.paramSetName);
 
-            //OCKC puts the BITSTRING on the key. Need to remove it.
-            setKey(new BitArray((rawKey.length - 5) * 8, rawKey, 5));
+            // Native returns a DER BitString with a canonical-length header.
+            // DerValue.getBitString() strips tag, length, and unused-bits byte correctly
+            // regardless of whether short-form or long-form length encoding is used.
+            byte[] raw = new DerValue(rawKey).getBitString();
+            setKey(new BitArray(raw.length * 8, raw));
 
             this.pqcKey = pqcKey;
         } catch (Exception exception) {
@@ -117,6 +120,9 @@ final class PQCPublicKey extends X509Key
         }
         if (paramSetName.startsWith("ML-KEM-")) {
             return "ML-KEM";
+        }
+        if (paramSetName.startsWith("SLH-DSA-")) {
+            return "SLH-DSA";
         }
         throw new IllegalArgumentException(
                 "Unrecognized PQC algorithm family for parameter set: " + paramSetName);
