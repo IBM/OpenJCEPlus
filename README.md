@@ -180,7 +180,7 @@ You can test your installation by issuing `mvn --version`. For example:
 
     For z/OS, also remove `OpenJCEPlus` from the providers list in `$JAVA_INSTALL_DIRECTORY/jdk-$JAVA_VERSION/conf/security/java.security`.
 
-1. Compile the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with the Java Native Interface library. This command intentionally skips test execution. See instructions below for [running tests](#Test-Execution). The `-Dopenssl.library.path` system property is required on the command line for compilation.
+1. Compile the `OpenJCEPlus` and `OpenJCEPlusFIPS` providers along with the Java Native Interface library. This command intentionally skips test execution. See instructions below for [running tests](#Test-Execution).
 
     On Linux/AIX:
 
@@ -197,7 +197,7 @@ You can test your installation by issuing `mvn --version`. For example:
     On Windows:
 
     ```console
-    mvn -Dock.library.path=$OCK_PROJECT_HOME -Dopenssl.library.path=%OPENSSL_HOME%\bin install -DskipTests
+    mvn -Dock.library.path=$OCK_PROJECT_HOME -Dopenssl.library.path=%OPENSSL_LIBRARY_PATH% install -DskipTests
     ```
 
     **NOTE**: The value `$OPENSSL_LIBRARY_PATH` should point to the directory containing the OpenSSL `crypto` shared library. Generally:
@@ -457,234 +457,234 @@ The following properties can be used to configure application behavior at runtim
 
 The following algorithms are registered by the OpenJCEPlus and OpenJCEPlusFIPS providers.
 
-| Algorithm Type            | Algorithm Name                  | OpenJCEPlusFIPS | OpenJCEPlus  | OpenJCEPlus with OpenSSL configuration | Notes        |
-| --------------------------|---------------------------------|-----------------|--------------|----------------------------------------|--------------|
-AlgorithmParameterGenerator | CCM                             |X                |X             |         |              |
-AlgorithmParameterGenerator | DSA                             |                 |X             |         |              |
-AlgorithmParameterGenerator | DiffieHellman                   |X                |X             |         |              |
-AlgorithmParameterGenerator | EC                              |X                |X             |         |              |
-AlgorithmParameterGenerator | GCM                             |X                |X             |         |              |
-AlgorithmParameters         | AES                             |X                |X             |         |              |
-AlgorithmParameters         | CCM                             |X                |X             |         |              |
-AlgorithmParameters         | ChaCha20-Poly1305               |                 |X             |         |              |
-AlgorithmParameters         | DESede                          |                 |X             |         |              |
-AlgorithmParameters         | DSA                             |X                |X             |         |              |
-AlgorithmParameters         | DiffieHellman                   |X                |X             |         |              |
-AlgorithmParameters         | EC                              |X                |X             |         |              |
-AlgorithmParameters         | GCM                             |X                |X             |         |              |
-AlgorithmParameters         | OAEP                            |X                |X             |         |              |
-AlgorithmParameters         | RSAPSS                          |X                |X             |         |              |
-AlgorithmParameters         | PBEWithSHA1AndDESede            |                 |X             |         |              |
-AlgorithmParameters         | PBEWithSHA1AndRC2_40            |                 |X             |         |              |
-AlgorithmParameters         | PBEWithSHA1AndRC2_128           |                 |X             |         |              |
-AlgorithmParameters         | PBEWithSHA1AndRC4_40            |                 |X             |         |              |
-AlgorithmParameters         | PBEWithSHA1AndRC4_128           |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA1AndAES_128       |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA1AndAES_256       |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA224AndAES_128     |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA224AndAES_256     |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA256AndAES_128     |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA256AndAES_256     |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA384AndAES_128     |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA384AndAES_256     |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA512AndAES_128     |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA512AndAES_256     |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA512/224AndAES_128 |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA512/224AndAES_256 |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA512/256AndAES_128 |                 |X             |         |              |
-AlgorithmParameters         | PBEWithHmacSHA512/256AndAES_256 |                 |X             |         |              |
-Cipher                      | AES                             |X                |X             |         |              |
-Cipher                      | AES/CCM/NoPadding               |X                |X             |         |              |
-Cipher                      | AES/GCM/NoPadding               |X                |X             |         |              |
-Cipher                      | ChaCha20                        |                 |X             |         |              |
-Cipher                      | ChaCha20-Poly1305               |                 |X             |         |              |
-Cipher                      | DESede                          |                 |X             |         |              |
-Cipher                      | RSA                             |X                |X             |         |              |
-Cipher                      | PBEWithSHA1AndDESede            |                 |X             |         |              |
-Cipher                      | PBEWithSHA1AndRC2_40            |                 |X             |         |              |
-Cipher                      | PBEWithSHA1AndRC2_128           |                 |X             |         |              |
-Cipher                      | PBEWithSHA1AndRC4_40            |                 |X             |         |              |
-Cipher                      | PBEWithSHA1AndRC4_128           |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA1AndAES_128       |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA1AndAES_256       |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA224AndAES_128     |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA224AndAES_256     |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA256AndAES_128     |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA256AndAES_256     |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA384AndAES_128     |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA384AndAES_256     |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA512AndAES_128     |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA512AndAES_256     |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA512/224AndAES_128 |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA512/224AndAES_256 |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA512/256AndAES_128 |                 |X             |         |              |
-Cipher                      | PBEWithHmacSHA512/256AndAES_256 |                 |X             |         |              |
-KeyAgreement                | DiffieHellman                   |X                |X             |         |              |
-KeyAgreement                | ECDH                            |X                |X             |         |              |
-KeyAgreement                | X25519                          |                 |X             |         |              |
-KeyAgreement                | X448                            |                 |X             |         |              |
-KeyAgreement                | XDH                             |                 |X             |         |              |
-KeyEncapsulationMechanism   | ML-KEM-512                      |                 |X             |X        |[ML-KEM](#ml-kem)|
-KeyEncapsulationMechanism   | ML-KEM-768                      |                 |X             |X        |[ML-KEM](#ml-kem)|
-KeyEncapsulationMechanism   | ML-KEM-1024                     |                 |X             |X        |[ML-KEM](#ml-kem)|
-KeyFactory                  | DSA                             |X                |X             |         |              |
-KeyFactory                  | DiffieHellman                   |X                |X             |         |              |
-KeyFactory                  | EC                              |X                |X             |         |              |
-KeyFactory                  | Ed25519                         |                 |X             |         |              |
-KeyFactory                  | Ed448                           |                 |X             |         |              |
-KeyFactory                  | EdDSA                           |                 |X             |         |              |
-KeyFactory                  | ML-DSA-44                       |                 |X             |X        |[ML-DSA](#ml-dsa)|
-KeyFactory                  | ML-DSA-65                       |                 |X             |X        |[ML-DSA](#ml-dsa)|
-KeyFactory                  | ML-DSA-87                       |                 |X             |X        |[ML-DSA](#ml-dsa)|
-KeyFactory                  | ML-KEM-512                      |                 |X             |X        |[ML-KEM](#ml-kem)|
-KeyFactory                  | ML-KEM-768                      |                 |X             |X        |[ML-KEM](#ml-kem)|
-KeyFactory                  | ML-KEM-1024                     |                 |X             |X        |[ML-KEM](#ml-kem)|
-KeyFactory                  | RSA                             |X                |X             |         |              |
-KeyFactory                  | RSAPSS                          |X                |X             |         |              |
-KeyFactory                  | X25519                          |                 |X             |         |              |
-KeyFactory                  | X448                            |                 |X             |         |              |
-KeyFactory                  | XDH                             |                 |X             |         |              |
-KeyGenerator                | AES                             |X                |X             |         |              |
-KeyGenerator                | ChaCha20                        |                 |X             |         |              |
-KeyGenerator                | DESede                          |                 |X             |         |              |
-KeyGenerator                | HmacMD5                         |                 |X             |         |              |
-KeyGenerator                | HmacSHA1                        |                 |X             |         |              |
-KeyGenerator                | HmacSHA224                      |X                |X             |         |              |
-KeyGenerator                | HmacSHA256                      |X                |X             |         |              |
-KeyGenerator                | HmacSHA3-224                    |X                |X             |         |              |
-KeyGenerator                | HmacSHA3-256                    |X                |X             |         |              |
-KeyGenerator                | HmacSHA3-384                    |X                |X             |         |              |
-KeyGenerator                | HmacSHA3-512                    |X                |X             |         |              |
-KeyGenerator                | HmacSHA384                      |X                |X             |         |              |
-KeyGenerator                | HmacSHA512                      |X                |X             |         |              |
-KeyGenerator                | SunTls12KeyMaterial             |X                |X             |         |              |
-KeyGenerator                | SunTls12MasterSecret            |X                |X             |         |              |
-KeyGenerator                | SunTls12Prf                     |X                |X             |         |              |
-KeyGenerator                | SunTls12RsaPremasterSecret      |X                |X             |         |              |
-KeyGenerator                | SunTlsKeyMaterial               |X                |X             |         |              |
-KeyGenerator                | SunTlsMasterSecret              |X                |X             |         |              |
-KeyGenerator                | SunTlsPrf                       |X                |X             |         |              |
-KeyGenerator                | SunTlsRsaPremasterSecret        |X                |X             |         |              |
-KeyGenerator                | kda-hkdf-with-sha1              |                 |X             |         |              |
-KeyGenerator                | kda-hkdf-with-sha224            |X                |X             |         |              |
-KeyGenerator                | kda-hkdf-with-sha256            |X                |X             |         |              |
-KeyGenerator                | kda-hkdf-with-sha384            |X                |X             |         |              |
-KeyGenerator                | kda-hkdf-with-sha512            |X                |X             |         |              |
-KeyPairGenerator            | DSA                             |                 |X             |         |              |
-KeyPairGenerator            | DiffieHellman                   |X                |X             |         |              |
-KeyPairGenerator            | EC                              |X                |X             |         |[ECKeyPairGenerator incorrect keysize](#eckeypairgenerator-incorrect-keysize)|
-KeyPairGenerator            | Ed25519                         |                 |X             |         |              |
-KeyPairGenerator            | Ed448                           |                 |X             |         |              |
-KeyPairGenerator            | EdDSA                           |                 |X             |         |              |
-KeyPairGenerator            | ML-DSA-44                       |                 |X             |X        |              |
-KeyPairGenerator            | ML-DSA-65                       |                 |X             |X        |              |
-KeyPairGenerator            | ML-DSA-87                       |                 |X             |X        |              |
-KeyPairGenerator            | ML-KEM-512                      |                 |X             |X        |[ML-KEM](#ml-kem)|
-KeyPairGenerator            | ML-KEM-768                      |                 |X             |X        |[ML-KEM](#ml-kem)|
-KeyPairGenerator            | ML-KEM-1024                     |                 |X             |X        |[ML-KEM](#ml-kem)|
-KeyPairGenerator            | RSA                             |X                |X             |         |              |
-KeyPairGenerator            | RSAPSS                          |X                |X             |         |              |
-KeyPairGenerator            | X25519                          |                 |X             |         |              |
-KeyPairGenerator            | X448                            |                 |X             |         |              |
-KeyPairGenerator            | XDH                             |                 |X             |         |              |
-KeyWrap                     | AES/KW/NoPadding                |X                |X             |         |[AESKW](#AESKW)|
-KeyWrap                     | AES/KWP/NoPadding               |X                |X             |         |[AESKW](#AESKW)|
-Mac                         | HmacMD5                         |                 |X             |         |              |
-Mac                         | HmacSHA1                        |                 |X             |         |              |
-Mac                         | HmacSHA224                      |X                |X             |         |              |
-Mac                         | HmacSHA256                      |X                |X             |         |              |
-Mac                         | HmacSHA3-224                    |X                |X             |         |              |
-Mac                         | HmacSHA3-256                    |X                |X             |         |              |
-Mac                         | HmacSHA3-384                    |X                |X             |         |              |
-Mac                         | HmacSHA3-512                    |X                |X             |         |              |
-Mac                         | HmacSHA384                      |X                |X             |         |              |
-Mac                         | HmacSHA512                      |X                |X             |         |              |
-Mac                         | PBEWithHmacSHA1                 |                 |X             |         |              |
-Mac                         | PBEWithHmacSHA224               |                 |X             |         |              |
-Mac                         | PBEWithHmacSHA256               |                 |X             |         |              |
-Mac                         | PBEWithHmacSHA384               |X                |X             |         |              |
-Mac                         | PBEWithHmacSHA512               |X                |X             |         |              |
-Mac                         | PBEWithHmacSHA512/224           |X                |X             |         |              |
-Mac                         | PBEWithHmacSHA512/256           |X                |X             |         |              |
-MessageDigest               | MD5                             |X                |X             |X        |              |
-MessageDigest               | SHA-1                           |X                |X             |X        |              |
-MessageDigest               | SHA-224                         |X                |X             |X        |              |
-MessageDigest               | SHA-256                         |X                |X             |X        |              |
-MessageDigest               | SHA-384                         |X                |X             |X        |              |
-MessageDigest               | SHA-512                         |X                |X             |X        |              |
-MessageDigest               | SHA-512/224                     |X                |X             |X        |              |
-MessageDigest               | SHA-512/256                     |X                |X             |X        |              |
-MessageDigest               | SHA3-224                        |X                |X             |X        |              |
-MessageDigest               | SHA3-256                        |X                |X             |X        |              |
-MessageDigest               | SHA3-384                        |X                |X             |X        |              |
-MessageDigest               | SHA3-512                        |X                |X             |X        |              |
-SecretKeyFactory            | AES                             |X                |X             |         |              |
-SecretKeyFactory            | ChaCha20                        |                 |X             |         |              |
-SecretKeyFactory            | DESede                          |                 |X             |         |              |
-SecretKeyFactory            | PBKDF2WithHmacSHA1              |                 |X             |         |              |
-SecretKeyFactory            | PBKDF2WithHmacSHA224            |X                |X             |         |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
-SecretKeyFactory            | PBKDF2WithHmacSHA256            |X                |X             |         |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
-SecretKeyFactory            | PBKDF2WithHmacSHA384            |X                |X             |         |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
-SecretKeyFactory            | PBKDF2WithHmacSHA512            |X                |X             |         |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
-SecretKeyFactory            | PBKDF2WithHmacSHA512/224        |                 |X             |         |              |
-SecretKeyFactory            | PBKDF2WithHmacSHA512/256        |                 |X             |         |              |
-SecretKeyFactory            | PBEWithSHA1AndDESede            |                 |X             |         |              |
-SecretKeyFactory            | PBEWithSHA1AndRC2_40            |                 |X             |         |              |
-SecretKeyFactory            | PBEWithSHA1AndRC2_128           |                 |X             |         |              |
-SecretKeyFactory            | PBEWithSHA1AndRC4_40            |                 |X             |         |              |
-SecretKeyFactory            | PBEWithSHA1AndRC4_128           |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA1AndAES_128       |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA1AndAES_256       |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA224AndAES_128     |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA224AndAES_256     |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA256AndAES_128     |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA256AndAES_256     |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA384AndAES_128     |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA384AndAES_256     |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA512AndAES_128     |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA512AndAES_256     |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA512/224AndAES_128 |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA512/224AndAES_256 |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA512/256AndAES_128 |                 |X             |         |              |
-SecretKeyFactory            | PBEWithHmacSHA512/256AndAES_256 |                 |X             |         |              |
-SecureRandom                | SHA256DRBG                      |X                |X             |X        |              |
-SecureRandom                | SHA512DRBG                      |X                |X             |X        |              |
-Signature                   | Ed25519                         |                 |X             |         |              |
-Signature                   | Ed448                           |                 |X             |         |              |
-Signature                   | EdDSA                           |X                |X             |         |              |
-Signature                   | ML-DSA-44                       |                 |X             |X        |[ML-DSA](#ml-dsa)|
-Signature                   | ML-DSA-65                       |                 |X             |X        |[ML-DSA](#ml-dsa)|
-Signature                   | ML-DSA-87                       |                 |X             |X        |[ML-DSA](#ml-dsa)|
-Signature                   | NONEwithDSA                     |X                |X             |         |              |
-Signature                   | NONEwithECDSA                   |X                |X             |         |              |
-Signature                   | NONEwithRSA                     |X                |X             |         |              |
-Signature                   | RSAPSS                          |X                |X             |         |              |
-Signature                   | RSAforSSL                       |X                |X             |         |              |
-Signature                   | SHA1withDSA                     |                 |X             |         |              |
-Signature                   | SHA1withECDSA                   |                 |X             |         |              |
-Signature                   | SHA1withRSA                     |X                |X             |         |              |
-Signature                   | SHA224withDSA                   |X                |X             |         |              |
-Signature                   | SHA224withECDSA                 |X                |X             |         |              |
-Signature                   | SHA224withRSA                   |X                |X             |         |              |
-Signature                   | SHA256withDSA                   |X                |X             |         |              |
-Signature                   | SHA256withECDSA                 |X                |X             |         |              |
-Signature                   | SHA256withRSA                   |X                |X             |         |              |
-Signature                   | SHA3-224withDSA                 |                 |X             |         |              |
-Signature                   | SHA3-224withECDSA               |                 |X             |         |              |
-Signature                   | SHA3-224withRSA                 |                 |X             |         |              |
-Signature                   | SHA3-256withDSA                 |                 |X             |         |              |
-Signature                   | SHA3-256withECDSA               |                 |X             |         |              |
-Signature                   | SHA3-256withRSA                 |                 |X             |         |              |
-Signature                   | SHA3-384withDSA                 |                 |X             |         |              |
-Signature                   | SHA3-384withECDSA               |                 |X             |         |              |
-Signature                   | SHA3-384withRSA                 |                 |X             |         |              |
-Signature                   | SHA3-512withDSA                 |                 |X             |         |              |
-Signature                   | SHA3-512withECDSA               |                 |X             |         |              |
-Signature                   | SHA3-512withRSA                 |                 |X             |         |              |
-Signature                   | SHA384withECDSA                 |X                |X             |         |              |
-Signature                   | SHA384withRSA                   |X                |X             |         |              |
-Signature                   | SHA512withECDSA                 |X                |X             |         |              |
-Signature                   | SHA512withRSA                   |X                |X             |         |              |
+| Algorithm Type            | Algorithm Name                  | OpenJCEPlusFIPS (default) | OpenJCEPlus (default) | OCKC Support | OpenSSL Support | Notes        |
+| --------------------------|---------------------------------|---------------------------|-----------------------|--------------|-----------------|--------------|
+AlgorithmParameterGenerator |   CCM                             | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameterGenerator |   DSA                             |                 | OCKC                   | X   |         |              |
+AlgorithmParameterGenerator |   DiffieHellman                   | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameterGenerator |   EC                              | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameterGenerator |   GCM                             | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameters         |   AES                             | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameters         |   CCM                             | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameters         |   ChaCha20-Poly1305               |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   DESede                          |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   DSA                             | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameters         |   DiffieHellman                   | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameters         |   EC                              | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameters         |   GCM                             | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameters         |   OAEP                            | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameters         |   RSAPSS                          | OCKC             | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithSHA1AndDESede            |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithSHA1AndRC2_40            |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithSHA1AndRC2_128           |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithSHA1AndRC4_40            |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithSHA1AndRC4_128           |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA1AndAES_128       |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA1AndAES_256       |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA224AndAES_128     |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA224AndAES_256     |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA256AndAES_128     |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA256AndAES_256     |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA384AndAES_128     |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA384AndAES_256     |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA512AndAES_128     |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA512AndAES_256     |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA512/224AndAES_128 |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA512/224AndAES_256 |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA512/256AndAES_128 |                 | OCKC                   | X   |         |              |
+AlgorithmParameters         |   PBEWithHmacSHA512/256AndAES_256 |                 | OCKC                   | X   |         |              |
+Cipher                      |   AES                             | OCKC             | OCKC                   | X   |         |              |
+Cipher                      |   AES/CCM/NoPadding               | OCKC             | OCKC                   | X   |         |              |
+Cipher                      |   AES/GCM/NoPadding               | OCKC             | OCKC                   | X   |         |              |
+Cipher                      |   ChaCha20                        |                 | OCKC                   | X   |         |              |
+Cipher                      |   ChaCha20-Poly1305               |                 | OCKC                   | X   |         |              |
+Cipher                      |   DESede                          |                 | OCKC                   | X   |         |              |
+Cipher                      |   RSA                             | OCKC             | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithSHA1AndDESede            |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithSHA1AndRC2_40            |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithSHA1AndRC2_128           |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithSHA1AndRC4_40            |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithSHA1AndRC4_128           |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA1AndAES_128       |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA1AndAES_256       |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA224AndAES_128     |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA224AndAES_256     |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA256AndAES_128     |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA256AndAES_256     |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA384AndAES_128     |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA384AndAES_256     |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA512AndAES_128     |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA512AndAES_256     |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA512/224AndAES_128 |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA512/224AndAES_256 |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA512/256AndAES_128 |                 | OCKC                   | X   |         |              |
+Cipher                      |   PBEWithHmacSHA512/256AndAES_256 |                 | OCKC                   | X   |         |              |
+KeyAgreement                |   DiffieHellman                   | OCKC             | OCKC                   | X   |         |              |
+KeyAgreement                |   ECDH                            | OCKC             | OCKC                   | X   |         |              |
+KeyAgreement                |   X25519                          |                 | OCKC                   | X   |         |              |
+KeyAgreement                |   X448                            |                 | OCKC                   | X   |         |              |
+KeyAgreement                |   XDH                             |                 | OCKC                   | X   |         |              |
+KeyEncapsulationMechanism   |   ML-KEM-512                      |                 | OCKC                  | X   | X       |[ML-KEM](#ml-kem)|
+KeyEncapsulationMechanism   |   ML-KEM-768                      |                 | OCKC                  | X   | X       |[ML-KEM](#ml-kem)|
+KeyEncapsulationMechanism   |   ML-KEM-1024                     |                 | OCKC                  | X   | X       |[ML-KEM](#ml-kem)|
+KeyFactory                  |   DSA                             | OCKC             | OCKC                   | X   |         |              |
+KeyFactory                  |   DiffieHellman                   | OCKC             | OCKC                   | X   |         |              |
+KeyFactory                  |   EC                              | OCKC             | OCKC                   | X   |         |              |
+KeyFactory                  |   Ed25519                         |                 | OCKC                   | X   |         |              |
+KeyFactory                  |   Ed448                           |                 | OCKC                   | X   |         |              |
+KeyFactory                  |   EdDSA                           |                 | OCKC                   | X   |         |              |
+KeyFactory                  |   ML-DSA-44                       |                 | OCKC                  | X   | X       |[ML-DSA](#ml-dsa)|
+KeyFactory                  |   ML-DSA-65                       |                 | OCKC                  | X   | X       |[ML-DSA](#ml-dsa)|
+KeyFactory                  |   ML-DSA-87                       |                 | OCKC                  | X   | X       |[ML-DSA](#ml-dsa)|
+KeyFactory                  |   ML-KEM-512                      |                 | OCKC                  | X   | X       |[ML-KEM](#ml-kem)|
+KeyFactory                  |   ML-KEM-768                      |                 | OCKC                  | X   | X       |[ML-KEM](#ml-kem)|
+KeyFactory                  |   ML-KEM-1024                     |                 | OCKC                  | X   | X       |[ML-KEM](#ml-kem)|
+KeyFactory                  |   RSA                             | OCKC             | OCKC                   | X   |         |              |
+KeyFactory                  |   RSAPSS                          | OCKC             | OCKC                   | X   |         |              |
+KeyFactory                  |   X25519                          |                 | OCKC                   | X   |         |              |
+KeyFactory                  |   X448                            |                 | OCKC                   | X   |         |              |
+KeyFactory                  |   XDH                             |                 | OCKC                   | X   |         |              |
+KeyGenerator                |   AES                             | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   ChaCha20                        |                 | OCKC                   | X   |         |              |
+KeyGenerator                |   DESede                          |                 | OCKC                   | X   |         |              |
+KeyGenerator                |   HmacMD5                         |                 | OCKC                   | X   |         |              |
+KeyGenerator                |   HmacSHA1                        |                 | OCKC                   | X   |         |              |
+KeyGenerator                |   HmacSHA224                      | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   HmacSHA256                      | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   HmacSHA3-224                    | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   HmacSHA3-256                    | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   HmacSHA3-384                    | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   HmacSHA3-512                    | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   HmacSHA384                      | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   HmacSHA512                      | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   SunTls12KeyMaterial             | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   SunTls12MasterSecret            | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   SunTls12Prf                     | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   SunTls12RsaPremasterSecret      | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   SunTlsKeyMaterial               | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   SunTlsMasterSecret              | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   SunTlsPrf                       | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   SunTlsRsaPremasterSecret        | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   kda-hkdf-with-sha1              |                 | OCKC                   | X   |         |              |
+KeyGenerator                |   kda-hkdf-with-sha224            | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   kda-hkdf-with-sha256            | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   kda-hkdf-with-sha384            | OCKC             | OCKC                   | X   |         |              |
+KeyGenerator                |   kda-hkdf-with-sha512            | OCKC             | OCKC                   | X   |         |              |
+KeyPairGenerator            |   DSA                             |                 | OCKC                   | X   |         |              |
+KeyPairGenerator            |   DiffieHellman                   | OCKC             | OCKC                   | X   |         |              |
+KeyPairGenerator            |   EC                              | OCKC             | OCKC                   | X   |         |[ECKeyPairGenerator incorrect keysize](#eckeypairgenerator-incorrect-keysize)|
+KeyPairGenerator            |   Ed25519                         |                 | OCKC                   | X   |         |              |
+KeyPairGenerator            |   Ed448                           |                 | OCKC                   | X   |         |              |
+KeyPairGenerator            |   EdDSA                           |                 | OCKC                   | X   |         |              |
+KeyPairGenerator            |   ML-DSA-44                       |                 | OCKC                  | X   | X       |              |
+KeyPairGenerator            |   ML-DSA-65                       |                 | OCKC                  | X   | X       |              |
+KeyPairGenerator            |   ML-DSA-87                       |                 | OCKC                  | X   | X       |              |
+KeyPairGenerator            |   ML-KEM-512                      |                 | OCKC                  | X   | X       |[ML-KEM](#ml-kem)|
+KeyPairGenerator            |   ML-KEM-768                      |                 | OCKC                  | X   | X       |[ML-KEM](#ml-kem)|
+KeyPairGenerator            |   ML-KEM-1024                     |                 | OCKC                  | X   | X       |[ML-KEM](#ml-kem)|
+KeyPairGenerator            |   RSA                             | OCKC             | OCKC                   | X   |         |              |
+KeyPairGenerator            |   RSAPSS                          | OCKC             | OCKC                   | X   |         |              |
+KeyPairGenerator            |   X25519                          |                 | OCKC                   | X   |         |              |
+KeyPairGenerator            |   X448                            |                 | OCKC                   | X   |         |              |
+KeyPairGenerator            |   XDH                             |                 | OCKC                   | X   |         |              |
+KeyWrap                     |   AES/KW/NoPadding                | OCKC             | OCKC                   | X   |         |[AESKW](#AESKW)|
+KeyWrap                     |   AES/KWP/NoPadding               | OCKC             | OCKC                   | X   |         |[AESKW](#AESKW)|
+Mac                         |   HmacMD5                         |                 | OCKC                   | X   |         |              |
+Mac                         |   HmacSHA1                        |                 | OCKC                   | X   |         |              |
+Mac                         |   HmacSHA224                      | OCKC             | OCKC                   | X   |         |              |
+Mac                         |   HmacSHA256                      | OCKC             | OCKC                   | X   |         |              |
+Mac                         |   HmacSHA3-224                    | OCKC             | OCKC                   | X   |         |              |
+Mac                         |   HmacSHA3-256                    | OCKC             | OCKC                   | X   |         |              |
+Mac                         |   HmacSHA3-384                    | OCKC             | OCKC                   | X   |         |              |
+Mac                         |   HmacSHA3-512                    | OCKC             | OCKC                   | X   |         |              |
+Mac                         |   HmacSHA384                      | OCKC             | OCKC                   | X   |         |              |
+Mac                         |   HmacSHA512                      | OCKC             | OCKC                   | X   |         |              |
+Mac                         |   PBEWithHmacSHA1                 |                 | OCKC                   | X   |         |              |
+Mac                         |   PBEWithHmacSHA224               |                 | OCKC                   | X   |         |              |
+Mac                         |   PBEWithHmacSHA256               |                 | OCKC                   | X   |         |              |
+Mac                         |   PBEWithHmacSHA384               | OCKC             | OCKC                   | X   |         |              |
+Mac                         |   PBEWithHmacSHA512               | OCKC             | OCKC                   | X   |         |              |
+Mac                         |   PBEWithHmacSHA512/224           | OCKC             | OCKC                   | X   |         |              |
+Mac                         |   PBEWithHmacSHA512/256           | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   MD5                             | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   SHA-1                           | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   SHA-224                         | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   SHA-256                         | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   SHA-384                         | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   SHA-512                         | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   SHA-512/224                     | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   SHA-512/256                     | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   SHA3-224                        | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   SHA3-256                        | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   SHA3-384                        | OCKC             | OCKC                   | X   |         |              |
+MessageDigest               |   SHA3-512                        | OCKC             | OCKC                   | X   |         |              |
+SecretKeyFactory            |   AES                             | OCKC             | OCKC                   | X   |         |              |
+SecretKeyFactory            |   ChaCha20                        |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   DESede                          |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBKDF2WithHmacSHA1              |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBKDF2WithHmacSHA224            | OCKC             | OCKC                   | X   |         |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
+SecretKeyFactory            |   PBKDF2WithHmacSHA256            | OCKC             | OCKC                   | X   |         |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
+SecretKeyFactory            |   PBKDF2WithHmacSHA384            | OCKC             | OCKC                   | X   |         |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
+SecretKeyFactory            |   PBKDF2WithHmacSHA512            | OCKC             | OCKC                   | X   |         |[PBKDF2 FIPS restrictions](#pbkdf2-fips-restrictions)|
+SecretKeyFactory            |   PBKDF2WithHmacSHA512/224        |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBKDF2WithHmacSHA512/256        |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithSHA1AndDESede            |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithSHA1AndRC2_40            |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithSHA1AndRC2_128           |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithSHA1AndRC4_40            |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithSHA1AndRC4_128           |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA1AndAES_128       |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA1AndAES_256       |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA224AndAES_128     |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA224AndAES_256     |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA256AndAES_128     |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA256AndAES_256     |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA384AndAES_128     |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA384AndAES_256     |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA512AndAES_128     |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA512AndAES_256     |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA512/224AndAES_128 |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA512/224AndAES_256 |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA512/256AndAES_128 |                 | OCKC                   | X   |         |              |
+SecretKeyFactory            |   PBEWithHmacSHA512/256AndAES_256 |                 | OCKC                   | X   |         |              |
+SecureRandom                |   SHA256DRBG                      | OCKC             | OCKC                   | X   |         |              |
+SecureRandom                |   SHA512DRBG                      | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   Ed25519                         |                 | OCKC                   | X   |         |              |
+Signature                   |   Ed448                           |                 | OCKC                   | X   |         |              |
+Signature                   |   EdDSA                           | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   ML-DSA-44                       |                 | OCKC                  | X   | X       |[ML-DSA](#ml-dsa)|
+Signature                   |   ML-DSA-65                       |                 | OCKC                  | X   | X       |[ML-DSA](#ml-dsa)|
+Signature                   |   ML-DSA-87                       |                 | OCKC                  | X   | X       |[ML-DSA](#ml-dsa)|
+Signature                   |   NONEwithDSA                     | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   NONEwithECDSA                   | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   NONEwithRSA                     | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   RSAPSS                          | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   RSAforSSL                       | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   SHA1withDSA                     |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA1withECDSA                   |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA1withRSA                     | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   SHA224withDSA                   | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   SHA224withECDSA                 | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   SHA224withRSA                   | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   SHA256withDSA                   | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   SHA256withECDSA                 | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   SHA256withRSA                   | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   SHA3-224withDSA                 |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA3-224withECDSA               |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA3-224withRSA                 |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA3-256withDSA                 |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA3-256withECDSA               |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA3-256withRSA                 |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA3-384withDSA                 |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA3-384withECDSA               |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA3-384withRSA                 |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA3-512withDSA                 |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA3-512withECDSA               |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA3-512withRSA                 |                 | OCKC                   | X   |         |              |
+Signature                   |   SHA384withECDSA                 | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   SHA384withRSA                   | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   SHA512withECDSA                 | OCKC             | OCKC                   | X   |         |              |
+Signature                   |   SHA512withRSA                   | OCKC             | OCKC                   | X   |         |              |
 
 ## Algorithm Notes
 
