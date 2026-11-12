@@ -12,6 +12,7 @@ package com.ibm.crypto.plus.provider;
 import com.ibm.crypto.plus.provider.CurveUtil.CURVE;
 import com.ibm.crypto.plus.provider.base.NativeException;
 import com.ibm.crypto.plus.provider.base.XECKey;
+import java.lang.ref.Reference;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -121,6 +122,13 @@ abstract class XDHKeyAgreement extends KeyAgreementSpi {
             throw new IllegalStateException("Failed to generate secret", e);
         } catch (Exception e) {
             throw new InvalidKeyException("Failed to generate secret", e);
+        } finally {
+            // Fence on the inner pubic and private XECKeys. This ensures that GC does not prematurely
+            // cleanup the native keys that is in use in the above computeECDHSecret method call.
+            Reference.reachabilityFence(ockXecKeyPub);
+            Reference.reachabilityFence(ockXecKeyPriv);
+            Reference.reachabilityFence(xdhPublicKeyImpl);
+            Reference.reachabilityFence(key);
         }
 
         return null;

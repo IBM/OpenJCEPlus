@@ -9,6 +9,7 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import java.lang.ref.Reference;
 import java.security.InvalidKeyException;
 
 //------------------------------------------------------------------------------
@@ -71,8 +72,16 @@ public final class SignatureRSASSL {
         if (!validId(this.key.getRSAKeyId())) {
             throw new NativeException(badIdMsg);
         }
-        byte[] signature = this.nativeInterface.RSASSL_SIGNATURE_sign(digest,
+
+        byte[] signature = null;
+        try {
+            signature = this.nativeInterface.RSASSL_SIGNATURE_sign(digest,
                 this.key.getRSAKeyId());
+        } finally {
+            // Fence on the inner RSAKey. This ensures that GC does not prematurely
+            // cleanup the native key that is in use in the above RSASSL_SIGNATURE_sign method call.
+            Reference.reachabilityFence(this.key);
+        }
         //OCKDebug.Msg (debPrefix, methodName,  "signature :", signature);
         return signature;
     }
@@ -95,10 +104,17 @@ public final class SignatureRSASSL {
         //OCKDebug.Msg(debPrefix, methodName, "RSAKeyId :" + this.key.getRSAKeyId() + " digest", digest);
         //OCKDebug.Msg(debPrefix, methodName, "sigBytes :",  sigBytes);
 
-        boolean verified = this.nativeInterface.RSASSL_SIGNATURE_verify(digest,
-                this.key.getRSAKeyId(), sigBytes, convertKey);
-        if (!validId(this.key.getRSAKeyId())) {
-            throw new NativeException(badIdMsg);
+        boolean verified = false;
+        try {
+            verified = this.nativeInterface.RSASSL_SIGNATURE_verify(digest,
+                    this.key.getRSAKeyId(), sigBytes, convertKey);
+            if (!validId(this.key.getRSAKeyId())) {
+                throw new NativeException(badIdMsg);
+            }
+        } finally {
+            // Fence on the inner RSAKey. This ensures that GC does not prematurely
+            // cleanup the native key that is in use in the above RSASSL_SIGNATURE_verify method call.
+            Reference.reachabilityFence(this.key);
         }
         //OCKDebug.Msg(debPrefix, methodName, "verified=" + verified);
         return verified;

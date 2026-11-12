@@ -9,6 +9,7 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import java.lang.ref.Reference;
 import java.security.InvalidKeyException;
 
 /**
@@ -55,8 +56,16 @@ public final class SignatureDSANONE {
         if (!validId(this.key.getDSAKeyId())) {
             throw new NativeException(badIdMsg);
         }
-        byte[] signature = this.nativeInterface.DSANONE_SIGNATURE_sign(digest,
-                this.key.getDSAKeyId());
+
+        byte[] signature = null;
+        try {
+            signature = this.nativeInterface.DSANONE_SIGNATURE_sign(digest,
+                    this.key.getDSAKeyId());
+        } finally {
+            // Fence on the inner DSAKey. This ensures that GC does not prematurely
+            // cleanup the native key that is in use in the above DSANONE_SIGNATURE_sign method call.
+            Reference.reachabilityFence(this.key);
+        }
         //OCKDebug.Msg(debPrefix, methodName, "signature :", signature);
         return signature;
     }
@@ -81,8 +90,16 @@ public final class SignatureDSANONE {
         if (!validId(this.key.getDSAKeyId())) {
             throw new NativeException(badIdMsg);
         }
-        boolean verified = this.nativeInterface.DSANONE_SIGNATURE_verify(digest,
-                this.key.getDSAKeyId(), sigBytes);
+
+        boolean verified = false;
+        try {
+            verified = this.nativeInterface.DSANONE_SIGNATURE_verify(digest,
+                    this.key.getDSAKeyId(), sigBytes);
+        } finally {
+            // Fence on the inner DSAKey. This ensures that GC does not prematurely
+            // cleanup the native key that is in use in the above DSANONE_SIGNATURE_sign method call.
+            Reference.reachabilityFence(this.key);
+        }
         //        if (!verified) {
         //            OCKDebug.Msg (debPrefix, methodName, "Failed to verify signature.");
         //        }

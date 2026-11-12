@@ -14,6 +14,7 @@ import com.ibm.crypto.plus.provider.base.NativeCryptoSelector;
 import com.ibm.crypto.plus.provider.base.NativeException;
 import com.ibm.crypto.plus.provider.base.NativeInterface;
 import java.io.IOException;
+import java.lang.ref.Reference;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -159,6 +160,15 @@ public final class DHKeyAgreement extends KeyAgreementSpi {
             }
         } catch (NativeException e) {
             throw new IllegalStateException("engineGenerateSecret failed", e);
+        } finally {
+            // Fence on the inner DHKeys AND the wrapper objects that hold them.
+            // Fencing only ockDHKeyPub/ockDHKeyPriv is not enough: if the DHPublicKey/DHPrivateKey
+            // wrappers become unreachable before the JNI call returns, the GC can collect them
+            // and fire the cleaner (DHKEY_delete) on the same native key still in use.
+            Reference.reachabilityFence(ockDHKeyPub);
+            Reference.reachabilityFence(ockDHKeyPriv);
+            Reference.reachabilityFence(dhPublicKey);
+            Reference.reachabilityFence(dhPrivateKey);
         }
 
         // Make the computed secert compatible with  IBMJCE provider

@@ -9,6 +9,7 @@
 package com.ibm.crypto.plus.provider.base;
 
 import com.ibm.crypto.plus.provider.OpenJCEPlusProvider;
+import java.lang.ref.Reference;
 import java.security.InvalidKeyException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -80,9 +81,15 @@ public final class RSACipher {
         if (!validId(this.rsaKey.getRSAKeyId())) {
             throw new NativeException(badIdMsg);
         }
-        return checkOutLen(this.nativeInterface.RSACIPHER_public_encrypt(
-                this.rsaKey.getRSAKeyId(), padding.getId(), padding.getMessageDigest(),
-                padding.getMGF1Digest(), input, inOffset, inLen, output, outOffset));
+        try {
+            return checkOutLen(this.nativeInterface.RSACIPHER_public_encrypt(
+                    this.rsaKey.getRSAKeyId(), padding.getId(), padding.getMessageDigest(),
+                    padding.getMGF1Digest(), input, inOffset, inLen, output, outOffset));
+        } finally {
+            // Fence on the RSAKey wrapper. This ensures that GC does not prematurely
+            // cleanup the native key that is in use in the above RSACIPHER_public_encrypt call.
+            Reference.reachabilityFence(this.rsaKey);
+        }
     }
 
     public synchronized int privateEncrypt(RSAPadding padding, byte[] input, int inOffset,
@@ -96,9 +103,15 @@ public final class RSACipher {
         if (!validId(this.rsaKey.getRSAKeyId())) {
             throw new NativeException(badIdMsg);
         }
-        return checkOutLen(this.nativeInterface.RSACIPHER_private_encrypt(
-                this.rsaKey.getRSAKeyId(), padding.getId(), input, inOffset, inLen, output,
-                outOffset, convertKey));
+        try {
+            return checkOutLen(this.nativeInterface.RSACIPHER_private_encrypt(
+                    this.rsaKey.getRSAKeyId(), padding.getId(), input, inOffset, inLen, output,
+                    outOffset, convertKey));
+        } finally {
+            // Fence on the RSAKey wrapper. This ensures that GC does not prematurely
+            // cleanup the native key that is in use in the above RSACIPHER_private_encrypt call.
+            Reference.reachabilityFence(this.rsaKey);
+        }
     }
 
     public synchronized int publicDecrypt(RSAPadding padding, byte[] input, int inOffset, int inLen,
@@ -116,9 +129,15 @@ public final class RSACipher {
         if (!validId(this.rsaKey.getRSAKeyId())) {
             throw new NativeException(badIdMsg);
         }
-        return checkOutLen(this.nativeInterface.RSACIPHER_public_decrypt(
-                this.rsaKey.getRSAKeyId(), padding.getId(), input, inOffset, inLen, output,
-                outOffset));
+        try {
+            return checkOutLen(this.nativeInterface.RSACIPHER_public_decrypt(
+                    this.rsaKey.getRSAKeyId(), padding.getId(), input, inOffset, inLen, output,
+                    outOffset));
+        } finally {
+            // Fence on the RSAKey wrapper. This ensures that GC does not prematurely
+            // cleanup the native key that is in use in the above RSACIPHER_public_decrypt call.
+            Reference.reachabilityFence(this.rsaKey);
+        }
     }
 
     public synchronized int privateDecrypt(RSAPadding padding, byte[] input, int inOffset,
@@ -136,9 +155,15 @@ public final class RSACipher {
         if (!validId(this.rsaKey.getRSAKeyId())) {
             throw new NativeException(badIdMsg);
         }
-        return checkOutLen(this.nativeInterface.RSACIPHER_private_decrypt(
-                this.rsaKey.getRSAKeyId(), padding.getId(), padding.getMessageDigest(),
-                padding.getMGF1Digest(), input, inOffset, inLen, output, outOffset, convertKey));
+        try {
+            return checkOutLen(this.nativeInterface.RSACIPHER_private_decrypt(
+                    this.rsaKey.getRSAKeyId(), padding.getId(), padding.getMessageDigest(),
+                    padding.getMGF1Digest(), input, inOffset, inLen, output, outOffset, convertKey));
+        } finally {
+            // Fence on the RSAKey wrapper. This ensures that GC does not prematurely
+            // cleanup the native key that is in use in the above RSACIPHER_private_decrypt call.
+            Reference.reachabilityFence(this.rsaKey);
+        }
     }
 
     private void checkInputRange(byte[] input, int offset, int length) {
