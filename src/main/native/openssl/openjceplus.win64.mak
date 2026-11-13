@@ -21,6 +21,7 @@ OBJS= \
 	$(HOSTOUT)/Random.obj \
 	$(HOSTOUT)/SharedJNIUtils.obj \
 	$(HOSTOUT)/SignaturePQC.obj \
+	$(HOSTOUT)/XECKey.obj \
 	$(HOSTOUT)/StaticStub.obj \
 	$(HOSTOUT)/Utils.obj
 

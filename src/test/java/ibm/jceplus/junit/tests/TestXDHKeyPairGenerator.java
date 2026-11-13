@@ -26,8 +26,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import sun.security.util.InternalPrivateKey;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_OCK_NAME)
+@Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
 @Tag(Tags.MULTITHREAD_NAME)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ParameterizedClass
@@ -59,26 +61,31 @@ public class TestXDHKeyPairGenerator extends BaseTest {
 
     @Test
     public void testXECKeyGen_FFDHE2048() throws Exception {
+        assumeFFDHESupported();
         doXECKeyGen(2048);
     }
 
     @Test
     public void testXECKeyGen_FFDHE3072() throws Exception {
+        assumeFFDHESupported();
         doXECKeyGen(3072);
     }
 
     @Test
     public void testXECKeyGen_FFDHE4096() throws Exception {
+        assumeFFDHESupported();
         doXECKeyGen(4096);
     }
 
     @Test
     public void testXECKeyGen_FFDHE6144() throws Exception {
+        assumeFFDHESupported();
         doXECKeyGen(6144);
     }
 
     @Test
     public void testXECKeyGen_FFDHE8192() throws Exception {
+        assumeFFDHESupported();
         doXECKeyGen(8192);
     }
 
@@ -163,11 +170,23 @@ public class TestXDHKeyPairGenerator extends BaseTest {
     public void testXECKeyGenCurves() throws Exception {
         generictestXECKeyGenCurve("X25519");
         generictestXECKeyGenCurve("X448");
+    }
+
+    @Test
+    public void testXECKeyGenCurvesFFDHE() throws Exception {
+        assumeFFDHESupported();
         generictestXECKeyGenCurve("FFDHE2048");
         generictestXECKeyGenCurve("FFDHE3072");
         generictestXECKeyGenCurve("FFDHE4096");
         generictestXECKeyGenCurve("FFDHE6144");
         generictestXECKeyGenCurve("FFDHE8192");
+    }
+
+    /**
+     * The OpenSSL backend only implements X25519 and X448, not the FFDHE groups.
+     */
+    private void assumeFFDHESupported() {
+        assumeFalse(provider == TestProvider.OpenJCEPlus_OpenSSL, "FFDHE is not supported by the OpenSSL backend");
     }
 
     protected void generictestXECKeyGenCurve(String curveName) throws Exception {

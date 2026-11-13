@@ -21,6 +21,7 @@ OBJS= \
 	Random.obj \
 	SharedJNIUtils.obj \
 	SignaturePQC.obj \
+	XECKey.obj \
 	StaticStub.obj \
 	Utils.obj
 
