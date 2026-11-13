@@ -23,8 +23,8 @@ import org.junit.jupiter.params.provider.MethodSource;
  *       direction.</li>
  * </ol>
  *
- * <p>OpenSSL is not available on z/OS; the factory method returns an empty stream there,
- * so no test cases will be generated on that platform.
+ * <p>OpenSSL is not available on z/OS; the factory method aborts with a failed assumption
+ * there, so the tests are skipped on that platform.
  */
 @Tag(Tags.OPENJCEPLUS_OCK_NAME)
 @Tag(Tags.OPENJCEPLUS_OPENSSL_NAME)
