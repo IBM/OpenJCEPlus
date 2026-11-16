@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -22,19 +22,33 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import sun.security.util.InternalPrivateKey;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestECKeyPairGenerator extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestECKeyPairGenerator extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     KeyPairGenerator kpg = null;
     KeyPairGenerator kpgc = null;
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         kpg = KeyPairGenerator.getInstance("EC", getProviderName());
         kpgc = KeyPairGenerator.getInstance("EC", getProviderName());
     }

@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
@@ -31,79 +31,50 @@ import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.crypto.KeyAgreement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestECDH extends BaseTestJunit5 {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+public abstract class BaseTestECDH extends BaseTest {
 
-    static final byte[] origMsg = "this is the original message to be signed".getBytes();
-    static ECGenParameterSpec algParameterSpec_192r1, algParameterSpec_256r1;
+    @Parameter(0)
+    TestProvider provider;
 
-    static KeyPairGenerator kpgA = null;
-    static KeyPairGenerator kpgB = null;
+    protected abstract boolean isMulti();
 
-    static KeyPair keyPairA_192r1, keyPairA_256r1;
-    static KeyPair keyPairB_192r1, keyPairB_256r1;
+    // Shared key pairs with key format "<provider>/<curve>/<party>"
+    static final Map<String, KeyPair> globalKeyPairs = new HashMap<>();
 
-    private boolean isMulti = false;
-
-    static boolean generated = false;
-
-    public boolean isMulti() {
-        return isMulti;
-    }
-
-    public void setMulti(boolean isMulti) {
-        this.isMulti = isMulti;
-    }
-
-    synchronized static void generateParams(String provider_name) {
-        if (generated)
-            return;
-        try {
-
-            //String provider_name = "OpenJCEPlus";
-            String curveName_192r1 = "secp192r1";
-            String curveName_256r1 = "secp256r1";
-
-            algParameterSpec_192r1 = new ECGenParameterSpec(curveName_192r1);
-            algParameterSpec_256r1 = new ECGenParameterSpec(curveName_256r1);
-
-            kpgA = KeyPairGenerator.getInstance("EC", provider_name);
-            kpgA.initialize(algParameterSpec_192r1);
-            keyPairA_192r1 = kpgA.generateKeyPair();
-            kpgA.initialize(algParameterSpec_256r1);
-            keyPairA_256r1 = kpgA.generateKeyPair();
-
-            kpgB = KeyPairGenerator.getInstance("EC", provider_name);
-            kpgB.initialize(algParameterSpec_192r1);
-            keyPairB_192r1 = kpgB.generateKeyPair();
-            kpgB.initialize(algParameterSpec_256r1);
-            keyPairB_256r1 = kpgB.generateKeyPair();
-
-            generated = true;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (NoSuchProviderException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+    static synchronized KeyPair getGlobalKeyPair(String providerName, String curveName,
+            String party) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException,
+            NoSuchProviderException {
+        String id = providerName + "/" + curveName + "/" + party;
+        KeyPair keyPair = globalKeyPairs.get(id);
+        if (keyPair == null) {
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC", providerName);
+            kpg.initialize(new ECGenParameterSpec(curveName));
+            keyPair = kpg.generateKeyPair();
+            globalKeyPairs.put(id, keyPair);
         }
+        return keyPair;
     }
 
     @BeforeEach
-    public void setUp() {
-        generateParams(getProviderName());
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
     }
 
     /**
@@ -119,8 +90,8 @@ public class BaseTestECDH extends BaseTestJunit5 {
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
 
         compute_ecdh_key(curveName, ecgn);
-        if (isMulti)
-            compute_ecdh_key_with_global_key(curveName, algParameterSpec_192r1);
+        if (isMulti())
+            compute_ecdh_key_with_global_key(curveName);
 
     }
 
@@ -132,8 +103,8 @@ public class BaseTestECDH extends BaseTestJunit5 {
         ECGenParameterSpec ecgn = new ECGenParameterSpec(curveName);
 
         compute_ecdh_key(curveName, ecgn);
-        if (isMulti)
-            compute_ecdh_key_with_global_key(curveName, algParameterSpec_256r1);
+        if (isMulti())
+            compute_ecdh_key_with_global_key(curveName);
 
     }
 
@@ -342,22 +313,12 @@ public class BaseTestECDH extends BaseTestJunit5 {
         }
     }
 
-    void compute_ecdh_key_with_global_key(String idString, AlgorithmParameterSpec algParameterSpec)
+    void compute_ecdh_key_with_global_key(String idString)
             throws NoSuchAlgorithmException, InvalidAlgorithmParameterException,
             NoSuchProviderException, InvalidKeyException {
         final String methodName = "compute_ecdh_key_with_global_key" + "_" + idString;
-        KeyPair keyPairA = null, keyPairB = null;
-        switch (idString) {
-            case "secp192r1":
-                keyPairA = keyPairA_192r1;
-                keyPairB = keyPairB_192r1;
-                break;
-
-            case "secp256r1":
-                keyPairA = keyPairA_256r1;
-                keyPairB = keyPairB_256r1;
-                break;
-        }
+        KeyPair keyPairA = getGlobalKeyPair(getProviderName(), idString, "A");
+        KeyPair keyPairB = getGlobalKeyPair(getProviderName(), idString, "B");
 
         // set up
         KeyAgreement keyAgreeA = null;
