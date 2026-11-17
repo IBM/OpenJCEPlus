@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.provider.Arguments;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 /**
  * Utility class for generating test parameter variations.
@@ -94,14 +95,16 @@ public class TestArguments {
      * Both slots ({@code interopProvider} and {@code interopProvider2}) are set to the
      * same value so that all tests in {@code BaseTestPQCKeyInterop} - which use slot 1
      * for ML-KEM and slot 2 for ML-DSA - run against the opposite backend.
-     * Returns an empty stream on z/OS where OpenSSL is not available.
+     * Skips the tests (via a failed assumption) on z/OS where OpenSSL is not available.
      *
      * @return Stream of cross-backend Arguments triples
      */
     protected static Stream<Arguments> getOCKAndOpenSSLCrossBackendProviders(Set<String> providers) {
-        if (System.getProperty("os.name", "").contains("z/OS")) {
-            return Stream.empty();
+        boolean zos = System.getProperty("os.name", "").contains("z/OS");
+        if (zos) {
+            System.out.println("Skipping tests, OpenSSL is not available on z/OS.");
         }
+        assumeFalse(zos, "OpenSSL is not available on z/OS");
         List<Arguments> arguments = new ArrayList<>();
         arguments.add(Arguments.of(TestProvider.OpenJCEPlus_OCK,
                 TestProvider.OpenJCEPlus_OpenSSL, TestProvider.OpenJCEPlus_OpenSSL));
@@ -122,14 +125,12 @@ public class TestArguments {
             }
         }
 
-        if (arguments.isEmpty()) {
-            throw new IllegalArgumentException("No test arguments, unlikely this is what was asked for.");
-        }
         return arguments.stream();
     }
 
     /**
      * Resolves enabled OpenJCEPlus* providers from -Dgroups, defaulting to all specified through tags, if none are specified.
+     * If no provider is enabled, the tests are skipped via a failed assumption.
      *
      * @return A stream of enabled TestProvider.
      */
@@ -162,6 +163,13 @@ public class TestArguments {
         if (System.getProperty("os.name", "").contains("z/OS")) {
             enabledProviders.removeIf(tp -> tp == TestProvider.OpenJCEPlus_OpenSSL);
         }
+
+        if (enabledProviders.isEmpty()) {
+            System.out.println("Skipping tests, no providers enabled. Tagged providers: "
+                    + taggedProviders + ", -Dgroups: " + String.join(",", groupPropertyTags));
+        }
+        assumeFalse(enabledProviders.isEmpty(),
+                "No providers enabled for the specified tags on this platform");
 
         return enabledProviders.stream();
     }
