@@ -6,16 +6,38 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class BaseTestECDSASignatureInterop2 extends BaseTestSignatureInterop {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithBCInteropProvider")
+public class TestECDSASignatureInteropBC extends BaseTestSignatureInterop {
+
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
+    }
 
     @Test
     public void testSHA1withDSA_192() throws Exception {
