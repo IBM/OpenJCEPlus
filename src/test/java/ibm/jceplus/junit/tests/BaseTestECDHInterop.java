@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestECDHInterop extends BaseTestJunit5Interop {
+public abstract class BaseTestECDHInterop extends BaseTestInterop {
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
 
