@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -15,35 +15,57 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.NamedParameterSpec;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestEdDSASignatureInterop extends BaseTestJunit5Interop {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getOpenJCEPlusWithBCInteropProvider")
+public class TestEdDSASignatureInterop extends BaseTestInterop {
+
+    @Parameter(0)
+    TestProvider provider;
+
+    @Parameter(1)
+    TestProvider interopProvider;
 
     static final byte[] origMsg = "this is the original message to be signed".getBytes();
     static final String EDDSA_ALG_NAME = "EdDSA";
 
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+        setAndInsertInteropProvider(interopProvider);
+    }
+
     @ParameterizedTest
     @MethodSource("testEdDSAArguments")
-    public void testEdDSA(String KeyPairAlg, byte[] message, String provider1, String provider2)
+    public void testEdDSA(String KeyPairAlg, byte[] message) throws Exception {
+        doTestEdDSA(KeyPairAlg, message, getProviderName(), getInteropProviderName());
+        doTestEdDSA(KeyPairAlg, message, getInteropProviderName(), getProviderName());
+    }
+
+    private static Stream<Arguments> testEdDSAArguments() {
+        return Stream.of(
+                Arguments.of("Ed25519", origMsg),
+                Arguments.of("Ed448", origMsg),
+                Arguments.of("Ed448", null),
+                Arguments.of("Ed25519", null));
+    }
+
+    public void doTestEdDSA(String KeyPairAlg, byte[] message, String provider1, String provider2)
             throws Exception {
         KeyPair keyPair = generateKeyPair(KeyPairAlg, provider1);
         byte[] signedMsg = doSign(message, keyPair.getPrivate(), provider1);
         doVerify(message, signedMsg, keyPair.getPublic(), provider2);
-    }
-
-    private Stream<Arguments> testEdDSAArguments() {
-        return Stream.of(
-                Arguments.of("Ed25519", origMsg, getProviderName(), getInteropProviderName()),
-                Arguments.of("Ed25519", origMsg, getInteropProviderName(), getProviderName()),
-                Arguments.of("Ed448", origMsg, getProviderName(), getInteropProviderName()),
-                Arguments.of("Ed448", origMsg, getInteropProviderName(), getProviderName()),
-                Arguments.of("Ed448", null, getProviderName(), getInteropProviderName()),
-                Arguments.of("Ed448", null, getInteropProviderName(), getProviderName()),
-                Arguments.of("Ed25519", null, getProviderName(), getInteropProviderName()),
-                Arguments.of("Ed25519", null, getInteropProviderName(), getProviderName()));
     }
 
     private KeyPair generateKeyPair(String alg, String providerName) throws Exception {
