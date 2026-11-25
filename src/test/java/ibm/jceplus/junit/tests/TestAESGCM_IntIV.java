@@ -10,7 +10,7 @@
  *  A test program to test AES-GCM Internal IV generation scenarios.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
@@ -23,14 +23,26 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestAESGCM_IntIV extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     private static final int DEFAULT_TAG_LENGTH = 128;
-
 
     private final static String RUN_FULL_TEST_SUITE = System.getProperty("run_full_test_suite",
             "false");
@@ -39,7 +51,6 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
             .getBytes();
 
     public static final String GENERATED_IV_MAX_INVOCATIONS_PLUS_ONE = "18446744073709551616";
-
 
     KeyGenerator aesKeyGen;
     SecretKey key;
@@ -50,6 +61,7 @@ public class BaseTestAESGCM_IntIV extends BaseTestJunit5 {
     @BeforeEach
     public void setUp() throws Exception {
 
+        setAndInsertProvider(provider);
         aesKeyGen = KeyGenerator.getInstance("AES", getProviderName());
 
         key = aesKeyGen.generateKey();

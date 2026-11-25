@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -41,15 +41,29 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestAESGCMUpdate extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
+
     private final static int GCM_IV_LENGTH = 12;
     private final static int GCM_TAG_LENGTH = 16;
     private static int ARRAY_OFFSET = 16;
-    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     protected KeyGenerator aesKeyGen;
     protected AlgorithmParameters params = null;
@@ -77,6 +91,7 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
 
     @BeforeEach
     public void setUp() throws Exception {
+        setAndInsertProvider(provider);
         aesKeyGen = KeyGenerator.getInstance("AES", getProviderName());
         if (specifiedKeySize > 0) {
             aesKeyGen.init(specifiedKeySize);
@@ -107,19 +122,6 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
         cipher.init(mode, sKey, ivSpec);
         return cipher;
-    }
-
-    private static String compressString(String original) {
-
-        return original;
-        /*
-        StringBuilder output = new StringBuilder();
-        for (int i = 0; i < original.length(); i++) {
-            String character = original.substring(i, i + 1);
-            if (output.indexOf(character) < 0) // if not contained
-                output.append(character);
-        }
-        return output.toString();*/
     }
 
     @Disabled
@@ -1305,17 +1307,5 @@ public class BaseTestAESGCMUpdate extends BaseTestJunit5 {
         System.arraycopy(part71, 0, outputText7, 0, len);
         System.arraycopy(part72, 0, outputText7, len, part72.length);
         return outputText7;
-    }
-
-    private static String bytesToHex(byte[] bytes) {
-        if (bytes == null)
-            return new String("-null-");
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
     }
 }

@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import ibm.security.internal.spec.CCMParameterSpec;
 import java.security.AlgorithmParameterGenerator;
@@ -15,27 +15,47 @@ import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class BaseTestAESCCMParameters extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestAESCCMParameters extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
+
     // Valid tagLen values in bits are 32, 48, 64, 80, 96, 112, 128
-    public static int tagLenMaximum = 128;
-    public static int tagLenMinimum = 32;
+    private static final int tagLenMaximum = 128;
+    private static final int tagLenMinimum = 32;
 
-    public static int tagLenGood = 128;
-    public static int tagLenBad = 79;
+    private static final int tagLenGood = 128;
+    private static final int tagLenBad = 79;
 
     // Valid IV buffer lengths in octets are 7 thru 13 inclusive.
-    public static byte[] ivBufferGood = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
+    private static final byte[] ivBufferGood = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
             (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09, (byte) 0x0a,
             (byte) 0x0b, (byte) 0x0c, (byte) 0x0d};
-    public static byte[] ivBufferBad = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
+    private static final byte[] ivBufferBad = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
             (byte) 0x05, (byte) 0x06};
 
-    public static int ivBufferOffsetGood = 0;
-    public static int ivBufferOffsetBad = 14;
+    private static int ivBufferOffsetGood = 0;
+    private static int ivBufferOffsetBad = 14;
 
-    private static Object myMutexObject = new Object();
+    private Object myMutexObject = new Object();
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
 
     @Test
     public void testAESCCMParameterSpec() {
@@ -43,7 +63,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "\n======================================================================");
             System.out.println(
-                    "BaseTestAESCCMParameters.java:  testAESCCMParameterSpec():  BEGIN TEST");
+                    "TestAESCCMParameters.java:  testAESCCMParameterSpec():  BEGIN TEST");
             System.out.println(
                     "======================================================================\n");
         }
@@ -210,7 +230,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "\n======================================================================");
             System.out.println(
-                    "BaseTestAESCCMParameters.java:  testAESCCMParameterSpec():  END TEST");
+                    "TestAESCCMParameters.java:  testAESCCMParameterSpec():  END TEST");
             System.out.println(
                     "======================================================================\n");
         }
@@ -227,7 +247,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "\n===================================================================");
             System.out
-                    .println("BaseTestAESCCMParameters.java:  testAESCCMParameters():  BEGIN TEST");
+                    .println("TestAESCCMParameters.java:  testAESCCMParameters():  BEGIN TEST");
             System.out.println(
                     "===================================================================\n");
         }
@@ -413,7 +433,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
         synchronized (myMutexObject) {
             System.out.println(
                     "\n==================================================================");
-            System.out.println("BaseTestAESCCMParameters.java:  testAESCCMParameters():  END TEST");
+            System.out.println("TestAESCCMParameters.java:  testAESCCMParameters():  END TEST");
             System.out.println(
                     "==================================================================\n");
         }
@@ -429,7 +449,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "\n==========================================================================");
             System.out.println(
-                    "BaseTestAESCCMParameters.java:  testAESCCMParameterGenerator():  BEGIN TEST");
+                    "TestAESCCMParameters.java:  testAESCCMParameterGenerator():  BEGIN TEST");
             System.out.println(
                     "==========================================================================\n");
         }
@@ -705,7 +725,7 @@ public class BaseTestAESCCMParameters extends BaseTestJunit5 {
             System.out.println(
                     "\n==========================================================================");
             System.out.println(
-                    "BaseTestAESCCMParameters.java:  testAESCCMParameterGenerator():  END TEST");
+                    "TestAESCCMParameters.java:  testAESCCMParameterGenerator():  END TEST");
             System.out.println(
                     "==========================================================================\n");
         }

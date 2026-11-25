@@ -6,34 +6,39 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.security.AlgorithmParameters;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /*
  * Run subset of KAT (Known-Answer Tests) from http://csrc.nist.gov/groups/STM/cavp/documents/mac/gcmtestvectors.zip
  */
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestAESGCM_ExtIV extends BaseTest {
 
-public class BaseTestAESGCM_ExtIV extends BaseTestJunit5 {
+    @Parameter(0)
+    TestProvider provider;
 
-
-    private KeyGenerator aesKeyGen = null;
-    private SecretKey key = null;
-    private AlgorithmParameters params = null;
     private Cipher cipher = null;
 
     private AlgorithmParameterSpec gcm_param_spec = null;
@@ -43,10 +48,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTestJunit5 {
     private static Method methGCMParameterSpecSetADD = null;
 
     private static Class<?> classAESGCMCipher = null;
-    private static Constructor<?> ctorAESGCMCipher = null;
     private static Method methAESGCMCipherUpdateAAD = null;
-
-    private static Method methCipherGetInstance = null;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -55,7 +57,7 @@ public class BaseTestAESGCM_ExtIV extends BaseTestJunit5 {
          * Try constructing a javax.crypto.spec.GCMParameterSpec instance (Java
          * 7+)
          */
-
+        setAndInsertProvider(provider);
         try {
             classGCMParameterSpec = Class.forName("javax.crypto.spec.GCMParameterSpec");
             ctorGCMParameterSpec = classGCMParameterSpec

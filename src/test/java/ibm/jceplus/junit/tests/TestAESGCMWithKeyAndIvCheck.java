@@ -6,7 +6,7 @@
  * this code, including the "Classpath" Exception described therein.
  */
 
-package ibm.jceplus.junit.base;
+package ibm.jceplus.junit.tests;
 
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -17,27 +17,55 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestAESGCMWithKeyAndIvCheck extends BaseTestJunit5 {
+@Tag(Tags.OPENJCEPLUS_NAME)
+@Tag(Tags.OPENJCEPLUS_FIPS_NAME)
+@Tag(Tags.MULTITHREAD_NAME)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ParameterizedClass
+@MethodSource("ibm.jceplus.junit.tests.TestArguments#getEnabledProviders")
+public class TestAESGCMWithKeyAndIvCheck extends BaseTest {
+
+    @Parameter(0)
+    TestProvider provider;
 
     private static final byte[] AAD = new byte[5];
     private static final byte[] PT = new byte[18];
     protected int specifiedKeySize = 16;
 
-    private void checkISE(Cipher c) throws Exception {
-        // Subsequent encryptions should fail
-        try {
-            c.updateAAD(AAD);
-            throw new Exception("Should throw ISE for updateAAD()");
-        } catch (IllegalStateException ise) {
-            // expected
-        }
+    @BeforeEach
+    public void setUp() throws Exception {
+        setAndInsertProvider(provider);
+    }
 
+    /*
+     * Used when the same key+iv was already used for one encryption,
+     * and the next encryption is attempted with the same key+iv.
+     *
+     * OpenJCEPlus checks for key+iv reuse when encryption starts, in
+     * update() or doFinal(). updateAAD() only buffers the AAD and has no
+     * check of its own, so it is not the first call that fails.
+     * update() fails first and sets the "re-init required" flag. After that,
+     * updateAAD() and doFinal() also throw ISE.
+     */
+    private void checkISE(Cipher c) throws Exception {
         try {
             c.update(PT);
             throw new Exception("Should throw ISE for update()");
+        } catch (IllegalStateException ise) {
+            // expected
+        }
+        try {
+            c.updateAAD(AAD);
+            throw new Exception("Should throw ISE for updateAAD() after failed reuse");
         } catch (IllegalStateException ise) {
             // expected
         }
@@ -46,6 +74,34 @@ public class BaseTestAESGCMWithKeyAndIvCheck extends BaseTestJunit5 {
             throw new Exception("Should throw ISE for doFinal()");
         } catch (IllegalStateException ise) {
             // expected
+        }
+    }
+
+    @Test
+    public void testParameterlessInitUsesNewIvEachTime() throws Exception {
+        Cipher c = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
+        SecretKey key = new SecretKeySpec(new byte[specifiedKeySize], "AES");
+        c.init(Cipher.ENCRYPT_MODE, key);
+
+        byte[] previousIv = null;
+        for (int i = 0; i < 3; i++) {
+            c.updateAAD(AAD);
+            byte[] ct = c.doFinal(PT); // must not throw ISE
+            byte[] iv = c.getIV();
+
+            if (previousIv != null && Arrays.equals(previousIv, iv)) {
+                throw new Exception("IV was reused in iteration " + i);
+            }
+            previousIv = iv;
+
+            // The ciphertext must decrypt with the IV that was used for it.
+            Cipher dec = Cipher.getInstance("AES/GCM/NoPadding", getProviderName());
+            dec.init(Cipher.DECRYPT_MODE, key, c.getParameters());
+            dec.updateAAD(AAD);
+            byte[] recovered = dec.doFinal(ct);
+            if (!Arrays.equals(recovered, PT)) {
+                throw new Exception("decryption result mismatch in iteration " + i);
+            }
         }
     }
 
@@ -59,8 +115,11 @@ public class BaseTestAESGCMWithKeyAndIvCheck extends BaseTestJunit5 {
         c.updateAAD(AAD);
         byte[] ctPlusTag = c.doFinal(PT);
 
-        // subsequent encryption should fail unless re-init w/ different key+iv
-        checkISE(c);
+        /**
+         * Parameter-less init: the provider generates the next IV itself, so a
+         * subsequent encryption is allowed (see
+         * testParameterlessInitUsesNewIvEachTime).
+         */
 
         // Validate the retrieved parameters against the IV and tag length.
         AlgorithmParameters params = c.getParameters();
